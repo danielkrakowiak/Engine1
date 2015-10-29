@@ -1,0 +1,811 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugDirect3D|Win32">
+      <Configuration>DebugDirect3D</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugDirect3D|x64">
+      <Configuration>DebugDirect3D</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{33E69B51-7F8C-4488-9124-857B8E476DFC}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Engine1</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
+    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;$(LibraryPath);F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
+    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;$(LibraryPath);F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
+    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;$(LibraryPath);F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
+    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;$(LibraryPath);F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
+    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;;F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
+    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;;F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG_DIRECT3D;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG_DIRECT3D;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\3DSHelper.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\3DSLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ACLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ASELoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ASEParser.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\assbin_chunks.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\AssimpPCH.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\B3DImporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BaseImporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BaseProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Bitmap.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderBMesh.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderDNA.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderIntermediate.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderModifier.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderScene.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderSceneGen.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderTessellator.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlobIOSystem.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\BVHLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ByteSwap.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\CalcTangentsProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\CInterfaceIOWrapper.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\COBLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\COBScene.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ColladaExporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ColladaHelper.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ColladaLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ColladaParser.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ComputeUVMappingProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ConvertToLHProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\CSMLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\DeboneProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\DefaultIOStream.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\DefaultIOSystem.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\DefaultProgressHandler.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\DXFHelper.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\DXFLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Exceptional.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\fast_atof.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXCompileConfig.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXConverter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXDocument.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXDocumentUtil.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXImporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXImportSettings.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXParser.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXProperties.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXTokenizer.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXUtil.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FileLogStream.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FileSystemFilter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FindDegenerates.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FindInstancesProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FindInvalidDataProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\FixNormalsStep.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\GenericProperty.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\GenFaceNormalsProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\GenVertexNormalsProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\HalfLifeFileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Hash.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\HMPFileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\HMPLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCReaderGen.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCUtil.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFF.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Importer.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ImproveCacheLocality.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\IRRLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\IRRMeshLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\IRRShared.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\irrXMLWrapper.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\JoinVerticesProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\LimitBoneWeightsProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\LineSplitter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\LogAux.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWOAnimation.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWOFileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWOLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWSLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MakeVerboseFormat.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MaterialSystem.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD2FileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD2Loader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD2NormalTable.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD3FileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD3Loader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD4FileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD5Loader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD5Parser.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDCFileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDCLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDCNormalTable.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDLDefaultColorMap.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDLFileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDLLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MemoryIOWrapper.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\MS3DLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\NDOLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\NFFLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjExporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjFileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjFileImporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjFileMtlImporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjFileParser.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjTools.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\OFFLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreBinarySerializer.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreImporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreParsingUtils.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreStructs.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreXmlSerializer.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\OptimizeGraph.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\OptimizeMeshes.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ParsingUtils.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\PlyExporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\PlyLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\PlyParser.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\PolyTools.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\PretransformVertices.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ProcessHelper.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Profiler.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3BSPFileData.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3BSPFileImporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3BSPFileParser.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3BSPZipArchive.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3DLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\qnan.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\RawLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\RemoveComments.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\RemoveRedundantMaterials.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\RemoveVCProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SceneCombiner.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ScenePreprocessor.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ScenePrivate.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SGSpatialSort.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SkeletonMeshBuilder.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SMDLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SmoothingGroups.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SortByPTypeProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SpatialSort.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SplitByBoneCountProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\SplitLargeMeshes.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\StandardShapes.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\StdOStreamLogStream.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\STEPFile.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\STEPFileEncoding.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\STEPFileReader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\STLExporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\STLLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\StreamReader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\StringComparison.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Subdivision.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\TargetAnimation.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\TerragenLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\TextureTransform.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\TinyFormatter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\TriangulateProcess.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\UnrealLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\ValidateDataStructure.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Vertex.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\VertexTriangleAdjacency.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\Win32DebugLogStream.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\XFileHelper.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\XFileImporter.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\XFileParser.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\code\XGLLoader.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\clipper\clipper.hpp" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\ConvertUTF\ConvertUTF.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\irrXML\CXMLReaderImpl.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\irrXML\heapsort.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\irrXML\irrArray.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\irrXML\irrString.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\irrXML\irrTypes.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\irrXML\irrXML.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\common\shapes.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\common\utils.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\sweep\advancing_front.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\sweep\cdt.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\sweep\sweep.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\sweep\sweep_context.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\unzip\crypt.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\unzip\ioapi.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\unzip\unzip.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\crc32.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\deflate.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\gzguts.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\inffast.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\inffixed.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\inflate.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\inftrees.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\trees.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zconf.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zlib.h" />
+    <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zutil.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="BasicAsset.h" />
+    <ClInclude Include="BlockMesh.h" />
+    <ClInclude Include="BlockMeshFragmentShader.h" />
+    <ClInclude Include="BlockMeshLOD.h" />
+    <ClInclude Include="BlockMeshVertexShader.h" />
+    <ClInclude Include="BlockModelFragmentShader.h" />
+    <ClInclude Include="BlockModelLOD.h" />
+    <ClInclude Include="BlockModelVertexShader.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ComplexModel.h" />
+    <ClInclude Include="Direct3DDefferedRenderer.h" />
+    <ClInclude Include="Direct3DRendererCore.h" />
+    <ClInclude Include="Direct3DUtil.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="FontLibrary.h" />
+    <ClInclude Include="ImageLibrary.h" />
+    <ClInclude Include="MyDAEFileParser.h" />
+    <ClInclude Include="Direct3DFrameRenderer.h" />
+    <ClInclude Include="float2.h" />
+    <ClInclude Include="float3.h" />
+    <ClInclude Include="float33.h" />
+    <ClInclude Include="float4.h" />
+    <ClInclude Include="float43.h" />
+    <ClInclude Include="float44.h" />
+    <ClInclude Include="Font.h" />
+    <ClInclude Include="FragmentShader.h" />
+    <ClInclude Include="FreeCamera.h" />
+    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="int2.h" />
+    <ClInclude Include="int3.h" />
+    <ClInclude Include="MathUtil.h" />
+    <ClInclude Include="BlockModel.h" />
+    <ClInclude Include="ModelTexture2D.h" />
+    <ClInclude Include="MyOBJFileParser.h" />
+    <ClInclude Include="MyXAFFileParser.h" />
+    <ClInclude Include="quat.h" />
+    <ClInclude Include="rapidxml.hpp" />
+    <ClInclude Include="rapidxml_iterators.hpp" />
+    <ClInclude Include="rapidxml_print.hpp" />
+    <ClInclude Include="rapidxml_utils.hpp" />
+    <ClInclude Include="RectangleMesh.h" />
+    <ClInclude Include="RenderTarget2D.h" />
+    <ClInclude Include="RenderTargetDepth2D.h" />
+    <ClInclude Include="RenderTargetDepthTexture2D.h" />
+    <ClInclude Include="RenderTargetTexture2D.h" />
+    <ClInclude Include="SkeletonAnimation.h" />
+    <ClInclude Include="SkeletonMesh.h" />
+    <ClInclude Include="SkeletonMeshEnums.h" />
+    <ClInclude Include="SkeletonMeshFragmentShader.h" />
+    <ClInclude Include="SkeletonMeshVertexShader.h" />
+    <ClInclude Include="SkeletonModel.h" />
+    <ClInclude Include="SkeletonPose.h" />
+    <ClInclude Include="StringUtil.h" />
+    <ClInclude Include="TextFragmentShader.h" />
+    <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="TextureFragmentShader.h" />
+    <ClInclude Include="TextureVertexShader.h" />
+    <ClInclude Include="TextVertexShader.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="uint2.h" />
+    <ClInclude Include="uint3.h" />
+    <ClInclude Include="VertexShader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\3DSConverter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\3DSLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ACLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ASELoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ASEParser.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Assimp.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\AssimpCExport.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\AssimpPCH.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\B3DImporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BaseImporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BaseProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Bitmap.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderBMesh.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderDNA.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderModifier.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderScene.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BlenderTessellator.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\BVHLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\CalcTangentsProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\COBLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ColladaExporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ColladaLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ColladaParser.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ComputeUVMappingProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ConvertToLHProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\CSMLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\DeboneProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\DefaultIOStream.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\DefaultIOSystem.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\DefaultLogger.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\DXFLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Exporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXAnimation.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXBinaryTokenizer.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXConverter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXDeformer.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXDocument.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXDocumentUtil.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXImporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXMaterial.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXMeshGeometry.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXModel.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXNodeAttribute.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXParser.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXProperties.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXTokenizer.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FBXUtil.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FindDegenerates.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FindInstancesProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FindInvalidDataProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\FixNormalsStep.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\GenFaceNormalsProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\GenVertexNormalsProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\HMPLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCBoolean.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCCurve.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCGeometry.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCMaterial.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCOpenings.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCProfile.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCReaderGen.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IFCUtil.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Importer.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ImporterRegistry.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ImproveCacheLocality.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IRRLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IRRMeshLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\IRRShared.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\JoinVerticesProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\LimitBoneWeightsProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWOAnimation.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWOBLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWOLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWOMaterial.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\LWSLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MakeVerboseFormat.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MaterialSystem.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD2Loader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD3Loader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD5Loader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MD5Parser.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDCLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDLLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MDLMaterialLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\MS3DLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\NDOLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\NFFLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjExporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjFileImporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjFileMtlImporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ObjFileParser.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\OFFLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreBinarySerializer.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreImporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreMaterial.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreStructs.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\OgreXmlSerializer.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\OptimizeGraph.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\OptimizeMeshes.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\PlyExporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\PlyLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\PlyParser.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\PostStepRegistry.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\PretransformVertices.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ProcessHelper.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3BSPFileImporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3BSPFileParser.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3BSPZipArchive.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Q3DLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\RawLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\RemoveComments.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\RemoveRedundantMaterials.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\RemoveVCProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\SceneCombiner.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ScenePreprocessor.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\SGSpatialSort.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\SkeletonMeshBuilder.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\SMDLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\SortByPTypeProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\SpatialSort.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\SplitByBoneCountProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\SplitLargeMeshes.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\StandardShapes.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\STEPFileEncoding.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\STEPFileReader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\STLExporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\STLLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\Subdivision.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\TargetAnimation.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\TerragenLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\TextureTransform.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\TriangulateProcess.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\UnrealLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\ValidateDataStructure.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\VertexTriangleAdjacency.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\XFileImporter.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\XFileParser.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\code\XGLLoader.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\clipper\clipper.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\ConvertUTF\ConvertUTF.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\irrXML\irrXML.cpp" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\common\shapes.cc" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\sweep\advancing_front.cc" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\sweep\cdt.cc" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\sweep\sweep.cc" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\poly2tri\poly2tri\sweep\sweep_context.cc" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\unzip\ioapi.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\unzip\unzip.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\adler32.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\compress.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\crc32.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\deflate.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\gzclose.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\gzlib.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\gzread.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\gzwrite.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\infback.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\inffast.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\inflate.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\inftrees.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\trees.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\uncompr.c" />
+    <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zutil.c" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="BlockMesh.cpp" />
+    <ClCompile Include="BlockMeshFragmentShader.cpp" />
+    <ClCompile Include="BlockMeshLOD.cpp" />
+    <ClCompile Include="BlockMeshVertexShader.cpp" />
+    <ClCompile Include="BlockModelFragmentShader.cpp" />
+    <ClCompile Include="BlockModelLOD.cpp" />
+    <ClCompile Include="BlockModelVertexShader.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ComplexModel.cpp" />
+    <ClCompile Include="Direct3DDefferedRenderer.cpp" />
+    <ClCompile Include="Direct3DRendererCore.cpp" />
+    <ClCompile Include="Direct3DUtil.cpp" />
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="FontLibrary.cpp" />
+    <ClCompile Include="ImageLibrary.cpp" />
+    <ClCompile Include="MyDAEFileParser.cpp" />
+    <ClCompile Include="Direct3DFrameRenderer.cpp" />
+    <ClCompile Include="float2.cpp" />
+    <ClCompile Include="float3.cpp" />
+    <ClCompile Include="float33.cpp" />
+    <ClCompile Include="float4.cpp" />
+    <ClCompile Include="float43.cpp" />
+    <ClCompile Include="float44.cpp" />
+    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="FragmentShader.cpp" />
+    <ClCompile Include="FreeCamera.cpp" />
+    <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="int2.cpp" />
+    <ClCompile Include="int3.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="BlockModel.cpp" />
+    <ClCompile Include="MathUtil.cpp" />
+    <ClCompile Include="ModelTexture2D.cpp" />
+    <ClCompile Include="MyOBJFileParser.cpp" />
+    <ClCompile Include="MyXAFFileParser.cpp" />
+    <ClCompile Include="quat.cpp" />
+    <ClCompile Include="RectangleMesh.cpp" />
+    <ClCompile Include="RenderTarget2D.cpp" />
+    <ClCompile Include="RenderTargetDepth2D.cpp" />
+    <ClCompile Include="RenderTargetDepthTexture2D.cpp" />
+    <ClCompile Include="RenderTargetTexture2D.cpp" />
+    <ClCompile Include="SkeletonAnimation.cpp" />
+    <ClCompile Include="SkeletonMesh.cpp" />
+    <ClCompile Include="SkeletonMeshEnums.cpp" />
+    <ClCompile Include="SkeletonMeshFragmentShader.cpp" />
+    <ClCompile Include="SkeletonMeshVertexShader.cpp" />
+    <ClCompile Include="SkeletonModel.cpp" />
+    <ClCompile Include="SkeletonPose.cpp" />
+    <ClCompile Include="StringUtil.cpp" />
+    <ClCompile Include="TextFragmentShader.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="TextureFragmentShader.cpp" />
+    <ClCompile Include="TextureVertexShader.cpp" />
+    <ClCompile Include="TextVertexShader.cpp" />
+    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="uint2.cpp" />
+    <ClCompile Include="uint3.cpp" />
+    <ClCompile Include="VertexShader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Asset Rules.txt" />
+    <Text Include="Ideas.txt" />
+    <Text Include="Notes.txt" />
+    <Text Include="Rules.txt" />
+    <Text Include="Tests To do.txt" />
+    <Text Include="Time.txt" />
+    <Text Include="To do.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\BlockMeshShader\ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlockMeshShader\vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlockModelShader\ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlockModelShader\vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonMeshShader\ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonMeshShader\vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextShader\ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextShader\vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShader\ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShader\vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

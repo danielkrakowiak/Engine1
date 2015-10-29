@@ -1,0 +1,66 @@
+- Dual LOD
+
+ComplexModel has different LOD levels. This provides standard LOD mechanism for models. However, ComplexModelGroup also has LOD levels. 
+This alows for erasing or changing ComplexModels when distance to the group increases. ComplexModelGroup LOD has higher priority than
+ComplexModel LOD. Both are used at the same time. Ex.: Car seat is a ComplexModel. When the seat is not part of any ComplexModelGroup, 
+it's polycount decreases with distance, but the model doesn't disappear. However, when the seat is part of a ComplexModelGroup - a car - 
+it may disappear completaly when distance gets big enough.
+
+- Additional texture type - specular color saturation
+
+Specular color of a surface is white for most materials and has color of a surface for metals. So the only needed information 
+is how much color there has to be in the specular reflection. It could even be a 16 bit number.
+
+- Non-occluders for lights
+
+A light can have a ComplexModel assigned to it as a non-occluder. Useful for lights which are positioned inside a mesh (ex.: inside a light bulb)
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------
+Podzia³ przestrzeni
+---------------------------------------------------------------------------------------------------------------------
+
+Rozdzielic modele na statyczne (nieruchome i sztywne), dynamiczne (ruchome lub animowane szkieletowo).
+
+Dla obiektow statycznych:
+
+* Poziom modelu 
+	- Bounding box modelu
+	- Drzewo Kd podzia³u przestrzeni trójk¹tów
+
+* Poziom g³êboki
+	- Bounding box (stalych rozmiarow)
+	- Drzewo Kd podzia³u przestrzeni obiektów
+
+* P³ytki poziom
+	- Hierarchia Bounding boxow - wielokrotnoœæ podstawowego rozmiaru
+
+* Poziom globalny 
+	- lista Bounding boxow
+
+Bounding boxy s¹ dobre, poniewa¿ zaczynamy œledzenie w œrodku sceny (znamy przeciêcia promieni pierwotnych). Wiemy wiêc w którym BB zaczyna siê promieñ. 
+Jesteœmy te¿ g³ównie zainteresowani obiektami pobliskimi lub w œredniej odleg³oœci (jak kosz na œmieci na chodniku lub wie¿owiec kilka ulic dalej) - rzadko odleg³ymi œwiatami. 
+Hierarchia BB pozwala te¿ zacz¹æ œledzenie od dowolnego BB i wychodziæ z hierarchi na zewn¹trz przemierzaj¹c coraz wiêksze dystanse. 
+Dodatkowy plus - jeœli w BB jest 8 mniejszych BB, to niektóre mog¹ byæ puste i nie trzeba przez nie œledziæ promienia.
+
+Dla obiektow dynamicznych:
+
+* Poziom modelu 
+	- Bounding box modelu
+	- Hierarchia bounding boxow kosci
+	- Hierarchia drzew Kd podzia³u przestrzeni trójk¹tów dla ka¿dej z koœci
+
+* Poziom g³êboki
+	- Bounding box (stalych rozmiarow)
+	- Siatka regularna lub brak podzia³u
+
+* P³ytki poziom
+	- Hierarchia Bounding boxow - wielokrotnoœæ podstawowego rozmiaru
+	- Czy wpolna z podzialem dla modeli statycznych?
+
+* Poziom globalny 
+	- lista Bounding boxow
+	- wspolna z podzialem dla modeli statycznych

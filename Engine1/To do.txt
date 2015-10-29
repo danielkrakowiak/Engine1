@@ -1,0 +1,84 @@
+27.02.2014
+	- Add unit tests for mesh loading (loading meshes with several triangles and resued vertices, with and without normals, texcoords)
+19.03.2014
+	- when creating fipImage in Texture2D - FREE_IMAGE_TYPE is set to FIT_BITMAP by default. However, it is not always the appropriate file type for image. Ex.: 16 bit grayscale heighmaps have different file type. Maybe it should depend on special file formats defined in AssetFileFormat such as RAW_16BIT?
+28.03.2014
+	- Handle errors in AssetManager::loadAssetsFromDisk and AssetManager::loadAssets - threads shoould not be terminated, exceptions should not be thrown, path to assets should be removed from assets - maybe handle by not doing anything?
+11.04.2014
+	- Write = operator for every class with copy constructor (otherwise default copy constructor will be used)
+12.04.2014
+	- check if DirectX SDK can be removed and if only Windows 7 SDK is enough
+	- check whether all DirectX headers point to the right SDK (by pointing the cursor over an include)\
+	- add texture loading to AssetManager
+	- add loading to Gpu to asset manager (read about async resource loading before - probably one loading thread is enough)
+15.04.2014
+	- Add test case for mesh loading where mesh has some faces with texcoord indexes or normals and some without them (should throw exception if not handled correctly) - audi.obj is an example
+22.09.2014
+	- should loading assets asynchronously be done statically in BasicAsset class or in a separate AssetLoader class? Loading and managing assets seem to be different tasks... 
+13.10.2014
+	- implement loading RiggedMesh from .obj file
+08.11.2014
+	- add more methods for manipulation float44 and float43 - ex. getRotation rename to getRotation, get4x3 rename to getRotationTranslation, add setRotationRow1 etc
+	- change bone pose format from float44 to float43 - beacuse last column is useless anyway
+15.11.2014
+	- methods which return references (especially to lists) should retrurn shared pointer rather than reference. 
+	- add File class with path, type, data, loadedFlag? use it in all assets classes (Mesh, Texture etc)
+	- SkeletonAnimation requires bonesNames to work (mapping of names to bone indexes) - how should these names be passed so that each SkeletonAnimation doesn't store a copy of that list (shared_ptr?)
+	- should boneNames have it's own class with methods like getBoneIndex( std::string name ) ? - would it be used anywhere else but loading animations?
+21.11.2014
+	- does combining two SkeletonPoses really work? Especially in the case where the same bones are manipulated in both poses. How about joining three or more poses?
+	- optimizing SkeletonPose in terms of memory usage? What is the size of this object when used for a typical or large animation?
+28.12.2014
+	- Const methods ( ex. const Mesh & getMesh() const ) should always return const-object or const-reference. Non-const versions of the same methods can be created to allow modification of the object. 
+	- add const and non-const version of some methods (getters mostly) to all classes. Use const method in non-const method. Use const_cast<type> to convert types from const to non-const.
+16.05.2014
+	- Add tests for: RenderTarget2D, RenderTargetDepth2D.
+21.06.2015
+	- Add support for text rendering in Direct3DRendererCore. Add support for text rendering in Direct3DDeffreredRenderer (for in-game flowing label, debug texts, UI etc)
+13.07.2015
+	- Go through all "throw std::exception" and make sure that throwing method has parenthesis "()" in the error message.
+	- Add tests for SkeletonMeshVertexShader checking if it throws for incorrect bones-per-vertex-values.
+
+Next 0:
+
+//////////
+ - Add some math functions to measure corruption of matrices
+
+ - Add: matrix difference (sum of squared distances), matrix inverse, measure matrix orgonality (multiply inverse by the transpose and return difference to identity matrix)
+ - Optionally add: orthogonalization - later on... To fix corrupted matrices and compare visual results
+
+/////////
+
+- option to read os some range of keyframes/time/ticks from animation file
+- option to split an animation into a few by keyframe/time/tick etc.
+
+- add move constructor to some classes? (but only the ones which are designed to be returned from methods by object) 
+- add move assignment to some classes? (but only to those for which creating another object from an existing one makes sense)
+
+- test combining poses (skeleton-space, parent-space)
+- add method to substract poses (leave only the difference between poses)
+
+- add animation
+- blending between keyframes
+
+
+
+- add option to ignore bones which are not in mesh when loading an animation file. How to make sure that missing bones are not in between of the existing ones? Useful to apply complex animation to a sipler version of mesh (LOD etc)
+
+- Refactor Font and FontCharacter classes.
+
+- for methods - opening bracket in the next line. Refactor.
+
+- in BlockMesh, SkeletonMesh buffer getters should return reference?
+
+- 3d text rendering
+
+- make RectangleMesh derive from BlockMesh (to be able to render it with BlockMeshShader) ?
+
+- shouldn't shader path be hardcoded in the shader class? Why two instances of BlockMeshShader can have different path? Is that useful and correct?
+
+Next2:
+
+	- zdublowac gettery w SkeletonMesh tab by byly wersje const i non-const. Jak w BlockMesh.
+
+

@@ -1,0 +1,21 @@
+06.03.2014
+	- Add unit tests for Texture2D class
+19.03.2014
+	- Add tests to Texture2D for supported file format checks
+	- Add tests to BlockMesh for supported file format checks
+27.03.2014
+	- Add test to check for loading the same mesh/texture multiple times - to check if collision is detected - both in sync and async mode
+07.06.2014
+	- Add a test for .obj file loading with mixed faces containing 3 and 4,5,6 vertices
+	- Add test for .obj file loading with spaces at the end of the line or without spaces
+29.09.2014
+	- loading meshes from .obj files with inverted-Z-Asxis, fliped-UVs, fliped-vertex-winding-order
+07.10.2014
+	- add tests for loading assets to GPU
+09.11.2014
+	- add tests for SkeletonPose - adding/modifying/getting bones
+10.11.2014
+	- tests for all copyable classes to check whether copying is correct
+	- parsing skeleton animation files
+10.05.2015
+	- tests for Texture2D, RenderTargetTexture2D, RenderTargetDepthTexture2D

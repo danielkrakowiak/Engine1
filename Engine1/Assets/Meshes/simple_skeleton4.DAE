@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>Daniel</author>
+      <authoring_tool>OpenCOLLADA for 3ds Max;  ;  </authoring_tool>
+      <source_data>file:///C:/Users/Daniel/Desktop/simple_skeleton4/simple_skeleton4.max</source_data>
+    </contributor>
+    <created>2015-03-21T12:06:53</created>
+    <modified>2015-03-21T12:06:53</modified>
+    <unit name="millimeter" meter="0.001"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="ColorEffectR229G166B215">
+      <profile_COMMON>
+        <technique sid="common">
+          <phong>
+            <ambient>
+              <color>0.8980392 0.6509804 0.8431373 1</color>
+            </ambient>
+            <diffuse>
+              <color>0.8980392 0.6509804 0.8431373 1</color>
+            </diffuse>
+            <specular>
+              <color>1 1 1 1</color>
+            </specular>
+            <shininess>
+              <float>10</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <transparent>
+              <color>1 1 1 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="ColorEffectR229G166B215-material" name="ColorEffectR229G166B215-material">
+      <instance_effect url="#ColorEffectR229G166B215"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="geom-Box001" name="Box001">
+      <mesh>
+        <source id="geom-Box001-positions">
+          <float_array id="geom-Box001-positions-array" count="294">-10 -10 0 -6.666667 -10 0 -3.333334 -10 0 -4.76837e-7 -10 0 3.333333 -10 0 6.666666 -10 0 9.999999 -10 0 -10 -6.666667 0 -6.666667 -6.666667 0 -3.333334 -6.666667 0 -4.76837e-7 -6.666667 0 3.333333 -6.666667 0 6.666666 -6.666667 0 9.999999 -6.666667 0 -10 -3.333334 0 -6.666667 -3.333334 0 -3.333334 -3.333334 0 -4.76837e-7 -3.333334 0 3.333333 -3.333334 0 6.666666 -3.333334 0 9.999999 -3.333334 0 -10 -4.76837e-7 0 -6.666667 -4.76837e-7 0 -3.333334 -4.76837e-7 0 -4.76837e-7 -4.76837e-7 0 3.333333 -4.76837e-7 0 6.666666 -4.76837e-7 0 9.999999 -4.76837e-7 0 -10 3.333333 0 -6.666667 3.333333 0 -3.333334 3.333333 0 -4.76837e-7 3.333333 0 3.333333 3.333333 0 6.666666 3.333333 0 9.999999 3.333333 0 -10 6.666666 0 -6.666667 6.666666 0 -3.333334 6.666666 0 -4.76837e-7 6.666666 0 3.333333 6.666666 0 6.666666 6.666666 0 9.999999 6.666666 0 -10 9.999999 0 -6.666667 9.999999 0 -3.333334 9.999999 0 -4.76837e-7 9.999999 0 3.333333 9.999999 0 6.666666 9.999999 0 9.999999 9.999999 0 -10 -10 3 -6.666667 -10 3 -3.333334 -10 3 -4.76837e-7 -10 3 3.333333 -10 3 6.666666 -10 3 9.999999 -10 3 -10 -6.666667 3 -6.666667 -6.666667 3 -3.333334 -6.666667 3 -4.76837e-7 -6.666667 3 3.333333 -6.666667 3 6.666666 -6.666667 3 9.999999 -6.666667 3 -10 -3.333334 3 -6.666667 -3.333334 3 -3.333334 -3.333334 3 -4.76837e-7 -3.333334 3 3.333333 -3.333334 3 6.666666 -3.333334 3 9.999999 -3.333334 3 -10 -4.76837e-7 3 -6.666667 -4.76837e-7 3 -3.333334 -4.76837e-7 3 -4.76837e-7 -4.76837e-7 3 3.333333 -4.76837e-7 3 6.666666 -4.76837e-7 3 9.999999 -4.76837e-7 3 -10 3.333333 3 -6.666667 3.333333 3 -3.333334 3.333333 3 -4.76837e-7 3.333333 3 3.333333 3.333333 3 6.666666 3.333333 3 9.999999 3.333333 3 -10 6.666666 3 -6.666667 6.666666 3 -3.333334 6.666666 3 -4.76837e-7 6.666666 3 3.333333 6.666666 3 6.666666 6.666666 3 9.999999 6.666666 3 -10 9.999999 3 -6.666667 9.999999 3 -3.333334 9.999999 3 -4.76837e-7 9.999999 3 3.333333 9.999999 3 6.666666 9.999999 3 9.999999 9.999999 3</float_array>
+          <technique_common>
+            <accessor source="#geom-Box001-positions-array" count="98" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-Box001-normals">
+          <float_array id="geom-Box001-normals-array" count="462">0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -0.9999999 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -0.9999999 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -0.9999999 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -0.9999999 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -0.9999999 0 0 -1 0 0 -1 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 0.9999999 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 0.9999999 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 0.9999999 0 0 0.9999999 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 0.9999999 0 0 1 0 0 1 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 1 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#geom-Box001-normals-array" count="154" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-Box001-map1">
+          <float_array id="geom-Box001-map1-array" count="231">0 0 0 0.1666667 0 0 0.3333333 0 0 0.5 0 0 0.6666667 0 0 0.8333334 0 0 1 0 0 0 1 0 0.1666667 1 0 0.3333333 1 0 0.5 1 0 0.6666667 1 0 0.8333334 1 0 1 1 0 0 0 0 0.1666667 0 0 0.3333333 0 0 0.5 0 0 0.6666667 0 0 0.8333334 0 0 1 0 0 0 1 0 0.1666667 1 0 0.3333333 1 0 0.5 1 0 0.6666667 1 0 0.8333334 1 0 1 1 0 0 0 0 0.1666667 0 0 0.3333333 0 0 0.5 0 0 0.6666667 0 0 0.8333334 0 0 1 0 0 0 0.1666667 0 0.1666667 0.1666667 0 0.3333333 0.1666667 0 0.5 0.1666667 0 0.6666667 0.1666667 0 0.8333334 0.1666667 0 1 0.1666667 0 0 0.3333333 0 0.1666667 0.3333333 0 0.3333333 0.3333333 0 0.5 0.3333333 0 0.6666667 0.3333333 0 0.8333334 0.3333333 0 1 0.3333333 0 0 0.5 0 0.1666667 0.5 0 0.3333333 0.5 0 0.5 0.5 0 0.6666667 0.5 0 0.8333334 0.5 0 1 0.5 0 0 0.6666667 0 0.1666667 0.6666667 0 0.3333333 0.6666667 0 0.5 0.6666667 0 0.6666667 0.6666667 0 0.8333334 0.6666667 0 1 0.6666667 0 0 0.8333334 0 0.1666667 0.8333334 0 0.3333333 0.8333334 0 0.5 0.8333334 0 0.6666667 0.8333334 0 0.8333334 0.8333334 0 1 0.8333334 0 0 1 0 0.1666667 1 0 0.3333333 1 0 0.5 1 0 0.6666667 1 0 0.8333334 1 0 1 1 0</float_array>
+          <technique_common>
+            <accessor source="#geom-Box001-map1-array" count="77" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="geom-Box001-vertices">
+          <input semantic="POSITION" source="#geom-Box001-positions"/>
+        </vertices>
+        <triangles material="ColorMaterial" count="192">
+          <input semantic="VERTEX" source="#geom-Box001-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#geom-Box001-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#geom-Box001-map1" offset="2" set="0"/>
+          <p>0 0 34 7 1 41 8 2 40 8 2 40 1 3 33 0 0 34 1 3 33 8 2 40 9 4 39 9 4 39 2 5 32 1 3 33 2 5 32 9 4 39 10 6 38 10 6 38 3 7 31 2 5 32 3 7 31 10 6 38 11 8 37 11 8 37 4 9 30 3 7 31 4 9 30 11 8 37 12 10 36 12 10 36 5 11 29 4 9 30 5 11 29 12 10 36 13 12 35 13 12 35 6 13 28 5 11 29 7 1 41 14 14 48 15 15 47 15 15 47 8 2 40 7 1 41 8 2 40 15 15 47 16 16 46 16 16 46 9 4 39 8 2 40 9 4 39 16 16 46 17 17 45 17 17 45 10 6 38 9 4 39 10 6 38 17 17 45 18 18 44 18 18 44 11 8 37 10 6 38 11 8 37 18 18 44 19 19 43 19 19 43 12 10 36 11 8 37 12 10 36 19 19 43 20 20 42 20 20 42 13 12 35 12 10 36 14 14 48 21 21 55 22 22 54 22 22 54 15 15 47 14 14 48 15 15 47 22 22 54 23 23 53 23 23 53 16 16 46 15 15 47 16 16 46 23 23 53 24 24 52 24 24 52 17 17 45 16 16 46 17 17 45 24 24 52 25 25 51 25 25 51 18 18 44 17 17 45 18 18 44 25 25 51 26 26 50 26 26 50 19 19 43 18 18 44 19 19 43 26 26 50 27 27 49 27 27 49 20 20 42 19 19 43 21 21 55 28 28 62 29 29 61 29 29 61 22 22 54 21 21 55 22 22 54 29 29 61 30 30 60 30 30 60 23 23 53 22 22 54 23 23 53 30 30 60 31 31 59 31 31 59 24 24 52 23 23 53 24 24 52 31 31 59 32 32 58 32 32 58 25 25 51 24 24 52 25 25 51 32 32 58 33 33 57 33 33 57 26 26 50 25 25 51 26 26 50 33 33 57 34 34 56 34 34 56 27 27 49 26 26 50 28 28 62 35 35 69 36 36 68 36 36 68 29 29 61 28 28 62 29 29 61 36 36 68 37 37 67 37 37 67 30 30 60 29 29 61 30 30 60 37 37 67 38 38 66 38 38 66 31 31 59 30 30 60 31 31 59 38 38 66 39 39 65 39 39 65 32 32 58 31 31 59 32 32 58 39 39 65 40 40 64 40 40 64 33 33 57 32 32 58 33 33 57 40 40 64 41 41 63 41 41 63 34 34 56 33 33 57 35 35 69 42 42 76 43 43 75 43 43 75 36 36 68 35 35 69 36 36 68 43 43 75 44 44 74 44 44 74 37 37 67 36 36 68 37 37 67 44 44 74 45 45 73 45 45 73 38 38 66 37 37 67 38 38 66 45 45 73 46 46 72 46 46 72 39 39 65 38 38 66 39 39 65 46 46 72 47 47 71 47 47 71 40 40 64 39 39 65 40 40 64 47 47 71 48 48 70 48 48 70 41 41 63 40 40 64 49 49 28 50 50 29 57 51 36 57 51 36 56 52 35 49 49 28 50 50 29 51 53 30 58 54 37 58 54 37 57 51 36 50 50 29 51 53 30 52 55 31 59 56 38 59 56 38 58 54 37 51 53 30 52 55 31 53 57 32 60 58 39 60 58 39 59 56 38 52 55 31 53 57 32 54 59 33 61 60 40 61 60 40 60 58 39 53 57 32 54 59 33 55 61 34 62 62 41 62 62 41 61 60 40 54 59 33 56 52 35 57 51 36 64 63 43 64 63 43 63 64 42 56 52 35 57 51 36 58 54 37 65 65 44 65 65 44 64 63 43 57 51 36 58 54 37 59 56 38 66 66 45 66 66 45 65 65 44 58 54 37 59 56 38 60 58 39 67 67 46 67 67 46 66 66 45 59 56 38 60 58 39 61 60 40 68 68 47 68 68 47 67 67 46 60 58 39 61 60 40 62 62 41 69 69 48 69 69 48 68 68 47 61 60 40 63 64 42 64 63 43 71 70 50 71 70 50 70 71 49 63 64 42 64 63 43 65 65 44 72 72 51 72 72 51 71 70 50 64 63 43 65 65 44 66 66 45 73 73 52 73 73 52 72 72 51 65 65 44 66 66 45 67 67 46 74 74 53 74 74 53 73 73 52 66 66 45 67 67 46 68 68 47 75 75 54 75 75 54 74 74 53 67 67 46 68 68 47 69 69 48 76 76 55 76 76 55 75 75 54 68 68 47 70 71 49 71 70 50 78 77 57 78 77 57 77 78 56 70 71 49 71 70 50 72 72 51 79 79 58 79 79 58 78 77 57 71 70 50 72 72 51 73 73 52 80 80 59 80 80 59 79 79 58 72 72 51 73 73 52 74 74 53 81 81 60 81 81 60 80 80 59 73 73 52 74 74 53 75 75 54 82 82 61 82 82 61 81 81 60 74 74 53 75 75 54 76 76 55 83 83 62 83 83 62 82 82 61 75 75 54 77 78 56 78 77 57 85 84 64 85 84 64 84 85 63 77 78 56 78 77 57 79 79 58 86 86 65 86 86 65 85 84 64 78 77 57 79 79 58 80 80 59 87 87 66 87 87 66 86 86 65 79 79 58 80 80 59 81 81 60 88 88 67 88 88 67 87 87 66 80 80 59 81 81 60 82 82 61 89 89 68 89 89 68 88 88 67 81 81 60 82 82 61 83 83 62 90 90 69 90 90 69 89 89 68 82 82 61 84 85 63 85 84 64 92 91 71 92 91 71 91 92 70 84 85 63 85 84 64 86 86 65 93 93 72 93 93 72 92 91 71 85 84 64 86 86 65 87 87 66 94 94 73 94 94 73 93 93 72 86 86 65 87 87 66 88 88 67 95 95 74 95 95 74 94 94 73 87 87 66 88 88 67 89 89 68 96 96 75 96 96 75 95 95 74 88 88 67 89 89 68 90 90 69 97 97 76 97 97 76 96 96 75 89 89 68 0 98 14 1 99 15 50 100 22 50 100 22 49 101 21 0 98 14 1 99 15 2 102 16 51 103 23 51 103 23 50 100 22 1 99 15 2 102 16 3 104 17 52 105 24 52 105 24 51 103 23 2 102 16 3 104 17 4 106 18 53 107 25 53 107 25 52 105 24 3 104 17 4 106 18 5 108 19 54 109 26 54 109 26 53 107 25 4 106 18 5 108 19 6 110 20 55 111 27 55 111 27 54 109 26 5 108 19 6 112 0 13 113 1 62 114 8 62 114 8 55 115 7 6 112 0 13 113 1 20 116 2 69 117 9 69 117 9 62 114 8 13 113 1 20 116 2 27 118 3 76 119 10 76 119 10 69 117 9 20 116 2 27 118 3 34 120 4 83 121 11 83 121 11 76 119 10 27 118 3 34 120 4 41 122 5 90 123 12 90 123 12 83 121 11 34 120 4 41 122 5 48 124 6 97 125 13 97 125 13 90 123 12 41 122 5 48 126 14 47 127 15 96 128 22 96 128 22 97 129 21 48 126 14 47 127 15 46 130 16 95 131 23 95 131 23 96 128 22 47 127 15 46 130 16 45 132 17 94 133 24 94 133 24 95 131 23 46 130 16 45 132 17 44 134 18 93 135 25 93 135 25 94 133 24 45 132 17 44 134 18 43 136 19 92 137 26 92 137 26 93 135 25 44 134 18 43 136 19 42 138 20 91 139 27 91 139 27 92 137 26 43 136 19 42 140 0 35 141 1 84 142 8 84 142 8 91 143 7 42 140 0 35 141 1 28 144 2 77 145 9 77 145 9 84 142 8 35 141 1 28 144 2 21 146 3 70 147 10 70 147 10 77 145 9 28 144 2 21 146 3 14 148 4 63 149 11 63 149 11 70 147 10 21 146 3 14 148 4 7 150 5 56 151 12 56 151 12 63 149 11 14 148 4 7 150 5 0 152 6 49 153 13 49 153 13 56 151 12 7 150 5</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_controllers>
+    <controller id="geom-Box001-skin1">
+      <skin source="#geom-Box001">
+        <bind_shape_matrix>1 0 0 2.689688 0 1 0 6.977568 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="geom-Box001-skin1-joints">
+          <Name_array id="geom-Box001-skin1-joints-array" count="4">joint0 joint1 joint2 joint3</Name_array>
+          <technique_common>
+            <accessor source="#geom-Box001-skin1-joints-array" count="4" stride="1">
+              <param name="JOINT" type="name"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-Box001-skin1-bind_poses">
+          <float_array id="geom-Box001-skin1-bind_poses-array" count="64">0.7042953 0.7099071 0 -6.816196 -0.7099071 0.7042953 0 -2.986742 0 0 1 -1.489768 0 0 0 1 -0.7099072 0.7042953 0 -2.986742 -0.7042953 -0.7099072 0 6.816196 0 0 1 -1.489768 0 0 0 1 -0.7042952 -0.7099073 0 6.816197 0.7099073 -0.7042952 0 2.98674 0 0 1 -1.489768 0 0 0 1 0.7099074 -0.704295 0 2.986739 0.704295 0.7099074 0 -6.816197 0 0 1 -1.489768 0 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#geom-Box001-skin1-bind_poses-array" count="4" stride="16">
+              <param name="TRANSFORM" type="float4x4"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-Box001-skin1-weights">
+          <float_array id="geom-Box001-skin1-weights-array" count="89">1 0.5517333 0.4482666 7.18642e-4 7.19527e-4 0.9978433 7.18642e-4 0.1104492 0.1104492 0.3905905 0.388511 6.40405e-4 6.40306e-4 6.40308e-4 0.9980789 0.6902865 0.3097135 0.1082566 0.4054907 0.3779964 0.1082565 0.25 0.25 0.25 0.25 0.3995521 0.1067371 0.1067371 0.3869738 0.5291911 0.4708089 4.56752e-4 0.998632 4.55546e-4 4.55544e-4 0.4020319 0.3887765 0.1045959 0.1045958 0.9988045 3.98571e-4 3.98571e-4 3.98571e-4 0.6263744 0.3736257 0.5526573 0.4473427 6.85248e-4 6.86107e-4 0.9979434 6.85251e-4 0.1102586 0.1102586 0.3907824 0.3887005 6.09182e-4 6.09087e-4 6.0909e-4 0.9981726 0.6935716 0.3064283 0.1080587 0.4057027 0.37818 0.1080586 0.2500442 0.2499998 0.249978 0.249978 0.3997622 0.1065338 0.1065338 0.3871703 0.529769 0.4702309 4.31896e-4 0.9987066 4.3073e-4 4.3073e-4 0.40225 0.3889794 0.1043854 0.1043853 0.9988734 3.75543e-4 3.75543e-4 3.75543e-4 0.6289325 0.3710674</float_array>
+          <technique_common>
+            <accessor source="#geom-Box001-skin1-weights-array" count="89" stride="1">
+              <param name="WEIGHT" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#geom-Box001-skin1-joints"/>
+          <input semantic="INV_BIND_MATRIX" source="#geom-Box001-skin1-bind_poses"/>
+        </joints>
+        <vertex_weights count="98">
+          <input semantic="JOINT" source="#geom-Box001-skin1-joints" offset="0"/>
+          <input semantic="WEIGHT" source="#geom-Box001-skin1-weights" offset="1"/>
+          <vcount>1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 4 4 4 1 1 1 2 4 4 4 2 1 1 1 4 4 4 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 4 4 4 1 1 1 2 4 4 4 2 1 1 1 4 4 4 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 1</vcount>
+          <v>2 0 2 0 2 0 2 0 3 0 3 0 3 0 2 0 2 0 2 0 2 1 3 2 3 0 3 0 3 0 2 0 2 0 0 3 1 4 2 5 3 6 0 7 1 8 2 9 3 10 0 11 1 12 2 13 3 14 3 0 3 0 1 0 1 15 2 16 0 17 1 18 2 19 3 20 0 21 1 22 2 23 3 24 0 25 1 26 2 27 3 28 0 29 3 30 3 0 1 0 1 0 0 31 1 32 2 33 3 34 0 35 1 36 2 37 3 38 0 39 1 40 2 41 3 42 0 0 0 0 1 0 1 0 1 0 0 43 1 44 0 0 0 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 2 0 2 0 2 0 2 0 3 0 3 0 3 0 2 0 2 0 2 0 2 45 3 46 3 0 3 0 3 0 2 0 2 0 0 47 1 48 2 49 3 50 0 51 1 52 2 53 3 54 0 55 1 56 2 57 3 58 3 0 3 0 1 0 1 59 2 60 0 61 1 62 2 63 3 64 0 65 1 66 2 67 3 68 0 69 1 70 2 71 3 72 0 73 3 74 3 0 1 0 1 0 0 75 1 76 2 77 3 78 0 79 1 80 2 81 3 82 0 83 1 84 2 85 3 86 0 0 0 0 1 0 1 0 1 0 0 87 1 88 0 0 0 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0</v>
+        </vertex_weights>
+      </skin>
+    </controller>
+  </library_controllers>
+  <library_lights>
+    <light id="EnvironmentAmbientLight" name="EnvironmentAmbientLight">
+      <technique_common>
+        <ambient>
+          <color>0 0 0</color>
+        </ambient>
+      </technique_common>
+    </light>
+  </library_lights>
+  <library_visual_scenes>
+    <visual_scene id="MaxScene">
+      <node name="EnvironmentAmbientLight">
+        <instance_light url="#EnvironmentAmbientLight"/>
+      </node>
+      <node id="node-Box001" name="Box001">
+        <instance_controller url="#geom-Box001-skin1">
+          <skeleton>#node-Bone001</skeleton>
+          <skeleton>#node-Bone002</skeleton>
+          <skeleton>#node-Bone003</skeleton>
+          <skeleton>#node-Bone004</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="ColorMaterial" target="#ColorEffectR229G166B215-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+      <node id="node-Bone001" name="Bone001" sid="joint0" type="JOINT">
+        <translate>2.680306 6.942414 1.489768</translate>
+        <rotate>-0.1626098 0.3903821 -0.9061787 -49.37332</rotate>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+      <node id="node-Bone002" name="Bone002" sid="joint1" type="JOINT">
+        <translate>2.680306 6.942414 1.489768</translate>
+        <rotate>0.1204168 -0.04959862 0.9914836 -224.4286</rotate>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+      <node id="node-Bone003" name="Bone003" sid="joint2" type="JOINT">
+        <translate>2.680306 6.942414 1.489768</translate>
+        <rotate>0.2445446 0.1018626 0.9642727 -136.2335</rotate>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+      <node id="node-Bone004" name="Bone004" sid="joint3" type="JOINT">
+        <translate>2.680306 6.942414 1.489768</translate>
+        <rotate>-0.1281127 -0.3110356 0.9417239 -47.24717</rotate>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#MaxScene"/>
+  </scene>
+</COLLADA>

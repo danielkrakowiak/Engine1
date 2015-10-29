@@ -1,0 +1,16 @@
+Skeleton --------------------------------------------------------------------------------------------
+
+- When modelling skeleton in 3ds Max:
+	* To save rigged mesh:
+		1) select all geometry and bones
+		2) export using OpenCollada exporter (not a default .dae exporter)
+	* To save animation: 
+		1) select all bones which are part of the animation (and are were exported in the mesh). Do not select anything else (meshes etc.).
+		2) top menu/Animation/Save Animation
+		3) use .xaf format 
+	* Avoid spaces in bone names. Some exporters/importers assume no spaces in names, which can cause errors.
+	  Code supports arbitrary names for bones.
+	* Each bones must have unique name.
+	* If an exception is thrown when loading animation file that a bone doesn't exist in the mesh - exclude that bone from the saved animation in 3ds max.
+	* If animated mesh is deformed when animated (very thin or very fat) this could be caused by not having all of the mesh's bones in your final pose. 
+	  It's because some of the bones (even those which do not directly affect any vertices) may contain scaling which affects all children bones.

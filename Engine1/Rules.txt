@@ -1,0 +1,160 @@
+Project settings --------------------------------------------------------------------------------------------
+
+- Set "Project/Properties/Debugging/Debbuger Type" to "Mixed" - this will allow OutputDebugString to print to Output window in Visual Studio
+
+- Boost is used only by Assimp libary. Should be removed together with Assimp.
+
+
+Text Handling --------------------------------------------------------------------------------------------
+
+
+Based on http://www.utf8everywhere.org/
+
+- std::strings and char* are considered UTF-8
+- One character can take 1-4 bytes in memory
+- All texts are stored in std::string
+- std::string is not aware of the encoding of the underlying text
+- Only use Win32 functions that accept widechars (LPWSTR), never those which accept LPTSTR or LPSTR. Pass parameters this way: SetWindowTextW( widen(someStdString).c_str() )
+
+Notes:
+UTF-16 is the worst encoding. Memory consuming and can still take 4 bytes to encode a single character. 
+WinAPI uses wchar_t, which is UTF-16. That's the only option to use Unicode in Windows. That's why all UTF-8 texts need to be converted to UTF-16 before being passed to WinAPI.
+
+
+Files --------------------------------------------------------------------------------------------
+
+- Never pass std::string or const char* filename arguments to the fstream family. MSVC CRT does not support UTF-8 arguments. Convert std::string arguments to std::wstring with widen: std::ifstream ifs( widen(someStdString), std::ios_base::binary);
+- This code is not multi-platform and may have to be changed manually in the future.
+
+Exceptions --------------------------------------------------------------------------------------------
+
+- all exceptions should have a message explaining the reason of failure
+- this message should contain throwing class/method name ex: throw std::exception( "BlockMeshVertexShader::compileFromFile() - creating constant buffer failed" );
+- message should end with a period.
+- message can contain some information about the error in parentheses - indexes, names etc.
+
+Comments --------------------------------------------------------------------------------------------
+
+- comments should be placed every two, three lines and at every block of code.
+- the purpose of dense comments is to allow skimming through code quickly.
+- comment format: // Some comment here.
+- Space between the slash and the text. Uppercase letter first. Period at the end.
+- methods should be commented. Info such as parameters, return values, exceptions thrown can be added to that comment.
+
+Transformations --------------------------------------------------------------------------------------------
+
+- left-handed coordinate system (z-axis looks away)
+- faces are defined clockwise
+
+in C++ code:
+- basis vectors are rows in matrix
+- matrix memory layout is row-major
+- order of transformations is from left to right - vertex * Matrix
+
+passing matrices to HSLS shaders:
+- when passing matrices from C++ to shaders their memory layout needs to be column-major (transposed), because we want to put each column in one constant regiter on GPU for faster matrix multiplication
+
+in HLSL shader code:
+- basis vectors are rows in matrix (as they were originally)
+- order of transformations is from left to right - vertex * Matrix
+- matrix layout is not programmer's concern
+- #pragma pack_matrix(column_major) informs only about the memory layout of input matrices - not about how matrices are represented in code
+
+loading models:
+- 3D models are often in right-handed coordinate system
+- they need to be converted to left-handed by:
+1) inverting z-coordinate of vertices and normals
+2) inverting texcoord v-component -> v = 1 - v
+3) probably reordering vertices from anticlockwise to clockwise
+
+Methods --------------------------------------------------------------------------------------------
+
+- When a method returns more than one value - use std::tuple to return them.
+
+- Const methods which return references ( ex. const Mesh & getMesh() const ) should always return const-reference. Non-const versions of the same methods can be created to allow modification of the object.
+- Methods which return objects can return non-const objects from const methods. We don't care if the returned object gets changed.
+
+Ex.:
+
+const Mesh & getMesh() const;
+Mesh &		 getMesh();
+
+Passing arguments -----------------------------------------------------------------------------------
+
+- Use std::shared_ptr to pass arguments to methods. If they don't store it, they will release the pointers quickly anyways.
+- Store pointer as std::weak_ptr if instance is not an owner of an object - regardless whether arguments is std::shared_ptr or std::weak_ptr.
+- Almost never pass smart pointers by reference (until extreme performance is needed). Reference to smart pointer won't stop object from being deleted.
+
+Direct3D -----------------------------------------------------------------------------------
+
+- Use Microsoft::WRL::ComPtr<SomeDXClass> for storing Direct3D resources in class fields.
+
+	This Smart Pointer increases internal DX reference count on creation and decreses it on destruction. DX pointers don't need to be passed using ComPtr as it would cause frequent increase/decrease in reference count.
+	Instead, it's important that the final field which stores the resource is of type ComPtr.
+
+	More info on how to use ComPtr in DX: http://directxtk.codeplex.com/wikipage?title=ComPtr
+
+	- Generally, if you are creating a fresh ComPtr and then using a COM creation function or factory, you can use.GetAddressOf() since you know the ComPtr is initially null.
+
+	ex.:
+		Microsoft::WRL::ComPtr<ID3D11Device> device;
+		D3D11CreateDevice( ..., device.GetAddressOf(), ... );
+
+	- If you are using a ComPtr as a class member, then you should use .ReleaseAndGetAddressOf() to ensure any existing object reference is properly released. 
+	The operator overload for & does the same thing as .ReleaseAndGetAddressOf(), but the explicit use of the method name is clearer in code.
+
+	ex.:
+		Microsoft::WRL::ComPtr<ID3D11Device> m_device;
+		D3D11CreateDevice( ..., m_device.ReleaseAndGetAddressOf(), ... );
+		is same as:
+		D3D11CreateDevice( ..., &m_device, ... );
+
+	- Because operator& maps to ReleaseAndGetAddressOf(), when calling DIrect3D 11 functions that take a pointer to an array of inputs 
+	  and you are passing a single pointer, use the explicit .GetAddressOf() method instead:
+
+	ex.:
+		context->OMSetRenderTargets( 1, m_renderTargetView.GetAddressOf(),  m_depthStencilView.Get() );
+
+	  If you use & operator the resource will be released and you don't want that:
+
+	ex.:
+		context->OMSetRenderTargets( 1, &m_renderTargetView,  m_depthStencilView.Get() );
+
+		m_renderTargetView is released = NULL !
+
+- When setting buffers for draw (IASetVertexBuffers) - use each buffer only once. If you need to get multiple values from a single buffer in a shader (interlaced values) - assign the same 'input slot' in 'input layout' for multiple inputs.
+ 'Input slot' in 'input layout' points to the buffer in which data is stored.
+
+Enums -----------------------------------------------------------------------------------
+
+	Put enums which are related only to a single class inside of that class.
+	Put enums which are related to two or more classes inside a separate file.
+
+	Put enums inside a struct - to allow adding helper methods to it (I chose struct rather than namespace to have better coloring in IDE). 
+	Use strongly-typed C==11 "enum class" instead of normal enums. Strongly-typed enums cannot be compared with each other without explicit cast.
+
+	Example:
+
+	.h file:
+
+	struct BonesPerVertexCount
+	{
+		enum class Type : char
+		{
+			ZERO = 0,
+			ONE = 1,
+			TWO = 2,
+			FOUR = 4
+		};
+
+		static const std::array<Type, 4> values;
+	};
+
+	.cpp file:
+
+	const std::array<BonesPerVertexCount::Type, 4> BonesPerVertexCount::values = {
+		BonesPerVertexCount::Type::ZERO, 
+		BonesPerVertexCount::Type::ONE,
+		BonesPerVertexCount::Type::TWO,
+		BonesPerVertexCount::Type::FOUR
+	};

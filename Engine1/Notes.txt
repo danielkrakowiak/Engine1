@@ -1,0 +1,68 @@
+Debugging Direct 3D -----------------------------------------------------------------
+
+- In DirectX Control Panel you can enable debug logs for specific applications. Add application to the list and "Force On" logs. 
+Logs appear in Visual Studio Output window. 
+More info: http://stackoverflow.com/questions/6636166/direct3d11-get-last-error
+
+---
+
+- Enabling the debug layer - When creating a Direct3D device, a debug flag can be enabled to enable debug layer. 
+
+Ex:
+
+	unsigned int flags = 0;
+	#if defined(_DEBUG) 
+	flags |= D3D11_CREATE_DEVICE_DEBUG;
+	#endif
+
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+
+	// Create the swap chain, Direct3D device, and Direct3D device context.
+	HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, &featureLevel, 1,
+											D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &device, nullptr, &deviceContext );
+
+More info: http://msdn.microsoft.com/en-us/library/windows/desktop/jj200584(v=vs.85).aspx
+
+---
+
+- You can give names to DirectX resources, so that they can be identified more easily during debug
+
+void SetDebugName(ID3D11DeviceChild* child, const std::string& name)
+{
+  if (child != nullptr && name != nullptr)
+    child->SetPrivateData(WKPDID_D3DDebugObjectName, name.size(), name.c_str());
+}
+
+WKPDID_D3DDebugObjectName is defined in dxguid.lib
+
+Smart Pointers ---------------------------
+
+- std::shared_ptr
+
+	Use when object is shared by multiple owning objects. Object can be shared by not-owning objects at the same time. Object will be deleted once all the references (shared + weak) to it are canceled.
+	Use as a return value in methods which create an object.
+
+	- std::shared_ptr<>() allows to create a shared pointer from an existing object. Object can be deleted without shared_ptr knowing that (when there are shared or weak references to it)
+	- std::make_shared<>() creates a new object and stores reference count in the same memory block as the object itself - more effective. Passes its arguments to the object's constructor.
+	  Object created this way cannot be deleted if there is any shared or weak reference to it.
+	- when passing shared_ptr to a method, pass by const reference
+
+- std::weak_ptr
+
+	Use weak_ptr when you need to access an object, but you don't want to stop this object from being deleted. Your operation should be canceled if the object referenced by the weak_ptr doesn't exist anymore.
+
+	How to use wak_ptr:
+	{
+		std::shared_ptr<SomeClass> sharedPtr( weakPtr.lock() );
+		if ( sharedPtr ) {
+			doSomething( *sharedPtr );
+		} else {
+			throw std::exception( "Referenced object doesn't exist anymore." );
+		}
+	} // sharedPtr is deleted here
+
+- Multithreaded compilation ---------------------------
+
+Project properties
+Configuration Properties > C/C++ > General
+Multi-Processor Compilation

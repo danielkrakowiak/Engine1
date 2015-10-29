@@ -1,0 +1,118 @@
+Fri 21.02.2014 - 7h - Starting project, math library, BlockMesh class, loading .obj files
+Sat 22.02.2014 - 7h - Reading on Smart Pointers, loading .obj files - loading vertices, configuring project to add unit tests
+Sun 23.02.2014 - 1h - Fighting with locked unittest.dll - test locked because of memory allocation error
+Mon 24.02.2014 - 5h - loading .obj files, parsing faces, checking for duplicated vertices
+Thu 27.02.2014 - 4h - loading .obj files, float comparing functions, mesh unit tests
+Fri 28.02.2014 - 2h - Image library selection, FreeImage library download, setup, Texture class
+--- February 2014 - 26h
+Thu 06.03.2014 - 3h - adding BlockModel class, adding getters to Texture2D, adding texture unit tests
+Fri 07.03.2014 - 5h - adding ComplexModel, BlockModelLOD, BlockMeshLOD classes, adding mip map support to Texture2D
+Sun 16.03.2014 - 2h - adding AssetManager, multithreaded assets loading, BasicAsset class
+Wed 19.03.2014 - 2h - transforming TextureFileFormat into AssetFileFormat to allow BlockMesh and Texture2D derive from BasicAsset
+Thu 20.03.2014 - 4h - fixing bugs in AssetManager, adding AssetManager unit tests
+Fri 21.03.2014 - 1h - looking for a bug in mesh loading
+Thu 27.03.2014 - 2h - looking for a bug in mesh loading, added TestAssets folder with assets used for tests 
+Fri 28.03.2014 - 2h - added float43 class, adding mesh test, profiling mesh loading, handling case when multiple assets with the same path are loaded in AssetManager
+Sat 29.03.2014 - 1h - added Application, InputManager, window setup
+--- March 2014 - 22h
+Wed 02.04.2014 - 5h - added Direct3DRenderer, cleaned window creation, improved Windows message handling
+Fri 04.04.2014 - 5h - cleaning Direct3D initialization - splitting one big method into submethods, adding vertex and index buffers to BlockMesh
+Sat 05.04.2014 - 1h - added emission textures to BlockModel, added ModelTexture2D for storing texture together with its texcoordIndex and color multipliers
+Sun 06.04.2014 - 3h - writing VertexShader, FragmentShader class, pasing parameters, setting pipeline state, BlockMeshFragmentShader, BlockMeshVertexShader, shader inheritance, drawing first 3d model
+Wed 09.04.2014 - 6h - removing usage of D3DX lib, headers from the project (deprecated in Direct3D), adding float44 class, adding some D3DX funcionality (projections etc) to MathUtil, downloading and installing CUDA 6.0, new drivers, NSIGHT 4.0, trying to solve a problem with transformations after moving from D3DX lib to own code (problem: incorrect float44 transpose)
+Fri 11.04.2014 - 1h - fixing problem with passing buffers to shaders
+Sat 12.04.2014 - 3h - adding new shader - BlockModelShader - for drawing models with textures, loading textures to GPU
+Tue 15.04.2014 - 1h - fixing texture color problem - usage of bgr format instead of rgb
+Wed 16.04.2014 - 1h - trying to fix the problem with missing triangles in meshes loaded from .obj files, added support for meshes with only some faces having normals, texcoords
+--- April 2014 - 26h
+Fri 06.06.2014 - 1h - fixing mesh loading from .obj files (crashes on end of file in some cases, missing triangles)
+Sat 07.06.2014 - 2h - trying to fix .obj mesh loading
+Fri 20.06.2014 - 1h - added Camera class
+Sun 22.06.2014 - 2h - created key mapping in InputManager, added Timer class for measuring time lapse
+Fri 27.06.2014 - 2h - added FreeCamera class, implemented camera navigation and view transformations, connected camera to mouse move and keyboard
+Sat 28.06.2014 - 4h - reading on Unicode issues, deciding on usage of UTF-8 internally everywhere, creating Rules.txt with text handling rules, created StringUtil to handle text conversions from UTF-8 to UTF-16 WinAPI. Looking for a Logger. Trying to use easylogger++.
+--- June 2014 - 12h
+Sun 07.09.2014 - 4h - getting back to work, trying to run easylogging++ (failed - included header showed errors), fixed loading .obj bug (holes in geometry) (quad -> triangle incorrect conversion), fixed printing to the VS output window, trying to fix uppercasing/lowercasing utf8 strings
+Wed 10.09.2014 - 3h - drawing text using freetype lib
+Thu 11.09.2014 - 1h - drawing text using freetype lib
+Fri 12.09.2014 - 5h - drawing text using freetype lib
+Sat 13.09.2014 - 8h - drawing text using freetype lib, trying to fix an exception from graphics driver (Direct3D crashes), fixed "access violation" in graphics driver .dll - solved by installing a driver update, trying to clean up transformations, vertex ordering etc.
+Sun 14.09.2014 - 6h - fixing camera rotation by mouse movement (no more Windows callbacks on mouse move - checking cursor pos every frame), fixed row-major/column-major issues and transformation order in HLSL code and when passing matrices to shaders, fixed issues with culling (only backfacing triangles were visible) - inverting z-coordinate and texture v-coordinate (as explained in rules) was needed when loading model from file (model was in RH coordinate system -> rendering in LH)
+Mon 15.09.2014 - 4h - fixed drawing text (vertices were had to be in clockwise order, depth > 0, correct stride setting in buffer), added alpha blending to text display, fixed camera movement (also caused by delayed Windows key press messages processing - only one msg was processed per frame), reorganized Direct3DRenderer (shaders - compilation, passing params - are managed by the renderer)
+Sun 21.09.2014 - 1h - refactoring Direc3DRenderer
+Mon 22.09.2014 - 2h - improving asset inheritence (assets get all needed args on creation)
+Wed 24.09.2014 - 2h - reading about skeletal animation
+Thu 25.09.2014 - 6h - reading about skeletal animation, implementing RiggedMesh, SkeletonModel, SkeletonShader etc classes - storing and rendering simple skeletal mesh
+Mod 29.09.2014 - 6h - including Assimp libary into the code, loading .dae files into BlockMesh, fixing mesh loading tests after refactoring loading code
+Tue 30.09.2014 - 2h - fixing tests and linking in test project
+--- September 2014 - 50h
+Sun 05.10.2014 - 2h - fixing bugs in BlockMesh, Texture2D (path wasn't lowercased), fixing StringUtil lowercaseing/uppercasing, adding message and throwing method name to all exceptions
+Tue 07.10.2014 - 2h - improving tests for Texture2D, BlockMesh, writing MathUtil tests, enabling multithreaded build in VS
+Sun 13.10.2014 - 2h - loading .dae files into RiggedMesh - loading bones and weights
+Wed 22.10.2014 - 1h - passing bones' bindPose and pose to SkeletonVertexShader, passing mesh's vertex bones and weights
+Fri 31.10.2014 - 3h - creating bones/weight buffers on GPU, creating input layout for VS, added Direct3DUtil - allows to assign names to D3D resources for easier debug, trying to figure out why skeleton data is not available in the shader 
+--- October 2014 - 10h
+Thu 06.11.2014 - 2h - fixing vertex/bone transformations in skeleton vs, added new method to float44 for inverting a transformation matrix (scale + rotation + translation), passed inverted bindPose to skeleton vs
+Sat 08.11.2014 - 4h - writing tests for float44::getScaleRotationTranslationInverse(), added default parameter values for MathUtill::areEqual, created tests playlists with fast and slow tests, fixed float44::getScaleRotationTranslationInverse()
+Mon 10.11.2014 - 3h - created XAFFileParser, SkeletonPose, SkeletonAnimation classes, included xml parser in the project, writing .xaf file parser for loading animations from 3Ds Max  
+Fri 14.11.2014 - 1h - writing XAFFileParser - parsing matrix from text, iterating through the nodes
+Sat 15.11.2014 - 3h - added reading of bones names in DAEFileParser, added finding bone by name in XAFFileParser, modified mesh/anim files to contain no spaces in bone names, added check for duplicated bone names in DAEFileParser
+Sun 16.11.2014 - 5h - tried to fix exporting skeleton meshes to .dea in 3ds Max - seemed like not all the bones where exported. Installed OpenCollada exporter, but it made no difference. Reason seems to be in Assimp importer, which reads bones from joints only - last bones in chain are not loaded (their bind poses). Added bones ordering in per vertex data, so they were ordered by descending weight. Renamed SkeletonMesh to RiggedMesh. Added SkeletonBonePose class.
+Thu 20.11.2014 - 4h - modified SkeletonPose from a simple vector of poses to a proper class with methods to access bones. Implemented a feature - SkeletonPose recalculates bones pose in skeleton space when needed (user doesn't have to worry about that). Added SkeletonPose::combinePoses() method to combine two poses into one. (propbably not working correctly).
+Sat 22.11.2014 - 4h - added Bone inner class to SkeletonMesh - SkeletonMesh now stores all the information about skeleton structure.
+Sun 23.11.2014 - 5h - integrating recent code changes, modified .dea parser to create skeleton structure in SkeletonMesh, modified .xaf parser to use SkeletonMesh as a source of information about skeleton structure. Modified SkeletonMeshVertexShader to use SkeletonMesh and SkeletonPose as a source of bone poses. Trying to debug incorrect skeletal transformations. Creating simple two-bone/two-boxes skeleton model for tests.
+Tue 25.11.2014 - 4h - found reason of incorrect skeleton rendering - final bone pose should be in it's own bind space, not in skeleton space (means that we are interested how far it moved from it's bind pose, not how far it moved from the skeleton origin). To fix this problem we need to multiply bone's pose in skeleton space by it's bind pose (or calculate it differently). Trying to fix the problem with soem vertices in the skeleton being exploded in some direction. Seems like some vertices aren't attached to any bones despite vertex-bone data presence in the buffer. Installed newest driver.
+--- November 2014 - 35h
+Sat 20.12.2014 - 1h - found a workaround to incorrect skeleton rendering - setting vertex-bones buffer offset during rendering to -1.
+Sun 21.12.2014 - 2h - fixed skeleton rendering - reason: shader input layout for bones and weights had AlignedByteOffset property set to some value instead of 0. Info about stride is set during drawing, not in the input layout. 
+Thu 25.12.2014 - 7h - rewriting SkeletonPose to be independent from the space in which bones' poses are defined (to avoid confusion and complex code). 
+Sat 27.12.2014 - 5h - finishing changes to SkeletonPose and XAFFileParser. Fixing constness of some methods and return values in BlockMesh and BlockModel.
+Sun 28.12.2014 - 3,5h - fixing constness of some methods and return values in SkeletonMesh, SkeletonModel. Fixing transformations in SkeletonPose::calculatePoseInParentSpace.
+--- December 2014 - 18h
+Sat 21.03.2015 - 2h - added transformation of normals in skeleton mesh shader. Added new test model for skeleton mesh.
+--- March 2015 - 2h
+Sun 19.04.2015 - 2h - refactoring. Removing loading assets methods from asset classes.
+--- April 2015 - 2h
+Fri 01.05.2015 - 4h - Installed VisualAssist and Cppcheck. Refactoring Texture2D class.
+Sat 02.05.2015 - 1h - refactoring Texture2D class.
+Sat 09.05.2015 - 8h - added RenderTargetTexture2D and RenderTargetDepthTexture2D. Refactored tests for Texture2D.
+Sun 10.05.2015 - 3h - refactoring Texture2D tests, planning on refactoring of Direct3DRenderer into 3 renderers. 
+Mon 11.05.2015 - 2h - added Direct3DRendererCore.
+Wed 13.05.2015 - 2h - added Direct3DDefferedRenderer.
+Thu	14.05.2015 - 2h - refactoring Direct3DFrameRenderer.
+Sat 16.05.2015 - 5h - added RectangleMesh, RenderTarget2D, RenderTargetDepth2D. Refactoring Direct3DFrameRenderer.
+Sun 17.05.2015 - 3h - added TextureVertexShader, TextureFragmentShader.
+Mon 18.05.2015 - 2h - modified shaders to output to multiple render targets, fixed some bugs and started deffered renderer.
+Tue 19.05.2015 - 1h - rendering DefferedRenderer output through FrameRenderer.
+Wed 20.05.2015 - 5h - Fixed deffered rendering (pixels not showing on screen) by disabling depth test in depth stencil state. Debugging with Nsight and VS built in graphics debugger.
+Mon 25.05.2015 - 2h - Trying to fix problem with deffered rendered meshes failing depth test.
+--- May 2015 - 40h
+Sat 13.06.2015 - 1h - fixed depth culling problem. Reason: incorrect combination of depth texture format, depth stencil view format and shader resource format.
+Fri 20.06.2015 - 2h - Prototyped space partitioning hierarchy. Modified BlockModel shaders and SkeletonMesh shaders to work with Deffered Rendering.
+Sat 21.06.2015 - 4h - Refactored BlockMesh - loading from file in a static method. Refactored BlockMeshTests accordingly. Added tests for loading mesh from CPU to GPU.
+Sun 22.06.2015 - 4h - Added initializing/deinitializing FreeImage libarary statically in a new ImageLibrary class. Same for FreeType library. Fixing and refactoring text rendering to be in DefferedRenderer and use RendererCore. Debugging blend state problems.
+Wed 24.06.2015 - 1h - Fixed text rendering pixel shader.
+Thu 25.06.2015 - 2h - Fixed text background no-transparency problem. (Alpha writes were unnecessarily enabled in DefferedRenderer and there was unnecessary alpha blending enabled in FrameRenderer - pixels with alpha were not rendered to final frame).
+Fri 26.06.2015 - 1h - Added deviceContext member to RendererCore and removed it from methods' arguments.
+Sat 27.06.2015 - 5h - Refactored SkeletonMesh - loading from file in a static method. Switching to use Microsoft::WRL::ComPtr for storing Direct3D pointers in all classes - to avoid not freeing resources.
+--- June 2015 - 20h
+Thu 02.07.2015 - 2h - Fixed problem of leaking Direct3D resources.
+Wed 08.07.2015 - 1h - Trying to debug incorrect SkeletonMesh rendering with Graphics Debugger.
+Thu 09.07.2015 - 2h - Trying to debug incorrect SkeletonMesh rendering with Graphics Debugger.
+Fri 10.07.2015 - 2h - Trying to debug incorrect SkeletonMesh rendering with Graphics Debugger. Fixed problem with incorrect blend weights in shader input. Reason: Some buffers were set multiple times at different slots. Instead, each buffer should be set once, but referenced multiple times in input layout (as input slot). Enabled debug and disabled optimizations in shader compilation (only for debug configurations) - to enable shader debugging in Graphics Debugger.
+Sat 11.07.2015 - 7h - Fixed problem with SkeletonMesh rendering. Error was caused by misspelling in the shader. Removing old "to-do" notes. Added locking cursor position only when the window has focus. Modified skeleton mesh vertex shader to run in loop - for readibility and ease of increasing 'max bones per vertex' count - (needed to use 'unroll' modifier to make it compile).
+Sun 12.07.2015 - 4h - Optimizing SkeletonMesh vertex shader and class to pass boneIndices and weights to shader using fewer vertex attributes and to allow meshes to store only as many weights/indices as they need, without having extra zeros to match vertex attributes. Reading on enums and re-organizing them.
+Mon 13.07.2015 - 1h - Finished modifications in SkeletonMesh vertex shader.
+Thu 16.07.2015 - 3h - Bought Visual Assist. Added bonesPerVertex param in SkeletonMesh vertex shader. Refactored SkeletonAnimation to read files statically. Fixed problem with File class reading files having garbage at the end.
+Sat 18.07.2015 - 8h - Preparing skeleton poses for test in 3ds Max. Working on blending/combining skeleton poses. Reading on quaternions in "Math Primer" book. Implementing quaternion class.
+Sun 19.07.2015 - 2h - Matrix <-> quaternion conversions. Matrix slerp. Blending SkeletonMesh poses.
+Mon 20.07.2015 - 4h - Major refactoring of XAF file parser. Parsing multiple poses from different animation frames and saving them in SkeletonAnimation.
+Tue 21.07.2015 - 1h - Refactoring of XAF file parser.
+Wed 22.07.2015 - 4h - Refactoring of XAF file parser. Converting SkeletonAnimation between skeleton/parent space. Creating test animation in 3ds Max. Blending poses between keyframes.
+Thu 23.07.2015 - 2h - Trying to fix issues with incorrect blending of poses in parent space (dealing with 'last in the chain' bones).
+Fri 24.07.2015 - 3h - Refactoring of blending and skeleton <-> parent space transformations for SkeletonMesh. Loading multiple meshes from a single .obj/.dae file. Trying to load a complex skeleton mesh.
+--- July 2015 - 46h
+Sun 13.09.2015 - 3h - Fixed problem with very thin skeleton mesh - caused by an animation file with some bones missing which contained scaling. Added lerp operation on float33. Debugging incorrect interpolation between skeleton poses. 
+Thu 24.09.2015 - 2h - Debugging problem with malformed animated meshes. Problem is related to matrix slerp. Added some tests for quaternion slerp.
+--- September 2015 - 5h
+Wed 28.10.2015 - 4h - Fixed incorrect quaternion -> matrix conversion. A symbol in the formula was incorrect - caused by the mistake in the book.

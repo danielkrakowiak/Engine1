@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Mesh">
+      <UniqueIdentifier>{dc84a666-e14b-4f88-8d28-a7c71707cf7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Texture">
+      <UniqueIdentifier>{96f9a610-4eae-48fb-8134-3b8c091ad4fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AssetManager">
+      <UniqueIdentifier>{1dc66b41-6b37-4810-97fb-c5c3765695fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\StringUtil">
+      <UniqueIdentifier>{70051a86-203b-495a-a6ae-13e6a80014c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MathUtil">
+      <UniqueIdentifier>{7471c644-e225-4b0a-a80a-517ff83dd226}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{db7a32ee-40e2-44fd-8cd8-d05941f545a1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockMeshTests.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetManagerTests.cpp">
+      <Filter>Source Files\AssetManager</Filter>
+    </ClCompile>
+    <ClCompile Include="StringUtilTests.cpp">
+      <Filter>Source Files\StringUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="MathUtilTests.cpp">
+      <Filter>Source Files\MathUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="float44Tests.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2DTests.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="quatTests.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,549 @@
+<MaxAnimation version="1.00" date="Fri Jul 24 22:50:04 2015">
+    <SceneInfo fileName="" startTick="0" endTick="800" frameRate="30" ticksPerFrame="160" />
+    <CustomData />
+    <Node name="L_Leg01_Thigh_XB" parentNode="C_Spine00_Hips_XB" parentNodeIndex="1" distanceToParent="2.075701" numChildren="3">
+        <Samples count="6">
+            <S t="0" v="1.000000 -0.000000 -0.000000 0.000000 0.198422 0.980117 -0.000000 -0.980117 0.198422 0.927817 -3.145973 -0.001863" />
+            <S t="160" v="1.000000 -0.000000 -0.000000 0.000000 0.198422 0.980117 -0.000000 -0.980117 0.198422 0.927817 -3.145973 -0.001863" />
+            <S t="320" v="1.000000 -0.000000 -0.000000 0.000000 0.555148 0.831751 -0.000000 -0.831751 0.555148 0.927817 -3.145973 -0.001863" />
+            <S t="480" v="1.000000 -0.000000 -0.000000 0.000000 0.884816 0.465940 -0.000000 -0.465940 0.884816 0.927817 -3.145973 -0.001863" />
+            <S t="640" v="1.000000 -0.000000 -0.000000 0.000000 0.981432 0.191812 -0.000000 -0.191812 0.981432 0.927817 -3.145973 -0.001863" />
+            <S t="800" v="1.000000 -0.000000 -0.000000 0.000000 0.999808 0.019613 -0.000000 -0.019613 0.999808 0.927817 -3.145973 -0.001863" />
+        </Samples>
+        <Controller name="L_Leg01_Thigh_XB \ Transform" classOf="Position/Rotation/Scale" classID="2005,0" superClassID="9008" subNum="2" numChildren="3" filterType="transform" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <MVal t="0" v="-0.0 0.0 -1.000000 -0.198422 0.980117 0.0 0.980117 0.198422 -0.0 -0.942490 -0.001860 -1.849390 " />
+                <MVal t="160" v="-0.0 0.0 -1.000000 -0.198422 0.980117 0.0 0.980117 0.198422 -0.0 -0.942490 -0.001860 -1.849390 " />
+                <MVal t="320" v="-0.0 0.0 -1.000000 -0.555149 0.831751 0.0 0.831751 0.555149 -0.0 -0.942490 -0.001860 -1.849390 " />
+                <MVal t="480" v="-0.0 0.0 -1.000000 -0.884816 0.465940 0.0 0.465940 0.884816 -0.0 -0.942490 -0.001860 -1.849390 " />
+                <MVal t="640" v="-0.0 0.0 -1.000000 -0.981432 0.191811 0.0 0.191811 0.981432 -0.0 -0.942490 -0.001860 -1.849390 " />
+                <MVal t="800" v="-0.0 0.0 -1.000000 -0.999808 0.019613 0.0 0.019613 0.999808 -0.0 -0.942490 -0.001860 -1.849390 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Position" classOf="Position XYZ" classID="118F7E02,FFEE238A" superClassID="900B" subNum="0" numChildren="3" filterType="pos" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <P3Val t="0" v="-0.942490 -0.001860 -1.849390 " />
+                <P3Val t="160" v="-0.942490 -0.001860 -1.849390 " />
+                <P3Val t="320" v="-0.942490 -0.001860 -1.849390 " />
+                <P3Val t="480" v="-0.942490 -0.001860 -1.849390 " />
+                <P3Val t="640" v="-0.942490 -0.001860 -1.849390 " />
+                <P3Val t="800" v="-0.942490 -0.001860 -1.849390 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Position \ X Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="posx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.942490 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.942490 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.942490 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.942490 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.942490 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.942490 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Position \ Y Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="posy" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.001860 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.001860 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.001860 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.001860 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.001860 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.001860 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Position \ Z Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="posz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.849390 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.849390 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.849390 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.849390 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.849390 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.849390 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Rotation" classOf="Euler XYZ" classID="2012,0" superClassID="900C" subNum="1" numChildren="3" filterType="rot" outOfRangeBefore="constant" outOfRangeAfter="constant" eulerOrder="XZY" eulerRotatingFrame="true">
+            <Samples count="6">
+                <RVal t="0" v="0.070504 -0.703583 -0.070504 0.703583 " />
+                <RVal t="160" v="0.070504 -0.703583 -0.070504 0.703583 " />
+                <RVal t="320" v="0.205091 -0.676711 -0.205091 0.676711 " />
+                <RVal t="480" v="0.365397 -0.605380 -0.365397 0.605380 " />
+                <RVal t="640" v="0.449497 -0.545851 -0.449497 0.545851 " />
+                <RVal t="800" v="0.495073 -0.504879 -0.495073 0.504879 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Rotation \ X Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="rotx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.199748 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.199748 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.588542 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.086100 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.377789 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.551183 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Rotation \ Y Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="roty" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.570796 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.570796 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.570796 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.570796 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.570796 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.570796 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Rotation \ Z Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="rotz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg01_Thigh_XB \ Transform \ Scale" classOf="Bezier Scale" classID="2010,0" superClassID="900D" subNum="2" numChildren="0" filterType="scale" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <K t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 -0.0 -0.0 -0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+            </Keys>
+        </Controller>
+    </Node>
+    <Node name="L_LegZ_LegRoll01_XL1" parentNode="L_Leg01_Thigh_XB" parentNodeIndex="0" distanceToParent="0.397107" numChildren="0">
+        <Samples count="6">
+            <S t="0" v="1.000000 -0.000000 -0.000000 0.000000 0.198422 0.980117 -0.000000 -0.980117 0.198422 0.982497 -2.761820 -0.086307" />
+            <S t="160" v="1.000000 -0.000000 -0.000000 0.000000 0.198422 0.980117 -0.000000 -0.980117 0.198422 0.982497 -2.761820 -0.086307" />
+            <S t="320" v="1.000000 -0.000000 -0.000000 0.000000 0.555148 0.831751 -0.000000 -0.831751 0.555148 0.982497 -2.822501 -0.225626" />
+            <S t="480" v="1.000000 -0.000000 -0.000000 0.000000 0.884816 0.465940 -0.000000 -0.465940 0.884816 0.982497 -2.968520 -0.352882" />
+            <S t="640" v="1.000000 -0.000000 -0.000000 0.000000 0.981432 0.191812 -0.000000 -0.191812 0.981432 0.982497 -3.076958 -0.389085" />
+            <S t="800" v="1.000000 -0.000000 -0.000000 0.000000 0.999808 0.019613 -0.000000 -0.019613 0.999808 0.982497 -3.144799 -0.395186" />
+        </Samples>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Position" classOf="Position XYZ" classID="118F7E02,FFEE238A" superClassID="900B" subNum="0" numChildren="3" filterType="pos" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <P3Val t="0" v="0.054680 -0.006540 -0.393270 " />
+                <P3Val t="160" v="0.054680 -0.006540 -0.393270 " />
+                <P3Val t="320" v="0.054680 -0.006540 -0.393270 " />
+                <P3Val t="480" v="0.054680 -0.006540 -0.393270 " />
+                <P3Val t="640" v="0.054680 -0.006540 -0.393270 " />
+                <P3Val t="800" v="0.054680 -0.006540 -0.393270 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Position \ X Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="posx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.054680 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Position \ Y Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="posy" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.006540 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Position \ Z Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="posz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.393270 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Rotation" classOf="Euler XYZ" classID="2012,0" superClassID="900C" subNum="1" numChildren="3" filterType="rot" outOfRangeBefore="constant" outOfRangeAfter="constant" eulerOrder="XZY" eulerRotatingFrame="true">
+            <Samples count="6">
+                <RVal t="0" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="160" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="320" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="480" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="640" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="800" v="0.0 0.0 0.0 1.0 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Rotation \ X Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="rotx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Rotation \ Y Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="roty" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Rotation \ Z Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="rotz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll01_XL1 \ Transform \ Scale" classOf="Bezier Scale" classID="2010,0" superClassID="900D" subNum="2" numChildren="0" filterType="scale" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <K t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 -0.0 -0.0 -0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+            </Keys>
+        </Controller>
+    </Node>
+    <Node name="L_LegZ_LegRoll02_XL1" parentNode="L_Leg01_Thigh_XB" parentNodeIndex="1" distanceToParent="2.019982" numChildren="0">
+        <Samples count="6">
+            <S t="0" v="1.000000 -0.000000 -0.000000 0.000000 0.198422 0.980117 -0.000000 -0.980117 0.198422 1.205987 -1.191895 -0.431427" />
+            <S t="160" v="1.000000 -0.000000 -0.000000 0.000000 0.198422 0.980117 -0.000000 -0.980117 0.198422 1.205987 -1.191895 -0.431427" />
+            <S t="320" v="1.000000 -0.000000 -0.000000 0.000000 0.555148 0.831751 -0.000000 -0.831751 0.555148 1.205987 -1.500569 -1.140105" />
+            <S t="480" v="1.000000 -0.000000 -0.000000 0.000000 0.884816 0.465940 -0.000000 -0.465940 0.884816 1.205987 -2.243334 -1.787414" />
+            <S t="640" v="1.000000 -0.000000 -0.000000 0.000000 0.981432 0.191812 -0.000000 -0.191812 0.981432 1.205986 -2.794934 -1.971564" />
+            <S t="800" v="1.000000 -0.000000 -0.000000 0.000000 0.999808 0.019613 -0.000000 -0.019613 0.999808 1.205986 -3.140022 -2.002591" />
+        </Samples>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Position" classOf="Position XYZ" classID="118F7E02,FFEE238A" superClassID="900B" subNum="0" numChildren="3" filterType="pos" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <P3Val t="0" v="0.278170 -0.033290 -2.000460 " />
+                <P3Val t="160" v="0.278170 -0.033290 -2.000460 " />
+                <P3Val t="320" v="0.278170 -0.033290 -2.000460 " />
+                <P3Val t="480" v="0.278170 -0.033290 -2.000460 " />
+                <P3Val t="640" v="0.278170 -0.033290 -2.000460 " />
+                <P3Val t="800" v="0.278170 -0.033290 -2.000460 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Position \ X Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="posx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.278170 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Position \ Y Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="posy" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.033290 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Position \ Z Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="posz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-2.000460 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Rotation" classOf="Euler XYZ" classID="2012,0" superClassID="900C" subNum="1" numChildren="3" filterType="rot" outOfRangeBefore="constant" outOfRangeAfter="constant" eulerOrder="XZY" eulerRotatingFrame="true">
+            <Samples count="6">
+                <RVal t="0" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="160" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="320" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="480" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="640" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="800" v="0.0 0.0 0.0 1.0 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Rotation \ X Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="rotx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Rotation \ Y Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="roty" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Rotation \ Z Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="rotz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_LegRoll02_XL1 \ Transform \ Scale" classOf="Bezier Scale" classID="2010,0" superClassID="900D" subNum="2" numChildren="0" filterType="scale" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <K t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 -0.0 -0.0 -0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+            </Keys>
+        </Controller>
+    </Node>
+    <Node name="L_Leg02_Knee_XB" parentNode="L_Leg01_Thigh_XB" parentNodeIndex="2" distanceToParent="7.811050" numChildren="2">
+        <Samples count="6">
+            <S t="0" v="1.000000 -0.000000 -0.000000 0.000000 0.198422 0.980117 -0.000000 -0.980117 0.198422 2.003487 4.410241 -1.662909" />
+            <S t="160" v="1.000000 -0.000000 -0.000000 -0.000000 -0.025862 0.999666 -0.000000 -0.999666 -0.025862 2.003487 4.410241 -1.662909" />
+            <S t="320" v="1.000000 -0.000000 -0.000000 -0.000000 -0.157655 0.987494 -0.000000 -0.987494 -0.157655 2.003487 3.216640 -4.403294" />
+            <S t="480" v="1.000000 -0.000000 -0.000000 -0.000000 -0.265953 0.963986 -0.000000 -0.963986 -0.265953 2.003487 0.344459 -6.906378" />
+            <S t="640" v="1.000000 -0.000000 -0.000000 0.000000 0.633151 0.774028 -0.000000 -0.774028 0.633151 2.003487 -1.788513 -7.618473" />
+            <S t="800" v="1.000000 -0.000000 -0.000000 0.000000 0.980666 0.195689 -0.000000 -0.195689 0.980666 2.003486 -3.122933 -7.738459" />
+        </Samples>
+        <Controller name="L_Leg02_Knee_XB \ Transform" classOf="Position/Rotation/Scale" classID="2005,0" superClassID="9008" subNum="2" numChildren="3" filterType="transform" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <MVal t="0" v="1.0 0.0 -0.0 0.0 1.0 0.0 -0.0 0.0 1.0 1.075670 -0.128700 -7.735559 " />
+                <MVal t="160" v="1.0 0.0 -0.0 0.0 0.974657 0.223703 -0.0 -0.223703 0.974657 1.075670 -0.128700 -7.735559 " />
+                <MVal t="320" v="1.0 -0.0 -0.0 -0.0 0.733828 0.679336 0.0 -0.679336 0.733828 1.075670 -0.128701 -7.735559 " />
+                <MVal t="480" v="1.0 0.0 0.0 0.0 0.213840 0.976869 -0.0 -0.976869 0.213840 1.075670 -0.128700 -7.735559 " />
+                <MVal t="640" v="1.0 0.0 -0.0 0.0 0.769862 0.638210 -0.0 -0.638210 0.769862 1.075670 -0.128700 -7.735559 " />
+                <MVal t="800" v="1.0 0.0 -0.0 0.0 0.984315 0.176418 -0.0 -0.176418 0.984315 1.075670 -0.128700 -7.735559 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Position" classOf="Position XYZ" classID="118F7E02,FFEE238A" superClassID="900B" subNum="0" numChildren="3" filterType="pos" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <P3Val t="0" v="1.075670 -0.128700 -7.735559 " />
+                <P3Val t="160" v="1.075670 -0.128700 -7.735559 " />
+                <P3Val t="320" v="1.075670 -0.128700 -7.735559 " />
+                <P3Val t="480" v="1.075670 -0.128700 -7.735559 " />
+                <P3Val t="640" v="1.075670 -0.128700 -7.735559 " />
+                <P3Val t="800" v="1.075670 -0.128700 -7.735559 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Position \ X Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="posx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.075670 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.075670 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.075670 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.075670 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.075670 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.075670 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Position \ Y Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="posy" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.128700 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.128700 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.128700 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.128700 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.128700 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.128700 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Position \ Z Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="posz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-7.735559 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-7.735559 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-7.735559 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-7.735559 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-7.735559 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-7.735559 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Rotation" classOf="Euler XYZ" classID="2012,0" superClassID="900C" subNum="1" numChildren="3" filterType="rot" outOfRangeBefore="constant" outOfRangeAfter="constant" eulerOrder="XZY" eulerRotatingFrame="true">
+            <Samples count="6">
+                <RVal t="0" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="160" v="-0.112567 0.0 0.0 0.993644 " />
+                <RVal t="320" v="-0.364810 0.0 0.0 0.931082 " />
+                <RVal t="480" v="-0.626961 0.0 0.0 0.779051 " />
+                <RVal t="640" v="-0.339218 0.0 0.0 0.940708 " />
+                <RVal t="800" v="-0.088557 0.0 0.0 0.996071 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Rotation \ X Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="rotx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.225612 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.746857 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.355292 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.692172 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.177346 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Rotation \ Y Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="roty" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Rotation \ Z Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="rotz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+                <Key t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg02_Knee_XB \ Transform \ Scale" classOf="Bezier Scale" classID="2010,0" superClassID="900D" subNum="2" numChildren="0" filterType="scale" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="6" inRangeLoop="false" outRangeLoop="false">
+                <K t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 -0.0 -0.0 -0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="160" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="320" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="480" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="640" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+                <K t="800" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 0.0 0.0 0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+            </Keys>
+        </Controller>
+    </Node>
+    <Node name="L_Leg03_Ankle_XB" parentNode="L_Leg02_Knee_XB" parentNodeIndex="0" distanceToParent="10.386567" numChildren="1">
+        <Samples count="6">
+            <S t="0" v="0.027859 0.659441 -0.751240 0.605455 0.586863 0.537603 0.795392 -0.469819 -0.382912 3.411328 14.578985 -3.242590" />
+            <S t="160" v="0.027859 0.810784 -0.584682 0.605455 0.451727 0.655262 0.795392 -0.372254 -0.478308 3.411328 14.674662 -0.927778" />
+            <S t="320" v="0.027859 0.880898 -0.472486 0.605455 0.361233 0.709179 0.795392 -0.305826 -0.523280 3.411328 13.294071 -2.319038" />
+            <S t="480" v="0.027859 0.927769 -0.372113 0.605455 0.280544 0.744795 0.795392 -0.246047 -0.553907 3.411328 10.129386 -3.719853" />
+            <S t="640" v="0.027859 0.232311 -0.972242 0.605455 0.769993 0.201334 0.795392 -0.594258 -0.119203 3.411327 6.465718 -13.763909" />
+            <S t="800" v="0.027859 -0.438100 -0.898495 0.605455 0.722606 -0.333565 0.795392 -0.534705 0.285381 3.411326 -0.650895 -17.727842" />
+        </Samples>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Position" classOf="Position XYZ" classID="118F7E02,FFEE238A" superClassID="900B" subNum="0" numChildren="3" filterType="pos" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <P3Val t="0" v="1.407840 0.469430 -10.279999 " />
+                <P3Val t="160" v="1.407840 0.469430 -10.279999 " />
+                <P3Val t="320" v="1.407840 0.469430 -10.279999 " />
+                <P3Val t="480" v="1.407840 0.469430 -10.279999 " />
+                <P3Val t="640" v="1.407840 0.469430 -10.279999 " />
+                <P3Val t="800" v="1.407840 0.469430 -10.279999 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Position \ X Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="posx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.407840 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Position \ Y Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="posy" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.469430 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Position \ Z Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="posz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-10.279999 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Rotation" classOf="Euler XYZ" classID="2012,0" superClassID="900C" subNum="1" numChildren="3" filterType="rot" outOfRangeBefore="constant" outOfRangeAfter="constant" eulerOrder="XZY" eulerRotatingFrame="true">
+            <Samples count="6">
+                <RVal t="0" v="0.0 -0.554753 0.422280 0.716889 " />
+                <RVal t="160" v="0.0 -0.554753 0.422280 0.716889 " />
+                <RVal t="320" v="0.0 -0.554753 0.422280 0.716889 " />
+                <RVal t="480" v="0.0 -0.554753 0.422280 0.716889 " />
+                <RVal t="640" v="0.0 -0.554753 0.422280 0.716889 " />
+                <RVal t="800" v="0.0 -0.554753 0.422280 0.716889 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Rotation \ X Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="rotx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.883582 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Rotation \ Y Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="roty" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.919654 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Rotation \ Z Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="rotz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-1.524816 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg03_Ankle_XB \ Transform \ Scale" classOf="Bezier Scale" classID="2010,0" superClassID="900D" subNum="2" numChildren="0" filterType="scale" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <K t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.000000 1.0 1.0 0.110044 0.321706 0.314762 0.886183 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+            </Keys>
+        </Controller>
+    </Node>
+    <Node name="L_Leg04_Toes_XL" parentNode="L_Leg03_Ankle_XB" parentNodeIndex="0" distanceToParent="2.701469" numChildren="0">
+        <Samples count="6">
+            <S t="0" v="0.027859 0.659441 -0.751240 0.605455 0.586863 0.537603 0.795392 -0.469819 -0.382912 3.486588 16.360445 -5.272041" />
+            <S t="160" v="0.027859 0.810784 -0.584682 0.605455 0.451727 0.655262 0.795392 -0.372254 -0.478308 3.486588 16.864969 -2.507280" />
+            <S t="320" v="0.027859 0.880898 -0.472486 0.605455 0.361233 0.709179 0.795392 -0.305826 -0.523280 3.486588 15.673790 -3.595444" />
+            <S t="480" v="0.027859 0.927769 -0.372113 0.605455 0.280544 0.744795 0.795392 -0.246047 -0.553907 3.486588 12.635726 -4.725105" />
+            <S t="640" v="0.027859 0.232311 -0.972242 0.605455 0.769993 0.201334 0.795392 -0.594258 -0.119203 3.486588 7.093300 -16.390392" />
+            <S t="800" v="0.027859 -0.438100 -0.898495 0.605455 0.722606 -0.333565 0.795392 -0.534705 0.285381 3.486586 -1.834408 -20.155098" />
+        </Samples>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Position" classOf="Position XYZ" classID="118F7E02,FFEE238A" superClassID="900B" subNum="0" numChildren="3" filterType="pos" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <P3Val t="0" v="2.701470 0.0 0.0 " />
+                <P3Val t="160" v="2.701470 0.0 0.0 " />
+                <P3Val t="320" v="2.701470 0.0 0.0 " />
+                <P3Val t="480" v="2.701470 0.0 0.0 " />
+                <P3Val t="640" v="2.701470 0.0 0.0 " />
+                <P3Val t="800" v="2.701470 0.0 0.0 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Position \ X Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="posx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="2.701470 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Position \ Y Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="posy" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Position \ Z Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="posz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Rotation" classOf="Euler XYZ" classID="2012,0" superClassID="900C" subNum="1" numChildren="3" filterType="rot" outOfRangeBefore="constant" outOfRangeAfter="constant" eulerOrder="XZY" eulerRotatingFrame="true">
+            <Samples count="6">
+                <RVal t="0" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="160" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="320" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="480" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="640" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="800" v="0.0 0.0 0.0 1.0 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Rotation \ X Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="rotx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Rotation \ Y Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="roty" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Rotation \ Z Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="rotz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_Leg04_Toes_XL \ Transform \ Scale" classOf="Bezier Scale" classID="2010,0" superClassID="900D" subNum="2" numChildren="0" filterType="scale" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <K t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 -0.0 -0.0 -0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+            </Keys>
+        </Controller>
+    </Node>
+    <Node name="L_LegZ_ShinRoll01_XL1" parentNode="L_Leg02_Knee_XB" parentNodeIndex="1" distanceToParent="4.964151" numChildren="0">
+        <Samples count="6">
+            <S t="0" v="1.000000 -0.000000 -0.000000 0.000000 0.198422 0.980117 -0.000000 -0.980117 0.198422 2.676348 9.270287 -2.417901" />
+            <S t="160" v="1.000000 -0.000000 -0.000000 -0.000000 -0.025862 0.999666 -0.000000 -0.999666 -0.025862 2.676348 9.316014 -1.311560" />
+            <S t="320" v="1.000000 -0.000000 -0.000000 -0.000000 -0.157655 0.987494 -0.000000 -0.987494 -0.157655 2.676348 8.033044 -3.407145" />
+            <S t="480" v="1.000000 -0.000000 -0.000000 -0.000000 -0.265953 0.963986 -0.000000 -0.963986 -0.265953 2.676347 5.021064 -5.383410" />
+            <S t="640" v="1.000000 -0.000000 -0.000000 0.000000 0.633151 0.774028 -0.000000 -0.774028 0.633151 2.676347 2.156512 -10.555620" />
+            <S t="800" v="1.000000 -0.000000 -0.000000 0.000000 0.980666 0.195689 -0.000000 -0.195689 0.980666 2.676346 -1.941447 -12.512781" />
+        </Samples>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Position" classOf="Position XYZ" classID="118F7E02,FFEE238A" superClassID="900B" subNum="0" numChildren="3" filterType="pos" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Samples count="6">
+                <P3Val t="0" v="0.672860 0.224360 -4.913219 " />
+                <P3Val t="160" v="0.672860 0.224360 -4.913219 " />
+                <P3Val t="320" v="0.672860 0.224360 -4.913219 " />
+                <P3Val t="480" v="0.672860 0.224360 -4.913219 " />
+                <P3Val t="640" v="0.672860 0.224360 -4.913219 " />
+                <P3Val t="800" v="0.672860 0.224360 -4.913219 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Position \ X Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="posx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.672860 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Position \ Y Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="posy" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.224360 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Position \ Z Position" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="posz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-4.913219 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Rotation" classOf="Euler XYZ" classID="2012,0" superClassID="900C" subNum="1" numChildren="3" filterType="rot" outOfRangeBefore="constant" outOfRangeAfter="constant" eulerOrder="XZY" eulerRotatingFrame="true">
+            <Samples count="6">
+                <RVal t="0" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="160" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="320" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="480" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="640" v="0.0 0.0 0.0 1.0 " />
+                <RVal t="800" v="0.0 0.0 0.0 1.0 " />
+            </Samples>
+        </Controller>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Rotation \ X Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="0" numChildren="0" filterType="rotx" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Rotation \ Y Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="1" numChildren="0" filterType="roty" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="-0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Rotation \ Z Rotation" classOf="Bezier Float" classID="2007,0" superClassID="9003" subNum="2" numChildren="0" filterType="rotz" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <Key t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="0.0 " inTanVal="0.0 " outTanVal="0.0 " inLen="-1.000000 " outLen="-1.000000 " />
+            </Keys>
+        </Controller>
+        <Controller name="L_LegZ_ShinRoll01_XL1 \ Transform \ Scale" classOf="Bezier Scale" classID="2010,0" superClassID="900D" subNum="2" numChildren="0" filterType="scale" outOfRangeBefore="constant" outOfRangeAfter="constant">
+            <Keys count="1" inRangeLoop="false" outRangeLoop="false">
+                <K t="0" xB="false" yB="false" zB="false" wB="false" cVel="false" unconHan="false" inTan="flat" outTan="flat" v="1.0 1.0 1.0 -0.0 -0.0 -0.0 1.0 " inTanVal="0.0 0.0 0.0 " outTanVal="0.0 0.0 0.0 " inLen="-1.000000 -1.000000 -1.000000 " outLen="-1.000000 -1.000000 -1.000000 " />
+            </Keys>
+        </Controller>
+    </Node>
+</MaxAnimation>
