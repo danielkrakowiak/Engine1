@@ -67,6 +67,11 @@ loading models:
 2) inverting texcoord v-component -> v = 1 - v
 3) probably reordering vertices from anticlockwise to clockwise
 
+Classes --------------------------------------------------------------------------------------------
+
+- Keep classes small. Split into smaller classes as much as you can. Smaller classes are easier to manage, remove, move, refactor etc.
+- Try to make classes use other classes at the same or lower level of abstraction - Mesh class can use math classes, but should't use AssetManager class. It's the role of AssetManager to use Mesh class.
+
 Methods --------------------------------------------------------------------------------------------
 
 - When a method returns more than one value - use std::tuple to return them.

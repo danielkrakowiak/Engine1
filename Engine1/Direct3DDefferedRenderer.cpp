@@ -130,7 +130,7 @@ void Direct3DDefferedRenderer::render( const BlockModel& model, const float43& w
 		ModelTexture2D modelAlbedoTexture = model.getAlbedoTexture( 0 );
 
 		blockModelVertexShader.setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix );
-		blockModelFragmentShader.setParameters( *deviceContext.Get( ), *modelAlbedoTexture.texture.get( ) );
+		blockModelFragmentShader.setParameters( *deviceContext.Get( ), *modelAlbedoTexture.getTexture().get( ) );
 
 		rendererCore.enableShaders( blockModelVertexShader, blockModelFragmentShader );
 	}

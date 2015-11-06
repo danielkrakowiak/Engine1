@@ -8,12 +8,12 @@
 
 #include "MyXAFFileParser.h"
 
-#include "File.h"
+#include "TextFile.h"
 
 
 std::shared_ptr<SkeletonAnimation> SkeletonAnimation::createFromFile( const std::string& path, const FileFormat format, const SkeletonMesh& mesh, const bool invertZCoordinate )
 {
-	std::shared_ptr< std::vector<char> > fileData = File::loadText( path );
+	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
 	return createFromMemory( *fileData, format, mesh, invertZCoordinate );
 }

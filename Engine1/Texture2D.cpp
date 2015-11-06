@@ -5,16 +5,24 @@
 
 #include "StringUtil.h"
 
-#include "File.h"
+#include "BinaryFile.h"
+#include "Texture2DParser.h"
 
 #include <d3d11.h>
 
 std::shared_ptr<Texture2D> Texture2D::createFromFile( const std::string& path, const FileFormat format )
 {
 
-	std::shared_ptr< std::vector<unsigned char> > fileData = File::loadBinary( path );
+	std::shared_ptr< std::vector<unsigned char> > fileData = BinaryFile::load( path );
 
-	return createFromMemory( *fileData, format );
+	std::shared_ptr<Texture2D> texture = createFromMemory( *fileData, format );
+
+	if ( texture ) {
+		texture->filePath = path;
+		texture->fileFormat = format;
+	}
+
+	return texture;
 }
 
 std::shared_ptr<Texture2D> Texture2D::createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format )
@@ -55,7 +63,27 @@ std::shared_ptr<Texture2D> Texture2D::createFromMemory( std::vector<unsigned cha
 	return texture;
 }
 
+std::shared_ptr<Texture2D> Texture2D::createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load )
+{
+	std::shared_ptr<Texture2D> texture = Texture2DParser::parseFileInfoBinary( dataIt );
+
+	if ( !load ) {
+		return texture;
+	} else {
+		std::shared_ptr<Texture2D> loadedTexture = Texture2D::createFromFile( texture->getFilePath( ), texture->getFileFormat( ) );
+
+		return loadedTexture;
+	}
+}
+
+void Texture2D::writeFileInfoBinary( std::vector<unsigned char>& data ) const
+{
+	Texture2DParser::writeFileInfoBinary( data, *this );
+}
+
 Texture2D::Texture2D() :
+filePath( "" ),
+fileFormat( FileFormat::BMP ),
 bytesPerPixel( 0 ),
 width( 0 ),
 height( 0 ),
@@ -67,6 +95,16 @@ dataMipMaps()
 
 Texture2D::~Texture2D()
 {}
+
+std::string Texture2D::getFilePath() const
+{
+	return filePath;
+}
+
+Texture2D::FileFormat Texture2D::getFileFormat( ) const
+{
+	return fileFormat;
+}
 
 void Texture2D::loadCpuToGpu( ID3D11Device& device )
 {

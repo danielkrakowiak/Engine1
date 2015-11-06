@@ -19,3 +19,5 @@
 	- parsing skeleton animation files
 10.05.2015
 	- tests for Texture2D, RenderTargetTexture2D, RenderTargetDepthTexture2D
+06.11.2015
+	- tests for loading/saving Texture2D file info, BlockMesh, SkeletonMesh file info, BlockModel, SkeletonModel from binary.

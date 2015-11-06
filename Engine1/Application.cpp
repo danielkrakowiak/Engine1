@@ -151,16 +151,21 @@ void Application::run() {
 	mesh2->loadToGpu( direct3DRenderer.getDevice( ) );*/
 
 	//////
-	//std::shared_ptr<BlockMesh> mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/quadbot2.obj", BlockMesh::FileFormat::OBJ, false, false );
-	//mesh3->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+	/*std::shared_ptr<BlockMesh> mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/quadbot2.obj", BlockMesh::FileFormat::OBJ, false, false ).front();
+	mesh3->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	//std::shared_ptr<Texture2D> albedoTexture = Texture2D::createFromFile( "../Engine1/Assets/Textures/Quadbot/quadbot_dirt.png", Texture2D::FileFormat::BMP );
-	//albedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice(  ) );
+	std::shared_ptr<Texture2D> albedoTexture = Texture2D::createFromFile( "../Engine1/Assets/Textures/Quadbot/quadbot_dirt.png", Texture2D::FileFormat::BMP );
+	albedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice(  ) );
 
-	//std::shared_ptr<BlockModel> model1 = std::make_shared<BlockModel>( );
-	//model1->setMesh( mesh3 );
-	//model1->addAlbedoTexture( albedoTexture, 0 );
+	std::shared_ptr<BlockModel> model1 = std::make_shared<BlockModel>( );
+	model1->setMesh( mesh3 );
+	model1->addAlbedoTexture( albedoTexture, 0 );
+
+	model1->saveToFile( "../Engine1/Assets/Models/quadbot.blockmodel" );*/
 	/////
+
+	std::shared_ptr<BlockModel> model1 = BlockModel::createFromFile( "../Engine1/Assets/Models/quadbot.blockmodel", BlockModel::FileFormat::BLOCKMODEL, true );
+	model1->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
 	/////
 	/*std::shared_ptr<BlockMesh> mesh4 = std::make_shared<BlockMesh>( "../Engine1/Assets/Meshes/tree/tree-trunk.obj", AssetFileFormat::OBJ, true, true, true );
@@ -282,6 +287,8 @@ void Application::run() {
 
 		direct3DDefferedRenderer.render( *axisMesh, worldMatrix, viewMatrix );
 
+		direct3DDefferedRenderer.render( *model1, worldMatrix, viewMatrix );
+
 		{ // Pilot rendering.
 			//direct3DDefferedRenderer.render( *pilotBlockMesh, worldMatrix, viewMatrix );
 
@@ -368,7 +375,7 @@ void Application::run() {
 			//direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
-		std::shared_ptr<RenderTargetTexture2D> renderTarget = direct3DDefferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL );
+		std::shared_ptr<RenderTargetTexture2D> renderTarget = direct3DDefferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO );
 
 		std::shared_ptr<Texture2D> renderTargetTexture = std::dynamic_pointer_cast<Texture2D>( renderTarget );
 

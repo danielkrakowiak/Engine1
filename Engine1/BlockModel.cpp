@@ -1,14 +1,116 @@
 #include "BlockModel.h"
 
-#include <iostream>
+#include "BinaryFile.h"
+#include "BlockModelParser.h"
+
+std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently )
+{
+	std::shared_ptr< std::vector<unsigned char> > fileData = BinaryFile::load( path );
+
+	return createFromMemory( *fileData, format, loadRecurrently );
+}
+
+std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format, bool loadRecurrently )
+{
+	if ( FileFormat::BLOCKMODEL == format ) {
+		return BlockModelParser::parseBinary( fileData, loadRecurrently );
+	}
+}
 
 BlockModel::BlockModel( ) 
-: mesh( nullptr ), emissionMultiplier( float3( 1.0f, 1.0f, 1.0f ) ), albedoMultiplier( float3( 1.0f, 1.0f, 1.0f ) ), roughnessMultiplier( 1.0f ), normalMultiplier( 1.0f ){}
+: mesh( nullptr ) 
+{}
 
 
-BlockModel::~BlockModel( ) {}
+BlockModel::~BlockModel( ) 
+{}
 
-void BlockModel::setMesh( std::shared_ptr<BlockMesh>& mesh ) {
+void BlockModel::saveToFile( const std::string& path )
+{
+	std::vector<unsigned char> data;
+
+	BlockModelParser::writeBinary( data, *this );
+
+	BinaryFile::save( path, data );
+}
+
+void BlockModel::loadCpuToGpu( ID3D11Device& device )
+{
+	if ( mesh )
+		mesh->loadCpuToGpu( device );
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			texture.getTexture()->loadCpuToGpu( device );
+	}
+}
+
+void BlockModel::loadGpuToCpu()
+{
+	if ( mesh )
+		mesh->loadGpuToCpu();
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			texture.getTexture()->loadGpuToCpu();
+	}
+}
+
+void BlockModel::unloadFromCpu()
+{
+	if ( mesh )
+		mesh->unloadFromCpu();
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			texture.getTexture()->unloadFromCpu();
+	}
+}
+
+void BlockModel::unloadFromGpu()
+{
+	if ( mesh )
+		mesh->unloadFromGpu();
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			texture.getTexture()->unloadFromGpu();
+	}
+}
+
+bool BlockModel::isInCpuMemory() const
+{
+	if ( mesh && !mesh->isInCpuMemory() )
+		return false;
+
+	const std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( const ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
+			return false;
+	}
+
+	return true;
+}
+
+bool BlockModel::isInGpuMemory() const
+{
+	if ( mesh && !mesh->isInGpuMemory() )
+		return false;
+
+	const std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( const ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
+			return false;
+	}
+
+	return true;
+}
+
+void BlockModel::setMesh( std::shared_ptr<BlockMesh> mesh ) {
 	this->mesh = mesh;
 }
 
@@ -20,28 +122,38 @@ std::shared_ptr<BlockMesh> BlockModel::getMesh( ) {
 	return mesh;
 }
 
-void BlockModel::addEmissionTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex ) {
-	if ( texcoordIndex < 0 ) throw std::exception( "BlockModel::addEmissionTexture - Incorrect texcoordIndex" );
-
-	emissionTextures.push_back( ModelTexture2D( texture, texcoordIndex ) );
+void BlockModel::addEmissionTexture( ModelTexture2D& texture )
+{
+	emissionTextures.push_back( texture );
 }
 
-void BlockModel::addAlbedoTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex ) {
-	if ( texcoordIndex < 0 ) throw std::exception( "BlockModel::addAlbedoTexture - Incorrect texcoordIndex" );
-
-	albedoTextures.push_back( ModelTexture2D( texture, texcoordIndex ) );
+void BlockModel::addAlbedoTexture( ModelTexture2D& texture )
+{
+	albedoTextures.push_back( texture );
 }
 
-void BlockModel::addRoughnessTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex ) {
-	if ( texcoordIndex < 0 ) throw std::exception( "BlockModel::addRoughnessTexture - Incorrect texcoordIndex" );
-
-	roughnessTextures.push_back( ModelTexture2D( texture, texcoordIndex ) );
+void BlockModel::addRoughnessTexture( ModelTexture2D& texture )
+{
+	roughnessTextures.push_back( texture );
 }
 
-void BlockModel::addNormalTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex ) {
-	if ( texcoordIndex < 0 ) throw std::exception( "BlockModel::addNormalTexture - Incorrect texcoordIndex" );
+void BlockModel::addNormalTexture( ModelTexture2D& texture )
+{
+	normalTextures.push_back( texture );
+}
 
-	normalTextures.push_back( ModelTexture2D( texture, texcoordIndex ) );
+std::vector<ModelTexture2D> BlockModel::getAllTextures() const
+{
+	std::vector<ModelTexture2D> textures;
+
+	textures.reserve( emissionTextures.size() + albedoTextures.size() + roughnessTextures.size() + normalTextures.size() );
+
+	textures.insert( textures.end(),  emissionTextures.begin(),   emissionTextures.end() );
+	textures.insert( textures.end( ), albedoTextures.begin( ),    albedoTextures.end( ) );
+	textures.insert( textures.end( ), roughnessTextures.begin( ), roughnessTextures.end( ) );
+	textures.insert( textures.end( ), normalTextures.begin( ),    normalTextures.end( ) );
+
+	return textures;
 }
 
 std::vector<ModelTexture2D> BlockModel::getEmissionTextures( ) const {

@@ -16,20 +16,32 @@ struct ID3D11Buffer;
 class BlockMesh {
 	friend class MyOBJFileParser;
 	friend class MyDAEFileParser;
+	friend class BlockMeshParser;
 
 public:
 
 	enum class FileFormat : char
 	{
-		OBJ,
-		DAE
+		OBJ = 0,
+		DAE = 1
 	};
 
 	static std::vector< std::shared_ptr<BlockMesh> > createFromFile( const std::string& path, const FileFormat format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
 	static std::vector< std::shared_ptr<BlockMesh> > createFromMemory( std::vector<char>& fileData, const FileFormat format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
+	
+	static std::shared_ptr<BlockMesh> createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load );
+
+	void writeFileInfoBinary( std::vector<unsigned char>& data ) const;
 
 	BlockMesh();
 	~BlockMesh();
+
+	std::string getFilePath() const;
+	int getIndexInFile() const; // Returns index of this mesh in it's file (useful when there are multiple meshes in the file).
+	FileFormat getFileFormat() const;
+	bool getFileInvertedZCoordinate() const;
+	bool getFileInvertedVertexWindingOrder() const;
+	bool getFileFlipedUVs() const;
 
 	void loadCpuToGpu( ID3D11Device& device );
 	void loadGpuToCpu( );
@@ -54,6 +66,13 @@ public:
 	ID3D11Buffer* getTriangleBuffer( ) const;
 
 private:
+
+	std::string filePath;
+	int indexInFile;
+	FileFormat fileFormat;
+	bool fileInvertedZCoordinate;
+	bool fileInvertedVertexWindingOrder;
+	bool fileFlipedUVs;
 
 	std::vector<float3> vertices;
 	std::vector<float3> normals;

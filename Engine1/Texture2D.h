@@ -17,6 +17,7 @@ struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
 
 class Texture2D {
+	friend class Texture2DParser;
 
 	public:
 
@@ -33,11 +34,18 @@ class Texture2D {
 
 	static std::shared_ptr<Texture2D> createFromFile( const std::string& path, const FileFormat format );
 	static std::shared_ptr<Texture2D> createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format );
+	
+	static std::shared_ptr<Texture2D> createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load );
 
 	public:
 
+	void writeFileInfoBinary( std::vector<unsigned char>& data ) const;
+
 	Texture2D();
 	~Texture2D();
+
+	virtual std::string getFilePath() const;
+	virtual FileFormat getFileFormat() const;
 
 	virtual void loadCpuToGpu( ID3D11Device& device );
 	virtual void loadGpuToCpu( );
@@ -67,6 +75,9 @@ class Texture2D {
 	virtual int getLineSize( unsigned int mipMapLevel = 0 ) const;
 
 	protected:
+
+	std::string filePath;
+	FileFormat fileFormat;
 
 	int bytesPerPixel;
 	int width;

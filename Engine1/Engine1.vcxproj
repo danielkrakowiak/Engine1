@@ -433,10 +433,13 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="BasicAsset.h" />
+    <ClInclude Include="BinaryFile.h" />
     <ClInclude Include="BlockMesh.h" />
     <ClInclude Include="BlockMeshFragmentShader.h" />
     <ClInclude Include="BlockMeshLOD.h" />
+    <ClInclude Include="BlockMeshParser.h" />
     <ClInclude Include="BlockMeshVertexShader.h" />
+    <ClInclude Include="BlockModelParser.h" />
     <ClInclude Include="BlockModelFragmentShader.h" />
     <ClInclude Include="BlockModelLOD.h" />
     <ClInclude Include="BlockModelVertexShader.h" />
@@ -445,7 +448,10 @@
     <ClInclude Include="Direct3DDefferedRenderer.h" />
     <ClInclude Include="Direct3DRendererCore.h" />
     <ClInclude Include="Direct3DUtil.h" />
-    <ClInclude Include="File.h" />
+    <ClInclude Include="ModelTexture2DParser.h" />
+    <ClInclude Include="SkeletonMeshParser.h" />
+    <ClInclude Include="SkeletonModelParser.h" />
+    <ClInclude Include="TextFile.h" />
     <ClInclude Include="FontLibrary.h" />
     <ClInclude Include="ImageLibrary.h" />
     <ClInclude Include="MyDAEFileParser.h" />
@@ -487,6 +493,7 @@
     <ClInclude Include="StringUtil.h" />
     <ClInclude Include="TextFragmentShader.h" />
     <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="Texture2DParser.h" />
     <ClInclude Include="TextureFragmentShader.h" />
     <ClInclude Include="TextureVertexShader.h" />
     <ClInclude Include="TextVertexShader.h" />
@@ -663,10 +670,13 @@
     <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zutil.c" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="BinaryFile.cpp" />
     <ClCompile Include="BlockMesh.cpp" />
     <ClCompile Include="BlockMeshFragmentShader.cpp" />
     <ClCompile Include="BlockMeshLOD.cpp" />
+    <ClCompile Include="BlockMeshParser.cpp" />
     <ClCompile Include="BlockMeshVertexShader.cpp" />
+    <ClCompile Include="BlockModelParser.cpp" />
     <ClCompile Include="BlockModelFragmentShader.cpp" />
     <ClCompile Include="BlockModelLOD.cpp" />
     <ClCompile Include="BlockModelVertexShader.cpp" />
@@ -675,7 +685,10 @@
     <ClCompile Include="Direct3DDefferedRenderer.cpp" />
     <ClCompile Include="Direct3DRendererCore.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
-    <ClCompile Include="File.cpp" />
+    <ClCompile Include="ModelTexture2DParser.cpp" />
+    <ClCompile Include="SkeletonMeshParser.cpp" />
+    <ClCompile Include="SkeletonModelParser.cpp" />
+    <ClCompile Include="TextFile.cpp" />
     <ClCompile Include="FontLibrary.cpp" />
     <ClCompile Include="ImageLibrary.cpp" />
     <ClCompile Include="MyDAEFileParser.cpp" />
@@ -714,6 +727,7 @@
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="TextFragmentShader.cpp" />
     <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="Texture2DParser.cpp" />
     <ClCompile Include="TextureFragmentShader.cpp" />
     <ClCompile Include="TextureVertexShader.cpp" />
     <ClCompile Include="TextVertexShader.cpp" />

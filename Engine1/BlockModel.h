@@ -9,17 +9,37 @@
 class BlockModel {
 
 	public:
+
+	enum class FileFormat : char
+	{
+		BLOCKMODEL
+	};
+
+	static std::shared_ptr<BlockModel> createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently );
+	static std::shared_ptr<BlockModel> createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format, bool loadRecurrently );
+	
 	BlockModel();
 	~BlockModel();
 
-	void setMesh( std::shared_ptr<BlockMesh>& mesh );
+	void saveToFile( const std::string& path );
+
+	void loadCpuToGpu( ID3D11Device& device );
+	void loadGpuToCpu();
+	void unloadFromCpu();
+	void unloadFromGpu();
+	bool isInCpuMemory() const;
+	bool isInGpuMemory() const;
+
+	void setMesh( std::shared_ptr<BlockMesh> mesh );
 	std::shared_ptr<const BlockMesh> getMesh() const;
 	std::shared_ptr<BlockMesh> getMesh();
 
-	void addEmissionTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex = 0 );
-	void addAlbedoTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex = 0 );
-	void addRoughnessTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex = 0 );
-	void addNormalTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex = 0 );
+	void addEmissionTexture( ModelTexture2D& texture );
+	void addAlbedoTexture( ModelTexture2D& texture );
+	void addRoughnessTexture( ModelTexture2D& texture );
+	void addNormalTexture( ModelTexture2D& texture );
+
+	std::vector<ModelTexture2D>       getAllTextures( ) const;
 
 	std::vector<ModelTexture2D>       getEmissionTextures() const;
 	ModelTexture2D                    getEmissionTexture( int index = 0 ) const;
@@ -32,11 +52,6 @@ class BlockModel {
 	
 	std::vector<ModelTexture2D>		  getNormalTextures( ) const;
 	ModelTexture2D					  getNormalTexture( int index = 0 ) const;
-
-	float3 emissionMultiplier;
-	float3 albedoMultiplier;
-	float roughnessMultiplier;
-	float normalMultiplier;
 
 	private:
 

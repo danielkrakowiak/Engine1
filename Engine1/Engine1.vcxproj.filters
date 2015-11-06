@@ -28,12 +28,6 @@
     <Filter Include="Header Files\Math">
       <UniqueIdentifier>{58a59702-ba95-4301-88f7-bce5cd43308c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Mesh\FileParsers">
-      <UniqueIdentifier>{a32c2290-5249-4891-8868-74b5776ee680}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Mesh\FileParsers">
-      <UniqueIdentifier>{abca199d-c08e-43c6-96a0-3acc5aab158f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\AssetManager">
       <UniqueIdentifier>{b4bc553f-092f-41b5-bc38-5e6f1200e66c}</UniqueIdentifier>
     </Filter>
@@ -192,6 +186,24 @@
     </Filter>
     <Filter Include="Source Files\Enums">
       <UniqueIdentifier>{b0d388f8-cce6-4972-bb90-88b08e571a64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Texture\FileParsers">
+      <UniqueIdentifier>{3186774f-9295-4c4a-8730-d9ff09daba58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Texture\Parsers">
+      <UniqueIdentifier>{c92b33e2-00bc-43ac-882e-d212ece8a6e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Model\Parsers">
+      <UniqueIdentifier>{48f2175b-5f96-4727-9ba8-97394d4b77b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Model\Parsers">
+      <UniqueIdentifier>{67129fc8-d9c5-4033-a1cb-2b8424c851f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Mesh\Parsers">
+      <UniqueIdentifier>{abca199d-c08e-43c6-96a0-3acc5aab158f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Mesh\Parsers">
+      <UniqueIdentifier>{a32c2290-5249-4891-8868-74b5776ee680}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -889,16 +901,16 @@
       <Filter>Header Files\Assimp\contrib</Filter>
     </ClInclude>
     <ClInclude Include="MyOBJFileParser.h">
-      <Filter>Header Files\Mesh\FileParsers</Filter>
+      <Filter>Header Files\Mesh\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="MyDAEFileParser.h">
-      <Filter>Header Files\Mesh\FileParsers</Filter>
+      <Filter>Header Files\Mesh\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="Direct3DUtil.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="MyXAFFileParser.h">
-      <Filter>Header Files\Mesh\FileParsers</Filter>
+      <Filter>Header Files\Mesh\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="rapidxml.hpp">
       <Filter>Header Files\XMLParser</Filter>
@@ -932,9 +944,6 @@
     </ClInclude>
     <ClInclude Include="SkeletonMeshFragmentShader.h">
       <Filter>Header Files\Shader\SkeletonMeshShaders</Filter>
-    </ClInclude>
-    <ClInclude Include="File.h">
-      <Filter>Header Files\File</Filter>
     </ClInclude>
     <ClInclude Include="RenderTargetTexture2D.h">
       <Filter>Header Files\Texture</Filter>
@@ -977,6 +986,30 @@
     </ClInclude>
     <ClInclude Include="quat.h">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="TextFile.h">
+      <Filter>Header Files\File</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryFile.h">
+      <Filter>Header Files\File</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DParser.h">
+      <Filter>Header Files\Texture\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelTexture2DParser.h">
+      <Filter>Header Files\Model\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockModelParser.h">
+      <Filter>Header Files\Model\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockMeshParser.h">
+      <Filter>Header Files\Mesh\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonMeshParser.h">
+      <Filter>Header Files\Mesh\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonModelParser.h">
+      <Filter>Header Files\Model\Parsers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1578,16 +1611,16 @@
       <Filter>Source Files\Assimp\contrib</Filter>
     </ClCompile>
     <ClCompile Include="MyOBJFileParser.cpp">
-      <Filter>Source Files\Mesh\FileParsers</Filter>
+      <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="MyDAEFileParser.cpp">
-      <Filter>Source Files\Mesh\FileParsers</Filter>
+      <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="Direct3DUtil.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="MyXAFFileParser.cpp">
-      <Filter>Source Files\Mesh\FileParsers</Filter>
+      <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="BlockMesh.cpp">
       <Filter>Source Files\Mesh\BlockMesh</Filter>
@@ -1609,9 +1642,6 @@
     </ClCompile>
     <ClCompile Include="SkeletonMeshFragmentShader.cpp">
       <Filter>Source Files\Shader\SkeletonMeshShaders</Filter>
-    </ClCompile>
-    <ClCompile Include="File.cpp">
-      <Filter>Source Files\File</Filter>
     </ClCompile>
     <ClCompile Include="RenderTargetTexture2D.cpp">
       <Filter>Source Files\Texture</Filter>
@@ -1654,6 +1684,30 @@
     </ClCompile>
     <ClCompile Include="quat.cpp">
       <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryFile.cpp">
+      <Filter>Source Files\File</Filter>
+    </ClCompile>
+    <ClCompile Include="TextFile.cpp">
+      <Filter>Source Files\File</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2DParser.cpp">
+      <Filter>Source Files\Texture\FileParsers</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelTexture2DParser.cpp">
+      <Filter>Source Files\Model\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockModelParser.cpp">
+      <Filter>Source Files\Model\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockMeshParser.cpp">
+      <Filter>Source Files\Mesh\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonMeshParser.cpp">
+      <Filter>Source Files\Mesh\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonModelParser.cpp">
+      <Filter>Source Files\Model\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

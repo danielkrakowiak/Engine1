@@ -1,14 +1,115 @@
 #include "SkeletonModel.h"
 
+#include "BinaryFile.h"
+#include "SkeletonModelParser.h"
+
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently )
+{
+	std::shared_ptr< std::vector<unsigned char> > fileData = BinaryFile::load( path );
+
+	return createFromMemory( *fileData, format, loadRecurrently );
+}
+
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format, bool loadRecurrently )
+{
+	if ( FileFormat::SKELETONMODEL == format ) {
+		return SkeletonModelParser::parseBinary( fileData, loadRecurrently );
+	}
+}
 
 SkeletonModel::SkeletonModel( )
-: mesh( nullptr ), emissionMultiplier( float3( 1.0f, 1.0f, 1.0f ) ), albedoMultiplier( float3( 1.0f, 1.0f, 1.0f ) ), roughnessMultiplier( 1.0f ), normalMultiplier( 1.0f ) {}
-
+: mesh( nullptr ) 
+{}
 
 SkeletonModel::~SkeletonModel( ) {}
 
-void SkeletonModel::setMesh( std::shared_ptr<SkeletonMesh>& mesh ) {
+void SkeletonModel::setMesh( std::shared_ptr<SkeletonMesh> mesh ) {
 	this->mesh = mesh;
+}
+
+void SkeletonModel::saveToFile( const std::string& path )
+{
+	std::vector<unsigned char> data;
+
+	SkeletonModelParser::writeBinary( data, *this );
+
+	BinaryFile::save( path, data );
+}
+
+void SkeletonModel::loadCpuToGpu( ID3D11Device& device )
+{
+	if ( mesh )
+		mesh->loadCpuToGpu( device );
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			texture.getTexture()->loadCpuToGpu( device );
+	}
+}
+
+void SkeletonModel::loadGpuToCpu( )
+{
+	if ( mesh )
+		mesh->loadGpuToCpu();
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			texture.getTexture()->loadGpuToCpu();
+	}
+}
+
+void SkeletonModel::unloadFromCpu( )
+{
+	if ( mesh )
+		mesh->unloadFromCpu();
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			texture.getTexture()->unloadFromCpu();
+	}
+}
+
+void SkeletonModel::unloadFromGpu( )
+{
+	if ( mesh )
+		mesh->unloadFromGpu();
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			texture.getTexture()->unloadFromGpu();
+	}
+}
+
+bool SkeletonModel::isInCpuMemory( ) const
+{
+	if ( mesh && !mesh->isInCpuMemory() )
+		return false;
+
+	const std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( const ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
+			return false;
+	}
+
+	return true;
+}
+
+bool SkeletonModel::isInGpuMemory( ) const
+{
+	if ( mesh && !mesh->isInGpuMemory() )
+		return false;
+
+	const std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( const ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
+			return false;
+	}
+
+	return true;
 }
 
 std::shared_ptr<const SkeletonMesh> SkeletonModel::getMesh( ) const {
@@ -19,28 +120,38 @@ std::shared_ptr<SkeletonMesh> SkeletonModel::getMesh( ) {
 	return mesh;
 }
 
-void SkeletonModel::addEmissionTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex ) {
-	if ( texcoordIndex < 0 ) throw std::exception( "SkeletonModel::addEmissionTexture - Incorrect texcoordIndex" );
-
-	emissionTextures.push_back( ModelTexture2D( texture, texcoordIndex ) );
+void SkeletonModel::addEmissionTexture( ModelTexture2D& texture )
+{
+	emissionTextures.push_back( texture );
 }
 
-void SkeletonModel::addAlbedoTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex ) {
-	if ( texcoordIndex < 0 ) throw std::exception( "SkeletonModel::addAlbedoTexture - Incorrect texcoordIndex" );
-
-	albedoTextures.push_back( ModelTexture2D( texture, texcoordIndex ) );
+void SkeletonModel::addAlbedoTexture( ModelTexture2D& texture )
+{
+	albedoTextures.push_back( texture );
 }
 
-void SkeletonModel::addRoughnessTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex ) {
-	if ( texcoordIndex < 0 ) throw std::exception( "SkeletonModel::addRoughnessTexture - Incorrect texcoordIndex" );
-
-	roughnessTextures.push_back( ModelTexture2D( texture, texcoordIndex ) );
+void SkeletonModel::addRoughnessTexture( ModelTexture2D& texture )
+{
+	roughnessTextures.push_back( texture );
 }
 
-void SkeletonModel::addNormalTexture( std::shared_ptr<Texture2D>& texture, int texcoordIndex ) {
-	if ( texcoordIndex < 0 ) throw std::exception( "SkeletonModel::addNormalTexture - Incorrect texcoordIndex" );
+void SkeletonModel::addNormalTexture( ModelTexture2D& texture )
+{
+	normalTextures.push_back( texture );
+}
 
-	normalTextures.push_back( ModelTexture2D( texture, texcoordIndex ) );
+std::vector<ModelTexture2D> SkeletonModel::getAllTextures( ) const
+{
+	std::vector<ModelTexture2D> textures;
+
+	textures.reserve( emissionTextures.size() + albedoTextures.size() + roughnessTextures.size() + normalTextures.size() );
+
+	textures.insert( textures.end(), emissionTextures.begin(), emissionTextures.end() );
+	textures.insert( textures.end(), albedoTextures.begin(), albedoTextures.end() );
+	textures.insert( textures.end(), roughnessTextures.begin(), roughnessTextures.end() );
+	textures.insert( textures.end(), normalTextures.begin(), normalTextures.end() );
+
+	return textures;
 }
 
 std::vector<ModelTexture2D> SkeletonModel::getEmissionTextures( ) const {

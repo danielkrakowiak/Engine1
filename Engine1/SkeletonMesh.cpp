@@ -5,11 +5,12 @@
 
 #include "MyOBJFileParser.h"
 #include "MyDAEFileParser.h"
+#include "SkeletonMeshParser.h"
 
 #include "StringUtil.h"
 #include "Direct3DUtil.h"
 
-#include "File.h"
+#include "TextFile.h"
 
 #include <d3d11.h>
 
@@ -17,10 +18,21 @@ using Microsoft::WRL::ComPtr;
 
 std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const std::string& path, const FileFormat format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	std::shared_ptr< std::vector<char> > fileData = File::loadText( path );
+	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-	return createFromMemory( *fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+	std::vector< std::shared_ptr<SkeletonMesh> > meshes = createFromMemory( *fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+
+	// Save path in the loaded meshes.
+	int indexInFile = 0;
+	for ( std::shared_ptr<SkeletonMesh> mesh : meshes ) {
+		mesh->filePath = path;
+		mesh->indexInFile = indexInFile++;
+		mesh->fileFormat = format;
+	}
+
+	return meshes;
 }
+
 std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std::vector<char>& fileData, const FileFormat format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( FileFormat::DAE == format ) {
@@ -30,13 +42,69 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std
 	throw std::exception( "SkeletonMesh::createFromMemory() - incorrect 'format' argument." );
 }
 
+std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load )
+{
+	std::shared_ptr<SkeletonMesh> mesh = SkeletonMeshParser::parseFileInfoBinary( dataIt );
+
+	if ( !load ) {
+		return mesh;
+	} else {
+		std::vector< std::shared_ptr<SkeletonMesh> > loadedMeshes = SkeletonMesh::createFromFile( mesh->getFilePath( ), mesh->getFileFormat( ), mesh->getFileInvertedZCoordinate( ), mesh->getFileInvertedVertexWindingOrder( ), mesh->getFileFlipedUVs( ) );
+
+		if ( (unsigned int)mesh->getIndexInFile() < loadedMeshes.size() )
+			return loadedMeshes.at( mesh->getIndexInFile() );
+		else
+			throw std::exception( "BlockMesh::createFromFileInfoBinary - successfully parsed file info, but failed to load mesh from the file." );
+	}
+}
+
+void SkeletonMesh::writeFileInfoBinary( std::vector<unsigned char>& data ) const
+{
+	SkeletonMeshParser::writeFileInfoBinary( data, *this );
+}
+
 //TODO: complete
 SkeletonMesh::SkeletonMesh() :
-bonesPerVertexCount( BonesPerVertexCount::Type::ZERO )
+bonesPerVertexCount( BonesPerVertexCount::Type::ZERO ),
+indexInFile( 0 ),
+fileFormat( FileFormat::DAE ),
+fileInvertedZCoordinate( false ),
+fileInvertedVertexWindingOrder( false ),
+fileFlipedUVs( false )
 {}
 
 SkeletonMesh::~SkeletonMesh() 
 {}
+
+std::string SkeletonMesh::getFilePath( ) const
+{
+	return filePath;
+}
+
+int SkeletonMesh::getIndexInFile( ) const
+{
+	return indexInFile;
+}
+
+SkeletonMesh::FileFormat SkeletonMesh::getFileFormat( ) const
+{
+	return fileFormat;
+}
+
+bool SkeletonMesh::getFileInvertedZCoordinate( ) const
+{
+	return fileInvertedZCoordinate;
+}
+
+bool SkeletonMesh::getFileInvertedVertexWindingOrder( ) const
+{
+	return fileInvertedVertexWindingOrder;
+}
+
+bool SkeletonMesh::getFileFlipedUVs( ) const
+{
+	return fileFlipedUVs;
+}
 
 void SkeletonMesh::loadCpuToGpu( ID3D11Device& device )
 {

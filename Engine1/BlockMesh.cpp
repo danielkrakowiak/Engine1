@@ -8,19 +8,31 @@
 
 #include "MyOBJFileParser.h"
 #include "MyDAEFileParser.h"
+#include "BlockMeshParser.h"
 
 #include "StringUtil.h"
 #include "Direct3DUtil.h"
 
-#include "File.h"
+#include "TextFile.h"
 
 using Microsoft::WRL::ComPtr;
 
 std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::string& path, const FileFormat format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	std::shared_ptr< std::vector<char> > fileData = File::loadText( path );
+	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-	return createFromMemory( *fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+	std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( *fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+
+	// Save path in the loaded meshes.
+	int indexInFile = 0;
+	for ( std::shared_ptr<BlockMesh> mesh : meshes ) 
+	{
+		mesh->filePath = path;
+		mesh->indexInFile = indexInFile++;
+		mesh->fileFormat = format;
+	}
+
+	return meshes;
 }
 
 std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>& fileData, const FileFormat format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
@@ -39,11 +51,67 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vect
 	throw std::exception( "BlockMesh::createFromMemory() - incorrect 'format' argument." );
 }
 
-BlockMesh::BlockMesh()
+std::shared_ptr<BlockMesh> BlockMesh::createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load )
+{
+	std::shared_ptr<BlockMesh> mesh = BlockMeshParser::parseFileInfoBinary( dataIt );
+
+	if ( !load ) {
+		return mesh;
+	} else {
+		std::vector< std::shared_ptr<BlockMesh> > loadedMeshes = BlockMesh::createFromFile( mesh->getFilePath(), mesh->getFileFormat(), mesh->getFileInvertedZCoordinate(), mesh->getFileInvertedVertexWindingOrder(), mesh->getFileFlipedUVs() );
+
+		if ( (unsigned int)mesh->getIndexInFile() < loadedMeshes.size() )
+			return loadedMeshes.at( mesh->getIndexInFile() );
+		else
+			throw std::exception( "BlockMesh::createFromFileInfoBinary - successfully parsed file info, but failed to load mesh from the file." );
+	}
+}
+
+void BlockMesh::writeFileInfoBinary( std::vector<unsigned char>& data ) const
+{
+	BlockMeshParser::writeFileInfoBinary( data, *this );
+}
+
+BlockMesh::BlockMesh() : 
+	indexInFile( 0 ),
+	fileFormat( FileFormat::OBJ ),
+	fileInvertedZCoordinate( false ),
+	fileInvertedVertexWindingOrder( false ),
+	fileFlipedUVs( false )
 {}
 
 BlockMesh::~BlockMesh()
 {}
+
+std::string BlockMesh::getFilePath() const
+{
+	return filePath;
+}
+
+int BlockMesh::getIndexInFile() const
+{
+	return indexInFile;
+}
+
+BlockMesh::FileFormat BlockMesh::getFileFormat( ) const
+{
+	return fileFormat;
+}
+
+bool BlockMesh::getFileInvertedZCoordinate() const
+{
+	return fileInvertedZCoordinate;
+}
+
+bool BlockMesh::getFileInvertedVertexWindingOrder() const
+{
+	return fileInvertedVertexWindingOrder;
+}
+
+bool BlockMesh::getFileFlipedUVs() const
+{
+	return fileFlipedUVs;
+}
 
 void BlockMesh::loadCpuToGpu( ID3D11Device& device )
 {
