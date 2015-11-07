@@ -10,6 +10,8 @@
 #include "SkeletonMeshFragmentShader.h"
 #include "BlockModelVertexShader.h"
 #include "BlockModelFragmentShader.h"
+#include "SkeletonModelVertexShader.h"
+#include "SkeletonModelFragmentShader.h"
 #include "TextVertexShader.h"
 #include "TextFragmentShader.h"
 
@@ -93,14 +95,16 @@ class Direct3DDefferedRenderer {
 	float44 orthographicProjectionMatrix;
 
 	// Shaders.
-	BlockMeshVertexShader      blockMeshVertexShader;
-	BlockMeshFragmentShader    blockMeshFragmentShader;
-	SkeletonMeshVertexShader   skeletonMeshVertexShader;
-	SkeletonMeshFragmentShader skeletonMeshFragmentShader;
-	BlockModelVertexShader     blockModelVertexShader;
-	BlockModelFragmentShader   blockModelFragmentShader;
-	TextVertexShader           textVertexShader;
-	TextFragmentShader         textFragmentShader;
+	BlockMeshVertexShader         blockMeshVertexShader;
+	BlockMeshFragmentShader       blockMeshFragmentShader;
+	SkeletonMeshVertexShader      skeletonMeshVertexShader;
+	SkeletonMeshFragmentShader    skeletonMeshFragmentShader;
+	BlockModelVertexShader	      blockModelVertexShader;
+	BlockModelFragmentShader	  blockModelFragmentShader;
+	SkeletonModelVertexShader     skeletonModelVertexShader;
+	SkeletonModelFragmentShader   skeletonModelFragmentShader;
+	TextVertexShader              textVertexShader;
+	TextFragmentShader            textFragmentShader;
 
 	void loadAndCompileShaders( ID3D11Device& device );
 

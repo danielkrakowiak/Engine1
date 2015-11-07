@@ -139,9 +139,10 @@ void SkeletonMeshVertexShader::compileFromFile( std::string path, ID3D11Device& 
 	this->shaderId = ++compiledShadersCount;
 }
 
-void SkeletonMeshVertexShader::setParameters( ID3D11DeviceContext& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix, const SkeletonMesh& skeletonMesh, const SkeletonPose& skeletonPoseInSkeletonSpace ) {
+void SkeletonMeshVertexShader::setParameters( ID3D11DeviceContext& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix, const SkeletonMesh& skeletonMesh, const SkeletonPose& bonesPoseInSkeletonSpace )
+{
 	if ( !compiled ) throw std::exception( "SkeletonMeshVertexShader::setParameters - Shader hasn't been compiled yet." );
-	if ( skeletonMesh.getBoneCount( ) != skeletonPoseInSkeletonSpace.getBonesCount( ) ) throw std::exception( "SkeletonMeshVertexShader::setParameters - there is different number of bones in bind pose and current pose." );
+	if ( skeletonMesh.getBoneCount( ) != bonesPoseInSkeletonSpace.getBonesCount( ) ) throw std::exception( "SkeletonMeshVertexShader::setParameters - there is different number of bones in bind pose and current pose." );
 	if ( skeletonMesh.getBoneCount( ) > maxBoneCount ) throw std::exception( "SkeletonMeshVertexShader::setParameters - the number of bones in the mesh exceeds the shader limit." );
 	if ( skeletonMesh.getBonesPerVertexCount() == BonesPerVertexCount::Type::ZERO ) throw std::exception( "SkeletonMeshVertexShader::setParameters - mesh's number-of-bones-per-vertex is ZERO. Should be one of the supported positive values." );
 
@@ -163,7 +164,7 @@ void SkeletonMeshVertexShader::setParameters( ID3D11DeviceContext& deviceContext
 		{
 			dataPtr->bonesBindPose[ boneIndex - 1 ]    = float44( skeletonMesh.getBone( boneIndex ).getBindPose() ).getTranspose();
 			dataPtr->bonesBindPoseInv[ boneIndex - 1 ] = float44( skeletonMesh.getBone( boneIndex ).getBindPoseInv() ).getTranspose();
-			dataPtr->bonesPose[ boneIndex - 1 ]        = float44( skeletonPoseInSkeletonSpace.getBonePose( boneIndex ) ).getTranspose();
+			dataPtr->bonesPose[ boneIndex - 1 ]        = float44( bonesPoseInSkeletonSpace.getBonePose( boneIndex ) ).getTranspose( );
 		}
 
 		// Set unused bones' pose to identity.

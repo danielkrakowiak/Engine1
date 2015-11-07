@@ -123,3 +123,4 @@ Sat 31.10.2015 - 5h - Saving BlockModel, Texture2D, ModelTexture2D to file.
 Sun 01.11.2015 - 3h - Loading BlockModel, Texture2D, ModelTexture2D from file. 
 Mon 02.11.2015 - 2h - Loading BlockModel, Texture2D, ModelTexture2D from file. 
 Fri 06.11.2015 - 3h - Loading BlockModel, Texture2D, ModelTexture2D from file.
+Sat 07.11.2015 - 4h - Fixed problem with texcoords not loading with Assimp. Added rendering of textured skeleton models.

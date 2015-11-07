@@ -11,6 +11,7 @@
 
 #include "BlockMesh.h"
 #include "BlockModel.h"
+#include "SkeletonModel.h"
 #include "SkeletonAnimation.h"
 
 #include "RenderTargetTexture2D.h"
@@ -164,8 +165,8 @@ void Application::run() {
 	model1->saveToFile( "../Engine1/Assets/Models/quadbot.blockmodel" );*/
 	/////
 
-	std::shared_ptr<BlockModel> model1 = BlockModel::createFromFile( "../Engine1/Assets/Models/quadbot.blockmodel", BlockModel::FileFormat::BLOCKMODEL, true );
-	model1->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+	//std::shared_ptr<BlockModel> model1 = BlockModel::createFromFile( "../Engine1/Assets/Models/quadbot.blockmodel", BlockModel::FileFormat::BLOCKMODEL, true );
+	//model1->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
 	/////
 	/*std::shared_ptr<BlockMesh> mesh4 = std::make_shared<BlockMesh>( "../Engine1/Assets/Meshes/tree/tree-trunk.obj", AssetFileFormat::OBJ, true, true, true );
@@ -197,6 +198,9 @@ void Application::run() {
 	std::shared_ptr<BlockMesh> pilotBlockMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Pilot/Pilot.dae", BlockMesh::FileFormat::DAE, false, false, false ).at(1);
 	pilotBlockMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
+	std::shared_ptr<BlockMesh> ellisBlockMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Ellis/Ellis.dae", BlockMesh::FileFormat::DAE, false, false, false ).at( 1 );
+	ellisBlockMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+
 	std::shared_ptr<SkeletonMesh> pilotSkeletonMesh = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/Pilot/Pilot.dae", SkeletonMesh::FileFormat::DAE, false, false, false ).at( 1 );
 	pilotSkeletonMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
@@ -221,11 +225,41 @@ void Application::run() {
 	SkeletonPose& skeletonPoseBendHand = bendHandAnimationInParentSpace->getPose( 0u );
 	SkeletonPose& skeletonPoseWave2    = bendHandAnimationInParentSpace->getPose( 0u );
 
+
+	
+
+
 	std::vector< std::shared_ptr<SkeletonMesh> > skeletonMeshes3 = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/Bikini Girl.dae", SkeletonMesh::FileFormat::DAE, false, false, false );
 	for ( std::shared_ptr<SkeletonMesh>& mesh : skeletonMeshes3 )
 		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
 	std::shared_ptr<SkeletonMesh> girlMesh = skeletonMeshes3.at( 0 );
+
+	std::shared_ptr<Texture2D> girlAlbedoTexture = Texture2D::createFromFile( "../Engine1/Assets/Textures/Bikini Girl/BikiniGirl_Body_D.tga", Texture2D::FileFormat::TGA );
+	girlAlbedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+
+	std::shared_ptr<SkeletonModel> girlModel = std::make_shared<SkeletonModel>( );
+	girlModel->setMesh( girlMesh );
+	girlModel->addAlbedoTexture( ModelTexture2D( girlAlbedoTexture, 0 ) );
+
+
+
+
+
+	std::vector< std::shared_ptr<BlockMesh> > girlBlockMeshes = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/Bikini Girl.dae", BlockMesh::FileFormat::DAE, false, false, false );
+	for ( std::shared_ptr<BlockMesh>& mesh : girlBlockMeshes )
+		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+
+	std::shared_ptr<BlockMesh> girlBlockMesh = girlBlockMeshes.at( 0 );
+
+	std::shared_ptr<BlockModel> girlBlockModel = std::make_shared<BlockModel>();
+	girlBlockModel->setMesh( girlBlockMesh );
+	girlBlockModel->addAlbedoTexture( ModelTexture2D( girlAlbedoTexture, 0 ) );
+
+
+
+
+
 
 	std::shared_ptr<SkeletonAnimation> idleAnimationInSkeletonSpace3 = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/kick_all_bones.xaf", SkeletonAnimation::FileFormat::XAF, *girlMesh, false );
 	std::shared_ptr<SkeletonAnimation> idleAnimationInParentSpace3 = SkeletonAnimation::calculateAnimationInParentSpace( *idleAnimationInSkeletonSpace3, *girlMesh );
@@ -234,13 +268,15 @@ void Application::run() {
 	SkeletonPose& pilotPose = pilotRunAnimationInSkeletonSpace->getPose( 0u );
 
 	float3 up, position, lookAt;
-	float43 worldMatrix, worldMatrix2;
+	float43 worldMatrix, worldMatrix2, worldMatrix3;
 	float44 viewMatrix;
 
 	worldMatrix.identity();
 	worldMatrix2.identity();
+	worldMatrix3.identity();
 	worldMatrix2.setTranslation( float3( 0.0f, 0.0f, -25.0f ) );
 	//worldMatrix2.setOrientation( MathUtil::anglesToRotationMatrix( float3( MathUtil::pi, 0.0f, 0.0f ) ) );
+	worldMatrix3.setTranslation( float3( 0.0f, 10.0f, 0.0f ) );
 
 	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
 	camera.setPosition( float3( 0.0f, 0.0f, -30.0f ) );
@@ -287,7 +323,14 @@ void Application::run() {
 
 		direct3DDefferedRenderer.render( *axisMesh, worldMatrix, viewMatrix );
 
-		direct3DDefferedRenderer.render( *model1, worldMatrix, viewMatrix );
+		//direct3DDefferedRenderer.render( *model1, worldMatrix, viewMatrix );
+
+		{ // Ellis rendering.
+			direct3DDefferedRenderer.render( *ellisBlockMesh, worldMatrix3, viewMatrix );
+
+			//SkeletonPose poseInSkeletonSpace = pilotPose;// SkeletonPose::calculatePoseInSkeletonSpace( skeletonPoseIdle3, *girlMesh );
+			//direct3DDefferedRenderer.render( *pilotSkeletonMesh, worldMatrix2, viewMatrix, poseInSkeletonSpace );
+		}
 
 		{ // Pilot rendering.
 			//direct3DDefferedRenderer.render( *pilotBlockMesh, worldMatrix, viewMatrix );
@@ -349,7 +392,9 @@ void Application::run() {
 			//SkeletonPose poseInParentSpace = idleAnimationInParentSpace3->getInterpolatedPose( factor3 );
 			//SkeletonPose poseInSkeletonSpace = SkeletonPose::calculatePoseInSkeletonSpace( poseInParentSpace, *girlMesh );
 
-			direct3DDefferedRenderer.render( *girlMesh, worldMatrix2, viewMatrix, poseInSkeletonSpace );
+			direct3DDefferedRenderer.render( *girlModel, worldMatrix2, viewMatrix, poseInSkeletonSpace );
+
+			direct3DDefferedRenderer.render( *girlBlockModel, worldMatrix2, viewMatrix );
 		}
 
 		{ //render FPS

@@ -41,17 +41,15 @@
 06.11.2015
 	-
 
-Saving/loading SkeletonModel.
-
-Add texture mapping to all kinds of meshes.
-
-Add other phases of rendering. Rendering color, normals etc. Then rendering the final image. 
+Find a good, textured skeleton mesh for future tests.
 
 Add saving/loading scene to file
 	- Each class can save/load its object to a binary file.
 	- Scene class which saves/loads scene and stores it during runtime.
 
 Ability to add actors to the scene by dragging model files to the app window or by cloning existing actors.
+
+Add other phases of rendering. Rendering color, normals etc. Then rendering the final image. 
 
 Next 0:
 

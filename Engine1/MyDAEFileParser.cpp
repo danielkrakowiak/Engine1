@@ -20,9 +20,9 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( c
 
 	unsigned int flags = aiProcess_Triangulate;
 
-	if ( invertZCoordinate ) flags |= aiProcess_MakeLeftHanded;
+	if ( invertZCoordinate )        flags |= aiProcess_MakeLeftHanded;
 	if ( invertVertexWindingOrder ) flags |= aiProcess_FlipWindingOrder;
-	if ( flipUVs ) flags |= aiProcess_FlipUVs; 
+	if ( flipUVs )                  flags |= aiProcess_FlipUVs; 
 
 	const aiScene* aiscene = importer.ReadFileFromMemory( file.data( ), file.size( ), flags );
 
@@ -42,13 +42,14 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( c
 			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.normals.push_back( *(float3*)&aimesh.mNormals[ i ] );
 		}
 
-		/*if ( aimesh.HasTextureCoords( 0 ) ) { //TODO: why on character.dae there is only one texcoord (there should be one for each vertex)
+		if ( aimesh.HasTextureCoords( 0 ) ) { 
 			mesh.texcoords.push_back( std::vector<float2>() );
 			std::vector<float2>& texcoords = mesh.texcoords.front();
 
 			texcoords.reserve( aimesh.mNumVertices );
-			for ( int i = 0; i < aimesh.mNumVertices; ++i ) texcoords.push_back( float2( aimesh.mTextureCoords[ i ]->x, aimesh.mTextureCoords[ i ]->y ) );
-		}*/
+			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) 
+				texcoords.push_back( float2( aimesh.mTextureCoords[ 0 ][ i ].x, aimesh.mTextureCoords[ 0 ][ i ].y ) );
+		}
 
 		mesh.triangles.reserve( aimesh.mNumFaces );
 		for ( unsigned int i = 0; i < aimesh.mNumFaces; ++i ) {
@@ -89,13 +90,14 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.normals.push_back( *(float3*)&aimesh.mNormals[ i ] );
 		}
 
-		/*if ( aimesh.HasTextureCoords( 0 ) ) { //TODO: why on character.dae there is only one texcoord (there should be one for each vertex)
-		mesh.texcoords.push_back( std::vector<float2>() );
-		std::vector<float2>& texcoords = mesh.texcoords.front();
+		if ( aimesh.HasTextureCoords( 0 ) ) {
+			mesh.texcoords.push_back( std::vector<float2>() );
+			std::vector<float2>& texcoords = mesh.texcoords.front();
 
-		texcoords.reserve( aimesh.mNumVertices );
-		for ( int i = 0; i < aimesh.mNumVertices; ++i ) texcoords.push_back( float2( aimesh.mTextureCoords[ i ]->x, aimesh.mTextureCoords[ i ]->y ) );
-		}*/
+			texcoords.reserve( aimesh.mNumVertices );
+			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i )
+				texcoords.push_back( float2( aimesh.mTextureCoords[ 0 ][ i ].x, aimesh.mTextureCoords[ 0 ][ i ].y ) );
+		}
 
 		mesh.triangles.reserve( aimesh.mNumFaces );
 		for ( unsigned int i = 0; i < aimesh.mNumFaces; ++i ) {

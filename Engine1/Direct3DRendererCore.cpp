@@ -241,9 +241,6 @@ void Direct3DRendererCore::draw( const BlockMesh& mesh )
 void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 {
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::draw - renderer not initialized." );
-	//NOTE: Vertex bones and vertex weights are passed as separate values (not an array) to shader. They can be seen as interleaved in the C++ buffer. 
-	//For that they need to be split into several buffers (number equal to max bones per vertex).
-	//All the buffers use the same data though, but with different offsets. Ex. vertex-weight[0] offset=0, vertex-weight[1] offset=1, vertex-weight[2] offset=2, vertex-weight[3] offset=3
 
 	//TODO: move this tests to some method? To which class?
 	if ( mesh.getVertices().empty() )      throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh has no vertices." );
@@ -252,37 +249,45 @@ void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 	if ( mesh.getVertexWeights().empty() ) throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh doesn't have vertex weights." );
 	if ( !mesh.isInGpuMemory() )           throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh is not in GPU memory." );
 
+	const bool hasNormals   = mesh.getNormalBuffer();
+	const bool hasTexcoords = !mesh.getTexcoordBuffers().empty() && mesh.getTexcoordBuffers().front();
+
 	unsigned int bufferCount = 3; //vertices + vertex-bones + vertex-weights
-	if ( mesh.getNormalBuffer() ) ++bufferCount; //normals
-	//if ( mesh.getTexcoordBuffers( ).size( ) > 0 && mesh.getTexcoordBuffers( ).front( ) ) ++bufferCount; //texcoords
+	if ( hasNormals ) ++bufferCount; //normals
+	if ( hasTexcoords ) ++bufferCount; //texcoords
 
 	const unsigned int vertexStride        = sizeof( float3 );
 	const unsigned int vertexBonesStride   = static_cast<unsigned int>( mesh.getBonesPerVertexCount() ) * sizeof( unsigned char );
 	const unsigned int vertexWeightsStride = static_cast<unsigned int>( mesh.getBonesPerVertexCount() ) * sizeof( float );
 	const unsigned int normalStride        = sizeof( float3 );
+	const unsigned int texcoordStride      = sizeof( float2 );
 
 	const unsigned int vertexOffset        = 0;
 	const unsigned int vertexBonesOffset   = 0;
 	const unsigned int vertexWeightsOffset = 0;
 	const unsigned int normalOffset        = 0;
+	const unsigned int texcoordOffset      = 0;
 
 	std::vector<unsigned int> strides;
 	strides.push_back( vertexStride );
 	strides.push_back( vertexBonesStride );
 	strides.push_back( vertexWeightsStride );
-	if ( mesh.getNormalBuffer() ) strides.push_back( normalStride );
+	if ( hasNormals )   strides.push_back( normalStride );
+	if ( hasTexcoords ) strides.push_back( texcoordStride );
 
 	std::vector<unsigned int> offsets;
 	offsets.push_back( vertexOffset );
 	offsets.push_back( vertexBonesOffset );
 	offsets.push_back( vertexWeightsOffset );
-	if ( mesh.getNormalBuffer( ) ) offsets.push_back( normalOffset );
+	if ( hasNormals ) offsets.push_back( normalOffset );
+	if ( hasTexcoords ) offsets.push_back( texcoordOffset );
 
 	std::vector<ID3D11Buffer*> buffers;
 	buffers.push_back( mesh.getVertexBuffer() );
 	buffers.push_back( mesh.getVertexBonesBuffer() );
 	buffers.push_back( mesh.getVertexWeightsBuffer() );
-	if ( mesh.getNormalBuffer() ) buffers.push_back( mesh.getNormalBuffer() );
+	if ( hasNormals )   buffers.push_back( mesh.getNormalBuffer() );
+	if ( hasTexcoords ) buffers.push_back( mesh.getTexcoordBuffers().front() );
 
 	deviceContext->IASetVertexBuffers( 0, bufferCount, buffers.data(), strides.data(), offsets.data() );
 	deviceContext->IASetIndexBuffer( mesh.getTriangleBuffer(), DXGI_FORMAT_R32_UINT, 0 );

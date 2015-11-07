@@ -450,7 +450,9 @@
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
     <ClInclude Include="SkeletonMeshParser.h" />
+    <ClInclude Include="SkeletonModelFragmentShader.h" />
     <ClInclude Include="SkeletonModelParser.h" />
+    <ClInclude Include="SkeletonModelVertexShader.h" />
     <ClInclude Include="TextFile.h" />
     <ClInclude Include="FontLibrary.h" />
     <ClInclude Include="ImageLibrary.h" />
@@ -687,7 +689,9 @@
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
     <ClCompile Include="SkeletonMeshParser.cpp" />
+    <ClCompile Include="SkeletonModelFragmentShader.cpp" />
     <ClCompile Include="SkeletonModelParser.cpp" />
+    <ClCompile Include="SkeletonModelVertexShader.cpp" />
     <ClCompile Include="TextFile.cpp" />
     <ClCompile Include="FontLibrary.cpp" />
     <ClCompile Include="ImageLibrary.cpp" />
@@ -790,6 +794,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonModelShader\ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonModelShader\vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\TextShader\ps.hlsl">

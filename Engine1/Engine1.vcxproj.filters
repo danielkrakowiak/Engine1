@@ -205,6 +205,12 @@
     <Filter Include="Header Files\Mesh\Parsers">
       <UniqueIdentifier>{a32c2290-5249-4891-8868-74b5776ee680}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\SkeletonModelShaders">
+      <UniqueIdentifier>{721eec6f-9be2-4544-843b-15e30ec4303d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\SkeletonModelShaders">
+      <UniqueIdentifier>{e568e6b0-fb8f-4cc2-aa12-0851742435ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1011,6 +1017,12 @@
     <ClInclude Include="SkeletonModelParser.h">
       <Filter>Header Files\Model\Parsers</Filter>
     </ClInclude>
+    <ClInclude Include="SkeletonModelVertexShader.h">
+      <Filter>Header Files\Shader\SkeletonModelShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonModelFragmentShader.h">
+      <Filter>Header Files\Shader\SkeletonModelShaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1709,6 +1721,12 @@
     <ClCompile Include="SkeletonModelParser.cpp">
       <Filter>Source Files\Model\Parsers</Filter>
     </ClCompile>
+    <ClCompile Include="SkeletonModelVertexShader.cpp">
+      <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonModelFragmentShader.cpp">
+      <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1763,6 +1781,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\TextureShader\vs.hlsl">
       <Filter>Source Files\Shader\TextureShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonModelShader\ps.hlsl">
+      <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonModelShader\vs.hlsl">
+      <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
