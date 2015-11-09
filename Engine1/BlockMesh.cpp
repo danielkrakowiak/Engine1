@@ -8,7 +8,7 @@
 
 #include "MyOBJFileParser.h"
 #include "MyDAEFileParser.h"
-#include "BlockMeshParser.h"
+#include "BlockMeshFileInfoParser.h"
 
 #include "StringUtil.h"
 #include "Direct3DUtil.h"
@@ -17,7 +17,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::string& path, const FileFormat format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::string& path, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
@@ -27,90 +27,52 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::
 	int indexInFile = 0;
 	for ( std::shared_ptr<BlockMesh> mesh : meshes ) 
 	{
-		mesh->filePath = path;
-		mesh->indexInFile = indexInFile++;
-		mesh->fileFormat = format;
+		mesh->getFileInfo().setPath( path );
+		mesh->getFileInfo().setIndexInFile( indexInFile++ );
+		mesh->getFileInfo().setFormat( format );
+		mesh->getFileInfo().setInvertZCoordinate( invertZCoordinate );
+		mesh->getFileInfo().setInvertVertexWindingOrder( invertVertexWindingOrder );
+		mesh->getFileInfo().setFlipUVs( flipUVs );
 	}
 
 	return meshes;
 }
 
-std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>& fileData, const FileFormat format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	if ( FileFormat::OBJ == format ) {
+	if ( BlockMeshFileInfo::Format::OBJ == format ) {
 
 		std::vector< std::shared_ptr<BlockMesh> > meshes;
 		meshes.push_back( MyOBJFileParser::parseBlockMeshFile( fileData, invertZCoordinate, invertVertexWindingOrder, flipUVs ) );
 
 		return meshes;
 
-	} else if ( FileFormat::DAE == format ) {
+	} else if ( BlockMeshFileInfo::Format::DAE == format ) {
 		return MyDAEFileParser::parseBlockMeshFile( fileData, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 	}
 
 	throw std::exception( "BlockMesh::createFromMemory() - incorrect 'format' argument." );
 }
 
-std::shared_ptr<BlockMesh> BlockMesh::createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load )
-{
-	std::shared_ptr<BlockMesh> mesh = BlockMeshParser::parseFileInfoBinary( dataIt );
-
-	if ( !load ) {
-		return mesh;
-	} else {
-		std::vector< std::shared_ptr<BlockMesh> > loadedMeshes = BlockMesh::createFromFile( mesh->getFilePath(), mesh->getFileFormat(), mesh->getFileInvertedZCoordinate(), mesh->getFileInvertedVertexWindingOrder(), mesh->getFileFlipedUVs() );
-
-		if ( (unsigned int)mesh->getIndexInFile() < loadedMeshes.size() )
-			return loadedMeshes.at( mesh->getIndexInFile() );
-		else
-			throw std::exception( "BlockMesh::createFromFileInfoBinary - successfully parsed file info, but failed to load mesh from the file." );
-	}
-}
-
-void BlockMesh::writeFileInfoBinary( std::vector<unsigned char>& data ) const
-{
-	BlockMeshParser::writeFileInfoBinary( data, *this );
-}
-
-BlockMesh::BlockMesh() : 
-	indexInFile( 0 ),
-	fileFormat( FileFormat::OBJ ),
-	fileInvertedZCoordinate( false ),
-	fileInvertedVertexWindingOrder( false ),
-	fileFlipedUVs( false )
+BlockMesh::BlockMesh()
 {}
 
 BlockMesh::~BlockMesh()
 {}
 
-std::string BlockMesh::getFilePath() const
+void BlockMesh::setFileInfo( const BlockMeshFileInfo& fileInfo )
 {
-	return filePath;
+	this->fileInfo = fileInfo;
 }
 
-int BlockMesh::getIndexInFile() const
+const BlockMeshFileInfo& BlockMesh::getFileInfo() const
 {
-	return indexInFile;
+	return fileInfo;
 }
 
-BlockMesh::FileFormat BlockMesh::getFileFormat( ) const
+BlockMeshFileInfo& BlockMesh::getFileInfo( )
 {
-	return fileFormat;
-}
-
-bool BlockMesh::getFileInvertedZCoordinate() const
-{
-	return fileInvertedZCoordinate;
-}
-
-bool BlockMesh::getFileInvertedVertexWindingOrder() const
-{
-	return fileInvertedVertexWindingOrder;
-}
-
-bool BlockMesh::getFileFlipedUVs() const
-{
-	return fileFlipedUVs;
+	return fileInfo;
 }
 
 void BlockMesh::loadCpuToGpu( ID3D11Device& device )

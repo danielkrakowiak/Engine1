@@ -90,7 +90,7 @@ namespace UnitTests
 			ID3D11DeviceContext* deviceContext = testDeviceContext;
 
 			try {
-				texture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - normal.jpg", Texture2D::FileFormat::JPEG );
+				texture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - normal.jpg", Texture2DFileInfo::Format::JPEG );
 
 				Assert::IsTrue( texture->isInCpuMemory(), L"Texture2D::isInCpuMemory() returned false" );
 				Assert::IsFalse( texture->isInGpuMemory( ), L"Texture2D::isInGpuMemory() returned true" );
@@ -121,7 +121,7 @@ namespace UnitTests
 			std::shared_ptr<Texture2D> texture = nullptr;
 
 			try {
-				texture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - normal.jpg", Texture2D::FileFormat::JPEG );
+				texture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - normal.jpg", Texture2DFileInfo::Format::JPEG );
 
 				texture->generateMipMapsOnCpu();
 

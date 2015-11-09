@@ -7,7 +7,10 @@ std::shared_ptr<ModelTexture2D> ModelTexture2DParser::parseBinary( std::vector<u
 {
 	std::shared_ptr<ModelTexture2D> modelTexture = std::make_shared<ModelTexture2D>( );
 
-	modelTexture->setTexture( Texture2D::createFromFileInfoBinary( dataIt, loadRecurrently ) );
+	Texture2DFileInfo fileInfo = *Texture2DFileInfo::parseBinary( dataIt );
+	std::shared_ptr<Texture2D> texture = Texture2D::createFromFile( fileInfo.getPath(), fileInfo.getFormat() );
+
+	modelTexture->setTexture( texture );
 	modelTexture->setTexcoordIndex( BinaryFile::readInt( dataIt ) );
 	modelTexture->setColorMultiplier( BinaryFile::readFloat4( dataIt ) );
 
@@ -19,10 +22,10 @@ void ModelTexture2DParser::writeBinary( std::vector<unsigned char>& data, const 
 	const std::shared_ptr<Texture2D> texture = modelTexture.getTexture();
 	
 	if ( texture ) {
-		texture->writeFileInfoBinary( data );
+		texture->getFileInfo().writeBinary( data );
 	} else {
-		Texture2D emptyTexture;
-		emptyTexture.writeFileInfoBinary( data );
+		Texture2DFileInfo emptyFileInfo;
+		emptyFileInfo.writeBinary( data );
 	}
 
 	BinaryFile::writeInt( data, modelTexture.getTexcoordIndex() );

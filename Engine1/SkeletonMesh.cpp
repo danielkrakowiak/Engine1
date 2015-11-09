@@ -5,7 +5,6 @@
 
 #include "MyOBJFileParser.h"
 #include "MyDAEFileParser.h"
-#include "SkeletonMeshParser.h"
 
 #include "StringUtil.h"
 #include "Direct3DUtil.h"
@@ -16,7 +15,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const std::string& path, const FileFormat format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const std::string& path, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
@@ -25,85 +24,46 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const
 	// Save path in the loaded meshes.
 	int indexInFile = 0;
 	for ( std::shared_ptr<SkeletonMesh> mesh : meshes ) {
-		mesh->filePath = path;
-		mesh->indexInFile = indexInFile++;
-		mesh->fileFormat = format;
+		mesh->getFileInfo().setPath( path );
+		mesh->getFileInfo().setIndexInFile( indexInFile++ );
+		mesh->getFileInfo().setFormat( format );
+		mesh->getFileInfo().setInvertZCoordinate( invertZCoordinate );
+		mesh->getFileInfo().setInvertVertexWindingOrder( invertVertexWindingOrder );
+		mesh->getFileInfo().setFlipUVs( flipUVs );
 	}
 
 	return meshes;
 }
 
-std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std::vector<char>& fileData, const FileFormat format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std::vector<char>& fileData, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	if ( FileFormat::DAE == format ) {
+	if ( SkeletonMeshFileInfo::Format::DAE == format ) {
 		return MyDAEFileParser::parseSkeletonMeshFile( fileData, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 	}
 
 	throw std::exception( "SkeletonMesh::createFromMemory() - incorrect 'format' argument." );
 }
 
-std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load )
-{
-	std::shared_ptr<SkeletonMesh> mesh = SkeletonMeshParser::parseFileInfoBinary( dataIt );
-
-	if ( !load ) {
-		return mesh;
-	} else {
-		std::vector< std::shared_ptr<SkeletonMesh> > loadedMeshes = SkeletonMesh::createFromFile( mesh->getFilePath( ), mesh->getFileFormat( ), mesh->getFileInvertedZCoordinate( ), mesh->getFileInvertedVertexWindingOrder( ), mesh->getFileFlipedUVs( ) );
-
-		if ( (unsigned int)mesh->getIndexInFile() < loadedMeshes.size() )
-			return loadedMeshes.at( mesh->getIndexInFile() );
-		else
-			throw std::exception( "BlockMesh::createFromFileInfoBinary - successfully parsed file info, but failed to load mesh from the file." );
-	}
-}
-
-void SkeletonMesh::writeFileInfoBinary( std::vector<unsigned char>& data ) const
-{
-	SkeletonMeshParser::writeFileInfoBinary( data, *this );
-}
-
-//TODO: complete
 SkeletonMesh::SkeletonMesh() :
-bonesPerVertexCount( BonesPerVertexCount::Type::ZERO ),
-indexInFile( 0 ),
-fileFormat( FileFormat::DAE ),
-fileInvertedZCoordinate( false ),
-fileInvertedVertexWindingOrder( false ),
-fileFlipedUVs( false )
+bonesPerVertexCount( BonesPerVertexCount::Type::ZERO )
 {}
 
 SkeletonMesh::~SkeletonMesh() 
 {}
 
-std::string SkeletonMesh::getFilePath( ) const
+void SkeletonMesh::setFileInfo( const SkeletonMeshFileInfo& fileInfo )
 {
-	return filePath;
+	this->fileInfo = fileInfo;
 }
 
-int SkeletonMesh::getIndexInFile( ) const
+const SkeletonMeshFileInfo& SkeletonMesh::getFileInfo( ) const
 {
-	return indexInFile;
+	return fileInfo;
 }
 
-SkeletonMesh::FileFormat SkeletonMesh::getFileFormat( ) const
+SkeletonMeshFileInfo& SkeletonMesh::getFileInfo( )
 {
-	return fileFormat;
-}
-
-bool SkeletonMesh::getFileInvertedZCoordinate( ) const
-{
-	return fileInvertedZCoordinate;
-}
-
-bool SkeletonMesh::getFileInvertedVertexWindingOrder( ) const
-{
-	return fileInvertedVertexWindingOrder;
-}
-
-bool SkeletonMesh::getFileFlipedUVs( ) const
-{
-	return fileFlipedUVs;
+	return fileInfo;
 }
 
 void SkeletonMesh::loadCpuToGpu( ID3D11Device& device )

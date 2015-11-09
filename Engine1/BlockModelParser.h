@@ -12,7 +12,7 @@ class BlockModelParser
 
 	private:
 	static std::shared_ptr<BlockModel> parseBinary( const std::vector<unsigned char>& data, const bool loadRecurrently );
-	static void writeBinary( std::vector<unsigned char>& data, const BlockModel& model );
+	static void                        writeBinary( std::vector<unsigned char>& data, const BlockModel& model );
 
 	static std::string fileTypeIdentifier;
 };

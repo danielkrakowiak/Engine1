@@ -18,7 +18,24 @@ std::shared_ptr<BlockModel> BlockModelParser::parseBinary( const std::vector<uns
 	if ( readFileTypeIdentifier.compare( fileTypeIdentifier ) != 0 )
 		throw std::exception( "BlockModelParser::parseBinary - incorrect file type." );
 
-	model->setMesh( BlockMesh::createFromFileInfoBinary( dataIt, loadRecurrently ) );
+	// Parse mesh file info.
+	std::shared_ptr<BlockMeshFileInfo> meshFileInfo = BlockMeshFileInfo::parseBinary( dataIt );
+	
+	// Load mesh.
+	std::shared_ptr< BlockMesh > mesh = nullptr;
+	if ( loadRecurrently )  {
+		std::vector< std::shared_ptr<BlockMesh> > loadedMeshes = BlockMesh::createFromFile( meshFileInfo->getPath( ), meshFileInfo->getFormat( ), meshFileInfo->getInvertZCoordinate( ), meshFileInfo->getInvertVertexWindingOrder( ), meshFileInfo->getFlipUVs( ) );
+
+		if ( (unsigned int)meshFileInfo->getIndexInFile( ) < loadedMeshes.size( ) )
+			mesh = loadedMeshes.at( meshFileInfo->getIndexInFile( ) );
+		else
+			throw std::exception( "BlockModelParser::parseBinary - successfully parsed mesh file info, but failed to load mesh from the file." );
+	} else  {
+		mesh = std::make_shared< BlockMesh >();
+		mesh->setFileInfo( *meshFileInfo );
+	}
+
+	model->setMesh( mesh );
 
 	const int emissiveTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < emissiveTexturesCount; ++i )  {
@@ -54,10 +71,10 @@ void BlockModelParser::writeBinary( std::vector<unsigned char>& data, const Bloc
 	// Save the mesh.
 	std::shared_ptr<const BlockMesh> mesh = model.getMesh( );
 	if ( mesh )  {
-		mesh->writeFileInfoBinary( data );
+		mesh->getFileInfo().writeBinary( data );
 	} else {
-		BlockMesh emptyMesh;
-		emptyMesh.writeFileInfoBinary( data );
+		BlockMeshFileInfo emptyFileInfo;
+		emptyFileInfo.writeBinary( data );
 	}
 	
 	// Save the textures.

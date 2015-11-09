@@ -11,6 +11,6 @@ class ModelTexture2DParser
 
 	private:
 	static std::shared_ptr<ModelTexture2D> parseBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool loadRecurrently );
-	static void writeBinary( std::vector<unsigned char>& data, const ModelTexture2D& modelTexture );
+	static void                            writeBinary( std::vector<unsigned char>& data, const ModelTexture2D& modelTexture );
 };
 

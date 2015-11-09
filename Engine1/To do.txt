@@ -41,7 +41,10 @@
 06.11.2015
 	-
 
-Find a good, textured skeleton mesh for future tests.
+Seperate FileInfo from SkeletonMesh and Texture2D. As with BlockMeshFileInfo.
+Revive AssetManager to avoid loading the same mesh many times. It could keep weak ptr to the assets and give them if available. The simplest appraoch for now.
+
+Create a simple scene class, which stores the list of actors, lights etc in the scene.
 
 Add saving/loading scene to file
 	- Each class can save/load its object to a binary file.

@@ -249,8 +249,8 @@ void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 	if ( mesh.getVertexWeights().empty() ) throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh doesn't have vertex weights." );
 	if ( !mesh.isInGpuMemory() )           throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh is not in GPU memory." );
 
-	const bool hasNormals   = mesh.getNormalBuffer();
-	const bool hasTexcoords = !mesh.getTexcoordBuffers().empty() && mesh.getTexcoordBuffers().front();
+	const bool hasNormals   = mesh.getNormalBuffer() != nullptr;
+	const bool hasTexcoords = !mesh.getTexcoordBuffers().empty() && mesh.getTexcoordBuffers().front() != nullptr;
 
 	unsigned int bufferCount = 3; //vertices + vertex-bones + vertex-weights
 	if ( hasNormals ) ++bufferCount; //normals

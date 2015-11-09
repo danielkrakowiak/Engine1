@@ -999,20 +999,11 @@
     <ClInclude Include="BinaryFile.h">
       <Filter>Header Files\File</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2DParser.h">
-      <Filter>Header Files\Texture\Parsers</Filter>
-    </ClInclude>
     <ClInclude Include="ModelTexture2DParser.h">
       <Filter>Header Files\Model\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="BlockModelParser.h">
       <Filter>Header Files\Model\Parsers</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockMeshParser.h">
-      <Filter>Header Files\Mesh\Parsers</Filter>
-    </ClInclude>
-    <ClInclude Include="SkeletonMeshParser.h">
-      <Filter>Header Files\Mesh\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="SkeletonModelParser.h">
       <Filter>Header Files\Model\Parsers</Filter>
@@ -1022,6 +1013,24 @@
     </ClInclude>
     <ClInclude Include="SkeletonModelFragmentShader.h">
       <Filter>Header Files\Shader\SkeletonModelShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockMeshFileInfo.h">
+      <Filter>Header Files\Mesh\BlockMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockMeshFileInfoParser.h">
+      <Filter>Header Files\Mesh\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonMeshFileInfo.h">
+      <Filter>Header Files\Mesh\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonMeshFileInfoParser.h">
+      <Filter>Header Files\Mesh\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DFileInfo.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DFileInfoParser.h">
+      <Filter>Header Files\Texture\Parsers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1703,20 +1712,11 @@
     <ClCompile Include="TextFile.cpp">
       <Filter>Source Files\File</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2DParser.cpp">
-      <Filter>Source Files\Texture\FileParsers</Filter>
-    </ClCompile>
     <ClCompile Include="ModelTexture2DParser.cpp">
       <Filter>Source Files\Model\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="BlockModelParser.cpp">
       <Filter>Source Files\Model\Parsers</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockMeshParser.cpp">
-      <Filter>Source Files\Mesh\Parsers</Filter>
-    </ClCompile>
-    <ClCompile Include="SkeletonMeshParser.cpp">
-      <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="SkeletonModelParser.cpp">
       <Filter>Source Files\Model\Parsers</Filter>
@@ -1726,6 +1726,24 @@
     </ClCompile>
     <ClCompile Include="SkeletonModelFragmentShader.cpp">
       <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockMeshFileInfo.cpp">
+      <Filter>Source Files\Mesh\BlockMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockMeshFileInfoParser.cpp">
+      <Filter>Source Files\Mesh\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonMeshFileInfo.cpp">
+      <Filter>Source Files\Mesh\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonMeshFileInfoParser.cpp">
+      <Filter>Source Files\Mesh\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2DFileInfo.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2DFileInfoParser.cpp">
+      <Filter>Source Files\Texture\FileParsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

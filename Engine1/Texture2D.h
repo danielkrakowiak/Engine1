@@ -10,6 +10,7 @@
 #include "int2.h"
 
 #include "BasicAsset.h"
+#include "Texture2DFileInfo.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -17,35 +18,20 @@ struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
 
 class Texture2D {
-	friend class Texture2DParser;
 
 	public:
 
-	enum class FileFormat : char 
-	{
-		BMP,
-		DDS,
-		JPEG,
-		PNG,
-		RAW,
-		TIFF,
-		TGA
-	};
-
-	static std::shared_ptr<Texture2D> createFromFile( const std::string& path, const FileFormat format );
-	static std::shared_ptr<Texture2D> createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format );
-	
-	static std::shared_ptr<Texture2D> createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load );
+	static std::shared_ptr<Texture2D> createFromFile( const std::string& path, const Texture2DFileInfo::Format format );
+	static std::shared_ptr<Texture2D> createFromMemory( std::vector<unsigned char>& fileData, const Texture2DFileInfo::Format format );
 
 	public:
-
-	void writeFileInfoBinary( std::vector<unsigned char>& data ) const;
 
 	Texture2D();
 	~Texture2D();
 
-	virtual std::string getFilePath() const;
-	virtual FileFormat getFileFormat() const;
+	void setFileInfo( const Texture2DFileInfo& fileInfo );
+	const Texture2DFileInfo& getFileInfo( ) const;
+	Texture2DFileInfo& getFileInfo( );
 
 	virtual void loadCpuToGpu( ID3D11Device& device );
 	virtual void loadGpuToCpu( );
@@ -76,8 +62,7 @@ class Texture2D {
 
 	protected:
 
-	std::string filePath;
-	FileFormat fileFormat;
+	Texture2DFileInfo fileInfo;
 
 	int bytesPerPixel;
 	int width;

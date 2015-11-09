@@ -143,7 +143,7 @@ void Application::run() {
 	//meshDae->load( );
 	//meshDae->loadToGpu( direct3DRenderer.getDevice( ) );
 
-	std::shared_ptr<BlockMesh> axisMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/dx-coordinate-axises.obj", BlockMesh::FileFormat::OBJ, true, true, true ).front();
+	std::shared_ptr<BlockMesh> axisMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, true, true, true ).front();
 	axisMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
 	/*std::shared_ptr<BlockMesh> mesh2 = std::make_shared<BlockMesh>( "../Engine1/Assets/Meshes/spaceship.obj", AssetFileFormat::OBJ, true, true, true );
@@ -195,16 +195,16 @@ void Application::run() {
 	model3->addAlbedoTexture( albedoTexture3, 0 );*/
 	/////
 
-	std::shared_ptr<BlockMesh> pilotBlockMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Pilot/Pilot.dae", BlockMesh::FileFormat::DAE, false, false, false ).at(1);
+	std::shared_ptr<BlockMesh> pilotBlockMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Pilot/Pilot.dae", BlockMeshFileInfo::Format::DAE, false, false, false ).at( 1 );
 	pilotBlockMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	std::shared_ptr<BlockMesh> ellisBlockMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Ellis/Ellis.dae", BlockMesh::FileFormat::DAE, false, false, false ).at( 1 );
+	std::shared_ptr<BlockMesh> ellisBlockMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Ellis/Ellis.dae", BlockMeshFileInfo::Format::DAE, false, false, false ).at( 1 );
 	ellisBlockMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	std::shared_ptr<SkeletonMesh> pilotSkeletonMesh = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/Pilot/Pilot.dae", SkeletonMesh::FileFormat::DAE, false, false, false ).at( 1 );
+	std::shared_ptr<SkeletonMesh> pilotSkeletonMesh = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/Pilot/Pilot.dae", SkeletonMeshFileInfo::Format::DAE, false, false, false ).at( 1 );
 	pilotSkeletonMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	std::shared_ptr<SkeletonMesh> skeletonMesh2 = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/character2/character2.dae", SkeletonMesh::FileFormat::DAE, false, false, false ).front();
+	std::shared_ptr<SkeletonMesh> skeletonMesh2 = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/character2/character2.dae", SkeletonMeshFileInfo::Format::DAE, false, false, false ).front( );
 	skeletonMesh2->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
 	std::shared_ptr<SkeletonAnimation> idleAnimationInSkeletonSpace     = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/idle_pose.xaf", SkeletonAnimation::FileFormat::XAF, *skeletonMesh2, false );
@@ -229,13 +229,13 @@ void Application::run() {
 	
 
 
-	std::vector< std::shared_ptr<SkeletonMesh> > skeletonMeshes3 = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/Bikini Girl.dae", SkeletonMesh::FileFormat::DAE, false, false, false );
+	std::vector< std::shared_ptr<SkeletonMesh> > skeletonMeshes3 = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/Bikini Girl.dae", SkeletonMeshFileInfo::Format::DAE, false, false, false );
 	for ( std::shared_ptr<SkeletonMesh>& mesh : skeletonMeshes3 )
 		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
 	std::shared_ptr<SkeletonMesh> girlMesh = skeletonMeshes3.at( 0 );
 
-	std::shared_ptr<Texture2D> girlAlbedoTexture = Texture2D::createFromFile( "../Engine1/Assets/Textures/Bikini Girl/BikiniGirl_Body_D.tga", Texture2D::FileFormat::TGA );
+	std::shared_ptr<Texture2D> girlAlbedoTexture = Texture2D::createFromFile( "../Engine1/Assets/Textures/Bikini Girl/BikiniGirl_Body_D.tga", Texture2DFileInfo::Format::TGA );
 	girlAlbedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
 	std::shared_ptr<SkeletonModel> girlModel = std::make_shared<SkeletonModel>( );
@@ -246,7 +246,7 @@ void Application::run() {
 
 
 
-	std::vector< std::shared_ptr<BlockMesh> > girlBlockMeshes = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/Bikini Girl.dae", BlockMesh::FileFormat::DAE, false, false, false );
+	std::vector< std::shared_ptr<BlockMesh> > girlBlockMeshes = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/Bikini Girl.dae", BlockMeshFileInfo::Format::DAE, false, false, false );
 	for ( std::shared_ptr<BlockMesh>& mesh : girlBlockMeshes )
 		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 

@@ -12,6 +12,7 @@
 #include "uint3.h"
 
 #include "SkeletonMeshEnums.h"
+#include "SkeletonMeshFileInfo.h"
 
 struct ID3D11Buffer;
 struct ID3D11Device;
@@ -19,31 +20,18 @@ struct ID3D11Device;
 class SkeletonMesh {
 	friend class MyOBJFileParser;
 	friend class MyDAEFileParser;
-	friend class SkeletonMeshParser;
 
 public:
 
-	enum class FileFormat : char
-	{
-		DAE = 0
-	};
-
-	static std::vector< std::shared_ptr<SkeletonMesh> > createFromFile( const std::string& path, const FileFormat format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
-	static std::vector< std::shared_ptr<SkeletonMesh> > createFromMemory( std::vector<char>& fileData, const FileFormat format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
-
-	static std::shared_ptr<SkeletonMesh> createFromFileInfoBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool load );
-
-	void writeFileInfoBinary( std::vector<unsigned char>& data ) const;
+	static std::vector< std::shared_ptr<SkeletonMesh> > createFromFile( const std::string& path, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
+	static std::vector< std::shared_ptr<SkeletonMesh> > createFromMemory( std::vector<char>& fileData, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
 
 	SkeletonMesh( );
 	~SkeletonMesh( );
 
-	std::string getFilePath() const;
-	int getIndexInFile() const; // Returns index of this mesh in it's file (useful when there are multiple meshes in the file).
-	FileFormat getFileFormat() const;
-	bool getFileInvertedZCoordinate() const;
-	bool getFileInvertedVertexWindingOrder() const;
-	bool getFileFlipedUVs() const;
+	void setFileInfo( const SkeletonMeshFileInfo& fileInfo );
+	const SkeletonMeshFileInfo& getFileInfo( ) const;
+	SkeletonMeshFileInfo& getFileInfo( );
 
 	void loadCpuToGpu( ID3D11Device& device );
 	void loadGpuToCpu( );
@@ -121,12 +109,7 @@ public:
 
 private:
 
-	std::string filePath;
-	int indexInFile;
-	FileFormat fileFormat;
-	bool fileInvertedZCoordinate;
-	bool fileInvertedVertexWindingOrder;
-	bool fileFlipedUVs;
+	SkeletonMeshFileInfo fileInfo;
 
 	std::vector<float3>              vertices;
 	std::vector< float >             vertexWeights;

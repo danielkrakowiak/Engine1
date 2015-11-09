@@ -114,7 +114,7 @@ namespace UnitTests {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
 			try {
-				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMesh::FileFormat::OBJ ).front();
+				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 
 				Assert::IsTrue( mesh->isInCpuMemory(), L"BlockMesh::isInCpuMemory() returned false" );
 				Assert::IsFalse( mesh->isInGpuMemory(), L"BlockMesh::isInGpuMemory() returned true" );
@@ -166,7 +166,7 @@ namespace UnitTests {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
 			try {
-				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMesh::FileFormat::OBJ ).front( );
+				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			} catch ( ... ) {
 				Assert::Fail( L"BlockMesh::createFromFile() threw an exception" );
 			}
@@ -219,7 +219,7 @@ namespace UnitTests {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
 			try {
-				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bunny.obj", BlockMesh::FileFormat::OBJ ).front( );
+				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bunny.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			} catch ( ... ) {
 				Assert::Fail( L"BlockMesh::createFromFile() threw an exception" );
 			}
@@ -232,7 +232,7 @@ namespace UnitTests {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
 			try {
-				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMesh::FileFormat::OBJ ).front( );
+				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			} catch ( ... ) {
 				Assert::Fail( L"BlockMesh::createFromFile() threw an exception" );
 			}
@@ -245,7 +245,7 @@ namespace UnitTests {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
 			try {
-				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/XXX.obj", BlockMesh::FileFormat::OBJ ).front( );
+				mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/XXX.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			} catch ( std::exception ex ) {
 				//correct exception
 			} catch ( ... ) {
@@ -259,7 +259,7 @@ namespace UnitTests {
 		{
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
-			mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMesh::FileFormat::OBJ ).front();
+			mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 
 			try {
 				mesh->loadCpuToGpu( *testDevice );
@@ -293,14 +293,14 @@ namespace UnitTests {
 			std::shared_ptr<BlockMesh> mesh1, mesh2, mesh3, mesh4, mesh5, mesh6, mesh7, mesh8;
 
 			try {
-				mesh1 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMesh::FileFormat::OBJ ).front( );
-				mesh2 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bunny.obj", BlockMesh::FileFormat::OBJ ).front( );
-				mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMesh::FileFormat::OBJ ).front( );
-				mesh4 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMesh::FileFormat::OBJ ).front( );
-				mesh5 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bunny.obj", BlockMesh::FileFormat::OBJ ).front( );
-				mesh6 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMesh::FileFormat::OBJ ).front( );
-				mesh7 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMesh::FileFormat::OBJ ).front( );
-				mesh8 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMesh::FileFormat::OBJ ).front( );
+				mesh1 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh2 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bunny.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh4 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh5 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bunny.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh6 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh7 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh8 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			} catch ( ... ) {
 				Assert::Fail( L"BlockMesh::createFromFile() threw incorrect exception" );
 			}
@@ -319,7 +319,7 @@ namespace UnitTests {
 		TEST_METHOD( Mesh_Unloading_From_Cpu_1 ) {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
-			mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMesh::FileFormat::OBJ ).front( );
+			mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 
 			try {
 				mesh->unloadFromCpu();
@@ -385,7 +385,7 @@ namespace UnitTests {
 		TEST_METHOD( Mesh_Unloading_From_Cpu_Gpu_1 ) {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
-			mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMesh::FileFormat::OBJ ).front( );
+			mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			mesh->loadCpuToGpu( *testDevice );
 
 			try {
@@ -458,7 +458,7 @@ namespace UnitTests {
 		TEST_METHOD( Mesh_Unloading_From_Gpu_Cpu_1 ) {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
-			mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMesh::FileFormat::OBJ ).front( );
+			mesh = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			mesh->loadCpuToGpu( *testDevice );
 
 			try {

@@ -20,6 +20,18 @@ Notes:
 UTF-16 is the worst encoding. Memory consuming and can still take 4 bytes to encode a single character. 
 WinAPI uses wchar_t, which is UTF-16. That's the only option to use Unicode in Windows. That's why all UTF-8 texts need to be converted to UTF-16 before being passed to WinAPI.
 
+ - Enable Whole Program Optimization
+
+https://msdn.microsoft.com/en-us/library/0zza0de8.aspx
+
+Whole program optimization allows the compiler to perform optimizations with information on all modules in the program. Without whole program optimization, optimizations are performed on a per module (compiland) basis.
+Whole program optimization is off by default and must be explicitly enabled.
+With information on all modules, the compiler can:
+	* Optimize the use of registers across function boundaries.
+	* Do a better job of tracking modifications to global data, allowing a reduction in the number of loads and stores.
+	* Do a better job of tracking the possible set of items modified by a pointer dereference, reducing the numbers of loads and stores.
+	* Inline a function in a module even when the function is defined in another module.
+
 
 Files --------------------------------------------------------------------------------------------
 
@@ -83,6 +95,9 @@ Ex.:
 
 const Mesh & getMesh() const;
 Mesh &		 getMesh();
+
+- Don't place method definitions in the header files. 
+- Don't use 'inline' keyword - it doesn't force the complier to inline anyways. Thanks to Whole Program Optimization methods will be inlined if needed.
 
 Passing arguments -----------------------------------------------------------------------------------
 
