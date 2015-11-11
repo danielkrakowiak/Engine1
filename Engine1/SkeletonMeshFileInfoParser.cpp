@@ -3,7 +3,7 @@
 #include "BinaryFile.h"
 #include "SkeletonMeshFileInfo.h"
 
-std::shared_ptr<SkeletonMeshFileInfo> SkeletonMeshFileInfoParser::parseBinary( std::vector<unsigned char>::const_iterator& dataIt )
+std::shared_ptr<SkeletonMeshFileInfo> SkeletonMeshFileInfoParser::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	std::shared_ptr<SkeletonMeshFileInfo> fileInfo = std::make_shared<SkeletonMeshFileInfo>( );
 
@@ -18,7 +18,7 @@ std::shared_ptr<SkeletonMeshFileInfo> SkeletonMeshFileInfoParser::parseBinary( s
 	return fileInfo;
 }
 
-void SkeletonMeshFileInfoParser::writeBinary( std::vector<unsigned char>& data, const SkeletonMeshFileInfo& fileInfo )
+void SkeletonMeshFileInfoParser::writeBinary( std::vector<char>& data, const SkeletonMeshFileInfo& fileInfo )
 {
 	BinaryFile::writeInt(  data, fileInfo.getPath( ).size( ) );
 	BinaryFile::writeText( data, fileInfo.getPath( ) );

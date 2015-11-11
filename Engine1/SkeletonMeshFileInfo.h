@@ -4,7 +4,9 @@
 #include <vector>
 #include <memory>
 
-class SkeletonMeshFileInfo
+#include "FileInfo.h"
+
+class SkeletonMeshFileInfo : public FileInfo
 {
 	public:
 
@@ -13,13 +15,15 @@ class SkeletonMeshFileInfo
 		DAE = 0
 	};
 
-	static std::shared_ptr<SkeletonMeshFileInfo> parseBinary( std::vector<unsigned char>::const_iterator& dataIt );
+	static std::shared_ptr<SkeletonMeshFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
 
 	SkeletonMeshFileInfo( );
-	SkeletonMeshFileInfo::SkeletonMeshFileInfo( std::string path, Format format, int indexInFile = 0, bool invertZCoordinate = false, bool invertVertexWindingOrder = false, bool flipUVs = false );
+	SkeletonMeshFileInfo( std::string path, Format format, int indexInFile = 0, bool invertZCoordinate = false, bool invertVertexWindingOrder = false, bool flipUVs = false );
 	~SkeletonMeshFileInfo( );
 
-	void writeBinary( std::vector<unsigned char>& data ) const;
+	std::shared_ptr<FileInfo> clone( ) const;
+
+	void writeBinary( std::vector<char>& data ) const;
 
 	void setPath( std::string path );
 	void setFormat( Format format );
@@ -28,6 +32,8 @@ class SkeletonMeshFileInfo
 	void setInvertVertexWindingOrder( bool invertVertexWindingOrder );
 	void setFlipUVs( bool flipUVs );
 
+	Asset::Type getAssetType( ) const;
+	FileType    getFileType() const;
 	std::string getPath() const;
 	Format      getFormat() const;
 	int         getIndexInFile() const;

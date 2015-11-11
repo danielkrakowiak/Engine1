@@ -3,7 +3,7 @@
 #include "Texture2DFileInfo.h"
 #include "BinaryFile.h"
 
-std::shared_ptr<Texture2DFileInfo> Texture2DFileInfoParser::parseBinary( std::vector<unsigned char>::const_iterator& dataIt )
+std::shared_ptr<Texture2DFileInfo> Texture2DFileInfoParser::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	std::shared_ptr<Texture2DFileInfo> fileInfo = std::make_shared<Texture2DFileInfo>( );
 
@@ -14,7 +14,7 @@ std::shared_ptr<Texture2DFileInfo> Texture2DFileInfoParser::parseBinary( std::ve
 	return fileInfo;
 }
 
-void Texture2DFileInfoParser::writeBinary( std::vector<unsigned char>& data, const Texture2DFileInfo& fileInfo )
+void Texture2DFileInfoParser::writeBinary( std::vector<char>& data, const Texture2DFileInfo& fileInfo )
 {
 	BinaryFile::writeInt(  data, fileInfo.getPath( ).size( ) );
 	BinaryFile::writeText( data, fileInfo.getPath( ) );

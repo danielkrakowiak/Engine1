@@ -4,11 +4,11 @@
 
 #include "float4.h"
 
-std::shared_ptr< std::vector<unsigned char> > BinaryFile::load( const std::string& path )
+std::shared_ptr< std::vector<char> > BinaryFile::load( const std::string& path )
 {
 
 	std::ifstream file;
-	std::vector<unsigned char> fileData;
+	std::vector<char> fileData;
 
 	// Open the file.
 	file.open( path.c_str(), std::ifstream::in | std::ifstream::binary );
@@ -28,7 +28,7 @@ std::shared_ptr< std::vector<unsigned char> > BinaryFile::load( const std::strin
 
 		// Read the file.
 		file.seekg( 0, std::ios::beg );  // Move cursor to the beginning of the file.
-		file.read( reinterpret_cast<char*>( fileData.data() ), fileSize );
+		file.read( fileData.data(), fileSize );
 
 		// Trim the data vector to the real number of characters read (on Windows multiple bytes can be read as one character - ex: LF CR -> '\n').
 		fileData.resize( file.gcount() + 1 );
@@ -39,7 +39,7 @@ std::shared_ptr< std::vector<unsigned char> > BinaryFile::load( const std::strin
 		// Close the file.
 		file.close();
 
-		return std::make_shared< std::vector<unsigned char> >( fileData );
+		return std::make_shared< std::vector<char> >( fileData );
 
 	} catch ( ... ) {
 		// In case of errors - close the file.
@@ -49,7 +49,7 @@ std::shared_ptr< std::vector<unsigned char> > BinaryFile::load( const std::strin
 	}
 }
 
-void BinaryFile::save( const std::string& path, std::vector<unsigned char>& data )
+void BinaryFile::save( const std::string& path, std::vector<char>& data )
 {
 	std::ofstream file;
 
@@ -60,7 +60,7 @@ void BinaryFile::save( const std::string& path, std::vector<unsigned char>& data
 	if ( !file.is_open() )	throw std::exception( "BinaryFile::save - Failed to open file." );
 
 	try {
-		file.write( reinterpret_cast<char*>( data.data( ) ), data.size( ) );
+		file.write( data.data( ), data.size( ) );
 
 		// Close the file.
 		file.close();
@@ -72,7 +72,7 @@ void BinaryFile::save( const std::string& path, std::vector<unsigned char>& data
 	}
 }
 
-std::string BinaryFile::readText( std::vector<unsigned char>::const_iterator& dataIt, const int size )
+std::string BinaryFile::readText( std::vector<char>::const_iterator& dataIt, const int size )
 {
 	std::string text( reinterpret_cast<const char*>(&( *dataIt )), size );
 
@@ -81,7 +81,7 @@ std::string BinaryFile::readText( std::vector<unsigned char>::const_iterator& da
 	return text;
 }
 
-int BinaryFile::readInt( std::vector<unsigned char>::const_iterator& dataIt )
+int BinaryFile::readInt( std::vector<char>::const_iterator& dataIt )
 {
 	int value = 0;
 	std::memcpy( &value, &( *dataIt ), sizeof( int ) );
@@ -91,7 +91,7 @@ int BinaryFile::readInt( std::vector<unsigned char>::const_iterator& dataIt )
 	return value;
 }
 
-bool BinaryFile::readBool( std::vector<unsigned char>::const_iterator& dataIt )
+bool BinaryFile::readBool( std::vector<char>::const_iterator& dataIt )
 {
 	bool value = 0;
 	std::memcpy( &value, &( *dataIt ), sizeof( bool ) );
@@ -101,7 +101,7 @@ bool BinaryFile::readBool( std::vector<unsigned char>::const_iterator& dataIt )
 	return value;
 }
 
-float4 BinaryFile::readFloat4( std::vector<unsigned char>::const_iterator& dataIt )
+float4 BinaryFile::readFloat4( std::vector<char>::const_iterator& dataIt )
 {
 	float4 value( 0.0f, 0.0f, 0.0f, 0.0f );
 	std::memcpy( &value, &( *dataIt ), sizeof( float4 ) );
@@ -111,13 +111,13 @@ float4 BinaryFile::readFloat4( std::vector<unsigned char>::const_iterator& dataI
 	return value;
 }
 
-void BinaryFile::writeText( std::vector<unsigned char>& file, const std::string& text )
+void BinaryFile::writeText( std::vector<char>& file, const std::string& text )
 {
 	for ( std::string::const_iterator it = text.begin(); it != text.end(); ++it )
 		file.push_back( *it );
 }
 
-void BinaryFile::writeInt( std::vector<unsigned char>& file, const int value )
+void BinaryFile::writeInt( std::vector<char>& file, const int value )
 {
 	const int size = file.size();
 
@@ -128,7 +128,7 @@ void BinaryFile::writeInt( std::vector<unsigned char>& file, const int value )
 	std::memcpy( &file[ size ], &value, sizeof( int ) );
 }
 
-void BinaryFile::writeBool( std::vector<unsigned char>& file, const bool value )
+void BinaryFile::writeBool( std::vector<char>& file, const bool value )
 {
 	const int size = file.size();
 
@@ -139,7 +139,7 @@ void BinaryFile::writeBool( std::vector<unsigned char>& file, const bool value )
 	std::memcpy( &file[ size ], &value, sizeof( bool ) );
 }
 
-void BinaryFile::writeFloat4( std::vector<unsigned char>& file, const float4& value )
+void BinaryFile::writeFloat4( std::vector<char>& file, const float4& value )
 {
 	const int size = file.size();
 

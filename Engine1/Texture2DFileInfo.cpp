@@ -4,7 +4,7 @@
 
 #include <memory>
 
-std::shared_ptr<Texture2DFileInfo> Texture2DFileInfo::parseBinary( std::vector<unsigned char>::const_iterator& dataIt )
+std::shared_ptr<Texture2DFileInfo> Texture2DFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	return Texture2DFileInfoParser::parseBinary( dataIt );
 }
@@ -22,7 +22,12 @@ format( format )
 Texture2DFileInfo::~Texture2DFileInfo( )
 {}
 
-void Texture2DFileInfo::writeBinary( std::vector<unsigned char>& data ) const
+std::shared_ptr<FileInfo> Texture2DFileInfo::clone() const
+{
+	return std::make_shared<Texture2DFileInfo>( *this );
+}
+
+void Texture2DFileInfo::writeBinary( std::vector<char>& data ) const
 {
 	Texture2DFileInfoParser::writeBinary( data, *this );
 }
@@ -35,6 +40,16 @@ void Texture2DFileInfo::setPath( std::string path )
 void Texture2DFileInfo::setFormat( Format format )
 {
 	this->format = format;
+}
+
+Asset::Type Texture2DFileInfo::getAssetType() const
+{
+	return Asset::Type::Texture2D;
+}
+
+FileInfo::FileType Texture2DFileInfo::getFileType() const
+{
+	return FileInfo::FileType::Binary;
 }
 
 std::string Texture2DFileInfo::getPath( ) const

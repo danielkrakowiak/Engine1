@@ -38,11 +38,13 @@
 13.07.2015
 	- Go through all "throw std::exception" and make sure that throwing method has parenthesis "()" in the error message.
 	- Add tests for SkeletonMeshVertexShader checking if it throws for incorrect bones-per-vertex-values.
-06.11.2015
-	-
+11.11.2015
+	-  Texture2D::createFromMemory - WARNING: casting away const qualifier on data - need to make sure that FreeImage doesn't modify the input data!
 
-Seperate FileInfo from SkeletonMesh and Texture2D. As with BlockMeshFileInfo.
-Revive AssetManager to avoid loading the same mesh many times. It could keep weak ptr to the assets and give them if available. The simplest appraoch for now.
+
+Revive AssetManager to avoid loading the same mesh many times.
+- need to support multiple assets from the same path (index in file) - maybe add index to path with "[3]" etc?
+- add test with textures, and textures and meshes mixed.
 
 Create a simple scene class, which stores the list of actors, lights etc in the scene.
 
@@ -72,10 +74,6 @@ Next 0:
 
 - test combining poses (skeleton-space, parent-space)
 - add method to substract poses (leave only the difference between poses)
-
-- add animation
-- blending between keyframes
-
 
 
 - add option to ignore bones which are not in mesh when loading an animation file. How to make sure that missing bones are not in between of the existing ones? Useful to apply complex animation to a sipler version of mesh (LOD etc)

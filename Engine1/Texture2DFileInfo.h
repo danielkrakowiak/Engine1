@@ -4,7 +4,9 @@
 #include <vector>
 #include <memory>
 
-class Texture2DFileInfo
+#include "FileInfo.h"
+
+class Texture2DFileInfo : public FileInfo
 {
 	public:
 
@@ -19,17 +21,21 @@ class Texture2DFileInfo
 		TGA  = 6
 	};
 
-	static std::shared_ptr<Texture2DFileInfo> parseBinary( std::vector<unsigned char>::const_iterator& dataIt );
+	static std::shared_ptr<Texture2DFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
 
 	Texture2DFileInfo( );
-	Texture2DFileInfo::Texture2DFileInfo( std::string path, Format format );
+	Texture2DFileInfo( std::string path, Format format );
 	~Texture2DFileInfo( );
 
-	void writeBinary( std::vector<unsigned char>& data ) const;
+	std::shared_ptr<FileInfo> clone( ) const;
+
+	void writeBinary( std::vector<char>& data ) const;
 
 	void setPath( std::string path );
 	void setFormat( Format format );
 
+	Asset::Type getAssetType() const;
+	FileType    getFileType( ) const;
 	std::string getPath() const;
 	Format      getFormat() const;
 

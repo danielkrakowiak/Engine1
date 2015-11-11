@@ -9,9 +9,9 @@ class ModelTexture2D {
 
 	public:
 
-	static std::shared_ptr< ModelTexture2D > createFromBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool loadRecurrently );
+	static std::shared_ptr< ModelTexture2D > createFromBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently );
 
-	void writeBinary( std::vector<unsigned char>& data ) const;
+	void writeBinary( std::vector<char>& data ) const;
 
 	ModelTexture2D();
 	ModelTexture2D( std::shared_ptr<Texture2D> texture, int texcoordIndex = 0, float4 colorMultiplier = float4(1.0f, 1.0f, 1.0f, 1.0f) );

@@ -3,7 +3,7 @@
 #include "ModelTexture2D.h"
 #include "BinaryFile.h"
 
-std::shared_ptr<ModelTexture2D> ModelTexture2DParser::parseBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool loadRecurrently )
+std::shared_ptr<ModelTexture2D> ModelTexture2DParser::parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently )
 {
 	std::shared_ptr<ModelTexture2D> modelTexture = std::make_shared<ModelTexture2D>( );
 
@@ -17,7 +17,7 @@ std::shared_ptr<ModelTexture2D> ModelTexture2DParser::parseBinary( std::vector<u
 	return modelTexture;
 }
 
-void ModelTexture2DParser::writeBinary( std::vector<unsigned char>& data, const ModelTexture2D& modelTexture )
+void ModelTexture2DParser::writeBinary( std::vector<char>& data, const ModelTexture2D& modelTexture )
 {
 	const std::shared_ptr<Texture2D> texture = modelTexture.getTexture();
 	

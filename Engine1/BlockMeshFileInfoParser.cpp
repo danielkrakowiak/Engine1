@@ -3,7 +3,7 @@
 #include "BinaryFile.h"
 #include "BlockMeshFileInfo.h"
 
-std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfoParser::parseBinary( std::vector<unsigned char>::const_iterator& dataIt )
+std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfoParser::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	std::shared_ptr<BlockMeshFileInfo> fileInfo = std::make_shared<BlockMeshFileInfo>( );
 
@@ -18,7 +18,7 @@ std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfoParser::parseBinary( std::ve
 	return fileInfo;
 }
 
-void BlockMeshFileInfoParser::writeBinary( std::vector<unsigned char>& data, const BlockMeshFileInfo& fileInfo )
+void BlockMeshFileInfoParser::writeBinary( std::vector<char>& data, const BlockMeshFileInfo& fileInfo )
 {
 	BinaryFile::writeInt(  data, fileInfo.getPath( ).size( ) );
 	BinaryFile::writeText( data, fileInfo.getPath( ) );

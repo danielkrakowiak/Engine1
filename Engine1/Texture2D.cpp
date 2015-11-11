@@ -10,10 +10,14 @@
 
 #include <d3d11.h>
 
+std::shared_ptr<Texture2D> Texture2D::createFromFile( const Texture2DFileInfo& fileInfo )
+{
+	return createFromFile( fileInfo.getPath(), fileInfo.getFormat() );
+}
+
 std::shared_ptr<Texture2D> Texture2D::createFromFile( const std::string& path, const Texture2DFileInfo::Format format )
 {
-
-	std::shared_ptr< std::vector<unsigned char> > fileData = BinaryFile::load( path );
+	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
 	std::shared_ptr<Texture2D> texture = createFromMemory( *fileData, format );
 
@@ -25,14 +29,15 @@ std::shared_ptr<Texture2D> Texture2D::createFromFile( const std::string& path, c
 	return texture;
 }
 
-std::shared_ptr<Texture2D> Texture2D::createFromMemory( std::vector<unsigned char>& fileData, const Texture2DFileInfo::Format format )
+std::shared_ptr<Texture2D> Texture2D::createFromMemory( const std::vector<char>& fileData, const Texture2DFileInfo::Format format )
 {
 
 	std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>();
 
 	// #TODO: FIT_BITMAP is not always the good image type (see "To do.txt").
 	fipImage image( FIT_BITMAP );
-	fipMemoryIO data( fileData.data(), fileData.size() );
+	// #TODO: WARNING: casting away const qualifier on data - need to make sure that FreeImage doesn't modify the input data!
+	fipMemoryIO data( const_cast<unsigned char*>( reinterpret_cast<const unsigned char*>( fileData.data( ) ) ), fileData.size( ) );
 
 	// Parse image data.
 	if ( !image.loadFromMemory( data ) )
@@ -75,6 +80,11 @@ dataMipMaps()
 
 Texture2D::~Texture2D()
 {}
+
+Asset::Type Texture2D::getType() const
+{
+	return Asset::Type::Texture2D;
+}
 
 void Texture2D::setFileInfo( const Texture2DFileInfo& fileInfo )
 {

@@ -4,7 +4,9 @@
 #include <vector>
 #include <memory>
 
-class BlockMeshFileInfo
+#include "FileInfo.h"
+
+class BlockMeshFileInfo : public FileInfo
 {
 	public:
 
@@ -14,13 +16,15 @@ class BlockMeshFileInfo
 		DAE = 1
 	};
 
-	static std::shared_ptr<BlockMeshFileInfo> parseBinary( std::vector<unsigned char>::const_iterator& dataIt );
+	static std::shared_ptr<BlockMeshFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
 
 	BlockMeshFileInfo();
-	BlockMeshFileInfo::BlockMeshFileInfo( std::string path, Format format, int indexInFile = 0, bool invertZCoordinate = false, bool invertVertexWindingOrder = false, bool flipUVs = false );
+	BlockMeshFileInfo( std::string path, Format format, int indexInFile = 0, bool invertZCoordinate = false, bool invertVertexWindingOrder = false, bool flipUVs = false );
 	~BlockMeshFileInfo();
 
-	void writeBinary( std::vector<unsigned char>& data ) const;
+	std::shared_ptr<FileInfo> clone( ) const;
+
+	void writeBinary( std::vector<char>& data ) const;
 
 	void setPath( std::string path );
 	void setFormat( Format format );
@@ -29,6 +33,8 @@ class BlockMeshFileInfo
 	void setInvertVertexWindingOrder( bool invertVertexWindingOrder );
 	void setFlipUVs( bool flipUVs );
 
+	Asset::Type getAssetType( ) const;
+	FileType    getFileType() const;
 	std::string getPath() const;
 	Format      getFormat() const;
 	int         getIndexInFile( ) const;

@@ -8,7 +8,8 @@
 #include <thread>
 #include <condition_variable>
 
-#include "BasicAsset.h"
+#include "Asset.h"
+#include "FileInfo.h"
 
 class BlockMesh;
 class Texture2D;
@@ -19,11 +20,11 @@ public:
 	AssetManager( int loadingThreadCount );
 	~AssetManager();
 
-	void loadAsset( std::shared_ptr<BasicAsset>& );
-	void loadAssetAsync( std::shared_ptr<BasicAsset>& );
-	bool isAssetLoaded( std::string path );
-	std::shared_ptr<BasicAsset>& getLoadedAsset( std::string path );
-	bool isAssetLoadedOrLoading( std::string path );
+	void                   load( const FileInfo& fileInfo );
+	void                   loadAsync( const FileInfo& fileInfo );
+	bool                   isAvailable( std::string path );
+	std::shared_ptr<Asset> get( std::string path );
+	bool                   isAvailableOrLoading( std::string path );
 
 private:
 
@@ -32,23 +33,46 @@ private:
 	void loadAssetsFromDisk( );
 	void loadAssets( );
 
-	std::thread loadingFromDiskThread;
+	std::shared_ptr<Asset> createFromFile( const FileInfo& fileInfo );
+	std::shared_ptr<Asset> createFromMemory( const FileInfo& fileInfo, const std::vector<char>& fileData );
+
+	std::thread              loadingFromDiskThread;
 	std::vector<std::thread> loadingThreads;
 
-	//list of all assets which are in the course of loading or were loaded already
-	std::mutex assetsMutex;
+	// List of all assets which are in the course of loading or were loaded already.
+	std::mutex                      assetsMutex;
 	std::unordered_set<std::string> assets;
 
-	std::mutex assetsToLoadFromDiskMutex;
-	std::condition_variable assetsToLoadFromDiskNotEmpty;
-	std::list<std::shared_ptr<BasicAsset>> assetsToLoadFromDisk;
+	std::mutex                                     assetsToLoadFromDiskMutex;
+	std::condition_variable                        assetsToLoadFromDiskNotEmpty;
+	std::list< std::shared_ptr< const FileInfo > > assetsToLoadFromDisk;
 
-	std::mutex assetsToLoadMutex;
-	std::condition_variable assetsToLoadNotEmpty;
-	std::list<std::shared_ptr<BasicAsset>> assetsToLoad;
+	struct AssetToLoad
+	{
+		std::shared_ptr< const FileInfo > fileInfo;
+		std::shared_ptr< std::vector<char> > fileData;
 
-	std::mutex loadedAssetsMutex;
-	std::unordered_map<std::string, std::shared_ptr<BasicAsset>> loadedAssets;
-	
+		AssetToLoad() :
+			fileInfo( nullptr ),
+			fileData( nullptr )
+		{}
+
+		AssetToLoad( std::shared_ptr< const FileInfo > fileInfo, std::shared_ptr< std::vector<char> > fileData ) :
+			fileInfo( fileInfo ),
+			fileData( fileData )
+		{}
+
+		AssetToLoad( const AssetToLoad& other ) :
+			fileInfo( other.fileInfo ),
+			fileData( other.fileData )
+		{}
+	};
+
+	std::mutex                                     assetsToLoadMutex;
+	std::condition_variable                        assetsToLoadNotEmpty;
+	std::list< AssetToLoad > assetsToLoad;
+
+	std::mutex                                                loadedAssetsMutex;
+	std::unordered_map< std::string, std::shared_ptr<Asset> > loadedAssets;
 };
 

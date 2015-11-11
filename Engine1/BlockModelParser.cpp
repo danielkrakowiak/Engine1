@@ -6,11 +6,11 @@
 
 std::string BlockModelParser::fileTypeIdentifier = "BLOCKMODEL";
 
-std::shared_ptr<BlockModel> BlockModelParser::parseBinary( const std::vector<unsigned char>& data, const bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModelParser::parseBinary( const std::vector<char>& data, const bool loadRecurrently )
 {
 	std::shared_ptr<BlockModel> model = std::make_shared<BlockModel>();
 
-	std::vector<unsigned char>::const_iterator dataIt = data.begin();
+	std::vector<char>::const_iterator dataIt = data.begin();
 
 	std::string readFileTypeIdentifier = BinaryFile::readText( dataIt, fileTypeIdentifier.size() );
 
@@ -64,7 +64,7 @@ std::shared_ptr<BlockModel> BlockModelParser::parseBinary( const std::vector<uns
 	return model;
 }
 
-void BlockModelParser::writeBinary( std::vector<unsigned char>& data, const BlockModel& model )
+void BlockModelParser::writeBinary( std::vector<char>& data, const BlockModel& model )
 {
 	BinaryFile::writeText( data, fileTypeIdentifier );
 

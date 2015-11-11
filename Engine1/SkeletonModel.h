@@ -16,7 +16,7 @@ public:
 	};
 
 	static std::shared_ptr<SkeletonModel> createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently );
-	static std::shared_ptr<SkeletonModel> createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format, bool loadRecurrently );
+	static std::shared_ptr<SkeletonModel> createFromMemory( std::vector<char>& fileData, const FileFormat format, bool loadRecurrently );
 
 	SkeletonModel( );
 	~SkeletonModel( );

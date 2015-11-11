@@ -432,7 +432,7 @@
     <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zutil.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="AssetManager.h" />
-    <ClInclude Include="BasicAsset.h" />
+    <ClInclude Include="Asset.h" />
     <ClInclude Include="BinaryFile.h" />
     <ClInclude Include="BlockMesh.h" />
     <ClInclude Include="BlockMeshFileInfo.h" />
@@ -449,6 +449,7 @@
     <ClInclude Include="Direct3DDefferedRenderer.h" />
     <ClInclude Include="Direct3DRendererCore.h" />
     <ClInclude Include="Direct3DUtil.h" />
+    <ClInclude Include="FileInfo.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
     <ClInclude Include="SkeletonMeshFileInfo.h" />
     <ClInclude Include="SkeletonMeshFileInfoParser.h" />

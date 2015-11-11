@@ -6,11 +6,11 @@
 
 std::string SkeletonModelParser::fileTypeIdentifier = "BLOCKMODEL";
 
-std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( const std::vector<unsigned char>& data, const bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( const std::vector<char>& data, const bool loadRecurrently )
 {
 	std::shared_ptr<SkeletonModel> model = std::make_shared<SkeletonModel>( );
 
-	std::vector<unsigned char>::const_iterator dataIt = data.begin();
+	std::vector<char>::const_iterator dataIt = data.begin();
 
 	std::string readFileTypeIdentifier = BinaryFile::readText( dataIt, fileTypeIdentifier.size() );
 
@@ -64,7 +64,7 @@ std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( const std::vect
 	return model;
 }
 
-void SkeletonModelParser::writeBinary( std::vector<unsigned char>& data, const SkeletonModel& model )
+void SkeletonModelParser::writeBinary( std::vector<char>& data, const SkeletonModel& model )
 {
 	BinaryFile::writeText( data, fileTypeIdentifier );
 

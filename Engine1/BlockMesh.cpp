@@ -17,6 +17,28 @@
 
 using Microsoft::WRL::ComPtr;
 
+std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const BlockMeshFileInfo& fileInfo )
+{
+	return createFromFile( fileInfo.getPath( ), fileInfo.getFormat( ), fileInfo.getIndexInFile(), fileInfo.getInvertZCoordinate( ), fileInfo.getInvertVertexWindingOrder( ), fileInfo.getFlipUVs( ) );
+}
+
+std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const std::string& path, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+{
+	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
+
+	std::shared_ptr<BlockMesh> mesh = createFromMemory( *fileData, format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+
+	// Save path in the loaded mesh.
+	mesh->getFileInfo().setPath( path );
+	mesh->getFileInfo().setIndexInFile( indexInFile );
+	mesh->getFileInfo().setFormat( format );
+	mesh->getFileInfo().setInvertZCoordinate( invertZCoordinate );
+	mesh->getFileInfo().setInvertVertexWindingOrder( invertVertexWindingOrder );
+	mesh->getFileInfo().setFlipUVs( flipUVs );
+
+	return mesh;
+}
+
 std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::string& path, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
@@ -38,7 +60,20 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::
 	return meshes;
 }
 
-std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( const std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+{
+	if ( indexInFile < 0 )
+		throw std::exception( "BlockMesh::createFromMemory - 'index in file' parameter cannot be negative." );
+
+	std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+
+	if ( indexInFile < (int)meshes.size( ) )
+		return meshes.at( indexInFile );
+	else
+		throw std::exception( "BlockMesh::createFromFile - no mesh at given index in file." );
+}
+
+std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( const std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( BlockMeshFileInfo::Format::OBJ == format ) {
 
@@ -59,6 +94,11 @@ BlockMesh::BlockMesh()
 
 BlockMesh::~BlockMesh()
 {}
+
+Asset::Type BlockMesh::getType( ) const
+{
+	return Asset::Type::BlockMesh;
+}
 
 void BlockMesh::setFileInfo( const BlockMeshFileInfo& fileInfo )
 {

@@ -5,12 +5,12 @@
 
 std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently )
 {
-	std::shared_ptr< std::vector<unsigned char> > fileData = BinaryFile::load( path );
+	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
 	return createFromMemory( *fileData, format, loadRecurrently );
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format, bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>& fileData, const FileFormat format, bool loadRecurrently )
 {
 	if ( FileFormat::BLOCKMODEL == format ) {
 		return BlockModelParser::parseBinary( fileData, loadRecurrently );
@@ -27,7 +27,7 @@ BlockModel::~BlockModel( )
 
 void BlockModel::saveToFile( const std::string& path )
 {
-	std::vector<unsigned char> data;
+	std::vector<char> data;
 
 	BlockModelParser::writeBinary( data, *this );
 

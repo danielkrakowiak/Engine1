@@ -16,7 +16,7 @@ class BlockModel {
 	};
 
 	static std::shared_ptr<BlockModel> createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently );
-	static std::shared_ptr<BlockModel> createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format, bool loadRecurrently );
+	static std::shared_ptr<BlockModel> createFromMemory( std::vector<char>& fileData, const FileFormat format, bool loadRecurrently );
 	
 	BlockModel();
 	~BlockModel();

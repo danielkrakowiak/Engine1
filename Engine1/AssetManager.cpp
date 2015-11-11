@@ -4,19 +4,23 @@
 #include <thread>
 
 #include "BlockMesh.h"
+#include "SkeletonMesh.h"
 #include "Texture2D.h"
 
 #include "StringUtil.h"
 
+#include "TextFile.h"
+#include "BinaryFile.h"
+
 AssetManager::AssetManager( int loadingThreadCount = INT_MAX ) {
-	if ( loadingThreadCount <= 0 ) throw std::exception( "AssetManager::AssetManager - Number of loading threads cannot be less or equal to 0" );
+	if ( loadingThreadCount <= 0 ) throw std::exception( "AssetManager::AssetManager - Number of loading threads has to be greater than 0." );
 
 	executeThreads = true;
 
-	//create thread to load assets from disk
+	// Create thread to load assets from disk.
 	loadingFromDiskThread = std::thread( &AssetManager::loadAssetsFromDisk, this );
 
-	//create threads to load assets
+	// Create threads to load assets.
 	for ( int i = 0; i < loadingThreadCount; ++i ) {
 		loadingThreads.push_back( std::thread( &AssetManager::loadAssets, this ) );
 	}
@@ -30,78 +34,80 @@ AssetManager::~AssetManager() {
 
 	loadingFromDiskThread.join();
 
-	for ( std::vector<std::thread>::iterator thread = loadingThreads.begin(); thread != loadingThreads.end(); thread++ ) {
+	for ( std::vector<std::thread>::iterator thread = loadingThreads.begin(); thread != loadingThreads.end(); ++thread ) {
 		( *thread ).join();
 	}
 }
 
+void AssetManager::load( const FileInfo& fileInfo )
+{
+	std::string path = StringUtil::toLowercase( fileInfo.getPath() );
 
-void AssetManager::loadAsset( std::shared_ptr<BasicAsset>& asset ) {
-	std::string path = StringUtil::toLowercase( asset->getPath() );
-
-	{ //check if asset was loaded already or is in the course of loading
+	{ // Check if asset was loaded already or is in the course of loading.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
-		if ( assets.count( path ) != 0 ) throw std::exception( "AssetManager::loadAsset - Asset is already loaded or in the course of loading" );
+		if ( assets.count( path ) != 0 ) 
+			throw std::exception( "AssetManager::loadAsset - Asset is already loaded or in the course of loading." );
+		
 		assets.insert( path );
 	}
 
 	try {
-		asset->loadFile( );
-		asset->load( );
-		asset->unloadFile();
+		std::shared_ptr<Asset> asset = createFromFile( fileInfo );
 
 		{
 			std::lock_guard<std::mutex> loadedAssetsLock( loadedAssetsMutex );
 			loadedAssets.insert( std::make_pair( path, asset ) );
 		}
 	} catch ( std::exception& ex ) {
-		//if asset failed to load - remove it from assets
+		// If asset failed to load - remove it from assets.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
 		assets.erase( path );
-		//rethrow exception
-		throw ex;
+		// Re-throw the exception.
+		throw;
 	}
 }
 
-void AssetManager::loadAssetAsync( std::shared_ptr<BasicAsset>& asset ) {
-	std::string path = StringUtil::toLowercase( asset->getPath() );
+void AssetManager::loadAsync( const FileInfo& fileInfo )
+{
+	std::string path = StringUtil::toLowercase( fileInfo.getPath() );
 
-	{ //check if assets was loaded already or is in the course of loading
+	{ // Check if this asset was loaded already or is in the course of loading.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
-		if ( assets.count( path ) != 0 ) throw std::exception( "AssetManager::loadAssetAsync - Asset is already loaded or in the course of loading" );
+		if ( assets.count( path ) != 0 ) throw std::exception( "AssetManager::loadAssetAsync - Asset is already loaded or in the course of loading." );
 		assets.insert( path );
 	}
 
-	{ // add asset to the list of assets to load from disk - lock mutex
+	{ // Add the asset to the list of assets to load from disk - lock mutex.
 		std::unique_lock<std::mutex> assetsToLoadFromDiskLock( assetsToLoadFromDiskMutex );
-		assetsToLoadFromDisk.push_back( asset );
+		assetsToLoadFromDisk.push_back( fileInfo.clone() );
 	}
 
 
-	//resume thread which loads assets from disk
+	// Resume thread which loads assets from disk.
 	assetsToLoadFromDiskNotEmpty.notify_one();
 }
 
-bool AssetManager::isAssetLoaded( std::string path ) {
+bool AssetManager::isAvailable( std::string path ) {
 	path = StringUtil::toLowercase( path );
 
 	//TODO: should I lock loadedAssets before searching through it?
 	return ( loadedAssets.find( path ) != loadedAssets.end( ) );
 }
 
-std::shared_ptr<BasicAsset>& AssetManager::getLoadedAsset( std::string path ) {
+std::shared_ptr<Asset> AssetManager::get( std::string path ) {
 	path = StringUtil::toLowercase( path );
 
 	std::lock_guard<std::mutex> loadedAssetsLock( loadedAssetsMutex );
 
-	std::unordered_map<std::string, std::shared_ptr<BasicAsset>>::iterator it = loadedAssets.find( path );
+	std::unordered_map< std::string, std::shared_ptr<Asset> >::iterator it = loadedAssets.find( path );
 
-	if ( it == loadedAssets.end() ) throw std::exception( "AssetManager::getLoadedAsset - No BlockMesh found for that path" );
+	if ( it == loadedAssets.end() ) 
+		throw std::exception( "AssetManager::get - No asset found for that path." );
 
 	return it->second;
 }
 
-bool AssetManager::isAssetLoadedOrLoading( std::string path ) {
+bool AssetManager::isAvailableOrLoading( std::string path ) {
 	path = StringUtil::toLowercase( path );
 
 	std::lock_guard<std::mutex> assetsLock( assetsMutex );
@@ -109,81 +115,147 @@ bool AssetManager::isAssetLoadedOrLoading( std::string path ) {
 }
 
 void AssetManager::loadAssetsFromDisk() {
-	std::shared_ptr<BasicAsset> asset;
+	std::shared_ptr< const FileInfo > fileInfo = nullptr;
+	std::shared_ptr< std::vector<char> > fileData = nullptr;
 
 	while ( true ) {
-		{ //check if there is any asset to load and if so, get it - hold lock
+		fileInfo = nullptr;
+		fileData = nullptr;
+
+		{ // Check if there is any asset to load and if so, get it - hold lock.
 			std::unique_lock<std::mutex> assetsToLoadFromDiskLock( assetsToLoadFromDiskMutex );
 
-			//wait until there are some assets to load from disk
+			// Wait until there are some assets to load from disk.
 			assetsToLoadFromDiskNotEmpty.wait( assetsToLoadFromDiskLock, [this]() { return !assetsToLoadFromDisk.empty() || !executeThreads; } );
 
-			//terminate thread if requested
-			if ( !executeThreads ) return;
+			// Terminate thread if requested.
+			if ( !executeThreads ) 
+				return;
 
-			//get first asset from the list
-			asset = assetsToLoadFromDisk.front();
-			//remove asset from the list
+			// Get first asset from the list
+			fileInfo = assetsToLoadFromDisk.front( );
+			// Remove asset from the list.
 			assetsToLoadFromDisk.pop_front();
 		}
 
-		//load file from disk
+		OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - loading \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+
+		std::string path = StringUtil::toLowercase( fileInfo->getPath( ) );
+
+		// Load file from disk.
 		try {
-			asset->loadFile();
+			if ( fileInfo->getFileType() == FileInfo::FileType::Textual )
+				fileData = TextFile::load( fileInfo->getPath() );
+			else if ( fileInfo->getFileType() == FileInfo::FileType::Binary )
+				fileData = BinaryFile::load( fileInfo->getPath() );
+
+			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - loaded \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+
 		} catch ( std::exception& ex ) {
-			//if asset failed to load - remove it from assets
+			// If asset failed to load - remove it from assets.
 			std::lock_guard<std::mutex> assetsLock( assetsMutex );
-			assets.erase( asset->getPath() );
+			assets.erase( path );
+
+			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - failed to load \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
 			//TODO: handle this error - do some callback for ex.
 		}
 
-		{ //add asset to list of assets to load - hold mutex
+		{ // Add asset to list of assets to load - hold mutex.
 			std::lock_guard<std::mutex> assetsToLoadLock( assetsToLoadMutex );
-			//add asset to list of assets to load
-			assetsToLoad.push_back( asset );
+			// Add asset to list of assets to load.
+			assetsToLoad.push_back( AssetToLoad( fileInfo, fileData ) );
 		}
 
-		//resume one of threads which load assets
+		// Resume one of threads which load assets.
 		assetsToLoadNotEmpty.notify_one();
 	}
 }
 
 void AssetManager::loadAssets() {
 
-	std::shared_ptr<BasicAsset> asset;
-
 	while ( true ) {
-		{ //check if there is any asset to load and if so, get it - hold lock
+		AssetToLoad assetToLoad;
+
+		{ // Check if there is any asset to load and if so, get it - hold lock.
 			std::unique_lock<std::mutex> assetsToLoadLock( assetsToLoadMutex );
 
-			//wait until there are some assets to load
+			// Wait until there are some assets to load.
 			assetsToLoadNotEmpty.wait( assetsToLoadLock, [this]() { return !assetsToLoad.empty() || !executeThreads; } );
 
-			//terminate thread if requested
+			// Terminate thread if requested.
 			if ( !executeThreads ) return;
 
-			//get first asset from the list
-			asset = assetsToLoad.front();
-			//remove asset from the list
+			// Get first asset from the list.
+			assetToLoad = assetsToLoad.front( );
+			// Remove asset from the list.
 			assetsToLoad.pop_front();
 		}
 
-		//load file
+		OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - loading \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+
+		std::shared_ptr<Asset> asset = nullptr;
+
+		// Load file.
 		try {
-			asset->load();
+			asset = createFromMemory( *assetToLoad.fileInfo, *assetToLoad.fileData );
+
+			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - loaded \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 		} catch ( std::exception& ex ) {
-			//if asset failed to load - remove it from assets
+			// Asset failed to load - remove it from assets.
 			std::lock_guard<std::mutex> assetsLock( assetsMutex );
-			assets.erase( asset->getPath() );
+			assets.erase( assetToLoad.fileInfo->getPath() );
+
+			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - failed to load \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
 			//TODO: handle this error - do some callback for ex.
 		}
 
-		{ //add asset to a list of assets - hold lock
+		{ // Add asset to a list of assets - hold lock.
 			std::lock_guard<std::mutex> loadedAssetsLock( loadedAssetsMutex );
-			//add asset to a list of assets
-			loadedAssets.insert( std::pair<std::string, std::shared_ptr<BasicAsset>>( asset->getPath(), asset ) );
+			// Add asset to a list of assets.
+
+			//#TODO: handle paths for files with multiple meshes inside.
+			std::string path = StringUtil::toLowercase( assetToLoad.fileInfo->getPath( ) );
+			loadedAssets.insert( std::make_pair( path, asset ) );
 		}
+	}
+}
+
+std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
+{
+	switch ( fileInfo.getAssetType() )  
+	{
+		case Asset::Type::BlockMesh:
+			return BlockMesh::createFromFile( static_cast<const BlockMeshFileInfo&>( fileInfo ) );
+		case Asset::Type::SkeletonMesh:
+			return SkeletonMesh::createFromFile( static_cast<const SkeletonMeshFileInfo&>( fileInfo ) );
+		case Asset::Type::Texture2D:
+			return Texture2D::createFromFile( static_cast<const Texture2DFileInfo&>( fileInfo ) );
+		default:
+			throw std::exception( "AssetManager::createFromFile - asset type not yet supported." );
+	}
+}
+
+std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo, const std::vector<char>& fileData )
+{
+	switch ( fileInfo.getAssetType() ) {
+		case Asset::Type::BlockMesh:
+		{
+			const BlockMeshFileInfo& meshFileInfo = static_cast<const BlockMeshFileInfo&>( fileInfo );
+			return BlockMesh::createFromMemory( fileData, meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
+		}
+		case Asset::Type::SkeletonMesh:
+		{
+			const SkeletonMeshFileInfo& meshFileInfo = static_cast<const SkeletonMeshFileInfo&>( fileInfo );
+			return SkeletonMesh::createFromMemory( fileData, meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
+		}
+		case Asset::Type::Texture2D:
+		{
+			const Texture2DFileInfo& texFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
+			return Texture2D::createFromMemory( fileData, texFileInfo.getFormat( ) );
+		}
+		default:
+			throw std::exception( "AssetManager::createFromFile - asset type not yet supported." );
 	}
 }

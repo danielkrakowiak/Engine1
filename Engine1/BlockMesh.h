@@ -10,22 +10,29 @@
 #include "float3.h"
 #include "uint3.h"
 
+#include "Asset.h"
 #include "BlockMeshFileInfo.h"
 
 struct ID3D11Device;
 struct ID3D11Buffer;
 
-class BlockMesh {
+class BlockMesh : public Asset 
+{
 	friend class MyOBJFileParser;
 	friend class MyDAEFileParser;
 
 public:
 
+	static std::shared_ptr<BlockMesh>                createFromFile( const BlockMeshFileInfo& fileInfo );
+	static std::shared_ptr<BlockMesh>                createFromFile( const std::string& path, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
 	static std::vector< std::shared_ptr<BlockMesh> > createFromFile( const std::string& path, const BlockMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
-	static std::vector< std::shared_ptr<BlockMesh> > createFromMemory( std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
+	static std::shared_ptr<BlockMesh>                createFromMemory( const std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
+	static std::vector< std::shared_ptr<BlockMesh> > createFromMemory( const std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
 	
 	BlockMesh();
 	~BlockMesh();
+
+	Asset::Type getType( ) const;
 
 	void setFileInfo( const BlockMeshFileInfo& fileInfo );
 	const BlockMeshFileInfo& getFileInfo() const;

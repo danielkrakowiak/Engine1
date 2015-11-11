@@ -2,12 +2,12 @@
 
 #include "ModelTexture2DParser.h"
 
-std::shared_ptr< ModelTexture2D > ModelTexture2D::createFromBinary( std::vector<unsigned char>::const_iterator& dataIt, const bool loadRecurrently )
+std::shared_ptr< ModelTexture2D > ModelTexture2D::createFromBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently )
 {
 	return ModelTexture2DParser::parseBinary( dataIt, loadRecurrently );
 }
 
-void ModelTexture2D::writeBinary( std::vector<unsigned char>& data ) const
+void ModelTexture2D::writeBinary( std::vector<char>& data ) const
 {
 	ModelTexture2DParser::writeBinary( data, *this );
 }

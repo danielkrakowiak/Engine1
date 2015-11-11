@@ -9,7 +9,7 @@
 
 #include "int2.h"
 
-#include "BasicAsset.h"
+#include "Asset.h"
 #include "Texture2DFileInfo.h"
 
 struct ID3D11Device;
@@ -17,17 +17,21 @@ struct ID3D11DeviceContext;
 struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
 
-class Texture2D {
+class Texture2D : public Asset
+{
 
 	public:
 
+	static std::shared_ptr<Texture2D> createFromFile( const Texture2DFileInfo& fileInfo );
 	static std::shared_ptr<Texture2D> createFromFile( const std::string& path, const Texture2DFileInfo::Format format );
-	static std::shared_ptr<Texture2D> createFromMemory( std::vector<unsigned char>& fileData, const Texture2DFileInfo::Format format );
+	static std::shared_ptr<Texture2D> createFromMemory( const std::vector<char>& fileData, const Texture2DFileInfo::Format format );
 
 	public:
 
 	Texture2D();
 	~Texture2D();
+
+	Asset::Type getType( ) const;
 
 	void setFileInfo( const Texture2DFileInfo& fileInfo );
 	const Texture2DFileInfo& getFileInfo( ) const;

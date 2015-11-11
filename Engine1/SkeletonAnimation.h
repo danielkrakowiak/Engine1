@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include "BasicAsset.h"
+#include "Asset.h"
 
 #include "SkeletonMesh.h"
 #include "SkeletonPose.h"

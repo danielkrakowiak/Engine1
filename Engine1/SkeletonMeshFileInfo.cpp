@@ -4,7 +4,7 @@
 
 #include <memory>
 
-std::shared_ptr<SkeletonMeshFileInfo> SkeletonMeshFileInfo::parseBinary( std::vector<unsigned char>::const_iterator& dataIt )
+std::shared_ptr<SkeletonMeshFileInfo> SkeletonMeshFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	return SkeletonMeshFileInfoParser::parseBinary( dataIt );
 }
@@ -30,7 +30,12 @@ flipUVs( flipUVs )
 SkeletonMeshFileInfo::~SkeletonMeshFileInfo( )
 {}
 
-void SkeletonMeshFileInfo::writeBinary( std::vector<unsigned char>& data ) const
+std::shared_ptr<FileInfo> SkeletonMeshFileInfo::clone( ) const
+{
+	return std::make_shared<SkeletonMeshFileInfo>( *this );
+}
+
+void SkeletonMeshFileInfo::writeBinary( std::vector<char>& data ) const
 {
 	SkeletonMeshFileInfoParser::writeBinary( data, *this );
 }
@@ -63,6 +68,16 @@ void SkeletonMeshFileInfo::setInvertVertexWindingOrder( bool invertVertexWinding
 void SkeletonMeshFileInfo::setFlipUVs( bool flipUVs )
 {
 	this->flipUVs = flipUVs;
+}
+
+Asset::Type SkeletonMeshFileInfo::getAssetType( ) const
+{
+	return Asset::Type::SkeletonMesh;
+}
+
+FileInfo::FileType SkeletonMeshFileInfo::getFileType( ) const
+{
+	return FileInfo::FileType::Textual;
 }
 
 std::string SkeletonMeshFileInfo::getPath( ) const

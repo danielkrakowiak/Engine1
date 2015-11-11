@@ -125,4 +125,6 @@ Mon 02.11.2015 - 2h - Loading BlockModel, Texture2D, ModelTexture2D from file.
 Fri 06.11.2015 - 3h - Loading BlockModel, Texture2D, ModelTexture2D from file.
 Sat 07.11.2015 - 4h - Fixed problem with texcoords not loading with Assimp. Added rendering of textured skeleton models.
 Sun 08.11.2015 - 4h - Separating asset classes from their file information. Added BlockMeshFileInfo class.
-Mon 09.11.2015 - 1h - Separating asset classes from their file information. Added SkeletonMeshFileInfo, Texture2DFileInfo classes.
+Mon 09.11.2015 - 2h - Separating asset classes from their file information. Added SkeletonMeshFileInfo, Texture2DFileInfo classes. Fixing AssetManager.
+Tue 10.11.2015 - 1h - Fixing AssetManager.
+Wed 11.11.2015 - 4h - Fixed AssetManager. Unified TextFile and BinaryFile vector inner type. Fixed AssetManager tests.

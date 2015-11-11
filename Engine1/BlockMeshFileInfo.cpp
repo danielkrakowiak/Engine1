@@ -4,7 +4,7 @@
 
 #include <memory>
 
-std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfo::parseBinary( std::vector<unsigned char>::const_iterator& dataIt )
+std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	return BlockMeshFileInfoParser::parseBinary( dataIt );
 }
@@ -30,7 +30,12 @@ BlockMeshFileInfo::BlockMeshFileInfo( std::string path, Format format, int index
 BlockMeshFileInfo::~BlockMeshFileInfo()
 {}
 
-void BlockMeshFileInfo::writeBinary( std::vector<unsigned char>& data ) const
+std::shared_ptr<FileInfo> BlockMeshFileInfo::clone( ) const
+{
+	return std::make_shared<BlockMeshFileInfo>( *this );
+}
+
+void BlockMeshFileInfo::writeBinary( std::vector<char>& data ) const
 {
 	BlockMeshFileInfoParser::writeBinary( data, *this );
 }
@@ -63,6 +68,16 @@ void BlockMeshFileInfo::setInvertVertexWindingOrder( bool invertVertexWindingOrd
 void BlockMeshFileInfo::setFlipUVs( bool flipUVs )
 {
 	this->flipUVs = flipUVs;
+}
+
+Asset::Type BlockMeshFileInfo::getAssetType( ) const
+{
+	return Asset::Type::BlockMesh;
+}
+
+FileInfo::FileType BlockMeshFileInfo::getFileType() const
+{
+	return FileInfo::FileType::Textual;
 }
 
 std::string BlockMeshFileInfo::getPath() const

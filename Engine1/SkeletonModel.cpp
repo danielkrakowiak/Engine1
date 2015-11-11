@@ -5,12 +5,12 @@
 
 std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently )
 {
-	std::shared_ptr< std::vector<unsigned char> > fileData = BinaryFile::load( path );
+	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
 	return createFromMemory( *fileData, format, loadRecurrently );
 }
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<unsigned char>& fileData, const FileFormat format, bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>& fileData, const FileFormat format, bool loadRecurrently )
 {
 	if ( FileFormat::SKELETONMODEL == format ) {
 		return SkeletonModelParser::parseBinary( fileData, loadRecurrently );
@@ -29,7 +29,7 @@ void SkeletonModel::setMesh( std::shared_ptr<SkeletonMesh> mesh ) {
 
 void SkeletonModel::saveToFile( const std::string& path )
 {
-	std::vector<unsigned char> data;
+	std::vector<char> data;
 
 	SkeletonModelParser::writeBinary( data, *this );
 
