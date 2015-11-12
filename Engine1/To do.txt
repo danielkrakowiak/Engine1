@@ -40,11 +40,24 @@
 	- Add tests for SkeletonMeshVertexShader checking if it throws for incorrect bones-per-vertex-values.
 11.11.2015
 	-  Texture2D::createFromMemory - WARNING: casting away const qualifier on data - need to make sure that FreeImage doesn't modify the input data!
+12.11.2015
+	- AssetManager: add due time as priority for each asset in AssetManager. Asset's subassets should be loaded with highest priority.
+	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 
 
 Revive AssetManager to avoid loading the same mesh many times.
-- need to support multiple assets from the same path (index in file) - maybe add index to path with "[3]" etc?
-- add test with textures, and textures and meshes mixed.
+- ability to load models using AssetManager and store them as an asset. 
+	- maybe add BlockModelFileInfo
+	How to handle assets which have subassets?
+	- 1) AssetManager has to load an asset with loadRecurrently=false,
+	- 2) call loadAsync on needed subassets,
+	- 3) call special version of get which waits for the asset to be loaded (with timeout)
+	- 4) swap empty assets with real assets.
+
+
+- remove isAvailable method? Use get, which should return nullptr if no such asset exists. Why search twice?
+- or simply change "get" method to return nullptr instead of exception.
+- add method "getOrLoad". Or maybe add a param to "get" method...
 
 Create a simple scene class, which stores the list of actors, lights etc in the scene.
 

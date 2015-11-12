@@ -42,6 +42,16 @@ void Texture2DFileInfo::setFormat( Format format )
 	this->format = format;
 }
 
+std::string Texture2DFileInfo::getPath() const
+{
+	return path;
+}
+
+int Texture2DFileInfo::getIndexInFile() const
+{
+	return 0;
+}
+
 Asset::Type Texture2DFileInfo::getAssetType() const
 {
 	return Asset::Type::Texture2D;
@@ -50,11 +60,6 @@ Asset::Type Texture2DFileInfo::getAssetType() const
 FileInfo::FileType Texture2DFileInfo::getFileType() const
 {
 	return FileInfo::FileType::Binary;
-}
-
-std::string Texture2DFileInfo::getPath( ) const
-{
-	return path;
 }
 
 Texture2DFileInfo::Format Texture2DFileInfo::getFormat( ) const

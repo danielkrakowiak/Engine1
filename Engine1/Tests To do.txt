@@ -21,3 +21,6 @@
 	- tests for Texture2D, RenderTargetTexture2D, RenderTargetDepthTexture2D
 06.11.2015
 	- tests for loading/saving Texture2D file info, BlockMesh, SkeletonMesh file info, BlockModel, SkeletonModel from binary.
+11.11.2015
+	- test for loading meshes in AssetManager from the same path, but with different index in file
+	- add test with textures, and textures and meshes mixed.

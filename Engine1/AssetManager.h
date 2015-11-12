@@ -22,9 +22,10 @@ public:
 
 	void                   load( const FileInfo& fileInfo );
 	void                   loadAsync( const FileInfo& fileInfo );
-	bool                   isAvailable( std::string path );
-	std::shared_ptr<Asset> get( std::string path );
-	bool                   isAvailableOrLoading( std::string path );
+	bool                   isLoaded( std::string path, const int indexInFile = 0 );
+	bool                   isLoadedOrLoading( std::string path, const int indexInFile = 0 );
+	std::shared_ptr<Asset> get( std::string path, const int indexInFile = 0 );
+	std::shared_ptr<Asset> getWhenLoaded( std::string path, const int indexInFile = 0, const float timeout = 10.0f );
 
 private:
 
@@ -68,11 +69,14 @@ private:
 		{}
 	};
 
-	std::mutex                                     assetsToLoadMutex;
-	std::condition_variable                        assetsToLoadNotEmpty;
+	std::mutex               assetsToLoadMutex;
+	std::condition_variable  assetsToLoadNotEmpty;
 	std::list< AssetToLoad > assetsToLoad;
 
 	std::mutex                                                loadedAssetsMutex;
 	std::unordered_map< std::string, std::shared_ptr<Asset> > loadedAssets;
+
+	// Used to notify 'getWhenLoaded' method that a new asset has just finished loading.
+	std::condition_variable assetLoaded;
 };
 

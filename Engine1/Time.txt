@@ -127,4 +127,5 @@ Sat 07.11.2015 - 4h - Fixed problem with texcoords not loading with Assimp. Adde
 Sun 08.11.2015 - 4h - Separating asset classes from their file information. Added BlockMeshFileInfo class.
 Mon 09.11.2015 - 2h - Separating asset classes from their file information. Added SkeletonMeshFileInfo, Texture2DFileInfo classes. Fixing AssetManager.
 Tue 10.11.2015 - 1h - Fixing AssetManager.
-Wed 11.11.2015 - 4h - Fixed AssetManager. Unified TextFile and BinaryFile vector inner type. Fixed AssetManager tests.
+Wed 11.11.2015 - 5h - Fixed AssetManager. Unified TextFile and BinaryFile vector inner type. Fixed AssetManager tests. Added support to AssetManager for assets from the same path, but with different index in file.
+Thu 12.11.2015 - 3h - Added AssetManager::getWhenLoaded() method. Added 'performance' test in AssetManager.

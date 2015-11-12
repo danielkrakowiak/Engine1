@@ -33,10 +33,11 @@ class Texture2DFileInfo : public FileInfo
 
 	void setPath( std::string path );
 	void setFormat( Format format );
-
+	
+	std::string getPath( ) const;
+	int         getIndexInFile( ) const;
 	Asset::Type getAssetType() const;
 	FileType    getFileType( ) const;
-	std::string getPath() const;
 	Format      getFormat() const;
 
 	private:

@@ -41,12 +41,12 @@ AssetManager::~AssetManager() {
 
 void AssetManager::load( const FileInfo& fileInfo )
 {
-	std::string path = StringUtil::toLowercase( fileInfo.getPath() );
+	std::string path = StringUtil::toLowercase( fileInfo.getPath() ) + "[" + std::to_string( fileInfo.getIndexInFile() ) + "]";
 
 	{ // Check if asset was loaded already or is in the course of loading.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
 		if ( assets.count( path ) != 0 ) 
-			throw std::exception( "AssetManager::loadAsset - Asset is already loaded or in the course of loading." );
+			throw std::exception( "AssetManager::load - Asset is already loaded or in the course of loading." );
 		
 		assets.insert( path );
 	}
@@ -69,49 +69,79 @@ void AssetManager::load( const FileInfo& fileInfo )
 
 void AssetManager::loadAsync( const FileInfo& fileInfo )
 {
-	std::string path = StringUtil::toLowercase( fileInfo.getPath() );
+	std::string path = StringUtil::toLowercase( fileInfo.getPath( ) ) + "[" + std::to_string( fileInfo.getIndexInFile( ) ) + "]";
 
 	{ // Check if this asset was loaded already or is in the course of loading.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
-		if ( assets.count( path ) != 0 ) throw std::exception( "AssetManager::loadAssetAsync - Asset is already loaded or in the course of loading." );
+		if ( assets.count( path ) != 0 ) 
+			throw std::exception( "AssetManager::loadAsync - Asset is already loaded or in the course of loading." );
+
 		assets.insert( path );
 	}
 
 	{ // Add the asset to the list of assets to load from disk - lock mutex.
 		std::unique_lock<std::mutex> assetsToLoadFromDiskLock( assetsToLoadFromDiskMutex );
+
 		assetsToLoadFromDisk.push_back( fileInfo.clone() );
 	}
-
 
 	// Resume thread which loads assets from disk.
 	assetsToLoadFromDiskNotEmpty.notify_one();
 }
 
-bool AssetManager::isAvailable( std::string path ) {
-	path = StringUtil::toLowercase( path );
+bool AssetManager::isLoaded( std::string path, const int indexInFile )
+{
+	path = StringUtil::toLowercase( path ) + "[" + std::to_string( indexInFile ) + "]";
 
 	//TODO: should I lock loadedAssets before searching through it?
 	return ( loadedAssets.find( path ) != loadedAssets.end( ) );
 }
 
-std::shared_ptr<Asset> AssetManager::get( std::string path ) {
-	path = StringUtil::toLowercase( path );
+bool AssetManager::isLoadedOrLoading( std::string path, const int indexInFile )
+{
+	path = StringUtil::toLowercase( path ) + "[" + std::to_string( indexInFile ) + "]";
+
+	std::lock_guard<std::mutex> assetsLock( assetsMutex );
+	return ( assets.count( path ) != 0 );
+}
+
+std::shared_ptr<Asset> AssetManager::get( std::string path, const int indexInFile )
+{
+	path = StringUtil::toLowercase( path ) + "[" + std::to_string( indexInFile ) + "]";
 
 	std::lock_guard<std::mutex> loadedAssetsLock( loadedAssetsMutex );
 
 	std::unordered_map< std::string, std::shared_ptr<Asset> >::iterator it = loadedAssets.find( path );
 
-	if ( it == loadedAssets.end() ) 
-		throw std::exception( "AssetManager::get - No asset found for that path." );
+	if ( it == loadedAssets.end() )
+		return nullptr;
 
 	return it->second;
 }
 
-bool AssetManager::isAvailableOrLoading( std::string path ) {
-	path = StringUtil::toLowercase( path );
+std::shared_ptr<Asset> AssetManager::getWhenLoaded( std::string path, const int indexInFile, const float timeout )
+{
+	path = StringUtil::toLowercase( path ) + "[" + std::to_string( indexInFile ) + "]";
 
-	std::lock_guard<std::mutex> assetsLock( assetsMutex );
-	return ( assets.count( path ) != 0 );
+	std::unordered_map< std::string, std::shared_ptr<Asset> >::iterator it;
+
+	const std::chrono::steady_clock::time_point timoutTime = std::chrono::steady_clock::now( ) + std::chrono::microseconds( (long long)( timeout / 0.000001f ) );
+
+	std::unique_lock<std::mutex> loadedAssetsLock( loadedAssetsMutex );
+
+	while (true) {
+		// Check if the asset is loaded.
+		it = loadedAssets.find( path );
+		if ( it != loadedAssets.end() )
+			return it->second;
+
+		// Wait until some asset finish loading or timeout.
+		std::_Cv_status status = assetLoaded.wait_until( loadedAssetsLock, timoutTime );
+
+		// Exit method on timeout.
+		if ( status == std::cv_status::timeout )
+			return nullptr;
+	}
 }
 
 void AssetManager::loadAssetsFromDisk() {
@@ -140,7 +170,7 @@ void AssetManager::loadAssetsFromDisk() {
 
 		OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - loading \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
-		std::string path = StringUtil::toLowercase( fileInfo->getPath( ) );
+		std::string path = StringUtil::toLowercase( fileInfo->getPath( ) ) + "[" + std::to_string( fileInfo->getIndexInFile() ) + "]";
 
 		// Load file from disk.
 		try {
@@ -172,8 +202,8 @@ void AssetManager::loadAssetsFromDisk() {
 	}
 }
 
-void AssetManager::loadAssets() {
-
+void AssetManager::loadAssets() 
+{
 	while ( true ) {
 		AssetToLoad assetToLoad;
 
@@ -216,9 +246,12 @@ void AssetManager::loadAssets() {
 			// Add asset to a list of assets.
 
 			//#TODO: handle paths for files with multiple meshes inside.
-			std::string path = StringUtil::toLowercase( assetToLoad.fileInfo->getPath( ) );
+			std::string path = StringUtil::toLowercase( assetToLoad.fileInfo->getPath( ) ) + "["+ std::to_string( assetToLoad.fileInfo->getIndexInFile() ) + "]";
 			loadedAssets.insert( std::make_pair( path, asset ) );
 		}
+
+		// Notify 'getWhenLoaded' method that an asset has just been loaded.
+		assetLoaded.notify_all();
 	}
 }
 
