@@ -86,6 +86,21 @@ Asset::Type Texture2D::getType() const
 	return Asset::Type::Texture2D;
 }
 
+std::vector< std::shared_ptr<const Asset> > Texture2D::getSubAssets( ) const
+{
+	return std::vector< std::shared_ptr<const Asset> >();
+}
+
+std::vector< std::shared_ptr<Asset> > Texture2D::getSubAssets()
+{
+	return std::vector< std::shared_ptr<Asset> >( );
+}
+
+void Texture2D::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset )
+{
+	throw std::exception( "Texture2D::swapSubAsset - there are no sub-assets to be swapped." );
+}
+
 void Texture2D::setFileInfo( const Texture2DFileInfo& fileInfo )
 {
 	this->fileInfo = fileInfo;

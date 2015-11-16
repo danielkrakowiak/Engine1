@@ -52,7 +52,7 @@ Revive AssetManager to avoid loading the same mesh many times.
 	- 1) AssetManager has to load an asset with loadRecurrently=false,
 	- 2) call loadAsync on needed subassets,
 	- 3) call special version of get which waits for the asset to be loaded (with timeout)
-	- 4) swap empty assets with real assets.
+	- 4) swap empty assets with real assets - how to do that elegantly? - use swapAsset method.
 
 
 - remove isAvailable method? Use get, which should return nullptr if no such asset exists. Why search twice?

@@ -31,11 +31,14 @@ class Texture2D : public Asset
 	Texture2D();
 	~Texture2D();
 
-	Asset::Type getType( ) const;
+	Asset::Type                                 getType( ) const;
+	std::vector< std::shared_ptr<const Asset> > getSubAssets( ) const;
+	std::vector< std::shared_ptr<Asset> >       getSubAssets();
+	void                                        swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset );
 
-	void setFileInfo( const Texture2DFileInfo& fileInfo );
+	void                     setFileInfo( const Texture2DFileInfo& fileInfo );
 	const Texture2DFileInfo& getFileInfo( ) const;
-	Texture2DFileInfo& getFileInfo( );
+	Texture2DFileInfo&       getFileInfo( );
 
 	virtual void loadCpuToGpu( ID3D11Device& device );
 	virtual void loadGpuToCpu( );

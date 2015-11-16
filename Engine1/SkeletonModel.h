@@ -6,20 +6,26 @@
 #include "SkeletonMesh.h"
 #include "ModelTexture2D.h"
 
-class SkeletonModel {
+#include "SkeletonModelFileInfo.h"
+
+class SkeletonModel : public Asset {
 
 public:
 
-	enum class FileFormat : char
-	{
-		SKELETONMODEL
-	};
-
-	static std::shared_ptr<SkeletonModel> createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently );
-	static std::shared_ptr<SkeletonModel> createFromMemory( std::vector<char>& fileData, const FileFormat format, bool loadRecurrently );
+	static std::shared_ptr<SkeletonModel> createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently );
+	static std::shared_ptr<SkeletonModel> createFromMemory( const std::vector<char>& fileData, const SkeletonModelFileInfo::Format format, bool loadRecurrently );
 
 	SkeletonModel( );
 	~SkeletonModel( );
+
+	Asset::Type                                 getType() const;
+	std::vector< std::shared_ptr<const Asset> > getSubAssets() const;
+	std::vector< std::shared_ptr<Asset> >       getSubAssets();
+	void                                        swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset );
+
+	void                         setFileInfo( const SkeletonModelFileInfo& fileInfo );
+	const SkeletonModelFileInfo& getFileInfo( ) const;
+	SkeletonModelFileInfo&       getFileInfo( );
 
 	void saveToFile( const std::string& path );
 
@@ -54,6 +60,8 @@ public:
 	ModelTexture2D					  getNormalTexture( int index = 0 ) const;
 
 private:
+
+	SkeletonModelFileInfo fileInfo;
 
 	std::shared_ptr<SkeletonMesh> mesh;
 

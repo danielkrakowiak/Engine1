@@ -440,6 +440,7 @@
     <ClInclude Include="BlockMeshLOD.h" />
     <ClInclude Include="BlockMeshFileInfoParser.h" />
     <ClInclude Include="BlockMeshVertexShader.h" />
+    <ClInclude Include="BlockModelFileInfo.h" />
     <ClInclude Include="BlockModelParser.h" />
     <ClInclude Include="BlockModelFragmentShader.h" />
     <ClInclude Include="BlockModelLOD.h" />
@@ -453,6 +454,7 @@
     <ClInclude Include="ModelTexture2DParser.h" />
     <ClInclude Include="SkeletonMeshFileInfo.h" />
     <ClInclude Include="SkeletonMeshFileInfoParser.h" />
+    <ClInclude Include="SkeletonModelFileInfo.h" />
     <ClInclude Include="SkeletonModelFragmentShader.h" />
     <ClInclude Include="SkeletonModelParser.h" />
     <ClInclude Include="SkeletonModelVertexShader.h" />
@@ -683,6 +685,7 @@
     <ClCompile Include="BlockMeshLOD.cpp" />
     <ClCompile Include="BlockMeshFileInfoParser.cpp" />
     <ClCompile Include="BlockMeshVertexShader.cpp" />
+    <ClCompile Include="BlockModelFileInfo.cpp" />
     <ClCompile Include="BlockModelParser.cpp" />
     <ClCompile Include="BlockModelFragmentShader.cpp" />
     <ClCompile Include="BlockModelLOD.cpp" />
@@ -695,6 +698,7 @@
     <ClCompile Include="ModelTexture2DParser.cpp" />
     <ClCompile Include="SkeletonMeshFileInfo.cpp" />
     <ClCompile Include="SkeletonMeshFileInfoParser.cpp" />
+    <ClCompile Include="SkeletonModelFileInfo.cpp" />
     <ClCompile Include="SkeletonModelFragmentShader.cpp" />
     <ClCompile Include="SkeletonModelParser.cpp" />
     <ClCompile Include="SkeletonModelVertexShader.cpp" />

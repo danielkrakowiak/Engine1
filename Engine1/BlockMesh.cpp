@@ -100,6 +100,21 @@ Asset::Type BlockMesh::getType( ) const
 	return Asset::Type::BlockMesh;
 }
 
+std::vector< std::shared_ptr<const Asset> > BlockMesh::getSubAssets( ) const
+{
+	return std::vector< std::shared_ptr<const Asset> >( );
+}
+
+std::vector< std::shared_ptr<Asset> > BlockMesh::getSubAssets()
+{
+	return std::vector< std::shared_ptr<Asset> >( );
+}
+
+void BlockMesh::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset )
+{
+	throw std::exception( "BlockMesh::swapSubAsset - there are no sub-assets to be swapped." );
+}
+
 void BlockMesh::setFileInfo( const BlockMeshFileInfo& fileInfo )
 {
 	this->fileInfo = fileInfo;

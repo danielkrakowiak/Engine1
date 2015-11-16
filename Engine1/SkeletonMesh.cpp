@@ -91,6 +91,21 @@ Asset::Type SkeletonMesh::getType() const
 	return Asset::Type::SkeletonMesh;
 }
 
+std::vector< std::shared_ptr<const Asset> > SkeletonMesh::getSubAssets( ) const
+{
+	return std::vector< std::shared_ptr<const Asset> >();
+}
+
+std::vector< std::shared_ptr<Asset> > SkeletonMesh::getSubAssets()
+{
+	return std::vector< std::shared_ptr<Asset> >( );
+}
+
+void SkeletonMesh::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset )
+{
+	throw std::exception( "SkeletonMesh::swapSubAsset - there are no sub-assets to be swapped." );
+}
+
 void SkeletonMesh::setFileInfo( const SkeletonMeshFileInfo& fileInfo )
 {
 	this->fileInfo = fileInfo;

@@ -6,6 +6,8 @@
 #include "BlockMesh.h"
 #include "SkeletonMesh.h"
 #include "Texture2D.h"
+#include "BlockModel.h"
+#include "SkeletonModel.h"
 
 #include "StringUtil.h"
 
@@ -241,6 +243,24 @@ void AssetManager::loadAssets()
 			//TODO: handle this error - do some callback for ex.
 		}
 
+		{ // Load sub-assets if needed.
+			std::vector<std::shared_ptr<Asset>> subAssets = asset->getSubAssets();
+			for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
+				if ( !subAsset->getFileInfo().getPath().empty() )
+					loadAsync( subAsset->getFileInfo( ) ); //#TODO: Should load with the highest priority.
+			}
+
+			// Wait for the sub-assets to be loaded and swap empty sub-assets with loaded sub-assets.
+			const float subAssetLoadTimeout = 60.0f;
+			for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
+				if ( !subAsset->getFileInfo().getPath().empty() ) {
+					std::shared_ptr<Asset> newSubAsset = getWhenLoaded( subAsset->getFileInfo( ).getPath( ), subAsset->getFileInfo( ).getIndexInFile( ), subAssetLoadTimeout );
+
+					asset->swapSubAsset( subAsset, newSubAsset );
+				}
+			}
+		}
+
 		{ // Add asset to a list of assets - hold lock.
 			std::lock_guard<std::mutex> loadedAssetsLock( loadedAssetsMutex );
 			// Add asset to a list of assets.
@@ -259,6 +279,8 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
 {
 	switch ( fileInfo.getAssetType() )  
 	{
+		case Asset::Type::BlockModel:
+			return BlockModel::createFromFile( static_cast<const BlockModelFileInfo&>( fileInfo ), false );
 		case Asset::Type::BlockMesh:
 			return BlockMesh::createFromFile( static_cast<const BlockMeshFileInfo&>( fileInfo ) );
 		case Asset::Type::SkeletonMesh:
@@ -273,6 +295,16 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
 std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo, const std::vector<char>& fileData )
 {
 	switch ( fileInfo.getAssetType() ) {
+		case Asset::Type::BlockModel:
+		{
+			const BlockModelFileInfo& modelFileInfo = static_cast<const BlockModelFileInfo&>( fileInfo );
+			return BlockModel::createFromMemory( fileData, modelFileInfo.getFormat( ), false );
+		}
+		case Asset::Type::SkeletonModel:
+		{
+			const SkeletonModelFileInfo& modelFileInfo = static_cast<const SkeletonModelFileInfo&>( fileInfo );
+			return SkeletonModel::createFromMemory( fileData, modelFileInfo.getFormat( ), false );
+		}
 		case Asset::Type::BlockMesh:
 		{
 			const BlockMeshFileInfo& meshFileInfo = static_cast<const BlockMeshFileInfo&>( fileInfo );

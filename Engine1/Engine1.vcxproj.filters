@@ -1035,6 +1035,12 @@
     <ClInclude Include="Asset.h">
       <Filter>Header Files\Asset</Filter>
     </ClInclude>
+    <ClInclude Include="BlockModelFileInfo.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonModelFileInfo.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1747,6 +1753,12 @@
     </ClCompile>
     <ClCompile Include="Texture2DFileInfoParser.cpp">
       <Filter>Source Files\Texture\FileParsers</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockModelFileInfo.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonModelFileInfo.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

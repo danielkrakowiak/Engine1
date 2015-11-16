@@ -152,17 +152,17 @@ void Application::run() {
 	mesh2->loadToGpu( direct3DRenderer.getDevice( ) );*/
 
 	//////
-	/*std::shared_ptr<BlockMesh> mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/quadbot2.obj", BlockMesh::FileFormat::OBJ, false, false ).front();
+	std::shared_ptr<BlockMesh> mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/quadbot2.obj", BlockMeshFileInfo::Format::OBJ, false, false ).front( );
 	mesh3->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	std::shared_ptr<Texture2D> albedoTexture = Texture2D::createFromFile( "../Engine1/Assets/Textures/Quadbot/quadbot_dirt.png", Texture2D::FileFormat::BMP );
+	std::shared_ptr<Texture2D> albedoTexture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Quadbot/quadbot_dirt.png", Texture2DFileInfo::Format::BMP );
 	albedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice(  ) );
 
 	std::shared_ptr<BlockModel> model1 = std::make_shared<BlockModel>( );
 	model1->setMesh( mesh3 );
-	model1->addAlbedoTexture( albedoTexture, 0 );
+	model1->addAlbedoTexture( ModelTexture2D( albedoTexture, 0 ) );
 
-	model1->saveToFile( "../Engine1/Assets/Models/quadbot.blockmodel" );*/
+	model1->saveToFile( "../Engine1/Assets/TestAssets/Models/quadbot.blockmodel" );
 	/////
 
 	//std::shared_ptr<BlockModel> model1 = BlockModel::createFromFile( "../Engine1/Assets/Models/quadbot.blockmodel", BlockModel::FileFormat::BLOCKMODEL, true );
@@ -229,20 +229,17 @@ void Application::run() {
 	
 
 
-	std::vector< std::shared_ptr<SkeletonMesh> > skeletonMeshes3 = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/Bikini Girl.dae", SkeletonMeshFileInfo::Format::DAE, false, false, false );
-	for ( std::shared_ptr<SkeletonMesh>& mesh : skeletonMeshes3 )
-		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+	std::shared_ptr<SkeletonMesh> girlMesh = SkeletonMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bikini girl.DAE", SkeletonMeshFileInfo::Format::DAE, 0, false, false, false );
+	girlMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	std::shared_ptr<SkeletonMesh> girlMesh = skeletonMeshes3.at( 0 );
-
-	std::shared_ptr<Texture2D> girlAlbedoTexture = Texture2D::createFromFile( "../Engine1/Assets/Textures/Bikini Girl/BikiniGirl_Body_D.tga", Texture2DFileInfo::Format::TGA );
+	std::shared_ptr<Texture2D> girlAlbedoTexture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Bikini Girl/BikiniGirl_Body_D.tga", Texture2DFileInfo::Format::TGA );
 	girlAlbedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
 	std::shared_ptr<SkeletonModel> girlModel = std::make_shared<SkeletonModel>( );
 	girlModel->setMesh( girlMesh );
 	girlModel->addAlbedoTexture( ModelTexture2D( girlAlbedoTexture, 0 ) );
 
-
+	girlModel->saveToFile( "../Engine1/Assets/TestAssets/Models/bikini_girl.skeletonmodel" );
 
 
 
@@ -420,7 +417,7 @@ void Application::run() {
 			//direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
-		std::shared_ptr<RenderTargetTexture2D> renderTarget = direct3DDefferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO );
+		std::shared_ptr<RenderTargetTexture2D> renderTarget = direct3DDefferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL );
 
 		std::shared_ptr<Texture2D> renderTargetTexture = std::dynamic_pointer_cast<Texture2D>( renderTarget );
 

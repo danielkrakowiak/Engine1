@@ -4,6 +4,8 @@
 #include "AssetManager.h"
 
 #include "BlockMesh.h"
+#include "BlockModel.h"
+#include "SkeletonModel.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -516,6 +518,80 @@ namespace UnitTests
 			Assert::IsTrue(  assetManager.isLoaded( path, 0 ), L"AssetManager::isLoaded returned false" );
 			Assert::IsFalse( assetManager.isLoaded( path, 1 ), L"AssetManager::isLoaded returned true" );
 			Assert::IsTrue(  assetManager.isLoaded( path, 2 ), L"AssetManager::isLoaded returned false" );
+		}
+
+		TEST_METHOD( AssetManager_Model_Async_Loading_1 )
+		{
+			#if defined _DEBUG
+			float modelMaxLoadingTime = 20000;
+			#else
+			float modelMaxLoadingTime = 20000;
+			#endif
+
+			unsigned int cpuThreadCount = std::thread::hardware_concurrency();
+			if ( cpuThreadCount <= 0 ) cpuThreadCount = 1;
+
+			AssetManager assetManager( cpuThreadCount );
+
+			const std::string path = "../Engine1/Assets/TestAssets/Models/quadbot.blockmodel";
+
+			BlockModelFileInfo fileInfo1( path, BlockModelFileInfo::Format::BLOCKMODEL );
+
+			try {
+				assetManager.loadAsync( fileInfo1 );
+			
+				std::shared_ptr<Asset> asset = assetManager.getWhenLoaded( path, 0, modelMaxLoadingTime );
+
+				std::shared_ptr<BlockModel> model = std::dynamic_pointer_cast<BlockModel>( asset );
+				Assert::IsNotNull( model.get() );
+
+				std::shared_ptr<BlockMesh> mesh = model->getMesh();
+				Assert::IsNotNull( mesh.get() );
+				Assert::IsTrue( mesh->isInCpuMemory() );
+
+				std::shared_ptr<Texture2D> texture = model->getAlbedoTexture( 0 ).getTexture();
+				Assert::IsNotNull( texture.get( ) );
+				Assert::IsTrue( texture->isInCpuMemory() );
+			} catch ( ... ) {
+				Assert::Fail();
+			}
+		}
+
+		TEST_METHOD( AssetManager_Model_Async_Loading_2 )
+		{
+			#if defined _DEBUG
+			float modelMaxLoadingTime = 20000;
+			#else
+			float modelMaxLoadingTime = 20000;
+			#endif
+
+			unsigned int cpuThreadCount = std::thread::hardware_concurrency();
+			if ( cpuThreadCount <= 0 ) cpuThreadCount = 1;
+
+			AssetManager assetManager( cpuThreadCount );
+
+			const std::string path = "../Engine1/Assets/TestAssets/Models/bikini_girl.skeletonmodel";
+
+			SkeletonModelFileInfo fileInfo1( path, SkeletonModelFileInfo::Format::SKELETONMODEL );
+
+			try {
+				assetManager.loadAsync( fileInfo1 );
+
+				std::shared_ptr<Asset> asset = assetManager.getWhenLoaded( path, 0, modelMaxLoadingTime );
+
+				std::shared_ptr<SkeletonModel> model = std::dynamic_pointer_cast<SkeletonModel>( asset );
+				Assert::IsNotNull( model.get() );
+
+				std::shared_ptr<SkeletonMesh> mesh = model->getMesh( );
+				Assert::IsNotNull( mesh.get() );
+				Assert::IsTrue( mesh->isInCpuMemory() );
+
+				std::shared_ptr<Texture2D> texture = model->getAlbedoTexture( 0 ).getTexture();
+				Assert::IsNotNull( texture.get() );
+				Assert::IsTrue( texture->isInCpuMemory() );
+			} catch ( ... ) {
+				Assert::Fail();
+			}
 		}
 
 		TEST_METHOD( AssetManager_Mesh_GetWhenLoaded_1 )

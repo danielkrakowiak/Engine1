@@ -1,6 +1,10 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <memory>
+
+class FileInfo;
 
 class Asset {
 
@@ -16,6 +20,11 @@ class Asset {
 		SkeletonAnimation = 5
 	};
 
-	virtual Type getType() const = 0;
+	virtual Type                                        getType() const = 0;
+	virtual const FileInfo&                             getFileInfo() const = 0;
+	virtual FileInfo&                                   getFileInfo() = 0;
+	virtual std::vector< std::shared_ptr<const Asset> > getSubAssets() const = 0;
+	virtual std::vector< std::shared_ptr<Asset> >       getSubAssets() = 0;
+	virtual void                                        swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset ) = 0;
 };
 

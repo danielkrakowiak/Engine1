@@ -3,18 +3,20 @@
 #include "BinaryFile.h"
 #include "SkeletonModelParser.h"
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
 	return createFromMemory( *fileData, format, loadRecurrently );
 }
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>& fileData, const FileFormat format, bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( const std::vector<char>& fileData, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
 {
-	if ( FileFormat::SKELETONMODEL == format ) {
+	if ( SkeletonModelFileInfo::Format::SKELETONMODEL == format ) {
 		return SkeletonModelParser::parseBinary( fileData, loadRecurrently );
 	}
+
+	throw std::exception( "SkeletonModel::createFromMemory() - incorrect 'format' argument." );
 }
 
 SkeletonModel::SkeletonModel( )
@@ -22,6 +24,89 @@ SkeletonModel::SkeletonModel( )
 {}
 
 SkeletonModel::~SkeletonModel( ) {}
+
+Asset::Type SkeletonModel::getType( ) const
+{
+	return Asset::Type::SkeletonModel;
+}
+
+std::vector< std::shared_ptr<const Asset> > SkeletonModel::getSubAssets( ) const
+{
+	std::vector< std::shared_ptr<const Asset> > subAssets;
+
+	if ( mesh )
+		subAssets.push_back( mesh );
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( const ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			subAssets.push_back( texture.getTexture() );
+	}
+
+	return subAssets;
+}
+
+std::vector< std::shared_ptr<Asset> > SkeletonModel::getSubAssets( )
+{
+	std::vector< std::shared_ptr<Asset> > subAssets;
+
+	if ( mesh )
+		subAssets.push_back( mesh );
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			subAssets.push_back( texture.getTexture() );
+	}
+
+	return subAssets;
+}
+
+void SkeletonModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset )
+{
+	if ( !oldAsset )
+		throw std::exception( "SkeletonModel::swapSubAsset - nullptr passed." );
+
+	if ( mesh == oldAsset ) {
+		std::shared_ptr<SkeletonMesh> newMesh = std::dynamic_pointer_cast<SkeletonMesh>( newAsset );
+
+		if ( newMesh ) {
+			mesh = newMesh;
+			return;
+		} else {
+			throw std::exception( "SkeletonModel::swapSubAsset - tried to swap mesh with non-mesh asset." );
+		}
+	}
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() == oldAsset ) {
+			std::shared_ptr<Texture2D> newTexture = std::dynamic_pointer_cast<Texture2D>( newAsset );
+
+			if ( newTexture ) {
+				texture.setTexture( newTexture );
+				return;
+			} else {
+				throw std::exception( "SkeletonModel::swapSubAsset - tried to swap texture with non-texture asset." );
+			}
+		}
+	}
+}
+
+void SkeletonModel::setFileInfo( const SkeletonModelFileInfo& fileInfo )
+{
+	this->fileInfo = fileInfo;
+}
+
+const SkeletonModelFileInfo& SkeletonModel::getFileInfo( ) const
+{
+	return fileInfo;
+}
+
+SkeletonModelFileInfo& SkeletonModel::getFileInfo( )
+{
+	return fileInfo;
+}
 
 void SkeletonModel::setMesh( std::shared_ptr<SkeletonMesh> mesh ) {
 	this->mesh = mesh;

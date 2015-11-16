@@ -3,18 +3,25 @@
 #include "BinaryFile.h"
 #include "BlockModelParser.h"
 
-std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const FileFormat format, bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModel::createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently )
+{
+	return createFromFile( fileInfo.getPath(), fileInfo.getFormat(), loadRecurrently );
+}
+
+std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently )
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
 	return createFromMemory( *fileData, format, loadRecurrently );
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>& fileData, const FileFormat format, bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModel::createFromMemory( const std::vector<char>& fileData, const BlockModelFileInfo::Format format, const bool loadRecurrently )
 {
-	if ( FileFormat::BLOCKMODEL == format ) {
+	if ( BlockModelFileInfo::Format::BLOCKMODEL == format ) {
 		return BlockModelParser::parseBinary( fileData, loadRecurrently );
 	}
+
+	throw std::exception( "BlockModel::createFromMemory() - incorrect 'format' argument." );
 }
 
 BlockModel::BlockModel( ) 
@@ -24,6 +31,89 @@ BlockModel::BlockModel( )
 
 BlockModel::~BlockModel( ) 
 {}
+
+Asset::Type BlockModel::getType() const
+{
+	return Asset::Type::BlockModel;
+}
+
+std::vector< std::shared_ptr<const Asset> > BlockModel::getSubAssets( ) const
+{
+	std::vector< std::shared_ptr<const Asset> > subAssets;
+
+	if ( mesh )
+		subAssets.push_back( mesh );
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( const ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			subAssets.push_back( texture.getTexture() );
+	}
+
+	return subAssets;
+}
+
+std::vector< std::shared_ptr<Asset> > BlockModel::getSubAssets()
+{
+	std::vector< std::shared_ptr<Asset> > subAssets;
+
+	if ( mesh )
+		subAssets.push_back( mesh );
+
+	std::vector<ModelTexture2D> textures = getAllTextures();
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() )
+			subAssets.push_back( texture.getTexture() );
+	}
+
+	return subAssets;
+}
+
+void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset )
+{
+	if ( !oldAsset )
+		throw std::exception( "BlockModel::swapSubAsset - nullptr passed." );
+
+	if ( mesh == oldAsset ) {
+		std::shared_ptr<BlockMesh> newMesh = std::dynamic_pointer_cast<BlockMesh>( newAsset );
+
+		if ( newMesh ) {
+			mesh = newMesh;
+			return;
+		} else {
+			throw std::exception( "BlockModel::swapSubAsset - tried to swap mesh with non-mesh asset." );
+		}
+	}
+
+	std::vector<ModelTexture2D> textures = getAllTextures( );
+	for ( ModelTexture2D& texture : textures ) {
+		if ( texture.getTexture() == oldAsset ) {
+			std::shared_ptr<Texture2D> newTexture = std::dynamic_pointer_cast<Texture2D>( newAsset );
+
+			if ( newTexture ) {
+				texture.setTexture( newTexture );
+				return;
+			} else {
+				throw std::exception( "BlockModel::swapSubAsset - tried to swap texture with non-texture asset." );
+			}
+		}
+	}
+}
+
+void BlockModel::setFileInfo( const BlockModelFileInfo& fileInfo )
+{
+	this->fileInfo = fileInfo;
+}
+
+const BlockModelFileInfo& BlockModel::getFileInfo() const
+{
+	return fileInfo;
+}
+
+BlockModelFileInfo& BlockModel::getFileInfo()
+{
+	return fileInfo;
+}
 
 void BlockModel::saveToFile( const std::string& path )
 {

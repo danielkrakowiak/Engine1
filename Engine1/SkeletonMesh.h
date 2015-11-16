@@ -34,11 +34,14 @@ class SkeletonMesh : public Asset
 	SkeletonMesh( );
 	~SkeletonMesh( );
 
-	Asset::Type getType( ) const;
+	Asset::Type                                 getType() const;
+	std::vector< std::shared_ptr<const Asset> > getSubAssets( ) const;
+	std::vector< std::shared_ptr<Asset> >       getSubAssets();
+	void                                        swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset );
 
-	void setFileInfo( const SkeletonMeshFileInfo& fileInfo );
+	void                        setFileInfo( const SkeletonMeshFileInfo& fileInfo );
 	const SkeletonMeshFileInfo& getFileInfo( ) const;
-	SkeletonMeshFileInfo& getFileInfo( );
+	SkeletonMeshFileInfo&       getFileInfo( );
 
 	void loadCpuToGpu( ID3D11Device& device );
 	void loadGpuToCpu( );
