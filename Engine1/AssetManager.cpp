@@ -8,11 +8,14 @@
 #include "Texture2D.h"
 #include "BlockModel.h"
 #include "SkeletonModel.h"
+#include "SkeletonAnimation.h"
 
 #include "StringUtil.h"
 
 #include "TextFile.h"
 #include "BinaryFile.h"
+
+#include "SkeletonAnimationFileInfo.h"
 
 AssetManager::AssetManager( int loadingThreadCount = INT_MAX ) {
 	if ( loadingThreadCount <= 0 ) throw std::exception( "AssetManager::AssetManager - Number of loading threads has to be greater than 0." );
@@ -191,6 +194,7 @@ void AssetManager::loadAssetsFromDisk() {
 			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - failed to load \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
 			//TODO: handle this error - do some callback for ex.
+            continue;
 		}
 
 		{ // Add asset to list of assets to load - hold mutex.
@@ -228,9 +232,27 @@ void AssetManager::loadAssets()
 
 		std::shared_ptr<Asset> asset = nullptr;
 
-		// Load file.
+		// Load asset and sub-assets.
 		try {
 			asset = createFromMemory( *assetToLoad.fileInfo, *assetToLoad.fileData );
+
+            { // Load sub-assets if needed.
+                std::vector<std::shared_ptr<Asset>> subAssets = asset->getSubAssets();
+                for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
+                    if ( !subAsset->getFileInfo().getPath().empty() )
+                        loadAsync( subAsset->getFileInfo() ); //#TODO: Should load with the highest priority.
+                }
+
+                // Wait for the sub-assets to be loaded and swap empty sub-assets with loaded sub-assets.
+                const float subAssetLoadTimeout = 60.0f;
+                for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
+                    if ( !subAsset->getFileInfo().getPath().empty() ) {
+                        std::shared_ptr<Asset> newSubAsset = getWhenLoaded( subAsset->getFileInfo().getPath(), subAsset->getFileInfo().getIndexInFile(), subAssetLoadTimeout );
+
+                        asset->swapSubAsset( subAsset, newSubAsset );
+                    }
+                }
+            }
 
 			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - loaded \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 		} catch ( std::exception& ex ) {
@@ -241,24 +263,7 @@ void AssetManager::loadAssets()
 			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - failed to load \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
 			//TODO: handle this error - do some callback for ex.
-		}
-
-		{ // Load sub-assets if needed.
-			std::vector<std::shared_ptr<Asset>> subAssets = asset->getSubAssets();
-			for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
-				if ( !subAsset->getFileInfo().getPath().empty() )
-					loadAsync( subAsset->getFileInfo( ) ); //#TODO: Should load with the highest priority.
-			}
-
-			// Wait for the sub-assets to be loaded and swap empty sub-assets with loaded sub-assets.
-			const float subAssetLoadTimeout = 60.0f;
-			for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
-				if ( !subAsset->getFileInfo().getPath().empty() ) {
-					std::shared_ptr<Asset> newSubAsset = getWhenLoaded( subAsset->getFileInfo( ).getPath( ), subAsset->getFileInfo( ).getIndexInFile( ), subAssetLoadTimeout );
-
-					asset->swapSubAsset( subAsset, newSubAsset );
-				}
-			}
+            continue;
 		}
 
 		{ // Add asset to a list of assets - hold lock.
@@ -285,6 +290,26 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
 			return BlockMesh::createFromFile( static_cast<const BlockMeshFileInfo&>( fileInfo ) );
 		case Asset::Type::SkeletonMesh:
 			return SkeletonMesh::createFromFile( static_cast<const SkeletonMeshFileInfo&>( fileInfo ) );
+		case Asset::Type::SkeletonAnimation:
+		{
+			const SkeletonAnimationFileInfo& animFileInfo = static_cast<const SkeletonAnimationFileInfo&>( fileInfo );
+
+			std::shared_ptr<const SkeletonMesh> referenceMesh;
+			{ // Get or load the reference mesh.
+				const bool meshLoadedOrLoading = isLoadedOrLoading( animFileInfo.getMeshFileInfo().getPath(), animFileInfo.getMeshFileInfo().getIndexInFile() );
+				if ( !meshLoadedOrLoading )
+					loadAsync( animFileInfo.getMeshFileInfo() );
+
+				const float loadTimeout = 60.0f;
+				std::shared_ptr<const Asset> mesh = getWhenLoaded( animFileInfo.getMeshFileInfo().getPath(), animFileInfo.getMeshFileInfo().getIndexInFile(), loadTimeout );
+				referenceMesh = mesh->getType() == Asset::Type::SkeletonMesh ? std::static_pointer_cast<const SkeletonMesh>( mesh ) : nullptr;
+			}
+
+			if ( referenceMesh )
+				return SkeletonAnimation::createFromFile( animFileInfo.getPath(), animFileInfo.getFormat(), *referenceMesh, animFileInfo.getInvertZCoordinate() );
+			else
+				throw std::exception( "AssetManager::createFromFile - failed to load reference mesh for the animation." );
+		}
 		case Asset::Type::Texture2D:
 			return Texture2D::createFromFile( static_cast<const Texture2DFileInfo&>( fileInfo ) );
 		default:
@@ -315,12 +340,32 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 			const SkeletonMeshFileInfo& meshFileInfo = static_cast<const SkeletonMeshFileInfo&>( fileInfo );
 			return SkeletonMesh::createFromMemory( fileData, meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
 		}
+		case Asset::Type::SkeletonAnimation:
+		{
+			const SkeletonAnimationFileInfo& animFileInfo = static_cast<const SkeletonAnimationFileInfo&>( fileInfo );
+
+			std::shared_ptr<const SkeletonMesh> referenceMesh;
+			{ // Get or load the reference mesh.
+				const bool meshLoadedOrLoading = isLoadedOrLoading( animFileInfo.getMeshFileInfo().getPath(), animFileInfo.getMeshFileInfo().getIndexInFile() );
+				if ( !meshLoadedOrLoading )
+					loadAsync( animFileInfo.getMeshFileInfo() );
+
+				const float loadTimeout = 60.0f;
+				std::shared_ptr<const Asset> mesh = getWhenLoaded( animFileInfo.getMeshFileInfo().getPath(), animFileInfo.getMeshFileInfo().getIndexInFile(), loadTimeout );
+				referenceMesh = mesh->getType() == Asset::Type::SkeletonMesh ? std::static_pointer_cast<const SkeletonMesh>( mesh ) : nullptr;
+			}
+
+			if ( referenceMesh )
+				return SkeletonAnimation::createFromMemory( fileData, animFileInfo.getFormat( ), *referenceMesh, animFileInfo.getInvertZCoordinate( ) );
+			else
+				throw std::exception( "AssetManager::createFromMemory - failed to load reference mesh for the animation." );
+		}
 		case Asset::Type::Texture2D:
 		{
 			const Texture2DFileInfo& texFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
 			return Texture2D::createFromMemory( fileData, texFileInfo.getFormat( ) );
 		}
 		default:
-			throw std::exception( "AssetManager::createFromFile - asset type not yet supported." );
+			throw std::exception( "AssetManager::createFromMemory - asset type not yet supported." );
 	}
 }

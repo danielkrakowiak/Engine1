@@ -41,10 +41,11 @@
 11.11.2015
 	-  Texture2D::createFromMemory - WARNING: casting away const qualifier on data - need to make sure that FreeImage doesn't modify the input data!
 12.11.2015
-	- AssetManager: add due time as priority for each asset in AssetManager. Asset's subassets should be loaded with highest priority.
+	- AssetManager: add due time as priority for each asset in AssetManager. Asset's subassets should be loaded with it's owner's priority.
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
+	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-Make animation an asset.
+Add tests for loading animation. Add tests for loading anims through AssetManager. Add tests for loading anims when reference mesh is not loaded yet.
 
 Create various models and save them to files.
 Create a simple scene class, which stores the list of actors, lights etc in the scene.

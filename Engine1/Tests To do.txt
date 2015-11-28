@@ -24,3 +24,5 @@
 11.11.2015
 	- test for loading meshes in AssetManager from the same path, but with different index in file
 	- add test with textures, and textures and meshes mixed.
+28.11.2015
+	- add tests for loading asynchronously assets from inexisting paths. Mixed with correct paths. Should not crash AssetManager!

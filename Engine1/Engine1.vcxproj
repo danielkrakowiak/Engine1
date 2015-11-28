@@ -452,6 +452,8 @@
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
+    <ClInclude Include="SkeletonAnimationFileInfo.h" />
+    <ClInclude Include="SkeletonAnimationFileInfoParser.h" />
     <ClInclude Include="SkeletonMeshFileInfo.h" />
     <ClInclude Include="SkeletonMeshFileInfoParser.h" />
     <ClInclude Include="SkeletonModelFileInfo.h" />
@@ -696,6 +698,8 @@
     <ClCompile Include="Direct3DRendererCore.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
+    <ClCompile Include="SkeletonAnimationFileInfo.cpp" />
+    <ClCompile Include="SkeletonAnimationFileInfoParser.cpp" />
     <ClCompile Include="SkeletonMeshFileInfo.cpp" />
     <ClCompile Include="SkeletonMeshFileInfoParser.cpp" />
     <ClCompile Include="SkeletonModelFileInfo.cpp" />

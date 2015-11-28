@@ -211,11 +211,11 @@ void Application::run() {
 	std::shared_ptr<SkeletonMesh> skeletonMesh2 = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/character2/character2.dae", SkeletonMeshFileInfo::Format::DAE, false, false, false ).front( );
 	skeletonMesh2->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	std::shared_ptr<SkeletonAnimation> idleAnimationInSkeletonSpace     = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/idle_pose.xaf", SkeletonAnimation::FileFormat::XAF, *skeletonMesh2, false );
-	std::shared_ptr<SkeletonAnimation> crouchAnimationInSkeletonSpace   = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/crouch_pose_selected_bones.xaf", SkeletonAnimation::FileFormat::XAF, *skeletonMesh2, false );
-	std::shared_ptr<SkeletonAnimation> bendHandAnimationInSkeletonSpace = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/bend_hand_pose_selected_bones.xaf", SkeletonAnimation::FileFormat::XAF, *skeletonMesh2, false );
-	std::shared_ptr<SkeletonAnimation> waveAnimationInSkeletonSpace     = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/wave_anim_selected_bones.xaf", SkeletonAnimation::FileFormat::XAF, *skeletonMesh2, false );\
-	std::shared_ptr<SkeletonAnimation> waveAnimationInSkeletonSpace2    = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/wave_pose_selected_bones.xaf", SkeletonAnimation::FileFormat::XAF, *skeletonMesh2, false );
+	std::shared_ptr<SkeletonAnimation> idleAnimationInSkeletonSpace     = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/idle_pose.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
+	std::shared_ptr<SkeletonAnimation> crouchAnimationInSkeletonSpace   = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/crouch_pose_selected_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
+	std::shared_ptr<SkeletonAnimation> bendHandAnimationInSkeletonSpace = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/bend_hand_pose_selected_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
+	std::shared_ptr<SkeletonAnimation> waveAnimationInSkeletonSpace     = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/wave_anim_selected_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
+	std::shared_ptr<SkeletonAnimation> waveAnimationInSkeletonSpace2    = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/wave_pose_selected_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
 
 
 	std::shared_ptr<SkeletonAnimation> idleAnimationInParentSpace       = SkeletonAnimation::calculateAnimationInParentSpace( *idleAnimationInSkeletonSpace, *skeletonMesh2 );
@@ -233,7 +233,7 @@ void Application::run() {
 	
 
 
-	std::shared_ptr<SkeletonMesh> girlMesh = SkeletonMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bikini girl.DAE", SkeletonMeshFileInfo::Format::DAE, 0, false, false, false );
+	std::shared_ptr<SkeletonMesh> girlMesh = SkeletonMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bikini_girl.DAE", SkeletonMeshFileInfo::Format::DAE, 0, false, false, false );
 	girlMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
 	std::shared_ptr<Texture2D> girlAlbedoTexture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Bikini Girl/BikiniGirl_Body_D.tga", Texture2DFileInfo::Format::TGA );
@@ -262,10 +262,10 @@ void Application::run() {
 
 
 
-	std::shared_ptr<SkeletonAnimation> idleAnimationInSkeletonSpace3 = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/kick_all_bones.xaf", SkeletonAnimation::FileFormat::XAF, *girlMesh, false );
+	std::shared_ptr<SkeletonAnimation> idleAnimationInSkeletonSpace3 = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/kick_all_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *girlMesh, false );
 	std::shared_ptr<SkeletonAnimation> idleAnimationInParentSpace3 = SkeletonAnimation::calculateAnimationInParentSpace( *idleAnimationInSkeletonSpace3, *girlMesh );
 
-	std::shared_ptr<SkeletonAnimation> pilotRunAnimationInSkeletonSpace = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/Pilot/run_anim_all_bones.xaf", SkeletonAnimation::FileFormat::XAF, *pilotSkeletonMesh, false );
+	std::shared_ptr<SkeletonAnimation> pilotRunAnimationInSkeletonSpace = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/Pilot/run_anim_all_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *pilotSkeletonMesh, false );
 	SkeletonPose& pilotPose = pilotRunAnimationInSkeletonSpace->getPose( 0u );
 
 	float3 up, position, lookAt;

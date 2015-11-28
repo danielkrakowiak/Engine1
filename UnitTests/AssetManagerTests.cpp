@@ -6,6 +6,7 @@
 #include "BlockMesh.h"
 #include "BlockModel.h"
 #include "SkeletonModel.h"
+#include "SkeletonAnimation.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -317,7 +318,7 @@ namespace UnitTests
 			#if defined _DEBUG
 			int meshMaxLoadingTimeMilisec = 100000;
 			#else
-			int meshMaxLoadingTimeMilisec = 10000;
+			int meshMaxLoadingTimeMilisec = 20000;
 			#endif
 
 			unsigned int cpuThreadCount = std::thread::hardware_concurrency();
@@ -523,9 +524,9 @@ namespace UnitTests
 		TEST_METHOD( AssetManager_Model_Async_Loading_1 )
 		{
 			#if defined _DEBUG
-			float modelMaxLoadingTime = 20000;
+			float modelMaxLoadingTime = 20.0f;
 			#else
-			float modelMaxLoadingTime = 20000;
+			float modelMaxLoadingTime = 20.0f;
 			#endif
 
 			unsigned int cpuThreadCount = std::thread::hardware_concurrency();
@@ -560,9 +561,9 @@ namespace UnitTests
 		TEST_METHOD( AssetManager_Model_Async_Loading_2 )
 		{
 			#if defined _DEBUG
-			float modelMaxLoadingTime = 20000;
+			float modelMaxLoadingTime = 20.0f;
 			#else
-			float modelMaxLoadingTime = 20000;
+			float modelMaxLoadingTime = 20.0f;
 			#endif
 
 			unsigned int cpuThreadCount = std::thread::hardware_concurrency();
@@ -597,9 +598,9 @@ namespace UnitTests
 		TEST_METHOD( AssetManager_Mesh_GetWhenLoaded_1 )
 		{
 			#if defined _DEBUG
-			float meshMaxLoadingTime = 20000;
+			float meshMaxLoadingTime = 20.0f;
 			#else
-			float meshMaxLoadingTime = 15000;
+			float meshMaxLoadingTime = 15.0f;
 			#endif
 
 			unsigned int cpuThreadCount = std::thread::hardware_concurrency();
@@ -689,9 +690,9 @@ namespace UnitTests
 		TEST_METHOD( AssetManager_Performance_Async_Loading_1 )
 		{
 			#if defined _DEBUG
-			float meshMaxLoadingTime = 20000;
+			float meshMaxLoadingTime = 20.0f;
 			#else
-			float meshMaxLoadingTime = 5000;
+			float meshMaxLoadingTime = 20.0f;
 			#endif
 
 			unsigned int cpuThreadCount = std::thread::hardware_concurrency();
@@ -766,5 +767,122 @@ namespace UnitTests
 			Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset11 ).get() );
 			Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset12 ).get() );
 		}
-	};
+
+        TEST_METHOD( AssetManager_Animation_Sync_Loading_1 )
+        {
+            unsigned int cpuThreadCount = std::thread::hardware_concurrency();
+            if ( cpuThreadCount <= 0 ) cpuThreadCount = 1;
+
+            AssetManager assetManager( cpuThreadCount );
+
+            const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
+            const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
+
+            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 0 );
+            SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
+
+            try {
+                assetManager.load( meshFileInfo1 );
+                Assert::IsTrue( assetManager.isLoaded( meshPath, 0 ) );
+
+                assetManager.load( animFileInfo1 );
+                Assert::IsTrue( assetManager.isLoaded( animPath, 0 ) );
+            } catch ( ... ) {
+                Assert::Fail();
+            }
+        }
+
+        TEST_METHOD( AssetManager_Animation_Sync_Loading_2 )
+        {
+            unsigned int cpuThreadCount = std::thread::hardware_concurrency();
+            if ( cpuThreadCount <= 0 ) cpuThreadCount = 1;
+
+            AssetManager assetManager( cpuThreadCount );
+
+            const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
+            const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
+
+            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 0 );
+            SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
+
+            try {
+                assetManager.load( animFileInfo1 );
+                Assert::IsTrue( assetManager.isLoaded( animPath, 0 ) );
+            } catch ( ... ) {
+                Assert::Fail();
+            }
+        }
+	
+        TEST_METHOD( AssetManager_Animation_Async_Loading_1 )
+        {
+            #if defined _DEBUG
+            int meshMaxLoadingTimeMilisec = 10000;
+            int animMaxLoadingTimeMilisec = 2000;
+            #else
+            int meshMaxLoadingTimeMilisec = 5000;
+            int animMaxLoadingTimeMilisec = 1000;
+            #endif
+
+            unsigned int cpuThreadCount = std::thread::hardware_concurrency();
+            if ( cpuThreadCount <= 0 ) cpuThreadCount = 1;
+
+            AssetManager assetManager( cpuThreadCount );
+
+            const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
+            const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
+
+            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 0 );
+            SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
+
+            try {
+                assetManager.loadAsync( meshFileInfo1 );
+            } catch ( ... ) {
+                Assert::Fail();
+            }
+
+            std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
+
+            Assert::IsTrue( assetManager.isLoaded( meshPath, 0 ) );
+
+            try {
+                assetManager.loadAsync( animFileInfo1 );
+            } catch ( ... ) {
+                Assert::Fail();
+            }
+
+            std::this_thread::sleep_for( std::chrono::milliseconds( animMaxLoadingTimeMilisec ) );
+
+            Assert::IsTrue( assetManager.isLoaded( animPath, 0 ) );
+        }
+
+        TEST_METHOD( AssetManager_Animation_Async_Loading_2 )
+        {
+            #if defined _DEBUG
+            int maxLoadingTimeMilisec = 10000;
+            #else
+            int maxLoadingTimeMilisec = 5000;
+            #endif
+
+            unsigned int cpuThreadCount = std::thread::hardware_concurrency();
+            if ( cpuThreadCount <= 0 ) cpuThreadCount = 1;
+
+            AssetManager assetManager( cpuThreadCount );
+
+            const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
+            const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
+
+            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 0 );
+            SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
+
+            try {
+                assetManager.loadAsync( animFileInfo1 );
+            } catch ( ... ) {
+                Assert::Fail();
+            }
+
+            std::this_thread::sleep_for( std::chrono::milliseconds( maxLoadingTimeMilisec ) );
+
+            Assert::IsTrue( assetManager.isLoaded( animPath, 0 ) );
+        }
+    };
 }

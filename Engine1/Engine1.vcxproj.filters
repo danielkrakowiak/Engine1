@@ -1041,6 +1041,12 @@
     <ClInclude Include="SkeletonModelFileInfo.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
+    <ClInclude Include="SkeletonAnimationFileInfo.h">
+      <Filter>Header Files\Mesh\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonAnimationFileInfoParser.h">
+      <Filter>Header Files\Mesh\Parsers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1759,6 +1765,12 @@
     </ClCompile>
     <ClCompile Include="SkeletonModelFileInfo.cpp">
       <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonAnimationFileInfo.cpp">
+      <Filter>Source Files\Mesh\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonAnimationFileInfoParser.cpp">
+      <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

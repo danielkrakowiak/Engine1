@@ -8,17 +8,14 @@
 #include "SkeletonMesh.h"
 #include "SkeletonPose.h"
 
-class SkeletonAnimation {
+#include "SkeletonAnimationFileInfo.h"
+
+class SkeletonAnimation : public Asset {
 public:
 
-	enum class FileFormat : char
-	{
-		XAF
-	};
-
 	// Returns skeleton animation in skeleton space.
-	static std::shared_ptr<SkeletonAnimation> createFromFile( const std::string& path, const FileFormat format, const SkeletonMesh& mesh, const bool invertZCoordinate = false );
-	static std::shared_ptr<SkeletonAnimation> createFromMemory( std::vector<char>& fileData, const FileFormat format, const SkeletonMesh& mesh, const bool invertZCoordinate = false );
+    static std::shared_ptr<SkeletonAnimation> createFromFile( const std::string& path, const SkeletonAnimationFileInfo::Format format, const SkeletonMesh& mesh, const bool invertZCoordinate = false );
+	static std::shared_ptr<SkeletonAnimation> createFromMemory( const std::vector<char>& fileData, const SkeletonAnimationFileInfo::Format format, const SkeletonMesh& mesh, const bool invertZCoordinate = false );
 
 	static std::shared_ptr<SkeletonAnimation> calculateAnimationInSkeletonSpace( const SkeletonAnimation& animationInParentSpace, const SkeletonMesh& skeletonMesh );
 	static std::shared_ptr<SkeletonAnimation> calculateAnimationInParentSpace( const SkeletonAnimation& animationInSkeletonSpace, const SkeletonMesh& skeletonMesh );
@@ -26,6 +23,15 @@ public:
 	SkeletonAnimation();
 	SkeletonAnimation( SkeletonAnimation&& other );
 	~SkeletonAnimation();
+
+	Asset::Type                                 getType() const;
+	std::vector< std::shared_ptr<const Asset> > getSubAssets() const;
+	std::vector< std::shared_ptr<Asset> >       getSubAssets();
+	void                                        swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset );
+
+	void                             setFileInfo( const SkeletonAnimationFileInfo& fileInfo );
+	const SkeletonAnimationFileInfo& getFileInfo() const;
+	SkeletonAnimationFileInfo&       getFileInfo( );
 
 	void addPose( SkeletonPose& pose, float time );
 	SkeletonPose getInterpolatedPose( float progress );
@@ -38,6 +44,8 @@ public:
 	unsigned int getKeyframeCount( );
 
 	private:
+
+	SkeletonAnimationFileInfo fileInfo;
 
 	std::vector< SkeletonPose > skeletonPoses;
 

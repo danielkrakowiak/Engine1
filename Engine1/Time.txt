@@ -131,4 +131,4 @@ Wed 11.11.2015 - 5h - Fixed AssetManager. Unified TextFile and BinaryFile vector
 Thu 12.11.2015 - 3h - Added AssetManager::getWhenLoaded() method. Added 'performance' test in AssetManager.
 Fri 13.11.2015 - 1h - Adding support for loading assets with sub-assets in AssetManager.
 Mon 16.11.2015 - 3h - Added support for loading assets with sub-assets in AssetManager.
-Sat 28.11.2015 - 3h - Loading/creating/combining new assets through drag&drop.
+Sat 28.11.2015 - 7h - Loading/creating/combining new assets through drag&drop. Made SkeletonAnimation an asset. Fixed timeout values in some tests. Added tests for loading the animations.

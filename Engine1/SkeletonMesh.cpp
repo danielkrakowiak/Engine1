@@ -26,7 +26,6 @@ std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromFile( const std::string& p
 
 	std::shared_ptr<SkeletonMesh> mesh = createFromMemory( *fileData, format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
-	// Save path in the loaded meshes.
 	mesh->getFileInfo().setPath( path );
 	mesh->getFileInfo().setIndexInFile( indexInFile );
 	mesh->getFileInfo().setFormat( format );
@@ -43,7 +42,6 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const
 
 	std::vector< std::shared_ptr<SkeletonMesh> > meshes = createFromMemory( *fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
-	// Save path in the loaded meshes.
 	int indexInFile = 0;
 	for ( std::shared_ptr<SkeletonMesh> mesh : meshes ) {
 		mesh->getFileInfo().setPath( path );
