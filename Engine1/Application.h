@@ -47,6 +47,7 @@ private:
 	void onExit( );
 	void onResize( int newWidth, int newHeight );
 	void onFocusChange( bool windowFocused );
+	void onDragAndDropFile( std::string filePath );
 
 	//basic application handles
 	HINSTANCE applicationInstance;
@@ -68,6 +69,10 @@ private:
 	bool windowFocused;
 
 	FreeCamera camera;
+
+	// For creation of new assets.
+	std::shared_ptr<BlockModel> createdBlockModel;
+	std::shared_ptr<SkeletonModel> createdSkeletonModel;
 
 	// Copying is not allowed.
 	Application( const Application& ) = delete;

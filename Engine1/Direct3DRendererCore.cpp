@@ -151,8 +151,6 @@ void Direct3DRendererCore::enableDefaultBlendState()
 void Direct3DRendererCore::draw( const RectangleMesh& mesh )
 {
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::draw - renderer not initialized." );
-	if ( mesh.getVertices().empty() ) throw std::exception( "Direct3DRenderer::drawRectangleMesh - mesh has no vertices" );
-	if ( mesh.getTriangles().empty() ) throw std::exception( "Direct3DRenderer::drawRectangleMesh - mesh has no triangles" );
 	if ( !mesh.isInGpuMemory() ) throw std::exception( "Direct3DRenderer::drawRectangleMesh - mesh hasn't been loaded to GPU yet" );
 
 	{ // set mesh buffers
@@ -196,8 +194,6 @@ void Direct3DRendererCore::draw( const RectangleMesh& mesh )
 void Direct3DRendererCore::draw( const BlockMesh& mesh )
 {
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::draw - renderer not initialized." );
-	if ( mesh.getVertices().empty() ) throw std::exception( "Direct3DRenderer::drawBlockMesh - mesh has no vertices" );
-	if ( mesh.getTriangles().empty() ) throw std::exception( "Direct3DRenderer::drawBlockMesh - mesh has no triangles" );
 	if ( !mesh.isInGpuMemory() ) throw std::exception( "Direct3DRenderer::drawBlockMesh - mesh hasn't been loaded to GPU yet" );
 
 	{ // set mesh buffers
@@ -243,8 +239,6 @@ void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::draw - renderer not initialized." );
 
 	//TODO: move this tests to some method? To which class?
-	if ( mesh.getVertices().empty() )      throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh has no vertices." );
-	if ( mesh.getTriangles().empty() )     throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh has no triangles." );
 	if ( mesh.getVertexBones().empty() )   throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh doesn't have vertex-bone assignemnts." );
 	if ( mesh.getVertexWeights().empty() ) throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh doesn't have vertex weights." );
 	if ( !mesh.isInGpuMemory() )           throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh is not in GPU memory." );

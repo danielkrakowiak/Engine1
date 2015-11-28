@@ -171,12 +171,15 @@ void SkeletonModel::unloadFromGpu( )
 
 bool SkeletonModel::isInCpuMemory( ) const
 {
-	if ( mesh && !mesh->isInCpuMemory() )
+	if ( !mesh || !mesh->isInCpuMemory() )
 		return false;
 
 	const std::vector<ModelTexture2D> textures = getAllTextures();
+	if ( textures.empty() )
+		return false;
+
 	for ( const ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
+		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
 			return false;
 	}
 
@@ -185,12 +188,15 @@ bool SkeletonModel::isInCpuMemory( ) const
 
 bool SkeletonModel::isInGpuMemory( ) const
 {
-	if ( mesh && !mesh->isInGpuMemory() )
+	if ( !mesh || !mesh->isInGpuMemory() )
 		return false;
 
 	const std::vector<ModelTexture2D> textures = getAllTextures();
+	if ( textures.empty() )
+		return false;
+
 	for ( const ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
+		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
 			return false;
 	}
 

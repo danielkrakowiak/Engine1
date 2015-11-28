@@ -8,6 +8,7 @@
 #include "Camera.h"
 
 #include "MathUtil.h"
+#include "StringUtil.h"
 
 #include "BlockMesh.h"
 #include "BlockModel.h"
@@ -41,9 +42,10 @@ Application::Application() :
 	zBufferDepth( 32 ),
 	windowFocused( false )
 {
-	
-
 	windowsMessageReceiver = this;
+
+	createdBlockModel    = std::make_shared<BlockModel>();
+	createdSkeletonModel = std::make_shared<SkeletonModel>();
 }
 
 Application::~Application() {}
@@ -99,7 +101,9 @@ void Application::setupWindow() {
 		style |= WS_OVERLAPPEDWINDOW;
 	}
 
-	windowHandle = CreateWindowEx( 0, className, wndCaption, style, 0, 0, screenWidth, screenHeight, NULL, NULL, applicationInstance, NULL );
+	DWORD exStyle = WS_EX_ACCEPTFILES; // Allow drag&drop files.
+
+	windowHandle = CreateWindowEx( exStyle, className, wndCaption, style, 0, 0, screenWidth, screenHeight, NULL, NULL, applicationInstance, NULL );
 
 	deviceContext = GetDC( windowHandle );
 
@@ -152,17 +156,17 @@ void Application::run() {
 	mesh2->loadToGpu( direct3DRenderer.getDevice( ) );*/
 
 	//////
-	std::shared_ptr<BlockMesh> mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/quadbot2.obj", BlockMeshFileInfo::Format::OBJ, false, false ).front( );
-	mesh3->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+	//std::shared_ptr<BlockMesh> mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/quadbot2.obj", BlockMeshFileInfo::Format::OBJ, false, false ).front( );
+	//mesh3->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	std::shared_ptr<Texture2D> albedoTexture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Quadbot/quadbot_dirt.png", Texture2DFileInfo::Format::BMP );
-	albedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice(  ) );
+	//std::shared_ptr<Texture2D> albedoTexture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Quadbot/quadbot_dirt.png", Texture2DFileInfo::Format::BMP );
+	//albedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice(  ) );
 
-	std::shared_ptr<BlockModel> model1 = std::make_shared<BlockModel>( );
-	model1->setMesh( mesh3 );
-	model1->addAlbedoTexture( ModelTexture2D( albedoTexture, 0 ) );
+	//std::shared_ptr<BlockModel> model1 = std::make_shared<BlockModel>( );
+	//model1->setMesh( mesh3 );
+	//model1->addAlbedoTexture( ModelTexture2D( albedoTexture, 0 ) );
 
-	model1->saveToFile( "../Engine1/Assets/TestAssets/Models/quadbot.blockmodel" );
+	//model1->saveToFile( "../Engine1/Assets/TestAssets/Models/quadbot.blockmodel" );
 	/////
 
 	//std::shared_ptr<BlockModel> model1 = BlockModel::createFromFile( "../Engine1/Assets/Models/quadbot.blockmodel", BlockModel::FileFormat::BLOCKMODEL, true );
@@ -336,6 +340,28 @@ void Application::run() {
 			direct3DDefferedRenderer.render( *pilotSkeletonMesh, worldMatrix2, viewMatrix, poseInSkeletonSpace );
 		}
 
+		
+		{ // Render the newly created models.
+			if ( createdBlockModel->isInGpuMemory() ) 
+					direct3DDefferedRenderer.render( *createdBlockModel, worldMatrix, viewMatrix );
+			else if ( createdBlockModel->getMesh( ) && createdBlockModel->getMesh( )->isInGpuMemory() )
+					direct3DDefferedRenderer.render( *createdBlockModel->getMesh(), worldMatrix, viewMatrix );
+
+			if ( createdSkeletonModel->getMesh( ) && createdSkeletonModel->getMesh( )->isInGpuMemory() ) {
+				// Create 'identity' pose for the mesh.
+				SkeletonPose poseInParentSpace;
+				for ( unsigned char boneIndex = 0; boneIndex < createdSkeletonModel->getMesh()->getBoneCount(); ++boneIndex )
+					poseInParentSpace.setBonePose( boneIndex, float43::IDENTITY );
+
+				SkeletonPose poseInSkeletonSpace = SkeletonPose::calculatePoseInSkeletonSpace( poseInParentSpace, *createdSkeletonModel->getMesh( ) );
+
+				if ( createdSkeletonModel->isInGpuMemory() )
+					direct3DDefferedRenderer.render( *createdSkeletonModel, worldMatrix, viewMatrix, poseInSkeletonSpace );
+				else
+					direct3DDefferedRenderer.render( *createdSkeletonModel->getMesh(), worldMatrix, viewMatrix, poseInSkeletonSpace );
+			}
+		}
+
 		//direct3DDefferedRenderer.render( *mesh3, worldMatrix, viewMatrix );
 
 		{ // Skeleton mesh rendering.
@@ -417,7 +443,7 @@ void Application::run() {
 			//direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
-		std::shared_ptr<RenderTargetTexture2D> renderTarget = direct3DDefferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL );
+		std::shared_ptr<RenderTargetTexture2D> renderTarget = direct3DDefferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO );
 
 		std::shared_ptr<Texture2D> renderTargetTexture = std::dynamic_pointer_cast<Texture2D>( renderTarget );
 
@@ -510,6 +536,18 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 			//	}
 			//}
 			break;
+		case WM_DROPFILES:
+			HDROP dropInfo = (HDROP)wParam;
+			const DWORD charCount = DragQueryFileW( dropInfo, 0, nullptr, 0 ) + 1;
+			std::vector<wchar_t> pathBufferW;
+			pathBufferW.resize( charCount );
+
+			DragQueryFileW( dropInfo, 0, (LPWSTR)pathBufferW.data( ), charCount );
+			std::wstring pathW( pathBufferW.data( ), charCount - 1 );
+			std::string path = StringUtil::narrow( pathW );
+
+			windowsMessageReceiver->onDragAndDropFile( path );
+			break;
 	}
 
 	return DefWindowProc( hWnd, msg, wParam, lParam );
@@ -545,4 +583,114 @@ void Application::onResize( int newWidth, int newHeight ) {
 void Application::onFocusChange( bool windowFocused )
 {
 	this->windowFocused = windowFocused;
+}
+
+void Application::onDragAndDropFile( std::string filePath )
+{
+	std::string currentPath;
+	{
+		const DWORD charCount = GetCurrentDirectoryW( 0, nullptr );
+		std::vector<wchar_t> currentPathBufferW;
+		currentPathBufferW.resize( charCount );
+		GetCurrentDirectoryW( charCount, (LPWSTR)currentPathBufferW.data( ) );
+		std::wstring currentPathW( currentPathBufferW.data( ), charCount - 1 );
+		currentPath = StringUtil::narrow( currentPathW );
+	}
+
+	// Transform absolute path into relative path.
+	if ( filePath.find( currentPath ) == 0 )
+		filePath = filePath.substr( currentPath.size( ) );
+
+	// Remove "\\" from the beginning of the path.
+	if ( filePath.find( "\\" ) == 0 )
+		filePath = filePath.substr( 1 );
+
+	const unsigned int dotIndex = filePath.rfind( "." );
+	if ( dotIndex == std::string::npos )
+		return;
+
+	std::string extension = StringUtil::toLowercase( filePath.substr( dotIndex + 1 ) );
+
+	std::array< const std::string, 2 > blockMeshExtensions     = { "obj", "dae" };
+	std::array< const std::string, 1 > skeletonkMeshExtensions = { "dae" };
+	std::array< const std::string, 3 > textureExtensions       = { "tga", "png", "bmp" };
+
+	bool isBlockMesh    = false;
+	bool isSkeletonMesh = false;
+	bool isTexture      = false;
+
+	for ( const std::string& blockMeshExtension : blockMeshExtensions ) {
+		if ( extension.compare( blockMeshExtension ) == 0 )
+			isBlockMesh = true;
+	}
+
+	for ( const std::string& skeletonkMeshExtension : skeletonkMeshExtensions ) {
+		if ( extension.compare( skeletonkMeshExtension ) == 0 )
+			isSkeletonMesh = true;
+	}
+	
+	for ( const std::string& textureExtension : textureExtensions ) {
+		if ( extension.compare( textureExtension ) == 0 )
+			isTexture = true;
+	}
+
+	if ( isBlockMesh ) {
+		BlockMeshFileInfo::Format format;
+
+		if (      extension.compare( "obj" ) == 0 ) format = BlockMeshFileInfo::Format::OBJ;
+		else if ( extension.compare( "dae" ) == 0 ) format = BlockMeshFileInfo::Format::DAE;
+
+		std::shared_ptr<BlockMesh> mesh = BlockMesh::createFromFile( filePath, format, 0, false, false, false );
+		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+		createdBlockModel->setMesh( mesh );
+		createdBlockModel->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+	}
+
+	if ( isSkeletonMesh ) {
+		SkeletonMeshFileInfo::Format format;
+
+		if ( extension.compare( "dae" ) == 0 ) format = SkeletonMeshFileInfo::Format::DAE;
+
+		std::shared_ptr<SkeletonMesh> mesh = SkeletonMesh::createFromFile( filePath, format, 0, false, false, false );
+		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+
+		createdSkeletonModel->setMesh( mesh );
+		createdSkeletonModel->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+	}
+
+	if ( isTexture ) {
+		Texture2DFileInfo::Format format;
+
+		if ( extension.compare( "bmp" ) == 0 )       format = Texture2DFileInfo::Format::BMP;
+		else if ( extension.compare( "dds" ) == 0 )  format = Texture2DFileInfo::Format::DDS;
+		else if ( extension.compare( "jpeg" ) == 0 ) format = Texture2DFileInfo::Format::JPEG;
+		else if ( extension.compare( "png" ) == 0 )  format = Texture2DFileInfo::Format::PNG;
+		else if ( extension.compare( "raw" ) == 0 )  format = Texture2DFileInfo::Format::RAW;
+		else if ( extension.compare( "tga" ) == 0 )  format = Texture2DFileInfo::Format::TGA;
+		else if ( extension.compare( "tiff" ) == 0 ) format = Texture2DFileInfo::Format::TIFF;
+
+		std::shared_ptr<Texture2D> texture = Texture2D::createFromFile( filePath, format );
+		texture->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+
+		if ( filePath.find( "_A" ) ) {
+			createdBlockModel->addAlbedoTexture( ModelTexture2D( texture ) );
+			createdSkeletonModel->addAlbedoTexture( ModelTexture2D( texture ) );
+		} else if ( filePath.find( "_N" ) ) {
+			createdBlockModel->addNormalTexture( ModelTexture2D( texture ) );
+			createdSkeletonModel->addNormalTexture( ModelTexture2D( texture ) );
+		} else if ( filePath.find( "_R" ) ) {
+			createdBlockModel->addRoughnessTexture( ModelTexture2D( texture ) );
+			createdSkeletonModel->addRoughnessTexture( ModelTexture2D( texture ) );
+		} else if ( filePath.find( "_E" ) ) {
+			createdBlockModel->addEmissionTexture( ModelTexture2D( texture ) );
+			createdSkeletonModel->addEmissionTexture( ModelTexture2D( texture ) );
+		}
+	}
+
+
+	if ( ( isBlockMesh || isTexture ) && createdBlockModel->isInCpuMemory( ) )
+		createdBlockModel->saveToFile( "Assets/Models/new.blockmodel" );
+
+	if ( ( isSkeletonMesh || isTexture ) && createdSkeletonModel->isInCpuMemory( ) )
+		createdSkeletonModel->saveToFile( "Assets/Models/new.skeletonmodel" );
 }

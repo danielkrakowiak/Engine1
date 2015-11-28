@@ -44,21 +44,9 @@
 	- AssetManager: add due time as priority for each asset in AssetManager. Asset's subassets should be loaded with highest priority.
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 
+Make animation an asset.
 
-Revive AssetManager to avoid loading the same mesh many times.
-- ability to load models using AssetManager and store them as an asset. 
-	- maybe add BlockModelFileInfo
-	How to handle assets which have subassets?
-	- 1) AssetManager has to load an asset with loadRecurrently=false,
-	- 2) call loadAsync on needed subassets,
-	- 3) call special version of get which waits for the asset to be loaded (with timeout)
-	- 4) swap empty assets with real assets - how to do that elegantly? - use swapAsset method.
-
-
-- remove isAvailable method? Use get, which should return nullptr if no such asset exists. Why search twice?
-- or simply change "get" method to return nullptr instead of exception.
-- add method "getOrLoad". Or maybe add a param to "get" method...
-
+Create various models and save them to files.
 Create a simple scene class, which stores the list of actors, lights etc in the scene.
 
 Add saving/loading scene to file
