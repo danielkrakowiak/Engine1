@@ -15,6 +15,10 @@
 #include "SkeletonModel.h"
 #include "SkeletonAnimation.h"
 
+#include "BlockActor.h"
+#include "SkeletonActor.h"
+#include "Scene.h"
+
 #include "RenderTargetTexture2D.h"
 
 #include "Timer.h"
@@ -40,12 +44,10 @@ Application::Application() :
 	displayFrequency( 60 ),
 	screenColorDepth( 32 ),
 	zBufferDepth( 32 ),
-	windowFocused( false )
+	windowFocused( false ),
+    scene( std::make_shared<Scene>() )
 {
 	windowsMessageReceiver = this;
-
-	createdBlockModel    = std::make_shared<BlockModel>();
-	createdSkeletonModel = std::make_shared<SkeletonModel>();
 }
 
 Application::~Application() {}
@@ -142,143 +144,14 @@ void Application::run() {
 	bool run = true;
 	MSG msg;
 
-	//std::shared_ptr<BlockMesh> meshDae = std::make_shared<BlockMesh>( "../Engine1/Assets/Meshes/character.dae", AssetFileFormat::DAE, true, true, true );
-	//meshDae->loadFile( );
-	//meshDae->load( );
-	//meshDae->loadToGpu( direct3DRenderer.getDevice( ) );
-
+    // Add 'axis' actor to the scene.
 	std::shared_ptr<BlockMesh> axisMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, true, true, true ).front();
 	axisMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+    std::shared_ptr<BlockActor> axisActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>() );
+    axisActor->getModel()->setMesh( axisMesh );
+    scene->addActor( axisActor );
 
-	/*std::shared_ptr<BlockMesh> mesh2 = std::make_shared<BlockMesh>( "../Engine1/Assets/Meshes/spaceship.obj", AssetFileFormat::OBJ, true, true, true );
-	mesh2->loadFile();
-	mesh2->load( );
-	mesh2->loadToGpu( direct3DRenderer.getDevice( ) );*/
-
-	//////
-	//std::shared_ptr<BlockMesh> mesh3 = BlockMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/quadbot2.obj", BlockMeshFileInfo::Format::OBJ, false, false ).front( );
-	//mesh3->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-
-	//std::shared_ptr<Texture2D> albedoTexture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Quadbot/quadbot_dirt.png", Texture2DFileInfo::Format::BMP );
-	//albedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice(  ) );
-
-	//std::shared_ptr<BlockModel> model1 = std::make_shared<BlockModel>( );
-	//model1->setMesh( mesh3 );
-	//model1->addAlbedoTexture( ModelTexture2D( albedoTexture, 0 ) );
-
-	//model1->saveToFile( "../Engine1/Assets/TestAssets/Models/quadbot.blockmodel" );
-	/////
-
-	//std::shared_ptr<BlockModel> model1 = BlockModel::createFromFile( "../Engine1/Assets/Models/quadbot.blockmodel", BlockModel::FileFormat::BLOCKMODEL, true );
-	//model1->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
-
-	/////
-	/*std::shared_ptr<BlockMesh> mesh4 = std::make_shared<BlockMesh>( "../Engine1/Assets/Meshes/tree/tree-trunk.obj", AssetFileFormat::OBJ, true, true, true );
-	mesh4->loadFile( );
-	mesh4->load( );
-	mesh4->loadToGpu( direct3DRenderer.getDevice( ) );*/
-
-	/*std::shared_ptr<BlockModel> model2 = std::make_shared<BlockModel>( );
-	model2->setMesh( mesh4 );
-	model2->addAlbedoTexture( albedoTexture2, 0 );*/
-	/////
-
-	/////
-	/*std::shared_ptr<BlockMesh> mesh5 = std::make_shared<BlockMesh>( "../Engine1/Assets/Meshes/tree/tree-leaves-4.obj", AssetFileFormat::OBJ, true, true );
-	mesh5->loadFile( );
-	mesh5->load( );
-	mesh5->loadToGpu( direct3DRenderer.getDevice( ) );
-
-	std::shared_ptr<Texture2D> albedoTexture3 = std::make_shared<Texture2D>( "../Engine1/Assets/Textures/tree/leaf.jpg", AssetFileFormat::BMP );
-	albedoTexture3->loadFile( );
-	albedoTexture3->load( );
-	albedoTexture3->loadToGpu( direct3DRenderer.getDevice( ), direct3DRenderer.getDeviceContext( ) );
-
-	std::shared_ptr<BlockModel> model3 = std::make_shared<BlockModel>( );
-	model3->setMesh( mesh5 );
-	model3->addAlbedoTexture( albedoTexture3, 0 );*/
-	/////
-
-	std::shared_ptr<BlockMesh> pilotBlockMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Pilot/Pilot.dae", BlockMeshFileInfo::Format::DAE, false, false, false ).at( 1 );
-	pilotBlockMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-
-	std::shared_ptr<BlockMesh> ellisBlockMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Ellis/Ellis.dae", BlockMeshFileInfo::Format::DAE, false, false, false ).at( 1 );
-	ellisBlockMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-
-	std::shared_ptr<SkeletonMesh> pilotSkeletonMesh = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/Pilot/Pilot.dae", SkeletonMeshFileInfo::Format::DAE, false, false, false ).at( 1 );
-	pilotSkeletonMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-
-	std::shared_ptr<SkeletonMesh> skeletonMesh2 = SkeletonMesh::createFromFile( "../Engine1/Assets/Meshes/character2/character2.dae", SkeletonMeshFileInfo::Format::DAE, false, false, false ).front( );
-	skeletonMesh2->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-
-	std::shared_ptr<SkeletonAnimation> idleAnimationInSkeletonSpace     = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/idle_pose.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
-	std::shared_ptr<SkeletonAnimation> crouchAnimationInSkeletonSpace   = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/crouch_pose_selected_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
-	std::shared_ptr<SkeletonAnimation> bendHandAnimationInSkeletonSpace = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/bend_hand_pose_selected_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
-	std::shared_ptr<SkeletonAnimation> waveAnimationInSkeletonSpace     = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/wave_anim_selected_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
-	std::shared_ptr<SkeletonAnimation> waveAnimationInSkeletonSpace2    = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/character2/wave_pose_selected_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *skeletonMesh2, false );
-
-
-	std::shared_ptr<SkeletonAnimation> idleAnimationInParentSpace       = SkeletonAnimation::calculateAnimationInParentSpace( *idleAnimationInSkeletonSpace, *skeletonMesh2 );
-	std::shared_ptr<SkeletonAnimation> crouchAnimationInParentSpace     = SkeletonAnimation::calculateAnimationInParentSpace( *crouchAnimationInSkeletonSpace, *skeletonMesh2 );
-	std::shared_ptr<SkeletonAnimation> bendHandAnimationInParentSpace   = SkeletonAnimation::calculateAnimationInParentSpace( *bendHandAnimationInSkeletonSpace, *skeletonMesh2 );
-	std::shared_ptr<SkeletonAnimation> waveAnimationInParentSpace       = SkeletonAnimation::calculateAnimationInParentSpace( *waveAnimationInSkeletonSpace, *skeletonMesh2 );
-	std::shared_ptr<SkeletonAnimation> waveAnimationInParentSpace2      = SkeletonAnimation::calculateAnimationInParentSpace( *waveAnimationInSkeletonSpace2, *skeletonMesh2 );
-
-	SkeletonPose& skeletonPoseIdle     = idleAnimationInParentSpace->getPose( 0u );
-	SkeletonPose& skeletonPoseCrouch   = crouchAnimationInParentSpace->getPose( 0u );
-	SkeletonPose& skeletonPoseBendHand = bendHandAnimationInParentSpace->getPose( 0u );
-	SkeletonPose& skeletonPoseWave2    = bendHandAnimationInParentSpace->getPose( 0u );
-
-
-	
-
-
-	std::shared_ptr<SkeletonMesh> girlMesh = SkeletonMesh::createFromFile( "../Engine1/Assets/TestAssets/Meshes/bikini_girl.DAE", SkeletonMeshFileInfo::Format::DAE, 0, false, false, false );
-	girlMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-
-	std::shared_ptr<Texture2D> girlAlbedoTexture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Bikini Girl/BikiniGirl_Body_D.tga", Texture2DFileInfo::Format::TGA );
-	girlAlbedoTexture->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-
-	std::shared_ptr<SkeletonModel> girlModel = std::make_shared<SkeletonModel>( );
-	girlModel->setMesh( girlMesh );
-	girlModel->addAlbedoTexture( ModelTexture2D( girlAlbedoTexture, 0 ) );
-
-	girlModel->saveToFile( "../Engine1/Assets/TestAssets/Models/bikini_girl.skeletonmodel" );
-
-
-
-	std::vector< std::shared_ptr<BlockMesh> > girlBlockMeshes = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/Bikini Girl.dae", BlockMeshFileInfo::Format::DAE, false, false, false );
-	for ( std::shared_ptr<BlockMesh>& mesh : girlBlockMeshes )
-		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
-
-	std::shared_ptr<BlockMesh> girlBlockMesh = girlBlockMeshes.at( 0 );
-
-	std::shared_ptr<BlockModel> girlBlockModel = std::make_shared<BlockModel>();
-	girlBlockModel->setMesh( girlBlockMesh );
-	girlBlockModel->addAlbedoTexture( ModelTexture2D( girlAlbedoTexture, 0 ) );
-
-
-
-
-
-
-	std::shared_ptr<SkeletonAnimation> idleAnimationInSkeletonSpace3 = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/Bikini_Girl2/kick_all_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *girlMesh, false );
-	std::shared_ptr<SkeletonAnimation> idleAnimationInParentSpace3 = SkeletonAnimation::calculateAnimationInParentSpace( *idleAnimationInSkeletonSpace3, *girlMesh );
-
-	std::shared_ptr<SkeletonAnimation> pilotRunAnimationInSkeletonSpace = SkeletonAnimation::createFromFile( "../Engine1/Assets/Meshes/Pilot/run_anim_all_bones.xaf", SkeletonAnimationFileInfo::Format::XAF, *pilotSkeletonMesh, false );
-	SkeletonPose& pilotPose = pilotRunAnimationInSkeletonSpace->getPose( 0u );
-
-	float3 up, position, lookAt;
-	float43 worldMatrix, worldMatrix2, worldMatrix3;
-	float44 viewMatrix;
-
-	worldMatrix.identity();
-	worldMatrix2.identity();
-	worldMatrix3.identity();
-	worldMatrix2.setTranslation( float3( 0.0f, 0.0f, -25.0f ) );
-	//worldMatrix2.setOrientation( MathUtil::anglesToRotationMatrix( float3( MathUtil::pi, 0.0f, 0.0f ) ) );
-	worldMatrix3.setTranslation( float3( 0.0f, 10.0f, 0.0f ) );
-
+    // Setup the camera.
 	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
 	camera.setPosition( float3( 0.0f, 0.0f, -30.0f ) );
 
@@ -301,7 +174,8 @@ void Application::run() {
 			if ( WM_QUIT == msg.message ) run = false;
 		}
 
-		{ //update camera
+        // Update the camera.
+        if ( windowFocused ) { 
 			const float cameraRotationSensitivity = 0.00005f;
 
 			if      ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime );
@@ -317,122 +191,47 @@ void Application::run() {
 
 		camera.updateState( (float)frameTime );
 
-		viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint( ), camera.getPosition( ), camera.getUp( ) );
-
-
 		direct3DDefferedRenderer.clearRenderTargets( float4( 0.2f, 0.2f, 0.2f, 1.0f ), 1.0f );
 
-		direct3DDefferedRenderer.render( *axisMesh, worldMatrix, viewMatrix );
+        float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint( ), camera.getPosition( ), camera.getUp( ) );
 
-		//direct3DDefferedRenderer.render( *model1, worldMatrix, viewMatrix );
+        // Render the scene.
+        const std::unordered_set< std::shared_ptr<Actor> >& actors = scene->getActors();
+        for ( const std::shared_ptr<Actor> actor : actors )
+		{ 
+            if ( actor->getType() == Actor::Type::BlockActor ) {
+                const std::shared_ptr<BlockActor> blockActor = std::static_pointer_cast<BlockActor>( actor );
+                const std::shared_ptr<BlockModel> blockModel = blockActor->getModel();
 
-		{ // Ellis rendering.
-			direct3DDefferedRenderer.render( *ellisBlockMesh, worldMatrix3, viewMatrix );
+                if ( blockModel->isInGpuMemory( ) )
+                    direct3DDefferedRenderer.render( *blockModel, blockActor->getPose(), viewMatrix );
+                else if ( blockModel->getMesh( ) && blockModel->getMesh( )->isInGpuMemory( ) )
+                    direct3DDefferedRenderer.render( *blockModel->getMesh( ), blockActor->getPose( ), viewMatrix );
 
-			//SkeletonPose poseInSkeletonSpace = pilotPose;// SkeletonPose::calculatePoseInSkeletonSpace( skeletonPoseIdle3, *girlMesh );
-			//direct3DDefferedRenderer.render( *pilotSkeletonMesh, worldMatrix2, viewMatrix, poseInSkeletonSpace );
+            } else if ( actor->getType() == Actor::Type::SkeletonActor ) {
+                const std::shared_ptr<SkeletonActor> skeletonActor = std::static_pointer_cast<SkeletonActor>( actor );
+                const std::shared_ptr<SkeletonModel> skeletonModel = skeletonActor->getModel( );
+
+                if ( skeletonModel->isInGpuMemory( ) )
+                    direct3DDefferedRenderer.render( *skeletonModel, skeletonActor->getPose( ), viewMatrix, skeletonActor->getSkeletonPose() );
+                else if ( skeletonModel->getMesh( ) && skeletonModel->getMesh( )->isInGpuMemory( ) )
+                    direct3DDefferedRenderer.render( *skeletonModel->getMesh( ), skeletonActor->getPose( ), viewMatrix, skeletonActor->getSkeletonPose( ) );
+            }
 		}
 
-		{ // Pilot rendering.
-			//direct3DDefferedRenderer.render( *pilotBlockMesh, worldMatrix, viewMatrix );
-
-			SkeletonPose poseInSkeletonSpace = pilotPose;// SkeletonPose::calculatePoseInSkeletonSpace( skeletonPoseIdle3, *girlMesh );
-			direct3DDefferedRenderer.render( *pilotSkeletonMesh, worldMatrix2, viewMatrix, poseInSkeletonSpace );
-		}
-
-		
-		{ // Render the newly created models.
-			if ( createdBlockModel->isInGpuMemory() ) 
-					direct3DDefferedRenderer.render( *createdBlockModel, worldMatrix, viewMatrix );
-			else if ( createdBlockModel->getMesh( ) && createdBlockModel->getMesh( )->isInGpuMemory() )
-					direct3DDefferedRenderer.render( *createdBlockModel->getMesh(), worldMatrix, viewMatrix );
-
-			if ( createdSkeletonModel->getMesh( ) && createdSkeletonModel->getMesh( )->isInGpuMemory() ) {
-				// Create 'identity' pose for the mesh.
-				SkeletonPose poseInParentSpace;
-				for ( unsigned char boneIndex = 0; boneIndex < createdSkeletonModel->getMesh()->getBoneCount(); ++boneIndex )
-					poseInParentSpace.setBonePose( boneIndex, float43::IDENTITY );
-
-				SkeletonPose poseInSkeletonSpace = SkeletonPose::calculatePoseInSkeletonSpace( poseInParentSpace, *createdSkeletonModel->getMesh( ) );
-
-				if ( createdSkeletonModel->isInGpuMemory() )
-					direct3DDefferedRenderer.render( *createdSkeletonModel, worldMatrix, viewMatrix, poseInSkeletonSpace );
-				else
-					direct3DDefferedRenderer.render( *createdSkeletonModel->getMesh(), worldMatrix, viewMatrix, poseInSkeletonSpace );
-			}
-		}
-
-		//direct3DDefferedRenderer.render( *mesh3, worldMatrix, viewMatrix );
-
-		{ // Skeleton mesh rendering.
-			static float factor = 0.0f;
-			static float factorDelta = 0.001f;
-			factor += factorDelta;
-			if ( factor < 0.0f ) {
-				factor = 0.0f;
-				factorDelta = -factorDelta;
-			} else if ( factor > 1.0f ) {
-				factor = 1.0f;
-				factorDelta = -factorDelta;
-			}
-
-			static float factor2 = 0.0f;
-			static float factorDelta2 = 0.0005f;
-			factor2 += factorDelta2;
-			if ( factor2 < 0.0f ) {
-				factor2 = 0.0f;
-				factorDelta2 = -factorDelta2;
-			} else if ( factor2 > 1.0f ) {
-				factor2 = 1.0f;
-				factorDelta2 = -factorDelta2;
-			}
-
-			SkeletonPose skeletonPoseWave = waveAnimationInParentSpace->getInterpolatedPose( factor2 );
-
-			SkeletonPose skeletonPose1 = SkeletonPose::blendPoses( skeletonPoseIdle, skeletonPoseCrouch, factor );
-			SkeletonPose skeletonPose2 = SkeletonPose::blendPoses( skeletonPose1, skeletonPoseWave, 1.0f );
-
-			SkeletonPose poseInSkeletonSpace = SkeletonPose::calculatePoseInSkeletonSpace( skeletonPose2, *skeletonMesh2 );
-			direct3DDefferedRenderer.render( *skeletonMesh2, worldMatrix2, viewMatrix, poseInSkeletonSpace );
-		}
-
-		{ // Bikini girl rendering.
-			static float factor3 = 0.0f;
-			static float factorDelta3 = 0.001f;
-			factor3 += factorDelta3;
-			if ( factor3 < 0.0f ) {
-				factor3 = 0.0f;
-				factorDelta3 = -factorDelta3;
-			} else if ( factor3 > 1.0f ) {
-				factor3 = 1.0f;
-				factorDelta3 = -factorDelta3;
-			}
-
-			//SkeletonPose poseInSkeletonSpace = idleAnimationInSkeletonSpace3->getPose( 3 );
-			
-			SkeletonPose poseInSkeletonSpace = idleAnimationInSkeletonSpace3->getInterpolatedPose( factor3 );//skeletonPoseIdle3;// SkeletonPose::calculatePoseInSkeletonSpace( skeletonPoseIdle3, *girlMesh );
-			
-			//SkeletonPose poseInParentSpace = idleAnimationInParentSpace3->getInterpolatedPose( factor3 );
-			//SkeletonPose poseInSkeletonSpace = SkeletonPose::calculatePoseInSkeletonSpace( poseInParentSpace, *girlMesh );
-
-			direct3DDefferedRenderer.render( *girlModel, worldMatrix2, viewMatrix, poseInSkeletonSpace );
-
-			direct3DDefferedRenderer.render( *girlBlockModel, worldMatrix2, viewMatrix );
-		}
-
-		{ //render FPS
+		{ // Render FPS.
 			std::stringstream ss;
 			ss << "FPS: " << (int)(1000.0 / frameTime) << " / " << frameTime << "ms";
 			direct3DDefferedRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
-		{ //render camera state
+		{ // Render camera state.
 			std::stringstream ss;
 			ss << "Speed: " << camera.getSpeed( ).x << " / " << camera.getSpeed( ).y << " / " << camera.getSpeed( ).z;
 			//direct3DRenderer.renderText( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
-		{ //render keyboard state
+		{ // Render keyboard state.
 			std::stringstream ss;
 			ss << "";
 			if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) ss << "W";
@@ -613,11 +412,15 @@ void Application::onDragAndDropFile( std::string filePath )
 
 	std::array< const std::string, 2 > blockMeshExtensions     = { "obj", "dae" };
 	std::array< const std::string, 1 > skeletonkMeshExtensions = { "dae" };
-	std::array< const std::string, 3 > textureExtensions       = { "tga", "png", "bmp" };
+	std::array< const std::string, 8 > textureExtensions       = { "bmp", "dds", "jpg", "jpeg", "png", "raw", "tga", "tiff" };
+    std::array< const std::string, 1 > blockModelExtensions    = { "blockmodel" };
+    std::array< const std::string, 1 > skeletonModelExtensions = { "skeletonmodel" };
 
-	bool isBlockMesh    = false;
-	bool isSkeletonMesh = false;
-	bool isTexture      = false;
+	bool isBlockMesh     = false;
+	bool isSkeletonMesh  = false;
+	bool isTexture       = false;
+    bool isBlockModel    = false;
+    bool isSkeletonModel = false;
 
 	for ( const std::string& blockMeshExtension : blockMeshExtensions ) {
 		if ( extension.compare( blockMeshExtension ) == 0 )
@@ -634,6 +437,19 @@ void Application::onDragAndDropFile( std::string filePath )
 			isTexture = true;
 	}
 
+    for ( const std::string& blockModelExtension : blockModelExtensions ) {
+        if ( extension.compare( blockModelExtension ) == 0 )
+            isBlockModel = true;
+    }
+
+    for ( const std::string& skeletonModelExtension : skeletonModelExtensions ) {
+        if ( extension.compare( skeletonModelExtension ) == 0 )
+            isSkeletonModel = true;
+    }
+
+    float43 pose = float43::IDENTITY;
+    pose.setTranslation( camera.getPosition() + camera.getDirection() );
+
 	if ( isBlockMesh ) {
 		BlockMeshFileInfo::Format format;
 
@@ -642,8 +458,11 @@ void Application::onDragAndDropFile( std::string filePath )
 
 		std::shared_ptr<BlockMesh> mesh = BlockMesh::createFromFile( filePath, format, 0, false, false, false );
 		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
-		createdBlockModel->setMesh( mesh );
-		createdBlockModel->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+
+        // Add new actor to the scene.
+        defaultBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
+        defaultBlockActor->getModel( )->setMesh( mesh );
+        scene->addActor( defaultBlockActor );
 	}
 
 	if ( isSkeletonMesh ) {
@@ -654,8 +473,11 @@ void Application::onDragAndDropFile( std::string filePath )
 		std::shared_ptr<SkeletonMesh> mesh = SkeletonMesh::createFromFile( filePath, format, 0, false, false, false );
 		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-		createdSkeletonModel->setMesh( mesh );
-		createdSkeletonModel->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+        // Add new actor to the scene.
+        defaultSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
+        defaultSkeletonActor->getModel( )->setMesh( mesh );
+        defaultSkeletonActor->resetSkeletonPose();
+        scene->addActor( defaultSkeletonActor );
 	}
 
 	if ( isTexture ) {
@@ -663,7 +485,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
 		if ( extension.compare( "bmp" ) == 0 )       format = Texture2DFileInfo::Format::BMP;
 		else if ( extension.compare( "dds" ) == 0 )  format = Texture2DFileInfo::Format::DDS;
-		else if ( extension.compare( "jpeg" ) == 0 ) format = Texture2DFileInfo::Format::JPEG;
+		else if ( extension.compare( "jpg" ) == 0 )  format = Texture2DFileInfo::Format::JPEG;
+        else if ( extension.compare( "jpeg" ) == 0 ) format = Texture2DFileInfo::Format::JPEG;
 		else if ( extension.compare( "png" ) == 0 )  format = Texture2DFileInfo::Format::PNG;
 		else if ( extension.compare( "raw" ) == 0 )  format = Texture2DFileInfo::Format::RAW;
 		else if ( extension.compare( "tga" ) == 0 )  format = Texture2DFileInfo::Format::TGA;
@@ -673,24 +496,44 @@ void Application::onDragAndDropFile( std::string filePath )
 		texture->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
 		if ( filePath.find( "_A" ) ) {
-			createdBlockModel->addAlbedoTexture( ModelTexture2D( texture ) );
-			createdSkeletonModel->addAlbedoTexture( ModelTexture2D( texture ) );
+            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addAlbedoTexture( ModelTexture2D( texture ) );
+            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addAlbedoTexture( ModelTexture2D( texture ) );
 		} else if ( filePath.find( "_N" ) ) {
-			createdBlockModel->addNormalTexture( ModelTexture2D( texture ) );
-			createdSkeletonModel->addNormalTexture( ModelTexture2D( texture ) );
+            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addNormalTexture( ModelTexture2D( texture ) );
+            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addNormalTexture( ModelTexture2D( texture ) );
 		} else if ( filePath.find( "_R" ) ) {
-			createdBlockModel->addRoughnessTexture( ModelTexture2D( texture ) );
-			createdSkeletonModel->addRoughnessTexture( ModelTexture2D( texture ) );
+            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addRoughnessTexture( ModelTexture2D( texture ) );
+            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addRoughnessTexture( ModelTexture2D( texture ) );
 		} else if ( filePath.find( "_E" ) ) {
-			createdBlockModel->addEmissionTexture( ModelTexture2D( texture ) );
-			createdSkeletonModel->addEmissionTexture( ModelTexture2D( texture ) );
+            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addEmissionTexture( ModelTexture2D( texture ) );
+            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addEmissionTexture( ModelTexture2D( texture ) );
 		}
 	}
 
+    if ( isBlockModel ) {
 
-	if ( ( isBlockMesh || isTexture ) && createdBlockModel->isInCpuMemory( ) )
-		createdBlockModel->saveToFile( "Assets/Models/new.blockmodel" );
+        std::shared_ptr<BlockModel> model = BlockModel::createFromFile( filePath, BlockModelFileInfo::Format::BLOCKMODEL, true );
+        model->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
-	if ( ( isSkeletonMesh || isTexture ) && createdSkeletonModel->isInCpuMemory( ) )
-		createdSkeletonModel->saveToFile( "Assets/Models/new.skeletonmodel" );
+        // Add new actor to the scene.
+        defaultBlockActor = std::make_shared<BlockActor>( model, pose );
+        scene->addActor( defaultBlockActor );
+    }
+
+    if ( isSkeletonModel ) {
+
+        std::shared_ptr<SkeletonModel> model = SkeletonModel::createFromFile( filePath, SkeletonModelFileInfo::Format::SKELETONMODEL, true );
+        model->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+
+        // Add new actor to the scene.
+        defaultSkeletonActor = std::make_shared<SkeletonActor>( model, pose );
+        scene->addActor( defaultSkeletonActor );
+    }
+
+
+    if ( (isBlockMesh || isTexture) && defaultBlockActor && defaultBlockActor->getModel( ) && defaultBlockActor->getModel( )->isInCpuMemory( ) )
+        defaultBlockActor->getModel()->saveToFile( "Assets/Models/new.blockmodel" );
+
+    if ( (isSkeletonMesh || isTexture) && defaultSkeletonActor && defaultSkeletonActor->getModel( ) && defaultSkeletonActor->getModel( )->isInCpuMemory( ) )
+        defaultSkeletonActor->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
 }

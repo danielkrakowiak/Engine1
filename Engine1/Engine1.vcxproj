@@ -430,10 +430,12 @@
     <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zconf.h" />
     <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zlib.h" />
     <ClInclude Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zutil.h" />
+    <ClInclude Include="Actor.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Asset.h" />
     <ClInclude Include="BinaryFile.h" />
+    <ClInclude Include="BlockActor.h" />
     <ClInclude Include="BlockMesh.h" />
     <ClInclude Include="BlockMeshFileInfo.h" />
     <ClInclude Include="BlockMeshFragmentShader.h" />
@@ -452,6 +454,8 @@
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SkeletonActor.h" />
     <ClInclude Include="SkeletonAnimationFileInfo.h" />
     <ClInclude Include="SkeletonAnimationFileInfoParser.h" />
     <ClInclude Include="SkeletonMeshFileInfo.h" />
@@ -678,9 +682,11 @@
     <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\trees.c" />
     <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\uncompr.c" />
     <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zutil.c" />
+    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BinaryFile.cpp" />
+    <ClCompile Include="BlockActor.cpp" />
     <ClCompile Include="BlockMesh.cpp" />
     <ClCompile Include="BlockMeshFileInfo.cpp" />
     <ClCompile Include="BlockMeshFragmentShader.cpp" />
@@ -698,6 +704,8 @@
     <ClCompile Include="Direct3DRendererCore.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SkeletonActor.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfo.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfoParser.cpp" />
     <ClCompile Include="SkeletonMeshFileInfo.cpp" />

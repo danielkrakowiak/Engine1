@@ -9,6 +9,10 @@
 #include "ImageLibrary.h"
 #include "FontLibrary.h"
 
+class Scene;
+class BlockActor;
+class SkeletonActor;
+
 class Application {
 public:
 	Application();
@@ -71,8 +75,10 @@ private:
 	FreeCamera camera;
 
 	// For creation of new assets.
-	std::shared_ptr<BlockModel> createdBlockModel;
-	std::shared_ptr<SkeletonModel> createdSkeletonModel;
+	std::shared_ptr<BlockActor>    defaultBlockActor;
+	std::shared_ptr<SkeletonActor> defaultSkeletonActor;
+
+    std::shared_ptr<Scene> scene;
 
 	// Copying is not allowed.
 	Application( const Application& ) = delete;

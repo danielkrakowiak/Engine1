@@ -13,6 +13,9 @@ class SkeletonPose {
 
 	public:
 
+    static SkeletonPose createIdentityPoseInSkeletonSpace( const SkeletonMesh& skeletonMesh );
+    static SkeletonPose createIdentityPoseInParentSpace( const SkeletonMesh& skeletonMesh );
+
 	// Blends poses of the corresponding bones in both poses. If a bone is present only in one pose, it is used without blending.
 	// Both blended poses should be in skeleton space or in parent space.
 	static SkeletonPose blendPoses( const SkeletonPose& pose1, const SkeletonPose& pose2, float factor );
@@ -29,6 +32,8 @@ class SkeletonPose {
 	SkeletonPose( const SkeletonPose& );
 	~SkeletonPose( );
 
+    SkeletonPose& operator=( const SkeletonPose& pose );
+
 	// boneIndex is in range 1 - 255.
 	void setBonePose( const unsigned char boneIndex, const float43& bonePose );
 
@@ -36,6 +41,8 @@ class SkeletonPose {
 	float43 getBonePose( const unsigned char boneIndex ) const;
 
 	unsigned char getBonesCount( ) const;
+
+    void clear();
 
 	private:
 
@@ -45,8 +52,6 @@ class SkeletonPose {
 	// Pairs of <bone index, bone pose>.
 	std::vector< std::pair<unsigned char, float43 > > bonesPoses;
 
-	// Copying is not allowed.	
-	SkeletonPose& operator=( const SkeletonPose& ) = delete;
 };
 
 

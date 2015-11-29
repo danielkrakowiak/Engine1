@@ -6,6 +6,21 @@
 
 #include "MathUtil.h"
 
+SkeletonPose SkeletonPose::createIdentityPoseInSkeletonSpace( const SkeletonMesh& skeletonMesh )
+{
+    return calculatePoseInSkeletonSpace( createIdentityPoseInParentSpace( skeletonMesh ), skeletonMesh );
+}
+
+SkeletonPose SkeletonPose::createIdentityPoseInParentSpace( const SkeletonMesh& skeletonMesh )
+{
+    SkeletonPose poseInParentSpace;
+    const unsigned char boneCount = skeletonMesh.getBoneCount();
+    for ( unsigned char boneIndex = 1; boneIndex <= boneCount; ++boneIndex )
+        poseInParentSpace.setBonePose( boneIndex, float43::IDENTITY );
+
+    return poseInParentSpace;
+}
+
 SkeletonPose SkeletonPose::blendPoses( const SkeletonPose& pose1, const SkeletonPose& pose2, float factor )
 {
 	SkeletonPose combinedPose;
@@ -134,6 +149,14 @@ SkeletonPose::SkeletonPose( const SkeletonPose& obj ) {
 
 SkeletonPose::~SkeletonPose( ) {}
 
+SkeletonPose& SkeletonPose::operator = ( const SkeletonPose& obj )
+{
+    // Copy the vector.
+    bonesPoses.insert( bonesPoses.begin( ), obj.bonesPoses.begin( ), obj.bonesPoses.end( ) );
+
+    return *this;
+}
+
 void SkeletonPose::setBonePose( const unsigned char boneIndex, const float43& bonePose ) {
 	// Note: boneIndex is in range 1 - 255.
 	if ( boneIndex == 0 ) throw std::exception( "SkeletonPose::setBone - boneIndex cannot be 0." );
@@ -161,6 +184,11 @@ float43 SkeletonPose::getBonePose( const unsigned char boneIndex ) const {
 
 unsigned char SkeletonPose::getBonesCount( ) const {
 	return (unsigned char)bonesPoses.size( );
+}
+
+void SkeletonPose::clear()
+{
+    bonesPoses.clear();
 }
 
 bool SkeletonPose::hasBone( const unsigned char boneIndex ) const {

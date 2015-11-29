@@ -45,16 +45,10 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-Add tests for loading animation. Add tests for loading anims through AssetManager. Add tests for loading anims when reference mesh is not loaded yet.
+Use AssetManager to load assets in Application.
+Saving/loading the scene.
 
 Create various models and save them to files.
-Create a simple scene class, which stores the list of actors, lights etc in the scene.
-
-Add saving/loading scene to file
-	- Each class can save/load its object to a binary file.
-	- Scene class which saves/loads scene and stores it during runtime.
-
-Ability to add actors to the scene by dragging model files to the app window or by cloning existing actors.
 
 Add other phases of rendering. Rendering color, normals etc. Then rendering the final image. 
 
