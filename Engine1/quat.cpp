@@ -6,6 +6,8 @@
 #include "float3.h"
 #include "MathUtil.h"
 
+using namespace Engine1;
+
 // TODO Optimizations:
 // 1) Faster version of slerp could be made if it's known that quaternions are of unit length and different, factor within range and not equal to 0 or 1. Checks could be removed.
 

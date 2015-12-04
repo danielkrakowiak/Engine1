@@ -2,6 +2,8 @@
 
 #include <Windows.h>
 
+using namespace Engine1;
+
 const std::string StringUtil::localeName = "en-US";
 std::locale StringUtil::locale( localeName );
 

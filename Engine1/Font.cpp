@@ -4,6 +4,8 @@
 
 #include "Direct3DUtil.h"
 
+using namespace Engine1;
+
 using Microsoft::WRL::ComPtr;
 
 ComPtr<ID3D11Buffer> FontCharacter::defaultTexcoordsBuffer = nullptr;

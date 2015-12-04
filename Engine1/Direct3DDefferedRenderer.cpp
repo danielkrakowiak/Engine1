@@ -18,6 +18,8 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
+
 using Microsoft::WRL::ComPtr;
 
 Direct3DDefferedRenderer::Direct3DDefferedRenderer( Direct3DRendererCore& rendererCore ) :

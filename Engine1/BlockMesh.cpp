@@ -15,6 +15,8 @@
 
 #include "TextFile.h"
 
+using namespace Engine1;
+
 using Microsoft::WRL::ComPtr;
 
 std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const BlockMeshFileInfo& fileInfo )

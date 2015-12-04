@@ -9,9 +9,16 @@
 #include "ImageLibrary.h"
 #include "FontLibrary.h"
 
-class Scene;
-class BlockActor;
-class SkeletonActor;
+#include "AssetManager.h"
+
+using namespace Engine1;
+
+namespace Engine1
+{
+    class CScene;
+    class BlockActor;
+    class SkeletonActor;
+}
 
 class Application {
 public:
@@ -74,11 +81,13 @@ private:
 
 	FreeCamera camera;
 
+    AssetManager assetManager;
+
 	// For creation of new assets.
 	std::shared_ptr<BlockActor>    defaultBlockActor;
 	std::shared_ptr<SkeletonActor> defaultSkeletonActor;
 
-    std::shared_ptr<Scene> scene;
+    std::shared_ptr<CScene> scene;
 
 	// Copying is not allowed.
 	Application( const Application& ) = delete;

@@ -2,6 +2,8 @@
 
 #include "MathUtil.h"
 
+using namespace Engine1;
+
 float MathUtil::radiansToDegrees( float radians ) {
 	return ( radians / pi ) * 180.0f;
 }

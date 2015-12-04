@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <sstream>
 
+using namespace Engine1;
+
 //invertZCoordinate is useful when loading a model created in right-hand space into left-hand space (or the other way)
 //invertVertexWindingOrder is useful when vertex winding order in a model is different than used by the renderer (OBJ file should have anti-clockwise order)
 std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )

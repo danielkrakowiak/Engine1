@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+using namespace Engine1;
+
 std::vector<std::string> MyXAFFileParser::debug;
 
 MyXAFFileParser::MyXAFFileParser() {}

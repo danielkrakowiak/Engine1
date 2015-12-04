@@ -8,30 +8,34 @@ struct ID3D11PixelShader;
 struct ID3D11Device;
 struct ID3D11Buffer;
 
-class FragmentShader {
+namespace Engine1
+{
+    class FragmentShader
+    {
 
-	public:
+        public:
 
-	bool isSame( const FragmentShader& shader ) const;
-	ID3D11PixelShader& getShader() const;
-	bool isCompiled() const;
+        bool isSame( const FragmentShader& shader ) const;
+        ID3D11PixelShader& getShader() const;
+        bool isCompiled() const;
 
-	protected:
+        protected:
 
-	FragmentShader( );
-	virtual ~FragmentShader( );
+        FragmentShader();
+        virtual ~FragmentShader();
 
-	static unsigned int compiledShadersCount;
+        static unsigned int compiledShadersCount;
 
-	// Shader can be compiled only once and is assumed not to change over time.
-	bool compiled;
-	unsigned int shaderId;
+        // Shader can be compiled only once and is assumed not to change over time.
+        bool compiled;
+        unsigned int shaderId;
 
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> shader;
-	Microsoft::WRL::ComPtr<ID3D11Device>      device;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>      constantInputBuffer;
+        Microsoft::WRL::ComPtr<ID3D11PixelShader> shader;
+        Microsoft::WRL::ComPtr<ID3D11Device>      device;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>      constantInputBuffer;
 
-	// Copying is not allowed.
-	FragmentShader( const FragmentShader& ) = delete;
-	FragmentShader& operator=( const FragmentShader& ) = delete;
-};
+        // Copying is not allowed.
+        FragmentShader( const FragmentShader& ) = delete;
+        FragmentShader& operator=(const FragmentShader&) = delete;
+    };
+}

@@ -3,6 +3,8 @@
 #include "Texture2DFileInfo.h"
 #include "BinaryFile.h"
 
+using namespace Engine1;
+
 std::shared_ptr<Texture2DFileInfo> Texture2DFileInfoParser::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	std::shared_ptr<Texture2DFileInfo> fileInfo = std::make_shared<Texture2DFileInfo>( );

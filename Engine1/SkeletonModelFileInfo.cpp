@@ -4,6 +4,8 @@
 
 #include <memory>
 
+using namespace Engine1;
+
 //std::shared_ptr<BlockModelFileInfo> SkeletonModelFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
 //{
 //	return SkeletonModelFileInfoParser::parseBinary( dataIt );

@@ -4,6 +4,8 @@
 #include "BlockModel.h"
 #include "BinaryFile.h"
 
+using namespace Engine1;
+
 std::string BlockModelParser::fileTypeIdentifier = "BLOCKMODEL";
 
 std::shared_ptr<BlockModel> BlockModelParser::parseBinary( const std::vector<char>& data, const bool loadRecurrently )

@@ -2,6 +2,8 @@
 
 #include "ModelTexture2DParser.h"
 
+using namespace Engine1;
+
 std::shared_ptr< ModelTexture2D > ModelTexture2D::createFromBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently )
 {
 	return ModelTexture2DParser::parseBinary( dataIt, loadRecurrently );

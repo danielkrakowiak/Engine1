@@ -1,15 +1,19 @@
 #pragma once
-class Actor
+
+namespace Engine1
 {
-    public:
-
-    enum class Type
+    class Actor
     {
-        BlockActor = 0,
-        SkeletonActor = 1
-    };
+        public:
 
-    virtual Type getType() const = 0;
-    
-};
+        enum class Type
+        {
+            BlockActor = 0,
+            SkeletonActor = 1
+        };
+
+        virtual Type getType() const = 0;
+
+    };
+}
 

@@ -26,3 +26,5 @@
 	- add test with textures, and textures and meshes mixed.
 28.11.2015
 	- add tests for loading asynchronously assets from inexisting paths. Mixed with correct paths. Should not crash AssetManager!
+	- add tests for loading assets with sub-assets SYNCronously.
+	- loading a model sync/async containing sub-assets which were already loaded. Should't throw exception.

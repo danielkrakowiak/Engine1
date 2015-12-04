@@ -1,19 +1,23 @@
 #pragma once
 #include "FragmentShader.h"
 
-class SkeletonMeshFragmentShader : public FragmentShader {
+namespace Engine1
+{
+    class SkeletonMeshFragmentShader : public FragmentShader
+    {
 
-	public:
+        public:
 
-	SkeletonMeshFragmentShader( );
-	virtual ~SkeletonMeshFragmentShader( );
+        SkeletonMeshFragmentShader();
+        virtual ~SkeletonMeshFragmentShader();
 
-	void compileFromFile( std::string path, ID3D11Device& device );
+        void compileFromFile( std::string path, ID3D11Device& device );
 
-	private:
+        private:
 
-	// Copying is not allowed.
-	SkeletonMeshFragmentShader( const SkeletonMeshFragmentShader& ) = delete;
-	SkeletonMeshFragmentShader& operator=( const SkeletonMeshFragmentShader& ) = delete;
-};
+        // Copying is not allowed.
+        SkeletonMeshFragmentShader( const SkeletonMeshFragmentShader& ) = delete;
+        SkeletonMeshFragmentShader& operator=(const SkeletonMeshFragmentShader&) = delete;
+    };
+}
 

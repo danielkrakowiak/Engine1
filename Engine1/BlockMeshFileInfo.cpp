@@ -4,6 +4,8 @@
 
 #include <memory>
 
+using namespace Engine1;
+
 std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	return BlockMeshFileInfoParser::parseBinary( dataIt );

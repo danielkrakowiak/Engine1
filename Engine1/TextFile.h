@@ -3,10 +3,13 @@
 #include <vector>
 #include <memory>
 
-class TextFile 
+namespace Engine1
 {
-	public:
-	
-	static std::shared_ptr< std::vector<char> > load( const std::string& path );
-};
+    class TextFile
+    {
+        public:
+
+        static std::shared_ptr< std::vector<char> > load( const std::string& path );
+    };
+}
 

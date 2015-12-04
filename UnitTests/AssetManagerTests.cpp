@@ -8,6 +8,7 @@
 #include "SkeletonModel.h"
 #include "SkeletonAnimation.h"
 
+using namespace Engine1;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests
@@ -59,10 +60,10 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			Assert::IsFalse( assetManager.isLoaded( "xxx" ), L"AssetManager::isLoaded returned true for non-exisiting mesh" );
+            Assert::IsFalse( assetManager.isLoaded( Asset::Type::BlockMesh, "xxx" ), L"AssetManager::isLoaded returned true for non-exisiting mesh" );
 
 			try {
-				std::shared_ptr<Asset> asset = assetManager.get( "xxx" );
+                std::shared_ptr<Asset> asset = assetManager.get( Asset::Type::BlockMesh, "xxx" );
 				Assert::IsNull( asset.get(), L"AssetManager::get didn't return nullptr for a non-exisiting mesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -84,10 +85,10 @@ namespace UnitTests
 				Assert::Fail( L"AssetManager::load threw an exception" );
 			}
 
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-				std::shared_ptr<Asset> asset = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
+                std::shared_ptr<Asset> asset = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
 				Assert::IsNotNull( asset.get( ), L"AssetManager::get returned nullptr" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
@@ -116,19 +117,19 @@ namespace UnitTests
 				Assert::Fail( L"AssetManager::load threw an exception" );
 			}
 
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/triangle.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/triangle.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-				std::shared_ptr<Asset> asset1 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
+                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset2 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/triangle.obj" );
+                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/triangle.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset2 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset3 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
+                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset3 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset4 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" );
+                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset4 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -203,30 +204,30 @@ namespace UnitTests
 			try {
 				assetManager.load( fileInfo1 );
 
-				Assert::IsTrue(  assetManager.isLoaded( path, 0 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsFalse( assetManager.isLoaded( path, 1 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsFalse( assetManager.isLoaded( path, 1 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsNotNull( assetManager.get( path, 0 ).get(), L"AssetManager::get returned nullptr" );
-				Assert::IsNull(    assetManager.get( path, 1 ).get( ), L"AssetManager::get returned not-nullptr" );
-				Assert::IsNull(    assetManager.get( path, 2 ).get( ), L"AssetManager::get returned not-nullptr" );
+				Assert::IsTrue(  assetManager.isLoaded( Asset::Type::BlockMesh, path, 0 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsFalse( assetManager.isLoaded( Asset::Type::BlockMesh, path, 1 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsFalse( assetManager.isLoaded( Asset::Type::BlockMesh, path, 1 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsNotNull( assetManager.get( Asset::Type::BlockMesh, path, 0 ).get( ), L"AssetManager::get returned nullptr" );
+                Assert::IsNull( assetManager.get( Asset::Type::BlockMesh, path, 1 ).get( ), L"AssetManager::get returned not-nullptr" );
+                Assert::IsNull( assetManager.get( Asset::Type::BlockMesh, path, 2 ).get( ), L"AssetManager::get returned not-nullptr" );
 
 				assetManager.load( fileInfo2 );
 
-				Assert::IsTrue(  assetManager.isLoaded( path, 0 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsTrue(  assetManager.isLoaded( path, 1 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsFalse( assetManager.isLoaded( path, 2 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsNotNull( assetManager.get( path, 0 ).get(), L"AssetManager::get returned nullptr" );
-				Assert::IsNotNull( assetManager.get( path, 1 ).get(), L"AssetManager::get returned nullptr" );
-				Assert::IsNull(    assetManager.get( path, 2 ).get(), L"AssetManager::get returned not-nullptr" );
+                Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, path, 0 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, path, 1 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsFalse( assetManager.isLoaded( Asset::Type::BlockMesh, path, 2 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsNotNull( assetManager.get( Asset::Type::BlockMesh, path, 0 ).get( ), L"AssetManager::get returned nullptr" );
+                Assert::IsNotNull( assetManager.get( Asset::Type::BlockMesh, path, 1 ).get( ), L"AssetManager::get returned nullptr" );
+                Assert::IsNull( assetManager.get( Asset::Type::BlockMesh, path, 2 ).get( ), L"AssetManager::get returned not-nullptr" );
 
 				assetManager.load( fileInfo3 );
 
-				Assert::IsTrue( assetManager.isLoaded( path, 0 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsTrue( assetManager.isLoaded( path, 1 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsTrue( assetManager.isLoaded( path, 2 ), L"AssetManager::isLoaded returned wrong value" );
-				Assert::IsNotNull( assetManager.get( path, 0 ).get(), L"AssetManager::get returned nullptr" );
-				Assert::IsNotNull( assetManager.get( path, 1 ).get(), L"AssetManager::get returned nullptr" );
-				Assert::IsNotNull( assetManager.get( path, 2 ).get(), L"AssetManager::get returned nullptr" );
+                Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, path, 0 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, path, 1 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, path, 2 ), L"AssetManager::isLoaded returned wrong value" );
+                Assert::IsNotNull( assetManager.get( Asset::Type::BlockMesh, path, 0 ).get( ), L"AssetManager::get returned nullptr" );
+                Assert::IsNotNull( assetManager.get( Asset::Type::BlockMesh, path, 1 ).get( ), L"AssetManager::get returned nullptr" );
+                Assert::IsNotNull( assetManager.get( Asset::Type::BlockMesh, path, 2 ).get( ), L"AssetManager::get returned nullptr" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::load throw an exception" );
 			}
@@ -255,10 +256,10 @@ namespace UnitTests
 
 			std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
 
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-				std::shared_ptr<Asset> asset = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
+                std::shared_ptr<Asset> asset = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -294,19 +295,19 @@ namespace UnitTests
 
 			std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
 
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/triangle.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/triangle.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-				std::shared_ptr<Asset> asset1 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
+                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset2 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/triangle.obj" );
+                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/triangle.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset2 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset3 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
+                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset3 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset4 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" );
+                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset4 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -351,31 +352,31 @@ namespace UnitTests
 
 			std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
 
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon2.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon3.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon4.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon5.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon6.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon7.obj" ), L"AssetManager::isLoaded returned false" );
-			Assert::IsTrue( assetManager.isLoaded( "../Engine1/Assets/TestAssets/Meshes/dragon8.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon2.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon3.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon4.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon5.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon6.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon7.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon8.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-				std::shared_ptr<Asset> asset1 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
+                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset2 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon2.obj" );
+                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon2.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset2 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset3 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon3.obj" );
+                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon3.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset3 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset4 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon4.obj" );
+                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon4.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset4 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset5 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon5.obj" );
+                std::shared_ptr<Asset> asset5 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon5.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset5 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset6 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon6.obj" );
+                std::shared_ptr<Asset> asset6 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon6.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset6 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset7 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon7.obj" );
+                std::shared_ptr<Asset> asset7 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon7.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset7 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-				std::shared_ptr<Asset> asset8 = assetManager.get( "../Engine1/Assets/TestAssets/Meshes/dragon8.obj" );
+                std::shared_ptr<Asset> asset8 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon8.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset8 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -516,17 +517,17 @@ namespace UnitTests
 
 			std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
 
-			Assert::IsTrue(  assetManager.isLoaded( path, 0 ), L"AssetManager::isLoaded returned false" );
-			Assert::IsFalse( assetManager.isLoaded( path, 1 ), L"AssetManager::isLoaded returned true" );
-			Assert::IsTrue(  assetManager.isLoaded( path, 2 ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, path, 0 ), L"AssetManager::isLoaded returned false" );
+            Assert::IsFalse( assetManager.isLoaded( Asset::Type::BlockMesh, path, 1 ), L"AssetManager::isLoaded returned true" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, path, 2 ), L"AssetManager::isLoaded returned false" );
 		}
 
 		TEST_METHOD( AssetManager_Model_Async_Loading_1 )
 		{
 			#if defined _DEBUG
-			float modelMaxLoadingTime = 20.0f;
+			float modelMaxLoadingTime = 90.0f;
 			#else
-			float modelMaxLoadingTime = 20.0f;
+			float modelMaxLoadingTime = 45.0f;
 			#endif
 
 			unsigned int cpuThreadCount = std::thread::hardware_concurrency();
@@ -541,7 +542,7 @@ namespace UnitTests
 			try {
 				assetManager.loadAsync( fileInfo1 );
 			
-				std::shared_ptr<Asset> asset = assetManager.getWhenLoaded( path, 0, modelMaxLoadingTime );
+                std::shared_ptr<Asset> asset = assetManager.getWhenLoaded( Asset::Type::BlockModel, path, 0, modelMaxLoadingTime );
 
 				std::shared_ptr<BlockModel> model = std::dynamic_pointer_cast<BlockModel>( asset );
 				Assert::IsNotNull( model.get() );
@@ -578,7 +579,7 @@ namespace UnitTests
 			try {
 				assetManager.loadAsync( fileInfo1 );
 
-				std::shared_ptr<Asset> asset = assetManager.getWhenLoaded( path, 0, modelMaxLoadingTime );
+                std::shared_ptr<Asset> asset = assetManager.getWhenLoaded( Asset::Type::SkeletonModel, path, 0, modelMaxLoadingTime );
 
 				std::shared_ptr<SkeletonModel> model = std::dynamic_pointer_cast<SkeletonModel>( asset );
 				Assert::IsNotNull( model.get() );
@@ -631,10 +632,10 @@ namespace UnitTests
 				Assert::Fail( L"AssetManager::loadAsync threw an exception" );
 			}
 
-			std::shared_ptr<Asset> asset1 = assetManager.get( path4 );
+            std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, path4 );
 			Assert::IsNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get() );
 
-			asset1 = assetManager.getWhenLoaded( path4, 0, meshMaxLoadingTime );
+            asset1 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path4, 0, meshMaxLoadingTime );
 			Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get() );
 		}
 
@@ -741,18 +742,18 @@ namespace UnitTests
 				Assert::Fail( L"AssetManager::loadAsync threw an exception" );
 			}
 
-			std::shared_ptr<Asset> asset1 = assetManager.getWhenLoaded( path1, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset2 = assetManager.getWhenLoaded( path2, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset3 = assetManager.getWhenLoaded( path1, 1, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset4 = assetManager.getWhenLoaded( path3, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset5 = assetManager.getWhenLoaded( path4, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset6 = assetManager.getWhenLoaded( path1, 2, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset7 = assetManager.getWhenLoaded( path5, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset8 = assetManager.getWhenLoaded( path6, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset9 = assetManager.getWhenLoaded( path7, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset10 = assetManager.getWhenLoaded( path8, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset11 = assetManager.getWhenLoaded( path9, 0, meshMaxLoadingTime );
-			std::shared_ptr<Asset> asset12 = assetManager.getWhenLoaded( path10, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset1 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path1, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset2 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path2, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset3 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path1, 1, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset4 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path3, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset5 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path4, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset6 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path1, 2, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset7 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path5, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset8 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path6, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset9 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path7, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset10 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path8, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset11 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path9, 0, meshMaxLoadingTime );
+            std::shared_ptr<Asset> asset12 = assetManager.getWhenLoaded( Asset::Type::BlockMesh, path10, 0, meshMaxLoadingTime );
 
 			Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get() );
 			Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset2 ).get() );
@@ -778,15 +779,15 @@ namespace UnitTests
             const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
             const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
 
-            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 0 );
+            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 2 );
             SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
 
             try {
                 assetManager.load( meshFileInfo1 );
-                Assert::IsTrue( assetManager.isLoaded( meshPath, 0 ) );
+                Assert::IsTrue( assetManager.isLoaded( Asset::Type::SkeletonMesh, meshPath, 2 ) );
 
                 assetManager.load( animFileInfo1 );
-                Assert::IsTrue( assetManager.isLoaded( animPath, 0 ) );
+                Assert::IsTrue( assetManager.isLoaded( Asset::Type::SkeletonAnimation, animPath, 0 ) );
             } catch ( ... ) {
                 Assert::Fail();
             }
@@ -802,12 +803,12 @@ namespace UnitTests
             const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
             const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
 
-            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 0 );
+            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 2 );
             SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
 
             try {
                 assetManager.load( animFileInfo1 );
-                Assert::IsTrue( assetManager.isLoaded( animPath, 0 ) );
+                Assert::IsTrue( assetManager.isLoaded( Asset::Type::SkeletonAnimation, animPath, 0 ) );
             } catch ( ... ) {
                 Assert::Fail();
             }
@@ -831,7 +832,7 @@ namespace UnitTests
             const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
             const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
 
-            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 0 );
+            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 2 );
             SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
 
             try {
@@ -842,7 +843,7 @@ namespace UnitTests
 
             std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
 
-            Assert::IsTrue( assetManager.isLoaded( meshPath, 0 ) );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::SkeletonMesh, meshPath, 2 ) );
 
             try {
                 assetManager.loadAsync( animFileInfo1 );
@@ -852,7 +853,7 @@ namespace UnitTests
 
             std::this_thread::sleep_for( std::chrono::milliseconds( animMaxLoadingTimeMilisec ) );
 
-            Assert::IsTrue( assetManager.isLoaded( animPath, 0 ) );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::SkeletonAnimation, animPath, 0 ) );
         }
 
         TEST_METHOD( AssetManager_Animation_Async_Loading_2 )
@@ -871,7 +872,7 @@ namespace UnitTests
             const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
             const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
 
-            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 0 );
+            SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 2 );
             SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
 
             try {
@@ -882,7 +883,7 @@ namespace UnitTests
 
             std::this_thread::sleep_for( std::chrono::milliseconds( maxLoadingTimeMilisec ) );
 
-            Assert::IsTrue( assetManager.isLoaded( animPath, 0 ) );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::SkeletonAnimation, animPath, 0 ) );
         }
     };
 }

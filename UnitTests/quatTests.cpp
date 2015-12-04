@@ -5,6 +5,7 @@
 #include "float33.h"
 #include "MathUtil.h"
 
+using namespace Engine1;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests

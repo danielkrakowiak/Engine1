@@ -4,27 +4,32 @@
 #include <vector>
 #include <memory>
 
-class FileInfo;
+namespace Engine1
+{
+    class FileInfo;
 
-class Asset {
+    class Asset
+    {
 
-	public:
+        public:
 
-	enum class Type : char
-	{
-		BlockMesh         = 0,
-		SkeletonMesh      = 1,
-		Texture2D         = 2,
-		BlockModel        = 3,
-		SkeletonModel     = 4,
-		SkeletonAnimation = 5
-	};
+        enum class Type : char
+        {
+            BlockMesh = 0,
+            SkeletonMesh = 1,
+            Texture2D = 2,
+            BlockModel = 3,
+            SkeletonModel = 4,
+            SkeletonAnimation = 5
+        };
 
-	virtual Type                                        getType() const = 0;
-	virtual const FileInfo&                             getFileInfo() const = 0;
-	virtual FileInfo&                                   getFileInfo() = 0;
-	virtual std::vector< std::shared_ptr<const Asset> > getSubAssets() const = 0;
-	virtual std::vector< std::shared_ptr<Asset> >       getSubAssets() = 0;
-	virtual void                                        swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset ) = 0;
-};
+        static std::string toString( const Type type );
 
+        virtual Type                                        getType() const = 0;
+        virtual const FileInfo&                             getFileInfo() const = 0;
+        virtual FileInfo&                                   getFileInfo() = 0;
+        virtual std::vector< std::shared_ptr<const Asset> > getSubAssets() const = 0;
+        virtual std::vector< std::shared_ptr<Asset> >       getSubAssets() = 0;
+        virtual void                                        swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset ) = 0;
+    };
+}

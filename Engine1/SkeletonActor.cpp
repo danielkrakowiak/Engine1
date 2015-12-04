@@ -2,6 +2,8 @@
 
 #include "SkeletonModel.h"
 
+using namespace Engine1;
+
 SkeletonActor::SkeletonActor( std::shared_ptr<SkeletonModel> model, const float43& pose ) :
     pose( pose ),
     model( model )

@@ -10,6 +10,8 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
+
 std::shared_ptr<Texture2D> Texture2D::createFromFile( const Texture2DFileInfo& fileInfo )
 {
 	return createFromFile( fileInfo.getPath(), fileInfo.getFormat() );

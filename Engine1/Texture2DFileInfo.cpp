@@ -4,6 +4,8 @@
 
 #include <memory>
 
+using namespace Engine1;
+
 std::shared_ptr<Texture2DFileInfo> Texture2DFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	return Texture2DFileInfoParser::parseBinary( dataIt );

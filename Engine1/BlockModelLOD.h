@@ -4,25 +4,31 @@
 
 #include "BlockModel.h"
 
-class BlockModelLOD {
-public:
-	BlockModelLOD( float distance, std::shared_ptr<BlockModel>& model );
-	~BlockModelLOD();
+namespace Engine1
+{
+    class BlockModelLOD
+    {
+        public:
+        BlockModelLOD( float distance, std::shared_ptr<BlockModel>& model );
+        ~BlockModelLOD();
 
-	float getDistance( ) const {
-		return distance;
-	}
+        float getDistance() const
+        {
+            return distance;
+        }
 
-	std::shared_ptr<BlockModel>& getModel( ) {
-		return model;
-	}
+        std::shared_ptr<BlockModel>& getModel()
+        {
+            return model;
+        }
 
-private:
-	float distance;
-	std::shared_ptr<BlockModel> model;
+        private:
+        float distance;
+        std::shared_ptr<BlockModel> model;
 
-	// Copying is not allowed.
-	BlockModelLOD( const BlockModelLOD& ) = delete;
-	BlockModelLOD& operator=( const BlockModelLOD& ) = delete;
-};
+        // Copying is not allowed.
+        BlockModelLOD( const BlockModelLOD& ) = delete;
+        BlockModelLOD& operator=(const BlockModelLOD&) = delete;
+    };
+}
 

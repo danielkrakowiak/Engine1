@@ -3,6 +3,8 @@
 #include "BinaryFile.h"
 #include "SkeletonAnimationFileInfo.h"
 
+using namespace Engine1;
+
 std::shared_ptr<SkeletonAnimationFileInfo> SkeletonAnimationFileInfoParser::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	std::shared_ptr<SkeletonAnimationFileInfo> fileInfo = std::make_shared<SkeletonAnimationFileInfo>( );

@@ -5,6 +5,7 @@
 
 #include "StringUtil.h"
 
+using namespace Engine1;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests {

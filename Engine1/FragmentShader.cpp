@@ -4,6 +4,8 @@
 #include <d3dx10math.h>
 #include <d3dx11async.h>
 
+using namespace Engine1;
+
 unsigned int FragmentShader::compiledShadersCount = 0;
 
 FragmentShader::FragmentShader() :

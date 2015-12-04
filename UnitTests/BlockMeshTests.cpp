@@ -7,6 +7,7 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests {

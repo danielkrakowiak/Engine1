@@ -6,6 +6,8 @@
 
 #include "MathUtil.h"
 
+using namespace Engine1;
+
 const float33 float33::IDENTITY(
 	1.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f,
@@ -45,7 +47,7 @@ float33 float33::lerp( const float33& from, const float33& to, const float facto
 	}
 }
 
-float3 operator * (const float3& a, const float33& b)
+float3 Engine1::operator * (const float3& a, const float33& b)
 {
 	return float3(
 		a.x * b.m11 + a.y * b.m21 + a.z * b.m31,
@@ -54,7 +56,7 @@ float3 operator * (const float3& a, const float33& b)
 		);
 }
 
-float33 operator * (const float value, const float33& b)
+float33 Engine1::operator * (const float value, const float33& b)
 {
 	return float33(
 		b.m11 * value,

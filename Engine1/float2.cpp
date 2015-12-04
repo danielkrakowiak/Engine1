@@ -1,6 +1,9 @@
 #include "float2.h"
 
-float2 operator * (const float value, const float2& vec) {
+using namespace Engine1;
+
+float2 Engine1::operator * (const float value, const float2& vec)
+{
 	return float2(vec.x * value, vec.y * value);
 }
 

@@ -17,6 +17,8 @@
 
 #include "SkeletonAnimationFileInfo.h"
 
+using namespace Engine1;
+
 AssetManager::AssetManager( int loadingThreadCount = INT_MAX ) {
 	if ( loadingThreadCount <= 0 ) throw std::exception( "AssetManager::AssetManager - Number of loading threads has to be greater than 0." );
 
@@ -46,27 +48,38 @@ AssetManager::~AssetManager() {
 
 void AssetManager::load( const FileInfo& fileInfo )
 {
-	std::string path = StringUtil::toLowercase( fileInfo.getPath() ) + "[" + std::to_string( fileInfo.getIndexInFile() ) + "]";
+    std::string id = getId( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() );
 
 	{ // Check if asset was loaded already or is in the course of loading.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
-		if ( assets.count( path ) != 0 ) 
+		if ( assets.count( id ) != 0 ) 
 			throw std::exception( "AssetManager::load - Asset is already loaded or in the course of loading." );
 		
-		assets.insert( path );
+		assets.insert( id );
 	}
 
 	try {
 		std::shared_ptr<Asset> asset = createFromFile( fileInfo );
 
+        { // Load sub-assets or wait for the sub-assets to be loaded and swap empty sub-assets with loaded sub-assets.
+            std::vector<std::shared_ptr<Asset>> subAssets = asset->getSubAssets( );
+            for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
+                if ( !subAsset->getFileInfo().getPath().empty() ) {
+                    std::shared_ptr<Asset> newSubAsset = getOrLoad( subAsset->getFileInfo( ) );
+
+                    asset->swapSubAsset( subAsset, newSubAsset );
+                }
+            }
+        }
+
 		{
 			std::lock_guard<std::mutex> loadedAssetsLock( loadedAssetsMutex );
-			loadedAssets.insert( std::make_pair( path, asset ) );
+			loadedAssets.insert( std::make_pair( id, asset ) );
 		}
 	} catch ( std::exception& ex ) {
 		// If asset failed to load - remove it from assets.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
-		assets.erase( path );
+		assets.erase( id );
 		// Re-throw the exception.
 		throw;
 	}
@@ -74,14 +87,14 @@ void AssetManager::load( const FileInfo& fileInfo )
 
 void AssetManager::loadAsync( const FileInfo& fileInfo )
 {
-	std::string path = StringUtil::toLowercase( fileInfo.getPath( ) ) + "[" + std::to_string( fileInfo.getIndexInFile( ) ) + "]";
+    std::string id = getId( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() );
 
 	{ // Check if this asset was loaded already or is in the course of loading.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
-		if ( assets.count( path ) != 0 ) 
+		if ( assets.count( id ) != 0 ) 
 			throw std::exception( "AssetManager::loadAsync - Asset is already loaded or in the course of loading." );
 
-		assets.insert( path );
+		assets.insert( id );
 	}
 
 	{ // Add the asset to the list of assets to load from disk - lock mutex.
@@ -94,29 +107,29 @@ void AssetManager::loadAsync( const FileInfo& fileInfo )
 	assetsToLoadFromDiskNotEmpty.notify_one();
 }
 
-bool AssetManager::isLoaded( std::string path, const int indexInFile )
+bool AssetManager::isLoaded( Asset::Type type, std::string path, const int indexInFile )
 {
-	path = StringUtil::toLowercase( path ) + "[" + std::to_string( indexInFile ) + "]";
+    std::string id = getId( type, path, indexInFile );
 
 	//TODO: should I lock loadedAssets before searching through it?
-	return ( loadedAssets.find( path ) != loadedAssets.end( ) );
+    return (loadedAssets.find( id ) != loadedAssets.end( ));
 }
 
-bool AssetManager::isLoadedOrLoading( std::string path, const int indexInFile )
+bool AssetManager::isLoadedOrLoading( Asset::Type type, std::string path, const int indexInFile )
 {
-	path = StringUtil::toLowercase( path ) + "[" + std::to_string( indexInFile ) + "]";
+    std::string id = getId( type, path, indexInFile );
 
 	std::lock_guard<std::mutex> assetsLock( assetsMutex );
-	return ( assets.count( path ) != 0 );
+    return (assets.count( id ) != 0);
 }
 
-std::shared_ptr<Asset> AssetManager::get( std::string path, const int indexInFile )
+std::shared_ptr<Asset> AssetManager::get( Asset::Type type, std::string path, const int indexInFile )
 {
-	path = StringUtil::toLowercase( path ) + "[" + std::to_string( indexInFile ) + "]";
+    std::string id = getId( type, path, indexInFile );
 
 	std::lock_guard<std::mutex> loadedAssetsLock( loadedAssetsMutex );
 
-	std::unordered_map< std::string, std::shared_ptr<Asset> >::iterator it = loadedAssets.find( path );
+    std::unordered_map< std::string, std::shared_ptr<Asset> >::iterator it = loadedAssets.find( id );
 
 	if ( it == loadedAssets.end() )
 		return nullptr;
@@ -124,9 +137,19 @@ std::shared_ptr<Asset> AssetManager::get( std::string path, const int indexInFil
 	return it->second;
 }
 
-std::shared_ptr<Asset> AssetManager::getWhenLoaded( std::string path, const int indexInFile, const float timeout )
+std::shared_ptr<Asset> AssetManager::getOrLoad( const FileInfo& fileInfo )
 {
-	path = StringUtil::toLowercase( path ) + "[" + std::to_string( indexInFile ) + "]";
+    const float timeout = 60.0f;
+
+    if ( !isLoadedOrLoading( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ) )
+        load( fileInfo );
+
+    return getWhenLoaded( fileInfo.getAssetType(), fileInfo.getPath( ), fileInfo.getIndexInFile( ), timeout );
+}
+
+std::shared_ptr<Asset> AssetManager::getWhenLoaded( Asset::Type type, std::string path, const int indexInFile, const float timeout )
+{
+    std::string id = getId( type, path, indexInFile );
 
 	std::unordered_map< std::string, std::shared_ptr<Asset> >::iterator it;
 
@@ -136,7 +159,7 @@ std::shared_ptr<Asset> AssetManager::getWhenLoaded( std::string path, const int 
 
 	while (true) {
 		// Check if the asset is loaded.
-		it = loadedAssets.find( path );
+        it = loadedAssets.find( id );
 		if ( it != loadedAssets.end() )
 			return it->second;
 
@@ -175,8 +198,6 @@ void AssetManager::loadAssetsFromDisk() {
 
 		OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - loading \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
-		std::string path = StringUtil::toLowercase( fileInfo->getPath( ) ) + "[" + std::to_string( fileInfo->getIndexInFile() ) + "]";
-
 		// Load file from disk.
 		try {
 			if ( fileInfo->getFileType() == FileInfo::FileType::Textual )
@@ -187,9 +208,11 @@ void AssetManager::loadAssetsFromDisk() {
 			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - loaded \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
 		} catch ( std::exception& ex ) {
+            std::string id = getId( fileInfo->getAssetType( ), fileInfo->getPath( ), fileInfo->getIndexInFile( ) );
+
 			// If asset failed to load - remove it from assets.
 			std::lock_guard<std::mutex> assetsLock( assetsMutex );
-			assets.erase( path );
+			assets.erase( id );
 
 			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - failed to load \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
@@ -247,7 +270,7 @@ void AssetManager::loadAssets()
                 const float subAssetLoadTimeout = 60.0f;
                 for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
                     if ( !subAsset->getFileInfo().getPath().empty() ) {
-                        std::shared_ptr<Asset> newSubAsset = getWhenLoaded( subAsset->getFileInfo().getPath(), subAsset->getFileInfo().getIndexInFile(), subAssetLoadTimeout );
+                        std::shared_ptr<Asset> newSubAsset = getWhenLoaded( subAsset->getFileInfo( ).getAssetType(), subAsset->getFileInfo( ).getPath( ), subAsset->getFileInfo( ).getIndexInFile( ), subAssetLoadTimeout );
 
                         asset->swapSubAsset( subAsset, newSubAsset );
                     }
@@ -271,8 +294,8 @@ void AssetManager::loadAssets()
 			// Add asset to a list of assets.
 
 			//#TODO: handle paths for files with multiple meshes inside.
-			std::string path = StringUtil::toLowercase( assetToLoad.fileInfo->getPath( ) ) + "["+ std::to_string( assetToLoad.fileInfo->getIndexInFile() ) + "]";
-			loadedAssets.insert( std::make_pair( path, asset ) );
+            std::string id = getId( assetToLoad.fileInfo->getAssetType( ), assetToLoad.fileInfo->getPath( ), assetToLoad.fileInfo->getIndexInFile() );
+			loadedAssets.insert( std::make_pair( id, asset ) );
 		}
 
 		// Notify 'getWhenLoaded' method that an asset has just been loaded.
@@ -296,12 +319,12 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
 
 			std::shared_ptr<const SkeletonMesh> referenceMesh;
 			{ // Get or load the reference mesh.
-				const bool meshLoadedOrLoading = isLoadedOrLoading( animFileInfo.getMeshFileInfo().getPath(), animFileInfo.getMeshFileInfo().getIndexInFile() );
+                const bool meshLoadedOrLoading = isLoadedOrLoading( animFileInfo.getMeshFileInfo( ).getAssetType(), animFileInfo.getMeshFileInfo( ).getPath( ), animFileInfo.getMeshFileInfo( ).getIndexInFile( ) );
 				if ( !meshLoadedOrLoading )
 					loadAsync( animFileInfo.getMeshFileInfo() );
 
 				const float loadTimeout = 60.0f;
-				std::shared_ptr<const Asset> mesh = getWhenLoaded( animFileInfo.getMeshFileInfo().getPath(), animFileInfo.getMeshFileInfo().getIndexInFile(), loadTimeout );
+                std::shared_ptr<const Asset> mesh = getWhenLoaded( animFileInfo.getMeshFileInfo( ).getAssetType(), animFileInfo.getMeshFileInfo( ).getPath( ), animFileInfo.getMeshFileInfo( ).getIndexInFile( ), loadTimeout );
 				referenceMesh = mesh->getType() == Asset::Type::SkeletonMesh ? std::static_pointer_cast<const SkeletonMesh>( mesh ) : nullptr;
 			}
 
@@ -346,12 +369,12 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 
 			std::shared_ptr<const SkeletonMesh> referenceMesh;
 			{ // Get or load the reference mesh.
-				const bool meshLoadedOrLoading = isLoadedOrLoading( animFileInfo.getMeshFileInfo().getPath(), animFileInfo.getMeshFileInfo().getIndexInFile() );
+                const bool meshLoadedOrLoading = isLoadedOrLoading( animFileInfo.getMeshFileInfo( ).getAssetType( ), animFileInfo.getMeshFileInfo( ).getPath( ), animFileInfo.getMeshFileInfo( ).getIndexInFile( ) );
 				if ( !meshLoadedOrLoading )
 					loadAsync( animFileInfo.getMeshFileInfo() );
 
 				const float loadTimeout = 60.0f;
-				std::shared_ptr<const Asset> mesh = getWhenLoaded( animFileInfo.getMeshFileInfo().getPath(), animFileInfo.getMeshFileInfo().getIndexInFile(), loadTimeout );
+                std::shared_ptr<const Asset> mesh = getWhenLoaded( animFileInfo.getMeshFileInfo( ).getAssetType( ), animFileInfo.getMeshFileInfo( ).getPath( ), animFileInfo.getMeshFileInfo( ).getIndexInFile( ), loadTimeout );
 				referenceMesh = mesh->getType() == Asset::Type::SkeletonMesh ? std::static_pointer_cast<const SkeletonMesh>( mesh ) : nullptr;
 			}
 
@@ -368,4 +391,9 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		default:
 			throw std::exception( "AssetManager::createFromMemory - asset type not yet supported." );
 	}
+}
+
+std::string AssetManager::getId( Asset::Type type, const std::string path, const int indexInFile )
+{
+    return "(" + Asset::toString(type) + ") " + StringUtil::toLowercase( path ) + " [" + std::to_string( indexInFile ) + "]";
 }

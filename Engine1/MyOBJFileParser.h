@@ -10,31 +10,36 @@
 #include "uint2.h"
 #include "uint3.h"
 
-class BlockMesh;
 
-class MyOBJFileParser
+
+namespace Engine1
 {
-private:
-	MyOBJFileParser( );
-	~MyOBJFileParser( );
+    class BlockMesh;
 
-public:
-	static std::shared_ptr<BlockMesh> parseBlockMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
+    class MyOBJFileParser
+    {
+        private:
+        MyOBJFileParser();
+        ~MyOBJFileParser();
 
-private:
-	static const int reusedVerticesMaxChecksCount = 50;
+        public:
+        static std::shared_ptr<BlockMesh> parseBlockMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
 
-	static float2 parseFloat2( std::vector<char>::const_iterator& it );
-	static float3 parseFloat3( std::vector<char>::const_iterator& it );
+        private:
+        static const int reusedVerticesMaxChecksCount = 50;
 
-	static uint3 parseVertexTexcoordNormalIndices( std::vector<char>::const_iterator& it );
-	static uint2 parseVertexTexcoordIndices( std::vector<char>::const_iterator& it );
-	static uint2 parseVertexNormalIndices( std::vector<char>::const_iterator& it );
-	static unsigned int parseVertexIndex( std::vector<char>::const_iterator& it );
+        static float2 parseFloat2( std::vector<char>::const_iterator& it );
+        static float3 parseFloat3( std::vector<char>::const_iterator& it );
 
-	static std::tuple<bool, unsigned int> lookForReusedVertex( uint3 vertexTexcoordNormalIndices, std::vector<uint3>::const_iterator vertexTexcoordNormalIndicesArrayEnd, std::vector<uint3>::const_iterator vertexTexcoordNormalIndicesArrayBegin );
-	static std::tuple<bool, unsigned int> lookForReusedVertex( uint2 vertexTexcoordOrNormalIndices, std::vector<uint2>::const_iterator vertexTexcoordOrNormalIndicesArrayEnd, std::vector<uint2>::const_iterator vertexTexcoordOrNormalIndicesArrayBegin );
-	static std::tuple<bool, unsigned int> lookForReusedVertex( unsigned int vertexIndices, std::vector<unsigned int>::const_iterator vertexIndicesArrayEnd, std::vector<unsigned int>::const_iterator vertexIndicesArrayBegin );
+        static uint3 parseVertexTexcoordNormalIndices( std::vector<char>::const_iterator& it );
+        static uint2 parseVertexTexcoordIndices( std::vector<char>::const_iterator& it );
+        static uint2 parseVertexNormalIndices( std::vector<char>::const_iterator& it );
+        static unsigned int parseVertexIndex( std::vector<char>::const_iterator& it );
 
-};
+        static std::tuple<bool, unsigned int> lookForReusedVertex( uint3 vertexTexcoordNormalIndices, std::vector<uint3>::const_iterator vertexTexcoordNormalIndicesArrayEnd, std::vector<uint3>::const_iterator vertexTexcoordNormalIndicesArrayBegin );
+        static std::tuple<bool, unsigned int> lookForReusedVertex( uint2 vertexTexcoordOrNormalIndices, std::vector<uint2>::const_iterator vertexTexcoordOrNormalIndicesArrayEnd, std::vector<uint2>::const_iterator vertexTexcoordOrNormalIndicesArrayBegin );
+        static std::tuple<bool, unsigned int> lookForReusedVertex( unsigned int vertexIndices, std::vector<unsigned int>::const_iterator vertexIndicesArrayEnd, std::vector<unsigned int>::const_iterator vertexIndicesArrayBegin );
+
+    };
+}
 

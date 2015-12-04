@@ -5,6 +5,7 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
 
 RenderTargetTexture2D::RenderTargetTexture2D( int width, int height, ID3D11Device& device ) :
 Texture2D(),

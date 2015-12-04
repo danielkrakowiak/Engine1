@@ -1,5 +1,6 @@
 #include "ComplexModel.h"
 
+using namespace Engine1;
 
 ComplexModel::ComplexModel() {}
 

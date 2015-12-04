@@ -4,6 +4,7 @@
 #include "float44.h"
 #include "MathUtil.h"
 
+using namespace Engine1;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 //TODO: tests to add

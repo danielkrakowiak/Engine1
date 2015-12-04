@@ -12,6 +12,8 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
+
 using Microsoft::WRL::ComPtr;
 
 Direct3DRendererCore::Direct3DRendererCore() :

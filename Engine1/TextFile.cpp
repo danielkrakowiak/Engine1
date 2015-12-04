@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+using namespace Engine1;
+
 std::shared_ptr< std::vector<char> > TextFile::load( const std::string& path ) {
 
 	std::ifstream file;

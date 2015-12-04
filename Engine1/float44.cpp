@@ -2,6 +2,8 @@
 
 #include "MathUtil.h"
 
+using namespace Engine1;
+
 const float44 float44::IDENTITY(
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
@@ -55,7 +57,8 @@ float44 float44::lerp( const float44& from, const float44& to, const float facto
 	}
 }
 
-float4 operator * ( const float4& a, const float44& b ) {
+float4 Engine1::operator * (const float4& a, const float44& b)
+{
 	return
 		float4(
 		a.x * b.m11 + a.y * b.m21 + a.z * b.m31 + a.w * b.m41,
@@ -65,7 +68,8 @@ float4 operator * ( const float4& a, const float44& b ) {
 		);
 }
 
-float44 operator * ( const float value, const float44& b ) {
+float44 Engine1::operator * (const float value, const float44& b)
+{
 	return
 		float44(
 		b.m11 * value, b.m12 * value, b.m13 * value, b.m14 * value,

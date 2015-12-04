@@ -3,6 +3,8 @@
 #include "ModelTexture2D.h"
 #include "BinaryFile.h"
 
+using namespace Engine1;
+
 std::shared_ptr<ModelTexture2D> ModelTexture2DParser::parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently )
 {
 	std::shared_ptr<ModelTexture2D> modelTexture = std::make_shared<ModelTexture2D>( );

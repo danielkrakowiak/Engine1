@@ -3,6 +3,8 @@
 #include "BinaryFile.h"
 #include "SkeletonModelParser.h"
 
+using namespace Engine1;
+
 std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );

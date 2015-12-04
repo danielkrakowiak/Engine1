@@ -10,6 +10,8 @@
 
 #include "TextFile.h"
 
+using namespace Engine1;
+
 std::shared_ptr<SkeletonAnimation> SkeletonAnimation::createFromFile( const std::string& path, const SkeletonAnimationFileInfo::Format format, const SkeletonMesh& mesh, const bool invertZCoordinate )
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
@@ -111,7 +113,7 @@ SkeletonPose SkeletonAnimation::getInterpolatedPose( float progress )
 {
 	const float frame               = progress * (float)( skeletonPoses.size() - 1 );
 	const unsigned int prevKeyframe = std::max( 0u, (unsigned int)frame );
-	const unsigned int nextKeyframe = std::min( skeletonPoses.size( ) - 1, (unsigned int)frame + 1 );
+    const unsigned int nextKeyframe = std::min( (unsigned int)skeletonPoses.size( ) - 1, (unsigned int)frame + 1 );
 	const float fraction            = frame - (float)prevKeyframe;
 
 	if ( prevKeyframe == nextKeyframe )

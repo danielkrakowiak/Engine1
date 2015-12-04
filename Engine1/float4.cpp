@@ -2,9 +2,12 @@
 
 #include "float3.h"
 
+using namespace Engine1;
+
 float4::float4(const float3& a, float w) : x(a.x), y(a.y), z(a.z), w(w) {}
 
-float4 operator * (const float value, const float4& vec) {
+float4 Engine1::operator * (const float value, const float4& vec)
+{
 	return float4(vec.x * value, vec.y * value, vec.z * value, vec.w * value);
 }
 

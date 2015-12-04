@@ -3,6 +3,8 @@
 #include "BinaryFile.h"
 #include "BlockMeshFileInfo.h"
 
+using namespace Engine1;
+
 std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfoParser::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	std::shared_ptr<BlockMeshFileInfo> fileInfo = std::make_shared<BlockMeshFileInfo>( );

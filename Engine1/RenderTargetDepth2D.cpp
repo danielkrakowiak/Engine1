@@ -4,6 +4,8 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
+
 RenderTargetDepth2D::RenderTargetDepth2D() :
 depthRenderTarget( nullptr )
 {}

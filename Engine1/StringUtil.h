@@ -3,21 +3,25 @@
 #include <string>
 #include <locale>
 
-namespace StringUtil {
-	
-	//use when converting UTF-8 to WinAPI UTF-16 functions
-	std::wstring widen( const char *s );
-	std::wstring widen( const std::string &s );
+namespace Engine1
+{
+    namespace StringUtil
+    {
 
-	//use when converting text received from WinAPI UTF-16 to UTF-8
-	std::string narrow( const wchar_t *s );
-	std::string narrow( const std::wstring &s );
+        //use when converting UTF-8 to WinAPI UTF-16 functions
+        std::wstring widen( const char *s );
+        std::wstring widen( const std::string &s );
 
-	std::string toLowercase( const std::string& str );
+        //use when converting text received from WinAPI UTF-16 to UTF-8
+        std::string narrow( const wchar_t *s );
+        std::string narrow( const std::wstring &s );
 
-	std::string toUppercase( const std::string& str );
+        std::string toLowercase( const std::string& str );
 
-	extern std::locale locale;
-	extern const std::string localeName;
+        std::string toUppercase( const std::string& str );
 
-};
+        extern std::locale locale;
+        extern const std::string localeName;
+
+    };
+}

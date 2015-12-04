@@ -94,33 +94,33 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
-    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;$(LibraryPath);F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+    <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</IncludePath>
+    <LibraryPath>F:\Biblioteki\freetype-2.6\objs\vc2010\Win32;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
-    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;$(LibraryPath);F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+    <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</IncludePath>
+    <LibraryPath>F:\Biblioteki\freetype-2.6\objs\vc2010\x64;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
-    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;$(LibraryPath);F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+    <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</IncludePath>
+    <LibraryPath>F:\Biblioteki\freetype-2.6\objs\vc2010\Win32;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
-    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;$(LibraryPath);F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+    <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</IncludePath>
+    <LibraryPath>F:\Biblioteki\freetype-2.6\objs\vc2010\x64;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
-    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;;F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+    <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</IncludePath>
+    <LibraryPath>F:\Biblioteki\freetype-2.6\objs\vc2010\Win32;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;F:\Biblioteki\freetype-2.3.5-1-bin\include\freetype2;F:\Biblioteki\freetype-2.3.5-1-bin\include</IncludePath>
-    <LibraryPath>F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist;F:\Biblioteki\FreeImage\Dist;;F:\Biblioteki\freetype-2.3.5-1-bin\lib</LibraryPath>
+    <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</IncludePath>
+    <LibraryPath>F:\Biblioteki\freetype-2.6\objs\vc2010\x64;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -131,11 +131,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>false</TreatWarningAsError>
       <BrowseInformation>true</BrowseInformation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26d.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -151,11 +152,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>false</TreatWarningAsError>
       <BrowseInformation>true</BrowseInformation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26d.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -170,11 +172,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG_DIRECT3D;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -186,12 +189,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG_DIRECT3D;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\DebugDirect3D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -210,7 +214,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -229,7 +233,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -454,7 +459,7 @@
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
-    <ClInclude Include="Scene.h" />
+    <ClInclude Include="CScene.h" />
     <ClInclude Include="SkeletonActor.h" />
     <ClInclude Include="SkeletonAnimationFileInfo.h" />
     <ClInclude Include="SkeletonAnimationFileInfoParser.h" />
@@ -684,6 +689,7 @@
     <ClCompile Include="..\..\..\Biblioteki\assimp-3.1.1\contrib\zlib\zutil.c" />
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Asset.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BinaryFile.cpp" />
     <ClCompile Include="BlockActor.cpp" />
@@ -704,7 +710,7 @@
     <ClCompile Include="Direct3DRendererCore.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
-    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="CScene.cpp" />
     <ClCompile Include="SkeletonActor.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfo.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfoParser.cpp" />
@@ -811,6 +817,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonMeshShader\vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -818,16 +825,21 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonModelShader\ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonModelShader\vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\TextShader\ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -849,11 +861,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\TextureShader\vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

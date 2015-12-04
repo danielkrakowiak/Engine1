@@ -4,6 +4,8 @@
 
 #include "Direct3DUtil.h"
 
+using namespace Engine1;
+
 RectangleMesh::RectangleMesh()
 {
 	{ // Create vertices.

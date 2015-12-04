@@ -11,6 +11,7 @@
 
 #include "float44.h"
 
+using namespace Engine1;
 
 std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {

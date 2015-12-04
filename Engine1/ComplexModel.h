@@ -7,21 +7,25 @@
 
 //#TODO: add copy ctor
 
-class ComplexModel {
+namespace Engine1
+{
+    class ComplexModel
+    {
 
-public:
-	ComplexModel();
-	~ComplexModel();
+        public:
+        ComplexModel();
+        ~ComplexModel();
 
-	std::shared_ptr<BlockModel>& getModelLOD( float distance );
-	std::shared_ptr<BlockMesh>& getShadowMeshLOD( float distance );
+        std::shared_ptr<BlockModel>& getModelLOD( float distance );
+        std::shared_ptr<BlockMesh>& getShadowMeshLOD( float distance );
 
-private:
+        private:
 
-	std::vector<BlockModelLOD> modelLODs;
-	std::vector<BlockMeshLOD> shadowMeshLODs;
+        std::vector<BlockModelLOD> modelLODs;
+        std::vector<BlockMeshLOD> shadowMeshLODs;
 
-	// Copying is not allowed.
-	ComplexModel& operator=( const ComplexModel& ) = delete;
-};
+        // Copying is not allowed.
+        ComplexModel& operator=(const ComplexModel&) = delete;
+    };
+}
 

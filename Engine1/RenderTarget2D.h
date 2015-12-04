@@ -7,27 +7,31 @@
 struct ID3D11RenderTargetView;
 struct ID3D11DeviceContext;
 
-class RenderTarget2D {
+namespace Engine1
+{
+    class RenderTarget2D
+    {
 
-	public:
+        public:
 
-	RenderTarget2D();
-	~RenderTarget2D();
+        RenderTarget2D();
+        ~RenderTarget2D();
 
-	void initialize( ID3D11RenderTargetView& renderTarget );
+        void initialize( ID3D11RenderTargetView& renderTarget );
 
-	virtual void clearOnGpu( float4 colorRGBA, ID3D11DeviceContext& deviceContext );
+        virtual void clearOnGpu( float4 colorRGBA, ID3D11DeviceContext& deviceContext );
 
-	virtual ID3D11RenderTargetView* getRenderTarget();
+        virtual ID3D11RenderTargetView* getRenderTarget();
 
-	protected:
+        protected:
 
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTarget;
+        Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTarget;
 
-	private:
+        private:
 
-	// Copying is not allowed.
-	RenderTarget2D( const RenderTarget2D& ) = delete;
-	RenderTarget2D& operator=( const RenderTarget2D& ) = delete;
-};
+        // Copying is not allowed.
+        RenderTarget2D( const RenderTarget2D& ) = delete;
+        RenderTarget2D& operator=(const RenderTarget2D&) = delete;
+    };
+}
 

@@ -20,9 +20,6 @@
 
 #include "Font.h"
 
-class Direct3DRendererCore;
-class RenderTarget2D;
-
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct IDXGIAdapter;
@@ -31,72 +28,79 @@ struct ID3D11RenderTargetView;
 struct ID3D11RasterizerState;
 struct ID3D11BlendState;
 
-class Direct3DFrameRenderer {
+namespace Engine1
+{
+    class Direct3DRendererCore;
+    class RenderTarget2D;
 
-	public:
+    class Direct3DFrameRenderer
+    {
 
-	Direct3DFrameRenderer( Direct3DRendererCore& rendererCore );
-	~Direct3DFrameRenderer();
+        public:
 
-	void initialize( HWND windowHandle, int screenWidth, int screenHeight, bool fullscreen, bool verticalSync );
-	
-	void reportLiveObjects();
+        Direct3DFrameRenderer( Direct3DRendererCore& rendererCore );
+        ~Direct3DFrameRenderer();
 
-	void renderTexture( const Texture2D& texture, float posX, float posY );
+        void initialize( HWND windowHandle, int screenWidth, int screenHeight, bool fullscreen, bool verticalSync );
 
-	void displayFrame( );
+        void reportLiveObjects();
 
-	ID3D11Device& getDevice();
-	ID3D11DeviceContext& getDeviceContext();
+        void renderTexture( const Texture2D& texture, float posX, float posY );
 
-	private:
+        void displayFrame();
 
-	Direct3DRendererCore& rendererCore;
+        ID3D11Device& getDevice();
+        ID3D11DeviceContext& getDeviceContext();
 
-	// Initalization.
-	std::tuple<int, int>    getRefreshRateNumeratorDenominator( IDXGIAdapter& adapter, unsigned int screenWidth, unsigned int screenHeight );
-	std::string             getGpuDescription( IDXGIAdapter& adapter );
-	size_t                  getGpuMemory( IDXGIAdapter& adapter );
+        private:
 
-	std::tuple< Microsoft::WRL::ComPtr<IDXGISwapChain>, Microsoft::WRL::ComPtr<ID3D11Device>, Microsoft::WRL::ComPtr<ID3D11DeviceContext> > 
-		createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator );
-	
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> createRenderTargetView( IDXGISwapChain& swapChain, ID3D11Device& device );
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState>  createRasterizerState( ID3D11Device& device );
-	Microsoft::WRL::ComPtr<ID3D11BlendState>       createBlendState( ID3D11Device& device );
+        Direct3DRendererCore& rendererCore;
 
-	bool initialized;
+        // Initalization.
+        std::tuple<int, int>    getRefreshRateNumeratorDenominator( IDXGIAdapter& adapter, unsigned int screenWidth, unsigned int screenHeight );
+        std::string             getGpuDescription( IDXGIAdapter& adapter );
+        size_t                  getGpuMemory( IDXGIAdapter& adapter );
 
-	bool fullscreen;
-	int screenWidth, screenHeight;
-	bool verticalSync;
+        std::tuple< Microsoft::WRL::ComPtr<IDXGISwapChain>, Microsoft::WRL::ComPtr<ID3D11Device>, Microsoft::WRL::ComPtr<ID3D11DeviceContext> >
+            createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator );
 
-	size_t gpuMemory;
-	std::string gpuDescription;
+        Microsoft::WRL::ComPtr<ID3D11RenderTargetView> createRenderTargetView( IDXGISwapChain& swapChain, ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState>  createRasterizerState( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>       createBlendState( ID3D11Device& device );
 
-	Microsoft::WRL::ComPtr<ID3D11Device>          device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext>   deviceContext;
-	Microsoft::WRL::ComPtr<IDXGISwapChain>        swapChain;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
-	Microsoft::WRL::ComPtr<ID3D11BlendState>      blendState;
-	
-	std::shared_ptr<RenderTarget2D> renderTarget;
+        bool initialized;
 
-	float44 orthographicProjectionMatrix;
+        bool fullscreen;
+        int screenWidth, screenHeight;
+        bool verticalSync;
 
-	// Default mesh.
-	RectangleMesh rectangleMesh;
+        size_t gpuMemory;
+        std::string gpuDescription;
 
-	// Shaders.
-	void loadAndCompileShaders( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11Device>          device;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext>   deviceContext;
+        Microsoft::WRL::ComPtr<IDXGISwapChain>        swapChain;
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      blendState;
 
-	TextureVertexShader   textureVertexShader;
-	TextureFragmentShader textureFragmentShader;
-	TextVertexShader      textVertexShader;
-	TextFragmentShader    textFragmentShader;
+        std::shared_ptr<RenderTarget2D> renderTarget;
 
-	// Copying is not allowed.
-	Direct3DFrameRenderer( const Direct3DFrameRenderer& ) = delete;
-	Direct3DFrameRenderer& operator=( const Direct3DFrameRenderer& ) = delete;
-};
+        float44 orthographicProjectionMatrix;
+
+        // Default mesh.
+        RectangleMesh rectangleMesh;
+
+        // Shaders.
+        void loadAndCompileShaders( ID3D11Device& device );
+
+        TextureVertexShader   textureVertexShader;
+        TextureFragmentShader textureFragmentShader;
+        TextVertexShader      textVertexShader;
+        TextFragmentShader    textFragmentShader;
+
+        // Copying is not allowed.
+        Direct3DFrameRenderer( const Direct3DFrameRenderer& ) = delete;
+        Direct3DFrameRenderer& operator=(const Direct3DFrameRenderer&) = delete;
+    };
+}
 

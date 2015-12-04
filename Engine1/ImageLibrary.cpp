@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+using namespace Engine1;
+
 ImageLibrary::ImageLibrary() {
 	FreeImage_Initialise( );
 

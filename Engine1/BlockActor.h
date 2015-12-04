@@ -6,28 +6,31 @@
 
 #include "float43.h"
 
-class BlockModel;
-
-class BlockActor : public Actor
+namespace Engine1
 {
-    public:
+    class BlockModel;
 
-    BlockActor( std::shared_ptr<BlockModel> model, const float43& pose = float43::IDENTITY );
-    ~BlockActor();
+    class BlockActor : public Actor
+    {
+        public:
 
-    Type getType( ) const;
+        BlockActor( std::shared_ptr<BlockModel> model, const float43& pose = float43::IDENTITY );
+        ~BlockActor();
 
-    const float43&                    getPose() const;
-    float43&                          getPose();
-    std::shared_ptr<const BlockModel> getModel() const;
-    std::shared_ptr<BlockModel>       getModel();
+        Type getType() const;
 
-    void setPose( const float43& pose );
-    void setModel( std::shared_ptr<BlockModel> model );
+        const float43&                    getPose() const;
+        float43&                          getPose();
+        std::shared_ptr<const BlockModel> getModel() const;
+        std::shared_ptr<BlockModel>       getModel();
 
-    private:
+        void setPose( const float43& pose );
+        void setModel( std::shared_ptr<BlockModel> model );
 
-    float43 pose;
-    std::shared_ptr<BlockModel> model;
-};
+        private:
+
+        float43 pose;
+        std::shared_ptr<BlockModel> model;
+    };
+}
 

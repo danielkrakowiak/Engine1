@@ -8,6 +8,8 @@
 #include <d3d11.h>
 #include <d3dx11async.h>
 
+using namespace Engine1;
+
 using Microsoft::WRL::ComPtr;
 
 SkeletonMeshVertexShader::SkeletonMeshVertexShader( ) :

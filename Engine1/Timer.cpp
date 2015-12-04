@@ -1,5 +1,7 @@
 #include "Timer.h"
 
+using namespace Engine1;
+
 double Timer::timerFrequencyInKHz = getTimerFrequencyInKHz( );
 
 double Timer::getTimerFrequencyInKHz( ) {

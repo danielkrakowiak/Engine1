@@ -1,5 +1,6 @@
 #include "BlockActor.h"
 
+using namespace Engine1;
 
 BlockActor::BlockActor( std::shared_ptr<BlockModel> model, const float43& pose ) :
     model( model ),

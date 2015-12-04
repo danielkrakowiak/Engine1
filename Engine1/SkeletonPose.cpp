@@ -6,6 +6,8 @@
 
 #include "MathUtil.h"
 
+using namespace Engine1;
+
 SkeletonPose SkeletonPose::createIdentityPoseInSkeletonSpace( const SkeletonMesh& skeletonMesh )
 {
     return calculatePoseInSkeletonSpace( createIdentityPoseInParentSpace( skeletonMesh ), skeletonMesh );

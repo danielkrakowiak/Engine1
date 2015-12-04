@@ -1,5 +1,7 @@
 #include "SkeletonMeshEnums.h"
 
+using namespace Engine1;
+
 const std::array<BonesPerVertexCount::Type, 4> BonesPerVertexCount::values = {
 	BonesPerVertexCount::Type::ZERO, 
 	BonesPerVertexCount::Type::ONE,

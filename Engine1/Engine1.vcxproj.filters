@@ -223,6 +223,9 @@
     <Filter Include="Source Files\Actor">
       <UniqueIdentifier>{18ff996e-763b-44b3-a2dd-d141099c3e43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Asset">
+      <UniqueIdentifier>{12e5e566-64c1-429a-be32-6ad5abbfdeed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1059,9 +1062,6 @@
     <ClInclude Include="SkeletonAnimationFileInfoParser.h">
       <Filter>Header Files\Mesh\Parsers</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="SkeletonActor.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
@@ -1070,6 +1070,9 @@
     </ClInclude>
     <ClInclude Include="Actor.h">
       <Filter>Header Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="CScene.h">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1796,9 +1799,6 @@
     <ClCompile Include="SkeletonAnimationFileInfoParser.cpp">
       <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="BlockActor.cpp">
       <Filter>Source Files\Actor</Filter>
     </ClCompile>
@@ -1807,6 +1807,12 @@
     </ClCompile>
     <ClCompile Include="Actor.cpp">
       <Filter>Source Files\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="Asset.cpp">
+      <Filter>Source Files\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="CScene.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

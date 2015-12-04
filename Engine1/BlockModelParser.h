@@ -4,16 +4,19 @@
 #include <vector>
 #include <memory>
 
-class BlockModel;
-
-class BlockModelParser
+namespace Engine1
 {
-	friend class BlockModel;
+    class BlockModel;
 
-	private:
-	static std::shared_ptr<BlockModel> parseBinary( const std::vector<char>& data, const bool loadRecurrently );
-	static void                        writeBinary( std::vector<char>& data, const BlockModel& model );
+    class BlockModelParser
+    {
+        friend class BlockModel;
 
-	static std::string fileTypeIdentifier;
-};
+        private:
+        static std::shared_ptr<BlockModel> parseBinary( const std::vector<char>& data, const bool loadRecurrently );
+        static void                        writeBinary( std::vector<char>& data, const BlockModel& model );
+
+        static std::string fileTypeIdentifier;
+    };
+}
 

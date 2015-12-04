@@ -13,6 +13,8 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
+
 using Microsoft::WRL::ComPtr;
 
 std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromFile( const SkeletonMeshFileInfo& fileInfo )

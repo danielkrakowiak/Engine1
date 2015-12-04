@@ -4,6 +4,8 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
+
 RenderTarget2D::RenderTarget2D()
 {}
 

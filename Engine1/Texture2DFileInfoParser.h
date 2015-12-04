@@ -3,14 +3,17 @@
 #include <vector>
 #include <memory>
 
-class Texture2DFileInfo;
-
-class Texture2DFileInfoParser
+namespace Engine1
 {
-	friend class Texture2DFileInfo;
+    class Texture2DFileInfo;
 
-	private:
-	static std::shared_ptr<Texture2DFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
-	static void                               writeBinary( std::vector<char>& data, const Texture2DFileInfo& fileInfo );
-};
+    class Texture2DFileInfoParser
+    {
+        friend class Texture2DFileInfo;
+
+        private:
+        static std::shared_ptr<Texture2DFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
+        static void                               writeBinary( std::vector<char>& data, const Texture2DFileInfo& fileInfo );
+    };
+}
 

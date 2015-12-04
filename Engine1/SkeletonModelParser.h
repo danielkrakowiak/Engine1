@@ -4,16 +4,19 @@
 #include <vector>
 #include <memory>
 
-class SkeletonModel;
-
-class SkeletonModelParser
+namespace Engine1
 {
-	friend class SkeletonModel;
+    class SkeletonModel;
 
-	private:
-	static std::shared_ptr<SkeletonModel> parseBinary( const std::vector<char>& data, const bool loadRecurrently );
-	static void                           writeBinary( std::vector<char>& data, const SkeletonModel& model );
+    class SkeletonModelParser
+    {
+        friend class SkeletonModel;
 
-	static std::string fileTypeIdentifier;
-};
+        private:
+        static std::shared_ptr<SkeletonModel> parseBinary( const std::vector<char>& data, const bool loadRecurrently );
+        static void                           writeBinary( std::vector<char>& data, const SkeletonModel& model );
+
+        static std::string fileTypeIdentifier;
+    };
+}
 

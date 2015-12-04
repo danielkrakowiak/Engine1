@@ -10,6 +10,7 @@
 // Tests to add:
 // When uploaded a texture to GPU, removed from CPU - get width and other getters should not throw exception for valid mipmap levels.
 
+using namespace Engine1;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests

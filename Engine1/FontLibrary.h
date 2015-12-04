@@ -8,22 +8,28 @@ This class is used to initialize/deinitialize FreeType library.
 To initialize/deinitialize simply create a static field of that class in the main application class.
 */
 
-class FontLibrary {
-	friend class Application;
+class Application;
 
-	public:
+namespace Engine1
+{
+    class FontLibrary
+    {
+        friend class Application;
 
-	static FT_Library& get();
+        public:
 
-	private:
+        static FT_Library& get();
 
-	static FT_Library library;
+        private:
 
-	FontLibrary();
-	~FontLibrary();
+        static FT_Library library;
 
-	// Copying is not allowed.
-	FontLibrary( const FontLibrary& ) = delete;
-	FontLibrary& operator=( const FontLibrary& ) = delete;
-};
+        FontLibrary();
+        ~FontLibrary();
+
+        // Copying is not allowed.
+        FontLibrary( const FontLibrary& ) = delete;
+        FontLibrary& operator=(const FontLibrary&) = delete;
+    };
+}
 

@@ -4,6 +4,8 @@
 
 #include "float4.h"
 
+using namespace Engine1;
+
 std::shared_ptr< std::vector<char> > BinaryFile::load( const std::string& path )
 {
 

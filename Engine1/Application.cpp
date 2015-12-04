@@ -17,7 +17,7 @@
 
 #include "BlockActor.h"
 #include "SkeletonActor.h"
-#include "Scene.h"
+#include "CScene.h"
 
 #include "RenderTargetTexture2D.h"
 
@@ -28,6 +28,8 @@ Application* Application::windowsMessageReceiver = nullptr;
 // Initialize external libraries.
 ImageLibrary Application::imageLibrary;
 FontLibrary  Application::fontLibrary;
+
+using namespace Engine1;
 
 Application::Application() :
 	direct3DRendererCore(),
@@ -45,7 +47,8 @@ Application::Application() :
 	screenColorDepth( 32 ),
 	zBufferDepth( 32 ),
 	windowFocused( false ),
-    scene( std::make_shared<Scene>() )
+    scene( std::make_shared<CScene>() ),
+    assetManager( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1 )
 {
 	windowsMessageReceiver = this;
 }
@@ -145,7 +148,8 @@ void Application::run() {
 	MSG msg;
 
     // Add 'axis' actor to the scene.
-	std::shared_ptr<BlockMesh> axisMesh = BlockMesh::createFromFile( "../Engine1/Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, true, true, true ).front();
+    BlockMeshFileInfo axisMeshFileInfo( "../Engine1/Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
+    std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( axisMeshFileInfo ) );
 	axisMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
     std::shared_ptr<BlockActor> axisActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>() );
     axisActor->getModel()->setMesh( axisMesh );
@@ -456,7 +460,8 @@ void Application::onDragAndDropFile( std::string filePath )
 		if (      extension.compare( "obj" ) == 0 ) format = BlockMeshFileInfo::Format::OBJ;
 		else if ( extension.compare( "dae" ) == 0 ) format = BlockMeshFileInfo::Format::DAE;
 
-		std::shared_ptr<BlockMesh> mesh = BlockMesh::createFromFile( filePath, format, 0, false, false, false );
+        BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
+        std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( fileInfo ) );
 		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
         // Add new actor to the scene.
@@ -470,7 +475,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
 		if ( extension.compare( "dae" ) == 0 ) format = SkeletonMeshFileInfo::Format::DAE;
 
-		std::shared_ptr<SkeletonMesh> mesh = SkeletonMesh::createFromFile( filePath, format, 0, false, false, false );
+        SkeletonMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
+        std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>(assetManager.getOrLoad( fileInfo ));  
 		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
         // Add new actor to the scene.
@@ -492,7 +498,8 @@ void Application::onDragAndDropFile( std::string filePath )
 		else if ( extension.compare( "tga" ) == 0 )  format = Texture2DFileInfo::Format::TGA;
 		else if ( extension.compare( "tiff" ) == 0 ) format = Texture2DFileInfo::Format::TIFF;
 
-		std::shared_ptr<Texture2D> texture = Texture2D::createFromFile( filePath, format );
+        Texture2DFileInfo fileInfo( filePath, format );
+        std::shared_ptr<Texture2D> texture = std::static_pointer_cast<Texture2D>( assetManager.getOrLoad( fileInfo ) );
 		texture->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
 		if ( filePath.find( "_A" ) ) {
@@ -512,7 +519,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
     if ( isBlockModel ) {
 
-        std::shared_ptr<BlockModel> model = BlockModel::createFromFile( filePath, BlockModelFileInfo::Format::BLOCKMODEL, true );
+        BlockModelFileInfo fileInfo( filePath, BlockModelFileInfo::Format::BLOCKMODEL, 0 );
+        std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( assetManager.getOrLoad( fileInfo ) );
         model->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
         // Add new actor to the scene.
@@ -522,7 +530,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
     if ( isSkeletonModel ) {
 
-        std::shared_ptr<SkeletonModel> model = SkeletonModel::createFromFile( filePath, SkeletonModelFileInfo::Format::SKELETONMODEL, true );
+        SkeletonModelFileInfo fileInfo( filePath, SkeletonModelFileInfo::Format::SKELETONMODEL, 0 );
+        std::shared_ptr<SkeletonModel> model = std::static_pointer_cast<SkeletonModel>(assetManager.getOrLoad( fileInfo ));
         model->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
         // Add new actor to the scene.

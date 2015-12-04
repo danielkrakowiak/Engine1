@@ -3,6 +3,8 @@
 #include "BinaryFile.h"
 #include "BlockModelParser.h"
 
+using namespace Engine1;
+
 std::shared_ptr<BlockModel> BlockModel::createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently )
 {
 	return createFromFile( fileInfo.getPath(), fileInfo.getFormat(), loadRecurrently );

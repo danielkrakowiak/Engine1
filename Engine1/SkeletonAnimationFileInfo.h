@@ -7,47 +7,52 @@
 #include "FileInfo.h"
 #include "SkeletonMeshFileInfo.h"
 
-class SkeletonMesh;
 
-class SkeletonAnimationFileInfo : public FileInfo
+
+namespace Engine1
 {
-	public:
+    class SkeletonMesh;
 
-	enum class Format : char
-	{
-		XAF = 0
-	};
+    class SkeletonAnimationFileInfo : public FileInfo
+    {
+        public:
 
-	static std::shared_ptr<SkeletonAnimationFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
+        enum class Format : char
+        {
+            XAF = 0
+        };
 
-	SkeletonAnimationFileInfo( );
-	SkeletonAnimationFileInfo( std::string path, Format format, const SkeletonMeshFileInfo meshFileInfo, bool invertZCoordinate = false );
-	~SkeletonAnimationFileInfo( );
+        static std::shared_ptr<SkeletonAnimationFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
 
-	std::shared_ptr<FileInfo> clone() const;
+        SkeletonAnimationFileInfo();
+        SkeletonAnimationFileInfo( std::string path, Format format, const SkeletonMeshFileInfo meshFileInfo, bool invertZCoordinate = false );
+        ~SkeletonAnimationFileInfo();
 
-	void writeBinary( std::vector<char>& data ) const;
+        std::shared_ptr<FileInfo> clone() const;
 
-	void setPath( std::string path );
-	void setFormat( Format format );
-	void setMeshFileInfo( const SkeletonMeshFileInfo meshFileInfo );
-	void setInvertZCoordinate( bool invertZCoordinate );
-	
+        void writeBinary( std::vector<char>& data ) const;
 
-	Asset::Type          getAssetType() const;
-	FileType             getFileType() const;
-	std::string          getPath() const;
-	Format               getFormat() const;
-	int                  getIndexInFile( ) const;
-	SkeletonMeshFileInfo getMeshFileInfo( ) const;
-	bool                 getInvertZCoordinate() const;
+        void setPath( std::string path );
+        void setFormat( Format format );
+        void setMeshFileInfo( const SkeletonMeshFileInfo meshFileInfo );
+        void setInvertZCoordinate( bool invertZCoordinate );
 
-	private:
 
-	std::string path;
-	Format format;
-	SkeletonMeshFileInfo meshFileInfo;
-	bool invertZCoordinate;
-	
-};
+        Asset::Type          getAssetType() const;
+        FileType             getFileType() const;
+        std::string          getPath() const;
+        Format               getFormat() const;
+        int                  getIndexInFile() const;
+        SkeletonMeshFileInfo getMeshFileInfo() const;
+        bool                 getInvertZCoordinate() const;
+
+        private:
+
+        std::string path;
+        Format format;
+        SkeletonMeshFileInfo meshFileInfo;
+        bool invertZCoordinate;
+
+    };
+}
 

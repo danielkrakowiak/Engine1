@@ -1,5 +1,7 @@
 #include "FontLibrary.h"
 
+using namespace Engine1;
+
 FT_Library FontLibrary::library;
 
 FontLibrary::FontLibrary() {

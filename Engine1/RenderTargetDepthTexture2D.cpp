@@ -2,6 +2,8 @@
 
 #include <d3d11.h>
 
+using namespace Engine1;
+
 RenderTargetDepthTexture2D::RenderTargetDepthTexture2D( int width, int height, ID3D11Device& device ) :
 Texture2D(),
 RenderTargetDepth2D()

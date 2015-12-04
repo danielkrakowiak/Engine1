@@ -2,6 +2,7 @@
 
 #include <windows.h>
 
+using namespace Engine1;
 
 InputManager::InputManager() {
 	for ( int i = 0; i < keyboardKeyCount; ++i ) {

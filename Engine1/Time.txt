@@ -69,6 +69,9 @@ Thu 25.12.2014 - 7h - rewriting SkeletonPose to be independent from the space in
 Sat 27.12.2014 - 5h - finishing changes to SkeletonPose and XAFFileParser. Fixing constness of some methods and return values in BlockMesh and BlockModel.
 Sun 28.12.2014 - 3,5h - fixing constness of some methods and return values in SkeletonMesh, SkeletonModel. Fixing transformations in SkeletonPose::calculatePoseInParentSpace.
 --- December 2014 - 18h
+
+--- 2014 - 199h
+
 Sat 21.03.2015 - 2h - added transformation of normals in skeleton mesh shader. Added new test model for skeleton mesh.
 --- March 2015 - 2h
 Sun 19.04.2015 - 2h - refactoring. Removing loading assets methods from asset classes.
@@ -132,4 +135,9 @@ Thu 12.11.2015 - 3h - Added AssetManager::getWhenLoaded() method. Added 'perform
 Fri 13.11.2015 - 1h - Adding support for loading assets with sub-assets in AssetManager.
 Mon 16.11.2015 - 3h - Added support for loading assets with sub-assets in AssetManager.
 Sat 28.11.2015 - 9h - Loading/creating/combining new assets through drag&drop. Made SkeletonAnimation an asset. Fixed timeout values in some tests. Added tests for loading the animations. Added BlockActor and SkeletonActor classes.
-Sun 29.11.2015 - 4h - Added Scene class. Added option to drag&drop assets to the scene.
+Sun 29.11.2015 - 5h - Added Scene class. Added option to drag&drop assets to the scene. Using AssetManager in Application. Adding support for loading different types of assets (ex. BlockMesh and SkeletonMesh) from the same path in AssetManager.
+Mon 30.11.2015 - 1h - Putting all the classes in namespace Engine1.
+--- November 2015 - 46h
+Tue 01.12.2015 - 2h - Updated tests after changes to AssetManager. Fixing project configuration for x64. Downloaded new FreeImage library for x32 and x64.
+Wed 02.12.2015 - 3h - Fixed project config for x64 and Freetype library for x64. Fixed problem with loading a model through AssetManager which has sub-assets which were already loaded before.
+Fri 04.12.2015 - 1h - Fixed some AssetManager tests.

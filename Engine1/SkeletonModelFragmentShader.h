@@ -6,21 +6,24 @@
 
 struct ID3D11SamplerState;
 
-class SkeletonModelFragmentShader : public FragmentShader
+namespace Engine1
 {
-	public:
-	SkeletonModelFragmentShader( );
-	virtual ~SkeletonModelFragmentShader( );
+    class SkeletonModelFragmentShader : public FragmentShader
+    {
+        public:
+        SkeletonModelFragmentShader();
+        virtual ~SkeletonModelFragmentShader();
 
-	void compileFromFile( std::string path, ID3D11Device& device );
-	void setParameters( ID3D11DeviceContext& deviceContext, const Texture2D& albedoTexture );
-	void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void compileFromFile( std::string path, ID3D11Device& device );
+        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2D& albedoTexture );
+        void unsetParameters( ID3D11DeviceContext& deviceContext );
 
-	private:
+        private:
 
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
-	// Copying is not allowed.
-	SkeletonModelFragmentShader( const SkeletonModelFragmentShader& ) = delete;
-	SkeletonModelFragmentShader& operator=( const SkeletonModelFragmentShader& ) = delete;
-};
+        // Copying is not allowed.
+        SkeletonModelFragmentShader( const SkeletonModelFragmentShader& ) = delete;
+        SkeletonModelFragmentShader& operator=(const SkeletonModelFragmentShader&) = delete;
+    };
+}

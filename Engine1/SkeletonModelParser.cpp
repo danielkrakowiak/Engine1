@@ -4,6 +4,8 @@
 #include "SkeletonModel.h"
 #include "BinaryFile.h"
 
+using namespace Engine1;
+
 std::string SkeletonModelParser::fileTypeIdentifier = "BLOCKMODEL";
 
 std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( const std::vector<char>& data, const bool loadRecurrently )

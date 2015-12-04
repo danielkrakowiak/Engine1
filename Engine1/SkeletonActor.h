@@ -7,36 +7,39 @@
 #include "float43.h"
 #include "SkeletonPose.h"
 
-class SkeletonModel;
-
-class SkeletonActor : public Actor
+namespace Engine1
 {
-    public:
+    class SkeletonModel;
 
-    SkeletonActor( std::shared_ptr<SkeletonModel> model, const float43& pose = float43::IDENTITY );
-    SkeletonActor( std::shared_ptr<SkeletonModel> model, const float43& pose, const SkeletonPose& skeletonPose );
-    ~SkeletonActor( );
+    class SkeletonActor : public Actor
+    {
+        public:
 
-    Type getType( ) const;
+        SkeletonActor( std::shared_ptr<SkeletonModel> model, const float43& pose = float43::IDENTITY );
+        SkeletonActor( std::shared_ptr<SkeletonModel> model, const float43& pose, const SkeletonPose& skeletonPose );
+        ~SkeletonActor();
 
-    const float43&                       getPose() const;
-    float43&                             getPose();
-    const SkeletonPose&                  getSkeletonPose() const;
-    SkeletonPose&                        getSkeletonPose();
-    std::shared_ptr<const SkeletonModel> getModel() const;
-    std::shared_ptr<SkeletonModel>       getModel();
+        Type getType() const;
 
-    void setPose( const float43& pose );
-    void setSkeletonPose( const SkeletonPose& poseInSkeletonSpace );
-    void setModel( std::shared_ptr<SkeletonModel> model );
+        const float43&                       getPose() const;
+        float43&                             getPose();
+        const SkeletonPose&                  getSkeletonPose() const;
+        SkeletonPose&                        getSkeletonPose();
+        std::shared_ptr<const SkeletonModel> getModel() const;
+        std::shared_ptr<SkeletonModel>       getModel();
 
-    void resetSkeletonPose( );
+        void setPose( const float43& pose );
+        void setSkeletonPose( const SkeletonPose& poseInSkeletonSpace );
+        void setModel( std::shared_ptr<SkeletonModel> model );
 
-    private:
+        void resetSkeletonPose();
 
-    float43 pose;
-    SkeletonPose skeletonPose;
+        private:
 
-    std::shared_ptr<SkeletonModel> model;
-};
+        float43 pose;
+        SkeletonPose skeletonPose;
+
+        std::shared_ptr<SkeletonModel> model;
+    };
+}
 

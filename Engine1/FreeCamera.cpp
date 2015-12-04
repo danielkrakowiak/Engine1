@@ -2,6 +2,8 @@
 
 #include "MathUtil.h"
 
+using namespace Engine1;
+
 const float FreeCamera::defaultSpeedDamping = 40.0f; //per second
 const float FreeCamera::defaultSpeedAcceleration = 15.0f; //per second
 const float FreeCamera::defaultMaxSpeed = 100.0f; //per second
