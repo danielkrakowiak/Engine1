@@ -140,4 +140,6 @@ Mon 30.11.2015 - 1h - Putting all the classes in namespace Engine1.
 --- November 2015 - 46h
 Tue 01.12.2015 - 2h - Updated tests after changes to AssetManager. Fixing project configuration for x64. Downloaded new FreeImage library for x32 and x64.
 Wed 02.12.2015 - 3h - Fixed project config for x64 and Freetype library for x64. Fixed problem with loading a model through AssetManager which has sub-assets which were already loaded before.
-Fri 04.12.2015 - 1h - Fixed some AssetManager tests.
+Fri 04.12.2015 - 2h - Fixed some AssetManager tests. Adding saving Scene to a file.
+Sat 05.12.2015 - 6h - Adding saving/loading scene to/from a file. Added BlockModelFileInfoParser and SkeletonModelFileInfoParser. Added a param to loadCpuToGpu methods to allow loading only the assets which haven't been loaded yet.
+Sun 06.12.2015 - 2h - Fixed problem with missing file info for assets loaded asynchronously through AssetManager.

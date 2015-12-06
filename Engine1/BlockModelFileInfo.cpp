@@ -1,26 +1,29 @@
 #include "BlockModelFileInfo.h"
 
-//#include "BlockModelFileInfoParser.h"
+#include "BlockModelFileInfoParser.h"
 
 #include <memory>
 
 using namespace Engine1;
 
-//std::shared_ptr<BlockModelFileInfo> BlockModelFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
-//{
-//	return BlockModelFileInfoParser::parseBinary( dataIt );
-//}
+std::shared_ptr<BlockModelFileInfo> BlockModelFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
+{
+	return BlockModelFileInfoParser::parseBinary( dataIt );
+}
 
 BlockModelFileInfo::BlockModelFileInfo( ) :
 path( "" ),
-format( Format::BLOCKMODEL ),
-indexInFile( 0 )
+format( Format::BLOCKMODEL )
 {}
 
 BlockModelFileInfo::BlockModelFileInfo( std::string path, Format format, int indexInFile ) :
 path( path ),
-format( format ),
-indexInFile( indexInFile )
+format( format )
+{}
+
+BlockModelFileInfo::BlockModelFileInfo( const BlockModelFileInfo& obj ) :
+path( obj.path ),
+format( obj.format )
 {}
 
 BlockModelFileInfo::~BlockModelFileInfo( )
@@ -31,10 +34,10 @@ std::shared_ptr<FileInfo> BlockModelFileInfo::clone( ) const
 	return std::make_shared<BlockModelFileInfo>( *this );
 }
 
-//void BlockModelFileInfo::writeBinary( std::vector<char>& data ) const
-//{
-//	BlockModelFileInfoParser::writeBinary( data, *this );
-//}
+void BlockModelFileInfo::writeBinary( std::vector<char>& data ) const
+{
+	BlockModelFileInfoParser::writeBinary( data, *this );
+}
 
 void BlockModelFileInfo::setPath( std::string path )
 {
@@ -44,11 +47,6 @@ void BlockModelFileInfo::setPath( std::string path )
 void BlockModelFileInfo::setFormat( Format format )
 {
 	this->format = format;
-}
-
-void BlockModelFileInfo::setIndexInFile( int indexInFile )
-{
-	this->indexInFile = indexInFile;
 }
 
 Asset::Type BlockModelFileInfo::getAssetType( ) const
@@ -73,5 +71,5 @@ BlockModelFileInfo::Format BlockModelFileInfo::getFormat( ) const
 
 int BlockModelFileInfo::getIndexInFile( ) const
 {
-	return indexInFile;
+	return 0;
 }

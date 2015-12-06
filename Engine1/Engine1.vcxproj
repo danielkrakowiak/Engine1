@@ -448,6 +448,7 @@
     <ClInclude Include="BlockMeshFileInfoParser.h" />
     <ClInclude Include="BlockMeshVertexShader.h" />
     <ClInclude Include="BlockModelFileInfo.h" />
+    <ClInclude Include="BlockModelFileInfoParser.h" />
     <ClInclude Include="BlockModelParser.h" />
     <ClInclude Include="BlockModelFragmentShader.h" />
     <ClInclude Include="BlockModelLOD.h" />
@@ -460,12 +461,14 @@
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
     <ClInclude Include="CScene.h" />
+    <ClInclude Include="SceneParser.h" />
     <ClInclude Include="SkeletonActor.h" />
     <ClInclude Include="SkeletonAnimationFileInfo.h" />
     <ClInclude Include="SkeletonAnimationFileInfoParser.h" />
     <ClInclude Include="SkeletonMeshFileInfo.h" />
     <ClInclude Include="SkeletonMeshFileInfoParser.h" />
     <ClInclude Include="SkeletonModelFileInfo.h" />
+    <ClInclude Include="SkeletonModelFileInfoParser.h" />
     <ClInclude Include="SkeletonModelFragmentShader.h" />
     <ClInclude Include="SkeletonModelParser.h" />
     <ClInclude Include="SkeletonModelVertexShader.h" />
@@ -700,6 +703,7 @@
     <ClCompile Include="BlockMeshFileInfoParser.cpp" />
     <ClCompile Include="BlockMeshVertexShader.cpp" />
     <ClCompile Include="BlockModelFileInfo.cpp" />
+    <ClCompile Include="BlockModelFileInfoParser.cpp" />
     <ClCompile Include="BlockModelParser.cpp" />
     <ClCompile Include="BlockModelFragmentShader.cpp" />
     <ClCompile Include="BlockModelLOD.cpp" />
@@ -711,12 +715,14 @@
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
     <ClCompile Include="CScene.cpp" />
+    <ClCompile Include="SceneParser.cpp" />
     <ClCompile Include="SkeletonActor.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfo.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfoParser.cpp" />
     <ClCompile Include="SkeletonMeshFileInfo.cpp" />
     <ClCompile Include="SkeletonMeshFileInfoParser.cpp" />
     <ClCompile Include="SkeletonModelFileInfo.cpp" />
+    <ClCompile Include="SkeletonModelFileInfoParser.cpp" />
     <ClCompile Include="SkeletonModelFragmentShader.cpp" />
     <ClCompile Include="SkeletonModelParser.cpp" />
     <ClCompile Include="SkeletonModelVertexShader.cpp" />

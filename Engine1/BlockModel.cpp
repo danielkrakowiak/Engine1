@@ -14,7 +14,12 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path,
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-	return createFromMemory( *fileData, format, loadRecurrently );
+	std::shared_ptr<BlockModel> model = createFromMemory( *fileData, format, loadRecurrently );
+
+    model->getFileInfo( ).setPath( path );
+    model->getFileInfo( ).setFormat( format );
+
+    return model;
 }
 
 std::shared_ptr<BlockModel> BlockModel::createFromMemory( const std::vector<char>& fileData, const BlockModelFileInfo::Format format, const bool loadRecurrently )
@@ -126,15 +131,15 @@ void BlockModel::saveToFile( const std::string& path )
 	BinaryFile::save( path, data );
 }
 
-void BlockModel::loadCpuToGpu( ID3D11Device& device )
+void BlockModel::loadCpuToGpu( ID3D11Device& device, bool reload )
 {
 	if ( mesh )
-		mesh->loadCpuToGpu( device );
+		mesh->loadCpuToGpu( device, reload );
 
 	std::vector<ModelTexture2D> textures = getAllTextures();
 	for ( ModelTexture2D& texture : textures ) {
 		if ( texture.getTexture() )
-			texture.getTexture()->loadCpuToGpu( device );
+			texture.getTexture()->loadCpuToGpu( device, reload );
 	}
 }
 

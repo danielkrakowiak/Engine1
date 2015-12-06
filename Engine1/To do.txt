@@ -45,14 +45,9 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-Fix code or asseets to pass tests.
+Add 'reload' param to all loadCpuToGpu methods. Remove ifs before loadCpuToGpu calls. 
+Add loading scene assets to gpu.
 
-Resolve naming conflict between my Scene class and Assimp's scene class. Or simply rename my Scene.h file to avoid filename conflict. Or maybe put all my classes in some namespace?
-
-Add asset type distinction in AssetManager. Diferent types of assets could be load from the same path (ex. BlockMesh and SkeletonMesh).
-Add asset type to the paths stored in the map. Add method to convert Asset::Type enum to string. Add tests for loading two types of asset from the same path.
-
-Use AssetManager to load assets in Application.
 Saving/loading the scene.
 
 Create various models and save them to files.

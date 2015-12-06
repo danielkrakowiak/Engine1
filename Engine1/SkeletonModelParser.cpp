@@ -6,7 +6,7 @@
 
 using namespace Engine1;
 
-std::string SkeletonModelParser::fileTypeIdentifier = "BLOCKMODEL";
+std::string SkeletonModelParser::fileTypeIdentifier = "SKELETONMODEL";
 
 std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( const std::vector<char>& data, const bool loadRecurrently )
 {

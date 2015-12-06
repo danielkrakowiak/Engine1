@@ -132,11 +132,14 @@ BlockMeshFileInfo& BlockMesh::getFileInfo( )
 	return fileInfo;
 }
 
-void BlockMesh::loadCpuToGpu( ID3D11Device& device )
+void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::loadCpuToGpu - Mesh not loaded in CPU memory." );
 
-	if ( vertices.size() > 0 ) {
+    if ( reload )
+        throw std::exception( "BlockMesh::loadCpuToGpu - reload not yet implemented." );
+
+	if ( vertices.size() > 0 && !vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		vertexBufferDesc.ByteWidth = sizeof(float3)* vertices.size();
@@ -159,7 +162,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	if ( normals.size() > 0 ) {
+	if ( normals.size() > 0 && !normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
 		normalBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		normalBufferDesc.ByteWidth = sizeof(float3)* normals.size();
@@ -183,8 +186,14 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device )
 	}
 
 	std::list< std::vector<float2> >::iterator texcoordsIt, texcoordsEnd = texcoords.end();
+    int texcoordsIndex = -1;
 
 	for ( texcoordsIt = texcoords.begin(); texcoordsIt != texcoordsEnd; ++texcoordsIt ) {
+        ++texcoordsIndex;
+
+        if ( texcoordsIndex < (int)texcoordBuffers.size() )
+            continue; // Skip texcoords which are already loaded.
+
 		if ( texcoordsIt->empty() ) throw std::exception( "BlockMesh::loadCpuToGpu - One of mesh's texcoord sets is empty" );
 
 		D3D11_BUFFER_DESC texcoordBufferDesc;
@@ -213,28 +222,28 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	{
-		if ( triangles.empty() ) throw std::exception( "BlockMesh::loadToGpu - Mesh has no triangles" );
+    if ( triangles.empty() ) throw std::exception( "BlockMesh::loadToGpu - Mesh has no triangles" );
 
-		D3D11_BUFFER_DESC triangleBufferDesc;
-		triangleBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		triangleBufferDesc.ByteWidth = sizeof(uint3)* triangles.size();
-		triangleBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		triangleBufferDesc.CPUAccessFlags = 0;
-		triangleBufferDesc.MiscFlags = 0;
-		triangleBufferDesc.StructureByteStride = 0;
+    if ( !triangleBuffer ) {
+        D3D11_BUFFER_DESC triangleBufferDesc;
+        triangleBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        triangleBufferDesc.ByteWidth = sizeof(uint3)* triangles.size();
+        triangleBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        triangleBufferDesc.CPUAccessFlags = 0;
+        triangleBufferDesc.MiscFlags = 0;
+        triangleBufferDesc.StructureByteStride = 0;
 
-		D3D11_SUBRESOURCE_DATA triangleDataPtr;
-		triangleDataPtr.pSysMem = triangles.data();
-		triangleDataPtr.SysMemPitch = 0;
-		triangleDataPtr.SysMemSlicePitch = 0;
+        D3D11_SUBRESOURCE_DATA triangleDataPtr;
+        triangleDataPtr.pSysMem = triangles.data();
+        triangleDataPtr.SysMemPitch = 0;
+        triangleDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, triangleBuffer.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "BlockMesh::loadToGpu - Buffer creation for mesh triangles failed" );
+        HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, triangleBuffer.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadToGpu - Buffer creation for mesh triangles failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
-		std::string resourceName = std::string( "BlockMesh::triangleBuffer" );
-		Direct3DUtil::setResourceName( *triangleBuffer.Get(), resourceName );
+        std::string resourceName = std::string( "BlockMesh::triangleBuffer" );
+        Direct3DUtil::setResourceName( *triangleBuffer.Get(), resourceName );
 #endif
 	}
 }

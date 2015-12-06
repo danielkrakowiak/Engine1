@@ -1,6 +1,18 @@
 #include "CScene.h"
 
+#include "SceneParser.h"
+#include "BinaryFile.h"
+
+#include <tuple>
+
 using namespace Engine1;
+
+std::tuple< std::shared_ptr<CScene>, std::shared_ptr<std::vector< std::shared_ptr<FileInfo> > > > CScene::createFromFile( std::string path )
+{
+    std::shared_ptr<std::vector<char>> data = BinaryFile::load( path );
+
+    return SceneParser::parseBinary( *data );
+}
 
 CScene::CScene()
 {}
@@ -30,7 +42,18 @@ void CScene::removeAllActors()
     actors.clear();
 }
 
+void CScene::saveToFile( const std::string& path )
+{
+    std::vector<char> data;
+
+    SceneParser::writeBinary( data, *this );
+
+    BinaryFile::save( path, data );
+}
+
 const std::unordered_set< std::shared_ptr<Actor> >& CScene::getActors( )
 {
     return actors;
 }
+
+

@@ -33,7 +33,7 @@ namespace Engine1
 
         void saveToFile( const std::string& path );
 
-        void loadCpuToGpu( ID3D11Device& device );
+        void loadCpuToGpu( ID3D11Device& device, bool reload = false );
         void loadGpuToCpu();
         void unloadFromCpu();
         void unloadFromGpu();

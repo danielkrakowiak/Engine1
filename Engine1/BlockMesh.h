@@ -43,7 +43,7 @@ namespace Engine1
         const BlockMeshFileInfo& getFileInfo() const;
         BlockMeshFileInfo&       getFileInfo();
 
-        void loadCpuToGpu( ID3D11Device& device );
+        void loadCpuToGpu( ID3D11Device& device, bool reload = false );
         void loadGpuToCpu();
         void unloadFromCpu();
         void unloadFromGpu();

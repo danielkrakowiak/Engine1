@@ -28,3 +28,5 @@
 	- add tests for loading asynchronously assets from inexisting paths. Mixed with correct paths. Should not crash AssetManager!
 	- add tests for loading assets with sub-assets SYNCronously.
 	- loading a model sync/async containing sub-assets which were already loaded. Should't throw exception.
+06.12.2015
+	- test whether an asset loaded with AssetManager has correct file info.

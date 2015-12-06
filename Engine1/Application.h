@@ -60,6 +60,9 @@ private:
 	void onFocusChange( bool windowFocused );
 	void onDragAndDropFile( std::string filePath );
 
+    void loadDefaultScene();
+    void saveDefaultScene();
+
 	//basic application handles
 	HINSTANCE applicationInstance;
 	HWND windowHandle;

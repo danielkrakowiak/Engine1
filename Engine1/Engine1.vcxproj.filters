@@ -1074,6 +1074,15 @@
     <ClInclude Include="CScene.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="SceneParser.h">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockModelFileInfoParser.h">
+      <Filter>Header Files\Model\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonModelFileInfoParser.h">
+      <Filter>Header Files\Model\Parsers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1813,6 +1822,15 @@
     </ClCompile>
     <ClCompile Include="CScene.cpp">
       <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneParser.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockModelFileInfoParser.cpp">
+      <Filter>Source Files\Model\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonModelFileInfoParser.cpp">
+      <Filter>Source Files\Model\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

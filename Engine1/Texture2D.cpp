@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <fstream>
+#include <algorithm>
 
 #include "StringUtil.h"
 
@@ -118,9 +119,12 @@ Texture2DFileInfo& Texture2D::getFileInfo()
 	return fileInfo;
 }
 
-void Texture2D::loadCpuToGpu( ID3D11Device& device )
+void Texture2D::loadCpuToGpu( ID3D11Device& device, bool reload )
 {
 	if ( !isInCpuMemory() ) throw std::exception( "Texture2D::loadCpuToGpu - Texture not in RAM." );
+
+    if ( reload )
+        throw std::exception( "Texture2D::loadCpuToGpu - reload not yet implemented." );
 
 	if ( !isInGpuMemory() ) {
 		D3D11_TEXTURE2D_DESC desc;
@@ -151,7 +155,7 @@ void Texture2D::loadCpuToGpu( ID3D11Device& device )
 
 		result = device.CreateShaderResourceView( texture.Get(), nullptr, shaderResource.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "Texture2D::loadCpuToGpu - creating shader resource on GPU failed." );
-	} else {
+	} else if ( reload ) {
 		throw std::exception( "Texture2D::loadCpuToGpu - re-loading texture to GPU memory not yet implemented." );
 		// #TODO: upload data to the existing texture.
 	}
@@ -296,7 +300,7 @@ int  Texture2D::getMipMapCountOnGpu() const
 	if ( isInGpuMemory() ) {
 		if ( hasMipMapsOnGpu() )
 			// Has all the mipmaps until 1x1.
-			return 1 + (int)( floor( log2( max( width, height ) ) ) );
+			return 1 + (int)( floor( log2( std::max( width, height ) ) ) );
 		else
 			// Has only main image.
 			return 1;
@@ -343,7 +347,7 @@ int Texture2D::getWidth( unsigned int mipMapLevel ) const
 	if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
 		throw std::exception( "Texture2D::getWidth - Incorrect level requested. There is no mipmap with such level." );
 
-	return max( 1, width / ( 1 + mipMapLevel ) );
+	return std::max( 1, width / ( 1 + (int)mipMapLevel ) );
 }
 
 int Texture2D::getHeight( unsigned int mipMapLevel ) const
@@ -351,7 +355,7 @@ int Texture2D::getHeight( unsigned int mipMapLevel ) const
 	if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
 		throw std::exception( "Texture2D::getHeight - Incorrect level requested. There is no mipmap with such level." );
 
-	return max( 1, height / ( 1 + mipMapLevel ) );
+	return std::max( 1, height / ( 1 + (int)mipMapLevel ) );
 }
 
 int Texture2D::getSize( unsigned int mipMapLevel ) const

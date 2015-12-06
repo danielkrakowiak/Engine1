@@ -41,9 +41,12 @@ RectangleMesh::~RectangleMesh()
 	int g = 5;
 }
 
-void RectangleMesh::loadCpuToGpu( ID3D11Device& device )
+void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 {
-	if ( vertices.size() > 0 ) {
+    if ( reload )
+        throw std::exception( "RectangleMesh::loadCpuToGpu - reload not yet implemented." );
+
+	if ( vertices.size() > 0 && !vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		vertexBufferDesc.ByteWidth = sizeof(float3)* vertices.size();
@@ -66,7 +69,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	if ( normals.size() > 0 ) {
+	if ( normals.size() > 0 && !normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
 		normalBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		normalBufferDesc.ByteWidth = sizeof(float3)* normals.size();
@@ -89,7 +92,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	if ( texcoords.size() > 0 ) {
+	if ( texcoords.size() > 0 && !texcoordBuffer ) {
 
 		D3D11_BUFFER_DESC texcoordBufferDesc;
 		texcoordBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -113,9 +116,9 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	{
-		if ( triangles.empty() ) throw std::exception( "RectangleMesh::loadToGpu - Mesh has no triangles." );
+	if ( triangles.empty() ) throw std::exception( "RectangleMesh::loadToGpu - Mesh has no triangles." );
 
+    if ( !triangleBuffer ) {
 		D3D11_BUFFER_DESC triangleBufferDesc;
 		triangleBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		triangleBufferDesc.ByteWidth = sizeof(uint3)* triangles.size();

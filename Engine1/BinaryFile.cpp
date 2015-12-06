@@ -2,8 +2,6 @@
 
 #include <fstream>
 
-#include "float4.h"
-
 using namespace Engine1;
 
 std::shared_ptr< std::vector<char> > BinaryFile::load( const std::string& path )
@@ -83,6 +81,16 @@ std::string BinaryFile::readText( std::vector<char>::const_iterator& dataIt, con
 	return text;
 }
 
+char BinaryFile::readChar( std::vector<char>::const_iterator& dataIt )
+{
+    int value = 0;
+    std::memcpy( &value, &(*dataIt), sizeof(char) );
+
+    dataIt += sizeof(char) / sizeof(char);
+
+    return value;
+}
+
 int BinaryFile::readInt( std::vector<char>::const_iterator& dataIt )
 {
 	int value = 0;
@@ -113,10 +121,31 @@ float4 BinaryFile::readFloat4( std::vector<char>::const_iterator& dataIt )
 	return value;
 }
 
+float43 BinaryFile::readFloat43( std::vector<char>::const_iterator& dataIt )
+{
+    float43 value( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
+    std::memcpy( &value, &(*dataIt), sizeof(float43) );
+
+    dataIt += sizeof(float43) / sizeof(char);
+
+    return value;
+}
+
 void BinaryFile::writeText( std::vector<char>& file, const std::string& text )
 {
 	for ( std::string::const_iterator it = text.begin(); it != text.end(); ++it )
 		file.push_back( *it );
+}
+
+void BinaryFile::writeChar( std::vector<char>& file, const char value )
+{
+    const int size = file.size();
+
+    const int sizeIncrease = sizeof(char) / sizeof(char);
+
+    file.resize( size + sizeIncrease );
+
+    std::memcpy( &file[ size ], &value, sizeof(char) );
 }
 
 void BinaryFile::writeInt( std::vector<char>& file, const int value )
@@ -150,4 +179,15 @@ void BinaryFile::writeFloat4( std::vector<char>& file, const float4& value )
 	file.resize( size + sizeIncrease );
 
 	std::memcpy( &file[ size ], &value, sizeof( float4 ) );
+}
+
+void BinaryFile::writeFloat43( std::vector<char>& file, const float43& value )
+{
+    const int size = file.size();
+
+    const int sizeIncrease = sizeof(float43) / sizeof(char);
+
+    file.resize( size + sizeIncrease );
+
+    std::memcpy( &file[ size ], &value, sizeof(float43) );
 }

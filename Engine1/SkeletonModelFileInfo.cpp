@@ -1,26 +1,29 @@
 #include "SkeletonModelFileInfo.h"
 
-//#include "SkeletonModelFileInfoParser.h"
+#include "SkeletonModelFileInfoParser.h"
 
 #include <memory>
 
 using namespace Engine1;
 
-//std::shared_ptr<BlockModelFileInfo> SkeletonModelFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
-//{
-//	return SkeletonModelFileInfoParser::parseBinary( dataIt );
-//}
+std::shared_ptr<SkeletonModelFileInfo> SkeletonModelFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
+{
+	return SkeletonModelFileInfoParser::parseBinary( dataIt );
+}
 
 SkeletonModelFileInfo::SkeletonModelFileInfo( ) :
 path( "" ),
-format( Format::SKELETONMODEL ),
-indexInFile( 0 )
+format( Format::SKELETONMODEL )
 {}
 
 SkeletonModelFileInfo::SkeletonModelFileInfo( std::string path, Format format, int indexInFile ) :
 path( path ),
-format( format ),
-indexInFile( indexInFile )
+format( format )
+{}
+
+SkeletonModelFileInfo::SkeletonModelFileInfo( const SkeletonModelFileInfo& obj ) :
+path( obj.path ),
+format( obj.format )
 {}
 
 SkeletonModelFileInfo::~SkeletonModelFileInfo( )
@@ -31,10 +34,10 @@ std::shared_ptr<FileInfo> SkeletonModelFileInfo::clone( ) const
 	return std::make_shared<SkeletonModelFileInfo>( *this );
 }
 
-//void SkeletonModelFileInfo::writeBinary( std::vector<char>& data ) const
-//{
-//	SkeletonModelFileInfoParser::writeBinary( data, *this );
-//}
+void SkeletonModelFileInfo::writeBinary( std::vector<char>& data ) const
+{
+	SkeletonModelFileInfoParser::writeBinary( data, *this );
+}
 
 void SkeletonModelFileInfo::setPath( std::string path )
 {
@@ -44,11 +47,6 @@ void SkeletonModelFileInfo::setPath( std::string path )
 void SkeletonModelFileInfo::setFormat( Format format )
 {
 	this->format = format;
-}
-
-void SkeletonModelFileInfo::setIndexInFile( int indexInFile )
-{
-	this->indexInFile = indexInFile;
 }
 
 Asset::Type SkeletonModelFileInfo::getAssetType( ) const
@@ -73,5 +71,5 @@ SkeletonModelFileInfo::Format SkeletonModelFileInfo::getFormat( ) const
 
 int SkeletonModelFileInfo::getIndexInFile( ) const
 {
-	return indexInFile;
+	return 0;
 }

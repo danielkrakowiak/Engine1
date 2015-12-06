@@ -121,11 +121,14 @@ SkeletonMeshFileInfo& SkeletonMesh::getFileInfo( )
 	return fileInfo;
 }
 
-void SkeletonMesh::loadCpuToGpu( ID3D11Device& device )
+void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::loadCpuToGpu - Mesh not loaded in CPU memory." );
 
-	if ( vertices.size() > 0 ) {
+    if ( reload )
+        throw std::exception( "SkeletonMesh::loadCpuToGpu - reload not yet implemented." );
+
+	if ( vertices.size() > 0 && !vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		vertexBufferDesc.ByteWidth = sizeof(float3)* vertices.size();
@@ -148,7 +151,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	if ( vertexBones.size() > 0 ) {
+	if ( vertexBones.size() > 0 && !vertexBonesBuffer ) {
 		D3D11_BUFFER_DESC vertexBonesBufferDesc;
 		vertexBonesBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		vertexBonesBufferDesc.ByteWidth = sizeof(unsigned char)* vertexBones.size();
@@ -171,7 +174,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	if ( vertexWeights.size() > 0 ) {
+	if ( vertexWeights.size() > 0 && !vertexWeightsBuffer ) {
 		D3D11_BUFFER_DESC vertexWeightsBufferDesc;
 		vertexWeightsBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		vertexWeightsBufferDesc.ByteWidth = sizeof(float)* vertexWeights.size();
@@ -194,7 +197,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	if ( normals.size() > 0 ) {
+	if ( normals.size() > 0 && !normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
 		normalBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		normalBufferDesc.ByteWidth = sizeof(float3)* normals.size();
@@ -218,8 +221,14 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device )
 	}
 
 	std::list< std::vector<float2> >::iterator texcoordsIt, texcoordsEnd = texcoords.end();
+    int texcoordsIndex = -1;
 
 	for ( texcoordsIt = texcoords.begin(); texcoordsIt != texcoordsEnd; ++texcoordsIt ) {
+        ++texcoordsIndex;
+
+        if ( texcoordsIndex < (int)texcoordBuffers.size() )
+            continue; // Skip texcoords which are already loaded.
+
 		if ( texcoordsIt->empty() ) throw std::exception( "SkeletonMesh::loadToGpu - One of mesh's texcoord sets is empty" );
 
 		D3D11_BUFFER_DESC texcoordBufferDesc;
@@ -248,9 +257,9 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device )
 #endif
 	}
 
-	{
-		if ( triangles.empty() ) throw std::exception( "SkeletonMesh::loadToGpu - Mesh has no triangles" );
+    if ( triangles.empty() ) throw std::exception( "SkeletonMesh::loadToGpu - Mesh has no triangles" );
 
+    if ( !triangleBuffer ) {
 		D3D11_BUFFER_DESC triangleBufferDesc;
 		triangleBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		triangleBufferDesc.ByteWidth = sizeof(uint3)* triangles.size();

@@ -346,23 +346,36 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::BlockModel:
 		{
 			const BlockModelFileInfo& modelFileInfo = static_cast<const BlockModelFileInfo&>( fileInfo );
-			return BlockModel::createFromMemory( fileData, modelFileInfo.getFormat( ), false );
+			std::shared_ptr<BlockModel> model = BlockModel::createFromMemory( fileData, modelFileInfo.getFormat( ), false );
+            model->setFileInfo( modelFileInfo );
+
+            return model;
 		}
 		case Asset::Type::SkeletonModel:
 		{
 			const SkeletonModelFileInfo& modelFileInfo = static_cast<const SkeletonModelFileInfo&>( fileInfo );
-			return SkeletonModel::createFromMemory( fileData, modelFileInfo.getFormat( ), false );
+            std::shared_ptr<SkeletonModel> model = SkeletonModel::createFromMemory( fileData, modelFileInfo.getFormat( ), false );
+            model->setFileInfo( modelFileInfo );
+
+            return model;
 		}
 		case Asset::Type::BlockMesh:
 		{
 			const BlockMeshFileInfo& meshFileInfo = static_cast<const BlockMeshFileInfo&>( fileInfo );
-			return BlockMesh::createFromMemory( fileData, meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
-		}
+            std::shared_ptr<BlockMesh> mesh = BlockMesh::createFromMemory( fileData, meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
+            mesh->setFileInfo( meshFileInfo );
+
+            return mesh;
+        }
 		case Asset::Type::SkeletonMesh:
 		{
 			const SkeletonMeshFileInfo& meshFileInfo = static_cast<const SkeletonMeshFileInfo&>( fileInfo );
-			return SkeletonMesh::createFromMemory( fileData, meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
-		}
+            std::shared_ptr<SkeletonMesh> mesh = SkeletonMesh::createFromMemory( fileData, meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
+            mesh->setFileInfo( meshFileInfo );
+
+            return mesh;
+        
+        }
 		case Asset::Type::SkeletonAnimation:
 		{
 			const SkeletonAnimationFileInfo& animFileInfo = static_cast<const SkeletonAnimationFileInfo&>( fileInfo );
@@ -378,15 +391,22 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 				referenceMesh = mesh->getType() == Asset::Type::SkeletonMesh ? std::static_pointer_cast<const SkeletonMesh>( mesh ) : nullptr;
 			}
 
-			if ( referenceMesh )
-				return SkeletonAnimation::createFromMemory( fileData, animFileInfo.getFormat( ), *referenceMesh, animFileInfo.getInvertZCoordinate( ) );
-			else
-				throw std::exception( "AssetManager::createFromMemory - failed to load reference mesh for the animation." );
+            if ( referenceMesh ) {
+                std::shared_ptr<SkeletonAnimation> anim = SkeletonAnimation::createFromMemory( fileData, animFileInfo.getFormat(), *referenceMesh, animFileInfo.getInvertZCoordinate() );
+                anim->setFileInfo( animFileInfo );
+
+                return anim;
+            } else {
+                throw std::exception( "AssetManager::createFromMemory - failed to load reference mesh for the animation." );
+            }
 		}
 		case Asset::Type::Texture2D:
 		{
 			const Texture2DFileInfo& texFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
-			return Texture2D::createFromMemory( fileData, texFileInfo.getFormat( ) );
+			std::shared_ptr<Texture2D> texture = Texture2D::createFromMemory( fileData, texFileInfo.getFormat( ) );
+            texture->setFileInfo( texFileInfo );
+
+            return texture;
 		}
 		default:
 			throw std::exception( "AssetManager::createFromMemory - asset type not yet supported." );

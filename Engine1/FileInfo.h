@@ -22,6 +22,8 @@ namespace Engine1
         virtual Asset::Type               getAssetType() const = 0;
         virtual FileType                  getFileType() const = 0;
         virtual std::shared_ptr<FileInfo> clone() const = 0;
+
+        virtual void writeBinary( std::vector<char>& data ) const = 0;
     };
 }
 

@@ -42,7 +42,7 @@ namespace Engine1
         const Texture2DFileInfo& getFileInfo() const;
         Texture2DFileInfo&       getFileInfo();
 
-        virtual void loadCpuToGpu( ID3D11Device& device );
+        virtual void loadCpuToGpu( ID3D11Device& device, bool reload = false );
         virtual void loadGpuToCpu();
         virtual void unloadFromCpu();
         virtual void unloadFromGpu();

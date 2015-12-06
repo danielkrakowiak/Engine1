@@ -147,6 +147,8 @@ void Application::run() {
 	bool run = true;
 	MSG msg;
 
+    loadDefaultScene();
+
     // Add 'axis' actor to the scene.
     BlockMeshFileInfo axisMeshFileInfo( "../Engine1/Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
     std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( axisMeshFileInfo ) );
@@ -257,6 +259,8 @@ void Application::run() {
 		Timer frameEndTime;
 		frameTime = Timer::lapse( frameEndTime, frameStartTime );
 	}
+
+    saveDefaultScene();
 }
 
 LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
@@ -357,26 +361,9 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 }
 
 void Application::onStart( ) {
-	//unsigned int cpuThreadCount = std::thread::hardware_concurrency( );
-	//if ( cpuThreadCount <= 0 ) cpuThreadCount = 4;
-
-	//AssetManager assetManager( cpuThreadCount );
-
-	//BlockMesh mesh;
-
-	//mesh.loadFile( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", AssetFileFormat::OBJ );
-	//mesh.load( );
-
-	//std::shared_ptr<BlockMesh> mesh = assetManager.loadBlockMesh( "Assets/Meshes/Dragon.obj", AssetFileFormat::OBJ );
-	//BlockMesh& mesh = AssetManager::loadBlockMesh( "Assets/Meshes/Pyramid.obj" );
-
-	//Texture2D texture;
-	//texture.loadFile( "Assets/Textures/Floor1/floor1 - diffuse.png" );
-	//texture.load( TextureFileFormat::PNG );
 }
 
 void Application::onExit( ) {
-
 }
 
 void Application::onResize( int newWidth, int newHeight ) {
@@ -462,7 +449,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
         BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( fileInfo ) );
-		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+        if ( !mesh->isInGpuMemory( ) )
+            mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
         // Add new actor to the scene.
         defaultBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
@@ -477,7 +465,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
         SkeletonMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>(assetManager.getOrLoad( fileInfo ));  
-		mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+        if ( !mesh->isInGpuMemory( ) )
+            mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
         // Add new actor to the scene.
         defaultSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
@@ -500,7 +489,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
         Texture2DFileInfo fileInfo( filePath, format );
         std::shared_ptr<Texture2D> texture = std::static_pointer_cast<Texture2D>( assetManager.getOrLoad( fileInfo ) );
-		texture->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+        if ( !texture->isInGpuMemory( ) )
+            texture->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
 		if ( filePath.find( "_A" ) ) {
             if ( defaultBlockActor )    defaultBlockActor->getModel( )->addAlbedoTexture( ModelTexture2D( texture ) );
@@ -521,7 +511,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
         BlockModelFileInfo fileInfo( filePath, BlockModelFileInfo::Format::BLOCKMODEL, 0 );
         std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( assetManager.getOrLoad( fileInfo ) );
-        model->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+        if ( !model->isInGpuMemory() )
+            model->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
 
         // Add new actor to the scene.
         defaultBlockActor = std::make_shared<BlockActor>( model, pose );
@@ -532,7 +523,8 @@ void Application::onDragAndDropFile( std::string filePath )
 
         SkeletonModelFileInfo fileInfo( filePath, SkeletonModelFileInfo::Format::SKELETONMODEL, 0 );
         std::shared_ptr<SkeletonModel> model = std::static_pointer_cast<SkeletonModel>(assetManager.getOrLoad( fileInfo ));
-        model->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+        if ( !model->isInGpuMemory( ) )
+            model->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
 
         // Add new actor to the scene.
         defaultSkeletonActor = std::make_shared<SkeletonActor>( model, pose );
@@ -545,4 +537,57 @@ void Application::onDragAndDropFile( std::string filePath )
 
     if ( (isSkeletonMesh || isTexture) && defaultSkeletonActor && defaultSkeletonActor->getModel( ) && defaultSkeletonActor->getModel( )->isInCpuMemory( ) )
         defaultSkeletonActor->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
+}
+
+void Application::loadDefaultScene()
+{
+    std::shared_ptr< std::vector < std::shared_ptr< FileInfo > > > fileInfos;
+
+    std::tie( scene, fileInfos ) = CScene::createFromFile( "Assets/Scenes/new.scene" );
+
+    // Load all assets.
+    for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos )
+        assetManager.loadAsync( *fileInfo );
+
+    // Wait for all assets to be loaded.
+    const float timeout = 60.0f;
+    for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos )
+        assetManager.getWhenLoaded( fileInfo->getAssetType(), fileInfo->getPath(), fileInfo->getIndexInFile(), timeout );
+
+    // Swap actors' empty models with the loaded models. Load models to GPU.
+    const std::unordered_set< std::shared_ptr< Actor > > sceneActors = scene->getActors();
+    for ( const std::shared_ptr< Actor >& actor : sceneActors ) {
+        if ( actor->getType() == Actor::Type::BlockActor ) {
+
+            const std::shared_ptr<BlockActor>& blockActor = std::static_pointer_cast<BlockActor>(actor);
+            if ( blockActor->getModel() ) {
+                const BlockModelFileInfo& fileInfo = blockActor->getModel()->getFileInfo();
+                std::shared_ptr<BlockModel> blockModel = std::static_pointer_cast<BlockModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
+                if ( blockModel ) {
+                    blockModel->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+                    blockActor->setModel( blockModel ); // Swap an empty model with a loaded model.
+                } else {
+                    throw std::exception( "Application::onStart - failed to load one of the scene's models." );
+                }
+            }
+        } else if ( actor->getType() == Actor::Type::SkeletonActor ) {
+
+            const std::shared_ptr<SkeletonActor>& skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
+            if ( skeletonActor->getModel() ) {
+                const SkeletonModelFileInfo& fileInfo = skeletonActor->getModel()->getFileInfo();
+                std::shared_ptr<SkeletonModel> skeletonModel = std::static_pointer_cast<SkeletonModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
+                if ( skeletonModel ) {
+                    skeletonModel->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+                    skeletonActor->setModel( skeletonModel ); // Swap an empty model with a loaded model.
+                } else {
+                    throw std::exception( "Application::onStart - failed to load one of the scene's models." );
+                }
+            }
+        }
+    }
+}
+
+void Application::saveDefaultScene()
+{
+    scene->saveToFile( "Assets/Scenes/new.scene" );
 }
