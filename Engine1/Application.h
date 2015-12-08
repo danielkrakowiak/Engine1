@@ -58,6 +58,7 @@ private:
 	void onExit( );
 	void onResize( int newWidth, int newHeight );
 	void onFocusChange( bool windowFocused );
+    void onKeyPress( int key );
 	void onDragAndDropFile( std::string filePath );
 
     void loadDefaultScene();
@@ -89,6 +90,8 @@ private:
 	// For creation of new assets.
 	std::shared_ptr<BlockActor>    defaultBlockActor;
 	std::shared_ptr<SkeletonActor> defaultSkeletonActor;
+
+    std::shared_ptr<BlockModel> lightModel;
 
     std::shared_ptr<CScene> scene;
 

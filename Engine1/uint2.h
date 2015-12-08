@@ -10,6 +10,8 @@ namespace Engine1
         uint2_type x;
         uint2_type y;
 
+        static const uint2 ZERO;
+
         uint2() {}
         uint2( const uint2& a ) : x( a.x ), y( a.y ) {}
 

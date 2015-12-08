@@ -15,6 +15,8 @@ namespace Engine1
         float y;
         float z;
 
+        static const float3 ZERO;
+
         static float dot( const float3& vec1, const float3& vec2 );
         static float3 cross( const float3& vec1, const float3& vec2 );
 

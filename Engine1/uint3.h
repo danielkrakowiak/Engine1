@@ -11,6 +11,8 @@ namespace Engine1
         uint3_type y;
         uint3_type z;
 
+        static const uint3 ZERO;
+
         uint3() {}
         uint3( const uint3& a ) : x( a.x ), y( a.y ), z( a.z ) {}
 

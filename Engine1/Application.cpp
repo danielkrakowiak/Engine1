@@ -17,6 +17,9 @@
 
 #include "BlockActor.h"
 #include "SkeletonActor.h"
+
+#include "PointLight.h"
+
 #include "CScene.h"
 
 #include "RenderTargetTexture2D.h"
@@ -157,6 +160,11 @@ void Application::run() {
     axisActor->getModel()->setMesh( axisMesh );
     scene->addActor( axisActor );
 
+    // Load light source mesh and texture.
+    BlockModelFileInfo lightModelFileInfo( "../Engine1/Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
+    lightModel = std::static_pointer_cast<BlockModel>(assetManager.getOrLoad( lightModelFileInfo ));
+    lightModel->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+
     // Setup the camera.
 	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
 	camera.setPosition( float3( 0.0f, 0.0f, -30.0f ) );
@@ -182,14 +190,14 @@ void Application::run() {
 
         // Update the camera.
         if ( windowFocused ) { 
-			const float cameraRotationSensitivity = 0.00005f;
+            const float cameraRotationSensitivity = 0.00005f;
 
-			if      ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime );
-			else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTime );
-			if      ( inputManager.isKeyPressed( InputManager::Keys::d ) ) camera.accelerateRight( (float)frameTime );
-			else if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) camera.accelerateLeft( (float)frameTime );
-			if      ( inputManager.isKeyPressed( InputManager::Keys::e ) ) camera.accelerateUp( (float)frameTime );
-			else if ( inputManager.isKeyPressed( InputManager::Keys::q ) ) camera.accelerateDown( (float)frameTime );
+            if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTime );
+            if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) camera.accelerateRight( (float)frameTime );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) camera.accelerateLeft( (float)frameTime );
+            if ( inputManager.isKeyPressed( InputManager::Keys::e ) ) camera.accelerateUp( (float)frameTime );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::q ) ) camera.accelerateDown( (float)frameTime );
 
 			int2 mouseMove = inputManager.getMouseMove( );
 			camera.rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTime * cameraRotationSensitivity );
@@ -201,7 +209,7 @@ void Application::run() {
 
         float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint( ), camera.getPosition( ), camera.getUp( ) );
 
-        // Render the scene.
+        // Render actors in the scene.
         const std::unordered_set< std::shared_ptr<Actor> >& actors = scene->getActors();
         for ( const std::shared_ptr<Actor> actor : actors )
 		{ 
@@ -224,6 +232,15 @@ void Application::run() {
                     direct3DDefferedRenderer.render( *skeletonModel->getMesh( ), skeletonActor->getPose( ), viewMatrix, skeletonActor->getSkeletonPose( ) );
             }
 		}
+
+        // Render lights in the scene.
+        const std::unordered_set< std::shared_ptr<Light> >& lights = scene->getLights();
+        float43 lightPose( float43::IDENTITY );
+        for ( const std::shared_ptr<Light> light : lights )
+        {
+            lightPose.setTranslation( light->getPosition() );
+            direct3DDefferedRenderer.render( *lightModel, lightPose, viewMatrix );
+        }
 
 		{ // Render FPS.
 			std::stringstream ss;
@@ -295,6 +312,7 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 		case WM_KEYDOWN:
 			if ( windowsMessageReceiver ) {
 				windowsMessageReceiver->inputManager.onKeyboardButton( wParam, true );
+                windowsMessageReceiver->onKeyPress( (int)wParam );
 			}
 			break;
 		case WM_KEYUP:
@@ -373,6 +391,17 @@ void Application::onResize( int newWidth, int newHeight ) {
 void Application::onFocusChange( bool windowFocused )
 {
 	this->windowFocused = windowFocused;
+}
+
+void Application::onKeyPress( int key )
+{
+    if ( key == InputManager::Keys::l ) {
+        if ( scene ) {
+            float3 lightPosition = camera.getPosition() + camera.getDirection();
+
+            scene->addLight( std::make_shared<PointLight>( lightPosition ) );
+        }
+    }
 }
 
 void Application::onDragAndDropFile( std::string filePath )

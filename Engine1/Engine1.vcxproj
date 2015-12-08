@@ -459,8 +459,11 @@
     <ClInclude Include="Direct3DRendererCore.h" />
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
     <ClInclude Include="CScene.h" />
+    <ClInclude Include="PointLight.h" />
+    <ClInclude Include="PointLightParser.h" />
     <ClInclude Include="SceneParser.h" />
     <ClInclude Include="SkeletonActor.h" />
     <ClInclude Include="SkeletonAnimationFileInfo.h" />
@@ -713,8 +716,11 @@
     <ClCompile Include="Direct3DDefferedRenderer.cpp" />
     <ClCompile Include="Direct3DRendererCore.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
     <ClCompile Include="CScene.cpp" />
+    <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="PointLightParser.cpp" />
     <ClCompile Include="SceneParser.cpp" />
     <ClCompile Include="SkeletonActor.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfo.cpp" />

@@ -11,6 +11,8 @@ namespace Engine1
         float x;
         float y;
 
+        static const float2 ZERO;
+
         float2() {}
 
         float2( const float2& a ) : x( a.x ), y( a.y ) {}

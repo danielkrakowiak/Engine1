@@ -2,6 +2,8 @@
 
 using namespace Engine1;
 
+const float2 float2::ZERO( 0.0f, 0.0f );
+
 float2 Engine1::operator * (const float value, const float2& vec)
 {
 	return float2(vec.x * value, vec.y * value);

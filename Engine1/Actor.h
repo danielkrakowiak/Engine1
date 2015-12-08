@@ -6,7 +6,7 @@ namespace Engine1
     {
         public:
 
-        enum class Type
+        enum class Type : char
         {
             BlockActor = 0,
             SkeletonActor = 1

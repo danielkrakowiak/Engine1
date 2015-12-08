@@ -6,6 +6,7 @@
 namespace Engine1
 {
     class Actor;
+    class Light;
     class SceneParser;
     class FileInfo;
 
@@ -25,13 +26,19 @@ namespace Engine1
         void removeActor( std::shared_ptr<Actor> actor );
         void removeAllActors();
 
+        void addLight( std::shared_ptr<Light> light );
+        void removeLight( std::shared_ptr<Light> light );
+        void removeAllLights( );
+
         const std::unordered_set< std::shared_ptr<Actor> >& getActors();
+        const std::unordered_set< std::shared_ptr<Light> >& getLights( );
 
         void saveToFile( const std::string& path );
 
         private:
 
         std::unordered_set< std::shared_ptr<Actor> > actors;
+        std::unordered_set< std::shared_ptr<Light> > lights;
     };
 }
 

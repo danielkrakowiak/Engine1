@@ -226,6 +226,18 @@
     <Filter Include="Source Files\Asset">
       <UniqueIdentifier>{12e5e566-64c1-429a-be32-6ad5abbfdeed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Light">
+      <UniqueIdentifier>{6d071e0e-7f80-4ddc-9ae2-c154d953b187}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Light">
+      <UniqueIdentifier>{2e485015-3d5d-485a-bd10-7770c257220c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Light\Parsers">
+      <UniqueIdentifier>{bac5fec5-91f5-4a3f-a650-deeac2fa0e11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Light\Parsers">
+      <UniqueIdentifier>{a7a968b4-a1b3-49c3-b05a-a7110031a107}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1083,6 +1095,15 @@
     <ClInclude Include="SkeletonModelFileInfoParser.h">
       <Filter>Header Files\Model\Parsers</Filter>
     </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Header Files\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLightParser.h">
+      <Filter>Header Files\Light\Parsers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1831,6 +1852,15 @@
     </ClCompile>
     <ClCompile Include="SkeletonModelFileInfoParser.cpp">
       <Filter>Source Files\Model\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>Source Files\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLightParser.cpp">
+      <Filter>Source Files\Light\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

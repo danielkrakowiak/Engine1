@@ -4,6 +4,8 @@
 
 using namespace Engine1;
 
+const float3 float3::ZERO( 0.0f, 0.0f, 0.0f );
+
 float3::float3(const float4& a) : x(a.x), y(a.y), z(a.z) {}
 
 float3 Engine1::operator * ( const float value, const float3& vec ) {
