@@ -35,9 +35,10 @@ FontLibrary  Application::fontLibrary;
 using namespace Engine1;
 
 Application::Application() :
-	direct3DRendererCore(),
-	direct3DFrameRenderer( direct3DRendererCore ),
-	direct3DDefferedRenderer( direct3DRendererCore ),
+	rendererCore(),
+	frameRenderer( rendererCore ),
+	defferedRenderer( rendererCore ),
+    renderer( defferedRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -63,9 +64,21 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
 	setupWindow();
 
-	direct3DFrameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
-	direct3DDefferedRenderer.initialize( screenWidth, screenHeight, direct3DFrameRenderer.getDevice(), direct3DFrameRenderer.getDeviceContext() );
-	direct3DRendererCore.initialize( direct3DFrameRenderer.getDeviceContext( ) );
+	frameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
+	defferedRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+	rendererCore.initialize( frameRenderer.getDeviceContext( ) );
+
+    // Load 'axises' model.
+    BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
+    std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>(assetManager.getOrLoad( axisMeshFileInfo ));
+    axisMesh->loadCpuToGpu( frameRenderer.getDevice() );
+
+    // Load 'light source' model.
+    BlockModelFileInfo lightModelFileInfo( "Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
+    std::shared_ptr<BlockModel> lightModel = std::static_pointer_cast<BlockModel>(assetManager.getOrLoad( lightModelFileInfo ));
+    lightModel->loadCpuToGpu( frameRenderer.getDevice() );
+
+    renderer.initialize( axisMesh, lightModel );
 
 	initialized = true;
 }
@@ -150,19 +163,6 @@ void Application::run() {
 	bool run = true;
 	MSG msg;
 
-    // Add 'axis' actor to the scene.
-    BlockMeshFileInfo axisMeshFileInfo( "../Engine1/Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
-    std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( axisMeshFileInfo ) );
-	axisMesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-    std::shared_ptr<BlockActor> axisActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>() );
-    axisActor->getModel()->setMesh( axisMesh );
-    scene->addActor( axisActor );
-
-    // Load light source mesh and texture.
-    BlockModelFileInfo lightModelFileInfo( "../Engine1/Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
-    lightModel = std::static_pointer_cast<BlockModel>(assetManager.getOrLoad( lightModelFileInfo ));
-    lightModel->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
-
     // Setup the camera.
 	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
 	camera.setPosition( float3( 0.0f, 0.0f, -30.0f ) );
@@ -203,73 +203,38 @@ void Application::run() {
 
 		camera.updateState( (float)frameTime );
 
-		direct3DDefferedRenderer.clearRenderTargets( float4( 0.2f, 0.2f, 0.2f, 1.0f ), 1.0f );
+        std::shared_ptr<Texture2D> frame;
 
-        float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint( ), camera.getPosition( ), camera.getUp( ) );
-
-        // Render actors in the scene.
-        const std::unordered_set< std::shared_ptr<Actor> >& actors = scene->getActors();
-        for ( const std::shared_ptr<Actor> actor : actors )
-		{ 
-            if ( actor->getType() == Actor::Type::BlockActor ) {
-                const std::shared_ptr<BlockActor> blockActor = std::static_pointer_cast<BlockActor>( actor );
-                const std::shared_ptr<BlockModel> blockModel = blockActor->getModel();
-
-                if ( blockModel->isInGpuMemory( ) )
-                    direct3DDefferedRenderer.render( *blockModel, blockActor->getPose(), viewMatrix );
-                else if ( blockModel->getMesh( ) && blockModel->getMesh( )->isInGpuMemory( ) )
-                    direct3DDefferedRenderer.render( *blockModel->getMesh( ), blockActor->getPose( ), viewMatrix );
-
-            } else if ( actor->getType() == Actor::Type::SkeletonActor ) {
-                const std::shared_ptr<SkeletonActor> skeletonActor = std::static_pointer_cast<SkeletonActor>( actor );
-                const std::shared_ptr<SkeletonModel> skeletonModel = skeletonActor->getModel( );
-
-                if ( skeletonModel->isInGpuMemory( ) )
-                    direct3DDefferedRenderer.render( *skeletonModel, skeletonActor->getPose( ), viewMatrix, skeletonActor->getSkeletonPose() );
-                else if ( skeletonModel->getMesh( ) && skeletonModel->getMesh( )->isInGpuMemory( ) )
-                    direct3DDefferedRenderer.render( *skeletonModel->getMesh( ), skeletonActor->getPose( ), viewMatrix, skeletonActor->getSkeletonPose( ) );
-            }
-		}
-
-        // Render lights in the scene.
-        const std::unordered_set< std::shared_ptr<Light> >& lights = scene->getLights();
-        float43 lightPose( float43::IDENTITY );
-        for ( const std::shared_ptr<Light> light : lights )
-        {
-            lightPose.setTranslation( light->getPosition() );
-            direct3DDefferedRenderer.render( *lightModel, lightPose, viewMatrix );
-        }
+        if ( scene )
+            frame = renderer.renderScene( *scene, camera );
 
 		{ // Render FPS.
-			std::stringstream ss;
-			ss << "FPS: " << (int)(1000.0 / frameTime) << " / " << frameTime << "ms";
-			direct3DDefferedRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			//std::stringstream ss;
+			//ss << "FPS: " << (int)(1000.0 / frameTime) << " / " << frameTime << "ms";
+			//direct3DDefferedRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
 		{ // Render camera state.
-			std::stringstream ss;
-			ss << "Speed: " << camera.getSpeed( ).x << " / " << camera.getSpeed( ).y << " / " << camera.getSpeed( ).z;
+			//std::stringstream ss;
+			//ss << "Speed: " << camera.getSpeed( ).x << " / " << camera.getSpeed( ).y << " / " << camera.getSpeed( ).z;
 			//direct3DRenderer.renderText( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
 		{ // Render keyboard state.
-			std::stringstream ss;
-			ss << "";
-			if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) ss << "W";
-			if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) ss << "S";
-			if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) ss << "A";
-			if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) ss << "D";
+			//std::stringstream ss;
+			//ss << "";
+			//if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) ss << "W";
+			//if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) ss << "S";
+			//if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) ss << "A";
+			//if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) ss << "D";
 				
 			//direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
-		std::shared_ptr<RenderTargetTexture2D> renderTarget = direct3DDefferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO );
+        if ( frame )
+		    frameRenderer.renderTexture( *frame, 0.0f, 0.0f );
 
-		std::shared_ptr<Texture2D> renderTargetTexture = std::dynamic_pointer_cast<Texture2D>( renderTarget );
-
-		direct3DFrameRenderer.renderTexture( *renderTargetTexture, 0.0f, 0.0f );
-
-		direct3DFrameRenderer.displayFrame();
+		frameRenderer.displayFrame();
 
 		Timer frameEndTime;
 		frameTime = Timer::lapse( frameEndTime, frameStartTime );
@@ -486,7 +451,7 @@ void Application::onDragAndDropFile( std::string filePath )
         BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( fileInfo ) );
         if ( !mesh->isInGpuMemory( ) )
-            mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+            mesh->loadCpuToGpu( frameRenderer.getDevice() );
 
         // Add new actor to the scene.
         defaultBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
@@ -502,7 +467,7 @@ void Application::onDragAndDropFile( std::string filePath )
         SkeletonMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>(assetManager.getOrLoad( fileInfo ));  
         if ( !mesh->isInGpuMemory( ) )
-            mesh->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+            mesh->loadCpuToGpu( frameRenderer.getDevice( ) );
 
         // Add new actor to the scene.
         defaultSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
@@ -526,7 +491,7 @@ void Application::onDragAndDropFile( std::string filePath )
         Texture2DFileInfo fileInfo( filePath, format );
         std::shared_ptr<Texture2D> texture = std::static_pointer_cast<Texture2D>( assetManager.getOrLoad( fileInfo ) );
         if ( !texture->isInGpuMemory( ) )
-            texture->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+            texture->loadCpuToGpu( frameRenderer.getDevice() );
 
 		if ( filePath.find( "_A" ) ) {
             if ( defaultBlockActor )    defaultBlockActor->getModel( )->addAlbedoTexture( ModelTexture2D( texture ) );
@@ -548,7 +513,7 @@ void Application::onDragAndDropFile( std::string filePath )
         BlockModelFileInfo fileInfo( filePath, BlockModelFileInfo::Format::BLOCKMODEL, 0 );
         std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( assetManager.getOrLoad( fileInfo ) );
         if ( !model->isInGpuMemory() )
-            model->loadCpuToGpu( direct3DFrameRenderer.getDevice( ) );
+            model->loadCpuToGpu( frameRenderer.getDevice( ) );
 
         // Add new actor to the scene.
         defaultBlockActor = std::make_shared<BlockActor>( model, pose );
@@ -560,7 +525,7 @@ void Application::onDragAndDropFile( std::string filePath )
         SkeletonModelFileInfo fileInfo( filePath, SkeletonModelFileInfo::Format::SKELETONMODEL, 0 );
         std::shared_ptr<SkeletonModel> model = std::static_pointer_cast<SkeletonModel>(assetManager.getOrLoad( fileInfo ));
         if ( !model->isInGpuMemory( ) )
-            model->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+            model->loadCpuToGpu( frameRenderer.getDevice() );
 
         // Add new actor to the scene.
         defaultSkeletonActor = std::make_shared<SkeletonActor>( model, pose );
@@ -605,7 +570,7 @@ void Application::loadScene( std::string path )
                 const BlockModelFileInfo& fileInfo = blockActor->getModel()->getFileInfo();
                 std::shared_ptr<BlockModel> blockModel = std::static_pointer_cast<BlockModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
                 if ( blockModel ) {
-                    blockModel->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+                    blockModel->loadCpuToGpu( frameRenderer.getDevice() );
                     blockActor->setModel( blockModel ); // Swap an empty model with a loaded model.
                 } else {
                     throw std::exception( "Application::onStart - failed to load one of the scene's models." );
@@ -618,7 +583,7 @@ void Application::loadScene( std::string path )
                 const SkeletonModelFileInfo& fileInfo = skeletonActor->getModel()->getFileInfo();
                 std::shared_ptr<SkeletonModel> skeletonModel = std::static_pointer_cast<SkeletonModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
                 if ( skeletonModel ) {
-                    skeletonModel->loadCpuToGpu( direct3DFrameRenderer.getDevice() );
+                    skeletonModel->loadCpuToGpu( frameRenderer.getDevice() );
                     skeletonActor->setModel( skeletonModel ); // Swap an empty model with a loaded model.
                 } else {
                     throw std::exception( "Application::onStart - failed to load one of the scene's models." );

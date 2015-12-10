@@ -15,11 +15,11 @@ namespace Engine1
         void setUp( float3 up ) { this->up = up; }
         void setFieldOfView( float fieldOfView ) { this->fieldOfView = fieldOfView; }
 
-        float3 getPosition() { return position; }
-        float3 getDirection() { return direction; }
-        float3 getUp() { return up; }
-        float3 getLookAtPoint() { return position + direction; }
-        float getFieldOfView() { return fieldOfView; }
+        float3 getPosition() const { return position; }
+        float3 getDirection() const { return direction; }
+        float3 getUp() const { return up; }
+        float3 getLookAtPoint() const { return position + direction; }
+        float getFieldOfView() const { return fieldOfView; }
 
 
         protected:

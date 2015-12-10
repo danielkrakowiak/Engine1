@@ -1104,6 +1104,9 @@
     <ClInclude Include="PointLightParser.h">
       <Filter>Header Files\Light\Parsers</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1861,6 +1864,9 @@
     </ClCompile>
     <ClCompile Include="PointLightParser.cpp">
       <Filter>Source Files\Light\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

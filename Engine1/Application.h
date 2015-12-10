@@ -2,6 +2,7 @@
 
 #include "InputManager.h"
 #include "Direct3DRendererCore.h"
+#include "Renderer.h"
 #include "Direct3DFrameRenderer.h"
 #include "Direct3DDefferedRenderer.h"
 #include "FreeCamera.h"
@@ -43,11 +44,11 @@ private:
 	static ImageLibrary imageLibrary;
 	static FontLibrary fontLibrary;
 
-	//initialization
+	// Initialization
 	bool initialized;
 	void setupWindow( );
 
-	//Windows message handling
+	// Windows message handling.
 	static const unsigned int inputTimerId = 1;
 	static const unsigned int inputTimerInterval = 5;
 	static Application* windowsMessageReceiver;
@@ -64,22 +65,25 @@ private:
     void loadScene( std::string path );
     void saveScene( std::string path );
 
-	//basic application handles
+	// Basic application handles.
 	HINSTANCE applicationInstance;
-	HWND windowHandle;
-	HDC deviceContext;
+	HWND      windowHandle;
+	HDC       deviceContext;
 
 	InputManager inputManager;
-	Direct3DRendererCore  direct3DRendererCore;
-	Direct3DFrameRenderer direct3DFrameRenderer;
-	Direct3DDefferedRenderer direct3DDefferedRenderer;
+
+	Direct3DRendererCore     rendererCore;
+    Direct3DDefferedRenderer defferedRenderer;
+    Direct3DFrameRenderer    frameRenderer;
+    Renderer                 renderer;
 
 	bool fullscreen;
-	int screenWidth, screenHeight;
+	int  screenWidth;
+    int  screenHeight;
 	bool verticalSync;
-	int displayFrequency;
-	int screenColorDepth;
-	int zBufferDepth;
+	int  displayFrequency;
+	int  screenColorDepth;
+	int  zBufferDepth;
 
 	bool windowFocused;
 
@@ -90,8 +94,6 @@ private:
 	// For creation of new assets.
 	std::shared_ptr<BlockActor>    defaultBlockActor;
 	std::shared_ptr<SkeletonActor> defaultSkeletonActor;
-
-    std::shared_ptr<BlockModel> lightModel;
 
     std::string scenePath;
     std::shared_ptr<CScene> scene;

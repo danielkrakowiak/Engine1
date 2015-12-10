@@ -30,10 +30,10 @@ namespace Engine1
         void removeLight( std::shared_ptr<Light> light );
         void removeAllLights( );
 
-        const std::unordered_set< std::shared_ptr<Actor> >& getActors();
-        const std::unordered_set< std::shared_ptr<Light> >& getLights( );
+        const std::unordered_set< std::shared_ptr<Actor> >& getActors() const;
+        const std::unordered_set< std::shared_ptr<Light> >& getLights( ) const;
 
-        void saveToFile( const std::string& path );
+        void saveToFile( const std::string& path ) const;
 
         private:
 

@@ -63,7 +63,7 @@ void CScene::removeAllLights()
     lights.clear();
 }
 
-void CScene::saveToFile( const std::string& path )
+void CScene::saveToFile( const std::string& path ) const
 {
     std::vector<char> data;
 
@@ -72,12 +72,12 @@ void CScene::saveToFile( const std::string& path )
     BinaryFile::save( path, data );
 }
 
-const std::unordered_set< std::shared_ptr<Actor> >& CScene::getActors( )
+const std::unordered_set< std::shared_ptr<Actor> >& CScene::getActors( ) const
 {
     return actors;
 }
 
-const std::unordered_set< std::shared_ptr<Light> >& CScene::getLights()
+const std::unordered_set< std::shared_ptr<Light> >& CScene::getLights() const
 {
     return lights;
 }

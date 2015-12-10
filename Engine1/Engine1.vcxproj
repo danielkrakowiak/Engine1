@@ -464,6 +464,7 @@
     <ClInclude Include="CScene.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="PointLightParser.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="SceneParser.h" />
     <ClInclude Include="SkeletonActor.h" />
     <ClInclude Include="SkeletonAnimationFileInfo.h" />
@@ -721,6 +722,7 @@
     <ClCompile Include="CScene.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="PointLightParser.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SceneParser.cpp" />
     <ClCompile Include="SkeletonActor.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfo.cpp" />

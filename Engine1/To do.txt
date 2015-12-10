@@ -45,6 +45,9 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
+Think how I want to integrate ray tracign and rasterization. Maybe add new type of renderer which combines info from deffered and from ray tracing. For now only deffered.
+All the info should be in some kind of screen size textures.
+
 Some util static methods to save/load BlockModel/SkeletonModel?
 
 Ability to select an actor by clicking on it. Using ray tracing.
