@@ -150,8 +150,6 @@ void Application::run() {
 	bool run = true;
 	MSG msg;
 
-    loadDefaultScene();
-
     // Add 'axis' actor to the scene.
     BlockMeshFileInfo axisMeshFileInfo( "../Engine1/Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
     std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( axisMeshFileInfo ) );
@@ -276,8 +274,6 @@ void Application::run() {
 		Timer frameEndTime;
 		frameTime = Timer::lapse( frameEndTime, frameStartTime );
 	}
-
-    saveDefaultScene();
 }
 
 LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
@@ -401,6 +397,10 @@ void Application::onKeyPress( int key )
 
             scene->addLight( std::make_shared<PointLight>( lightPosition ) );
         }
+    } else if ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) {
+        if ( scene && !scenePath.empty() && inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::s ) ) {
+            saveScene( scenePath );
+        }
     }
 }
 
@@ -435,12 +435,14 @@ void Application::onDragAndDropFile( std::string filePath )
 	std::array< const std::string, 8 > textureExtensions       = { "bmp", "dds", "jpg", "jpeg", "png", "raw", "tga", "tiff" };
     std::array< const std::string, 1 > blockModelExtensions    = { "blockmodel" };
     std::array< const std::string, 1 > skeletonModelExtensions = { "skeletonmodel" };
+    std::array< const std::string, 1 > sceneExtensions         = { "scene" };
 
 	bool isBlockMesh     = false;
 	bool isSkeletonMesh  = false;
 	bool isTexture       = false;
     bool isBlockModel    = false;
     bool isSkeletonModel = false;
+    bool isScene         = false;
 
 	for ( const std::string& blockMeshExtension : blockMeshExtensions ) {
 		if ( extension.compare( blockMeshExtension ) == 0 )
@@ -465,6 +467,11 @@ void Application::onDragAndDropFile( std::string filePath )
     for ( const std::string& skeletonModelExtension : skeletonModelExtensions ) {
         if ( extension.compare( skeletonModelExtension ) == 0 )
             isSkeletonModel = true;
+    }
+
+    for ( const std::string& sceneExtension : sceneExtensions ) {
+        if ( extension.compare( sceneExtension ) == 0 )
+            isScene = true;
     }
 
     float43 pose = float43::IDENTITY;
@@ -566,13 +573,18 @@ void Application::onDragAndDropFile( std::string filePath )
 
     if ( (isSkeletonMesh || isTexture) && defaultSkeletonActor && defaultSkeletonActor->getModel( ) && defaultSkeletonActor->getModel( )->isInCpuMemory( ) )
         defaultSkeletonActor->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
+
+    if ( isScene ) {
+        loadScene( filePath );
+        scenePath = filePath;
+    }
 }
 
-void Application::loadDefaultScene()
+void Application::loadScene( std::string path )
 {
     std::shared_ptr< std::vector < std::shared_ptr< FileInfo > > > fileInfos;
 
-    std::tie( scene, fileInfos ) = CScene::createFromFile( "Assets/Scenes/new.scene" );
+    std::tie( scene, fileInfos ) = CScene::createFromFile( path );
 
     // Load all assets.
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos )
@@ -616,7 +628,7 @@ void Application::loadDefaultScene()
     }
 }
 
-void Application::saveDefaultScene()
+void Application::saveScene( std::string path )
 {
-    scene->saveToFile( "Assets/Scenes/new.scene" );
+    scene->saveToFile( path );
 }

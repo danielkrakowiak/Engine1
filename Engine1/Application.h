@@ -61,8 +61,8 @@ private:
     void onKeyPress( int key );
 	void onDragAndDropFile( std::string filePath );
 
-    void loadDefaultScene();
-    void saveDefaultScene();
+    void loadScene( std::string path );
+    void saveScene( std::string path );
 
 	//basic application handles
 	HINSTANCE applicationInstance;
@@ -93,6 +93,7 @@ private:
 
     std::shared_ptr<BlockModel> lightModel;
 
+    std::string scenePath;
     std::shared_ptr<CScene> scene;
 
 	// Copying is not allowed.

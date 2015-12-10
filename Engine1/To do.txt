@@ -45,10 +45,6 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-Fix paths in all tests to be relative to Engine1 folder.
-
-Load scene on drag&drop. Save on Ctrl + S.
-
 Some util static methods to save/load BlockModel/SkeletonModel?
 
 Ability to select an actor by clicking on it. Using ray tracing.
