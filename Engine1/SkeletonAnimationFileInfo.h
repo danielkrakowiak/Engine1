@@ -22,7 +22,7 @@ namespace Engine1
             XAF = 0
         };
 
-        static std::shared_ptr<SkeletonAnimationFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
+        static std::shared_ptr<SkeletonAnimationFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );
 
         SkeletonAnimationFileInfo();
         SkeletonAnimationFileInfo( std::string path, Format format, const SkeletonMeshFileInfo meshFileInfo, bool invertZCoordinate = false );
@@ -30,7 +30,7 @@ namespace Engine1
 
         std::shared_ptr<FileInfo> clone() const;
 
-        void writeBinary( std::vector<char>& data ) const;
+        void saveToMemory( std::vector<char>& data ) const;
 
         void setPath( std::string path );
         void setFormat( Format format );

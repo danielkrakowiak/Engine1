@@ -6,7 +6,7 @@
 
 using namespace Engine1;
 
-std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
+std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfo::createFromMemory( std::vector<char>::const_iterator& dataIt )
 {
 	return BlockMeshFileInfoParser::parseBinary( dataIt );
 }
@@ -37,7 +37,7 @@ std::shared_ptr<FileInfo> BlockMeshFileInfo::clone( ) const
 	return std::make_shared<BlockMeshFileInfo>( *this );
 }
 
-void BlockMeshFileInfo::writeBinary( std::vector<char>& data ) const
+void BlockMeshFileInfo::saveToMemory( std::vector<char>& data ) const
 {
 	BlockMeshFileInfoParser::writeBinary( data, *this );
 }

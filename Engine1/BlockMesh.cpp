@@ -28,7 +28,7 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const std::string& path, c
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-	std::shared_ptr<BlockMesh> mesh = createFromMemory( *fileData, format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+    std::shared_ptr<BlockMesh> mesh = createFromMemory( fileData->begin( ), fileData->end( ), format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	// Save path in the loaded mesh.
 	mesh->getFileInfo().setPath( path );
@@ -45,7 +45,7 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-	std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( *fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+    std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( fileData->begin( ), fileData->end( ), format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	// Save path in the loaded meshes.
 	int indexInFile = 0;
@@ -62,12 +62,12 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::
 	return meshes;
 }
 
-std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( const std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( indexInFile < 0 )
 		throw std::exception( "BlockMesh::createFromMemory - 'index in file' parameter cannot be negative." );
 
-	std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+    std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( dataIt, dataEndIt, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	if ( indexInFile < (int)meshes.size( ) )
 		return meshes.at( indexInFile );
@@ -75,17 +75,17 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( const std::vector<char>&
 		throw std::exception( "BlockMesh::createFromFile - no mesh at given index in file." );
 }
 
-std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( const std::vector<char>& fileData, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( BlockMeshFileInfo::Format::OBJ == format ) {
 
 		std::vector< std::shared_ptr<BlockMesh> > meshes;
-		meshes.push_back( MyOBJFileParser::parseBlockMeshFile( fileData, invertZCoordinate, invertVertexWindingOrder, flipUVs ) );
+        meshes.push_back( MyOBJFileParser::parseBlockMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs ) );
 
 		return meshes;
 
 	} else if ( BlockMeshFileInfo::Format::DAE == format ) {
-		return MyDAEFileParser::parseBlockMeshFile( fileData, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+        return MyDAEFileParser::parseBlockMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 	}
 
 	throw std::exception( "BlockMesh::createFromMemory() - incorrect 'format' argument." );

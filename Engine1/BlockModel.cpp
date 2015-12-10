@@ -14,7 +14,7 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path,
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-	std::shared_ptr<BlockModel> model = createFromMemory( *fileData, format, loadRecurrently );
+	std::shared_ptr<BlockModel> model = createFromMemory( fileData->begin(), format, loadRecurrently );
 
     model->getFileInfo( ).setPath( path );
     model->getFileInfo( ).setFormat( format );
@@ -22,10 +22,10 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path,
     return model;
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromMemory( const std::vector<char>& fileData, const BlockModelFileInfo::Format format, const bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::const_iterator& dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently )
 {
 	if ( BlockModelFileInfo::Format::BLOCKMODEL == format ) {
-		return BlockModelParser::parseBinary( fileData, loadRecurrently );
+		return BlockModelParser::parseBinary( dataIt, loadRecurrently );
 	}
 
 	throw std::exception( "BlockModel::createFromMemory() - incorrect 'format' argument." );
@@ -122,13 +122,18 @@ BlockModelFileInfo& BlockModel::getFileInfo()
 	return fileInfo;
 }
 
-void BlockModel::saveToFile( const std::string& path )
+void BlockModel::saveToFile( const std::string& path ) const
 {
 	std::vector<char> data;
 
 	BlockModelParser::writeBinary( data, *this );
 
 	BinaryFile::save( path, data );
+}
+
+void BlockModel::saveToMemory( std::vector<char>& data ) const
+{
+    BlockModelParser::writeBinary( data, *this );
 }
 
 void BlockModel::loadCpuToGpu( ID3D11Device& device, bool reload )

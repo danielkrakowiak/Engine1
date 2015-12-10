@@ -6,7 +6,7 @@
 
 using namespace Engine1;
 
-std::shared_ptr<SkeletonAnimationFileInfo> SkeletonAnimationFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
+std::shared_ptr<SkeletonAnimationFileInfo> SkeletonAnimationFileInfo::createFromMemory( std::vector<char>::const_iterator& dataIt )
 {
 	return SkeletonAnimationFileInfoParser::parseBinary( dataIt );
 }
@@ -32,7 +32,7 @@ std::shared_ptr<FileInfo> SkeletonAnimationFileInfo::clone() const
 	return std::make_shared<SkeletonAnimationFileInfo>( *this );
 }
 
-void SkeletonAnimationFileInfo::writeBinary( std::vector<char>& data ) const
+void SkeletonAnimationFileInfo::saveToMemory( std::vector<char>& data ) const
 {
 	SkeletonAnimationFileInfoParser::writeBinary( data, *this );
 }

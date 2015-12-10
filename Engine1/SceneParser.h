@@ -15,8 +15,6 @@ namespace Engine1
 
         private:
 
-        static std::string fileTypeIdentifier;
-
         // Returns the parsed scene (with models containing only file info) and a vector of unique models (their file infos) in that scene.
         static std::tuple< std::shared_ptr<CScene>, std::shared_ptr<std::vector< std::shared_ptr<FileInfo> > > > parseBinary( const std::vector<char>& data );
 

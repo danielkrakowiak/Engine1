@@ -6,7 +6,7 @@
 
 using namespace Engine1;
 
-std::shared_ptr<Texture2DFileInfo> Texture2DFileInfo::parseBinary( std::vector<char>::const_iterator& dataIt )
+std::shared_ptr<Texture2DFileInfo> Texture2DFileInfo::createFromMemory( std::vector<char>::const_iterator& dataIt )
 {
 	return Texture2DFileInfoParser::parseBinary( dataIt );
 }
@@ -29,7 +29,7 @@ std::shared_ptr<FileInfo> Texture2DFileInfo::clone() const
 	return std::make_shared<Texture2DFileInfo>( *this );
 }
 
-void Texture2DFileInfo::writeBinary( std::vector<char>& data ) const
+void Texture2DFileInfo::saveToMemory( std::vector<char>& data ) const
 {
 	Texture2DFileInfoParser::writeBinary( data, *this );
 }

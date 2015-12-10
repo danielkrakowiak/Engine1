@@ -13,10 +13,8 @@ namespace Engine1
         friend class SkeletonModel;
 
         private:
-        static std::shared_ptr<SkeletonModel> parseBinary( const std::vector<char>& data, const bool loadRecurrently );
+        static std::shared_ptr<SkeletonModel> parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently );
         static void                           writeBinary( std::vector<char>& data, const SkeletonModel& model );
-
-        static std::string fileTypeIdentifier;
     };
 }
 

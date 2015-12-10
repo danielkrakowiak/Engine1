@@ -23,7 +23,7 @@ namespace Engine1
             TGA = 6
         };
 
-        static std::shared_ptr<Texture2DFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
+        static std::shared_ptr<Texture2DFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );
 
         Texture2DFileInfo();
         Texture2DFileInfo( std::string path, Format format );
@@ -31,7 +31,7 @@ namespace Engine1
 
         std::shared_ptr<FileInfo> clone() const;
 
-        void writeBinary( std::vector<char>& data ) const;
+        void saveToMemory( std::vector<char>& data ) const;
 
         void setPath( std::string path );
         void setFormat( Format format );

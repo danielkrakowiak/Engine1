@@ -23,7 +23,7 @@ namespace Engine1
         virtual FileType                  getFileType() const = 0;
         virtual std::shared_ptr<FileInfo> clone() const = 0;
 
-        virtual void writeBinary( std::vector<char>& data ) const = 0;
+        virtual void saveToMemory( std::vector<char>& data ) const = 0;
     };
 }
 

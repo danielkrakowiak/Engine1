@@ -12,9 +12,7 @@ namespace Engine1
 
         public:
 
-        static std::shared_ptr< ModelTexture2D > createFromBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently );
-
-        void writeBinary( std::vector<char>& data ) const;
+        static std::shared_ptr< ModelTexture2D > createFromMemory( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently );
 
         ModelTexture2D();
         ModelTexture2D( std::shared_ptr<Texture2D> texture, int texcoordIndex = 0, float4 colorMultiplier = float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
@@ -22,6 +20,8 @@ namespace Engine1
         ~ModelTexture2D();
 
         ModelTexture2D& operator=(const ModelTexture2D&);
+
+        void saveToMemory( std::vector<char>& data ) const;
 
         const std::shared_ptr<Texture2D> getTexture() const;
         std::shared_ptr<Texture2D> getTexture();

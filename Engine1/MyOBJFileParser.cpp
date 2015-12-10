@@ -9,9 +9,9 @@ using namespace Engine1;
 
 //invertZCoordinate is useful when loading a model created in right-hand space into left-hand space (or the other way)
 //invertVertexWindingOrder is useful when vertex winding order in a model is different than used by the renderer (OBJ file should have anti-clockwise order)
-std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	if ( file.empty() ) throw std::exception( "MyOBJFileParser::parseBlockMeshFile() - empty input." );
+	if ( dataIt == dataEndIt ) throw std::exception( "MyOBJFileParser::parseBlockMeshFile() - empty input." );
 
 	std::shared_ptr<BlockMesh> mesh = std::make_shared<BlockMesh>( );
 
@@ -19,10 +19,10 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( const std::vecto
 
 	{ //count vertices, normals, texcoords, triangles in the file
 		char type[ 2 ];
-		std::vector<char>::const_iterator it = file.begin();
-		std::vector<char>::const_iterator fileEnd = file.end();
+		std::vector<char>::const_iterator it = dataIt;
+        std::vector<char>::const_iterator endIt = dataEndIt;
 
-		while ( it != fileEnd && ( it + 1 ) != fileEnd ) {
+		while ( it != endIt && ( it + 1 ) != endIt ) {
 			type[ 0 ] = *it;
 			type[ 1 ] = *( it + 1 );
 
@@ -38,7 +38,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( const std::vecto
 
 				//count slashes in the line
 				int slashCount = 0;
-				while ( *( it + 1 ) != '\n' && ( it + 1 ) != fileEnd ) {
+				while ( *( it + 1 ) != '\n' && ( it + 1 ) != endIt ) {
 					if ( *it == '/' ) ++slashCount;
 					++it;
 				}
@@ -46,8 +46,8 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( const std::vecto
 				trianglesFromPolygonsCount += ( slashCount / 2 ) - 3; //every pair of slashes above 3 defines one additional face
 			}
 
-			while ( *it != '\n' && ( it + 1 ) != fileEnd ) ++it; //jump to end of line
-			while ( it != fileEnd && *it == '\n' ) ++it; //jump to next line and skip empty lines
+			while ( *it != '\n' && ( it + 1 ) != endIt ) ++it; //jump to end of line
+			while ( it != endIt && *it == '\n' ) ++it; //jump to next line and skip empty lines
 		}
 
 		triangleCount += trianglesFromPolygonsCount;
@@ -102,8 +102,8 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( const std::vecto
 
 
 		char type[ 2 ];
-		std::vector<char>::const_iterator tmpIt, it = file.cbegin();
-		std::vector<char>::const_iterator fileEnd = file.cend();
+		std::vector<char>::const_iterator tmpIt, it = dataIt;
+		std::vector<char>::const_iterator fileEnd = dataEndIt;
 
 		uint3 vertexTexcoordNormalIndices;
 		uint2 vertexTexcoordIndices, vertexNormalIndices;

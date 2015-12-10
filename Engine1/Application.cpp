@@ -45,7 +45,7 @@ Application::Application() :
 	fullscreen( false ),
 	screenWidth( 1024 ),
 	screenHeight( 768 ),
-	verticalSync( false ),
+	verticalSync( true ),
 	displayFrequency( 60 ),
 	screenColorDepth( 32 ),
 	zBufferDepth( 32 ),

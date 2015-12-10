@@ -26,7 +26,7 @@ std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromFile( const std::string& p
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-	std::shared_ptr<SkeletonMesh> mesh = createFromMemory( *fileData, format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+    std::shared_ptr<SkeletonMesh> mesh = createFromMemory( fileData->begin(), fileData->end(), format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	mesh->getFileInfo().setPath( path );
 	mesh->getFileInfo().setIndexInFile( indexInFile );
@@ -42,7 +42,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-	std::vector< std::shared_ptr<SkeletonMesh> > meshes = createFromMemory( *fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+	std::vector< std::shared_ptr<SkeletonMesh> > meshes = createFromMemory( fileData->begin(), fileData->end(), format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	int indexInFile = 0;
 	for ( std::shared_ptr<SkeletonMesh> mesh : meshes ) {
@@ -57,12 +57,12 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const
 	return meshes;
 }
 
-std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromMemory( const std::vector<char>& fileData, const SkeletonMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const SkeletonMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( indexInFile < 0 )
 		throw std::exception( "SkeletonMesh::createFromMemory - 'index in file' parameter cannot be negative." );
 
-	std::vector< std::shared_ptr<SkeletonMesh> > meshes = createFromMemory( fileData, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+	std::vector< std::shared_ptr<SkeletonMesh> > meshes = createFromMemory( dataIt, dataEndIt, format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	if ( indexInFile < (int)meshes.size() )
 		return meshes.at( indexInFile );
@@ -70,10 +70,10 @@ std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromMemory( const std::vector<
 		throw std::exception( "SkeletonMesh::createFromFile - no mesh at given index in file." );
 }
 
-std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( const std::vector<char>& fileData, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( SkeletonMeshFileInfo::Format::DAE == format ) {
-		return MyDAEFileParser::parseSkeletonMeshFile( fileData, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+		return MyDAEFileParser::parseSkeletonMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 	}
 
 	throw std::exception( "SkeletonMesh::createFromMemory() - incorrect 'format' argument." );

@@ -16,7 +16,7 @@ namespace Engine1
         public:
 
         static std::shared_ptr<SkeletonModel> createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently );
-        static std::shared_ptr<SkeletonModel> createFromMemory( const std::vector<char>& fileData, const SkeletonModelFileInfo::Format format, bool loadRecurrently );
+        static std::shared_ptr<SkeletonModel> createFromMemory( std::vector<char>::const_iterator& dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently );
 
         SkeletonModel();
         ~SkeletonModel();
@@ -31,6 +31,7 @@ namespace Engine1
         SkeletonModelFileInfo&       getFileInfo();
 
         void saveToFile( const std::string& path );
+        void saveToMemory( std::vector<char>& data ) const;
 
         void loadCpuToGpu( ID3D11Device& device, bool reload = false );
         void loadGpuToCpu();

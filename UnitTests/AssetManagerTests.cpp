@@ -17,6 +17,13 @@ namespace UnitTests
 	{
 	public:
 
+    TEST_METHOD_INITIALIZE( initTest )
+    {
+        BOOL success = SetCurrentDirectoryW( L"F:/Projekty/Engine1/Engine1/" );
+        if (!success)
+            throw std::exception( "Failed to set current path for tests." );
+    }
+
 	TEST_METHOD( AssetManager_Construct_Destruct_1 )
 	{
 		int cpuThreadCount = (int)std::thread::hardware_concurrency();
@@ -77,7 +84,7 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.load( fileInfo );
@@ -85,10 +92,10 @@ namespace UnitTests
 				Assert::Fail( L"AssetManager::load threw an exception" );
 			}
 
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-                std::shared_ptr<Asset> asset = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
+                std::shared_ptr<Asset> asset = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Pyramid.obj" );
 				Assert::IsNotNull( asset.get( ), L"AssetManager::get returned nullptr" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
@@ -103,10 +110,10 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo1( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo2( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo3( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo4( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo1( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo2( "Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo3( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo4( "Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.load( fileInfo1 );
@@ -117,19 +124,19 @@ namespace UnitTests
 				Assert::Fail( L"AssetManager::load threw an exception" );
 			}
 
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/triangle.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/triangle.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Bunny.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
+                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Pyramid.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/triangle.obj" );
+                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/triangle.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset2 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
+                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset3 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" );
+                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Bunny.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset4 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -143,11 +150,11 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo1( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo2( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo3( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo4( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo5( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo1( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo2( "Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo3( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo4( "Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo5( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.load( fileInfo1 );
@@ -169,11 +176,11 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo1( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo2( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo3( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo4( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo5( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo1( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo2( "Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo3( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo4( "Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo5( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.load( fileInfo1 );
@@ -195,7 +202,7 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			const std::string path = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
+			const std::string path = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
 
 			BlockMeshFileInfo fileInfo1( path, BlockMeshFileInfo::Format::DAE, 0 );
 			BlockMeshFileInfo fileInfo2( path, BlockMeshFileInfo::Format::DAE, 1 );
@@ -246,7 +253,7 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.loadAsync( fileInfo );
@@ -256,10 +263,10 @@ namespace UnitTests
 
 			std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
 
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-                std::shared_ptr<Asset> asset = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
+                std::shared_ptr<Asset> asset = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Pyramid.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -279,10 +286,10 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo1( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo2( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo3( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo4( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo1( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo2( "Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo3( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo4( "Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.loadAsync( fileInfo1 );
@@ -295,19 +302,19 @@ namespace UnitTests
 
 			std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
 
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/triangle.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Pyramid.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/triangle.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Bunny.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj" );
+                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Pyramid.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/triangle.obj" );
+                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/triangle.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset2 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
+                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset3 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/Bunny.obj" );
+                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/Bunny.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset4 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -328,14 +335,14 @@ namespace UnitTests
 			AssetManager assetManager( cpuThreadCount );
 
 
-			BlockMeshFileInfo fileInfo1( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo2( "../Engine1/Assets/TestAssets/Meshes/dragon2.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo3( "../Engine1/Assets/TestAssets/Meshes/dragon3.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo4( "../Engine1/Assets/TestAssets/Meshes/dragon4.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo5( "../Engine1/Assets/TestAssets/Meshes/dragon5.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo6( "../Engine1/Assets/TestAssets/Meshes/dragon6.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo7( "../Engine1/Assets/TestAssets/Meshes/dragon7.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo8( "../Engine1/Assets/TestAssets/Meshes/dragon8.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo1( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo2( "Assets/TestAssets/Meshes/dragon2.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo3( "Assets/TestAssets/Meshes/dragon3.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo4( "Assets/TestAssets/Meshes/dragon4.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo5( "Assets/TestAssets/Meshes/dragon5.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo6( "Assets/TestAssets/Meshes/dragon6.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo7( "Assets/TestAssets/Meshes/dragon7.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo8( "Assets/TestAssets/Meshes/dragon8.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.loadAsync( fileInfo1 );
@@ -352,31 +359,31 @@ namespace UnitTests
 
 			std::this_thread::sleep_for( std::chrono::milliseconds( meshMaxLoadingTimeMilisec ) );
 
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon2.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon3.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon4.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon5.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon6.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon7.obj" ), L"AssetManager::isLoaded returned false" );
-            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon8.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon2.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon3.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon4.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon5.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon6.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon7.obj" ), L"AssetManager::isLoaded returned false" );
+            Assert::IsTrue( assetManager.isLoaded( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon8.obj" ), L"AssetManager::isLoaded returned false" );
 
 			try {
-                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon.obj" );
+                std::shared_ptr<Asset> asset1 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset1 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon2.obj" );
+                std::shared_ptr<Asset> asset2 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon2.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset2 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon3.obj" );
+                std::shared_ptr<Asset> asset3 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon3.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset3 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon4.obj" );
+                std::shared_ptr<Asset> asset4 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon4.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset4 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset5 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon5.obj" );
+                std::shared_ptr<Asset> asset5 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon5.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset5 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset6 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon6.obj" );
+                std::shared_ptr<Asset> asset6 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon6.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset6 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset7 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon7.obj" );
+                std::shared_ptr<Asset> asset7 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon7.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset7 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
-                std::shared_ptr<Asset> asset8 = assetManager.get( Asset::Type::BlockMesh, "../Engine1/Assets/TestAssets/Meshes/dragon8.obj" );
+                std::shared_ptr<Asset> asset8 = assetManager.get( Asset::Type::BlockMesh, "Assets/TestAssets/Meshes/dragon8.obj" );
 				Assert::IsNotNull( std::dynamic_pointer_cast<BlockMesh>( asset8 ).get(), L"AssetManager::get returned an asset which is not a BlockMesh" );
 			} catch ( ... ) {
 				Assert::Fail( L"AssetManager::get threw an exception" );
@@ -396,14 +403,14 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo1( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo2( "../Engine1/Assets/TestAssets/Meshes/dragon2.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo3( "../Engine1/Assets/TestAssets/Meshes/dragon3.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo4( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo5( "../Engine1/Assets/TestAssets/Meshes/dragon5.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo6( "../Engine1/Assets/TestAssets/Meshes/dragon6.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo7( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo8( "../Engine1/Assets/TestAssets/Meshes/dragon8.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo1( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo2( "Assets/TestAssets/Meshes/dragon2.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo3( "Assets/TestAssets/Meshes/dragon3.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo4( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo5( "Assets/TestAssets/Meshes/dragon5.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo6( "Assets/TestAssets/Meshes/dragon6.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo7( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo8( "Assets/TestAssets/Meshes/dragon8.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.loadAsync( fileInfo1 );
@@ -435,11 +442,11 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo1( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo2( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo3( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo4( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo5( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo1( "Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo2( "Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo3( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo4( "Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo5( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.loadAsync( fileInfo1 );
@@ -469,11 +476,11 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			BlockMeshFileInfo fileInfo1( "../Engine1/Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo2( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo3( "../Engine1/Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo4( "../Engine1/Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
-			BlockMeshFileInfo fileInfo5( "../Engine1/Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo1( "Assets/TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo2( "Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo3( "Assets/TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo4( "Assets/TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ );
+			BlockMeshFileInfo fileInfo5( "Assets/TestAssets/Meshes/Bunny.obj", BlockMeshFileInfo::Format::OBJ );
 
 			try {
 				assetManager.loadAsync( fileInfo1 );
@@ -503,7 +510,7 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			const std::string path = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
+			const std::string path = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
 
 			BlockMeshFileInfo fileInfo1( path, BlockMeshFileInfo::Format::DAE, 0 );
 			BlockMeshFileInfo fileInfo2( path, BlockMeshFileInfo::Format::DAE, 2 );
@@ -535,7 +542,7 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			const std::string path = "../Engine1/Assets/TestAssets/Models/quadbot.blockmodel";
+			const std::string path = "Assets/TestAssets/Models/quadbot.blockmodel";
 
 			BlockModelFileInfo fileInfo1( path, BlockModelFileInfo::Format::BLOCKMODEL );
 
@@ -572,7 +579,7 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			const std::string path = "../Engine1/Assets/TestAssets/Models/bikini_girl.skeletonmodel";
+			const std::string path = "Assets/TestAssets/Models/bikini_girl.skeletonmodel";
 
 			SkeletonModelFileInfo fileInfo1( path, SkeletonModelFileInfo::Format::SKELETONMODEL );
 
@@ -609,10 +616,10 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			const std::string path = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
-			const std::string path2 = "../Engine1/Assets/TestAssets/Meshes/dragon.obj";
-			const std::string path3 = "../Engine1/Assets/TestAssets/Meshes/Bunny.obj";
-			const std::string path4 = "../Engine1/Assets/TestAssets/Meshes/dragon2.obj";
+			const std::string path = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
+			const std::string path2 = "Assets/TestAssets/Meshes/dragon.obj";
+			const std::string path3 = "Assets/TestAssets/Meshes/Bunny.obj";
+			const std::string path4 = "Assets/TestAssets/Meshes/dragon2.obj";
 
 
 			BlockMeshFileInfo fileInfo1( path,  BlockMeshFileInfo::Format::DAE, 0 );
@@ -646,16 +653,16 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			const std::string path1 = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
-			const std::string path2 = "../Engine1/Assets/TestAssets/Meshes/quadbot.obj";
-			const std::string path3 = "../Engine1/Assets/TestAssets/Meshes/Bunny.obj";
-			const std::string path4 = "../Engine1/Assets/TestAssets/Meshes/dragon2.obj";
-			const std::string path5 = "../Engine1/Assets/TestAssets/Meshes/quadbot2.obj";
-			const std::string path6 = "../Engine1/Assets/TestAssets/Meshes/dragon4.obj";
-			const std::string path7 = "../Engine1/Assets/TestAssets/Meshes/dragon5.obj";
-			const std::string path8 = "../Engine1/Assets/TestAssets/Meshes/dragon6.obj";
-			const std::string path9 = "../Engine1/Assets/TestAssets/Meshes/dragon7.obj";
-			const std::string path10 = "../Engine1/Assets/TestAssets/Meshes/dragon8.obj";
+			const std::string path1 = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
+			const std::string path2 = "Assets/TestAssets/Meshes/quadbot.obj";
+			const std::string path3 = "Assets/TestAssets/Meshes/Bunny.obj";
+			const std::string path4 = "Assets/TestAssets/Meshes/dragon2.obj";
+			const std::string path5 = "Assets/TestAssets/Meshes/quadbot2.obj";
+			const std::string path6 = "Assets/TestAssets/Meshes/dragon4.obj";
+			const std::string path7 = "Assets/TestAssets/Meshes/dragon5.obj";
+			const std::string path8 = "Assets/TestAssets/Meshes/dragon6.obj";
+			const std::string path9 = "Assets/TestAssets/Meshes/dragon7.obj";
+			const std::string path10 = "Assets/TestAssets/Meshes/dragon8.obj";
 
 			BlockMeshFileInfo fileInfo1( path1, BlockMeshFileInfo::Format::DAE, 0 );
 			BlockMeshFileInfo fileInfo2( path2, BlockMeshFileInfo::Format::OBJ );
@@ -701,16 +708,16 @@ namespace UnitTests
 
 			AssetManager assetManager( cpuThreadCount );
 
-			const std::string path1 = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
-			const std::string path2 = "../Engine1/Assets/TestAssets/Meshes/quadbot.obj";
-			const std::string path3 = "../Engine1/Assets/TestAssets/Meshes/Bunny.obj";
-			const std::string path4 = "../Engine1/Assets/TestAssets/Meshes/dragon2.obj";
-			const std::string path5 = "../Engine1/Assets/TestAssets/Meshes/quadbot2.obj";
-			const std::string path6 = "../Engine1/Assets/TestAssets/Meshes/dragon4.obj";
-			const std::string path7 = "../Engine1/Assets/TestAssets/Meshes/dragon5.obj";
-			const std::string path8 = "../Engine1/Assets/TestAssets/Meshes/dragon6.obj";
-			const std::string path9 = "../Engine1/Assets/TestAssets/Meshes/dragon7.obj";
-			const std::string path10 = "../Engine1/Assets/TestAssets/Meshes/dragon8.obj";
+			const std::string path1 = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
+			const std::string path2 = "Assets/TestAssets/Meshes/quadbot.obj";
+			const std::string path3 = "Assets/TestAssets/Meshes/Bunny.obj";
+			const std::string path4 = "Assets/TestAssets/Meshes/dragon2.obj";
+			const std::string path5 = "Assets/TestAssets/Meshes/quadbot2.obj";
+			const std::string path6 = "Assets/TestAssets/Meshes/dragon4.obj";
+			const std::string path7 = "Assets/TestAssets/Meshes/dragon5.obj";
+			const std::string path8 = "Assets/TestAssets/Meshes/dragon6.obj";
+			const std::string path9 = "Assets/TestAssets/Meshes/dragon7.obj";
+			const std::string path10 = "Assets/TestAssets/Meshes/dragon8.obj";
 
 			BlockMeshFileInfo fileInfo1( path1, BlockMeshFileInfo::Format::DAE, 0 );
 			BlockMeshFileInfo fileInfo2( path2, BlockMeshFileInfo::Format::OBJ );
@@ -776,8 +783,8 @@ namespace UnitTests
 
             AssetManager assetManager( cpuThreadCount );
 
-            const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
-            const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
+            const std::string meshPath = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
+            const std::string animPath = "Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
 
             SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 2 );
             SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
@@ -800,8 +807,8 @@ namespace UnitTests
 
             AssetManager assetManager( cpuThreadCount );
 
-            const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
-            const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
+            const std::string meshPath = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
+            const std::string animPath = "Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
 
             SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 2 );
             SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
@@ -829,8 +836,8 @@ namespace UnitTests
 
             AssetManager assetManager( cpuThreadCount );
 
-            const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
-            const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
+            const std::string meshPath = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
+            const std::string animPath = "Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
 
             SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 2 );
             SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );
@@ -869,8 +876,8 @@ namespace UnitTests
 
             AssetManager assetManager( cpuThreadCount );
 
-            const std::string meshPath = "../Engine1/Assets/TestAssets/Meshes/Bikini_Girl.dae";
-            const std::string animPath = "../Engine1/Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
+            const std::string meshPath = "Assets/TestAssets/Meshes/Bikini_Girl.dae";
+            const std::string animPath = "Assets/TestAssets/Animations/Bikini Girl/kick_all_bones.xaf";
 
             SkeletonMeshFileInfo      meshFileInfo1( meshPath, SkeletonMeshFileInfo::Format::DAE, 2 );
             SkeletonAnimationFileInfo animFileInfo1( animPath, SkeletonAnimationFileInfo::Format::XAF, meshFileInfo1 );

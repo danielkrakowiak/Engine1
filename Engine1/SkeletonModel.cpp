@@ -9,7 +9,7 @@ std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string&
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-    std::shared_ptr<SkeletonModel> model = createFromMemory( *fileData, format, loadRecurrently );
+    std::shared_ptr<SkeletonModel> model = createFromMemory( fileData->begin(), format, loadRecurrently );
 
     model->getFileInfo().setPath( path );
     model->getFileInfo().setFormat( format );
@@ -17,10 +17,10 @@ std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string&
     return model;
 }
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( const std::vector<char>& fileData, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>::const_iterator& dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
 {
 	if ( SkeletonModelFileInfo::Format::SKELETONMODEL == format ) {
-		return SkeletonModelParser::parseBinary( fileData, loadRecurrently );
+		return SkeletonModelParser::parseBinary( dataIt, loadRecurrently );
 	}
 
 	throw std::exception( "SkeletonModel::createFromMemory() - incorrect 'format' argument." );
@@ -126,6 +126,11 @@ void SkeletonModel::saveToFile( const std::string& path )
 	SkeletonModelParser::writeBinary( data, *this );
 
 	BinaryFile::save( path, data );
+}
+
+void SkeletonModel::saveToMemory( std::vector<char>& data ) const
+{
+    SkeletonModelParser::writeBinary( data, *this );
 }
 
 void SkeletonModel::loadCpuToGpu( ID3D11Device& device, bool reload )

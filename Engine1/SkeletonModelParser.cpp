@@ -6,22 +6,12 @@
 
 using namespace Engine1;
 
-std::string SkeletonModelParser::fileTypeIdentifier = "SKELETONMODEL";
-
-std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( const std::vector<char>& data, const bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently )
 {
 	std::shared_ptr<SkeletonModel> model = std::make_shared<SkeletonModel>( );
 
-	std::vector<char>::const_iterator dataIt = data.begin();
-
-	std::string readFileTypeIdentifier = BinaryFile::readText( dataIt, fileTypeIdentifier.size() );
-
-	// Check file type identifier.
-	if ( readFileTypeIdentifier.compare( fileTypeIdentifier ) != 0 )
-		throw std::exception( "BlockModelParser::parseBinary - incorrect file type." );
-
 	// Parse mesh file info.
-	std::shared_ptr<SkeletonMeshFileInfo> meshFileInfo = SkeletonMeshFileInfo::parseBinary( dataIt );
+	std::shared_ptr<SkeletonMeshFileInfo> meshFileInfo = SkeletonMeshFileInfo::createFromMemory( dataIt );
 
 	// Load mesh.
 	std::shared_ptr< SkeletonMesh > mesh = nullptr;
@@ -41,25 +31,25 @@ std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( const std::vect
 
 	const int emissiveTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < emissiveTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromBinary( dataIt, loadRecurrently );
+		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently );
 		model->addEmissionTexture( modelTexture );
 	}
 
 	const int albedoTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < albedoTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromBinary( dataIt, loadRecurrently );
+		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently );
 		model->addAlbedoTexture( modelTexture );
 	}
 
 	const int roughnessTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < roughnessTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromBinary( dataIt, loadRecurrently );
+		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently );
 		model->addRoughnessTexture( modelTexture );
 	}
 
 	const int normalTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < normalTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromBinary( dataIt, loadRecurrently );
+		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently );
 		model->addNormalTexture( modelTexture );
 	}
 
@@ -68,37 +58,35 @@ std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( const std::vect
 
 void SkeletonModelParser::writeBinary( std::vector<char>& data, const SkeletonModel& model )
 {
-	BinaryFile::writeText( data, fileTypeIdentifier );
-
 	// Save the mesh.
 	std::shared_ptr<const SkeletonMesh> mesh = model.getMesh( );
 	if ( mesh ) {
-		mesh->getFileInfo().writeBinary( data );
+		mesh->getFileInfo().saveToMemory( data );
 	} else {
 		SkeletonMeshFileInfo emptyFileInfo;
-		emptyFileInfo.writeBinary( data );
+		emptyFileInfo.saveToMemory( data );
 	}
 
 	// Save the textures.
 	std::vector<ModelTexture2D> textures = model.getEmissionTextures();
 	BinaryFile::writeInt( data, textures.size() );
 	for ( const ModelTexture2D& modelTexture : textures )
-		modelTexture.writeBinary( data );
+		modelTexture.saveToMemory( data );
 
 	textures = model.getAlbedoTextures();
 	BinaryFile::writeInt( data, textures.size() );
 	for ( const ModelTexture2D& modelTexture : textures )
-		modelTexture.writeBinary( data );
+		modelTexture.saveToMemory( data );
 
 	textures = model.getRoughnessTextures();
 	BinaryFile::writeInt( data, textures.size() );
 	for ( const ModelTexture2D& modelTexture : textures )
-		modelTexture.writeBinary( data );
+		modelTexture.saveToMemory( data );
 
 	textures = model.getNormalTextures();
 	BinaryFile::writeInt( data, textures.size() );
 	for ( const ModelTexture2D& modelTexture : textures )
-		modelTexture.writeBinary( data );
+		modelTexture.saveToMemory( data );
 }
 
 

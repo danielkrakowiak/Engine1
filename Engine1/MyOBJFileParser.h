@@ -23,7 +23,7 @@ namespace Engine1
         ~MyOBJFileParser();
 
         public:
-        static std::shared_ptr<BlockMesh> parseBlockMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
+        static std::shared_ptr<BlockMesh> parseBlockMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
 
         private:
         static const int reusedVerticesMaxChecksCount = 50;

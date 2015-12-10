@@ -17,7 +17,7 @@ namespace Engine1
 
         static std::shared_ptr<BlockModel> createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently );
         static std::shared_ptr<BlockModel> createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently );
-        static std::shared_ptr<BlockModel> createFromMemory( const std::vector<char>& fileData, const BlockModelFileInfo::Format format, const bool loadRecurrently );
+        static std::shared_ptr<BlockModel> createFromMemory( std::vector<char>::const_iterator& dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently );
 
         BlockModel();
         ~BlockModel();
@@ -31,7 +31,8 @@ namespace Engine1
         const BlockModelFileInfo& getFileInfo() const;
         BlockModelFileInfo&       getFileInfo();
 
-        void saveToFile( const std::string& path );
+        void saveToFile( const std::string& path ) const;
+        void saveToMemory( std::vector<char>& data ) const;
 
         void loadCpuToGpu( ID3D11Device& device, bool reload = false );
         void loadGpuToCpu();

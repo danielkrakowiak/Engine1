@@ -45,16 +45,14 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-Modify parsers - there should be separate method to write/check file identifier, because not always when we want to write/read an asset it is in a seperate file. And if it's not, then there is no file identifier.
-createFromFile methods should check if file identifier is correct. But nothing else.
-Clean up loading/saving to file/to binary etc - it should be able to save all assets/file infos to memory/read from memory. Save to file and read from file.
-PointLight is a good example.
-createFromMemory, parseBinary should take an iterator rather than the whole buffer. We don't always parse from the beginning of the buffer.
-For classes which have a base class, there could be a createFrom... method in the base class which first checks the type of the asset and then calls the createFrom.. method of the deriving class.
-Same for saving from file and memory. This could simplify loading/saving some assets.
-Each assets should save it's type first (block model/skeleton model or point light/directional light).
+Fix paths in all tests to be relative to Engine1 folder.
 
 Load scene on drag&drop. Save on Ctrl + S.
+
+Some util static methods to save/load BlockModel/SkeletonModel?
+
+Ability to select an actor by clicking on it. Using ray tracing.
+Ability to move and rotate actors and lights. Ability to edit light properties by clicking special keys (Ctrl +/-, r,g,b)
 
 Create various models and save them to files.
 

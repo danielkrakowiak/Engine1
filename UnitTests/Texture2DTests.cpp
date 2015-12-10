@@ -31,6 +31,10 @@ namespace UnitTests
 			HRESULT result = D3D11CreateDevice( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, &featureLevel, 1, D3D11_SDK_VERSION, &testDevice, nullptr, &testDeviceContext );
 			if ( result < 0 )
 				throw std::exception("Device creation failed.");
+
+            BOOL success = SetCurrentDirectoryW( L"F:/Projekty/Engine1/Engine1/" );
+            if ( !success )
+                throw std::exception( "Failed to set current path for tests." );
 		}
 
 		TEST_METHOD_CLEANUP( cleanupTest ) {
@@ -91,7 +95,7 @@ namespace UnitTests
 			ID3D11DeviceContext* deviceContext = testDeviceContext;
 
 			try {
-				texture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - normal.jpg", Texture2DFileInfo::Format::JPEG );
+				texture = Texture2D::createFromFile( "Assets/TestAssets/Textures/Floor1/floor1 - normal.jpg", Texture2DFileInfo::Format::JPEG );
 
 				Assert::IsTrue( texture->isInCpuMemory(), L"Texture2D::isInCpuMemory() returned false" );
 				Assert::IsFalse( texture->isInGpuMemory( ), L"Texture2D::isInGpuMemory() returned true" );
@@ -122,7 +126,7 @@ namespace UnitTests
 			std::shared_ptr<Texture2D> texture = nullptr;
 
 			try {
-				texture = Texture2D::createFromFile( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - normal.jpg", Texture2DFileInfo::Format::JPEG );
+				texture = Texture2D::createFromFile( "Assets/TestAssets/Textures/Floor1/floor1 - normal.jpg", Texture2DFileInfo::Format::JPEG );
 
 				texture->generateMipMapsOnCpu();
 
@@ -144,7 +148,7 @@ namespace UnitTests
 		}
 
 		//TEST_METHOD( Texture_Loading_File_2 ) {
-		//	Texture2D texture( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png", AssetFileFormat::PNG );
+		//	Texture2D texture( "Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png", AssetFileFormat::PNG );
 		//	try {
 		//		texture.loadFile( );
 		//		texture.load( );
@@ -170,7 +174,7 @@ namespace UnitTests
 		//}
 
 		//TEST_METHOD( Texture_Loading_File_3 ) {
-		//	Texture2D texture( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png", AssetFileFormat::PNG );
+		//	Texture2D texture( "Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png", AssetFileFormat::PNG );
 		//	try {
 		//		texture.getDimensions();
 		//		Assert::Fail( L"Exception not thrown" );
@@ -194,7 +198,7 @@ namespace UnitTests
 		////TEST_METHOD( Texture_Loading_File_4 ) {
 		////	Texture2D texture;
 		////	try {
-		////		texture.loadFile( "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png" );
+		////		texture.loadFile( "Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png" );
 		////		texture.load( TextureFileFormat::BMP ); //incorrect file format
 		////		Assert::Fail( L"Exception not thrown" );
 		////	} catch ( ... ) {
@@ -202,7 +206,7 @@ namespace UnitTests
 		////}
 
 		//TEST_METHOD( Texture_Unloading_1 ) {
-		//	std::string path = "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png";
+		//	std::string path = "Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png";
 
 		//	Texture2D texture( path, AssetFileFormat::PNG );
 
@@ -216,7 +220,7 @@ namespace UnitTests
 		//}
 
 		//TEST_METHOD( Texture_Unloading_2 ) {
-		//	std::string path = "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png";
+		//	std::string path = "Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png";
 
 		//	Texture2D texture( path, AssetFileFormat::PNG );
 		//	texture.loadFile();
@@ -230,7 +234,7 @@ namespace UnitTests
 		//}
 
 		//TEST_METHOD( Texture_Unloading_3 ) {
-		//	std::string path = "../Engine1/Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png";
+		//	std::string path = "Assets/TestAssets/Textures/Floor1/floor1 - diffuse.png";
 
 		//	Texture2D texture( path, AssetFileFormat::PNG );
 		//	texture.loadFile( );

@@ -17,7 +17,7 @@ namespace Engine1
             SKELETONMODEL = 0
         };
 
-        static std::shared_ptr<SkeletonModelFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
+        static std::shared_ptr<SkeletonModelFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );
 
         SkeletonModelFileInfo();
         SkeletonModelFileInfo( std::string path, Format format, int indexInFile = 0 );
@@ -26,7 +26,7 @@ namespace Engine1
 
         std::shared_ptr<FileInfo> clone() const;
 
-        void writeBinary( std::vector<char>& data ) const;
+        void saveToMemory( std::vector<char>& data ) const;
 
         void setPath( std::string path );
         void setFormat( Format format );

@@ -17,19 +17,11 @@
 
 using namespace Engine1;
 
-std::string SceneParser::fileTypeIdentifier = "SCENE";
-
 std::tuple< std::shared_ptr<CScene>, std::shared_ptr<std::vector< std::shared_ptr<FileInfo> > > > SceneParser::parseBinary( const std::vector<char>& data )
 {
     std::shared_ptr<CScene> scene = std::make_shared<CScene>();
 
     std::vector<char>::const_iterator dataIt = data.begin();
-
-    std::string readFileTypeIdentifier = BinaryFile::readText( dataIt, fileTypeIdentifier.size() );
-
-    // Check file type identifier.
-    if ( readFileTypeIdentifier.compare( fileTypeIdentifier ) != 0 )
-        throw std::exception( "SceneParser::parseBinary - incorrect file type." );
 
     // Assigns each unique FileInfo an unique temporary id (index in the vector).
     std::shared_ptr < std::vector< std::shared_ptr< FileInfo > > > fileInfos = std::make_shared< std::vector<std::shared_ptr< FileInfo > > >();
@@ -48,9 +40,9 @@ std::tuple< std::shared_ptr<CScene>, std::shared_ptr<std::vector< std::shared_pt
 
             // Read file info.
             if ( assetType == Asset::Type::BlockModel )
-                fileInfo = BlockModelFileInfo::parseBinary( dataIt );
+                fileInfo = BlockModelFileInfo::createFromMemory( dataIt );
             else if ( assetType == Asset::Type::SkeletonModel )
-                fileInfo = SkeletonModelFileInfo::parseBinary( dataIt );
+                fileInfo = SkeletonModelFileInfo::createFromMemory( dataIt );
 
             fileInfos->at( fileInfoId ) = fileInfo;
         }
@@ -125,8 +117,6 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
             }
         }
 
-        BinaryFile::writeText( data, fileTypeIdentifier );
-
         // Save number of unique file infos.
         BinaryFile::writeInt( data, fileInfos.size() );
 
@@ -134,7 +124,7 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
         for ( const std::pair<std::shared_ptr<FileInfo>, int>& fileInfo : fileInfos ) {
             BinaryFile::writeInt( data, fileInfo.second );                                    // Save unique file info id.
             BinaryFile::writeChar( data, static_cast<char>(fileInfo.first->getAssetType()) ); // Save file info type.
-            fileInfo.first->writeBinary( data );                                              // Save file info.
+            fileInfo.first->saveToMemory( data );                                              // Save file info.
         }
 
         // Save number of actors.

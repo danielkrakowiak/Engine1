@@ -15,8 +15,8 @@ namespace Engine1
         ~MyDAEFileParser();
 
         public:
-        static std::vector< std::shared_ptr<BlockMesh> >    parseBlockMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
-        static std::vector< std::shared_ptr<SkeletonMesh> > parseSkeletonMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
+        static std::vector< std::shared_ptr<BlockMesh> >    parseBlockMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
+        static std::vector< std::shared_ptr<SkeletonMesh> > parseSkeletonMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
     };
 }
 

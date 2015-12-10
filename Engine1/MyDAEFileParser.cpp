@@ -13,7 +13,7 @@
 
 using namespace Engine1;
 
-std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	std::vector< std::shared_ptr<BlockMesh> > meshes;
 
@@ -25,7 +25,8 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( c
 	if ( invertVertexWindingOrder ) flags |= aiProcess_FlipWindingOrder;
 	if ( flipUVs )                  flags |= aiProcess_FlipUVs; 
 
-	const aiScene* aiscene = importer.ReadFileFromMemory( file.data( ), file.size( ), flags );
+    const int      dataSize = (dataEndIt - dataIt) / sizeof(char);
+    const aiScene* aiscene = importer.ReadFileFromMemory( &(*dataIt), dataSize, flags );
 
 	if ( !aiscene ) throw std::exception( "MyDAEFileParser::parseBlockMeshFile - parsing failed" );
 
@@ -61,7 +62,7 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( c
 	return meshes;
 }
 
-std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshFile( const std::vector<char>& file, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	std::vector< std::shared_ptr<SkeletonMesh> > meshes;
 
@@ -73,7 +74,8 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 	if ( invertVertexWindingOrder ) flags |= aiProcess_FlipWindingOrder;
 	if ( flipUVs )                  flags |= aiProcess_FlipUVs;
 
-	const aiScene* aiscene = importer.ReadFileFromMemory( file.data( ), file.size( ), flags );
+    const int      dataSize = (dataEndIt - dataIt) / sizeof(char);
+    const aiScene* aiscene = importer.ReadFileFromMemory( &(*dataIt), dataSize, flags );
 
 	if ( !aiscene ) throw std::exception( "MyDAEFileParser::parseRiggedMeshFile - parsing failed" );
 

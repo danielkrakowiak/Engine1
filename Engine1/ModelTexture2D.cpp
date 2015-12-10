@@ -4,14 +4,9 @@
 
 using namespace Engine1;
 
-std::shared_ptr< ModelTexture2D > ModelTexture2D::createFromBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently )
+std::shared_ptr< ModelTexture2D > ModelTexture2D::createFromMemory( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently )
 {
 	return ModelTexture2DParser::parseBinary( dataIt, loadRecurrently );
-}
-
-void ModelTexture2D::writeBinary( std::vector<char>& data ) const
-{
-	ModelTexture2DParser::writeBinary( data, *this );
 }
 
 ModelTexture2D::ModelTexture2D()
@@ -35,6 +30,11 @@ ModelTexture2D& ModelTexture2D::operator = ( const ModelTexture2D& other )
 	colorMultiplier = other.colorMultiplier;
 
 	return *this;
+}
+
+void ModelTexture2D::saveToMemory( std::vector<char>& data ) const
+{
+    ModelTexture2DParser::writeBinary( data, *this );
 }
 
 const std::shared_ptr<Texture2D> ModelTexture2D::getTexture() const

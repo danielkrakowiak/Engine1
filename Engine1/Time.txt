@@ -144,3 +144,5 @@ Fri 04.12.2015 - 2h - Fixed some AssetManager tests. Adding saving Scene to a fi
 Sat 05.12.2015 - 6h - Adding saving/loading scene to/from a file. Added BlockModelFileInfoParser and SkeletonModelFileInfoParser. Added a param to loadCpuToGpu methods to allow loading only the assets which haven't been loaded yet.
 Sun 06.12.2015 - 2h - Fixed problem with missing file info for assets loaded asynchronously through AssetManager.
 Tue 08.12.2015 - 5h - Added Light, PointLight classes. Prepared light bulb mesh to display lights in the scene. Added loading/saving lights with the scene.
+Wed 09.12.2015 - 1h - Unified all parsers to use iterators as params. Removed 'file type identifier' checks from parsers.
+Thu 10.12.2015 - 3h - Fixed problem with UnitTests project having different current path than Engine1 project.

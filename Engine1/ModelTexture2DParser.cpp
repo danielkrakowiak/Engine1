@@ -9,7 +9,7 @@ std::shared_ptr<ModelTexture2D> ModelTexture2DParser::parseBinary( std::vector<c
 {
 	std::shared_ptr<ModelTexture2D> modelTexture = std::make_shared<ModelTexture2D>( );
 
-	Texture2DFileInfo fileInfo = *Texture2DFileInfo::parseBinary( dataIt );
+	Texture2DFileInfo          fileInfo = *Texture2DFileInfo::createFromMemory( dataIt );
 	std::shared_ptr<Texture2D> texture = Texture2D::createFromFile( fileInfo.getPath(), fileInfo.getFormat() );
 
 	modelTexture->setTexture( texture );
@@ -24,10 +24,10 @@ void ModelTexture2DParser::writeBinary( std::vector<char>& data, const ModelText
 	const std::shared_ptr<Texture2D> texture = modelTexture.getTexture();
 	
 	if ( texture ) {
-		texture->getFileInfo().writeBinary( data );
+		texture->getFileInfo().saveToMemory( data );
 	} else {
 		Texture2DFileInfo emptyFileInfo;
-		emptyFileInfo.writeBinary( data );
+		emptyFileInfo.saveToMemory( data );
 	}
 
 	BinaryFile::writeInt( data, modelTexture.getTexcoordIndex() );

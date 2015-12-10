@@ -18,7 +18,7 @@ namespace Engine1
             DAE = 1
         };
 
-        static std::shared_ptr<BlockMeshFileInfo> parseBinary( std::vector<char>::const_iterator& dataIt );
+        static std::shared_ptr<BlockMeshFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );
 
         BlockMeshFileInfo();
         BlockMeshFileInfo( std::string path, Format format, int indexInFile = 0, bool invertZCoordinate = false, bool invertVertexWindingOrder = false, bool flipUVs = false );
@@ -26,7 +26,7 @@ namespace Engine1
 
         std::shared_ptr<FileInfo> clone() const;
 
-        void writeBinary( std::vector<char>& data ) const;
+        void saveToMemory( std::vector<char>& data ) const;
 
         void setPath( std::string path );
         void setFormat( Format format );
