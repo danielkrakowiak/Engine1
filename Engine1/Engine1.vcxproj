@@ -455,15 +455,18 @@
     <ClInclude Include="BlockModelVertexShader.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComplexModel.h" />
+    <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Direct3DDefferedRenderer.h" />
     <ClInclude Include="Direct3DRendererCore.h" />
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
+    <ClInclude Include="GenerateRaysComputeShader.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
     <ClInclude Include="CScene.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="PointLightParser.h" />
+    <ClInclude Include="RaytraceRenderer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SceneParser.h" />
     <ClInclude Include="SkeletonActor.h" />
@@ -526,6 +529,7 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="uint2.h" />
     <ClInclude Include="uint3.h" />
+    <ClInclude Include="ComputeTargetTexture2D.h" />
     <ClInclude Include="VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -714,14 +718,17 @@
     <ClCompile Include="BlockModelVertexShader.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ComplexModel.cpp" />
+    <ClCompile Include="ComputeShader.cpp" />
     <ClCompile Include="Direct3DDefferedRenderer.cpp" />
     <ClCompile Include="Direct3DRendererCore.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
+    <ClCompile Include="GenerateRaysComputeShader.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
     <ClCompile Include="CScene.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="PointLightParser.cpp" />
+    <ClCompile Include="RaytraceRenderer.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SceneParser.cpp" />
     <ClCompile Include="SkeletonActor.cpp" />
@@ -781,6 +788,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="uint2.cpp" />
     <ClCompile Include="uint3.cpp" />
+    <ClCompile Include="ComputeTargetTexture2D.cpp" />
     <ClCompile Include="VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -824,6 +832,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateRaysShader\cs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonMeshShader\ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

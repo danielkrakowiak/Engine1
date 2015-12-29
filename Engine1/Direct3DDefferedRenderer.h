@@ -24,10 +24,8 @@ struct ID3D11BlendState;
 namespace Engine1
 {
     class Direct3DRendererCore;
-
     class RenderTargetTexture2D;
     class RenderTargetDepthTexture2D;
-
     class BlockMesh;
     class SkeletonMesh;
     class BlockModel;
@@ -98,16 +96,16 @@ namespace Engine1
         float44 orthographicProjectionMatrix;
 
         // Shaders.
-        BlockMeshVertexShader         blockMeshVertexShader;
-        BlockMeshFragmentShader       blockMeshFragmentShader;
-        SkeletonMeshVertexShader      skeletonMeshVertexShader;
-        SkeletonMeshFragmentShader    skeletonMeshFragmentShader;
-        BlockModelVertexShader	      blockModelVertexShader;
-        BlockModelFragmentShader	  blockModelFragmentShader;
-        SkeletonModelVertexShader     skeletonModelVertexShader;
-        SkeletonModelFragmentShader   skeletonModelFragmentShader;
-        TextVertexShader              textVertexShader;
-        TextFragmentShader            textFragmentShader;
+        std::shared_ptr<BlockMeshVertexShader>        blockMeshVertexShader;
+        std::shared_ptr<BlockMeshFragmentShader>      blockMeshFragmentShader;
+        std::shared_ptr<SkeletonMeshVertexShader>     skeletonMeshVertexShader;
+        std::shared_ptr<SkeletonMeshFragmentShader>   skeletonMeshFragmentShader;
+        std::shared_ptr<BlockModelVertexShader>	      blockModelVertexShader;
+        std::shared_ptr<BlockModelFragmentShader>	  blockModelFragmentShader;
+        std::shared_ptr<SkeletonModelVertexShader>    skeletonModelVertexShader;
+        std::shared_ptr<SkeletonModelFragmentShader>  skeletonModelFragmentShader;
+        std::shared_ptr<TextVertexShader>             textVertexShader;
+        std::shared_ptr<TextFragmentShader>           textFragmentShader;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

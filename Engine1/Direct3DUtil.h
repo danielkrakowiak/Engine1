@@ -11,5 +11,7 @@ namespace Engine1
         void setResourceName( ID3D11DeviceChild& child, const std::string& name );
 
         int getRefCount( IUnknown& object );
+
+        std::string getLastErrorMessage();
     };
 }

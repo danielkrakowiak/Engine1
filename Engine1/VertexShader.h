@@ -17,10 +17,10 @@ namespace Engine1
     {
         public:
 
-        bool isSame( const VertexShader& shader ) const;
+        bool                       isSame( const VertexShader& shader ) const;
         virtual ID3D11InputLayout& getInputLauout() const = 0;
-        ID3D11VertexShader& getShader() const;
-        bool isCompiled() const;
+        ID3D11VertexShader&        getShader() const;
+        bool                       isCompiled() const;
 
         protected:
 
@@ -29,8 +29,8 @@ namespace Engine1
 
         static unsigned int compiledShadersCount;
 
-        // shader can be compiled only once and is assumed not to change over time
-        bool compiled;
+        // Shader can be compiled only once and is assumed not to change over time.
+        bool         compiled;
         unsigned int shaderId;
 
         Microsoft::WRL::ComPtr<ID3D11VertexShader> shader;
@@ -38,7 +38,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11Buffer>       constantInputBuffer;
 
         // Copying is not allowed.
-        VertexShader( const VertexShader& ) = delete;
+        VertexShader( const VertexShader& )          = delete;
         VertexShader& operator=(const VertexShader&) = delete;
 
     };

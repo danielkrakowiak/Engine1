@@ -238,6 +238,12 @@
     <Filter Include="Source Files\Light\Parsers">
       <UniqueIdentifier>{a7a968b4-a1b3-49c3-b05a-a7110031a107}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shader\GenerateRaysShader">
+      <UniqueIdentifier>{40eb866b-6bcf-4fcb-a890-6e3f15d96a15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateRaysShader">
+      <UniqueIdentifier>{34507f44-7cd8-4011-af77-b370ee9bb73b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1107,6 +1113,18 @@
     <ClInclude Include="Renderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="RaytraceRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeShader.h">
+      <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateRaysComputeShader.h">
+      <Filter>Header Files\Shader\GenerateRaysShader</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeTargetTexture2D.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1868,6 +1886,18 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="RaytraceRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeShader.cpp">
+      <Filter>Source Files\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateRaysComputeShader.cpp">
+      <Filter>Source Files\Shader\GenerateRaysShader</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeTargetTexture2D.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1928,6 +1958,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonModelShader\vs.hlsl">
       <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateRaysShader\cs.hlsl">
+      <Filter>Source Files\Shader\GenerateRaysShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

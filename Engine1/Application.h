@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "Direct3DFrameRenderer.h"
 #include "Direct3DDefferedRenderer.h"
+#include "RaytraceRenderer.h"
 #include "FreeCamera.h"
 
 #include "ImageLibrary.h"
@@ -74,6 +75,7 @@ private:
 
 	Direct3DRendererCore     rendererCore;
     Direct3DDefferedRenderer defferedRenderer;
+    RaytraceRenderer         raytraceRenderer;
     Direct3DFrameRenderer    frameRenderer;
     Renderer                 renderer;
 

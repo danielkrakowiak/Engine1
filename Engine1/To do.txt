@@ -45,10 +45,16 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-Think how I want to integrate ray tracign and rasterization. Maybe add new type of renderer which combines info from deffered and from ray tracing. For now only deffered.
-All the info should be in some kind of screen size textures.
+Why UAV doesn't get bind correctly before running Compute Shader? Why is it re-created each frame (as Graphics Debugger says)
+Test whether Compute Shader writes anything to the ComputeTargetTexture. Draw that texture on the screen.
 
-Some util static methods to save/load BlockModel/SkeletonModel?
+*** IMPORTANT:
+It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.
+Example: draw(or renamed to render) method should take model instead of mesh and set textures accordingly. Or buffers should be set in VertexShader setParameters method...
+
+
+Add new renderer class - like ScreenREnderer or FinalFrameRenderer etc. It should have shaders taking many screen-size textures and combine them together and shade pixels.
+It should be similar to frame renderer.
 
 Ability to select an actor by clicking on it. Using ray tracing.
 Ability to move and rotate actors and lights. Ability to edit light properties by clicking special keys (Ctrl +/-, r,g,b)
@@ -56,6 +62,26 @@ Ability to move and rotate actors and lights. Ability to edit light properties b
 Create various models and save them to files.
 
 Add other phases of rendering. Rendering color, normals etc. Then rendering the final image. 
+
+Implementation order:
+1) Generating rays from camera (for test) or from depth buffer
+2) Outputing rays as pixels, (pos, albedo, spec, roughness etc)
+3) Ray-Box test
+4) Shading a layer (no shadows)
+5) Shadow-rays tests
+6) Storing scene (mesh list/ptrs) on GPU
+7) Ray-Mesh test
+
+
+1) for each layer:
+- render depth/pos + albedo/normal/spec/roughness (using DX or RT)
+- shade - 1 pass for each light - use SM/RT -> color
+2) for each layer - from the last one
+- blur the reflections, refractions
+- combine with the previous layer
+
+Idea:
+- when calculatin range of a light source - it's bounding volume doesn't have to be a sphere. The more precise the bounding volume to more calculations we save. Maybe even a few volumes could describe a lights range?
 
 Next 0:
 

@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Direct3DDefferedRenderer.h"
+#include "RaytraceRenderer.h"
 #include "CScene.h"
 #include "Camera.h"
 #include "MathUtil.h"
@@ -13,11 +14,13 @@
 #include "Light.h"
 #include "Texture2D.h"
 #include "RenderTargetTexture2D.h"
+#include "ComputeTargetTexture2D.h"
 
 using namespace Engine1;
 
-Renderer::Renderer( Direct3DDefferedRenderer& defferedRenderer ) :
-defferedRenderer( defferedRenderer )
+Renderer::Renderer( Direct3DDefferedRenderer& defferedRenderer, RaytraceRenderer& raytraceRenderer ) :
+defferedRenderer( defferedRenderer ),
+raytraceRenderer( raytraceRenderer )
 {}
 
 Renderer::~Renderer()
@@ -72,9 +75,13 @@ std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Cam
         }
     }
 
-    std::shared_ptr<RenderTargetTexture2D> renderTarget = defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO );
+    raytraceRenderer.generateRays();
+    std::shared_ptr<ComputeTargetTexture2D> raytraceFrame = raytraceRenderer.getComputeTarget();
 
-    std::shared_ptr<Texture2D> renderTargetTexture = std::dynamic_pointer_cast<Texture2D>(renderTarget);
+    std::shared_ptr<RenderTargetTexture2D> defferedFrame = defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO );
 
-    return renderTargetTexture;
+    //std::shared_ptr<Texture2D> frame = std::dynamic_pointer_cast<Texture2D>(defferedFrame);
+    std::shared_ptr<Texture2D> frame = std::dynamic_pointer_cast<Texture2D>(raytraceFrame);
+
+    return frame;
 }

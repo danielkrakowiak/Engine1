@@ -19,17 +19,18 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 Direct3DFrameRenderer::Direct3DFrameRenderer( Direct3DRendererCore& rendererCore ) :
-rendererCore( rendererCore )
+rendererCore( rendererCore ),
+initialized(false),
+gpuMemory(0),
+fullscreen(false),
+screenWidth(1024),
+screenHeight(768),
+verticalSync(true),
+textureVertexShader(std::make_shared<TextureVertexShader>()),
+textureFragmentShader(std::make_shared<TextureFragmentShader>()),
+textVertexShader(std::make_shared<TextVertexShader>()),
+textFragmentShader(std::make_shared<TextFragmentShader>())
 {
-	initialized = false;
-
-	gpuMemory = 0;
-	gpuDescription = "";
-
-	fullscreen = false;
-	screenWidth = 1024;
-	screenHeight = 768;
-	verticalSync = false;
 }
 
 Direct3DFrameRenderer::~Direct3DFrameRenderer()
@@ -315,11 +316,11 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendState( ID3D11Device& 
 
 void Direct3DFrameRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-	textureVertexShader.compileFromFile( "../Engine1/Shaders/TextureShader/vs.hlsl", device );
-	textureFragmentShader.compileFromFile( "../Engine1/Shaders/TextureShader/ps.hlsl", device );
+	textureVertexShader->compileFromFile( "../Engine1/Shaders/TextureShader/vs.hlsl", device );
+	textureFragmentShader->compileFromFile( "../Engine1/Shaders/TextureShader/ps.hlsl", device );
 
-	textVertexShader.compileFromFile( "../Engine1/Shaders/TextShader/vs.hlsl", device );
-	textFragmentShader.compileFromFile( "../Engine1/Shaders/TextShader/ps.hlsl", device );
+	textVertexShader->compileFromFile( "../Engine1/Shaders/TextShader/vs.hlsl", device );
+	textFragmentShader->compileFromFile( "../Engine1/Shaders/TextShader/ps.hlsl", device );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2D& texture, float posX, float posY )
@@ -338,10 +339,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D& texture, float posX,
 	}
 
 	{ // Configure and enable shaders.
-		textureVertexShader.setParameters( *deviceContext.Get(), posX, posY, width, height );
-		textureFragmentShader.setParameters( *deviceContext.Get(), texture );
+		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
+		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
 
-		rendererCore.enableShaders( textureVertexShader, textureFragmentShader );
+		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
 	}
 
 	rendererCore.enableRasterizerState( *rasterizerState.Get() );
@@ -349,7 +350,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D& texture, float posX,
 
 	rendererCore.draw( rectangleMesh );
 
-	textureFragmentShader.unsetParameters( *deviceContext.Get() );
+	textureFragmentShader->unsetParameters( *deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::displayFrame()

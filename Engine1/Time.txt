@@ -145,4 +145,7 @@ Sat 05.12.2015 - 6h - Adding saving/loading scene to/from a file. Added BlockMod
 Sun 06.12.2015 - 2h - Fixed problem with missing file info for assets loaded asynchronously through AssetManager.
 Tue 08.12.2015 - 5h - Added Light, PointLight classes. Prepared light bulb mesh to display lights in the scene. Added loading/saving lights with the scene.
 Wed 09.12.2015 - 1h - Unified all parsers to use iterators as params. Removed 'file type identifier' checks from parsers.
-Thu 10.12.2015 - 4h - Fixed problem with UnitTests project having different current path than Engine1 project. Added loading a scene on drag&drop, saving on Ctrl + S.
+Thu 10.12.2015 - 6h - Fixed problem with UnitTests project having different current path than Engine1 project. Added loading a scene on drag&drop, saving on Ctrl + S. Separated main rendering code into Renderer class.
+Sun 27.12.2015 - 4h - Added RaytraceRenderer, ComputeShader classes. Fixed remembering of currently bound shader in RendererCore class. Compiled some trivial compute shader. Read code samples for writing to texture from compute shader.
+Mod 28.12.2015 - 3h - Added ComputeTargetTexture2D class. Fixed remembering of currently bound render targets. Added unbining shaders, render targets, buffers etc.
+Tue 29.12.2015 - 3h - Successfully run a compute shader. Some testing and learning on compute shader thread ids. Added a method to generate primary rays in compute shader.

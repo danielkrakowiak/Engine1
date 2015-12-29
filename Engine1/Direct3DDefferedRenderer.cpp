@@ -26,7 +26,17 @@ Direct3DDefferedRenderer::Direct3DDefferedRenderer( Direct3DRendererCore& render
 rendererCore( rendererCore ),
 initialized( false ),
 imageWidth( 0 ),
-imageHeight( 0 )
+imageHeight( 0 ),
+blockMeshVertexShader(std::make_shared<BlockMeshVertexShader>()),
+blockMeshFragmentShader(std::make_shared<BlockMeshFragmentShader>()),
+skeletonMeshVertexShader(std::make_shared<SkeletonMeshVertexShader>()),
+skeletonMeshFragmentShader(std::make_shared<SkeletonMeshFragmentShader>()),
+blockModelVertexShader(std::make_shared<BlockModelVertexShader>()),
+blockModelFragmentShader(std::make_shared<BlockModelFragmentShader>()),
+skeletonModelVertexShader(std::make_shared<SkeletonModelVertexShader>()),
+skeletonModelFragmentShader(std::make_shared<SkeletonModelFragmentShader>()),
+textVertexShader(std::make_shared<TextVertexShader>()),
+textFragmentShader(std::make_shared<TextFragmentShader>())
 {}
 
 
@@ -79,9 +89,9 @@ void Direct3DDefferedRenderer::render( const BlockMesh& mesh, const float43& wor
 	}
 
 	{ // Configure and set shaders.
-		blockMeshVertexShader.setParameters( *deviceContext.Get(), worldMatrix, viewMatrix, perspectiveProjectionMatrix );
+		blockMeshVertexShader->setParameters( *deviceContext.Get(), worldMatrix, viewMatrix, perspectiveProjectionMatrix );
 
-		rendererCore.enableShaders( blockMeshVertexShader, blockMeshFragmentShader );
+		rendererCore.enableRenderingShaders( blockMeshVertexShader, blockMeshFragmentShader );
 	}
 
 	rendererCore.enableRasterizerState( *rasterizerState.Get( ) );
@@ -104,9 +114,9 @@ void Direct3DDefferedRenderer::render( const SkeletonMesh& mesh, const float43& 
 	}
 
 	{ // Configure and set shaders.
-		skeletonMeshVertexShader.setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix, mesh, poseInSkeletonSpace );
+		skeletonMeshVertexShader->setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix, mesh, poseInSkeletonSpace );
 
-		rendererCore.enableShaders( skeletonMeshVertexShader, skeletonMeshFragmentShader );
+		rendererCore.enableRenderingShaders( skeletonMeshVertexShader, skeletonMeshFragmentShader );
 	}
 
 	rendererCore.enableRasterizerState( *rasterizerState.Get( ) );
@@ -131,10 +141,10 @@ void Direct3DDefferedRenderer::render( const BlockModel& model, const float43& w
 	{ // Configure and set shaders.
 		ModelTexture2D modelAlbedoTexture = model.getAlbedoTexture( 0 );
 
-		blockModelVertexShader.setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix );
-		blockModelFragmentShader.setParameters( *deviceContext.Get( ), *modelAlbedoTexture.getTexture().get( ) );
+		blockModelVertexShader->setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix );
+		blockModelFragmentShader->setParameters( *deviceContext.Get( ), *modelAlbedoTexture.getTexture().get( ) );
 
-		rendererCore.enableShaders( blockModelVertexShader, blockModelFragmentShader );
+		rendererCore.enableRenderingShaders( blockModelVertexShader, blockModelFragmentShader );
 	}
 
 	rendererCore.enableRasterizerState( *rasterizerState.Get( ) );
@@ -160,10 +170,10 @@ void Direct3DDefferedRenderer::render( const SkeletonModel& model, const float43
 	{ // Configure and set shaders.
 		ModelTexture2D modelAlbedoTexture = model.getAlbedoTexture( 0 );
 
-		skeletonModelVertexShader.setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
-		skeletonModelFragmentShader.setParameters( *deviceContext.Get(), *modelAlbedoTexture.getTexture().get() );
+		skeletonModelVertexShader->setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
+		skeletonModelFragmentShader->setParameters( *deviceContext.Get(), *modelAlbedoTexture.getTexture().get() );
 
-		rendererCore.enableShaders( skeletonModelVertexShader, skeletonModelFragmentShader );
+		rendererCore.enableRenderingShaders( skeletonModelVertexShader, skeletonModelFragmentShader );
 	}
 
 	rendererCore.enableRasterizerState( *rasterizerState.Get() );
@@ -185,7 +195,7 @@ void Direct3DDefferedRenderer::render( const std::string& text, Font& font, floa
 		rendererCore.enableRenderTargets( renderTargets, depthRenderTarget );
 	}
 
-	rendererCore.enableShaders( textVertexShader, textFragmentShader );
+	rendererCore.enableRenderingShaders( textVertexShader, textFragmentShader );
 	rendererCore.enableRasterizerState( *rasterizerState.Get( ) );
 	rendererCore.enableDepthStencilState( *depthStencilState.Get( ) );
 	rendererCore.enableBlendState( *blendStateForTextRendering.Get( ) );
@@ -210,8 +220,8 @@ void Direct3DDefferedRenderer::render( const std::string& text, Font& font, floa
 				worldMatrix.setTranslation( float3( pos.x + character->getPos().x, pos.y + character->getPos().y, 0.0f ) );
 
 				// Configure the shaders.
-				textVertexShader.setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, orthographicProjectionMatrix );
-				textFragmentShader.setParameters( *deviceContext.Get( ), character->getTextureResource( ) );
+				textVertexShader->setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, orthographicProjectionMatrix );
+				textFragmentShader->setParameters( *deviceContext.Get( ), character->getTextureResource( ) );
 
 				// Draw the character.
 				rendererCore.draw( *character );
@@ -378,18 +388,18 @@ void Direct3DDefferedRenderer::clearRenderTargets( float4 color, float depth )
 
 void Direct3DDefferedRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-	blockMeshVertexShader.compileFromFile( "../Engine1/Shaders/BlockMeshShader/vs.hlsl", device );
-	blockMeshFragmentShader.compileFromFile( "../Engine1/Shaders/BlockMeshShader/ps.hlsl", device );
+	blockMeshVertexShader->compileFromFile( "../Engine1/Shaders/BlockMeshShader/vs.hlsl", device );
+	blockMeshFragmentShader->compileFromFile( "../Engine1/Shaders/BlockMeshShader/ps.hlsl", device );
 
-	skeletonMeshVertexShader.compileFromFile( "../Engine1/Shaders/SkeletonMeshShader/vs.hlsl", device );
-	skeletonMeshFragmentShader.compileFromFile( "../Engine1/Shaders/SkeletonMeshShader/ps.hlsl", device );
+	skeletonMeshVertexShader->compileFromFile( "../Engine1/Shaders/SkeletonMeshShader/vs.hlsl", device );
+	skeletonMeshFragmentShader->compileFromFile( "../Engine1/Shaders/SkeletonMeshShader/ps.hlsl", device );
 
-	blockModelVertexShader.compileFromFile( "../Engine1/Shaders/BlockModelShader/vs.hlsl", device );
-	blockModelFragmentShader.compileFromFile( "../Engine1/Shaders/BlockModelShader/ps.hlsl", device );
+	blockModelVertexShader->compileFromFile( "../Engine1/Shaders/BlockModelShader/vs.hlsl", device );
+	blockModelFragmentShader->compileFromFile( "../Engine1/Shaders/BlockModelShader/ps.hlsl", device );
 
-	skeletonModelVertexShader.compileFromFile( "../Engine1/Shaders/SkeletonModelShader/vs.hlsl", device );
-	skeletonModelFragmentShader.compileFromFile( "../Engine1/Shaders/SkeletonModelShader/ps.hlsl", device );
+	skeletonModelVertexShader->compileFromFile( "../Engine1/Shaders/SkeletonModelShader/vs.hlsl", device );
+	skeletonModelFragmentShader->compileFromFile( "../Engine1/Shaders/SkeletonModelShader/ps.hlsl", device );
 
-	textVertexShader.compileFromFile( "../Engine1/Shaders/TextShader/vs.hlsl", device );
-	textFragmentShader.compileFromFile( "../Engine1/Shaders/TextShader/ps.hlsl", device );
+	textVertexShader->compileFromFile( "../Engine1/Shaders/TextShader/vs.hlsl", device );
+	textFragmentShader->compileFromFile( "../Engine1/Shaders/TextShader/ps.hlsl", device );
 }

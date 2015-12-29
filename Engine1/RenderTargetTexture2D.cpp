@@ -56,7 +56,7 @@ RenderTarget2D()
 		desc.Texture2D.MipLevels = 1;
 
 		HRESULT result = device.CreateShaderResourceView( texture.Get(), &desc, shaderResource.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "Texture2D::loadCpuToGpu - creating shader resource on GPU failed." );
+		if ( result < 0 ) throw std::exception( "RenderTargetTexture2D::RenderTargetTexture2D - creating shader resource on GPU failed." );
 	}
 }
 

@@ -6,9 +6,11 @@
 #include "Font.h"
 #include "VertexShader.h"
 #include "FragmentShader.h"
+#include "ComputeShader.h"
 #include "SkeletonMeshVertexShader.h"
 #include "RenderTargetTexture2D.h"
 #include "RenderTargetDepthTexture2D.h"
+#include "ComputeTargetTexture2D.h"
 
 #include <d3d11.h>
 
@@ -19,10 +21,14 @@ using Microsoft::WRL::ComPtr;
 Direct3DRendererCore::Direct3DRendererCore() :
 deviceContext( nullptr ),
 currentRenderTargets(),
+vertexOrFragmentShaderEnabled( false ),
+computeShaderEnabled( false ),
 currentRasterizerState( nullptr ),
 currentDepthStencilState( nullptr ),
 currentBlendState( nullptr )
-{}
+{
+    createNullShaderInputs();
+}
 
 
 Direct3DRendererCore::~Direct3DRendererCore()
@@ -33,22 +39,73 @@ void Direct3DRendererCore::initialize( ID3D11DeviceContext& deviceContext )
 	this->deviceContext = &deviceContext;
 }
 
-void Direct3DRendererCore::enableShaders( const VertexShader& vertexShader, const FragmentShader& fragmentShader )
+void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader )
 {
-	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableShaders - renderer not initialized." );
+	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableRenderingShaders - renderer not initialized." );
+    if ( !vertexShader || !fragmentShader ) throw std::exception( "Direct3DRendererCore::enableRenderingShaders - passed shaders are nullptrs." );
+
+    disableComputeShaders();
 
 	// Check if currently set vertex shader is the same as the one to be enabled - do nothing then. 
-	if ( currentVertexShader.expired() || !currentVertexShader.lock()->isSame( vertexShader ) ) 
+	if ( currentVertexShader.expired() || !currentVertexShader.lock()->isSame( *vertexShader ) ) 
 	{
-		deviceContext->IASetInputLayout( &vertexShader.getInputLauout() );
-		deviceContext->VSSetShader( &vertexShader.getShader(), nullptr, 0 );
+		deviceContext->IASetInputLayout( &vertexShader->getInputLauout() );
+		deviceContext->VSSetShader( &vertexShader->getShader(), nullptr, 0 );
+
+        currentVertexShader = vertexShader;
 	}
 
 	// Check if currently set fragment shader is the same as the one to be enabled - do nothing then. 
-	if ( currentFragmentShader.expired() || !currentFragmentShader.lock()->isSame( fragmentShader ) ) 
+	if ( currentFragmentShader.expired() || !currentFragmentShader.lock()->isSame( *fragmentShader ) ) 
 	{
-		deviceContext->PSSetShader( &fragmentShader.getShader(), nullptr, 0 );
+		deviceContext->PSSetShader( &fragmentShader->getShader(), nullptr, 0 );
+
+        currentFragmentShader = fragmentShader;
 	}
+
+    vertexOrFragmentShaderEnabled = true;
+}
+
+void Direct3DRendererCore::enableComputeShader( std::shared_ptr<const ComputeShader> computeShader )
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableComputeShader - renderer not initialized." );
+    if ( !computeShader ) throw std::exception( "Direct3DRendererCore::enableComputeShader - passed shader is nullptr." );
+
+    disableRenderingShaders();
+
+    // Check if currently set compute shader is the same as the one to be enabled - do nothing then. 
+    if ( currentComputeShader.expired() || !currentComputeShader.lock()->isSame( *computeShader ) ) {
+        deviceContext->CSSetShader( &computeShader->getShader(), nullptr, 0 );
+
+        currentComputeShader = computeShader;
+    }
+
+    computeShaderEnabled = true;
+}
+
+void Direct3DRendererCore::disableRenderingShaders()
+{
+    if ( vertexOrFragmentShaderEnabled ) {
+        deviceContext->IASetInputLayout( nullptr );
+        deviceContext->VSSetShader( nullptr, nullptr, 0 );
+        deviceContext->PSSetShader( nullptr, nullptr, 0 );
+        
+        currentVertexShader.reset();
+        currentFragmentShader.reset();
+
+        vertexOrFragmentShaderEnabled = false;
+    }
+}
+
+void Direct3DRendererCore::disableComputeShaders()
+{
+    //#TODO: Should deviceContext->IASetInputLayout( nullptr ); be called here? is Input Assembler used in Compute Shaders?
+    if ( computeShaderEnabled ) {
+        deviceContext->CSSetShader( nullptr, nullptr, 0 );
+        currentComputeShader.reset();
+
+        computeShaderEnabled = false;
+    }
 }
 
 void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr<RenderTarget2D> >& renderTargets, const std::shared_ptr<RenderTargetDepth2D> depthRenderTarget )
@@ -94,6 +151,51 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 
 	// Enable render targets.
 	deviceContext->OMSetRenderTargets( renderTargetViews.size(), renderTargetViews.data(), depthRenderTargetView );
+
+    // Save current render targets.
+    currentRenderTargets.clear();
+    currentRenderTargets.insert( currentRenderTargets.begin(), renderTargets.begin(), renderTargets.end() );
+    currentDepthRenderTarget = depthRenderTarget;
+}
+
+void Direct3DRendererCore::enableComputeTarget( std::shared_ptr<ComputeTargetTexture2D> computeTarget )
+{
+    //#TODO: WARNING: For pixel shaders, UAVStartSlot param should be equal to the number of render-target views being bound.
+
+    if ( !computeTarget ) throw std::exception( "Direct3DRendererCore::enableComputeTarget - passed target is nullptr." );
+
+    if ( computeTarget != currentComputeTarget.lock() )
+    {
+        ID3D11UnorderedAccessView* uavs[1] = { computeTarget->getComputeTarget() };
+        //ID3D11UnorderedAccessView* unorderedAccessView = computeTarget->getComputeTarget();
+        deviceContext->CSSetUnorderedAccessViews( 0, 1, uavs, nullptr );
+        //deviceContext->OMSetRenderTargetsAndUnorderedAccessViews( D3D11_KEEP_RENDER_TARGETS_AND_DEPTH_STENCIL, nullptr, nullptr, 0, 1, uavs, nullptr );
+        
+        currentComputeTarget = computeTarget;
+    }
+}
+
+void Direct3DRendererCore::disableRenderTargets()
+{
+    if ( !currentRenderTargets.empty() || currentDepthRenderTarget.lock() )
+    {
+        deviceContext->OMSetRenderTargets( 0, nullptr, nullptr );
+
+        currentRenderTargets.clear();
+        currentDepthRenderTarget.reset();
+    }
+}
+
+void Direct3DRendererCore::disableComputeTargets()
+{
+    if ( currentComputeTarget.lock() )
+    {
+        ID3D11UnorderedAccessView* uavs[1] = { nullptr };
+        deviceContext->CSSetUnorderedAccessViews( 0, 1, uavs, nullptr );
+        //deviceContext->OMSetRenderTargetsAndUnorderedAccessViews( D3D11_KEEP_RENDER_TARGETS_AND_DEPTH_STENCIL, nullptr, nullptr, 0, 0, nullptr, nullptr );
+
+        currentComputeTarget.reset();
+    }
 }
 
 void Direct3DRendererCore::enableRasterizerState( ID3D11RasterizerState& rasterizerState )
@@ -135,11 +237,32 @@ void Direct3DRendererCore::enableBlendState( ID3D11BlendState& blendState )
 	}
 }
 
+void Direct3DRendererCore::enableDefaultRasterizerState()
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableDefaultRasterizerState - renderer not initialized." );
+
+    if ( currentRasterizerState ) {
+        deviceContext->RSSetState( nullptr );
+
+        currentRasterizerState = nullptr;
+    }
+}
+
+void Direct3DRendererCore::enableDefaultDepthStencilState()
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableDefaultDepthStencilState - renderer not initialized." );
+
+    if ( currentDepthStencilState ) {
+        deviceContext->OMSetDepthStencilState( nullptr, 0 );
+
+        currentDepthStencilState = nullptr;
+    }
+}
+
 void Direct3DRendererCore::enableDefaultBlendState()
 {
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableDefaultBlendState - renderer not initialized." );
 
-	// Change blend state if new state is different than the current one.
 	if ( currentBlendState ) {
 
 		UINT sampleMask = 0xffffffff;
@@ -310,4 +433,42 @@ void Direct3DRendererCore::draw( const FontCharacter& character )
 	// Draw the mesh.
 	const unsigned int triangleCount = 2;
 	deviceContext->DrawIndexed( triangleCount * uint3::size(), 0, 0 );
+}
+
+// Note: Shaders need to be configured and set before calling this method.
+void Direct3DRendererCore::compute( uint3 threadCount )
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::compute - renderer not initialized." );
+
+    deviceContext->Dispatch( threadCount.x, threadCount.y, threadCount.z );
+}
+
+void Direct3DRendererCore::disableShaderInputs()
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::disableShaderInputs - renderer not initialized." );
+
+    deviceContext->IASetVertexBuffers( 0, nullVertexBuffers.size(), nullVertexBuffers.data(), nullVertexBuffersStrideOffset.data(), nullVertexBuffersStrideOffset.data() );
+    deviceContext->IASetIndexBuffer( nullptr, DXGI_FORMAT_UNKNOWN, 0 );
+    deviceContext->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_UNDEFINED );
+
+    deviceContext->PSSetShaderResources( 0, nullResources.size(), nullResources.data() );
+    deviceContext->PSSetSamplers( 0, nullSamplers.size(), nullSamplers.data() );
+}
+
+void Direct3DRendererCore::createNullShaderInputs()
+{
+    nullVertexBuffers.resize( D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT  );
+    nullVertexBuffersStrideOffset.resize( D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT );
+    for ( int i = 0; i < D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT ; ++i ) {
+        nullVertexBuffers[ i ] = nullptr;
+        nullVertexBuffersStrideOffset[ i ] = 0;
+    }
+
+    nullResources.resize( D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT );
+    for ( int i = 0; i < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i )
+        nullResources[ i ] = nullptr;
+
+    nullSamplers.resize( D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT );
+    for ( int i = 0; i < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT; ++i )
+        nullSamplers[ i ] = nullptr;
 }

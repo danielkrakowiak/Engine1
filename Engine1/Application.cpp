@@ -38,7 +38,8 @@ Application::Application() :
 	rendererCore(),
 	frameRenderer( rendererCore ),
 	defferedRenderer( rendererCore ),
-    renderer( defferedRenderer ),
+    raytraceRenderer( rendererCore ),
+    renderer( defferedRenderer, raytraceRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -66,6 +67,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
 	frameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
 	defferedRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+    raytraceRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
 	rendererCore.initialize( frameRenderer.getDeviceContext( ) );
 
     // Load 'axises' model.

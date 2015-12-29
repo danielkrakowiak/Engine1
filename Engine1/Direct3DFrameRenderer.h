@@ -93,10 +93,10 @@ namespace Engine1
         // Shaders.
         void loadAndCompileShaders( ID3D11Device& device );
 
-        TextureVertexShader   textureVertexShader;
-        TextureFragmentShader textureFragmentShader;
-        TextVertexShader      textVertexShader;
-        TextFragmentShader    textFragmentShader;
+        std::shared_ptr<TextureVertexShader>   textureVertexShader;
+        std::shared_ptr<TextureFragmentShader> textureFragmentShader;
+        std::shared_ptr<TextVertexShader>      textVertexShader;
+        std::shared_ptr<TextFragmentShader>    textFragmentShader;
 
         // Copying is not allowed.
         Direct3DFrameRenderer( const Direct3DFrameRenderer& ) = delete;

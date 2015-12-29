@@ -5,6 +5,7 @@
 namespace Engine1 
 {
     class Direct3DDefferedRenderer;
+    class RaytraceRenderer;
     class CScene;
     class Camera;
     class BlockMesh;
@@ -15,7 +16,7 @@ namespace Engine1
     {
         public:
 
-        Renderer( Direct3DDefferedRenderer& defferedRenderer );
+        Renderer( Direct3DDefferedRenderer& defferedRenderer, RaytraceRenderer& raytraceRenderer );
         ~Renderer();
 
         void initialize( std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
@@ -25,6 +26,7 @@ namespace Engine1
         private:
 
         Direct3DDefferedRenderer& defferedRenderer;
+        RaytraceRenderer&         raytraceRenderer;
 
         std::shared_ptr<const BlockMesh>  axisMesh;
         std::shared_ptr<const BlockModel> lightModel;
