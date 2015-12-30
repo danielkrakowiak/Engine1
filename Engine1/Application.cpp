@@ -369,6 +369,13 @@ void Application::onKeyPress( int key )
             saveScene( scenePath );
         }
     }
+
+    if ( key == InputManager::Keys::one )
+        renderer.setActiveView( Renderer::View::Albedo );
+    else if ( key == InputManager::Keys::two )
+        renderer.setActiveView( Renderer::View::Normal );
+    else if ( key == InputManager::Keys::three )
+        renderer.setActiveView( Renderer::View::Reflection1 );
 }
 
 void Application::onDragAndDropFile( std::string filePath )

@@ -16,6 +16,12 @@ namespace Engine1
     {
         public:
 
+        enum class View : char {
+            Albedo = 0,
+            Normal,
+            Reflection1
+        };
+
         Renderer( Direct3DDefferedRenderer& defferedRenderer, RaytraceRenderer& raytraceRenderer );
         ~Renderer();
 
@@ -23,7 +29,12 @@ namespace Engine1
 
         std::shared_ptr<Texture2D> renderScene( const CScene& scene, const Camera& camera );
 
+        void setActiveView( const View view );
+        View getActiveView() const;
+
         private:
+
+        View activeView;
 
         Direct3DDefferedRenderer& defferedRenderer;
         RaytraceRenderer&         raytraceRenderer;

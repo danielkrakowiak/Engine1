@@ -46,7 +46,6 @@
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
 Create another shader to actually trace some rays. Pass a bounding box through a constant buffer at first.
-Add keyboard shortcuts for switching between views (deffered color, normal, raytracing etc).
 
 *** IMPORTANT:
 It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.

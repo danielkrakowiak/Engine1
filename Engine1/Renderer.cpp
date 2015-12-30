@@ -20,7 +20,8 @@ using namespace Engine1;
 
 Renderer::Renderer( Direct3DDefferedRenderer& defferedRenderer, RaytraceRenderer& raytraceRenderer ) :
 defferedRenderer( defferedRenderer ),
-raytraceRenderer( raytraceRenderer )
+raytraceRenderer( raytraceRenderer ),
+activeView( View::Albedo )
 {}
 
 Renderer::~Renderer()
@@ -76,12 +77,24 @@ std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Cam
     }
 
     raytraceRenderer.generateRays( camera );
-    std::shared_ptr<ComputeTargetTexture2D> raytraceFrame = raytraceRenderer.getComputeTarget();
 
-    std::shared_ptr<RenderTargetTexture2D> defferedFrame = defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO );
+    switch (activeView)
+    {
+        case View::Albedo: 
+            return std::dynamic_pointer_cast<Texture2D>( defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO ) );
+        case View::Normal:
+            return std::dynamic_pointer_cast<Texture2D>( defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL ) );
+        case View::Reflection1:
+            return std::dynamic_pointer_cast<Texture2D>( raytraceRenderer.getComputeTarget() );
+    }
+}
 
-    //std::shared_ptr<Texture2D> frame = std::dynamic_pointer_cast<Texture2D>(defferedFrame);
-    std::shared_ptr<Texture2D> frame = std::dynamic_pointer_cast<Texture2D>(raytraceFrame);
+void Renderer::setActiveView( const View view )
+{
+    activeView = view;
+}
 
-    return frame;
+Renderer::View Renderer::getActiveView() const
+{
+    return activeView;
 }
