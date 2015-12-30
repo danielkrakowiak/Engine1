@@ -21,7 +21,7 @@ void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& dev
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
-	{ //compile shader
+	{ // Compile the shader.
 		ComPtr<ID3D10Blob> errorMessage;
 
 		UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
@@ -46,21 +46,21 @@ void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& dev
 		if ( result < 0 ) throw std::exception( "TextureFragmentShader::compileFromFile - Failed to create shader." );
 	}
 
-	{ // create sampler configuration
+	{ // Create sampler configuration
 		D3D11_SAMPLER_DESC samplerConfiguration;
-		samplerConfiguration.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		samplerConfiguration.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerConfiguration.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerConfiguration.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerConfiguration.MipLODBias = 0.0f;
-		samplerConfiguration.MaxAnisotropy = 1;
-		samplerConfiguration.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerConfiguration.MipLODBias       = 0.0f;
+		samplerConfiguration.MaxAnisotropy    = 1;
+		samplerConfiguration.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
 		samplerConfiguration.BorderColor[ 0 ] = 0;
 		samplerConfiguration.BorderColor[ 1 ] = 0;
 		samplerConfiguration.BorderColor[ 2 ] = 0;
 		samplerConfiguration.BorderColor[ 3 ] = 0;
-		samplerConfiguration.MinLOD = 0;
-		samplerConfiguration.MaxLOD = D3D11_FLOAT32_MAX;
+		samplerConfiguration.MinLOD           = 0;
+		samplerConfiguration.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
 		result = device.CreateSamplerState( &samplerConfiguration, samplerState.ReleaseAndGetAddressOf() );

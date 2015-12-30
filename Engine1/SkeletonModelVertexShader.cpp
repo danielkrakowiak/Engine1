@@ -29,7 +29,7 @@ void SkeletonModelVertexShader::compileFromFile( std::string path, ID3D11Device&
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
-	{ //compile shader
+	{ // Compile the shader.
 		ComPtr<ID3D10Blob> errorMessage;
 
 		UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
@@ -125,17 +125,16 @@ void SkeletonModelVertexShader::compileFromFile( std::string path, ID3D11Device&
 	}
 
 	{
-		// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-		D3D11_BUFFER_DESC matrixBufferDesc;
-		matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		matrixBufferDesc.ByteWidth = sizeof( ConstantBuffer );
-		matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		matrixBufferDesc.MiscFlags = 0;
-		matrixBufferDesc.StructureByteStride = 0;
+		// Create constant buffer.
+		D3D11_BUFFER_DESC desc;
+		desc.Usage               = D3D11_USAGE_DYNAMIC;
+		desc.ByteWidth           = sizeof( ConstantBuffer );
+		desc.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
+		desc.CPUAccessFlags      = D3D11_CPU_ACCESS_WRITE;
+		desc.MiscFlags           = 0;
+		desc.StructureByteStride = 0;
 
-		// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-		result = device.CreateBuffer( &matrixBufferDesc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+		result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonModelVertexShader::compileFromFile - creating constant input buffer failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 

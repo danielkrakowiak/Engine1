@@ -5,6 +5,8 @@
 #include "Direct3DRendererCore.h"
 #include "ComputeTargetTexture2D.h"
 #include "uint3.h"
+#include "Camera.h"
+#include "MathUtil.h"
 
 using namespace Engine1;
 
@@ -43,12 +45,12 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
     computeTarget = std::make_shared<ComputeTargetTexture2D>( imageWidth, imageHeight, device );
 }
 
-void RaytraceRenderer::clearComputeTargets( float4 color, float depth )
+void RaytraceRenderer::clearComputeTargets( float4 value )
 {
-    computeTarget->clearOnGpu( color, *deviceContext.Get() );
+    computeTarget->clearOnGpu( value, *deviceContext.Get() );
 }
 
-void RaytraceRenderer::generateRays()
+void RaytraceRenderer::generateRays( const Camera& camera )
 {
     // Disable rendering pipeline.
     rendererCore.disableRenderingShaders();
@@ -57,6 +59,15 @@ void RaytraceRenderer::generateRays()
     rendererCore.enableDefaultRasterizerState();
     rendererCore.enableDefaultDepthStencilState();
     rendererCore.disableShaderInputs();
+
+    const float fieldOfView         = (float)MathUtil::pi / 4.0f;
+    const float screenAspect        = (float)imageWidth / (float)imageHeight;
+    const float2 viewportSize       = float2( 1024.0f, 768.0f );
+    const float3 viewportUp         = camera.getUp() * fieldOfView;
+    const float3 viewportRight      = camera.getRight() * screenAspect;
+    const float3 viewportBottomLeft = camera.getPosition() + camera.getDirection() - 0.5f * viewportRight - 0.5f * viewportUp;
+
+    generateRaysComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), viewportBottomLeft, viewportUp, viewportRight, viewportSize );
 
     rendererCore.enableComputeShader( generateRaysComputeShader );
     rendererCore.enableComputeTarget( computeTarget );

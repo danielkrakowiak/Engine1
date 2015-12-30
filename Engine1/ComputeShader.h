@@ -34,8 +34,8 @@ namespace Engine1
         unsigned int shaderId;
 
         Microsoft::WRL::ComPtr<ID3D11ComputeShader> shader;
-        Microsoft::WRL::ComPtr<ID3D11Device>       device;
-        //Microsoft::WRL::ComPtr<ID3D11Buffer>       constantInputBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Device>        device;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>        constantInputBuffer;
 
         // Copying is not allowed.
         ComputeShader( const ComputeShader& )          = delete;

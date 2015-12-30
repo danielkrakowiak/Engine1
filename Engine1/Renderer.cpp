@@ -75,7 +75,7 @@ std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Cam
         }
     }
 
-    raytraceRenderer.generateRays();
+    raytraceRenderer.generateRays( camera );
     std::shared_ptr<ComputeTargetTexture2D> raytraceFrame = raytraceRenderer.getComputeTarget();
 
     std::shared_ptr<RenderTargetTexture2D> defferedFrame = defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO );

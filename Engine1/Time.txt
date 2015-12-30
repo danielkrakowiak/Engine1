@@ -149,3 +149,4 @@ Thu 10.12.2015 - 6h - Fixed problem with UnitTests project having different curr
 Sun 27.12.2015 - 4h - Added RaytraceRenderer, ComputeShader classes. Fixed remembering of currently bound shader in RendererCore class. Compiled some trivial compute shader. Read code samples for writing to texture from compute shader.
 Mod 28.12.2015 - 3h - Added ComputeTargetTexture2D class. Fixed remembering of currently bound render targets. Added unbining shaders, render targets, buffers etc.
 Tue 29.12.2015 - 3h - Successfully run a compute shader. Some testing and learning on compute shader thread ids. Added a method to generate primary rays in compute shader.
+Wed 30.12.2015 - 1h - Passed camera state to the compute shader and generated the primary rays.

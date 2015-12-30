@@ -19,7 +19,7 @@ void TextVertexShader::compileFromFile( std::string path, ID3D11Device& device )
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
-	{ //compile shader
+	{ // Compile the shader.
 		ComPtr<ID3D10Blob> errorMessage;
 
 		UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
@@ -46,41 +46,40 @@ void TextVertexShader::compileFromFile( std::string path, ID3D11Device& device )
 
 	{
 		const unsigned int inputLayoutCount = 2;
-		D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[ inputLayoutCount ];
-		inputLayoutDesc[ 0 ].SemanticName = "POSITION";
-		inputLayoutDesc[ 0 ].SemanticIndex = 0;
-		inputLayoutDesc[ 0 ].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		inputLayoutDesc[ 0 ].InputSlot = 0;
-		inputLayoutDesc[ 0 ].AlignedByteOffset = 0;
-		inputLayoutDesc[ 0 ].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		inputLayoutDesc[ 0 ].InstanceDataStepRate = 0;
+		D3D11_INPUT_ELEMENT_DESC desc[ inputLayoutCount ];
+		desc[ 0 ].SemanticName         = "POSITION";
+		desc[ 0 ].SemanticIndex        = 0;
+		desc[ 0 ].Format               = DXGI_FORMAT_R32G32B32_FLOAT;
+		desc[ 0 ].InputSlot            = 0;
+		desc[ 0 ].AlignedByteOffset    = 0;
+		desc[ 0 ].InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
+		desc[ 0 ].InstanceDataStepRate = 0;
 
-		inputLayoutDesc[ 1 ].SemanticName = "TEXCOORD";
-		inputLayoutDesc[ 1 ].SemanticIndex = 0;
-		inputLayoutDesc[ 1 ].Format = DXGI_FORMAT_R32G32_FLOAT;
-		inputLayoutDesc[ 1 ].InputSlot = 1;
-		inputLayoutDesc[ 1 ].AlignedByteOffset = 0;
-		inputLayoutDesc[ 1 ].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		inputLayoutDesc[ 1 ].InstanceDataStepRate = 0;
+		desc[ 1 ].SemanticName         = "TEXCOORD";
+		desc[ 1 ].SemanticIndex        = 0;
+		desc[ 1 ].Format               = DXGI_FORMAT_R32G32_FLOAT;
+		desc[ 1 ].InputSlot            = 1;
+		desc[ 1 ].AlignedByteOffset    = 0;
+		desc[ 1 ].InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
+		desc[ 1 ].InstanceDataStepRate = 0;
 
 		// Create the vertex input layout.
-		result = device.CreateInputLayout( inputLayoutDesc, inputLayoutCount, shaderBuffer->GetBufferPointer(),
+		result = device.CreateInputLayout( desc, inputLayoutCount, shaderBuffer->GetBufferPointer(),
 										   shaderBuffer->GetBufferSize(), inputLayout.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextVertexShader::compileFromFile - creating input layout failed" );
 	}
 
 	{
-		// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-		D3D11_BUFFER_DESC matrixBufferDesc;
-		matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		matrixBufferDesc.ByteWidth = sizeof( ConstantBuffer );
-		matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		matrixBufferDesc.MiscFlags = 0;
-		matrixBufferDesc.StructureByteStride = 0;
+		// Create constant buffer.
+		D3D11_BUFFER_DESC desc;
+		desc.Usage               = D3D11_USAGE_DYNAMIC;
+		desc.ByteWidth           = sizeof( ConstantBuffer );
+		desc.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
+		desc.CPUAccessFlags      = D3D11_CPU_ACCESS_WRITE;
+		desc.MiscFlags           = 0;
+		desc.StructureByteStride = 0;
 
-		// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-		result = device.CreateBuffer( &matrixBufferDesc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+		result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextVertexShader::compileFromFile - creating constant buffer failed" );
 	}
 

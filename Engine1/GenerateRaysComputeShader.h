@@ -4,7 +4,9 @@
 
 #include <string>
 
-#include "float44.h"
+#include "float2.h"
+#include "float3.h"
+#include "float4.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -20,8 +22,24 @@ namespace Engine1
         virtual ~GenerateRaysComputeShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
+        void setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportBottomLeft, const float3 viewportUp, const float3 viewportRight, const float2 viewportSize );
 
         private:
+
+        __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
+        struct ConstantBuffer
+        {
+            float3 cameraPos;
+            float  pad1;
+            float3 viewportBottomLeft;
+            float  pad2;
+            float3 viewportUp;
+            float  pad3;
+            float3 viewportRight;
+            float  pad4;
+            float2 viewportSize;
+            float2 pad5;
+        };
 
         // Copying is not allowed.
         GenerateRaysComputeShader( const GenerateRaysComputeShader& ) = delete;

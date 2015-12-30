@@ -12,6 +12,7 @@ namespace Engine1
 {
     class Direct3DRendererCore;
     class ComputeTargetTexture2D;
+    class Camera;
 
     class RaytraceRenderer
     {
@@ -22,9 +23,9 @@ namespace Engine1
 
         void initialize( int imageWidth, int imageHeight, ID3D11Device& device, ID3D11DeviceContext& deviceContext );
 
-        void clearComputeTargets( float4 color, float depth );
+        void clearComputeTargets( float4 value );
 
-        void generateRays();
+        void generateRays( const Camera& camera );
 
         // For test - only temporary.
         std::shared_ptr<ComputeTargetTexture2D> getComputeTarget();
