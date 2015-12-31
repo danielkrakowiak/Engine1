@@ -76,16 +76,18 @@ std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Cam
         }
     }
 
-    raytraceRenderer.generateRays( camera );
+    raytraceRenderer.generateAndTraceRays( camera );
 
     switch (activeView)
     {
         case View::Albedo: 
-            return std::dynamic_pointer_cast<Texture2D>( defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO ) );
+            return std::static_pointer_cast<Texture2D>( defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO ) );
         case View::Normal:
-            return std::dynamic_pointer_cast<Texture2D>( defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL ) );
+            return std::static_pointer_cast<Texture2D>( defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL ) );
+        case View::RayDirections1:
+            return std::static_pointer_cast<Texture2D>( raytraceRenderer.getRayDirectionsTexture() );
         case View::Reflection1:
-            return std::dynamic_pointer_cast<Texture2D>( raytraceRenderer.getComputeTarget() );
+            return std::static_pointer_cast<Texture2D>( raytraceRenderer.getRayHitsAlbedoTexture() );
     }
 }
 

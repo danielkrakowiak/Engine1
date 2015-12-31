@@ -19,6 +19,7 @@ namespace Engine1
         enum class View : char {
             Albedo = 0,
             Normal,
+            RayDirections1,
             Reflection1
         };
 

@@ -244,6 +244,12 @@
     <Filter Include="Source Files\Shader\GenerateRaysShader">
       <UniqueIdentifier>{34507f44-7cd8-4011-af77-b370ee9bb73b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\RaytracingShader">
+      <UniqueIdentifier>{d0d3698f-43aa-4304-96d8-467399b27f95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\RaytracingShader">
+      <UniqueIdentifier>{dc231a18-1f39-427d-909f-77d193c8711e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1125,6 +1131,9 @@
     <ClInclude Include="ComputeTargetTexture2D.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
+    <ClInclude Include="RaytracingComputeShader.h">
+      <Filter>Header Files\Shader\RaytracingShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1898,6 +1907,9 @@
     <ClCompile Include="ComputeTargetTexture2D.cpp">
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
+    <ClCompile Include="RaytracingComputeShader.cpp">
+      <Filter>Source Files\Shader\RaytracingShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1961,6 +1973,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\GenerateRaysShader\cs.hlsl">
       <Filter>Source Files\Shader\GenerateRaysShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RaytracingShader\cs.hlsl">
+      <Filter>Source Files\Shader\RaytracingShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -51,6 +51,8 @@ Create another shader to actually trace some rays. Pass a bounding box through a
 It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.
 Example: draw(or renamed to render) method should take model instead of mesh and set textures accordingly. Or buffers should be set in VertexShader setParameters method...
 Also constant buffer is set in setParameters...
+Also only the shader know on which slots it binds resources. So only the shader know ho to bind/unbind them correctly. Doing it from outside is just guessing and won't work for more complex/diverse shaders.
+So probably set buffers, textures, uavs from shader class.
 
 Make fieldOfView application member. Pass it (or set through setters) to renderers.
 

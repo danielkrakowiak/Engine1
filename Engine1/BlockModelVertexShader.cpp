@@ -106,7 +106,7 @@ void BlockModelVertexShader::setParameters( ID3D11DeviceContext& deviceContext, 
 
 	dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-	//transpose from row-major to column-major to fit each column in one register
+	// Transpose from row-major to column-major to fit each column in one register.
 	dataPtr->world = float44( worldMatrix ).getTranspose();
 	dataPtr->view = viewMatrix.getTranspose();
 	dataPtr->projection = projectionMatrix.getTranspose();

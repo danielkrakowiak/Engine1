@@ -4,7 +4,7 @@ cbuffer ConstantBuffer
 {
     float3 cameraPos;
     float  pad1;
-    float3 viewportBottomLeft;
+    float3 viewportTopLeft;
     float  pad2;
     float3 viewportUp;
     float  pad3;
@@ -16,7 +16,7 @@ cbuffer ConstantBuffer
 
 RWTexture2D<float4> computeTarget : register( u0 );
 
-// pixelPos in range (0,0; screen width, screen height).
+// pixelPos in range (0,0; screen width, screen height) counting from the top-left corner of the viewport.
 float3 getPrimaryRayDirection(float2 pixelPos)
 {
     // cameraPos - camera position in world space.
@@ -27,7 +27,7 @@ float3 getPrimaryRayDirection(float2 pixelPos)
 
     const float2 pixelShift = (pixelPos + float2(0.5f, 0.5f)) / viewportSize; // In range (0;1)
 
-	const float3 pixelPosWorld = viewportBottomLeft + viewportRight * pixelShift.x + viewportUp * pixelShift.y;
+	const float3 pixelPosWorld = viewportTopLeft + viewportRight * pixelShift.x - viewportUp * pixelShift.y;
 	
     return pixelPosWorld - cameraPos;
 }

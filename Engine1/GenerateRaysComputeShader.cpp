@@ -19,7 +19,7 @@ void GenerateRaysComputeShader::compileFromFile( std::string path, ID3D11Device&
 
     HRESULT result;
     ComPtr<ID3D10Blob> shaderBuffer;
-    { // Ccompile the shader.
+    { // Compile the shader.
         ComPtr<ID3D10Blob> errorMessage;
 
         UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
@@ -63,7 +63,7 @@ void GenerateRaysComputeShader::compileFromFile( std::string path, ID3D11Device&
     this->shaderId = ++compiledShadersCount;
 }
 
-void GenerateRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportBottomLeft, 
+void GenerateRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportTopLeft, 
                                                const float3 viewportUp, const float3 viewportRight, const float2 viewportSize )
 {
     if ( !compiled ) throw std::exception( "GenerateRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
@@ -77,7 +77,7 @@ void GenerateRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContex
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
     dataPtr->cameraPos          = cameraPos;
-    dataPtr->viewportBottomLeft = viewportBottomLeft;
+    dataPtr->viewportTopLeft    = viewportTopLeft;
     dataPtr->viewportUp         = viewportUp;
     dataPtr->viewportRight      = viewportRight;
     dataPtr->viewportSize       = viewportSize;

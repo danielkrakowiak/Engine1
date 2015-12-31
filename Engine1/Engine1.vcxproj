@@ -467,6 +467,7 @@
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="PointLightParser.h" />
     <ClInclude Include="RaytraceRenderer.h" />
+    <ClInclude Include="RaytracingComputeShader.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SceneParser.h" />
     <ClInclude Include="SkeletonActor.h" />
@@ -729,6 +730,7 @@
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="PointLightParser.cpp" />
     <ClCompile Include="RaytraceRenderer.cpp" />
+    <ClCompile Include="RaytracingComputeShader.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SceneParser.cpp" />
     <ClCompile Include="SkeletonActor.cpp" />
@@ -834,6 +836,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\GenerateRaysShader\cs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\RaytracingShader\cs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">true</ExcludedFromBuild>

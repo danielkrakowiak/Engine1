@@ -22,7 +22,7 @@ namespace Engine1
         virtual ~GenerateRaysComputeShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportBottomLeft, const float3 viewportUp, const float3 viewportRight, const float2 viewportSize );
+        void setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportTopLeft, const float3 viewportUp, const float3 viewportRight, const float2 viewportSize );
 
         private:
 
@@ -31,7 +31,7 @@ namespace Engine1
         {
             float3 cameraPos;
             float  pad1;
-            float3 viewportBottomLeft;
+            float3 viewportTopLeft;
             float  pad2;
             float3 viewportUp;
             float  pad3;

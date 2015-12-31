@@ -167,9 +167,7 @@ void Direct3DRendererCore::enableComputeTarget( std::shared_ptr<ComputeTargetTex
     if ( computeTarget != currentComputeTarget.lock() )
     {
         ID3D11UnorderedAccessView* uavs[1] = { computeTarget->getComputeTarget() };
-        //ID3D11UnorderedAccessView* unorderedAccessView = computeTarget->getComputeTarget();
         deviceContext->CSSetUnorderedAccessViews( 0, 1, uavs, nullptr );
-        //deviceContext->OMSetRenderTargetsAndUnorderedAccessViews( D3D11_KEEP_RENDER_TARGETS_AND_DEPTH_STENCIL, nullptr, nullptr, 0, 1, uavs, nullptr );
         
         currentComputeTarget = computeTarget;
     }

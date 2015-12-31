@@ -375,6 +375,8 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::two )
         renderer.setActiveView( Renderer::View::Normal );
     else if ( key == InputManager::Keys::three )
+        renderer.setActiveView( Renderer::View::RayDirections1 );
+    else if ( key == InputManager::Keys::four )
         renderer.setActiveView( Renderer::View::Reflection1 );
 }
 
