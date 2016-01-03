@@ -107,10 +107,9 @@ void RaytraceRenderer::generateRays( const Camera& camera )
 
 void RaytraceRenderer::traceRays( const Camera& camera, const BlockActor& actor )
 {
-    //const float3 boxSize( 4.5f, 15.0f, 4.5f );
-    const float3 boxMin( -5.0f, 0.0f, -8.0f );
-    const float3 boxMax( 10.0f, 10.0f, 8.0f );
-    raytracingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), *rayDirectionsTexture, *actor.getModel()->getMesh(), actor.getPose(), boxMin, boxMax );
+    float3 bbMin, bbMax;
+    std::tie( bbMin, bbMax ) = actor.getModel()->getMesh()->getBoundingBox();
+    raytracingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), *rayDirectionsTexture, *actor.getModel()->getMesh(), actor.getPose(), bbMin, bbMax );
 
     rendererCore.enableComputeShader( raytracingComputeShader );
     rendererCore.enableComputeTarget( rayHitsAlbedoTexture );

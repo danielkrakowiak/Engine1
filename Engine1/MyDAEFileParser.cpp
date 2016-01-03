@@ -59,6 +59,9 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( s
 		}
 	}
 
+    for ( std::shared_ptr<BlockMesh>& mesh : meshes )
+        mesh->recalculateBoundingBox();
+
 	return meshes;
 }
 
@@ -165,6 +168,9 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 		// Normalize weights.
 		mesh.normalizeVertexWeights();
 	}
+
+    for ( std::shared_ptr<SkeletonMesh>& mesh : meshes )
+        mesh->recalculateBoundingBox();
 
 	return meshes;
 }

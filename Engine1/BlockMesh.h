@@ -71,6 +71,10 @@ namespace Engine1
         std::list< ID3D11ShaderResourceView* > getTexcoordBufferResources() const;
         ID3D11ShaderResourceView* getTriangleBufferResource() const;
 
+        void recalculateBoundingBox();
+        // Returns <min, max> of the bounding box.
+        std::tuple<float3, float3> getBoundingBox() const;
+
         private:
 
         BlockMeshFileInfo fileInfo;
@@ -89,6 +93,9 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalBufferResource;
         std::list< Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> > texcoordBufferResources;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> triangleBufferResource;
+
+        float3 boundingBoxMin;
+        float3 boundingBoxMax;
 
         // Copying meshes in not allowed.
         BlockMesh( const BlockMesh& ) = delete;

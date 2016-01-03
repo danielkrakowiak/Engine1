@@ -12,6 +12,7 @@
 
 #include "StringUtil.h"
 #include "Direct3DUtil.h"
+#include "MathUtil.h"
 
 #include "TextFile.h"
 
@@ -91,7 +92,9 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vect
 	throw std::exception( "BlockMesh::createFromMemory() - incorrect 'format' argument." );
 }
 
-BlockMesh::BlockMesh()
+BlockMesh::BlockMesh() :
+boundingBoxMin( float3::ZERO ),
+boundingBoxMax( float3::ZERO )
 {}
 
 BlockMesh::~BlockMesh()
@@ -463,4 +466,14 @@ ID3D11ShaderResourceView* BlockMesh::getTriangleBufferResource() const
     if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTriangleBufferResource - Mesh not loaded in GPU memory." );
 
     return triangleBufferResource.Get();
+}
+
+void BlockMesh::recalculateBoundingBox()
+{
+    std::tie( boundingBoxMin, boundingBoxMax ) = MathUtil::calculateBoundingBox( vertices );
+}
+
+std::tuple<float3, float3> BlockMesh::getBoundingBox() const
+{
+    return std::make_tuple(boundingBoxMin, boundingBoxMax);
 }

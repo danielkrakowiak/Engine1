@@ -2,12 +2,15 @@
 
 #include <cmath>
 #include <float.h>
+#include <tuple>
+#include <vector>
 
 #include "float2.h"
 #include "float3.h"
 #include "float4.h"
 #include "quat.h"
 #include "float44.h"
+#include "uint3.h"
 
 //#TODO: use const references in arguments where possible.
 
@@ -51,5 +54,8 @@ namespace Engine1
         float33 anglesToRotationMatrix( const float3& rot );
 
         float3 rotationMatrixToAngles( const float33& mat );
+
+        // Returns <min, max> of the bounding box.
+        std::tuple<float3, float3> calculateBoundingBox( const std::vector<float3>& vertices );
     }
 }

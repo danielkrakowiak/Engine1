@@ -120,6 +120,10 @@ namespace Engine1
         const Bone& getBone( const std::string& name ) const;
         const Bone& getBone( unsigned char index ) const;
 
+        void recalculateBoundingBox();
+        // Returns <min, max> of the bounding box.
+        std::tuple<float3, float3> SkeletonMesh::getBoundingBox() const;
+
         private:
 
         SkeletonMeshFileInfo fileInfo;
@@ -142,6 +146,9 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11Buffer>              triangleBuffer;
 
         std::vector< Bone > bones;
+
+        float3 boundingBoxMin;
+        float3 boundingBoxMax;
 
         // Copying mesh in not allowed.
         SkeletonMesh( const SkeletonMesh& ) = delete;

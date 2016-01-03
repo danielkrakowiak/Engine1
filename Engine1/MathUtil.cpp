@@ -159,3 +159,22 @@ float3 MathUtil::rotationMatrixToAngles( const float33& mat ) {
 
 	return rot;
 }
+
+std::tuple<float3, float3> MathUtil::calculateBoundingBox( const std::vector<float3>& vertices )
+{
+    // Note: Could be optimized if needed.
+
+    if ( vertices.empty() )
+        return std::make_tuple( float3::ZERO, float3::ZERO );
+
+    float3 bbMin(  FLT_MAX,  FLT_MAX,  FLT_MAX );
+    float3 bbMax( -FLT_MAX, -FLT_MAX, -FLT_MAX );
+
+    for ( const float3& vertex : vertices )
+    {
+        bbMin = float3::min( bbMin, vertex );
+        bbMax = float3::max( bbMax, vertex );
+    }
+
+    return std::make_tuple( bbMin, bbMax );
+}

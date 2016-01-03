@@ -8,6 +8,7 @@
 
 #include "StringUtil.h"
 #include "Direct3DUtil.h"
+#include "MathUtil.h"
 
 #include "TextFile.h"
 
@@ -80,7 +81,9 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std
 }
 
 SkeletonMesh::SkeletonMesh() :
-bonesPerVertexCount( BonesPerVertexCount::Type::ZERO )
+bonesPerVertexCount( BonesPerVertexCount::Type::ZERO ),
+boundingBoxMin( float3::ZERO ),
+boundingBoxMax( float3::ZERO )
 {}
 
 SkeletonMesh::~SkeletonMesh() 
@@ -671,4 +674,14 @@ const SkeletonMesh::Bone& SkeletonMesh::getBone( unsigned char index ) const
 	if ( index == 0 ) throw std::exception( "SkeletonMesh::getBone - boneIndex cannot be 0." );
 
 	return bones.at( index - 1 );
+}
+
+void SkeletonMesh::recalculateBoundingBox()
+{
+    std::tie( boundingBoxMin, boundingBoxMax ) = MathUtil::calculateBoundingBox( vertices );
+}
+
+std::tuple<float3, float3> SkeletonMesh::getBoundingBox() const
+{
+    return std::make_tuple( boundingBoxMin, boundingBoxMax );
 }

@@ -485,6 +485,8 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 		}
 	}
 
+    mesh->recalculateBoundingBox();
+
 	return mesh;
 }
 

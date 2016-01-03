@@ -45,14 +45,17 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
+Add method for calculating bounding boxes from mesh on CPU. Add bounding box to actor or model or mesh.
 
-There is different fox or something that makes raytraced images streched down.
+There is different fov or something that makes raytraced images streched down.
 
 Add rotating and translating the mesh using keyboard and mouse.
 
 Pass vertex, index buffers to the raytracing shader. Raytrace triangle mesh.
 
 Add rotate (by some angle) and translate methods to float43, float44, float33 etc. Should convert from matrix to euler angles, perform rotation and convert back to matrix.
+
+Clear up the warnings!!!
 
 *** IMPORTANT:
 It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.
@@ -66,9 +69,11 @@ Maybe I should createa Buffer class. Same as Texture2D. Because we need to store
 Could be a template class taking it's element type at template argument. It would also simplify sending data to and from GPU using buffers. When building volume data structures etc.
 + Check bind flags on different resources - ex. vertex buffers (and normals etc) have bind flag - "default", but should rather hvae "immutable". Default means that I expect GPU to modify these buffers.
 
+Add my own binary format of mesh (block and skeleton). It could also store bounding box info etc. It would load much faster.
 
 Make fieldOfView application member. Pass it (or set through setters) to renderers.
 
+How to deal with calculating/updating bounding box for SkeletonMesh?
 
 Add new renderer class - like ScreenREnderer or FinalFrameRenderer etc. It should have shaders taking many screen-size textures and combine them together and shade pixels.
 It should be similar to frame renderer.
