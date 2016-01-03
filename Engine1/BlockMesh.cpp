@@ -141,20 +141,30 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
 	if ( vertices.size() > 0 && !vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(float3)* vertices.size();
-		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
-		vertexBufferDesc.MiscFlags = 0;
+		vertexBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
+		vertexBufferDesc.ByteWidth           = sizeof(float3)* vertices.size();
+		vertexBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
+		vertexBufferDesc.CPUAccessFlags      = 0;
+		vertexBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 		vertexBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA vertexDataPtr;
-		vertexDataPtr.pSysMem = vertices.data();
-		vertexDataPtr.SysMemPitch = 0;
+		vertexDataPtr.pSysMem          = vertices.data();
+		vertexDataPtr.SysMemPitch      = 0;
 		vertexDataPtr.SysMemSlicePitch = 0;
 
 		HRESULT result = device.CreateBuffer( &vertexBufferDesc, &vertexDataPtr, vertexBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh vertices failed" );
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
+        resourceDesc.Format                = DXGI_FORMAT_R32_TYPELESS;
+        resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
+        resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
+        resourceDesc.BufferEx.FirstElement = 0;
+        resourceDesc.BufferEx.NumElements  = vertices.size() * 3;
+
+        result = device.CreateShaderResourceView( vertexBuffer.Get(), &resourceDesc, vertexBufferResource.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating vertex buffer shader resource on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::vertexBuffer" );
@@ -164,11 +174,11 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
 	if ( normals.size() > 0 && !normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
-		normalBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		normalBufferDesc.ByteWidth = sizeof(float3)* normals.size();
-		normalBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		normalBufferDesc.CPUAccessFlags = 0;
-		normalBufferDesc.MiscFlags = 0;
+		normalBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
+		normalBufferDesc.ByteWidth           = sizeof(float3)* normals.size();
+		normalBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
+		normalBufferDesc.CPUAccessFlags      = 0;
+		normalBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 		normalBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA normalDataPtr;
@@ -178,6 +188,9 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
 		HRESULT result = device.CreateBuffer( &normalBufferDesc, &normalDataPtr, normalBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh normals failed" );
+
+        //result = device.CreateShaderResourceView( normalBuffer.Get(), nullptr, normalBufferResource.ReleaseAndGetAddressOf() );
+        //if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating normal buffer shader resource on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::normalBuffer" );
@@ -197,11 +210,11 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		if ( texcoordsIt->empty() ) throw std::exception( "BlockMesh::loadCpuToGpu - One of mesh's texcoord sets is empty" );
 
 		D3D11_BUFFER_DESC texcoordBufferDesc;
-		texcoordBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		texcoordBufferDesc.ByteWidth = sizeof(float2)* texcoordsIt->size();
-		texcoordBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		texcoordBufferDesc.CPUAccessFlags = 0;
-		texcoordBufferDesc.MiscFlags = 0;
+		texcoordBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
+		texcoordBufferDesc.ByteWidth           = sizeof(float2)* texcoordsIt->size();
+		texcoordBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
+		texcoordBufferDesc.CPUAccessFlags      = 0;
+		texcoordBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 		texcoordBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA texcoordDataPtr;
@@ -214,7 +227,14 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &texcoordBufferDesc, &texcoordDataPtr, buffer.GetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh texcoords failed" );
 
-		texcoordBuffers.push_back( buffer );
+        texcoordBuffers.push_back( buffer );
+
+        ComPtr<ID3D11ShaderResourceView> bufferResource;
+
+        //result = device.CreateShaderResourceView( buffer.Get(), nullptr, bufferResource.ReleaseAndGetAddressOf() );
+        //if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating texcoord buffer shader resource on GPU failed." );
+
+        texcoordBufferResources.push_back( bufferResource );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::texcoordBuffer[" ) + std::to_string( texcoordBuffers.size() - 1 ) + std::string( "]" );
@@ -226,11 +246,11 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
     if ( !triangleBuffer ) {
         D3D11_BUFFER_DESC triangleBufferDesc;
-        triangleBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        triangleBufferDesc.ByteWidth = sizeof(uint3)* triangles.size();
-        triangleBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        triangleBufferDesc.CPUAccessFlags = 0;
-        triangleBufferDesc.MiscFlags = 0;
+        triangleBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
+        triangleBufferDesc.ByteWidth           = sizeof(uint3)* triangles.size();
+        triangleBufferDesc.BindFlags           = D3D11_BIND_INDEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
+        triangleBufferDesc.CPUAccessFlags      = 0;
+        triangleBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
         triangleBufferDesc.StructureByteStride = 0;
 
         D3D11_SUBRESOURCE_DATA triangleDataPtr;
@@ -240,6 +260,16 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
         HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, triangleBuffer.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadToGpu - Buffer creation for mesh triangles failed" );
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
+        resourceDesc.Format                = DXGI_FORMAT_R32_TYPELESS;
+        resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
+        resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
+        resourceDesc.BufferEx.FirstElement = 0;
+        resourceDesc.BufferEx.NumElements  = triangles.size() * 3;
+
+        result = device.CreateShaderResourceView( triangleBuffer.Get(), &resourceDesc, triangleBufferResource.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating triangle buffer shader resource on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::triangleBuffer" );
@@ -268,14 +298,22 @@ void BlockMesh::unloadFromCpu()
 void BlockMesh::unloadFromGpu()
 {
 	vertexBuffer.Reset();
+    vertexBufferResource.Reset();
 	normalBuffer.Reset();
+    normalBufferResource.Reset();
 
 	while ( !texcoordBuffers.empty() ) {
 		texcoordBuffers.front( ).Reset();
 		texcoordBuffers.pop_front();
 	}
 
+    while ( !texcoordBufferResources.empty() ) {
+        texcoordBufferResources.front().Reset();
+        texcoordBufferResources.pop_front();
+    }
+
 	triangleBuffer.Reset();
+    triangleBufferResource.Reset();
 }
 
 bool BlockMesh::isInCpuMemory() const
@@ -285,7 +323,7 @@ bool BlockMesh::isInCpuMemory() const
 
 bool BlockMesh::isInGpuMemory() const
 {
-	return vertexBuffer && triangleBuffer;
+	return vertexBuffer && vertexBufferResource && triangleBuffer && triangleBufferResource;
 }
 
 const std::vector<float3>& BlockMesh::getVertices() const
@@ -391,4 +429,38 @@ ID3D11Buffer* BlockMesh::getTriangleBuffer() const
 	if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTriangleBuffer - Mesh not loaded in GPU memory." );
 
 	return triangleBuffer.Get();
+}
+
+ID3D11ShaderResourceView* BlockMesh::getVertexBufferResource() const
+{
+    if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getVertexBufferResource - Mesh not loaded in GPU memory." );
+
+    return vertexBufferResource.Get();
+}
+
+ID3D11ShaderResourceView* BlockMesh::getNormalBufferResource() const
+{
+    if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getNormalBufferResource - Mesh not loaded in GPU memory." );
+
+    return normalBufferResource.Get();
+}
+
+std::list< ID3D11ShaderResourceView* > BlockMesh::getTexcoordBufferResources() const
+{
+    if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTexcoordBufferResources - Mesh not loaded in GPU memory." );
+
+    std::list< ID3D11ShaderResourceView* > tmpTexcoordBufferResources;
+
+    for ( auto it = texcoordBufferResources.begin(); it != texcoordBufferResources.end(); ++it ) {
+        tmpTexcoordBufferResources.push_back( it->Get() );
+    }
+
+    return tmpTexcoordBufferResources;
+}
+
+ID3D11ShaderResourceView* BlockMesh::getTriangleBufferResource() const
+{
+    if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTriangleBufferResource - Mesh not loaded in GPU memory." );
+
+    return triangleBufferResource.Get();
 }

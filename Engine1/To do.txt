@@ -45,7 +45,14 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-Create another shader to actually trace some rays. Pass a bounding box through a constant buffer at first.
+
+There is different fox or something that makes raytraced images streched down.
+
+Add rotating and translating the mesh using keyboard and mouse.
+
+Pass vertex, index buffers to the raytracing shader. Raytrace triangle mesh.
+
+Add rotate (by some angle) and translate methods to float43, float44, float33 etc. Should convert from matrix to euler angles, perform rotation and convert back to matrix.
 
 *** IMPORTANT:
 It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.
@@ -54,7 +61,14 @@ Also constant buffer is set in setParameters...
 Also only the shader know on which slots it binds resources. So only the shader know ho to bind/unbind them correctly. Doing it from outside is just guessing and won't work for more complex/diverse shaders.
 So probably set buffers, textures, uavs from shader class.
 
+**** IMPORTANT 2:
+Maybe I should createa Buffer class. Same as Texture2D. Because we need to store quite many resource ptr to directx with each buffer plus C++ vector. Could be good to group them up. 
+Could be a template class taking it's element type at template argument. It would also simplify sending data to and from GPU using buffers. When building volume data structures etc.
++ Check bind flags on different resources - ex. vertex buffers (and normals etc) have bind flag - "default", but should rather hvae "immutable". Default means that I expect GPU to modify these buffers.
+
+
 Make fieldOfView application member. Pass it (or set through setters) to renderers.
+
 
 Add new renderer class - like ScreenREnderer or FinalFrameRenderer etc. It should have shaders taking many screen-size textures and combine them together and shade pixels.
 It should be similar to frame renderer.
@@ -65,6 +79,23 @@ Ability to move and rotate actors and lights. Ability to edit light properties b
 Create various models and save them to files.
 
 Add other phases of rendering. Rendering color, normals etc. Then rendering the final image. 
+
+How to do raytracing on the GPU --------------------------
+
+How to pass vertex data to compute shader if I can't have one buffer as vertex buffer and shader resource at the same time.
+Could use RawBuffers as suggested here: http://stackoverflow.com/questions/19907062/how-can-i-feed-compute-shader-results-into-vertex-shader-w-o-using-a-vertex-buff
+It just requires some casting in compute shader, but works fine.
+
+First shader: For all rays, find the intersection distance, hit actor (or model), hit triangle -> save to texture.
+For each actor in the current scene node run second shader (pass model textures etc):
+Second shader: For all rays, calculate the received color.
+
+How to pass many meshes to shader at the same time?
+* Maybe use one huge buffer for vertex data and each mesh has a view to only a part of this buffer.
+And then also one special view to access the whole buffer.
+* Or the same huge buffer approach but with each mesh remebering it's start/end index in that buffer.
+
+----------------------------------------------------------
 
 Implementation order:
 1) Generating rays from camera (for test) or from depth buffer

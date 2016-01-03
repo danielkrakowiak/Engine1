@@ -10,6 +10,8 @@
 #include "Camera.h"
 #include "MathUtil.h"
 #include "Texture2D.h"
+#include "BlockModel.h"
+#include "BlockActor.h"
 
 using namespace Engine1;
 
@@ -55,12 +57,12 @@ void RaytraceRenderer::clearComputeTargets( float4 value )
     rayHitsAlbedoTexture->clearOnGpu( value, *deviceContext.Get() );
 }
 
-void RaytraceRenderer::generateAndTraceRays( const Camera& camera )
+void RaytraceRenderer::generateAndTraceRays( const Camera& camera, const BlockActor& actor )
 {
     disableRenderingPipeline();
 
     generateRays( camera );
-    traceRays( camera );
+    traceRays( camera, actor );
 
     disableComputePipeline();
 }
@@ -103,9 +105,12 @@ void RaytraceRenderer::generateRays( const Camera& camera )
     rendererCore.disableComputeTargets();
 }
 
-void RaytraceRenderer::traceRays( const Camera& camera )
+void RaytraceRenderer::traceRays( const Camera& camera, const BlockActor& actor )
 {
-    raytracingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), *rayDirectionsTexture, float43::IDENTITY, float3(-1.0f, -1.0f, -1.0f), float3(1.0f, 1.0f, 1.0f) );
+    //const float3 boxSize( 4.5f, 15.0f, 4.5f );
+    const float3 boxMin( -5.0f, 0.0f, -8.0f );
+    const float3 boxMax( 10.0f, 10.0f, 8.0f );
+    raytracingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), *rayDirectionsTexture, *actor.getModel()->getMesh(), actor.getPose(), boxMin, boxMax );
 
     rendererCore.enableComputeShader( raytracingComputeShader );
     rendererCore.enableComputeTarget( rayHitsAlbedoTexture );

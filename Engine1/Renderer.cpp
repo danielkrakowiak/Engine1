@@ -45,7 +45,8 @@ std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Cam
 
     // Render actors in the scene.
     const std::unordered_set< std::shared_ptr<Actor> >& actors = scene.getActors();
-    for ( const std::shared_ptr<Actor> actor : actors ) {
+    for ( const std::shared_ptr<Actor> actor : actors ) 
+    {
         if ( actor->getType() == Actor::Type::BlockActor ) {
             const std::shared_ptr<BlockActor> blockActor = std::static_pointer_cast<BlockActor>(actor);
             const std::shared_ptr<BlockModel> blockModel = blockActor->getModel();
@@ -76,7 +77,15 @@ std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Cam
         }
     }
 
-    raytraceRenderer.generateAndTraceRays( camera );
+    // Perform raytracing on the first block actor.
+    for ( const std::shared_ptr<Actor> actor : actors ) 
+    {
+        if ( actor->getType() == Actor::Type::BlockActor ) {
+            const std::shared_ptr<BlockActor> blockActor = std::static_pointer_cast<BlockActor>(actor);
+
+            raytraceRenderer.generateAndTraceRays( camera, *blockActor );
+        }
+    }
 
     switch (activeView)
     {

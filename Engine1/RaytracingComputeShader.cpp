@@ -2,6 +2,7 @@
 
 #include "StringUtil.h"
 #include "Texture2D.h"
+#include "BlockMesh.h"
 
 #include <d3d11.h>
 #include <d3dx11async.h>
@@ -64,13 +65,21 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
     this->shaderId = ++compiledShadersCount;
 }
 
-void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, const Texture2D& rayDirectionsTexture,  const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax )
+void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, const Texture2D& rayDirectionsTexture, const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax )
 {
     if ( !compiled ) throw std::exception( "RaytracingComputeShader::setParameters - Shader hasn't been compiled yet." );
 
-    { // Set texture.
-        ID3D11ShaderResourceView* textureResource = rayDirectionsTexture.getShaderResource();
-        deviceContext.CSSetShaderResources( 0, 1, &textureResource );
+    { // Set input buffers and textures.
+        const unsigned int resourceCount = 3;//5;
+        ID3D11ShaderResourceView* resources[ resourceCount ] = { 
+            rayDirectionsTexture.getShaderResource(), 
+            mesh.getVertexBufferResource(), 
+            //mesh.getNormalBufferResource(), 
+            //mesh.getTexcoordBufferResources().front(),
+            mesh.getTriangleBufferResource()
+        };
+
+        deviceContext.CSSetShaderResources( 0, resourceCount, resources );
     }
 
     { // Set constant buffer.
@@ -83,7 +92,7 @@ void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
         dataPtr->rayOrigin      = rayOrigin;
-        dataPtr->worldMatrixInv = float44( worldMatrix ); // This gets transposed when passed to the shader.
+        dataPtr->worldMatrixInv = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
         dataPtr->boundingBoxMin = boundingBoxMin;
         dataPtr->boundingBoxMax = boundingBoxMax;
 
@@ -102,7 +111,7 @@ void RaytracingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContex
 {
     if ( !compiled ) throw std::exception( "RaytracingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
-    // Unset texture.
-    ID3D11ShaderResourceView* nullResource = nullptr;
-    deviceContext.CSSetShaderResources( 0, 1, &nullResource );
+    // Unset buffers and textures.
+    ID3D11ShaderResourceView* nullResources[ 3 ] = { nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 3, nullResources );
 }

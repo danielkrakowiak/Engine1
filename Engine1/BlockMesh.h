@@ -15,6 +15,7 @@
 
 struct ID3D11Device;
 struct ID3D11Buffer;
+struct ID3D11ShaderResourceView;
 
 namespace Engine1
 {
@@ -65,6 +66,11 @@ namespace Engine1
         std::list< ID3D11Buffer* > getTexcoordBuffers() const;
         ID3D11Buffer* getTriangleBuffer() const;
 
+        ID3D11ShaderResourceView* getVertexBufferResource() const;
+        ID3D11ShaderResourceView* getNormalBufferResource() const;
+        std::list< ID3D11ShaderResourceView* > getTexcoordBufferResources() const;
+        ID3D11ShaderResourceView* getTriangleBufferResource() const;
+
         private:
 
         BlockMeshFileInfo fileInfo;
@@ -78,6 +84,11 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11Buffer> normalBuffer;
         std::list< Microsoft::WRL::ComPtr<ID3D11Buffer> > texcoordBuffers;
         Microsoft::WRL::ComPtr<ID3D11Buffer> triangleBuffer;
+
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> vertexBufferResource;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalBufferResource;
+        std::list< Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> > texcoordBufferResources;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> triangleBufferResource;
 
         // Copying meshes in not allowed.
         BlockMesh( const BlockMesh& ) = delete;

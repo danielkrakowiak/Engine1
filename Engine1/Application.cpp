@@ -188,8 +188,30 @@ void Application::run() {
 			if ( WM_QUIT == msg.message ) run = false;
 		}
 
+        // Translate / rotate the default actor.
+        bool movingActors = false;
+        if ( windowFocused && defaultBlockActor ) {
+            const float   moveSensitivity = 0.005f;
+            const float43 currentPose = defaultBlockActor->getPose();
+            const int2    mouseMove = inputManager.getMouseMove();
+
+            const float3 sensitivity(
+                inputManager.isKeyPressed( InputManager::Keys::x ) ? moveSensitivity : 0.0f,
+                inputManager.isKeyPressed( InputManager::Keys::y ) ? moveSensitivity : 0.0f,
+                inputManager.isKeyPressed( InputManager::Keys::z ) ? moveSensitivity : 0.0f
+                );
+
+            if ( inputManager.isKeyPressed( InputManager::Keys::r ) ) {
+                //defaultBlockActor->getPose().( currentPose.getTranslation() + (float)mouseMove.x * (float)frameTime * sensitivity );
+                movingActors = true;
+            } else if ( inputManager.isKeyPressed( InputManager::Keys::t ) ) {
+                defaultBlockActor->getPose().setTranslation( currentPose.getTranslation() + (float)mouseMove.x * (float)frameTime * sensitivity );
+                movingActors = true;
+            }
+        }
+
         // Update the camera.
-        if ( windowFocused ) { 
+        if ( windowFocused && !movingActors ) { 
             const float cameraRotationSensitivity = 0.00005f;
 
             if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime );

@@ -15,6 +15,7 @@ namespace Engine1
     class Camera;
     class GenerateRaysComputeShader;
     class RaytracingComputeShader;
+    class BlockActor;
 
     class RaytraceRenderer
     {
@@ -27,7 +28,7 @@ namespace Engine1
 
         void clearComputeTargets( float4 value );
 
-        void generateAndTraceRays( const Camera& camera );
+        void generateAndTraceRays( const Camera& camera, const BlockActor& actor );
 
         // For test - only temporary.
         std::shared_ptr<ComputeTargetTexture2D> getRayDirectionsTexture();
@@ -39,7 +40,7 @@ namespace Engine1
         void disableComputePipeline();
 
         void generateRays( const Camera& camera );
-        void traceRays( const Camera& camera );
+        void traceRays( const Camera& camera, const BlockActor& actor );
 
         Direct3DRendererCore& rendererCore;
 
