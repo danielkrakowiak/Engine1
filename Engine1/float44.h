@@ -434,10 +434,8 @@ namespace Engine1
             return *reinterpret_cast<float3*>(&m31);
         }
 
-        float3& modifyTranslation()
-        {
-            return *reinterpret_cast<float3*>(&m41);
-        }
+        void translate( const float3& translation );
+        void rotate( const float3& rotationAngles );
     };
 
     float4 operator * (const float4& a, const float44& b);

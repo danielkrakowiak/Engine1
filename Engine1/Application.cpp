@@ -191,21 +191,22 @@ void Application::run() {
         // Translate / rotate the default actor.
         bool movingActors = false;
         if ( windowFocused && defaultBlockActor ) {
-            const float   moveSensitivity = 0.005f;
-            const float43 currentPose = defaultBlockActor->getPose();
-            const int2    mouseMove = inputManager.getMouseMove();
+            const float   translationSensitivity = 0.002f;
+            const float   rotationSensitivity    = 0.0002f;
+            const float43 currentPose            = defaultBlockActor->getPose();
+            const int2    mouseMove              = inputManager.getMouseMove();
 
             const float3 sensitivity(
-                inputManager.isKeyPressed( InputManager::Keys::x ) ? moveSensitivity : 0.0f,
-                inputManager.isKeyPressed( InputManager::Keys::y ) ? moveSensitivity : 0.0f,
-                inputManager.isKeyPressed( InputManager::Keys::z ) ? moveSensitivity : 0.0f
+                inputManager.isKeyPressed( InputManager::Keys::x ) ? 1.0f : 0.0f,
+                inputManager.isKeyPressed( InputManager::Keys::y ) ? 1.0f : 0.0f,
+                inputManager.isKeyPressed( InputManager::Keys::z ) ? 1.0f : 0.0f
                 );
 
             if ( inputManager.isKeyPressed( InputManager::Keys::r ) ) {
-                //defaultBlockActor->getPose().( currentPose.getTranslation() + (float)mouseMove.x * (float)frameTime * sensitivity );
+                defaultBlockActor->getPose().rotate( (float)(mouseMove.x - mouseMove.y) * (float)frameTime * sensitivity * rotationSensitivity );
                 movingActors = true;
             } else if ( inputManager.isKeyPressed( InputManager::Keys::t ) ) {
-                defaultBlockActor->getPose().setTranslation( currentPose.getTranslation() + (float)mouseMove.x * (float)frameTime * sensitivity );
+                defaultBlockActor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTime * sensitivity * translationSensitivity );
                 movingActors = true;
             }
         }

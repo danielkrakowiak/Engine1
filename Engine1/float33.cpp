@@ -47,6 +47,13 @@ float33 float33::lerp( const float33& from, const float33& to, const float facto
 	}
 }
 
+void float33::rotate( const float3& rotationAngles )
+{
+    //#TODO: Could be optimized by using *= operator.
+
+    *this = *this * MathUtil::anglesToRotationMatrix( rotationAngles );
+}
+
 float3 Engine1::operator * (const float3& a, const float33& b)
 {
 	return float3(

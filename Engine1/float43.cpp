@@ -54,6 +54,18 @@ float43 float43::lerp( const float43& from, const float43& to, const float facto
 	}
 }
 
+void float43::translate( const float3& translation )
+{
+    t1 += translation.x;
+    t2 += translation.y;
+    t3 += translation.z;
+}
+
+void float43::rotate( const float3& rotationAngles )
+{
+    setOrientation( getOrientation() * MathUtil::anglesToRotationMatrix( rotationAngles ) );
+}
+
 float3 Engine1::operator * (const float3& a, const float43& b)
 {
 	return

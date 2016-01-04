@@ -358,6 +358,8 @@ namespace Engine1
         {
             return float3( m13, m23, m33 );
         }
+
+        void rotate( const float3& rotationAngles );
     };
 
     float3 operator * (const float3& a, const float33& b);

@@ -89,7 +89,7 @@ void RaytraceRenderer::generateRays( const Camera& camera )
     const float screenAspect     = (float)imageWidth / (float)imageHeight;
     const float2 viewportSize    = float2( 1024.0f, 768.0f );
     const float3 viewportUp      = camera.getUp() * fieldOfView;
-    const float3 viewportRight   = camera.getRight() * screenAspect;
+    const float3 viewportRight   = camera.getRight() * screenAspect * fieldOfView;
     const float3 viewportTopLeft = camera.getPosition() + camera.getDirection() - 0.5f * viewportRight + 0.5f * viewportUp;
 
     generateRaysComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), viewportTopLeft, viewportUp, viewportRight, viewportSize );
