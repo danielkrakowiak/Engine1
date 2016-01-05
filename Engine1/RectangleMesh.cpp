@@ -38,7 +38,6 @@ RectangleMesh::RectangleMesh()
 
 RectangleMesh::~RectangleMesh()
 {
-	int g = 5;
 }
 
 void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
@@ -49,7 +48,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 	if ( vertices.size() > 0 && !vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(float3)* vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)vertices.size();
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
@@ -72,7 +71,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 	if ( normals.size() > 0 && !normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
 		normalBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		normalBufferDesc.ByteWidth = sizeof(float3)* normals.size();
+		normalBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)normals.size();
 		normalBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		normalBufferDesc.CPUAccessFlags = 0;
 		normalBufferDesc.MiscFlags = 0;
@@ -96,7 +95,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
 		D3D11_BUFFER_DESC texcoordBufferDesc;
 		texcoordBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		texcoordBufferDesc.ByteWidth = sizeof(float2)* texcoords.size();
+		texcoordBufferDesc.ByteWidth = sizeof(float2) * (unsigned int)texcoords.size();
 		texcoordBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		texcoordBufferDesc.CPUAccessFlags = 0;
 		texcoordBufferDesc.MiscFlags = 0;
@@ -121,7 +120,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
     if ( !triangleBuffer ) {
 		D3D11_BUFFER_DESC triangleBufferDesc;
 		triangleBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		triangleBufferDesc.ByteWidth = sizeof(uint3)* triangles.size();
+		triangleBufferDesc.ByteWidth = sizeof(uint3) * (unsigned int)triangles.size();
 		triangleBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		triangleBufferDesc.CPUAccessFlags = 0;
 		triangleBufferDesc.MiscFlags = 0;

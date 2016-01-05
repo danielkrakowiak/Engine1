@@ -27,7 +27,7 @@ std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromFile( const std::string& p
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-    std::shared_ptr<SkeletonMesh> mesh = createFromMemory( fileData->begin(), fileData->end(), format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+    std::shared_ptr<SkeletonMesh> mesh = createFromMemory( fileData->cbegin(), fileData->cend(), format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	mesh->getFileInfo().setPath( path );
 	mesh->getFileInfo().setIndexInFile( indexInFile );
@@ -43,7 +43,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-	std::vector< std::shared_ptr<SkeletonMesh> > meshes = createFromMemory( fileData->begin(), fileData->end(), format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+	std::vector< std::shared_ptr<SkeletonMesh> > meshes = createFromMemory( fileData->cbegin(), fileData->cend(), format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	int indexInFile = 0;
 	for ( std::shared_ptr<SkeletonMesh> mesh : meshes ) {
@@ -58,7 +58,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromFile( const
 	return meshes;
 }
 
-std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const SkeletonMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const SkeletonMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( indexInFile < 0 )
 		throw std::exception( "SkeletonMesh::createFromMemory - 'index in file' parameter cannot be negative." );
@@ -71,7 +71,7 @@ std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromMemory( std::vector<char>:
 		throw std::exception( "SkeletonMesh::createFromFile - no mesh at given index in file." );
 }
 
-std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( SkeletonMeshFileInfo::Format::DAE == format ) {
 		return MyDAEFileParser::parseSkeletonMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
@@ -134,7 +134,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 	if ( vertices.size() > 0 && !vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(float3)* vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)vertices.size();
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
@@ -157,7 +157,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 	if ( vertexBones.size() > 0 && !vertexBonesBuffer ) {
 		D3D11_BUFFER_DESC vertexBonesBufferDesc;
 		vertexBonesBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBonesBufferDesc.ByteWidth = sizeof(unsigned char)* vertexBones.size();
+		vertexBonesBufferDesc.ByteWidth = sizeof(unsigned char) * (unsigned int)vertexBones.size();
 		vertexBonesBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBonesBufferDesc.CPUAccessFlags = 0;
 		vertexBonesBufferDesc.MiscFlags = 0;
@@ -180,7 +180,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 	if ( vertexWeights.size() > 0 && !vertexWeightsBuffer ) {
 		D3D11_BUFFER_DESC vertexWeightsBufferDesc;
 		vertexWeightsBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexWeightsBufferDesc.ByteWidth = sizeof(float)* vertexWeights.size();
+		vertexWeightsBufferDesc.ByteWidth = sizeof(float) * (unsigned int)vertexWeights.size();
 		vertexWeightsBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexWeightsBufferDesc.CPUAccessFlags = 0;
 		vertexWeightsBufferDesc.MiscFlags = 0;
@@ -203,7 +203,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 	if ( normals.size() > 0 && !normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
 		normalBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		normalBufferDesc.ByteWidth = sizeof(float3)* normals.size();
+		normalBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)normals.size();
 		normalBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		normalBufferDesc.CPUAccessFlags = 0;
 		normalBufferDesc.MiscFlags = 0;
@@ -236,7 +236,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
 		D3D11_BUFFER_DESC texcoordBufferDesc;
 		texcoordBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		texcoordBufferDesc.ByteWidth = sizeof(float2)* texcoordsIt->size();
+		texcoordBufferDesc.ByteWidth = sizeof(float2) * (unsigned int)texcoordsIt->size();
 		texcoordBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		texcoordBufferDesc.CPUAccessFlags = 0;
 		texcoordBufferDesc.MiscFlags = 0;
@@ -265,7 +265,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
     if ( !triangleBuffer ) {
 		D3D11_BUFFER_DESC triangleBufferDesc;
 		triangleBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		triangleBufferDesc.ByteWidth = sizeof(uint3)* triangles.size();
+		triangleBufferDesc.ByteWidth = sizeof(uint3) * (unsigned int)triangles.size();
 		triangleBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		triangleBufferDesc.CPUAccessFlags = 0;
 		triangleBufferDesc.MiscFlags = 0;
@@ -383,7 +383,7 @@ std::vector<float3>& SkeletonMesh::getNormals()
 int SkeletonMesh::getTexcoordsCount() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTexcoordsCount - Mesh not loaded in CPU memory." );
-	return texcoords.size();
+	return (int)texcoords.size();
 }
 
 const std::vector<float2>& SkeletonMesh::getTexcoords( int setIndex ) const

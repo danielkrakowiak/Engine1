@@ -26,7 +26,7 @@ namespace Engine1
 
         static std::shared_ptr<Texture2D> createFromFile( const Texture2DFileInfo& fileInfo );
         static std::shared_ptr<Texture2D> createFromFile( const std::string& path, const Texture2DFileInfo::Format format );
-        static std::shared_ptr<Texture2D> createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const Texture2DFileInfo::Format format );
+        static std::shared_ptr<Texture2D> createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const Texture2DFileInfo::Format format );
 
         public:
 

@@ -77,6 +77,9 @@ void RenderTargetDepthTexture2D::clearOnGpu( bool clearDepth, float depth, bool 
 
 void RenderTargetDepthTexture2D::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext )
 {
+    device;
+    deviceContext;
+
 	if ( !isInCpuMemory() ) throw std::exception( "RenderTargetDepthTexture2D::loadCpuToGpu - Texture not in RAM." );
 	if ( !isInGpuMemory() ) throw std::exception( "RenderTargetDepthTexture2D::loadCpuToGpu - Texture not in GPU memory. Render target should always be in GPU memory." );
 
@@ -98,6 +101,8 @@ bool RenderTargetDepthTexture2D::isInGpuMemory() const
 
 void RenderTargetDepthTexture2D::generateMipMapsOnGpu( ID3D11DeviceContext& deviceContext )
 {
+    deviceContext;
+
 	throw std::exception( "RenderTargetDepthTexture2D::generateMipMapsOnGpu - generating mipmaps on GPU for depth/stencil texture is not supported." );
 }
 

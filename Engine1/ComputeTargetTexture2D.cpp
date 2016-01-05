@@ -73,6 +73,9 @@ void ComputeTargetTexture2D::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceCon
 
     throw std::exception( "ComputeTargetTexture2D::loadCpuToGpu - Not yet implemented." );
     // #TODO: upload data to GPU.
+
+    device;
+    deviceContext;
 }
 
 void ComputeTargetTexture2D::unloadFromGpu()

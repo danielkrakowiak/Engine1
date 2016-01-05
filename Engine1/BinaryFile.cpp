@@ -23,18 +23,18 @@ std::shared_ptr< std::vector<char> > BinaryFile::load( const std::string& path )
 		fileSize = file.tellg(); // Save cursor position.
 
 		// Allocate memory for the file (+ zero at the end).
-		fileData.reserve( fileSize + 1 );
-		fileData.resize( fileSize + 1 );
+		fileData.reserve( (size_t)fileSize + 1 );
+		fileData.resize( (size_t)fileSize + 1 );
 
 		// Read the file.
 		file.seekg( 0, std::ios::beg );  // Move cursor to the beginning of the file.
 		file.read( fileData.data(), fileSize );
 
 		// Trim the data vector to the real number of characters read (on Windows multiple bytes can be read as one character - ex: LF CR -> '\n').
-		fileData.resize( file.gcount() + 1 );
+		fileData.resize( (size_t)file.gcount() + 1 );
 
 		// Set last character in the buffer to 0.
-		fileData.at( file.gcount() ) = 0;
+		fileData.at( (size_t)file.gcount() ) = 0;
 
 		// Close the file.
 		file.close();
@@ -83,7 +83,7 @@ std::string BinaryFile::readText( std::vector<char>::const_iterator& dataIt, con
 
 char BinaryFile::readChar( std::vector<char>::const_iterator& dataIt )
 {
-    int value = 0;
+    char value = 0;
     std::memcpy( &value, &(*dataIt), sizeof(char) );
 
     dataIt += sizeof(char) / sizeof(char);
@@ -149,9 +149,9 @@ void BinaryFile::writeText( std::vector<char>& file, const std::string& text )
 
 void BinaryFile::writeChar( std::vector<char>& file, const char value )
 {
-    const int size = file.size();
+    const size_t size = file.size();
 
-    const int sizeIncrease = sizeof(char) / sizeof(char);
+    const size_t sizeIncrease = sizeof(char) / sizeof(char);
 
     file.resize( size + sizeIncrease );
 
@@ -160,9 +160,9 @@ void BinaryFile::writeChar( std::vector<char>& file, const char value )
 
 void BinaryFile::writeInt( std::vector<char>& file, const int value )
 {
-	const int size = file.size();
+	const size_t size = file.size();
 
-	const int sizeIncrease = sizeof( int ) / sizeof( char );
+	const size_t sizeIncrease = sizeof( int ) / sizeof( char );
 
 	file.resize( size + sizeIncrease );
 
@@ -171,9 +171,9 @@ void BinaryFile::writeInt( std::vector<char>& file, const int value )
 
 void BinaryFile::writeBool( std::vector<char>& file, const bool value )
 {
-	const int size = file.size();
+	const size_t size = file.size();
 
-	const int sizeIncrease = sizeof( bool ) / sizeof( char );
+	const size_t sizeIncrease = sizeof( bool ) / sizeof( char );
 
 	file.resize( size + sizeIncrease );
 
@@ -182,9 +182,9 @@ void BinaryFile::writeBool( std::vector<char>& file, const bool value )
 
 void BinaryFile::writeFloat3( std::vector<char>& file, const float3& value )
 {
-    const int size = file.size();
+    const size_t size = file.size();
 
-    const int sizeIncrease = sizeof(float3) / sizeof(char);
+    const size_t sizeIncrease = sizeof(float3) / sizeof(char);
 
     file.resize( size + sizeIncrease );
 
@@ -193,9 +193,9 @@ void BinaryFile::writeFloat3( std::vector<char>& file, const float3& value )
 
 void BinaryFile::writeFloat4( std::vector<char>& file, const float4& value )
 {
-	const int size = file.size();
+	const size_t size = file.size();
 
-	const int sizeIncrease = sizeof( float4 ) / sizeof( char );
+	const size_t sizeIncrease = sizeof( float4 ) / sizeof( char );
 
 	file.resize( size + sizeIncrease );
 
@@ -204,9 +204,9 @@ void BinaryFile::writeFloat4( std::vector<char>& file, const float4& value )
 
 void BinaryFile::writeFloat43( std::vector<char>& file, const float43& value )
 {
-    const int size = file.size();
+    const size_t size = file.size();
 
-    const int sizeIncrease = sizeof(float43) / sizeof(char);
+    const size_t sizeIncrease = sizeof(float43) / sizeof(char);
 
     file.resize( size + sizeIncrease );
 

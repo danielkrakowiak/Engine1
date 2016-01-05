@@ -104,7 +104,7 @@ SkeletonAnimationFileInfo& SkeletonAnimation::getFileInfo( )
 	return fileInfo;
 }
 
-void SkeletonAnimation::addPose( SkeletonPose& pose, float time ) 
+void SkeletonAnimation::addPose( SkeletonPose& pose ) 
 {
 	skeletonPoses.push_back( pose );
 }
@@ -139,5 +139,5 @@ SkeletonPose& SkeletonAnimation::getOrAddPose( unsigned int keyframe )
 
 unsigned int SkeletonAnimation::getKeyframeCount()
 {
-	return skeletonPoses.size();
+	return (unsigned int)skeletonPoses.size();
 }

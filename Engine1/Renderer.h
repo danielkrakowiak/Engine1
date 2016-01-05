@@ -42,6 +42,10 @@ namespace Engine1
 
         std::shared_ptr<const BlockMesh>  axisMesh;
         std::shared_ptr<const BlockModel> lightModel;
+
+        // Copying is not allowed.
+        Renderer( const Renderer& ) = delete;
+        Renderer& operator=(const Renderer&) = delete;
     };
 };
 

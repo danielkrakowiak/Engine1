@@ -84,8 +84,8 @@ private:
     int  screenHeight;
 	bool verticalSync;
 	int  displayFrequency;
-	int  screenColorDepth;
-	int  zBufferDepth;
+	char screenColorDepth;
+	char zBufferDepth;
 
 	bool windowFocused;
 

@@ -13,7 +13,7 @@ struct PixelOutputType {
 	float4 vertexId : SV_Target2;
 };
 
-PixelOutputType main( PixelInputType input ) : SV_TARGET
+PixelOutputType main( PixelInputType input )
 {
 	PixelOutputType output;
 

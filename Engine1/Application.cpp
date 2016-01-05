@@ -135,13 +135,13 @@ void Application::setupWindow() {
 		sizeof( PIXELFORMATDESCRIPTOR ),
 		1,
 		PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER, PFD_TYPE_RGBA,
-		screenColorDepth,
+		(BYTE)screenColorDepth,
 		0, 0, 0, 0, 0, 0,
 		0,
 		0,
 		0,
 		0, 0, 0, 0,
-		zBufferDepth,
+		(BYTE)zBufferDepth,
 		0,
 		0,
 		PFD_MAIN_PLANE,
@@ -297,13 +297,13 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 			break;
 		case WM_KEYDOWN:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onKeyboardButton( wParam, true );
+				windowsMessageReceiver->inputManager.onKeyboardButton( (int)wParam, true );
                 windowsMessageReceiver->onKeyPress( (int)wParam );
 			}
 			break;
 		case WM_KEYUP:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onKeyboardButton( wParam, false );
+				windowsMessageReceiver->inputManager.onKeyboardButton( (int)wParam, false );
 			}
 			break;
 		case WM_MOUSEMOVE:
@@ -371,7 +371,9 @@ void Application::onExit( ) {
 }
 
 void Application::onResize( int newWidth, int newHeight ) {
-
+    // Unused.    
+    newWidth;
+    newHeight;
 }
 
 void Application::onFocusChange( bool windowFocused )
@@ -423,7 +425,7 @@ void Application::onDragAndDropFile( std::string filePath )
 	if ( filePath.find( "\\" ) == 0 )
 		filePath = filePath.substr( 1 );
 
-	const unsigned int dotIndex = filePath.rfind( "." );
+	const size_t dotIndex = filePath.rfind( "." );
 	if ( dotIndex == std::string::npos )
 		return;
 
@@ -477,7 +479,7 @@ void Application::onDragAndDropFile( std::string filePath )
     pose.setTranslation( camera.getPosition() + camera.getDirection() );
 
 	if ( isBlockMesh ) {
-		BlockMeshFileInfo::Format format;
+		BlockMeshFileInfo::Format format = BlockMeshFileInfo::Format::OBJ;
 
 		if (      extension.compare( "obj" ) == 0 ) format = BlockMeshFileInfo::Format::OBJ;
 		else if ( extension.compare( "dae" ) == 0 ) format = BlockMeshFileInfo::Format::DAE;
@@ -494,7 +496,7 @@ void Application::onDragAndDropFile( std::string filePath )
 	}
 
 	if ( isSkeletonMesh ) {
-		SkeletonMeshFileInfo::Format format;
+		SkeletonMeshFileInfo::Format format = SkeletonMeshFileInfo::Format::DAE;
 
 		if ( extension.compare( "dae" ) == 0 ) format = SkeletonMeshFileInfo::Format::DAE;
 
@@ -511,7 +513,7 @@ void Application::onDragAndDropFile( std::string filePath )
 	}
 
 	if ( isTexture ) {
-		Texture2DFileInfo::Format format;
+		Texture2DFileInfo::Format format = Texture2DFileInfo::Format::BMP;
 
 		if ( extension.compare( "bmp" ) == 0 )       format = Texture2DFileInfo::Format::BMP;
 		else if ( extension.compare( "dds" ) == 0 )  format = Texture2DFileInfo::Format::DDS;
@@ -527,18 +529,20 @@ void Application::onDragAndDropFile( std::string filePath )
         if ( !texture->isInGpuMemory( ) )
             texture->loadCpuToGpu( frameRenderer.getDevice() );
 
+        ModelTexture2D modelTexture( texture );
+
 		if ( filePath.find( "_A" ) ) {
-            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addAlbedoTexture( ModelTexture2D( texture ) );
-            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addAlbedoTexture( ModelTexture2D( texture ) );
+            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addAlbedoTexture( modelTexture );
+            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addAlbedoTexture( modelTexture );
 		} else if ( filePath.find( "_N" ) ) {
-            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addNormalTexture( ModelTexture2D( texture ) );
-            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addNormalTexture( ModelTexture2D( texture ) );
+            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addNormalTexture( modelTexture );
+            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addNormalTexture( modelTexture );
 		} else if ( filePath.find( "_R" ) ) {
-            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addRoughnessTexture( ModelTexture2D( texture ) );
-            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addRoughnessTexture( ModelTexture2D( texture ) );
+            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addRoughnessTexture( modelTexture );
+            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addRoughnessTexture( modelTexture );
 		} else if ( filePath.find( "_E" ) ) {
-            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addEmissionTexture( ModelTexture2D( texture ) );
-            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addEmissionTexture( ModelTexture2D( texture ) );
+            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addEmissionTexture( modelTexture );
+            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addEmissionTexture( modelTexture );
 		}
 	}
 

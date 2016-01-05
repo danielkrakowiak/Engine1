@@ -11,10 +11,10 @@ std::shared_ptr<PointLight> PointLight::createFromFile( const std::string& path 
 
     //#TODO: check file identifier.
 
-    return createFromMemory( fileData->begin() );
+    return createFromMemory( fileData->cbegin() );
 }
 
-std::shared_ptr<PointLight> PointLight::createFromMemory( std::vector<char>::const_iterator& dataIt )
+std::shared_ptr<PointLight> PointLight::createFromMemory( std::vector<char>::const_iterator dataIt )
 {
     return PointLightParser::parseBinary( dataIt );
 }

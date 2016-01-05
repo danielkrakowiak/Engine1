@@ -66,3 +66,10 @@ Smart Pointers ---------------------------
 Project properties
 Configuration Properties > C/C++ > General
 Multi-Processor Compilation
+
+- Unit Tests ------------------------------------------
+
+To test x64 version of the code you need to change one setting: Menu->Test->Test Settings->Default Proessor Architecture->X64.
+
+If Unit Test project crashes at startup it can be caused by incorrect project configuration and linking to missing libraries. 
+Programs called "Dependacy Walker" or "ProcessMonitor" are useful for checking if UnitTest.dll or Engine.exe have such problems.

@@ -73,6 +73,9 @@ void RenderTargetTexture2D::clearOnGpu( float4 colorRGBA, ID3D11DeviceContext& d
 
 void RenderTargetTexture2D::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext )
 {
+    device;
+    deviceContext;
+
 	if ( !isInCpuMemory() ) throw std::exception( "RenderTargetTexture2D::loadCpuToGpu - Texture not in RAM." );
 	if ( !isInGpuMemory() ) throw std::exception( "RenderTargetTexture2D::loadCpuToGpu - Texture not in GPU memory. Render target should always be in GPU memory." );
 

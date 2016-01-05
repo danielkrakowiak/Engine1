@@ -18,7 +18,7 @@ std::shared_ptr<Texture2DFileInfo> Texture2DFileInfoParser::parseBinary( std::ve
 
 void Texture2DFileInfoParser::writeBinary( std::vector<char>& data, const Texture2DFileInfo& fileInfo )
 {
-	BinaryFile::writeInt(  data, fileInfo.getPath( ).size( ) );
+	BinaryFile::writeInt(  data, (int)fileInfo.getPath( ).size( ) );
 	BinaryFile::writeText( data, fileInfo.getPath( ) );
 	BinaryFile::writeInt(  data, static_cast<int>( fileInfo.getFormat( ) ) );
 }

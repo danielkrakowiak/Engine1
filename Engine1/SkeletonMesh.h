@@ -30,8 +30,8 @@ namespace Engine1
         static std::shared_ptr<SkeletonMesh>                createFromFile( const SkeletonMeshFileInfo& fileInfo );
         static std::shared_ptr<SkeletonMesh>                createFromFile( const std::string& path, const SkeletonMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
         static std::vector< std::shared_ptr<SkeletonMesh> > createFromFile( const std::string& path, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
-        static std::shared_ptr<SkeletonMesh>                createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const SkeletonMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
-        static std::vector< std::shared_ptr<SkeletonMesh> > createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
+        static std::shared_ptr<SkeletonMesh>                createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const SkeletonMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
+        static std::vector< std::shared_ptr<SkeletonMesh> > createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
 
         SkeletonMesh();
         ~SkeletonMesh();
@@ -122,7 +122,7 @@ namespace Engine1
 
         void recalculateBoundingBox();
         // Returns <min, max> of the bounding box.
-        std::tuple<float3, float3> SkeletonMesh::getBoundingBox() const;
+        std::tuple<float3, float3> getBoundingBox() const;
 
         private:
 

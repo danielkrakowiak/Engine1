@@ -22,7 +22,7 @@ std::shared_ptr<Texture2D> Texture2D::createFromFile( const std::string& path, c
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-	std::shared_ptr<Texture2D> texture = createFromMemory( fileData->begin(), fileData->end(), format );
+	std::shared_ptr<Texture2D> texture = createFromMemory( fileData->cbegin(), fileData->cend(), format );
 
 	if ( texture ) {
 		texture->getFileInfo().setPath( path );
@@ -32,16 +32,17 @@ std::shared_ptr<Texture2D> Texture2D::createFromFile( const std::string& path, c
 	return texture;
 }
 
-std::shared_ptr<Texture2D> Texture2D::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const Texture2DFileInfo::Format format )
+std::shared_ptr<Texture2D> Texture2D::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const Texture2DFileInfo::Format format )
 {
+    format; // Unused.
 
 	std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>();
 
 	// #TODO: FIT_BITMAP is not always the good image type (see "To do.txt").
 	fipImage image( FIT_BITMAP );
 	// #TODO: WARNING: casting away const qualifier on data - need to make sure that FreeImage doesn't modify the input data!
-    const int dataSize = (dataEndIt - dataIt) / sizeof(char);
-    fipMemoryIO data( const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(&(*dataIt))), dataSize );
+    const size_t dataSize = (dataEndIt - dataIt) / sizeof(char);
+    fipMemoryIO data( const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(&(*dataIt))), (DWORD)dataSize );
 
 	// Parse image data.
 	if ( !image.loadFromMemory( data ) )
@@ -57,9 +58,9 @@ std::shared_ptr<Texture2D> Texture2D::createFromMemory( std::vector<char>::const
 
 	// Save basic info about the image.
 	texture->bytesPerPixel = image.getBitsPerPixel() / 8;
-	texture->width = image.getWidth();
-	texture->height = image.getHeight();
-	texture->size = image.getLine() * image.getHeight();
+	texture->width         = image.getWidth();
+	texture->height        = image.getHeight();
+	texture->size          = image.getLine() * image.getHeight();
 
 	// Create first mipmap data vector.
 	texture->dataMipMaps.push_back( std::vector<unsigned char>() );
@@ -291,12 +292,12 @@ bool Texture2D::hasMipMapsOnGpu()     const
 	return mipmapsOnGpu;
 }
 
-int  Texture2D::getMipMapCountOnCpu()  const
+int Texture2D::getMipMapCountOnCpu()  const
 {
-	return dataMipMaps.size();
+	return (int)dataMipMaps.size();
 }
 
-int  Texture2D::getMipMapCountOnGpu() const
+int Texture2D::getMipMapCountOnGpu() const
 {
 	if ( isInGpuMemory() ) {
 		if ( hasMipMapsOnGpu() )

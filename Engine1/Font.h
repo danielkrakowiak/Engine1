@@ -100,7 +100,7 @@ namespace Engine1
         ~Font( void ) {}
 
         void loadFromFile( std::string path, unsigned int size );
-        FontCharacter* getCharacter( unsigned long charcode, ID3D11Device& device, ID3D11DeviceContext& deviceContext );
+        FontCharacter* getCharacter( unsigned long charcode, ID3D11Device& device );
 
         private:
 

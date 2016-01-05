@@ -14,7 +14,7 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path,
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-	std::shared_ptr<BlockModel> model = createFromMemory( fileData->begin(), format, loadRecurrently );
+	std::shared_ptr<BlockModel> model = createFromMemory( fileData->cbegin(), format, loadRecurrently );
 
     model->getFileInfo( ).setPath( path );
     model->getFileInfo( ).setFormat( format );
@@ -22,7 +22,7 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path,
     return model;
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::const_iterator& dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::const_iterator dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently )
 {
 	if ( BlockModelFileInfo::Format::BLOCKMODEL == format ) {
 		return BlockModelParser::parseBinary( dataIt, loadRecurrently );
@@ -92,19 +92,29 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
 		}
 	}
 
-	std::vector<ModelTexture2D> textures = getAllTextures( );
-	for ( ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() == oldAsset ) {
-			std::shared_ptr<Texture2D> newTexture = std::dynamic_pointer_cast<Texture2D>( newAsset );
+    std::vector<ModelTexture2D>* textureSets[] = { 
+        &emissionTextures, 
+        &albedoTextures, 
+        &roughnessTextures, 
+        &normalTextures 
+    };
 
-			if ( newTexture ) {
-				texture.setTexture( newTexture );
-				return;
-			} else {
-				throw std::exception( "BlockModel::swapSubAsset - tried to swap texture with non-texture asset." );
-			}
-		}
-	}
+    for ( std::vector<ModelTexture2D>* textureSet : textureSets )
+    {
+        std::vector<ModelTexture2D>& textures = *textureSet;
+        for ( ModelTexture2D& texture : textures ) {
+            if ( texture.getTexture() == oldAsset ) {
+                std::shared_ptr<Texture2D> newTexture = std::dynamic_pointer_cast<Texture2D>(newAsset);
+
+                if ( newTexture ) {
+                    texture.setTexture( newTexture );
+                    return;
+                } else {
+                    throw std::exception( "BlockModel::swapSubAsset - tried to swap texture with non-texture asset." );
+                }
+            }
+        }
+    }
 }
 
 void BlockModel::setFileInfo( const BlockModelFileInfo& fileInfo )

@@ -36,7 +36,7 @@ namespace Engine1
         const SkeletonAnimationFileInfo& getFileInfo() const;
         SkeletonAnimationFileInfo&       getFileInfo();
 
-        void addPose( SkeletonPose& pose, float time );
+        void addPose( SkeletonPose& pose );
         SkeletonPose getInterpolatedPose( float progress );
 
         SkeletonPose& getPose( unsigned int keyframe );

@@ -150,7 +150,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 		depthRenderTargetView = depthRenderTarget->getDepthRenderTarget();
 
 	// Enable render targets.
-	deviceContext->OMSetRenderTargets( renderTargetViews.size(), renderTargetViews.data(), depthRenderTargetView );
+	deviceContext->OMSetRenderTargets( (unsigned int)renderTargetViews.size(), renderTargetViews.data(), depthRenderTargetView );
 
     // Save current render targets.
     currentRenderTargets.clear();
@@ -310,7 +310,7 @@ void Direct3DRendererCore::draw( const RectangleMesh& mesh )
 	}
 
 	// draw mesh
-	deviceContext->DrawIndexed( mesh.getTriangles().size() * uint3::size(), 0, 0 );
+	deviceContext->DrawIndexed( (unsigned int)mesh.getTriangles().size() * uint3::size(), 0, 0 );
 }
 
 // Note: Shaders need to be configured and set before calling this method.
@@ -353,7 +353,7 @@ void Direct3DRendererCore::draw( const BlockMesh& mesh )
 	}
 
 	// draw mesh
-	deviceContext->DrawIndexed( mesh.getTriangles().size() * uint3::size(), 0, 0 );
+	deviceContext->DrawIndexed( (unsigned int)mesh.getTriangles().size() * uint3::size(), 0, 0 );
 }
 
 // Note: Shaders need to be configured and set before calling this method.
@@ -411,7 +411,7 @@ void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 	deviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 	// Draw the mesh.
-	deviceContext->DrawIndexed( mesh.getTriangles().size() * uint3::size(), 0, 0 );
+	deviceContext->DrawIndexed( (unsigned int)mesh.getTriangles().size() * uint3::size(), 0, 0 );
 }
 
 // Note: Shaders need to be configured and set before calling this method.
@@ -445,12 +445,12 @@ void Direct3DRendererCore::disableShaderInputs()
 {
     if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::disableShaderInputs - renderer not initialized." );
 
-    deviceContext->IASetVertexBuffers( 0, nullVertexBuffers.size(), nullVertexBuffers.data(), nullVertexBuffersStrideOffset.data(), nullVertexBuffersStrideOffset.data() );
+    deviceContext->IASetVertexBuffers( 0, (unsigned int)nullVertexBuffers.size(), nullVertexBuffers.data(), nullVertexBuffersStrideOffset.data(), nullVertexBuffersStrideOffset.data() );
     deviceContext->IASetIndexBuffer( nullptr, DXGI_FORMAT_UNKNOWN, 0 );
     deviceContext->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_UNDEFINED );
 
-    deviceContext->PSSetShaderResources( 0, nullResources.size(), nullResources.data() );
-    deviceContext->PSSetSamplers( 0, nullSamplers.size(), nullSamplers.data() );
+    deviceContext->PSSetShaderResources( 0, (unsigned int)nullResources.size(), nullResources.data() );
+    deviceContext->PSSetSamplers( 0, (unsigned int)nullSamplers.size(), nullSamplers.data() );
 }
 
 void Direct3DRendererCore::createNullShaderInputs()

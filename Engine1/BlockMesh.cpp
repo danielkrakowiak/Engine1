@@ -29,7 +29,7 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const std::string& path, c
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-    std::shared_ptr<BlockMesh> mesh = createFromMemory( fileData->begin( ), fileData->end( ), format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+    std::shared_ptr<BlockMesh> mesh = createFromMemory( fileData->cbegin( ), fileData->cend( ), format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	// Save path in the loaded mesh.
 	mesh->getFileInfo().setPath( path );
@@ -46,7 +46,7 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::
 {
 	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
 
-    std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( fileData->begin( ), fileData->end( ), format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+    std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( fileData->cbegin( ), fileData->cend( ), format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
 	// Save path in the loaded meshes.
 	int indexInFile = 0;
@@ -63,7 +63,7 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::
 	return meshes;
 }
 
-std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( indexInFile < 0 )
 		throw std::exception( "BlockMesh::createFromMemory - 'index in file' parameter cannot be negative." );
@@ -76,7 +76,7 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( std::vector<char>::const
 		throw std::exception( "BlockMesh::createFromFile - no mesh at given index in file." );
 }
 
-std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( BlockMeshFileInfo::Format::OBJ == format ) {
 
@@ -145,7 +145,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 	if ( vertices.size() > 0 && !vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth           = sizeof(float3)* vertices.size();
+		vertexBufferDesc.ByteWidth           = sizeof(float3)* (unsigned int)vertices.size();
 		vertexBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
 		vertexBufferDesc.CPUAccessFlags      = 0;
 		vertexBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
@@ -164,7 +164,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
         resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
         resourceDesc.BufferEx.FirstElement = 0;
-        resourceDesc.BufferEx.NumElements  = vertices.size() * 3;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)vertices.size() * 3;
 
         result = device.CreateShaderResourceView( vertexBuffer.Get(), &resourceDesc, vertexBufferResource.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating vertex buffer shader resource on GPU failed." );
@@ -178,7 +178,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 	if ( normals.size() > 0 && !normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
 		normalBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-		normalBufferDesc.ByteWidth           = sizeof(float3)* normals.size();
+		normalBufferDesc.ByteWidth           = sizeof(float3) * (unsigned int)normals.size();
 		normalBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
 		normalBufferDesc.CPUAccessFlags      = 0;
 		normalBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
@@ -214,7 +214,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
 		D3D11_BUFFER_DESC texcoordBufferDesc;
 		texcoordBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-		texcoordBufferDesc.ByteWidth           = sizeof(float2)* texcoordsIt->size();
+		texcoordBufferDesc.ByteWidth           = sizeof(float2) * (unsigned int)texcoordsIt->size();
 		texcoordBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
 		texcoordBufferDesc.CPUAccessFlags      = 0;
 		texcoordBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
@@ -250,7 +250,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
     if ( !triangleBuffer ) {
         D3D11_BUFFER_DESC triangleBufferDesc;
         triangleBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-        triangleBufferDesc.ByteWidth           = sizeof(uint3)* triangles.size();
+        triangleBufferDesc.ByteWidth           = sizeof(uint3) * (unsigned int)triangles.size();
         triangleBufferDesc.BindFlags           = D3D11_BIND_INDEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
         triangleBufferDesc.CPUAccessFlags      = 0;
         triangleBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
@@ -269,7 +269,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
         resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
         resourceDesc.BufferEx.FirstElement = 0;
-        resourceDesc.BufferEx.NumElements  = triangles.size() * 3;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)triangles.size() * 3;
 
         result = device.CreateShaderResourceView( triangleBuffer.Get(), &resourceDesc, triangleBufferResource.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating triangle buffer shader resource on GPU failed." );
@@ -361,7 +361,7 @@ int BlockMesh::getTexcoordsCount() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTexcoordsCount - Mesh not loaded in CPU memory." );
 
-	return texcoords.size();
+	return (int)texcoords.size();
 }
 
 const std::vector<float2>& BlockMesh::getTexcoords( int setIndex ) const

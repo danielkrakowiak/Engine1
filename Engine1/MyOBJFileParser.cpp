@@ -158,7 +158,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 								meshVertices->push_back( uniqueVertices.at( vertexTexcoordNormalIndices.x - 1 ) ); //-1 because file indexing starts at 1, ours at 0
 								meshTexcoords->push_back( uniqueTexcoords.at( vertexTexcoordNormalIndices.y ) ); //0-indexed texcoord is the default texcoord -> indexing from 1
 								meshNormals->push_back( uniqueNormals.at( vertexTexcoordNormalIndices.z ) ); //0-indexed normal is the default normal -> indexing from 1
-								triangle[ i ] = meshVertices->size() - 1;
+								triangle[ i ] = (int)meshVertices->size() - 1;
 
 								meshVertexTexcoordNormalIndices.push_back( vertexTexcoordNormalIndices );
 							}
@@ -216,7 +216,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 									meshVertices->push_back( uniqueVertices.at( vertexTexcoordNormalIndices.x - 1 ) ); //-1 because file indexing starts at 1, ours at 0
 									meshTexcoords->push_back( uniqueTexcoords.at( vertexTexcoordNormalIndices.y ) ); //0-indexed texcoord is the default texcoord -> indexing from 1
 									meshNormals->push_back( uniqueNormals.at( vertexTexcoordNormalIndices.z ) ); //0-indexed normal is the default normal -> indexing from 1
-									triangle.z = meshVertices->size() - 1;
+									triangle.z = (int)meshVertices->size() - 1;
 
 									meshVertexTexcoordNormalIndices.push_back( vertexTexcoordNormalIndices );
 								}
@@ -244,7 +244,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 								//didn't find reused vertex
 								meshVertices->push_back( uniqueVertices.at( vertexTexcoordIndices.x - 1 ) ); //-1 because file indexing starts at 1, ours at 0
 								meshTexcoords->push_back( uniqueTexcoords.at( vertexTexcoordIndices.y ) ); //0-indexed texcoord is the default texcoord -> indexing from 1
-								triangle[ i ] = meshVertices->size() - 1;
+								triangle[ i ] = (int)meshVertices->size() - 1;
 
 								meshVertexTexcoordIndices.push_back( vertexTexcoordIndices );
 							}
@@ -300,7 +300,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 									//didn't find reused vertex
 									meshVertices->push_back( uniqueVertices.at( vertexTexcoordIndices.x - 1 ) ); //-1 because file indexing starts at 1, ours at 0
 									meshTexcoords->push_back( uniqueTexcoords.at( vertexTexcoordIndices.y ) ); //0-indexed texcoord is the default texcoord -> indexing from 1
-									triangle.z = meshVertices->size() - 1;
+									triangle.z = (int)meshVertices->size() - 1;
 
 									meshVertexTexcoordIndices.push_back( vertexTexcoordIndices );
 								}
@@ -328,7 +328,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 								//didn't find reused vertex
 								meshVertices->push_back( uniqueVertices.at( vertexNormalIndices.x - 1 ) ); //-1 because file indexing starts at 1, ours at 0
 								meshNormals->push_back( uniqueNormals.at( vertexNormalIndices.y ) ); //0-indexed normal is the default normal -> indexing from 1
-								triangle[ i ] = meshVertices->size() - 1;
+								triangle[ i ] = (int)meshVertices->size() - 1;
 
 								meshVertexNormalIndices.push_back( vertexNormalIndices );
 							}
@@ -384,7 +384,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 									//didn't find reused vertex
 									meshVertices->push_back( uniqueVertices.at( vertexNormalIndices.x - 1 ) ); //-1 because file indexing starts at 1, ours at 0
 									meshNormals->push_back( uniqueNormals.at( vertexNormalIndices.y ) ); //0-indexed normal is the default normal -> indexing from 1
-									triangle.z = meshVertices->size() - 1;
+									triangle.z = (int)meshVertices->size() - 1;
 
 									meshVertexNormalIndices.push_back( vertexNormalIndices );
 								}
@@ -411,7 +411,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 							} else {
 								//didn't find reused vertex
 								meshVertices->push_back( uniqueVertices.at( vertexIndex - 1 ) ); //-1 because file indexing starts at 1, ours at 0
-								triangle[ i ] = meshVertices->size() - 1;
+								triangle[ i ] = (int)meshVertices->size() - 1;
 
 								meshVertexIndices.push_back( vertexIndex );
 							}
@@ -466,7 +466,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 								} else {
 									//didn't find reused vertex
 									meshVertices->push_back( uniqueVertices.at( vertexIndex - 1 ) ); //-1 because file indexing starts at 1, ours at 0
-									triangle.z = meshVertices->size() - 1;
+									triangle.z = (int)meshVertices->size() - 1;
 
 									meshVertexIndices.push_back( vertexIndex );
 								}
@@ -673,7 +673,7 @@ std::tuple<bool, unsigned int> MyOBJFileParser::lookForReusedVertex( uint3 verte
 	int verticesCheckedCount = 0;
 
 	while ( it != vertexTexcoordNormalIndicesArrayBegin && verticesCheckedCount < reusedVerticesMaxChecksCount ) {
-		if ( *( it - 1 ) == vertexTexcoordNormalIndices ) return std::make_tuple( true, it - 1 - vertexTexcoordNormalIndicesArrayBegin ); //return index of the reused vertex
+		if ( *( it - 1 ) == vertexTexcoordNormalIndices ) return std::make_tuple( true, (unsigned int)(it - 1 - vertexTexcoordNormalIndicesArrayBegin) ); //return index of the reused vertex
 		++verticesCheckedCount;
 		--it;
 	}
@@ -688,7 +688,7 @@ std::tuple<bool, unsigned int> MyOBJFileParser::lookForReusedVertex( uint2 verte
 	int verticesCheckedCount = 0;
 
 	while ( it != vertexTexcoordOrNormalIndicesArrayBegin && verticesCheckedCount < reusedVerticesMaxChecksCount ) {
-		if ( *( it - 1 ) == vertexTexcoordOrNormalIndices ) return std::make_tuple( true, it - 1 - vertexTexcoordOrNormalIndicesArrayBegin ); //return index of the reused vertex
+		if ( *( it - 1 ) == vertexTexcoordOrNormalIndices ) return std::make_tuple( true, (unsigned int)(it - 1 - vertexTexcoordOrNormalIndicesArrayBegin) ); //return index of the reused vertex
 		++verticesCheckedCount;
 		--it;
 	}
@@ -703,7 +703,7 @@ std::tuple<bool, unsigned int> MyOBJFileParser::lookForReusedVertex( unsigned in
 	int verticesCheckedCount = 0;
 
 	while ( it != vertexIndicesArrayBegin && verticesCheckedCount < reusedVerticesMaxChecksCount ) {
-		if ( *( it - 1 ) == vertexIndices ) return std::make_tuple( true, it - 1 - vertexIndicesArrayBegin ); //return index of the reused vertex
+		if ( *( it - 1 ) == vertexIndices ) return std::make_tuple( true, (unsigned int)(it - 1 - vertexIndicesArrayBegin) ); //return index of the reused vertex
 		++verticesCheckedCount;
 		--it;
 	}

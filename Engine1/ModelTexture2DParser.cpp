@@ -9,8 +9,15 @@ std::shared_ptr<ModelTexture2D> ModelTexture2DParser::parseBinary( std::vector<c
 {
 	std::shared_ptr<ModelTexture2D> modelTexture = std::make_shared<ModelTexture2D>( );
 
-	Texture2DFileInfo          fileInfo = *Texture2DFileInfo::createFromMemory( dataIt );
-	std::shared_ptr<Texture2D> texture = Texture2D::createFromFile( fileInfo.getPath(), fileInfo.getFormat() );
+	Texture2DFileInfo fileInfo = *Texture2DFileInfo::createFromMemory( dataIt );
+
+    std::shared_ptr<Texture2D> texture;
+    if ( loadRecurrently ) {
+	    texture = Texture2D::createFromFile( fileInfo.getPath(), fileInfo.getFormat() );
+    } else {
+        texture = std::make_shared<Texture2D>();
+        texture->setFileInfo( fileInfo );
+    }
 
 	modelTexture->setTexture( texture );
 	modelTexture->setTexcoordIndex( BinaryFile::readInt( dataIt ) );

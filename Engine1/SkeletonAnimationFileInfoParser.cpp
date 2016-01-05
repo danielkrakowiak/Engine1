@@ -19,7 +19,7 @@ std::shared_ptr<SkeletonAnimationFileInfo> SkeletonAnimationFileInfoParser::pars
 
 void SkeletonAnimationFileInfoParser::writeBinary( std::vector<char>& data, const SkeletonAnimationFileInfo& fileInfo )
 {
-	BinaryFile::writeInt( data, fileInfo.getPath().size() );
+	BinaryFile::writeInt( data, (int)fileInfo.getPath().size() );
 	BinaryFile::writeText( data, fileInfo.getPath() );
 	BinaryFile::writeInt( data, static_cast<int>( fileInfo.getFormat() ) );
 	BinaryFile::writeBool( data, fileInfo.getInvertZCoordinate() );

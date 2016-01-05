@@ -9,7 +9,7 @@ std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string&
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-    std::shared_ptr<SkeletonModel> model = createFromMemory( fileData->begin(), format, loadRecurrently );
+    std::shared_ptr<SkeletonModel> model = createFromMemory( fileData->cbegin(), format, loadRecurrently );
 
     model->getFileInfo().setPath( path );
     model->getFileInfo().setFormat( format );
@@ -17,7 +17,7 @@ std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string&
     return model;
 }
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>::const_iterator& dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>::const_iterator dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
 {
 	if ( SkeletonModelFileInfo::Format::SKELETONMODEL == format ) {
 		return SkeletonModelParser::parseBinary( dataIt, loadRecurrently );
@@ -85,19 +85,28 @@ void SkeletonModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_p
 		}
 	}
 
-	std::vector<ModelTexture2D> textures = getAllTextures();
-	for ( ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() == oldAsset ) {
-			std::shared_ptr<Texture2D> newTexture = std::dynamic_pointer_cast<Texture2D>( newAsset );
+    std::vector<ModelTexture2D>* textureSets[] = {
+        &emissionTextures,
+        &albedoTextures,
+        &roughnessTextures,
+        &normalTextures
+    };
 
-			if ( newTexture ) {
-				texture.setTexture( newTexture );
-				return;
-			} else {
-				throw std::exception( "SkeletonModel::swapSubAsset - tried to swap texture with non-texture asset." );
-			}
-		}
-	}
+    for ( std::vector<ModelTexture2D>* textureSet : textureSets ) {
+        std::vector<ModelTexture2D>& textures = *textureSet;
+        for ( ModelTexture2D& texture : textures ) {
+            if ( texture.getTexture() == oldAsset ) {
+                std::shared_ptr<Texture2D> newTexture = std::dynamic_pointer_cast<Texture2D>(newAsset);
+
+                if ( newTexture ) {
+                    texture.setTexture( newTexture );
+                    return;
+                } else {
+                    throw std::exception( "SkeletonModel::swapSubAsset - tried to swap texture with non-texture asset." );
+                }
+            }
+        }
+    }
 }
 
 void SkeletonModel::setFileInfo( const SkeletonModelFileInfo& fileInfo )

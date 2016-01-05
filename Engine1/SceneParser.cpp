@@ -99,7 +99,7 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
                 if ( blockActor->getModel() && !blockActor->getModel()->getFileInfo().getPath().empty() ) {
                     fileInfos.insert( std::make_pair(
                         std::make_shared<BlockModelFileInfo>( blockActor->getModel()->getFileInfo() ),
-                        fileInfos.size() )
+                        (int)fileInfos.size() )
                         );
                 } else {
                     ++unsavableActorsCount;
@@ -109,7 +109,7 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
                 if ( skeletonActor->getModel() && !skeletonActor->getModel()->getFileInfo().getPath().empty() ) {
                     fileInfos.insert( std::make_pair(
                         std::make_shared<SkeletonModelFileInfo>( skeletonActor->getModel()->getFileInfo() ),
-                        fileInfos.size() )
+                        (int)fileInfos.size() )
                         );
                 } else {
                     ++unsavableActorsCount;
@@ -118,7 +118,7 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
         }
 
         // Save number of unique file infos.
-        BinaryFile::writeInt( data, fileInfos.size() );
+        BinaryFile::writeInt( data, (int)fileInfos.size() );
 
         // Save unique file infos.
         for ( const std::pair<std::shared_ptr<FileInfo>, int>& fileInfo : fileInfos ) {
@@ -128,7 +128,7 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
         }
 
         // Save number of actors.
-        BinaryFile::writeInt( data, scene.actors.size() - unsavableActorsCount );
+        BinaryFile::writeInt( data, (int)scene.actors.size() - unsavableActorsCount );
 
         // Save all actors (pose and file info id).
         for ( const std::shared_ptr<Actor>& actor : scene.actors ) {
@@ -158,7 +158,7 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
 
     { // Save lights.
         // Save number of lights.
-        BinaryFile::writeInt( data, scene.lights.size() );
+        BinaryFile::writeInt( data, (int)scene.lights.size() );
 
         // Save lights.
         for ( const std::shared_ptr<Light>& light : scene.lights ) {

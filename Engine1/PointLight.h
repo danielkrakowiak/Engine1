@@ -14,7 +14,7 @@ namespace Engine1
         public:
 
         static std::shared_ptr<PointLight> createFromFile( const std::string& path );
-        static std::shared_ptr<PointLight> createFromMemory( std::vector<char>::const_iterator& dataIt );
+        static std::shared_ptr<PointLight> createFromMemory( std::vector<char>::const_iterator dataIt );
 
         PointLight();
         PointLight( const float3& position, const float3& diffuseColor = float3::ZERO, const float3& specularColor = float3::ZERO );

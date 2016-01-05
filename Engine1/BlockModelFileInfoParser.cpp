@@ -18,7 +18,7 @@ std::shared_ptr<BlockModelFileInfo> BlockModelFileInfoParser::parseBinary( std::
 
 void BlockModelFileInfoParser::writeBinary( std::vector<char>& data, const BlockModelFileInfo& fileInfo )
 {
-    BinaryFile::writeInt( data, fileInfo.getPath().size() );
+    BinaryFile::writeInt( data, (int)fileInfo.getPath().size() );
     BinaryFile::writeText( data, fileInfo.getPath() );
     BinaryFile::writeInt( data, static_cast<int>(fileInfo.getFormat()) );
 }

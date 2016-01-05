@@ -96,6 +96,7 @@ std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Cam
         case View::RayDirections1:
             return std::static_pointer_cast<Texture2D>( raytraceRenderer.getRayDirectionsTexture() );
         case View::Reflection1:
+        default:
             return std::static_pointer_cast<Texture2D>( raytraceRenderer.getRayHitsAlbedoTexture() );
     }
 }

@@ -48,6 +48,7 @@ namespace Engine1
             float44       bonesBindPoseInv[ maxBoneCount ];
             float44       bonesPose[ maxBoneCount ];
             unsigned char bonesPerVertex;
+            char          pad1[15];
         };
 
         // Copying is not allowed.

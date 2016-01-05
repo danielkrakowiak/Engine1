@@ -69,22 +69,22 @@ void BlockModelParser::writeBinary( std::vector<char>& data, const BlockModel& m
 	
 	// Save the textures.
 	std::vector<ModelTexture2D> textures = model.getEmissionTextures();
-	BinaryFile::writeInt( data, textures.size( ) );
+	BinaryFile::writeInt( data, (int)textures.size( ) );
 	for ( const ModelTexture2D& modelTexture : textures )
 		modelTexture.saveToMemory( data );
 
 	textures = model.getAlbedoTextures();
-	BinaryFile::writeInt( data, textures.size() );
+	BinaryFile::writeInt( data, (int)textures.size() );
 	for ( const ModelTexture2D& modelTexture : textures )
 		modelTexture.saveToMemory( data );
 
 	textures = model.getRoughnessTextures();
-	BinaryFile::writeInt( data, textures.size() );
+	BinaryFile::writeInt( data, (int)textures.size() );
 	for ( const ModelTexture2D& modelTexture : textures )
 		modelTexture.saveToMemory( data );
 
 	textures = model.getNormalTextures();
-	BinaryFile::writeInt( data, textures.size() );
+	BinaryFile::writeInt( data, (int)textures.size() );
 	for ( const ModelTexture2D& modelTexture : textures )
 		modelTexture.saveToMemory( data );
 }

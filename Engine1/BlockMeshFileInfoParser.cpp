@@ -22,7 +22,7 @@ std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfoParser::parseBinary( std::ve
 
 void BlockMeshFileInfoParser::writeBinary( std::vector<char>& data, const BlockMeshFileInfo& fileInfo )
 {
-	BinaryFile::writeInt(  data, fileInfo.getPath( ).size( ) );
+	BinaryFile::writeInt(  data, (int)fileInfo.getPath( ).size( ) );
 	BinaryFile::writeText( data, fileInfo.getPath( ) );
 	BinaryFile::writeInt(  data, fileInfo.getIndexInFile( ) );
 	BinaryFile::writeInt(  data, static_cast<int>( fileInfo.getFormat( ) ) );

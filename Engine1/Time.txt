@@ -158,4 +158,5 @@ Thu 31.12.2015 - 6h - Managed to read texture in CS and write to uav in one shad
 Fri 01.01.2016 - 2h - Passed vertex and triangle data to the compute shader. Trying to raytrace the triangle mesh.
 Sat 02.01.2016 - 6h - Successfully raytraced triangle mesh.
 Sun 03.01.2016 - 3h - Fixed various project setup issues. Added x64 platform for UnitTests project. Enabled compilation of shaders in the build. Added bounding box to meshes.
-Mon 04.01.2016 - 1h - Fixed raytracing slightly incorrect primary rays directions (FOV related). Added an option to rotate actors in the scene.
+Mon 04.01.2016 - 3h - Fixed raytracing slightly incorrect primary rays directions (FOV related). Added an option to rotate actors in the scene. Removed Assimp source code from the project and linked to it's libary. Removed all causes of warnings from the code.
+Tue 05.01.2016 - 5h - Compiled Assimp and replaced wrong Assimp dlls and libs. Fixed non-working texture swapping in BlockModel/SkeletonModel. Fixed some bugs related to the refactored code.

@@ -22,7 +22,7 @@ std::shared_ptr<SkeletonMeshFileInfo> SkeletonMeshFileInfoParser::parseBinary( s
 
 void SkeletonMeshFileInfoParser::writeBinary( std::vector<char>& data, const SkeletonMeshFileInfo& fileInfo )
 {
-	BinaryFile::writeInt(  data, fileInfo.getPath( ).size( ) );
+	BinaryFile::writeInt(  data, (int)fileInfo.getPath( ).size( ) );
 	BinaryFile::writeText( data, fileInfo.getPath( ) );
 	BinaryFile::writeInt(  data, fileInfo.getIndexInFile( ) );
 	BinaryFile::writeInt(  data, static_cast<int>( fileInfo.getFormat( ) ) );

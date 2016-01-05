@@ -76,7 +76,7 @@ void AssetManager::load( const FileInfo& fileInfo )
 			std::lock_guard<std::mutex> loadedAssetsLock( loadedAssetsMutex );
 			loadedAssets.insert( std::make_pair( id, asset ) );
 		}
-	} catch ( std::exception& ex ) {
+	} catch ( .../*std::exception& ex*/ ) {
 		// If asset failed to load - remove it from assets.
 		std::lock_guard<std::mutex> assetsLock( assetsMutex );
 		assets.erase( id );
@@ -157,7 +157,7 @@ std::shared_ptr<Asset> AssetManager::getWhenLoaded( Asset::Type type, std::strin
 
 	std::unique_lock<std::mutex> loadedAssetsLock( loadedAssetsMutex );
 
-	while (true) {
+	for (;;) {
 		// Check if the asset is loaded.
         it = loadedAssets.find( id );
 		if ( it != loadedAssets.end() )
@@ -176,7 +176,7 @@ void AssetManager::loadAssetsFromDisk() {
 	std::shared_ptr< const FileInfo > fileInfo = nullptr;
 	std::shared_ptr< std::vector<char> > fileData = nullptr;
 
-	while ( true ) {
+	for (;;) {
 		fileInfo = nullptr;
 		fileData = nullptr;
 
@@ -207,7 +207,7 @@ void AssetManager::loadAssetsFromDisk() {
 
 			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - loaded \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
-		} catch ( std::exception& ex ) {
+		} catch ( .../*std::exception& ex*/ ) {
             std::string id = getId( fileInfo->getAssetType( ), fileInfo->getPath( ), fileInfo->getIndexInFile( ) );
 
 			// If asset failed to load - remove it from assets.
@@ -233,7 +233,7 @@ void AssetManager::loadAssetsFromDisk() {
 
 void AssetManager::loadAssets() 
 {
-	while ( true ) {
+	for (;;) {
 		AssetToLoad assetToLoad;
 
 		{ // Check if there is any asset to load and if so, get it - hold lock.
@@ -278,7 +278,7 @@ void AssetManager::loadAssets()
             }
 
 			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - loaded \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
-		} catch ( std::exception& ex ) {
+		} catch ( .../*std::exception& ex*/ ) {
 			// Asset failed to load - remove it from assets.
 			std::lock_guard<std::mutex> assetsLock( assetsMutex );
 			assets.erase( assetToLoad.fileInfo->getPath() );
@@ -346,7 +346,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::BlockModel:
 		{
 			const BlockModelFileInfo& modelFileInfo = static_cast<const BlockModelFileInfo&>( fileInfo );
-			std::shared_ptr<BlockModel> model = BlockModel::createFromMemory( fileData.begin(), modelFileInfo.getFormat( ), false );
+			std::shared_ptr<BlockModel> model = BlockModel::createFromMemory( fileData.cbegin(), modelFileInfo.getFormat( ), false );
             model->setFileInfo( modelFileInfo );
 
             return model;
@@ -354,7 +354,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::SkeletonModel:
 		{
 			const SkeletonModelFileInfo& modelFileInfo = static_cast<const SkeletonModelFileInfo&>( fileInfo );
-            std::shared_ptr<SkeletonModel> model = SkeletonModel::createFromMemory( fileData.begin(), modelFileInfo.getFormat( ), false );
+            std::shared_ptr<SkeletonModel> model = SkeletonModel::createFromMemory( fileData.cbegin(), modelFileInfo.getFormat( ), false );
             model->setFileInfo( modelFileInfo );
 
             return model;
@@ -362,7 +362,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::BlockMesh:
 		{
 			const BlockMeshFileInfo& meshFileInfo = static_cast<const BlockMeshFileInfo&>( fileInfo );
-            std::shared_ptr<BlockMesh> mesh = BlockMesh::createFromMemory( fileData.begin(), fileData.end(), meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
+            std::shared_ptr<BlockMesh> mesh = BlockMesh::createFromMemory( fileData.cbegin(), fileData.cend(), meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
             mesh->setFileInfo( meshFileInfo );
 
             return mesh;
@@ -370,7 +370,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::SkeletonMesh:
 		{
 			const SkeletonMeshFileInfo& meshFileInfo = static_cast<const SkeletonMeshFileInfo&>( fileInfo );
-            std::shared_ptr<SkeletonMesh> mesh = SkeletonMesh::createFromMemory( fileData.begin(), fileData.end(), meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
+            std::shared_ptr<SkeletonMesh> mesh = SkeletonMesh::createFromMemory( fileData.cbegin(), fileData.cend(), meshFileInfo.getFormat( ), meshFileInfo.getIndexInFile( ), meshFileInfo.getInvertZCoordinate( ), meshFileInfo.getInvertVertexWindingOrder( ), meshFileInfo.getFlipUVs( ) );
             mesh->setFileInfo( meshFileInfo );
 
             return mesh;
@@ -403,7 +403,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::Texture2D:
 		{
 			const Texture2DFileInfo& texFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
-            std::shared_ptr<Texture2D> texture = Texture2D::createFromMemory( fileData.begin(), fileData.end(), texFileInfo.getFormat( ) );
+            std::shared_ptr<Texture2D> texture = Texture2D::createFromMemory( fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ) );
             texture->setFileInfo( texFileInfo );
 
             return texture;

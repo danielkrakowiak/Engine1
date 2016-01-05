@@ -22,18 +22,18 @@ std::shared_ptr< std::vector<char> > TextFile::load( const std::string& path ) {
 		fileSize = file.tellg( ); // Save cursor position.
 
 		// Allocate memory for the file.
-		fileData.reserve( fileSize + 1 );
-		fileData.resize( fileSize + 1 );
+		fileData.reserve( (size_t)fileSize + 1 );
+		fileData.resize( (size_t)fileSize + 1 );
 
 		// Read the file.
 		file.seekg( 0, std::ios::beg );  // Move cursor to the beginning of the file.
 		file.read( reinterpret_cast<char*>( fileData.data( ) ), fileSize );
 
 		// Trim the data vector to the real number of characters read (on Windows multiple bytes can be read as one character - ex: LF CR -> '\n').
-		fileData.resize( file.gcount() + 1 );
+		fileData.resize( (size_t)file.gcount() + 1 );
 
 		// Set last character in the buffer to 0.
-		fileData.at( file.gcount() ) = 0;
+		fileData.at( (size_t)file.gcount() ) = 0;
 
 		// Close the file.
 		file.close( );

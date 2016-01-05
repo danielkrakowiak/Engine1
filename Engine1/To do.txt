@@ -45,16 +45,16 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-There is different fov or something that makes raytraced images streched down.
+Make sure all configurations (debug, release) work on all platforms (x32, x64).
+Make sure that all tests onall platforms work.
+Fix one shader warning.
+
+Check what's wrong with loading models at startup!
+Check why tests don't work anymore!
 
 Clear up the warnings!!!
 
-Add rotating and translating the mesh using keyboard and mouse.
-
 Pass vertex, index buffers to the raytracing shader. Raytrace triangle mesh.
-
-Add rotate (by some angle) and translate methods to float43, float44, float33 etc. Should convert from matrix to euler angles, perform rotation and convert back to matrix.
-Could be done by creatin a rotation matrix and then multiplying the original matrix by it.
 
 *** IMPORTANT:
 It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.

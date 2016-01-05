@@ -19,7 +19,9 @@ format( Format::SKELETONMODEL )
 SkeletonModelFileInfo::SkeletonModelFileInfo( std::string path, Format format, int indexInFile ) :
 path( path ),
 format( format )
-{}
+{
+    indexInFile; // Unused.
+}
 
 SkeletonModelFileInfo::SkeletonModelFileInfo( const SkeletonModelFileInfo& obj ) :
 path( obj.path ),

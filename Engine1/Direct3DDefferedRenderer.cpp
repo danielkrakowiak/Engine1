@@ -188,6 +188,8 @@ void Direct3DDefferedRenderer::render( const std::string& text, Font& font, floa
 {
 	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::renders - renderer not initialized." );
 
+    color; // Unused.
+
 	{ // Enable render targets.
 		// Copy/cast render target textures into render targets.
 		std::vector< std::shared_ptr<RenderTarget2D> > renderTargets( this->renderTargets.begin(), this->renderTargets.end() );
@@ -210,7 +212,7 @@ void Direct3DDefferedRenderer::render( const std::string& text, Font& font, floa
 	float2 pos = position;
 
 	for ( p = charText; *p; p++ ) {
-		character = font.getCharacter( *p, *device.Get( ), *deviceContext.Get( ) );
+		character = font.getCharacter( *p, *device.Get( ) );
 
 		if ( character ) {
 			if ( character->getCharcode() == '\n' ) {

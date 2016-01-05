@@ -29,7 +29,7 @@ void Font::loadFromFile( std::string path, unsigned int size ) {
 	loaded = true;
 }
 
-FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device, ID3D11DeviceContext& deviceContext ) {
+FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device ) {
 	if ( !loaded ) return 0;
 
 	std::map<unsigned long, FontCharacter>::iterator charactersIt;
@@ -49,9 +49,6 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device,
 
 			{ //create geometry for the character
 				{ //create vertices
-					float pixelWidth = 2.0f / (float)targetScreenSize.x;
-					float pixelHeight = 2.0f / (float)targetScreenSize.y;
-
 					float characterWidth = (float)character.getSize().x;
 					float characterHeight = (float)character.getSize( ).y;
 
@@ -66,7 +63,7 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device,
 					ZeroMemory( &vertexBufferDesc, sizeof( vertexBufferDesc ) );
 
 					vertexBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-					vertexBufferDesc.ByteWidth           = sizeof(float3)* vertices.size();
+					vertexBufferDesc.ByteWidth           = sizeof(float3) * (unsigned int)vertices.size();
 					vertexBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER;
 					vertexBufferDesc.CPUAccessFlags      = 0;
 					vertexBufferDesc.MiscFlags           = 0;
@@ -107,7 +104,7 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device,
 						ZeroMemory( &texcoordBufferDesc, sizeof( texcoordBufferDesc ) );
 
 						texcoordBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-						texcoordBufferDesc.ByteWidth           = sizeof(float2)* texcoords.size( );
+						texcoordBufferDesc.ByteWidth           = sizeof(float2) * (unsigned int)texcoords.size( );
 						texcoordBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER;
 						texcoordBufferDesc.CPUAccessFlags      = 0;
 						texcoordBufferDesc.MiscFlags           = 0;
@@ -142,7 +139,7 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device,
 						ZeroMemory( &triangleBufferDesc, sizeof( triangleBufferDesc ) );
 
 						triangleBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-						triangleBufferDesc.ByteWidth           = sizeof(uint3)* triangles.size( );
+						triangleBufferDesc.ByteWidth           = sizeof(uint3) * (unsigned int)triangles.size( );
 						triangleBufferDesc.BindFlags           = D3D11_BIND_INDEX_BUFFER;
 						triangleBufferDesc.CPUAccessFlags      = 0;
 						triangleBufferDesc.MiscFlags           = 0;

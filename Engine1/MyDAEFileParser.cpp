@@ -25,7 +25,7 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( s
 	if ( invertVertexWindingOrder ) flags |= aiProcess_FlipWindingOrder;
 	if ( flipUVs )                  flags |= aiProcess_FlipUVs; 
 
-    const int      dataSize = (dataEndIt - dataIt) / sizeof(char);
+    const int      dataSize = (int)(dataEndIt - dataIt) / sizeof(char);
     const aiScene* aiscene = importer.ReadFileFromMemory( &(*dataIt), dataSize, flags );
 
 	if ( !aiscene ) throw std::exception( "MyDAEFileParser::parseBlockMeshFile - parsing failed" );
@@ -77,7 +77,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 	if ( invertVertexWindingOrder ) flags |= aiProcess_FlipWindingOrder;
 	if ( flipUVs )                  flags |= aiProcess_FlipUVs;
 
-    const int      dataSize = (dataEndIt - dataIt) / sizeof(char);
+    const int      dataSize = (int)(dataEndIt - dataIt) / sizeof(char);
     const aiScene* aiscene = importer.ReadFileFromMemory( &(*dataIt), dataSize, flags );
 
 	if ( !aiscene ) throw std::exception( "MyDAEFileParser::parseRiggedMeshFile - parsing failed" );
@@ -119,12 +119,12 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 				//note: transpose because mOffsetMatrix has basis vectors in columns instead of rows
 				float43 boneBindPose = float44( &aibone.mOffsetMatrix.a1 ).getTranspose().getOrientationTranslation();
 
-				mesh.addOrModifyBone( boneIndex, boneName, 0, boneBindPose );
+				mesh.addOrModifyBone( (unsigned char)boneIndex, boneName, 0, boneBindPose );
 			}
 		}
 
 		{ // Join bones together.
-			for ( unsigned int boneIndex = 1; boneIndex <= mesh.getBoneCount(); ++boneIndex ) {
+			for ( unsigned char boneIndex = 1; boneIndex <= mesh.getBoneCount(); ++boneIndex ) {
 				SkeletonMesh::Bone bone = mesh.getBone( boneIndex );
 				aiNode* aiBoneNode = aiscene->mRootNode->FindNode( bone.getName().c_str() );
 
@@ -144,7 +144,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 		}
 
 		{ // Allocate memory for bones' weights and indices, zero the memory.
-			const int count = mesh.vertices.size( ) * static_cast<int>( mesh.bonesPerVertexCount );
+			const int count = (int)mesh.vertices.size( ) * static_cast<int>( mesh.bonesPerVertexCount );
 			mesh.vertexBones.reserve( count );
 			mesh.vertexWeights.reserve( count );
 			for ( int i = 0; i < count; ++i ) {
@@ -154,12 +154,12 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 		}
 
 		{ // Assign the bones to the vertices.
-			for ( unsigned int boneIndex = 1; boneIndex <= aimesh.mNumBones; ++boneIndex ) {
+			for ( unsigned int boneIndex = 1; boneIndex <= aimesh.mNumBones && boneIndex < 256; ++boneIndex ) {
 				aiBone& aibone = *aimesh.mBones[ boneIndex - 1 ];
 
 				for ( unsigned int i = 0; i < aibone.mNumWeights; ++i ) {
 					aiVertexWeight& aivertexweight = aibone.mWeights[ i ];
-					mesh.attachVertexToBoneIfPossible( aivertexweight.mVertexId, boneIndex, aivertexweight.mWeight );
+					mesh.attachVertexToBoneIfPossible( aivertexweight.mVertexId, (unsigned char)boneIndex, aivertexweight.mWeight );
 					//mesh.attachVertexToBone( aivertexweight.mVertexId, boneIndex, aivertexweight.mWeight );
 				}
 			}

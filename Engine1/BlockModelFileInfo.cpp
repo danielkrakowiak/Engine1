@@ -19,7 +19,9 @@ format( Format::BLOCKMODEL )
 BlockModelFileInfo::BlockModelFileInfo( std::string path, Format format, int indexInFile ) :
 path( path ),
 format( format )
-{}
+{
+    indexInFile; // Unused.
+}
 
 BlockModelFileInfo::BlockModelFileInfo( const BlockModelFileInfo& obj ) :
 path( obj.path ),

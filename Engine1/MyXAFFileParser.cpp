@@ -195,12 +195,14 @@ float43 MyXAFFileParser::parseMatrix( std::string text, const bool invertZCoordi
 float MyXAFFileParser::parseFloat( std::string& text ) {
 	std::stringstream ss;
 
-	int startPos = text.find_first_not_of( " " );
-	int endPos = text.find_first_of( " \n", startPos );
+	size_t startPos = text.find_first_not_of( " " );
+	size_t endPos = text.find_first_of( " \n", startPos );
 	
-	int valueLength = 0;
-	if ( endPos > 0 )  valueLength = endPos - startPos;
-	else			   valueLength = text.length() - startPos;
+	size_t valueLength = 0;
+	if ( endPos != std::string::npos )  
+        valueLength = endPos - startPos;
+	else			   
+        valueLength = text.length() - startPos;
 
 	if ( valueLength == 0 ) throw std::exception( "MyXAFFileParser::parseFloat - parsing failure." );
 	ss.str( "" );
@@ -217,12 +219,14 @@ int MyXAFFileParser::parseInt( std::string text )
 {
 	std::stringstream ss;
 
-	int startPos = text.find_first_not_of( " " );
-	int endPos = text.find_first_of( " \n", startPos );
+	size_t startPos = text.find_first_not_of( " " );
+	size_t endPos = text.find_first_of( " \n", startPos );
 
-	int valueLength = 0;
-	if ( endPos > 0 )  valueLength = endPos - startPos;
-	else			   valueLength = text.length() - startPos;
+	size_t valueLength = 0;
+	if ( endPos != std::string::npos )  
+        valueLength = endPos - startPos;
+	else			   
+        valueLength = text.length() - startPos;
 
 	if ( valueLength == 0 ) throw std::exception( "MyXAFFileParser::parseInt - parsing failure." );
 	ss.str( "" );
