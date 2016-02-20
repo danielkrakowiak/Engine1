@@ -167,4 +167,4 @@ Sun 07.02.2016 - 3h - Creating new texture class.
 Thu 11.02.2016 - 3h - Creating new texture class - loading from file.
 Fri 12.02.2016 - 3h - Creating new texture class - static methods, splitting into files, separating declarations from definitions.
 Sat 13.02.2016 - 5h - Creating new texture class - tidying up, fixing, some basic testing.
-Sat 20.02.2016 - 4h - Creating new texture class - loading to/from CPU/GPU, adding missing interface. Creating first tests. Modyfing class to take 'format' param in constructor rather than as a template param.
+Sat 20.02.2016 - 6h - Creating new texture class - loading to/from CPU/GPU, adding missing interface. Creating first tests. Modyfing class to take 'format' param in constructor rather than as a template param. Trying to create many version of constructors without code duplication with std::enable_if.

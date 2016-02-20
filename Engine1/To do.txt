@@ -45,6 +45,11 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
+	---------------------------------
+
+	Gettery moglbym zalatwic poprzez enable_if - od razu wszystkie kombinacje dla ktorych getter ma byc dostepny.
+
+	Konstruktory chyba tez w ten sposob by sie dalo. Bo te same konstruktory wystepuja dla wielu kombinacji parametrow.
 
 	---------------------------
 	Remove GPU format from template arguments? Take it as constructor argument? It doesn't impact class interface anyway. 

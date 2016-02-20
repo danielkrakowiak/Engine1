@@ -60,7 +60,7 @@ namespace UnitTests
             const int excpectedSize    = width * height * sizeof( PixelType );
             
             try {
-			    TTexture2D< usage, binding, PixelType, format > texture( *testDevice, width, height, storeOnCpu, storeOnGpu );
+			    TTexture2D< usage, binding, PixelType > texture( *testDevice, width, height, storeOnCpu, storeOnGpu );
             
 			    Assert::IsTrue( texture.isInCpuMemory() == storeOnCpu );
 			    Assert::IsTrue( texture.isInGpuMemory( ) == storeOnGpu );

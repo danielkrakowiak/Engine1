@@ -9,26 +9,25 @@
 
 #include "TTexture2DBase2.h"
 
-// - Can't use static createFromFile method, because it has to return TTexture2D class object - so it has to be in TTexture2D class (to know TTexture2D type). 
-//   But TTexture2D class is specialized, so that requires having multiple versions of the same method. It would need to use base class method and cast the result maybe. It's simpler to use constructors.
-
-// CreateFromFile can create the appropriate texture type and load content from files - no need to change that when initial data is required.
-// It looks like Immutable texture can still be modified through uploading data to it with DISCARD_OVERWRITE flag or something like that.
-
-// How to deal with padding at the end of each data row? - remove padding when copying data. Only when loading from file (inside the class). Otherwise require unpadded data.
-
-// What with generating and storing mipmaps on CPU and GPU?
-
 namespace Engine1
 {
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
     class TTexture2D 
-        : public TTexture2DBase2< usage, binding, PixelType, format >
-    {};
+        : public TTexture2DBase2< usage, binding, PixelType >
+    {
+        public:
 
-    template< TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format>
-    class TTexture2D< TTexture2DUsage::Immutable, binding, PixelType, format >
-        : public TTexture2DBase2< TTexture2DUsage::Immutable, binding, PixelType, format >
+        //TTexture2D( ID3D11Device& device, int width, int height, const bool storeOnCpu, const bool storeOnGpu )
+        //{
+        //    initialize( device, width, height, storeOnCpu, storeOnGpu );
+        //}
+
+        
+    };
+
+    template< TTexture2DBinding binding, typename PixelType>
+    class TTexture2D< TTexture2DUsage::Immutable, binding, PixelType >
+        : public TTexture2DBase2< TTexture2DUsage::Immutable, binding, PixelType >
     {
         public:
 
@@ -71,9 +70,9 @@ namespace Engine1
         }
     };
 
-    template< TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format>
-    class TTexture2D< TTexture2DUsage::Dynamic, binding, PixelType, format >
-        : public TTexture2DBase2< TTexture2DUsage::Dynamic, binding, PixelType, format >
+    template< TTexture2DBinding binding, typename PixelType>
+    class TTexture2D< TTexture2DUsage::Dynamic, binding, PixelType >
+        : public TTexture2DBase2< TTexture2DUsage::Dynamic, binding, PixelType >
     {
         public:
 
@@ -119,11 +118,26 @@ namespace Engine1
         {
             TTexture2DBase::unloadFromCpu()
         }
+
+        ////////////////////////////////////////
+
+        template< TTexture2DUsage _usage = usage, TTexture2DBinding _binding = binding, typename std::enable_if<_usage == TTexture2DUsage::Dynamic>::type* empty = 0 >
+        TTexture2D( ID3D11Device& device )
+        {
+            //initialize( device, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps );
+        }
+
+        //template< TTexture2DBinding _binding = binding >
+        ////typename std::enable_if<_binding == TTexture2DBinding::DepthStencil, int>::type
+        //void tralala(typename std::enable_if<_binding == TTexture2DBinding::DepthStencil>::type* empty = 0)
+        //{
+        //    int g = 5;
+        //}
     };
 
-    template< TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format>
-    class TTexture2D< TTexture2DUsage::Default, binding, PixelType, format >
-        : public TTexture2DBase2< TTexture2DUsage::Default, binding, PixelType, format >
+    template< TTexture2DBinding binding, typename PixelType>
+    class TTexture2D< TTexture2DUsage::Default, binding, PixelType >
+        : public TTexture2DBase2< TTexture2DUsage::Default, binding, PixelType >
     {
         public:
 
@@ -171,9 +185,9 @@ namespace Engine1
         }
     };
 
-    template< TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format>
-    class TTexture2D< TTexture2DUsage::StagingRead, binding, PixelType, format >
-        : public TTexture2DBase2< TTexture2DUsage::StagingRead, binding, PixelType, format >
+    template< TTexture2DBinding binding, typename PixelType>
+    class TTexture2D< TTexture2DUsage::StagingRead, binding, PixelType >
+        : public TTexture2DBase2< TTexture2DUsage::StagingRead, binding, PixelType >
     {
         public:
 
@@ -198,9 +212,9 @@ namespace Engine1
         }
     };
 
-    template< TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format>
-    class TTexture2D< TTexture2DUsage::StagingWrite, binding, PixelType, format >
-        : public TTexture2DBase2< TTexture2DUsage::StagingWrite, binding, PixelType, format >
+    template< TTexture2DBinding binding, typename PixelType>
+    class TTexture2D< TTexture2DUsage::StagingWrite, binding, PixelType >
+        : public TTexture2DBase2< TTexture2DUsage::StagingWrite, binding, PixelType >
     {
         public:
 
@@ -241,9 +255,9 @@ namespace Engine1
         }
     };
 
-    template< TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format>
-    class TTexture2D< TTexture2DUsage::StagingReadWrite, binding, PixelType, format >
-        : public TTexture2DBase2< TTexture2DUsage::StagingReadWrite, binding, PixelType, format >
+    template< TTexture2DBinding binding, typename PixelType>
+    class TTexture2D< TTexture2DUsage::StagingReadWrite, binding, PixelType >
+        : public TTexture2DBase2< TTexture2DUsage::StagingReadWrite, binding, PixelType >
     {
         public:
 

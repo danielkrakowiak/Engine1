@@ -57,7 +57,7 @@ namespace Engine1
     D3D11_MAP   getMapForWriteFlag( TTexture2DUsage usage );
     D3D11_MAP   getMapForReadFlag( TTexture2DUsage usage );
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
     class TTexture2DBase
     {
         public:
@@ -77,30 +77,102 @@ namespace Engine1
         int getSize( unsigned int mipMapLevel = 0 ) const;
         int getLineSize( unsigned int mipMapLevel = 0 ) const;
 
+        ///////////////////////////////////////////////
+
+        //&& _binding == TTexture2DBinding::DepthStencil
+        //_usage == TTexture2DUsage::Default
+
+        /*template< TTexture2DUsage _usage = usage, TTexture2DBinding _binding = binding, typename std::enable_if< _usage == TTexture2DUsage::Default >::type* empty = 0 >
+        void tralala()
+        {
+            int g = 5;
+        }*/
+
+        /*template< TTexture2DUsage _usage = usage, TTexture2DBinding _binding = binding >
+        typename std::enable_if< _usage == TTexture2DUsage::Dynamic && _binding == TTexture2DBinding::DepthStencil, int>::type
+        tralala()
+        {
+            return 0;
+        }*/
+
+        ///////////////////////////////////////////////
+
         protected:
 
-        void initialize( ID3D11Device& device, const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps );
+        void reset();
 
-        void initialize( ID3D11Device& device, const std::string& path, const Texture2DFileInfo::Format format,
-                            const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps );
+        void initialize( ID3D11Device&            device,
+                         const Texture2DFileInfo& fileInfo,
+                         const bool               storeOnCpu,
+                         const bool               storeOnGpu,
+                         const bool               generateMipmaps,
+                         DXGI_FORMAT              textureFormat             = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT              shaderResourceViewFormat  = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT              renderTargetViewFormat    = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT              depthStencilViewFormat    = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT              unorderedAccessViewFormat = DXGI_FORMAT_UNKNOWN );
 
-        void initialize( ID3D11Device& device, std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, 
-                            const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps );
+        void initialize( ID3D11Device&                   device,
+                         const std::string&              path,
+                         const Texture2DFileInfo::Format format,
+                         const bool                      storeOnCpu,
+                         const bool                      storeOnGpu,
+                         const bool                      generateMipmaps,
+                         DXGI_FORMAT                     textureFormat             = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT                     shaderResourceViewFormat  = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT                     renderTargetViewFormat    = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT                     depthStencilViewFormat    = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT                     unorderedAccessViewFormat = DXGI_FORMAT_UNKNOWN );
 
-        void initialize( ID3D11Device& device, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu );
+        void initialize( ID3D11Device&                     device,
+                         std::vector<char>::const_iterator dataIt,
+                         std::vector<char>::const_iterator dataEndIt, 
+                         const Texture2DFileInfo::Format   format,
+                         const bool                        storeOnCpu,
+                         const bool                        storeOnGpu,
+                         const bool                        generateMipmaps,
+                         DXGI_FORMAT                       textureFormat             = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT                       shaderResourceViewFormat  = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT                       renderTargetViewFormat    = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT                       depthStencilViewFormat    = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT                       unorderedAccessViewFormat = DXGI_FORMAT_UNKNOWN );
 
-        void initialize( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height,
-                            const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps );
+        void initialize( ID3D11Device& device,
+                         const int     width,
+                         const int     height,
+                         const bool    storeOnCpu,
+                         const bool    storeOnGpu,
+                         DXGI_FORMAT   textureFormat             = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT   shaderResourceViewFormat  = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT   renderTargetViewFormat    = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT   depthStencilViewFormat    = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT   unorderedAccessViewFormat = DXGI_FORMAT_UNKNOWN );
+
+        void initialize( ID3D11Device& device,
+                         const std::vector< PixelType >& data,
+                         const int                       width,
+                         const int                       height,
+                         const bool                      storeOnCpu,
+                         const bool                      storeOnGpu,
+                         const bool                      generateMipmaps,
+                         DXGI_FORMAT                     textureFormat             = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT                     shaderResourceViewFormat  = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT                     renderTargetViewFormat    = DXGI_FORMAT_UNKNOWN,
+                         DXGI_FORMAT                     depthStencilViewFormat    = DXGI_FORMAT_UNKNOWN, 
+                         DXGI_FORMAT                     unorderedAccessViewFormat = DXGI_FORMAT_UNKNOWN );
 
         void createTextureOnCpu( const int width, const int height );
         void createTextureOnCpu( const std::vector< PixelType >& data, const int width, const int height );
         // Re-interprets source data as the desired pixel type, removes padding at the end of each line and sets the data for the texture.
         void createTextureOnCpu( const char* data, const int width, const int height, const int lineSize );
 
-        void createTextureOnGpu( ID3D11Device& device, const int width, const int height, const bool generateMipmaps );
-        void createTextureOnGpu( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, const bool generateMipmaps );
+        void createTextureOnGpu( ID3D11Device& device, const int width, const int height, const bool generateMipmaps, DXGI_FORMAT textureFormat );
 
-        void createTextureViewsOnGpu( ID3D11Device& device );
+        void createTextureOnGpu( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, 
+                                 const bool generateMipmaps, DXGI_FORMAT textureFormat );
+
+        void createTextureViewsOnGpu( ID3D11Device& device, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+                                      DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat );
 
         bool supportsInitialLoadCpuToGpu();
         bool supportsLoadCpuToGpu();
@@ -119,6 +191,12 @@ namespace Engine1
 
         std::vector< std::vector< PixelType > >   dataMipmaps;
         Microsoft::WRL::ComPtr< ID3D11Texture2D > texture;
+        
+        DXGI_FORMAT textureFormat;
+        DXGI_FORMAT shaderResourceViewFormat;
+        DXGI_FORMAT renderTargetViewFormat;
+        DXGI_FORMAT depthStencilViewFormat;
+        DXGI_FORMAT unorderedAccessViewFormat;
 
         Microsoft::WRL::ComPtr< ID3D11ShaderResourceView >  shaderResourceView;
         Microsoft::WRL::ComPtr< ID3D11RenderTargetView >    renderTargetView;
@@ -131,31 +209,64 @@ namespace Engine1
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
-        ::initialize( ID3D11Device& device, const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
+        ::reset()
     {
-        initialize( device, fileInfo.getPath(), fileInfo.getFormat(), storeOnCpu, storeOnGpu, generateMipmaps );
+        dataMipmaps.clear();
+
+        textureFormat             = DXGI_FORMAT_UNKNOWN;
+        shaderResourceViewFormat  = DXGI_FORMAT_UNKNOWN;
+        renderTargetViewFormat    = DXGI_FORMAT_UNKNOWN;
+        depthStencilViewFormat    = DXGI_FORMAT_UNKNOWN;
+        unorderedAccessViewFormat = DXGI_FORMAT_UNKNOWN;
+
+        width           = 0;
+        height          = 0;
+        hasMipmapsOnGpu = false;
+
+        texture.Reset();
+        shaderResourceView.Reset();
+        renderTargetView.Reset();
+        depthStencilView.Reset();
+        unorderedAccessView.Reset();
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
+        ::initialize( ID3D11Device& device, const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps,
+                      DXGI_FORMAT textureFormat, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+                      DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat )
+    {
+        initialize( device, fileInfo.getPath(), fileInfo.getFormat(), storeOnCpu, storeOnGpu, generateMipmaps,
+                    textureFormat, shaderResourceViewFormat, renderTargetViewFormat, depthStencilViewFormat, unorderedAccessViewFormat );
+    }
+
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::initialize( ID3D11Device& device, const std::string& path, const Texture2DFileInfo::Format format,
-                      const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+                      const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps,
+                      DXGI_FORMAT textureFormat, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+                      DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat )
     {
         std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-        initialize( device, fileData->cbegin(), fileData->cend(), format, storeOnCpu, storeOnGpu, generateMipmaps );
+        initialize( device, fileData->cbegin(), fileData->cend(), format, storeOnCpu, storeOnGpu, generateMipmaps,
+                    textureFormat, shaderResourceViewFormat, renderTargetViewFormat, depthStencilViewFormat, unorderedAccessViewFormat );
 
         fileInfo.setPath( path );
         fileInfo.setFormat( format );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::initialize( ID3D11Device& device, std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, 
-                      const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+                      const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps,
+                      DXGI_FORMAT textureFormat, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat, 
+                      DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat )
     {
+        reset();
+
         if (!storeOnCpu && !storeOnGpu)
             throw std::exception( "TTexture2DBase::initialize - texture is set to be stored neither on CPU or GPU." );
 
@@ -187,9 +298,9 @@ namespace Engine1
             if ( supportsInitialLoadCpuToGpu() )
                 createTextureOnGpu( device, dataMipmaps.front(), width, height, generateMipmaps );
             else
-                createTextureOnGpu( device, width, height, generateMipmaps );
+                createTextureOnGpu( device, width, height, generateMipmaps, textureFormat );
 
-            createTextureViewsOnGpu( device );
+            createTextureViewsOnGpu( device, shaderResourceViewFormat, renderTargetViewFormat, depthStencilViewFormat, unorderedAccessViewFormat );
         }
 
         if ( !storeOnCpu )
@@ -200,10 +311,14 @@ namespace Engine1
         this->hasMipmapsOnGpu = generateMipmaps;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
-        ::initialize( ID3D11Device& device, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu )
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
+        ::initialize( ID3D11Device& device, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu,
+                      DXGI_FORMAT textureFormat, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+                      DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat )
     {
+        reset();
+
         if (!storeOnCpu && !storeOnGpu)
             throw std::exception( "TTexture2DBase::initialize - texture is set to be stored neither on CPU or GPU." );
 
@@ -211,8 +326,8 @@ namespace Engine1
             createTextureOnCpu( width, height );
 
         if ( storeOnGpu ) {
-            createTextureOnGpu( device, width, height, false );
-            createTextureViewsOnGpu( device );
+            createTextureOnGpu( device, width, height, false, textureFormat );
+            createTextureViewsOnGpu( device, shaderResourceViewFormat, renderTargetViewFormat, depthStencilViewFormat, unorderedAccessViewFormat );
         }
 
         this->width           = width;
@@ -220,11 +335,15 @@ namespace Engine1
         this->hasMipmapsOnGpu = false;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::initialize( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height,
-                      const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+                      const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps,
+                      DXGI_FORMAT textureFormat, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+                      DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat )
     {
+        reset();
+
         if (!storeOnCpu && !storeOnGpu)
             throw std::exception( "TTexture2DBase::initialize - texture is set to be stored neither on CPU or GPU." );
 
@@ -235,8 +354,8 @@ namespace Engine1
         }
 
         if ( storeOnGpu ) {
-            createTextureOnGpu( device, data, width, height, generateMipmaps );
-            createTextureViewsOnGpu( device );
+            createTextureOnGpu( device, data, width, height, generateMipmaps, textureFormat );
+            createTextureViewsOnGpu( device, shaderResourceViewFormat, renderTargetViewFormat, depthStencilViewFormat, unorderedAccessViewFormat );
         }
 
         this->width           = width;
@@ -244,29 +363,29 @@ namespace Engine1
         this->hasMipmapsOnGpu = generateMipmaps;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::setFileInfo( const Texture2DFileInfo& fileInfo )
     {
         this->fileInfo = fileInfo;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    const Texture2DFileInfo& TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    const Texture2DFileInfo& TTexture2DBase< usage, binding, PixelType >
         ::getFileInfo() const
     {
         return fileInfo;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    Texture2DFileInfo& TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    Texture2DFileInfo& TTexture2DBase< usage, binding, PixelType >
         ::getFileInfo()
     {
         return fileInfo;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::createTextureOnCpu( const int width, const int height )
     {
         if ( width <= 0 || height <= 0)
@@ -277,8 +396,8 @@ namespace Engine1
         dataMipmaps.back().resize( width * height );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::createTextureOnCpu( const std::vector< PixelType >& data, const int width, const int height )
     {
         if ( width <= 0 || height <= 0)
@@ -292,8 +411,8 @@ namespace Engine1
         dataMipmaps.back().insert( dataMipmaps.back().begin(), data.cbegin(), data.cend() );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::createTextureOnCpu( const char* data, const int width, const int height, const int lineSize )
     {
         if ( width <= 0 || height <= 0)
@@ -318,9 +437,9 @@ namespace Engine1
         }
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
-        ::createTextureOnGpu( ID3D11Device& device, const int width, const int height, const bool generateMipmaps )
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
+        ::createTextureOnGpu( ID3D11Device& device, const int width, const int height, const bool generateMipmaps, DXGI_FORMAT textureFormat )
     {
         if ( width <= 0 || height <= 0)
             throw std::exception( "TTexture2DBase::createTextureOnGpu - given width or height has zero or negative value." );
@@ -338,7 +457,7 @@ namespace Engine1
         desc.Height             = height;
         desc.MipLevels          = 1; //mipmapCount; #TODO: add support for mipmaps.
         desc.ArraySize          = 1; //mipmapCount;
-        desc.Format             = format;
+        desc.Format             = textureFormat;
         desc.SampleDesc.Count   = 1;
         desc.SampleDesc.Quality = 0;
         desc.Usage              = textureUsage;
@@ -350,9 +469,10 @@ namespace Engine1
         if ( result < 0 ) throw std::exception( "TTexture2DBase::createTextureOnGpu - creating texture on GPU failed." );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
-        ::createTextureOnGpu( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, const bool generateMipmaps )
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
+        ::createTextureOnGpu( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, 
+                              const bool generateMipmaps, DXGI_FORMAT textureFormat )
     {
         if ( width <= 0 || height <= 0)
             throw std::exception( "TTexture2DBase::createTextureOnGpu - given width or height has zero or negative value." );
@@ -373,7 +493,7 @@ namespace Engine1
         desc.Height             = height;
         desc.MipLevels          = 1; //mipmapCount; // #TODO: add support for mipmaps. Generated on CPU or GPU or both.
         desc.ArraySize          = 1; //mipmapCount;
-        desc.Format             = format;
+        desc.Format             = textureFormat;
         desc.SampleDesc.Count   = 1;
         desc.SampleDesc.Quality = 0;
         desc.Usage              = textureUsage;
@@ -391,53 +511,69 @@ namespace Engine1
         if ( result < 0 ) throw std::exception( "TTexture2DBase::createTextureOnGpu - creating texture on GPU failed." );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
-        ::createTextureViewsOnGpu( ID3D11Device& device )
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
+        ::createTextureViewsOnGpu( ID3D11Device& device, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+                                   DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat )
     {
         UINT textureBindFlags = getTextureBindFlags( binding );
 
         if ( (textureBindFlags & D3D11_BIND_SHADER_RESOURCE) != 0 ) {
-            HRESULT result = device.CreateShaderResourceView( texture.Get(), nullptr, shaderResourceView.ReleaseAndGetAddressOf() );
+            D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+	        ZeroMemory( &desc, sizeof( desc ) );
+	        desc.Format                    = shaderResourceViewFormat;
+	        desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+	        desc.Texture2D.MostDetailedMip = 0;
+	        desc.Texture2D.MipLevels       = 1; // #TODO: add support for mipmaps.
+
+            HRESULT result = device.CreateShaderResourceView( texture.Get(), &desc, shaderResourceView.ReleaseAndGetAddressOf() );
             if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating shader resource view on GPU failed." );
+
+            this->shaderResourceViewFormat = shaderResourceViewFormat;
         }
 
         if ( (textureBindFlags & D3D11_BIND_RENDER_TARGET) != 0 ) {
             D3D11_RENDER_TARGET_VIEW_DESC desc;
             ZeroMemory( &desc, sizeof(desc) );
-            desc.Format = format;
-            desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+            desc.Format             = renderTargetViewFormat;
+            desc.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
             desc.Texture2D.MipSlice = 0;
 
             HRESULT result = device.CreateRenderTargetView( texture.Get(), &desc, renderTargetView.ReleaseAndGetAddressOf() );
             if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating render target view on GPU failed." );
+
+            this->renderTargetViewFormat = renderTargetViewFormat;
         }
 
         if ( (textureBindFlags & D3D11_BIND_DEPTH_STENCIL) != 0 ) {
             D3D11_DEPTH_STENCIL_VIEW_DESC desc;
             ZeroMemory( &desc, sizeof(desc) );
-            desc.Format = format; //DXGI_FORMAT_D24_UNORM_S8_UINT;// DXGI_FORMAT_D32_FLOAT; // Note: Could be also: DXGI_FORMAT_D24_UNORM_S8_UINT (to allow stencil sampling).
-            desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+            desc.Format             = depthStencilViewFormat;
+            desc.ViewDimension      = D3D11_DSV_DIMENSION_TEXTURE2D;
             desc.Texture2D.MipSlice = 0;
 
             HRESULT result = device.CreateDepthStencilView( texture.Get(), &desc, depthStencilView.ReleaseAndGetAddressOf() );
             if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating depth stencil view on GPU failed." );
+
+            this->depthStencilViewFormat = depthStencilViewFormat;
         }
 
         if ( (textureBindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0 ) {
             D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
             ZeroMemory( &desc, sizeof(desc) );
-            desc.Format = format;
-            desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+            desc.Format             = unorderedAccessViewFormat;
+            desc.ViewDimension      = D3D11_UAV_DIMENSION_TEXTURE2D;
             desc.Texture2D.MipSlice = 0;
 
             HRESULT result = device.CreateUnorderedAccessView( texture.Get(), &desc, unorderedAccessView.ReleaseAndGetAddressOf() );
             if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating unordered access view on GPU failed." );
+
+            this->unorderedAccessViewFormat = unorderedAccessViewFormat;
         }
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    bool TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    bool TTexture2DBase< usage, binding, PixelType >
         ::supportsInitialLoadCpuToGpu()
     {
         #pragma warning(suppress: 4127)
@@ -447,8 +583,8 @@ namespace Engine1
             return true;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    bool TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    bool TTexture2DBase< usage, binding, PixelType >
         ::supportsLoadCpuToGpu()
     {
         if ( usage == TTexture2DUsage::Dynamic || usage == TTexture2DUsage::StagingWrite || usage == TTexture2DUsage::StagingReadWrite )
@@ -457,8 +593,8 @@ namespace Engine1
             return false;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    bool TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    bool TTexture2DBase< usage, binding, PixelType >
         ::supportsLoadGpuToCpu()
     {
         if ( usage == TTexture2DUsage::StagingRead || usage == TTexture2DUsage::StagingReadWrite )
@@ -467,8 +603,8 @@ namespace Engine1
             return false;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext )
     {
         if ( !isInCpuMemory() )
@@ -500,8 +636,8 @@ namespace Engine1
         }
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::loadGpuToCpu()
     {
         if ( !isInGpuMemory() )
@@ -525,15 +661,15 @@ namespace Engine1
         deviceContext.Unmap( texture.Get(), 0 );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::unloadFromCpu()
     {
         dataMipmaps.clear();
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    void TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    void TTexture2DBase< usage, binding, PixelType >
         ::unloadFromGpu()
     {
 	    texture.Reset();
@@ -546,29 +682,29 @@ namespace Engine1
 	    mipmapsOnGpu = false;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    bool TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    bool TTexture2DBase< usage, binding, PixelType >
         ::isInCpuMemory() const
     {
 	    return !dataMipmaps.empty() && !dataMipmaps.front().empty();
     }
     
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    bool TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    bool TTexture2DBase< usage, binding, PixelType >
         ::isInGpuMemory() const
     {
 	    return texture != nullptr;
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    int TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    int TTexture2DBase< usage, binding, PixelType >
         ::getMipMapCountOnCpu()  const
     {
         return (int)dataMipmaps.size();
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    int TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    int TTexture2DBase< usage, binding, PixelType >
         ::getMipMapCountOnGpu() const
     {
          if ( isInGpuMemory() ) {
@@ -581,15 +717,15 @@ namespace Engine1
         }
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    int TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    int TTexture2DBase< usage, binding, PixelType >
         ::getBytesPerPixel() const
     {
         return sizeof( PixelType );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    int TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    int TTexture2DBase< usage, binding, PixelType >
         ::getWidth( unsigned int mipMapLevel = 0 ) const
     {
         if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
@@ -598,8 +734,8 @@ namespace Engine1
 	    return std::max( 1, width / ( 1 + (int)mipMapLevel ) );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    int TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    int TTexture2DBase< usage, binding, PixelType >
         ::getHeight( unsigned int mipMapLevel = 0 ) const
     {
         if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
@@ -608,8 +744,8 @@ namespace Engine1
 	    return std::max( 1, height / ( 1 + (int)mipMapLevel ) );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    int TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    int TTexture2DBase< usage, binding, PixelType >
         ::getSize( unsigned int mipMapLevel = 0 ) const
     {
         if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
@@ -618,8 +754,8 @@ namespace Engine1
 	    return getLineSize( mipMapLevel ) * getHeight( mipMapLevel );
     }
 
-    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType, DXGI_FORMAT format >
-    int TTexture2DBase< usage, binding, PixelType, format >
+    template< TTexture2DUsage usage, TTexture2DBinding binding, typename PixelType >
+    int TTexture2DBase< usage, binding, PixelType >
         ::getLineSize( unsigned int mipMapLevel = 0 ) const
     {
         if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
