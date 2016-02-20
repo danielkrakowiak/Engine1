@@ -160,3 +160,11 @@ Sat 02.01.2016 - 6h - Successfully raytraced triangle mesh.
 Sun 03.01.2016 - 3h - Fixed various project setup issues. Added x64 platform for UnitTests project. Enabled compilation of shaders in the build. Added bounding box to meshes.
 Mon 04.01.2016 - 3h - Fixed raytracing slightly incorrect primary rays directions (FOV related). Added an option to rotate actors in the scene. Removed Assimp source code from the project and linked to it's libary. Removed all causes of warnings from the code.
 Tue 05.01.2016 - 5h - Compiled Assimp and replaced wrong Assimp dlls and libs. Fixed non-working texture swapping in BlockModel/SkeletonModel. Fixed some bugs related to the refactored code.
+Fri 29.01.2016 - 4h - Thinking how to refactor texture, render target, compute target classes into something more general and configurable + add new functionality.
+--- January 2016 - 23h
+Sat 06.02.2016 - 3h - Creating new texture class which supports multiple usages, bindings, types and formats.
+Sun 07.02.2016 - 3h - Creating new texture class.
+Thu 11.02.2016 - 3h - Creating new texture class - loading from file.
+Fri 12.02.2016 - 3h - Creating new texture class - static methods, splitting into files, separating declarations from definitions.
+Sat 13.02.2016 - 5h - Creating new texture class - tidying up, fixing, some basic testing.
+Sat 20.02.2016 - 4h - Creating new texture class - loading to/from CPU/GPU, adding missing interface. Creating first tests. Modyfing class to take 'format' param in constructor rather than as a template param.

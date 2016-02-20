@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Math">
       <UniqueIdentifier>{db7a32ee-40e2-44fd-8cd8-d05941f545a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\TTexture2D">
+      <UniqueIdentifier>{8a89a667-6c7c-4f9f-8494-02cdf5db608f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -64,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="quatTests.cpp">
       <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="TTexture2DTests.cpp">
+      <Filter>Source Files\TTexture2D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

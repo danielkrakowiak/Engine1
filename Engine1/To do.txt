@@ -45,16 +45,16 @@
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
 
-Make sure all configurations (debug, release) work on all platforms (x32, x64).
-Make sure that all tests onall platforms work.
+
+	---------------------------
+	Remove GPU format from template arguments? Take it as constructor argument? It doesn't impact class interface anyway. 
+	Also depanding on it's value object may fail to construct, so that's more reasonable to take it in runtime, because only then we can see if it's correct.
+
+	We can also take different number of formats depanding on the binding of the created texture. Some bindings have more views than others.
+
+	---------------------------
+
 Fix one shader warning.
-
-Check what's wrong with loading models at startup!
-Check why tests don't work anymore!
-
-Clear up the warnings!!!
-
-Pass vertex, index buffers to the raytracing shader. Raytrace triangle mesh.
 
 *** IMPORTANT:
 It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.
@@ -67,6 +67,79 @@ So probably set buffers, textures, uavs from shader class.
 Maybe I should createa Buffer class. Same as Texture2D. Because we need to store quite many resource ptr to directx with each buffer plus C++ vector. Could be good to group them up. 
 Could be a template class taking it's element type at template argument. It would also simplify sending data to and from GPU using buffers. When building volume data structures etc.
 + Check bind flags on different resources - ex. vertex buffers (and normals etc) have bind flag - "default", but should rather hvae "immutable". Default means that I expect GPU to modify these buffers.
+
+
+Sprobowac potworzyc te kombinacje bindigow i zobaczyc czy na pewno wszystkie dzialaja?
+
+------------------------------------------------
+Poprawic operator | dla enuma z bindingiemw teksturze.
+
+RenderTarget      Default, BIND_RENDER_TARGET,
+RenderTargetSR   Default, BIND_RENDER_TARGET, BIND_SHADER_RES0URCE
+DepthTarget       Default, BIND_DEPTH_STENCIL
+DepthTargetSR       Default, BIND_DEPTH_STENCIL, BIND_SHADER_RES0URCE
+UnorderedAccessTexture   Default, BIND_UNORDERED_ACCESS,
+DynamicTexture           Dynamic, CPU_ACCESS_WRITE, BIND_SHADER_RES0URCE
+ImmutableTexture         Immutable, BIND_SHADER_RES0URCE
+StagingReadTexture       Staging, CPU_ACCESS_READ,
+StagingWriteTexture      Staging, CPU_ACCESS_WRITE, 
+StagingReadWriteTexture  Staging, CPU_ACCESS_READ | CPU_ACCESS_WRITE, 
+
+Texture2D< Dynamic, ShaderResource, uchar4 >
+
+VertexBuffer             Immutable
+VertexBuffer_SR           Immutable
+VertexBuffer_UA           Default
+VertexBuffer_SR_UA           Default
+DynamicVertexBuffer      Dynamic
+DynamicVertexBufferSR      Dynamic
+DynamicVertexBufferUA      Dynamic
+DynamicVertexBufferSR_UA      Dynamic
+IndexBuffer              Immutable
+DyanamicIndexBuffer      Dynamic
+ConstantBuffer           Dynamic, D3D11_BIND_CONSTANT_BUFFER
+UnorderedAccessBuffer
++
+UnorderedAccessVertexBuffer
+UnorderedAccessIndexBuffer
+
+Immutable
+Dynamic
+Default
+Staging
+UnorderedAccess
+
+RenderTarget2D
+Texture2D
+
+	RenderTargetTexture2D - dziedziczy po okreslonym typie Texture2D - np. RenderTargetTexture2D< T > Texture2D< Dynamic, RenderTarget, T >
+	
+
+A moze miec u podstawy template klasy Texture< ... > i Buffer< ... > i reszte klas stworzyc tylko jako dziedziczenie po okreslonych wersjach tego templatu np. StagingTextureRead : public Texture< Staging, Read >
+
+Nazywam "Texture" to co ma SRV. Ale staging tez ma w nazwie "Texture" a nie ma SRV. Znowu bufory co maja miec w nazwie gdy maja "SRV"?
+Moze wlasnie dodac SRV do nazwy tych klas?
+
+Dla ktorych typow trzymac dane po stronie CPU? Jak dlugo? A moze wywalac zaraz po wyslaniu do GPU?
+
+--------------------------------------------------
+Engine1
+Typ tekstury jako template argument? Np float4, float3, uin3? To by wymuszalo automatycznie odpowiednie formaty dla DXa
+
+Not all textures can load to/from GPU. THis methods are not available in base Texture2D class but rather derived classes such as StagingRWTexture2D, StagingRTexture2D, StagingWTexture2D, WTexture2D (or DynamicTexture2D)
+Also, not every texture type has shader resource view (staging doesn't)
+
+Not all texture data is aligned. Textures loaded from a file are usually aligned. But textures created by hand usually aren't. There should be alignment(or lineSize) field in texture used when uploading texture to GPU.
+
+How to calculate alignment for other mipmap levels?
+
+Checking bitsPerPixel in loadCpuToGpu has bug. should be "else if", not "if"
+
+Dopisac do floa4, float3, int3 itp operacje += wektora z wektorem.
+--------------------------------------------------
+
+
+Pass vertex, index buffers to the raytracing shader. Raytrace triangle mesh.
 
 Add my own binary format of mesh (block and skeleton). It could also store bounding box info etc. It would load much faster.
 

@@ -49,12 +49,14 @@ std::shared_ptr<Texture2D> Texture2D::createFromMemory( std::vector<char>::const
 		throw std::exception( "Texture2D::loadFromMemory - loading texture from memory failed." );
 
 	// Convert image to 32 bpp if needed.
-	if ( image.getBitsPerPixel() == 24 ) {
-		if ( !image.convertTo32Bits() )
-			throw std::exception( "Texture2D::loadFromMemory - loaded texture is 24 bits per pixel and had to be converted to 32 bits per pixel for compliance with Direct3D. This converions failed." );
-	} else if ( image.getBitsPerPixel() != 8 ) {
-		throw std::exception( "Texture2D::loadFromMemory - loaded texture is neither 24 nor 8 bits per pixel. This byte per pixel fromat is not supported." );
-	}
+    if ( image.getBitsPerPixel() != 32 ) {
+	    if ( image.getBitsPerPixel() == 24 ) {
+		    if ( !image.convertTo32Bits() )
+			    throw std::exception( "Texture2D::loadFromMemory - loaded texture is 24 bits per pixel and had to be converted to 32 bits per pixel for compliance with Direct3D. This converions failed." );
+	    } else if ( image.getBitsPerPixel() != 8 ) {
+		    throw std::exception( "Texture2D::loadFromMemory - loaded texture is neither 32, 24 or 8 bits per pixel. This byte per pixel fromat is not supported." );
+	    }
+    }
 
 	// Save basic info about the image.
 	texture->bytesPerPixel = image.getBitsPerPixel() / 8;

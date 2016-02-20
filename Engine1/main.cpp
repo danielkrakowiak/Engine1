@@ -6,6 +6,7 @@
 
 #include "StringUtil.h"
 
+using namespace Engine1;
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd ) {
     // Unused.

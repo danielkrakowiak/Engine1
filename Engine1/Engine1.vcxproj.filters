@@ -238,6 +238,12 @@
     <Filter Include="Header Files\Shader\RaytracingShader">
       <UniqueIdentifier>{dc231a18-1f39-427d-909f-77d193c8711e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Texture2">
+      <UniqueIdentifier>{6ab99cf2-5059-428c-ba9f-2a3c3bff82e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Texture2">
+      <UniqueIdentifier>{072eb9f6-204f-4a2b-8d97-d42125a36fd0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -531,6 +537,18 @@
     <ClInclude Include="RaytracingComputeShader.h">
       <Filter>Header Files\Shader\RaytracingShader</Filter>
     </ClInclude>
+    <ClInclude Include="uchar4.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="TTexture2DBase.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
+    <ClInclude Include="TTexture2DBase2.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
+    <ClInclude Include="TTexture2D.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -811,6 +829,18 @@
     </ClCompile>
     <ClCompile Include="RaytracingComputeShader.cpp">
       <Filter>Source Files\Shader\RaytracingShader</Filter>
+    </ClCompile>
+    <ClCompile Include="uchar4.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="TTexture2DBase.cpp">
+      <Filter>Source Files\Texture2</Filter>
+    </ClCompile>
+    <ClCompile Include="TTexture2DBase2.cpp">
+      <Filter>Source Files\Texture2</Filter>
+    </ClCompile>
+    <ClCompile Include="TTexture2D.cpp">
+      <Filter>Source Files\Texture2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
