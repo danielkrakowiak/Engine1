@@ -540,13 +540,13 @@
     <ClInclude Include="uchar4.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="TTexture2DBase.h">
-      <Filter>Header Files\Texture2</Filter>
-    </ClInclude>
-    <ClInclude Include="TTexture2DBase2.h">
-      <Filter>Header Files\Texture2</Filter>
-    </ClInclude>
     <ClInclude Include="TTexture2D.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
+    <ClInclude Include="TTexture2DInternal.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
+    <ClInclude Include="TTexture2DBase.h">
       <Filter>Header Files\Texture2</Filter>
     </ClInclude>
   </ItemGroup>
@@ -833,13 +833,13 @@
     <ClCompile Include="uchar4.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="TTexture2DBase.cpp">
-      <Filter>Source Files\Texture2</Filter>
-    </ClCompile>
-    <ClCompile Include="TTexture2DBase2.cpp">
-      <Filter>Source Files\Texture2</Filter>
-    </ClCompile>
     <ClCompile Include="TTexture2D.cpp">
+      <Filter>Source Files\Texture2</Filter>
+    </ClCompile>
+    <ClCompile Include="TTexture2DInternal.cpp">
+      <Filter>Source Files\Texture2</Filter>
+    </ClCompile>
+    <ClCompile Include="TTexture2DBase.cpp">
       <Filter>Source Files\Texture2</Filter>
     </ClCompile>
   </ItemGroup>

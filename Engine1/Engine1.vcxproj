@@ -334,7 +334,7 @@
     <ClInclude Include="TextVertexShader.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TTexture2DBase.h" />
-    <ClInclude Include="TTexture2DBase2.h" />
+    <ClInclude Include="TTexture2DInternal.h" />
     <ClInclude Include="uchar4.h" />
     <ClInclude Include="uint2.h" />
     <ClInclude Include="uint3.h" />
@@ -433,7 +433,7 @@
     <ClCompile Include="TextVertexShader.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TTexture2DBase.cpp" />
-    <ClCompile Include="TTexture2DBase2.cpp" />
+    <ClCompile Include="TTexture2DInternal.cpp" />
     <ClCompile Include="uchar4.cpp" />
     <ClCompile Include="uint2.cpp" />
     <ClCompile Include="uint3.cpp" />

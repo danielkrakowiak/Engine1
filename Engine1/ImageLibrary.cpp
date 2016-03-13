@@ -1,7 +1,5 @@
 #include "ImageLibrary.h"
 
-#include "FreeImagePlus.h"
-
 #include <iostream>
 
 using namespace Engine1;

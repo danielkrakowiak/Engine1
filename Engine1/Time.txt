@@ -167,4 +167,10 @@ Sun 07.02.2016 - 3h - Creating new texture class.
 Thu 11.02.2016 - 3h - Creating new texture class - loading from file.
 Fri 12.02.2016 - 3h - Creating new texture class - static methods, splitting into files, separating declarations from definitions.
 Sat 13.02.2016 - 5h - Creating new texture class - tidying up, fixing, some basic testing.
-Sat 20.02.2016 - 6h - Creating new texture class - loading to/from CPU/GPU, adding missing interface. Creating first tests. Modyfing class to take 'format' param in constructor rather than as a template param. Trying to create many version of constructors without code duplication with std::enable_if.
+Sat 20.02.2016 - 7h - Creating new texture class - loading to/from CPU/GPU, adding missing interface. Creating first tests. Modyfing class to take 'format' param in constructor rather than as a template param. Trying to create many version of constructors without code duplication with std::enable_if.
+Sun 21.02.2016 - 3h - Creating new texture class - creating various version of constructors which take 1, 2 or 3 format arguments.
+Mon 22.02.2016 - 4h - Creating new texture class - writing tests, polishing, removing unsupported binding configurations.
+Sat 27.02.2016 - 2h - Creating new texture class - writing tests. Adding static assert to check if given texture configuration is supported.
+Mon 29.02.2016 - 2h - Creating new texture class - writing tests.
+--- February 2016 - 35h
+Tue 01.03.2016 - 2h - Creating new texture class - trying to write a cast operator from texture with specific binding to a texture with no bindings.

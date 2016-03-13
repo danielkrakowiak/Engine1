@@ -180,25 +180,25 @@ void Application::run() {
     ////////////// TEST ///////////////////////////////////
     try
     {
-        TTexture2D< TTexture2DUsage::Dynamic, TTexture2DBinding::DepthStencil, uchar4 > 
-            tex1( frameRenderer.getDevice(), 100, 100, true, true );
+        TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > 
+            tex1( frameRenderer.getDevice(), 100, 100, true, true, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT );
 
-        //tex1.tralala();
+        tex1.getRenderTargetView();
 
-    //    TTexture2D< TTexture2DUsage::Default, TTexture2DBinding::UnorderedAccess_ShaderResource, uchar4 > 
+    //    TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > 
     //        tex1( frameRenderer.getDevice(), 100, 100, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
 
-    //    TTexture2D< TTexture2DUsage::Default, TTexture2DBinding::RenderTarget_ShaderResource, uchar4 > 
+    //    TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > 
     //        tex2( frameRenderer.getDevice(), 300, 300, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
 
-    //    TTexture2D< TTexture2DUsage::Dynamic, TTexture2DBinding::DepthStencil_ShaderResource, uchar4 > 
+    //    TTexture2D< TexUsage::Dynamic, TexBind::DepthStencil_ShaderResource, uchar4 > 
     //        tex3( frameRenderer.getDevice(), 300, 300, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
 
-    //    TTexture2D< TTexture2DUsage::StagingWrite, TTexture2DBinding::UnorderedAccess_ShaderResource, uchar4 > 
+    //    TTexture2D< TexUsage::StagingWrite, TexBind::UnorderedAccess_ShaderResource, uchar4 > 
     //        tex4( frameRenderer.getDevice(), 300, 300, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
     //
-    //    //std::shared_ptr< TTexture2D< TTexture2DUsage::Default, TTexture2DBinding::ShaderResource, uchar4, DXGI_FORMAT_R8G8B8A8_UINT > > tex 
-    //    TTexture2D< TTexture2DUsage::Default, TTexture2DBinding::RenderTarget_ShaderResource, uchar4 > 
+    //    //std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4, DXGI_FORMAT_R8G8B8A8_UINT > > tex 
+    //    TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > 
     //        tex5( frameRenderer.getDevice(), "blaaa", Texture2DFileInfo::Format::BMP, true, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
     }
     catch( ... ) {}

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FreeImagePlus.h"
+
 /* 
 This class is used to initialize/deinitialize FreeImage library.
 To initialize/deinitialize simply create a static field of that class in the main application class.
