@@ -174,3 +174,5 @@ Sat 27.02.2016 - 2h - Creating new texture class - writing tests. Adding static 
 Mon 29.02.2016 - 2h - Creating new texture class - writing tests.
 --- February 2016 - 35h
 Tue 01.03.2016 - 2h - Creating new texture class - trying to write a cast operator from texture with specific binding to a texture with no bindings.
+Sun 13.03.2016 - 2h - Creating new texture class - Modified TTexture2DInternal class to not use TexUsage and TexBind as template arguments, but take them as arguments in 'initialize' method. This allowed creating derived class which takes only TexUsage as template argument (to be used in containers etc).
+Mon 14.03.2016 - 2h - Creating new texture class - Renamed texture classes. Added new tests and improved existing tests.

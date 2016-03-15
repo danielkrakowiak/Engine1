@@ -47,33 +47,9 @@
 
 	---------------------------------
 
-	Maybe add cast operator from <Immutable, ShaderResource or any other> to <Immutable, None> etc which allows only the operation available to all Immutable textures. 
-	But need to make sure that all calls to casted texture won't corrupt it's state (because internally template param may be checked in conditions and some pointers to views may be dangling or not set - how to deal with that?)
-	Maybe casted object will still have the same tempalate params after casting? Probably not, but worth checking.
-
-	It's tricky to make that cast operator. It doesn't get called now? Dynamic cast returns nullptr instead.
+	Start swapping Texture2D for TTexture2D.
 
 	!!! Change naming convention: use m_ in class members.
-
-	Utworzyc pzoostale konstruktory.
-
-	Tworzyc konstruktory, ktore przyjmuja 1,2,3 formaty dla widokow. Musza one byc podane w takiej kolejnosci jak w nazwie enuma bindingu. To ogranicza liczbe kontruktorow do 3 * K.
-
-
-	Jak ograniczyc liczbe tych konstruktorow? Zszedlem z U * B * K do B * K. Ale to wciaz sporo.
-	Moze zastosowac std::tuple do tych dodatkowych DXGI_FORMAT? Ew. sprawdzac poprzez static_assert czy wielkosc tuple sie zgadza?
-
-	Gettery moglbym zalatwic poprzez enable_if - od razu wszystkie kombinacje dla ktorych getter ma byc dostepny.
-
-	Konstruktory chyba tez w ten sposob by sie dalo. Bo te same konstruktory wystepuja dla wielu kombinacji parametrow.
-
-	---------------------------
-	Remove GPU format from template arguments? Take it as constructor argument? It doesn't impact class interface anyway. 
-	Also depanding on it's value object may fail to construct, so that's more reasonable to take it in runtime, because only then we can see if it's correct.
-
-	We can also take different number of formats depanding on the binding of the created texture. Some bindings have more views than others.
-
-	---------------------------
 
 Fix one shader warning.
 
