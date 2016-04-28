@@ -47,9 +47,87 @@
 
 	---------------------------------
 
-	Start swapping Texture2D for TTexture2D.
+	IMPORTANT: AssetManager tests (event the first one) make whole test execution to fail for all tests. But only in Release builds. It works fine in Debug. Why?
+
+	---------------------------------
+
+	Manually call constructors in Texture2D class. Inheriting constructors keeps access modifiers the same as in base class.
+
+	Change Visual Studio to 2015. 2013 doesn't support inheriting constructors!
+
+	New texture class is implemented. Create tests. Check whether inheritance really workds properly.
+
+	I can use "delegeting constructors" to avoid having many constructors in the derived class.
+
+	1) Create classes:
+
+	per binding:
+	Texture2D_ShaderResource,
+	Texture2D_RenderTarget,
+	Texture2D_DepthStencil,
+	Texture2D_UnorderedAccess,
+
+	Texture2D_RenderTarget_ShaderResource,
+	Texture2D_RenderTarget_UnorderedAccess,
+	Texture2D_RenderTarget_UnorderedAccess_ShaderResource,
+	Texture2D_DepthStencil_ShaderResource,
+	Texture2D_UnorderedAccess_ShaderResource
+
+	per usage:
+	Texture2D_Immutable
+	Texture2D_Default
+	Texture2D_Dynamic
+
+	They all virtually derive from Texture2D_Generic. They have only the needed getters (real or virtual?).
+
+	2) Create final classes which have nothing but declaration of inheritance:
+	
+	Texture2D_Immutable_ShaderResource,
+	Texture2D_Immutable_RenderTarget,
+	Texture2D_Immutable_DepthStencil,
+	Texture2D_Immutable_UnorderedAccess,
+	Texture2D_Immutable_RenderTarget_ShaderResource,
+	Texture2D_Immutable_RenderTarget_UnorderedAccess,
+	Texture2D_Immutable_RenderTarget_UnorderedAccess_ShaderResource,
+	Texture2D_Immutable_DepthStencil_ShaderResource,
+	Texture2D_Immutable_UnorderedAccess_ShaderResource
+
+	Texture2D_Default_ShaderResource,
+	Texture2D_Default_RenderTarget,
+	Texture2D_Default_DepthStencil,
+	Texture2D_Default_UnorderedAccess,
+	Texture2D_Default_RenderTarget_ShaderResource,
+	Texture2D_Default_RenderTarget_UnorderedAccess,
+	Texture2D_Default_RenderTarget_UnorderedAccess_ShaderResource,
+	Texture2D_Default_DepthStencil_ShaderResource,
+	Texture2D_Default_UnorderedAccess_ShaderResource
+
+	Texture2D_Dynamic_ShaderResource,
+	Texture2D_Dynamic_RenderTarget,
+	Texture2D_Dynamic_DepthStencil,
+	Texture2D_Dynamic_UnorderedAccess,
+	Texture2D_Dynamic_RenderTarget_ShaderResource,
+	Texture2D_Dynamic_RenderTarget_UnorderedAccess,
+	Texture2D_Dynamic_RenderTarget_UnorderedAccess_ShaderResource,
+	Texture2D_Dynamic_DepthStencil_ShaderResource,
+	Texture2D_Dynamic_UnorderedAccess_ShaderResource
+
+	Whooooooaaaaa!!!! How to avoid having 500 constructors???????????????????????????????????? - use constructor delegation in derived classes (using Base::Base;)
+
+
+	Use virtual inheritance to solve the problem with bindings and usage. Create different classes that derive from interface like TTexture2DGeneric.
+
+	
+
+	Fix tests. Add staging texture tests.
+
+	Find a solution for a problem when you need: TTexture2D< ShaderResource >, but can also accept: TTexture2D< ShaderResource_RenderTarget_UnorderedAccess > etc...
+ 
+	Commit.
 
 	!!! Change naming convention: use m_ in class members.
+
+	- use ComPtr wherever possible instead of raw pointers.
 
 Fix one shader warning.
 

@@ -543,10 +543,16 @@
     <ClInclude Include="TTexture2D.h">
       <Filter>Header Files\Texture2</Filter>
     </ClInclude>
-    <ClInclude Include="TTexture2DGeneric.h">
+    <ClInclude Include="Texture2DGeneric.h">
       <Filter>Header Files\Texture2</Filter>
     </ClInclude>
-    <ClInclude Include="TTexture2DSpecialized.h">
+    <ClInclude Include="Texture2DSpecializedBinding.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DSpecializedUsage.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DEnums.h">
       <Filter>Header Files\Texture2</Filter>
     </ClInclude>
   </ItemGroup>
@@ -834,12 +840,6 @@
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="TTexture2D.cpp">
-      <Filter>Source Files\Texture2</Filter>
-    </ClCompile>
-    <ClCompile Include="TTexture2DGeneric.cpp">
-      <Filter>Source Files\Texture2</Filter>
-    </ClCompile>
-    <ClCompile Include="TTexture2DSpecialized.cpp">
       <Filter>Source Files\Texture2</Filter>
     </ClCompile>
   </ItemGroup>

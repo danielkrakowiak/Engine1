@@ -136,7 +136,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimpd.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26d.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimpd.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -157,7 +157,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimpd.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26d.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimpd.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -177,7 +177,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimpd.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26d.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimpd.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -194,7 +194,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimpd.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26d.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimpd.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;freetype26.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\DebugDirect3D;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -326,6 +326,10 @@
     <ClInclude Include="StringUtil.h" />
     <ClInclude Include="TextFragmentShader.h" />
     <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="Texture2DEnums.h" />
+    <ClInclude Include="Texture2DGeneric.h" />
+    <ClInclude Include="Texture2DSpecializedBinding.h" />
+    <ClInclude Include="Texture2DSpecializedUsage.h" />
     <ClInclude Include="TTexture2D.h" />
     <ClInclude Include="Texture2DFileInfo.h" />
     <ClInclude Include="Texture2DFileInfoParser.h" />
@@ -333,8 +337,6 @@
     <ClInclude Include="TextureVertexShader.h" />
     <ClInclude Include="TextVertexShader.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="TTexture2DSpecialized.h" />
-    <ClInclude Include="TTexture2DGeneric.h" />
     <ClInclude Include="uchar4.h" />
     <ClInclude Include="uint2.h" />
     <ClInclude Include="uint3.h" />
@@ -432,8 +434,6 @@
     <ClCompile Include="TextureVertexShader.cpp" />
     <ClCompile Include="TextVertexShader.cpp" />
     <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="TTexture2DSpecialized.cpp" />
-    <ClCompile Include="TTexture2DGeneric.cpp" />
     <ClCompile Include="uchar4.cpp" />
     <ClCompile Include="uint2.cpp" />
     <ClCompile Include="uint3.cpp" />

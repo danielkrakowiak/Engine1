@@ -39,7 +39,6 @@ public:
 	int getScreenColorDepth() { return screenColorDepth; }
 	int getZBufferDepth() { return zBufferDepth; }
 
-
 private:
 
 	static ImageLibrary imageLibrary;

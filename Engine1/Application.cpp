@@ -26,9 +26,6 @@
 
 #include "Timer.h"
 
-#include "TTexture2D.h" //TEST
-#include "uchar4.h"
-
 Application* Application::windowsMessageReceiver = nullptr;
 
 // Initialize external libraries.
@@ -176,33 +173,6 @@ void Application::run() {
 	font.loadFromFile( "../Engine1/Assets/Fonts/DoulosSILR.ttf", 35 );
 
 	double frameTime = 0.0;
-
-    ////////////// TEST ///////////////////////////////////
-    try
-    {
-        TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > 
-            tex1( frameRenderer.getDevice(), 100, 100, true, true, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT );
-
-        tex1.getRenderTargetView();
-
-    //    TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > 
-    //        tex1( frameRenderer.getDevice(), 100, 100, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
-
-    //    TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > 
-    //        tex2( frameRenderer.getDevice(), 300, 300, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
-
-    //    TTexture2D< TexUsage::Dynamic, TexBind::DepthStencil_ShaderResource, uchar4 > 
-    //        tex3( frameRenderer.getDevice(), 300, 300, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
-
-    //    TTexture2D< TexUsage::StagingWrite, TexBind::UnorderedAccess_ShaderResource, uchar4 > 
-    //        tex4( frameRenderer.getDevice(), 300, 300, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
-    //
-    //    //std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4, DXGI_FORMAT_R8G8B8A8_UINT > > tex 
-    //    TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > 
-    //        tex5( frameRenderer.getDevice(), "blaaa", Texture2DFileInfo::Format::BMP, true, true, true, DXGI_FORMAT_R8G8B8A8_UINT );
-    }
-    catch( ... ) {}
-    ///////////////////////////////////////////////////////
 
 	while ( run ) {
 		Timer frameStartTime;

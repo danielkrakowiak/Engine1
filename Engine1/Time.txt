@@ -176,3 +176,9 @@ Mon 29.02.2016 - 2h - Creating new texture class - writing tests.
 Tue 01.03.2016 - 2h - Creating new texture class - trying to write a cast operator from texture with specific binding to a texture with no bindings.
 Sun 13.03.2016 - 2h - Creating new texture class - Modified TTexture2DInternal class to not use TexUsage and TexBind as template arguments, but take them as arguments in 'initialize' method. This allowed creating derived class which takes only TexUsage as template argument (to be used in containers etc).
 Mon 14.03.2016 - 2h - Creating new texture class - Renamed texture classes. Added new tests and improved existing tests.
+Tue 15.03.2016 - 3h - Creating new texture class - started swapping old texture with the new one. Separated staging textures from normal textures.
+Wed 23.03.2016 - 1h - Creating new texture class - found a way to implement the texture class - use constructor generation from base class (new feature in C++11).
+Thu 24.03.2016 - 1h - Creating new texture class - Implemented new texture class with proper inheritance.
+Fri 25.03.2016 - 3h - Installed Visual Studio 2015 and recompiled freetype library, Assimp library, FreeImage library.
+--- March 2016 - 14h
+Wed 27.04.2016 - 4h - Fixed test projects configurations - tests run again except for AssetManager tests (may be a VS bug). Installed VS Update 5. Fixed bugs in the new Texture2D class.

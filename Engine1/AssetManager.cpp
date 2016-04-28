@@ -19,7 +19,7 @@
 
 using namespace Engine1;
 
-AssetManager::AssetManager( int loadingThreadCount = INT_MAX ) {
+AssetManager::AssetManager( int loadingThreadCount ) {
 	if ( loadingThreadCount <= 0 ) throw std::exception( "AssetManager::AssetManager - Number of loading threads has to be greater than 0." );
 
 	executeThreads = true;
