@@ -83,6 +83,8 @@ namespace Engine1
                     TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat,
                     DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2 = DXGI_FORMAT_UNKNOWN, DXGI_FORMAT viewFormat3 = DXGI_FORMAT_UNKNOWN );
 
+        Texture2DGeneric( ID3D11Device& device, Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture );
+
         ~Texture2DGeneric() {};
 
         void initialize( ID3D11Device& device, const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, 
@@ -101,6 +103,8 @@ namespace Engine1
                     const bool storeOnCpu, const bool storeOnGpu,const bool generateMipmaps, 
                     TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat,
                     DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 );
+
+        void initialize( ID3D11Device& device, Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture );
 
         void createTextureOnCpu( const int width, const int height );
         void createTextureOnCpu( const std::vector< PixelType >& data, const int width, const int height );
@@ -208,6 +212,13 @@ namespace Engine1
                              DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 ) : Texture2DGeneric()
     {
         initialize( device, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, usage, binding, textureFormat, viewFormat1, viewFormat2, viewFormat3 );
+    }
+
+    template< typename PixelType >
+    Texture2DGeneric< PixelType >
+        ::Texture2DGeneric( ID3D11Device& device, Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture )
+    {
+        initialize( device, texture );
     }
 
     template< typename PixelType >
@@ -349,6 +360,22 @@ namespace Engine1
         m_width           = width;
         m_height          = height;
         m_hasMipmapsOnGpu = generateMipmaps;
+    }
+
+    template< typename PixelType >
+    void Texture2DGeneric< PixelType >
+        ::initialize( ID3D11Device& device, Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture )
+    {
+        //TODO: read texture details from GPU - such as dimensions, texture formats etc.
+
+        m_usage            = TexUsage::Default;
+        m_binding          = TexBind::RenderTarget;
+        m_texture          = texture;
+        m_width            = 0;
+        m_height           = 0;
+        m_hasMipmapsOnGpu  = false;
+
+        createTextureViewsOnGpu( device, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN );
     }
 
     template< typename PixelType >
@@ -557,16 +584,26 @@ namespace Engine1
         }
 
         if ( (textureBindFlags & D3D11_BIND_RENDER_TARGET) != 0 ) {
-            D3D11_RENDER_TARGET_VIEW_DESC desc;
-            ZeroMemory( &desc, sizeof(desc) );
-            desc.Format             = renderTargetViewFormat;
-            desc.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
-            desc.Texture2D.MipSlice = 0;
+            if ( renderTargetViewFormat != DXGI_FORMAT_UNKNOWN )
+            {
+                D3D11_RENDER_TARGET_VIEW_DESC desc;
+                ZeroMemory( &desc, sizeof(desc) );
+                desc.Format             = renderTargetViewFormat;
+                desc.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
+                desc.Texture2D.MipSlice = 0;
 
-            HRESULT result = device.CreateRenderTargetView( m_texture.Get(), &desc, m_renderTargetView.ReleaseAndGetAddressOf() );
-            if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating render target view on GPU failed." );
+                HRESULT result = device.CreateRenderTargetView( m_texture.Get(), &desc, m_renderTargetView.ReleaseAndGetAddressOf() );
+                if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating render target view on GPU failed." );
 
-            m_renderTargetViewFormat = renderTargetViewFormat;
+                m_renderTargetViewFormat = renderTargetViewFormat;
+            }
+            else // Note: Should happen only when render target is created from the frame back buffer.
+            {
+                HRESULT result = device.CreateRenderTargetView( m_texture.Get(), nullptr, m_renderTargetView.ReleaseAndGetAddressOf() );
+                if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating render target view on GPU failed." );
+
+                m_renderTargetViewFormat = renderTargetViewFormat;
+            }
         }
 
         if ( (textureBindFlags & D3D11_BIND_DEPTH_STENCIL) != 0 ) {
@@ -735,6 +772,7 @@ namespace Engine1
     bool Texture2DGeneric< PixelType >
         ::isInGpuMemory() const
     {
+        //TODO: Should also check if required views are created.
 	    return m_texture != nullptr;
     }
 

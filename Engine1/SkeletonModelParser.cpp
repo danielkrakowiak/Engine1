@@ -1,12 +1,14 @@
 #include "SkeletonModelParser.h"
 
+#include <d3d11.h>
+
 #include "SkeletonMesh.h"
 #include "SkeletonModel.h"
 #include "BinaryFile.h"
 
 using namespace Engine1;
 
-std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device )
 {
 	std::shared_ptr<SkeletonModel> model = std::make_shared<SkeletonModel>( );
 
@@ -31,25 +33,25 @@ std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( std::vector<cha
 
 	const int emissiveTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < emissiveTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently );
+		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently, device );
 		model->addEmissionTexture( modelTexture );
 	}
 
 	const int albedoTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < albedoTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently );
+		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently, device );
 		model->addAlbedoTexture( modelTexture );
 	}
 
 	const int roughnessTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < roughnessTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently );
+		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently, device );
 		model->addRoughnessTexture( modelTexture );
 	}
 
 	const int normalTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < normalTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently );
+		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently, device );
 		model->addNormalTexture( modelTexture );
 	}
 

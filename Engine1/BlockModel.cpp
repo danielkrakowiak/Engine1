@@ -1,20 +1,22 @@
 #include "BlockModel.h"
 
+#include <d3d11.h>
+
 #include "BinaryFile.h"
 #include "BlockModelParser.h"
 
 using namespace Engine1;
 
-std::shared_ptr<BlockModel> BlockModel::createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModel::createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently, ID3D11Device& device )
 {
-	return createFromFile( fileInfo.getPath(), fileInfo.getFormat(), loadRecurrently );
+	return createFromFile( fileInfo.getPath(), fileInfo.getFormat(), loadRecurrently, device );
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device& device )
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-	std::shared_ptr<BlockModel> model = createFromMemory( fileData->cbegin(), format, loadRecurrently );
+	std::shared_ptr<BlockModel> model = createFromMemory( fileData->cbegin(), format, loadRecurrently, device );
 
     model->getFileInfo( ).setPath( path );
     model->getFileInfo( ).setFormat( format );
@@ -22,10 +24,10 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path,
     return model;
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::const_iterator dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently )
+std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::const_iterator dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device& device )
 {
 	if ( BlockModelFileInfo::Format::BLOCKMODEL == format ) {
-		return BlockModelParser::parseBinary( dataIt, loadRecurrently );
+		return BlockModelParser::parseBinary( dataIt, loadRecurrently, device );
 	}
 
 	throw std::exception( "BlockModel::createFromMemory() - incorrect 'format' argument." );
@@ -104,7 +106,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
         std::vector<ModelTexture2D>& textures = *textureSet;
         for ( ModelTexture2D& texture : textures ) {
             if ( texture.getTexture() == oldAsset ) {
-                std::shared_ptr<Texture2D> newTexture = std::dynamic_pointer_cast<Texture2D>(newAsset);
+                auto newTexture = std::dynamic_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >(newAsset);
 
                 if ( newTexture ) {
                     texture.setTexture( newTexture );
@@ -146,28 +148,31 @@ void BlockModel::saveToMemory( std::vector<char>& data ) const
     BlockModelParser::writeBinary( data, *this );
 }
 
-void BlockModel::loadCpuToGpu( ID3D11Device& device, bool reload )
+void BlockModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext )
 {
 	if ( mesh )
-		mesh->loadCpuToGpu( device, reload );
+		mesh->loadCpuToGpu( device );
 
 	std::vector<ModelTexture2D> textures = getAllTextures();
 	for ( ModelTexture2D& texture : textures ) {
 		if ( texture.getTexture() )
-			texture.getTexture()->loadCpuToGpu( device, reload );
+			texture.getTexture()->loadCpuToGpu( device, deviceContext );
 	}
 }
 
 void BlockModel::loadGpuToCpu()
 {
-	if ( mesh )
+    throw std::exception( "BlockMesh::loadGpuToCpu - unimplemented method." );
+	// #TODO: implement.
+
+	/*if ( mesh )
 		mesh->loadGpuToCpu();
 
 	std::vector<ModelTexture2D> textures = getAllTextures();
 	for ( ModelTexture2D& texture : textures ) {
 		if ( texture.getTexture() )
 			texture.getTexture()->loadGpuToCpu();
-	}
+	}*/
 }
 
 void BlockModel::unloadFromCpu()

@@ -390,9 +390,6 @@
     <ClInclude Include="SkeletonMeshFragmentShader.h">
       <Filter>Header Files\Shader\SkeletonMeshShaders</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTargetTexture2D.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="RenderTargetDepthTexture2D.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
@@ -546,13 +543,13 @@
     <ClInclude Include="Texture2DGeneric.h">
       <Filter>Header Files\Texture2</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2DSpecializedBinding.h">
-      <Filter>Header Files\Texture2</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2DSpecializedUsage.h">
-      <Filter>Header Files\Texture2</Filter>
-    </ClInclude>
     <ClInclude Include="Texture2DEnums.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DSpecBind.h">
+      <Filter>Header Files\Texture2</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DSpecUsage.h">
       <Filter>Header Files\Texture2</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,7 +3,11 @@
 #include <vector>
 #include <memory>
 
+#include "TTexture2D.h"
+
 #include "uint3.h"
+#include "float4.h"
+#include "uchar4.h"
 
 struct ID3D11DeviceContext;
 struct ID3D11RasterizerState;
@@ -36,8 +40,9 @@ namespace Engine1
 
         void initialize( ID3D11DeviceContext& deviceContext );
 
-        void enableRenderTargets( const std::vector< std::shared_ptr<RenderTarget2D> >& renderTargets, const std::shared_ptr<RenderTargetDepth2D> depthRenderTarget );
-        void enableComputeTarget( std::shared_ptr<ComputeTargetTexture2D> computeTarget );
+        void enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargets, 
+                                  const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget );
+        void enableComputeTarget( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > computeTarget );
         void disableRenderTargets();
         void disableComputeTargets();
 
@@ -73,9 +78,9 @@ namespace Engine1
         std::weak_ptr<const FragmentShader> currentFragmentShader;
         std::weak_ptr<const ComputeShader>  currentComputeShader;
 
-        std::vector< std::weak_ptr<RenderTarget2D> > currentRenderTargets;
-        std::weak_ptr<RenderTargetDepth2D>           currentDepthRenderTarget;
-        std::weak_ptr<ComputeTargetTexture2D>        currentComputeTarget;
+        std::vector< std::weak_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > currentRenderTargets;
+        std::weak_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > >                currentDepthRenderTarget;
+        std::weak_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > >             currentComputeTarget;
 
         ID3D11RasterizerState*   currentRasterizerState;
         ID3D11DepthStencilState* currentDepthStencilState;

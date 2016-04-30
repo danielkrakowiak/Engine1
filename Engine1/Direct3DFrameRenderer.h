@@ -17,6 +17,7 @@
 #include "TextFragmentShader.h"
 
 #include "float44.h"
+#include "uchar4.h"
 
 #include "Font.h"
 
@@ -45,12 +46,13 @@ namespace Engine1
 
         void reportLiveObjects();
 
-        void renderTexture( const Texture2D& texture, float posX, float posY );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4>& texture, float posX, float posY );
 
         void displayFrame();
 
-        ID3D11Device& getDevice();
-        ID3D11DeviceContext& getDeviceContext();
+        Microsoft::WRL::ComPtr< ID3D11Device > getDevice();
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext > getDeviceContext();
 
         private:
 
@@ -64,9 +66,9 @@ namespace Engine1
         std::tuple< Microsoft::WRL::ComPtr<IDXGISwapChain>, Microsoft::WRL::ComPtr<ID3D11Device>, Microsoft::WRL::ComPtr<ID3D11DeviceContext> >
             createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator );
 
-        Microsoft::WRL::ComPtr<ID3D11RenderTargetView> createRenderTargetView( IDXGISwapChain& swapChain, ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11RasterizerState>  createRasterizerState( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11BlendState>       createBlendState( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11Texture2D>       getBackbufferTexture( IDXGISwapChain& swapChain, ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState> createRasterizerState( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendState( ID3D11Device& device );
 
         bool initialized;
 
@@ -83,7 +85,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
         Microsoft::WRL::ComPtr<ID3D11BlendState>      blendState;
 
-        std::shared_ptr<RenderTarget2D> renderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > > m_renderTarget;
 
         float44 orthographicProjectionMatrix;
 

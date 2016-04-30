@@ -44,10 +44,31 @@
 	- AssetManager: add due time as priority for each asset in AssetManager. Asset's subassets should be loaded with it's owner's priority.
 	  When inserting assets to load in the queues they need to be inserted in the order of increasing due time.
 	- IMPORTANT: There is one problem: if one thread (loadAssets method) waits for the sub-assets to be loaded, then it's not loading any assets at that time. Maybe there should be more threads, but only the given number of them active? Non-binary mutex or something?
+29.04.2016
+	- [Texture] Add constructor from exisitng DX texture and render target view (or swap chain?). For access to the backbuffer.
+	- [Texture - Refactor] Can I remove initialize methods from Texture2DGeneric? Move that code to constuctors...
+	- [Includes Cleanup] Some headers include <d3d11.h> although they only contain references and pointers to DX types. Replace with forward declarations.
+	- [Test Texture] I should test whether constructor options like generateMipMaps (ex. for RenderTarget) really work for all the bindings and remove them if they are not supported.
+
+	Problems with texture class:
+	- No generic class without template params to be used as method arguments.
+	- PixelType has no usage for textures which are only stored on gpu (like render target) - but restricts their usage in methods etc.
+
 
 	---------------------------------
 
 	IMPORTANT: AssetManager tests (event the first one) make whole test execution to fail for all tests. But only in Release builds. It works fine in Debug. Why?
+
+	---------------------------------
+
+	How to deal with textures which are not loaded, but store file information (when parsing ModelTexture files etc). 
+	Should it ba possible to create empty textures? But lock them internally to make any action impossible?
+	But probably a more elegant solution can be found. 
+
+	----------------------------------
+
+	There should also be a very generic texture class which has no params (not even pixel type). It could contain getters to read it's type for dynamic casting.
+	Could be useful to pass and store textures sometimes.
 
 	---------------------------------
 

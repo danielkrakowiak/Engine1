@@ -9,12 +9,13 @@
 #include "float4.h"
 #include "float44.h"
 
+#include "TTexture2D.h"
+
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 
 namespace Engine1
 {
-    class Texture2D;
     class BlockMesh;
 
     class RaytracingComputeShader : public ComputeShader
@@ -26,7 +27,9 @@ namespace Engine1
         virtual ~RaytracingComputeShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, const Texture2D& rayDirectionsTexture, const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax );
+        void setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, 
+                            const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
+                            const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:

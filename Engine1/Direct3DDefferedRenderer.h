@@ -24,8 +24,6 @@ struct ID3D11BlendState;
 namespace Engine1
 {
     class Direct3DRendererCore;
-    class RenderTargetTexture2D;
-    class RenderTargetDepthTexture2D;
     class BlockMesh;
     class SkeletonMesh;
     class BlockModel;
@@ -48,7 +46,8 @@ namespace Engine1
         Direct3DDefferedRenderer( Direct3DRendererCore& rendererCore );
         ~Direct3DDefferedRenderer();
 
-        void initialize( int imageWidth, int imageHeight, ID3D11Device& device, ID3D11DeviceContext& deviceContext );
+        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
+                         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
         void clearRenderTargets( float4 color, float depth );
 
@@ -58,8 +57,8 @@ namespace Engine1
         void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace );
         void render( const std::string& text, Font& font, float2 position, float4 color );
 
-        std::shared_ptr<RenderTargetTexture2D>      getRenderTarget( RenderTargetType type );
-        std::shared_ptr<RenderTargetDepthTexture2D> getDepthRenderTarget();
+        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > getRenderTarget( RenderTargetType type );
+        std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > getDepthRenderTarget();
 
         private:
 
@@ -86,8 +85,8 @@ namespace Engine1
 
         int imageWidth, imageHeight;
 
-        std::vector< std::shared_ptr<RenderTargetTexture2D> > renderTargets;
-        std::shared_ptr<RenderTargetDepthTexture2D>           depthRenderTarget;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > > > renderTargets;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >                depthRenderTarget;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

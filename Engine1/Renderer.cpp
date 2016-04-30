@@ -12,9 +12,8 @@
 #include "SkeletonActor.h"
 #include "SkeletonModel.h"
 #include "Light.h"
-#include "Texture2D.h"
-#include "RenderTargetTexture2D.h"
-#include "ComputeTargetTexture2D.h"
+//#include "RenderTargetTexture2D.h"
+//#include "ComputeTargetTexture2D.h"
 
 using namespace Engine1;
 
@@ -33,7 +32,10 @@ void Renderer::initialize( std::shared_ptr<const BlockMesh> axisMesh, std::share
     this->lightModel = lightModel;
 }
 
-std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Camera& camera )
+std::tuple< 
+std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
+std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > > 
+Renderer::renderScene( const CScene& scene, const Camera& camera )
 {
     defferedRenderer.clearRenderTargets( float4( 0.2f, 0.2f, 0.2f, 1.0f ), 1.0f );
 
@@ -90,14 +92,26 @@ std::shared_ptr<Texture2D> Renderer::renderScene( const CScene& scene, const Cam
     switch (activeView)
     {
         case View::Albedo: 
-            return std::static_pointer_cast<Texture2D>( defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO ) );
+            return std::make_tuple( 
+                defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO ),
+                nullptr 
+             );
         case View::Normal:
-            return std::static_pointer_cast<Texture2D>( defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL ) );
+            return std::make_tuple(
+                defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL ),
+                nullptr
+             );
         case View::RayDirections1:
-            return std::static_pointer_cast<Texture2D>( raytraceRenderer.getRayDirectionsTexture() );
+            return std::make_tuple(
+                nullptr,
+                raytraceRenderer.getRayDirectionsTexture() 
+             );
         case View::Reflection1:
         default:
-            return std::static_pointer_cast<Texture2D>( raytraceRenderer.getRayHitsAlbedoTexture() );
+            return std::make_tuple(
+                nullptr,
+                raytraceRenderer.getRayHitsAlbedoTexture() 
+            );
     }
 }
 

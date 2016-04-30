@@ -8,6 +8,8 @@
 
 #include "BlockModelFileInfo.h"
 
+struct ID3D11Device;
+
 namespace Engine1
 {
     class BlockModel : public Asset
@@ -15,9 +17,9 @@ namespace Engine1
 
         public:
 
-        static std::shared_ptr<BlockModel> createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently );
-        static std::shared_ptr<BlockModel> createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently );
-        static std::shared_ptr<BlockModel> createFromMemory( std::vector<char>::const_iterator dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently );
+        static std::shared_ptr<BlockModel> createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently, ID3D11Device& device );
+        static std::shared_ptr<BlockModel> createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device& device );
+        static std::shared_ptr<BlockModel> createFromMemory( std::vector<char>::const_iterator dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device& device );
 
         BlockModel();
         ~BlockModel();
@@ -34,7 +36,7 @@ namespace Engine1
         void saveToFile( const std::string& path ) const;
         void saveToMemory( std::vector<char>& data ) const;
 
-        void loadCpuToGpu( ID3D11Device& device, bool reload = false );
+        void loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext );
         void loadGpuToCpu();
         void unloadFromCpu();
         void unloadFromGpu();

@@ -5,11 +5,11 @@
 
 using namespace Engine1;
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device& device )
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
-    std::shared_ptr<SkeletonModel> model = createFromMemory( fileData->cbegin(), format, loadRecurrently );
+    std::shared_ptr<SkeletonModel> model = createFromMemory( fileData->cbegin(), format, loadRecurrently, device );
 
     model->getFileInfo().setPath( path );
     model->getFileInfo().setFormat( format );
@@ -17,10 +17,10 @@ std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string&
     return model;
 }
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>::const_iterator dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>::const_iterator dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device& device )
 {
 	if ( SkeletonModelFileInfo::Format::SKELETONMODEL == format ) {
-		return SkeletonModelParser::parseBinary( dataIt, loadRecurrently );
+		return SkeletonModelParser::parseBinary( dataIt, loadRecurrently, device );
 	}
 
 	throw std::exception( "SkeletonModel::createFromMemory() - incorrect 'format' argument." );
@@ -96,7 +96,7 @@ void SkeletonModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_p
         std::vector<ModelTexture2D>& textures = *textureSet;
         for ( ModelTexture2D& texture : textures ) {
             if ( texture.getTexture() == oldAsset ) {
-                std::shared_ptr<Texture2D> newTexture = std::dynamic_pointer_cast<Texture2D>(newAsset);
+                auto newTexture = std::dynamic_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >(newAsset);
 
                 if ( newTexture ) {
                     texture.setTexture( newTexture );
@@ -142,28 +142,31 @@ void SkeletonModel::saveToMemory( std::vector<char>& data ) const
     SkeletonModelParser::writeBinary( data, *this );
 }
 
-void SkeletonModel::loadCpuToGpu( ID3D11Device& device, bool reload )
+void SkeletonModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext )
 {
 	if ( mesh )
-		mesh->loadCpuToGpu( device, reload );
+		mesh->loadCpuToGpu( device );
 
 	std::vector<ModelTexture2D> textures = getAllTextures();
 	for ( ModelTexture2D& texture : textures ) {
 		if ( texture.getTexture() )
-			texture.getTexture()->loadCpuToGpu( device, reload );
+			texture.getTexture()->loadCpuToGpu( device, deviceContext );
 	}
 }
 
 void SkeletonModel::loadGpuToCpu( )
 {
-	if ( mesh )
+    throw std::exception( "SkeletonModel::loadGpuToCpu - unimplemented method." );
+	// #TODO: implement.
+
+	/*if ( mesh )
 		mesh->loadGpuToCpu();
 
 	std::vector<ModelTexture2D> textures = getAllTextures();
 	for ( ModelTexture2D& texture : textures ) {
 		if ( texture.getTexture() )
 			texture.getTexture()->loadGpuToCpu();
-	}
+	}*/
 }
 
 void SkeletonModel::unloadFromCpu( )

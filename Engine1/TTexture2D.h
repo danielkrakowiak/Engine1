@@ -8,8 +8,8 @@
 #include <wrl.h>
 
 #include "Texture2DGeneric.h"
-#include "Texture2DSpecializedUsage.h"
-#include "Texture2DSpecializedBinding.h"
+#include "Texture2DSpecUsage.h"
+#include "Texture2DSpecBind.h"
 
 // #TODO:
 // Constructor from raw data could take iterators rather than the whole vector.
@@ -30,8 +30,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Immutable, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::ShaderResource, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Immutable, PixelType >,
+           public Texture2DSpecBind< TexBind::ShaderResource, PixelType >
     {
         public:
 
@@ -61,8 +61,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::ShaderResource, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Dynamic, PixelType >,
+           public Texture2DSpecBind< TexBind::ShaderResource, PixelType >
     {
         public:
 
@@ -92,10 +92,14 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::ShaderResource, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::ShaderResource, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::ShaderResource, PixelType >
     {
         public:
+
+        // TEMP: Only for use during refactoring. Should be removed! To be used when texture is not loaded, but stores file information.
+        TTexture2D() : Texture2DGeneric()
+        {}
 
         TTexture2D( ID3D11Device& device, const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu,
                     const bool generateMipmaps, DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat ) :
@@ -123,8 +127,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::RenderTarget, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::RenderTarget, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::RenderTarget, PixelType >
     {
         public:
 
@@ -150,12 +154,17 @@ namespace Engine1
                     DXGI_FORMAT viewFormat ) :
             Texture2DGeneric( device, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, TexUsage::Default, TexBind::RenderTarget, textureFormat, viewFormat )
         {}
+
+        // Specific for render target - useful to create a texture from the frame back buffer.
+        TTexture2D( ID3D11Device& device, Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture ) :
+            Texture2DGeneric( device, texture )
+        {}
     };
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::DepthStencil, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::DepthStencil, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::DepthStencil, PixelType >
     {
         public:
 
@@ -185,8 +194,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::UnorderedAccess, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::UnorderedAccess, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::UnorderedAccess, PixelType >
     {
         public:
 
@@ -216,8 +225,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::RenderTarget_ShaderResource, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, PixelType >
     {
         public:
 
@@ -247,8 +256,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::RenderTarget_UnorderedAccess, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess, PixelType >
     {
         public:
 
@@ -278,8 +287,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::DepthStencil_ShaderResource, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, PixelType >
     {
         public:
 
@@ -309,8 +318,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::UnorderedAccess_ShaderResource, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, PixelType >
     {
         public:
 
@@ -340,8 +349,8 @@ namespace Engine1
 
     template< typename PixelType >
     class TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType >
-        : public Texture2DSpecializedUsage< TexUsage::Default, PixelType >,
-           public Texture2DSpecializedBinding< TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType >
+        : public Texture2DSpecUsage< TexUsage::Default, PixelType >,
+           public Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType >
     {
         public:
 

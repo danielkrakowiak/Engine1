@@ -315,7 +315,6 @@
     <ClInclude Include="RenderTarget2D.h" />
     <ClInclude Include="RenderTargetDepth2D.h" />
     <ClInclude Include="RenderTargetDepthTexture2D.h" />
-    <ClInclude Include="RenderTargetTexture2D.h" />
     <ClInclude Include="SkeletonAnimation.h" />
     <ClInclude Include="SkeletonMesh.h" />
     <ClInclude Include="SkeletonMeshEnums.h" />
@@ -328,8 +327,8 @@
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Texture2DEnums.h" />
     <ClInclude Include="Texture2DGeneric.h" />
-    <ClInclude Include="Texture2DSpecializedBinding.h" />
-    <ClInclude Include="Texture2DSpecializedUsage.h" />
+    <ClInclude Include="Texture2DSpecBind.h" />
+    <ClInclude Include="Texture2DSpecUsage.h" />
     <ClInclude Include="TTexture2D.h" />
     <ClInclude Include="Texture2DFileInfo.h" />
     <ClInclude Include="Texture2DFileInfoParser.h" />

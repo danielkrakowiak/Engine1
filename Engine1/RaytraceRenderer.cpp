@@ -9,7 +9,6 @@
 #include "uint3.h"
 #include "Camera.h"
 #include "MathUtil.h"
-#include "Texture2D.h"
 #include "BlockModel.h"
 #include "BlockActor.h"
 
@@ -30,31 +29,30 @@ raytracingComputeShader( std::make_shared<RaytracingComputeShader>() )
 RaytraceRenderer::~RaytraceRenderer()
 {}
 
-void RaytraceRenderer::initialize( int imageWidth, int imageHeight, ID3D11Device& device, ID3D11DeviceContext& deviceContext )
+void RaytraceRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext )
 {
-    this->device = &device;
-    this->deviceContext = &deviceContext;
+    this->device = device;
+    this->deviceContext = deviceContext;
 
     this->imageWidth = imageWidth;
     this->imageHeight = imageHeight;
 
-    createComputeTargets( imageWidth, imageHeight, device );
+    createComputeTargets( imageWidth, imageHeight, *device.Get() );
 
-    loadAndCompileShaders( device );
+    loadAndCompileShaders( *device.Get() );
 
     initialized = true;
 }
 
 void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    rayDirectionsTexture = std::make_shared<ComputeTargetTexture2D>( imageWidth, imageHeight, device );
-    rayHitsAlbedoTexture = std::make_shared<ComputeTargetTexture2D>( imageWidth, imageHeight, device );
-}
+    rayDirectionsTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true, 
+        DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 
-void RaytraceRenderer::clearComputeTargets( float4 value )
-{
-    rayDirectionsTexture->clearOnGpu( value, *deviceContext.Get() );
-    rayHitsAlbedoTexture->clearOnGpu( value, *deviceContext.Get() );
+    rayHitsAlbedoTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true,
+        DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
 void RaytraceRenderer::generateAndTraceRays( const Camera& camera, const BlockActor& actor )
@@ -123,12 +121,14 @@ void RaytraceRenderer::traceRays( const Camera& camera, const BlockActor& actor 
     raytracingComputeShader->unsetParameters( *deviceContext.Get() );
 }
 
-std::shared_ptr<ComputeTargetTexture2D> RaytraceRenderer::getRayDirectionsTexture()
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
+RaytraceRenderer::getRayDirectionsTexture()
 {
     return rayDirectionsTexture;
 }
 
-std::shared_ptr<ComputeTargetTexture2D> RaytraceRenderer::getRayHitsAlbedoTexture()
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
+RaytraceRenderer::getRayHitsAlbedoTexture()
 {
     return rayHitsAlbedoTexture;
 }

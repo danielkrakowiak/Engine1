@@ -7,11 +7,12 @@
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include <wrl.h>
 
 #include "Asset.h"
 #include "FileInfo.h"
 
-
+struct ID3D11Device;
 
 namespace Engine1
 {
@@ -19,8 +20,10 @@ namespace Engine1
     {
 
         public:
-        AssetManager( int loadingThreadCount );
+        AssetManager();
         ~AssetManager();
+
+        void initialize( int loadingThreadCount, Microsoft::WRL::ComPtr< ID3D11Device > device );
 
         void                   load( const FileInfo& fileInfo );
         void                   loadAsync( const FileInfo& fileInfo );
@@ -31,6 +34,8 @@ namespace Engine1
         std::shared_ptr<Asset> getWhenLoaded( Asset::Type type, std::string path, const int indexInFile = 0, const float timeout = 10.0f );
 
         private:
+
+        Microsoft::WRL::ComPtr< ID3D11Device > m_device;
 
         bool executeThreads;
 

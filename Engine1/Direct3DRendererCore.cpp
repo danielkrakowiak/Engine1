@@ -8,9 +8,9 @@
 #include "FragmentShader.h"
 #include "ComputeShader.h"
 #include "SkeletonMeshVertexShader.h"
-#include "RenderTargetTexture2D.h"
-#include "RenderTargetDepthTexture2D.h"
-#include "ComputeTargetTexture2D.h"
+//#include "RenderTargetTexture2D.h"
+//#include "RenderTargetDepthTexture2D.h"
+//#include "ComputeTargetTexture2D.h"
 
 #include <d3d11.h>
 
@@ -108,7 +108,8 @@ void Direct3DRendererCore::disableComputeShaders()
     }
 }
 
-void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr<RenderTarget2D> >& renderTargets, const std::shared_ptr<RenderTargetDepth2D> depthRenderTarget )
+void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargets, 
+                                                const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget )
 {
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - renderer not initialized." );
 	if ( renderTargets.size() > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - too many render targets passed. Number exceeds the supported maximum." );
@@ -142,12 +143,12 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 	ID3D11DepthStencilView* depthRenderTargetView = nullptr;
 
 	// Collect render target views from passed render targets.
-	for ( const std::shared_ptr<RenderTarget2D>& renderTarget : renderTargets )
-		renderTargetViews.push_back( renderTarget->getRenderTarget() );
+	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > >& renderTarget : renderTargets )
+		renderTargetViews.push_back( renderTarget->getRenderTargetView() );
 
 	// Get depth render target view if passed.
 	if ( depthRenderTarget )
-		depthRenderTargetView = depthRenderTarget->getDepthRenderTarget();
+		depthRenderTargetView = depthRenderTarget->getDepthStencilView();
 
 	// Enable render targets.
 	deviceContext->OMSetRenderTargets( (unsigned int)renderTargetViews.size(), renderTargetViews.data(), depthRenderTargetView );
@@ -158,7 +159,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
     currentDepthRenderTarget = depthRenderTarget;
 }
 
-void Direct3DRendererCore::enableComputeTarget( std::shared_ptr<ComputeTargetTexture2D> computeTarget )
+void Direct3DRendererCore::enableComputeTarget( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > computeTarget )
 {
     //#TODO: WARNING: For pixel shaders, UAVStartSlot param should be equal to the number of render-target views being bound.
 
@@ -166,7 +167,7 @@ void Direct3DRendererCore::enableComputeTarget( std::shared_ptr<ComputeTargetTex
 
     if ( computeTarget != currentComputeTarget.lock() )
     {
-        ID3D11UnorderedAccessView* uavs[1] = { computeTarget->getComputeTarget() };
+        ID3D11UnorderedAccessView* uavs[1] = { computeTarget->getUnorderedAccessView() };
         deviceContext->CSSetUnorderedAccessViews( 0, 1, uavs, nullptr );
         
         currentComputeTarget = computeTarget;

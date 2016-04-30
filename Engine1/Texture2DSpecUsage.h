@@ -12,21 +12,21 @@
 namespace Engine1
 {
     template< TexUsage usage, typename PixelType >
-    class Texture2DSpecializedUsage
+    class Texture2DSpecUsage
     {};
 
     template< typename PixelType >
-    class Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > 
+    class Texture2DSpecUsage< TexUsage::Immutable, PixelType > 
         : public virtual Texture2DGeneric< PixelType > 
     {};
 
     template< typename PixelType >
-    class Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > 
+    class Texture2DSpecUsage< TexUsage::Dynamic, PixelType > 
         : public virtual Texture2DGeneric< PixelType > 
     {};
 
     template< typename PixelType >
-    class Texture2DSpecializedUsage< TexUsage::Default, PixelType > 
+    class Texture2DSpecUsage< TexUsage::Default, PixelType > 
         : public virtual Texture2DGeneric< PixelType > 
     {};
 }

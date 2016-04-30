@@ -8,6 +8,7 @@
 #include "SkeletonModel.h"
 #include "SkeletonAnimation.h"
 
+//TODO: Add initialization of AssetManager to each test.
 //TODO: Look for reasons why these tests cause whole testing framework to fail. This may be the bug in VS 2013.
 
 using namespace Engine1;

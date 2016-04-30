@@ -2,9 +2,9 @@
 
 #include "FragmentShader.h"
 
-#include "Texture2D.h"
-
+struct ID3D11DeviceContext;
 struct ID3D11SamplerState;
+struct ID3D11ShaderResourceView;
 
 namespace Engine1
 {

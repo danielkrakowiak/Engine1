@@ -22,8 +22,6 @@
 
 #include "CScene.h"
 
-#include "RenderTargetTexture2D.h"
-
 #include "Timer.h"
 
 Application* Application::windowsMessageReceiver = nullptr;
@@ -53,7 +51,7 @@ Application::Application() :
 	zBufferDepth( 32 ),
 	windowFocused( false ),
     scene( std::make_shared<CScene>() ),
-    assetManager( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1 )
+    assetManager()
 {
 	windowsMessageReceiver = this;
 }
@@ -68,17 +66,18 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	frameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
 	defferedRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     raytraceRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
-	rendererCore.initialize( frameRenderer.getDeviceContext( ) );
+	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
+    assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1, frameRenderer.getDevice() );
 
     // Load 'axises' model.
     BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
     std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>(assetManager.getOrLoad( axisMeshFileInfo ));
-    axisMesh->loadCpuToGpu( frameRenderer.getDevice() );
+    axisMesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
 
     // Load 'light source' model.
     BlockModelFileInfo lightModelFileInfo( "Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
     std::shared_ptr<BlockModel> lightModel = std::static_pointer_cast<BlockModel>(assetManager.getOrLoad( lightModelFileInfo ));
-    lightModel->loadCpuToGpu( frameRenderer.getDevice() );
+    lightModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext().Get() );
 
     renderer.initialize( axisMesh, lightModel );
 
@@ -228,10 +227,11 @@ void Application::run() {
 
 		camera.updateState( (float)frameTime );
 
-        std::shared_ptr<Texture2D> frame;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > frameUchar;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > frameFloat;
 
         if ( scene )
-            frame = renderer.renderScene( *scene, camera );
+            std::tie( frameUchar, frameFloat ) = renderer.renderScene( *scene, camera );
 
 		{ // Render FPS.
 			//std::stringstream ss;
@@ -256,8 +256,10 @@ void Application::run() {
 			//direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
-        if ( frame )
-		    frameRenderer.renderTexture( *frame, 0.0f, 0.0f );
+        if ( frameUchar )
+		    frameRenderer.renderTexture( *frameUchar, 0.0f, 0.0f );
+        else if ( frameFloat )
+            frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f );
 
 		frameRenderer.displayFrame();
 
@@ -487,7 +489,7 @@ void Application::onDragAndDropFile( std::string filePath )
         BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( fileInfo ) );
         if ( !mesh->isInGpuMemory( ) )
-            mesh->loadCpuToGpu( frameRenderer.getDevice() );
+            mesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
 
         // Add new actor to the scene.
         defaultBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
@@ -503,7 +505,7 @@ void Application::onDragAndDropFile( std::string filePath )
         SkeletonMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>(assetManager.getOrLoad( fileInfo ));  
         if ( !mesh->isInGpuMemory( ) )
-            mesh->loadCpuToGpu( frameRenderer.getDevice( ) );
+            mesh->loadCpuToGpu( *frameRenderer.getDevice( ).Get() );
 
         // Add new actor to the scene.
         defaultSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
@@ -525,9 +527,10 @@ void Application::onDragAndDropFile( std::string filePath )
 		else if ( extension.compare( "tiff" ) == 0 ) format = Texture2DFileInfo::Format::TIFF;
 
         Texture2DFileInfo fileInfo( filePath, format );
-        std::shared_ptr<Texture2D> texture = std::static_pointer_cast<Texture2D>( assetManager.getOrLoad( fileInfo ) );
-        if ( !texture->isInGpuMemory( ) )
-            texture->loadCpuToGpu( frameRenderer.getDevice() );
+        auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
+            ( assetManager.getOrLoad( fileInfo ) );
+        //if ( !texture->isInGpuMemory( ) )
+        //    texture->loadCpuToGpu( frameRenderer.getDevice() );
 
         ModelTexture2D modelTexture( texture );
 
@@ -551,7 +554,7 @@ void Application::onDragAndDropFile( std::string filePath )
         BlockModelFileInfo fileInfo( filePath, BlockModelFileInfo::Format::BLOCKMODEL, 0 );
         std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( assetManager.getOrLoad( fileInfo ) );
         if ( !model->isInGpuMemory() )
-            model->loadCpuToGpu( frameRenderer.getDevice( ) );
+            model->loadCpuToGpu( *frameRenderer.getDevice( ).Get(), *frameRenderer.getDeviceContext( ).Get() );
 
         // Add new actor to the scene.
         defaultBlockActor = std::make_shared<BlockActor>( model, pose );
@@ -563,7 +566,7 @@ void Application::onDragAndDropFile( std::string filePath )
         SkeletonModelFileInfo fileInfo( filePath, SkeletonModelFileInfo::Format::SKELETONMODEL, 0 );
         std::shared_ptr<SkeletonModel> model = std::static_pointer_cast<SkeletonModel>(assetManager.getOrLoad( fileInfo ));
         if ( !model->isInGpuMemory( ) )
-            model->loadCpuToGpu( frameRenderer.getDevice() );
+            model->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext( ).Get() );
 
         // Add new actor to the scene.
         defaultSkeletonActor = std::make_shared<SkeletonActor>( model, pose );
@@ -608,7 +611,7 @@ void Application::loadScene( std::string path )
                 const BlockModelFileInfo& fileInfo = blockActor->getModel()->getFileInfo();
                 std::shared_ptr<BlockModel> blockModel = std::static_pointer_cast<BlockModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
                 if ( blockModel ) {
-                    blockModel->loadCpuToGpu( frameRenderer.getDevice() );
+                    blockModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext( ).Get() );
                     blockActor->setModel( blockModel ); // Swap an empty model with a loaded model.
                 } else {
                     throw std::exception( "Application::onStart - failed to load one of the scene's models." );
@@ -621,7 +624,7 @@ void Application::loadScene( std::string path )
                 const SkeletonModelFileInfo& fileInfo = skeletonActor->getModel()->getFileInfo();
                 std::shared_ptr<SkeletonModel> skeletonModel = std::static_pointer_cast<SkeletonModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
                 if ( skeletonModel ) {
-                    skeletonModel->loadCpuToGpu( frameRenderer.getDevice() );
+                    skeletonModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext( ).Get() );
                     skeletonActor->setModel( skeletonModel ); // Swap an empty model with a loaded model.
                 } else {
                     throw std::exception( "Application::onStart - failed to load one of the scene's models." );

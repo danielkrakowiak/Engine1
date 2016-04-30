@@ -1,6 +1,10 @@
 #pragma once
 
 #include <memory>
+#include "TTexture2D.h"
+
+#include "uchar4.h"
+#include "float4.h"
 
 namespace Engine1 
 {
@@ -10,7 +14,6 @@ namespace Engine1
     class Camera;
     class BlockMesh;
     class BlockModel;
-    class Texture2D;
 
     class Renderer
     {
@@ -28,7 +31,10 @@ namespace Engine1
 
         void initialize( std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
 
-        std::shared_ptr<Texture2D> renderScene( const CScene& scene, const Camera& camera );
+        std::tuple< 
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > >
+        renderScene( const CScene& scene, const Camera& camera );
 
         void setActiveView( const View view );
         View getActiveView() const;

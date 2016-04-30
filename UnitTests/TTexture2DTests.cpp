@@ -56,9 +56,9 @@ namespace UnitTests
 		}
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > createTexturesImmutableUsageFromFile( const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > createTexturesImmutableUsageFromFile( const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > textures;
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, PixelType > >
                 ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
@@ -67,9 +67,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > createTexturesImmutableUsageFromFileInMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > createTexturesImmutableUsageFromFileInMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > textures;
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, PixelType > >
                 ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
@@ -78,9 +78,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > createTexturesImmutableUsageFromRawData( const std::vector< PixelType >& data, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > createTexturesImmutableUsageFromRawData( const std::vector< PixelType >& data, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > textures;
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, PixelType > >
                 ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
@@ -89,9 +89,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageWithoutInitialData( const int width, const int height, const bool storeOnCpu, const bool storeOnGpu )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageWithoutInitialData( const int width, const int height, const bool storeOnCpu, const bool storeOnGpu )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > textures;
 
             textures.push_back(
                 std::make_shared< TTexture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
@@ -102,9 +102,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageFromFile( const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageFromFile( const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > textures;
 
             textures.push_back( 
                 std::make_shared< TTexture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
@@ -115,9 +115,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageFromFileInMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageFromFileInMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > textures;
 
             textures.push_back( 
                 std::make_shared< TTexture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
@@ -128,9 +128,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageFromRawData( const std::vector< PixelType >& data, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageFromRawData( const std::vector< PixelType >& data, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > textures;
 
             textures.push_back( 
                 std::make_shared< TTexture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
@@ -141,9 +141,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageWithoutInitialData( const int width, const int height, const bool storeOnCpu, const bool storeOnGpu )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageWithoutInitialData( const int width, const int height, const bool storeOnCpu, const bool storeOnGpu )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
                                 ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
@@ -176,9 +176,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageFromFile( const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageFromFile( const Texture2DFileInfo& fileInfo, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
                 ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
@@ -211,9 +211,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageFromFileInMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageFromFileInMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
                 ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
@@ -246,9 +246,9 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageFromRawData( const std::vector< PixelType >& data, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageFromRawData( const std::vector< PixelType >& data, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps )
         {
-            std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > textures;
+            std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
                 ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
@@ -328,10 +328,10 @@ namespace UnitTests
 
             try
             {
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
                     = createTexturesDynamicUsageWithoutInitialData< PixelType >( width, height, storeOnCpu, storeOnGpu );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
                     = createTexturesDefaultUsageWithoutInitialData< PixelType >( width, height, storeOnCpu, storeOnGpu );
 
                 std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > > textures;
@@ -363,13 +363,13 @@ namespace UnitTests
 
             try
             {
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
                     = createTexturesImmutableUsageFromFile< PixelType >( fileInfo, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
                     = createTexturesDynamicUsageFromFile< PixelType >( fileInfo, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
                     = createTexturesDefaultUsageFromFile< PixelType >( fileInfo, storeOnCpu, storeOnGpu, generateMipmaps );
                 
                 std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > > textures;
@@ -403,13 +403,13 @@ namespace UnitTests
 
             try
             {
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
                     = createTexturesImmutableUsageFromFileInMemory< PixelType >( file->cbegin(), file->cend(), format, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
                     = createTexturesDynamicUsageFromFileInMemory< PixelType >( file->cbegin(), file->cend(), format, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage         
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage         
                     = createTexturesDefaultUsageFromFileInMemory< PixelType >( file->cbegin(), file->cend(), format, storeOnCpu, storeOnGpu, generateMipmaps );
                 
                 std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > > textures;
@@ -446,13 +446,13 @@ namespace UnitTests
 
             try
             {
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
                     = createTexturesImmutableUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
                     = createTexturesDynamicUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
                     = createTexturesDefaultUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
                 
                 std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > > textures;
@@ -489,26 +489,26 @@ namespace UnitTests
 
             try
             {
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
                     = createTexturesImmutableUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
                     = createTexturesDynamicUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
                     = createTexturesDefaultUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > >& texture : texturesImmutableUsage ) {
+                for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > >& texture : texturesImmutableUsage ) {
                     texture->loadCpuToGpu( *testDevice, *testDeviceContext );
                     verifyTexture( *texture, width, height, storeOnCpu, true, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
 
-                for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > >& texture : texturesDynamicUsage ) {
+                for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > >& texture : texturesDynamicUsage ) {
                     texture->loadCpuToGpu( *testDevice, *testDeviceContext );
                     verifyTexture( *texture, width, height, storeOnCpu, true, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
 
-                for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > >& texture : texturesDefaultUsage ) {
+                for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > >& texture : texturesDefaultUsage ) {
                     texture->loadCpuToGpu( *testDevice, *testDeviceContext );
                     verifyTexture( *texture, width, height, storeOnCpu, true, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
@@ -539,26 +539,26 @@ namespace UnitTests
 
             try
             {
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
                     = createTexturesImmutableUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
                     = createTexturesDynamicUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
+                std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
                     = createTexturesDefaultUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
-                for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > >& texture : texturesImmutableUsage ) {
+                for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > >& texture : texturesImmutableUsage ) {
                     texture->unloadFromGpu();
                     verifyTexture( *texture, width, height, storeOnCpu, false, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
 
-                for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > >& texture : texturesDynamicUsage ) {
+                for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > >& texture : texturesDynamicUsage ) {
                     texture->unloadFromGpu();
                     verifyTexture( *texture, width, height, storeOnCpu, false, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
 
-                for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > >& texture : texturesDefaultUsage ) {
+                for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > >& texture : texturesDefaultUsage ) {
                     texture->unloadFromGpu();
                     verifyTexture( *texture, width, height, storeOnCpu, false, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
@@ -592,26 +592,26 @@ namespace UnitTests
 
                 try
                 {
-                    std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
+                    std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > texturesImmutableUsage        
                         = createTexturesImmutableUsageFromRawData< PixelType >( data, width[t], height[t], storeOnCpu[t], storeOnGpu[t], generateMipmaps[t] );
 
-                    std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
+                    std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
                         = createTexturesDynamicUsageFromRawData< PixelType >( data, width[t], height[t], storeOnCpu[t], storeOnGpu[t], generateMipmaps[t] );
 
-                    std::vector< std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
+                    std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
                         = createTexturesDefaultUsageFromRawData< PixelType >( data, width[t], height[t], storeOnCpu[t], storeOnGpu[t], generateMipmaps[t] );
 
-                    for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Immutable, PixelType > >& texture : texturesImmutableUsage ) {
+                    for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > >& texture : texturesImmutableUsage ) {
                         texture->unloadFromCpu();
                         verifyTexture( *texture, width[t], height[t], false, storeOnGpu[t], expectedBytesPerPixel[t], excpectedLineSize[t], excpectedSize[t] );
                     }
 
-                    for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Dynamic, PixelType > >& texture : texturesDynamicUsage ) {
+                    for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > >& texture : texturesDynamicUsage ) {
                         texture->unloadFromCpu();
                         verifyTexture( *texture, width[t], height[t], false, storeOnGpu[t], expectedBytesPerPixel[t], excpectedLineSize[t], excpectedSize[t] );
                     }
 
-                    for ( std::shared_ptr< Texture2DSpecializedUsage< TexUsage::Default, PixelType > >& texture : texturesDefaultUsage ) {
+                    for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > >& texture : texturesDefaultUsage ) {
                         texture->unloadFromCpu();
                         verifyTexture( *texture, width[t], height[t], false, storeOnGpu[t], expectedBytesPerPixel[t], excpectedLineSize[t], excpectedSize[t] );
                     }

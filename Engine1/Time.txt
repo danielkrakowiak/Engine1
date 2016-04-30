@@ -182,3 +182,6 @@ Thu 24.03.2016 - 1h - Creating new texture class - Implemented new texture class
 Fri 25.03.2016 - 3h - Installed Visual Studio 2015 and recompiled freetype library, Assimp library, FreeImage library.
 --- March 2016 - 14h
 Wed 27.04.2016 - 4h - Fixed test projects configurations - tests run again except for AssetManager tests (may be a VS bug). Installed VS Update 5. Fixed bugs in the new Texture2D class.
+Thu 28.04.2016 - 3h - Refactoring whole code to use new texture class. Fixing compilation errors.
+Fri 29.04.2016 - 3h - Refactoring whole code to use new texture class. Fixing compilation errors.
+Sat 30.04.2016 - 3h - Refactoring whole code to use new texture class. Fixing compilation errors.

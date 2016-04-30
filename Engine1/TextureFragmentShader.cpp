@@ -5,6 +5,8 @@
 #include <d3d11.h>
 #include <d3dx11async.h>
 
+#include "uchar4.h"
+
 using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
@@ -72,9 +74,17 @@ void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& dev
 	this->shaderId = ++compiledShadersCount;
 }
 
-void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2D& albedoTexture )
+void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture )
 {
-	ID3D11ShaderResourceView* textureResource = albedoTexture.getShaderResource();
+	ID3D11ShaderResourceView* textureResource = albedoTexture.getShaderResourceView();
+
+	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
+	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+}
+
+void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& albedoTexture )
+{
+	ID3D11ShaderResourceView* textureResource = albedoTexture.getShaderResourceView();
 
 	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
 	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );

@@ -2,10 +2,10 @@
 
 #include <climits>
 #include <thread>
+#include <d3d11.h>
 
 #include "BlockMesh.h"
 #include "SkeletonMesh.h"
-#include "Texture2D.h"
 #include "BlockModel.h"
 #include "SkeletonModel.h"
 #include "SkeletonAnimation.h"
@@ -19,8 +19,30 @@
 
 using namespace Engine1;
 
-AssetManager::AssetManager( int loadingThreadCount ) {
-	if ( loadingThreadCount <= 0 ) throw std::exception( "AssetManager::AssetManager - Number of loading threads has to be greater than 0." );
+using Microsoft::WRL::ComPtr;
+
+AssetManager::AssetManager() 
+{}
+
+AssetManager::~AssetManager() 
+{
+	executeThreads = false;
+	assetsToLoadFromDiskNotEmpty.notify_all();
+	assetsToLoadNotEmpty.notify_all();
+
+	loadingFromDiskThread.join();
+
+	for ( std::vector<std::thread>::iterator thread = loadingThreads.begin(); thread != loadingThreads.end(); ++thread ) {
+		( *thread ).join();
+	}
+}
+
+void AssetManager::initialize( int loadingThreadCount, ComPtr< ID3D11Device > device )
+{
+    if ( loadingThreadCount <= 0 ) 
+        throw std::exception( "AssetManager::AssetManager - Number of loading threads has to be greater than 0." );
+
+    m_device = device;
 
 	executeThreads = true;
 
@@ -30,19 +52,6 @@ AssetManager::AssetManager( int loadingThreadCount ) {
 	// Create threads to load assets.
 	for ( int i = 0; i < loadingThreadCount; ++i ) {
 		loadingThreads.push_back( std::thread( &AssetManager::loadAssets, this ) );
-	}
-}
-
-AssetManager::~AssetManager() {
-
-	executeThreads = false;
-	assetsToLoadFromDiskNotEmpty.notify_all();
-	assetsToLoadNotEmpty.notify_all();
-
-	loadingFromDiskThread.join();
-
-	for ( std::vector<std::thread>::iterator thread = loadingThreads.begin(); thread != loadingThreads.end(); ++thread ) {
-		( *thread ).join();
 	}
 }
 
@@ -308,7 +317,7 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
 	switch ( fileInfo.getAssetType() )  
 	{
 		case Asset::Type::BlockModel:
-			return BlockModel::createFromFile( static_cast<const BlockModelFileInfo&>( fileInfo ), false );
+			return BlockModel::createFromFile( static_cast<const BlockModelFileInfo&>( fileInfo ), false, *m_device.Get() );
 		case Asset::Type::BlockMesh:
 			return BlockMesh::createFromFile( static_cast<const BlockMeshFileInfo&>( fileInfo ) );
 		case Asset::Type::SkeletonMesh:
@@ -334,7 +343,8 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
 				throw std::exception( "AssetManager::createFromFile - failed to load reference mesh for the animation." );
 		}
 		case Asset::Type::Texture2D:
-			return Texture2D::createFromFile( static_cast<const Texture2DFileInfo&>( fileInfo ) );
+			return std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
+                ( *m_device.Get(), static_cast<const Texture2DFileInfo&>( fileInfo ), true, true, true, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 		default:
 			throw std::exception( "AssetManager::createFromFile - asset type not yet supported." );
 	}
@@ -346,7 +356,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::BlockModel:
 		{
 			const BlockModelFileInfo& modelFileInfo = static_cast<const BlockModelFileInfo&>( fileInfo );
-			std::shared_ptr<BlockModel> model = BlockModel::createFromMemory( fileData.cbegin(), modelFileInfo.getFormat( ), false );
+			std::shared_ptr<BlockModel> model = BlockModel::createFromMemory( fileData.cbegin(), modelFileInfo.getFormat( ), false, *m_device.Get() );
             model->setFileInfo( modelFileInfo );
 
             return model;
@@ -354,7 +364,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::SkeletonModel:
 		{
 			const SkeletonModelFileInfo& modelFileInfo = static_cast<const SkeletonModelFileInfo&>( fileInfo );
-            std::shared_ptr<SkeletonModel> model = SkeletonModel::createFromMemory( fileData.cbegin(), modelFileInfo.getFormat( ), false );
+            std::shared_ptr<SkeletonModel> model = SkeletonModel::createFromMemory( fileData.cbegin(), modelFileInfo.getFormat( ), false, *m_device.Get() );
             model->setFileInfo( modelFileInfo );
 
             return model;
@@ -403,7 +413,8 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::Texture2D:
 		{
 			const Texture2DFileInfo& texFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
-            std::shared_ptr<Texture2D> texture = Texture2D::createFromMemory( fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ) );
+            auto texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
+                ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
             texture->setFileInfo( texFileInfo );
 
             return texture;

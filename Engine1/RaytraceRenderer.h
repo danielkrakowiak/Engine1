@@ -5,6 +5,8 @@
 
 #include "float4.h"
 
+#include "TTexture2D.h"
+
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 
@@ -24,15 +26,14 @@ namespace Engine1
         RaytraceRenderer( Direct3DRendererCore& rendererCore );
         ~RaytraceRenderer();
 
-        void initialize( int imageWidth, int imageHeight, ID3D11Device& device, ID3D11DeviceContext& deviceContext );
-
-        void clearComputeTargets( float4 value );
+        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
+                         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
         void generateAndTraceRays( const Camera& camera, const BlockActor& actor );
 
         // For test - only temporary.
-        std::shared_ptr<ComputeTargetTexture2D> getRayDirectionsTexture();
-        std::shared_ptr<ComputeTargetTexture2D> getRayHitsAlbedoTexture();
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > getRayDirectionsTexture();
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > getRayHitsAlbedoTexture();
 
         private:
 
@@ -52,8 +53,8 @@ namespace Engine1
         // Render targets.
         int imageWidth, imageHeight;
 
-        std::shared_ptr<ComputeTargetTexture2D> rayDirectionsTexture;
-        std::shared_ptr<ComputeTargetTexture2D> rayHitsAlbedoTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > rayDirectionsTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > rayHitsAlbedoTexture;
 
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

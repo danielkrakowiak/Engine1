@@ -72,10 +72,10 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 	std::tie( swapChain, device, deviceContext ) = createDeviceAndSwapChain( windowHandle, fullscreen, verticalSync, screenWidth, screenHeight, refreshRateNumerator, refreshRateDenominator );
 
 	{ // Initialize render target.
-		renderTarget = std::make_shared<RenderTarget2D>();
+        ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *swapChain.Get(), *device.Get() );
 
-		ComPtr<ID3D11RenderTargetView> renderTargetView = createRenderTargetView( *swapChain.Get(), *device.Get() );
-		renderTarget->initialize( *renderTargetView.Get() );
+        m_renderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > >
+            ( *device.Get(), backbufferTexture );
 	}
 
 	rasterizerState = createRasterizerState( *device.Get() );
@@ -247,21 +247,18 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceCon
 	return std::make_tuple( swapChain, device, deviceContext );
 }
 
-ComPtr<ID3D11RenderTargetView> Direct3DFrameRenderer::createRenderTargetView( IDXGISwapChain& swapChain, ID3D11Device& device )
+ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwapChain& swapChain, ID3D11Device& device )
 {
-	HRESULT                        result;
-	ComPtr<ID3D11Texture2D>        backBufferPtr;
-	ComPtr<ID3D11RenderTargetView> renderTargetView;
+	ComPtr< ID3D11Texture2D > backBufferPtr;
 
 	// Get the pointer to the back buffer.
-	//result = swapChain.GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&backBufferPtr );
-	result = swapChain.GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)backBufferPtr.ReleaseAndGetAddressOf() );
+	HRESULT result = swapChain.GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)backBufferPtr.ReleaseAndGetAddressOf() );
 	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createRenderTargetView - getting pointer to the backbuffer failed" );
 
-	result = device.CreateRenderTargetView( backBufferPtr.Get(), nullptr, renderTargetView.ReleaseAndGetAddressOf() );
-	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createRenderTargetView - creation of render target view failed" );
+	//result = device.CreateRenderTargetView( backBufferPtr.Get(), nullptr, renderTargetView.ReleaseAndGetAddressOf() );
+	//if ( result < 0 ) throw std::exception( "Direct3DRenderer::createRenderTargetView - creation of render target view failed" );
 
-	return renderTargetView;
+	return backBufferPtr;
 }
 
 ComPtr<ID3D11RasterizerState> Direct3DFrameRenderer::createRasterizerState( ID3D11Device& device )
@@ -323,7 +320,7 @@ void Direct3DFrameRenderer::loadAndCompileShaders( ID3D11Device& device )
 	textFragmentShader->compileFromFile( "../Engine1/Shaders/TextShader/ps.hlsl", device );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2D& texture, float posX, float posY )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY )
 {
 	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -332,8 +329,38 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D& texture, float posX,
 
 
 	{ // Enable render targets.
-		std::vector< std::shared_ptr<RenderTarget2D> > renderTargets;
-		renderTargets.push_back( renderTarget );
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets;
+		renderTargets.push_back( m_renderTarget );
+
+		rendererCore.enableRenderTargets( renderTargets, nullptr );
+	}
+
+	{ // Configure and enable shaders.
+		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
+		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
+
+		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
+	}
+
+	rendererCore.enableRasterizerState( *rasterizerState.Get() );
+	rendererCore.enableBlendState( *blendState.Get() );
+
+	rendererCore.draw( rectangleMesh );
+
+	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+}
+
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4>& texture, float posX, float posY )
+{
+	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+
+	float width = ( texture.getWidth() / (float)screenWidth );
+	float height = ( texture.getHeight() / (float)screenHeight );
+
+
+	{ // Enable render targets.
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets;
+		renderTargets.push_back( m_renderTarget );
 
 		rendererCore.enableRenderTargets( renderTargets, nullptr );
 	}
@@ -368,16 +395,16 @@ void Direct3DFrameRenderer::displayFrame()
 
 }
 
-ID3D11Device& Direct3DFrameRenderer::getDevice()
+ComPtr< ID3D11Device > Direct3DFrameRenderer::getDevice()
 {
 	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::getDevice - renderer not initialized." );
 
-	return *device.Get();
+	return device;
 }
 
-ID3D11DeviceContext& Direct3DFrameRenderer::getDeviceContext()
+ComPtr< ID3D11DeviceContext > Direct3DFrameRenderer::getDeviceContext()
 {
 	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::getDeviceContext - renderer not initialized." );
 
-	return *deviceContext.Get();
+	return deviceContext;
 }

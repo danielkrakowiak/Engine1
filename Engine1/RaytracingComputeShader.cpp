@@ -1,7 +1,6 @@
 #include "RaytracingComputeShader.h"
 
 #include "StringUtil.h"
-#include "Texture2D.h"
 #include "BlockMesh.h"
 
 #include <d3d11.h>
@@ -65,14 +64,16 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
     this->shaderId = ++compiledShadersCount;
 }
 
-void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, const Texture2D& rayDirectionsTexture, const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax )
+void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, 
+                                             const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
+                                             const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax )
 {
     if ( !compiled ) throw std::exception( "RaytracingComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
         const unsigned int resourceCount = 3;//5;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
-            rayDirectionsTexture.getShaderResource(), 
+            rayDirectionsTexture.getShaderResourceView(), 
             mesh.getVertexBufferResource(), 
             //mesh.getNormalBufferResource(), 
             //mesh.getTexcoordBufferResources().front(),
