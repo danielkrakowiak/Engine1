@@ -24,6 +24,9 @@ InputManager::InputManager() {
 	mouseMove.x = 0;
 	mouseMove.y = 0;
 
+    limitMouseMove = true;
+    maxMouseMove = int2( 50, 50 );
+
 	awaitMouseMoveInterval = 20.0;
 
 	lockedCursorPos.x = 100;		
@@ -56,6 +59,12 @@ void InputManager::updateMouseState( ) {
 			mouseMove = mousePos - mousePrevPos;
 			mousePrevPos = mousePos;
 		}
+
+        if (abs(mouseMove.x) > maxMouseMove.x)
+            mouseMove.x = mouseMove.x > 0 ? maxMouseMove.x : -maxMouseMove.x;
+
+        if (abs(mouseMove.y) > maxMouseMove.y)
+            mouseMove.y = mouseMove.y > 0 ? maxMouseMove.y : -maxMouseMove.y;
 
 		awaitMouseMoveLastTick.reset();
 	}

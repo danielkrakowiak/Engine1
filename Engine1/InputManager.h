@@ -111,6 +111,9 @@ namespace Engine1
         int2 mousePrevPos;
         int2 mousePos;
 
+        bool limitMouseMove;
+        int2 maxMouseMove;
+
         bool lockCursorPos;
         int2 lockedCursorPos;
 

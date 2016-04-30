@@ -72,7 +72,7 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 	std::tie( swapChain, device, deviceContext ) = createDeviceAndSwapChain( windowHandle, fullscreen, verticalSync, screenWidth, screenHeight, refreshRateNumerator, refreshRateDenominator );
 
 	{ // Initialize render target.
-        ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *swapChain.Get(), *device.Get() );
+        ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *swapChain.Get() );
 
         m_renderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > >
             ( *device.Get(), backbufferTexture );
@@ -247,16 +247,13 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceCon
 	return std::make_tuple( swapChain, device, deviceContext );
 }
 
-ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwapChain& swapChain, ID3D11Device& device )
+ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwapChain& swapChain )
 {
 	ComPtr< ID3D11Texture2D > backBufferPtr;
 
 	// Get the pointer to the back buffer.
 	HRESULT result = swapChain.GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)backBufferPtr.ReleaseAndGetAddressOf() );
 	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createRenderTargetView - getting pointer to the backbuffer failed" );
-
-	//result = device.CreateRenderTargetView( backBufferPtr.Get(), nullptr, renderTargetView.ReleaseAndGetAddressOf() );
-	//if ( result < 0 ) throw std::exception( "Direct3DRenderer::createRenderTargetView - creation of render target view failed" );
 
 	return backBufferPtr;
 }

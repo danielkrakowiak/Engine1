@@ -212,7 +212,7 @@ void Application::run() {
 
         // Update the camera.
         if ( windowFocused && !movingActors ) { 
-            const float cameraRotationSensitivity = 0.00005f;
+            const float cameraRotationSensitivity = 0.0001f;
 
             if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime );
             else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTime );

@@ -15,7 +15,7 @@ std::shared_ptr<ModelTexture2D> ModelTexture2DParser::parseBinary( std::vector<c
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > texture;
     if ( loadRecurrently ) {
 	    texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
-            ( device, fileInfo, true, true, true, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
+            ( device, fileInfo, true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
     } else {
         texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >();
         texture->setFileInfo( fileInfo );
