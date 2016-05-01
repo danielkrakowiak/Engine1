@@ -72,15 +72,15 @@ bool MathUtil::areEqual( quat A, quat B, float maxRelDiff, float maxAbsDiff )
 float44 MathUtil::lookAtTransformation( float3 at, float3 eye, float3 up ) {
 	float3 zaxis = at - eye;
 	zaxis.normalize( );
-	float3 xaxis = float3::cross( up, zaxis );
+	float3 xaxis = cross( up, zaxis );
 	xaxis.normalize( );
-	float3 yaxis = float3::cross( zaxis, xaxis );
+	float3 yaxis = cross( zaxis, xaxis );
 
 	return float44(
 		xaxis.x, yaxis.x, zaxis.x, 0.0f,
 		xaxis.y, yaxis.y, zaxis.y, 0.0f,
 		xaxis.z, yaxis.z, zaxis.z, 0.0f,
-		-float3::dot( xaxis, eye ), -float3::dot( yaxis, eye ), -float3::dot( zaxis, eye ), 1.0f
+		-dot( xaxis, eye ), -dot( yaxis, eye ), -dot( zaxis, eye ), 1.0f
 		);
 
 }
@@ -172,8 +172,8 @@ std::tuple<float3, float3> MathUtil::calculateBoundingBox( const std::vector<flo
 
     for ( const float3& vertex : vertices )
     {
-        bbMin = float3::min( bbMin, vertex );
-        bbMax = float3::max( bbMax, vertex );
+        bbMin = min( bbMin, vertex );
+        bbMax = max( bbMax, vertex );
     }
 
     return std::make_tuple( bbMin, bbMax );

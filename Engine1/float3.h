@@ -3,6 +3,7 @@
 #include <cmath>
 #undef min
 #undef max
+#define NOMINMAX
 
 namespace Engine1
 {
@@ -11,17 +12,12 @@ namespace Engine1
     class float3
     {
         public:
+
         float x;
         float y;
         float z;
 
         static const float3 ZERO;
-
-        static float dot( const float3& vec1, const float3& vec2 );
-        static float3 cross( const float3& vec1, const float3& vec2 );
-
-        static float3 max( const float3& vec1, const float3& vec2 );
-        static float3 min( const float3& vec1, const float3& vec2 );
 
         float3() {}
 
@@ -165,6 +161,12 @@ namespace Engine1
             return x*x + y*y + z*z;
         }
     };
+
+    float  dot( const float3& vec1, const float3& vec2 );
+    float3 cross( const float3& vec1, const float3& vec2 );
+
+    float3 max( const float3& vec1, const float3& vec2 );
+    float3 min( const float3& vec1, const float3& vec2 );
 
     float3 operator * (const float value, const float3& vec);
 }

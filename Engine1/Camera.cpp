@@ -50,7 +50,7 @@ float3 Camera::getUp() const
 
 float3 Camera::getRight() const
 {
-    return float3::cross(up, direction);
+    return cross(up, direction);
 }
 
 float3 Camera::getLookAtPoint() const 

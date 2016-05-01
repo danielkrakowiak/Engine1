@@ -122,7 +122,7 @@ void FreeCamera::setUp( float3 up ) {
 
 void FreeCamera::updateRotationAnglesFromOrientation( ) {
 	//try to deduce angles from camera orientation
-	float3 sideDirection = float3::cross( up, direction );
+	float3 sideDirection = cross( up, direction );
 	rotationAngles = MathUtil::rotationMatrixToAngles( float33( sideDirection, up, direction ) );
 }
 
@@ -131,7 +131,7 @@ float3 FreeCamera::getSpeed() {
 }
 
 void FreeCamera::move( float3 move ) {
-	float3 sideDirection = float3::cross( up, direction );
+	float3 sideDirection = cross( up, direction );
 	position += move.x * sideDirection;
 	position += move.y * up;
 	position += move.z * direction;

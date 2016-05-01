@@ -244,6 +244,18 @@
     <Filter Include="Header Files\Texture2">
       <UniqueIdentifier>{072eb9f6-204f-4a2b-8d97-d42125a36fd0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Tools">
+      <UniqueIdentifier>{a2e6d0fe-fcfd-4329-9c3d-8df1a5008aaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Tools">
+      <UniqueIdentifier>{9fac2a2e-f24f-4d3c-ae6c-0e0591462b26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Tools\BVH">
+      <UniqueIdentifier>{d7e9a9da-d230-4c04-ac7c-734577f790ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tools\BVH">
+      <UniqueIdentifier>{862b2cbf-a91e-4aee-b34d-94d21010aa01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -552,6 +564,15 @@
     <ClInclude Include="Texture2DSpecUsage.h">
       <Filter>Header Files\Texture2</Filter>
     </ClInclude>
+    <ClInclude Include="BoundingBox.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="BVHTree.h">
+      <Filter>Header Files\Tools\BVH</Filter>
+    </ClInclude>
+    <ClInclude Include="BVHNode.h">
+      <Filter>Header Files\Tools\BVH</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -838,6 +859,15 @@
     </ClCompile>
     <ClCompile Include="TTexture2D.cpp">
       <Filter>Source Files\Texture2</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundingBox.cpp">
+      <Filter>Source Files\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="BVHTree.cpp">
+      <Filter>Source Files\Tools\BVH</Filter>
+    </ClCompile>
+    <ClCompile Include="BVHNode.cpp">
+      <Filter>Source Files\Tools\BVH</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -50,101 +50,57 @@
 	- [Includes Cleanup] Some headers include <d3d11.h> although they only contain references and pointers to DX types. Replace with forward declarations.
 	- [Test Texture] I should test whether constructor options like generateMipMaps (ex. for RenderTarget) really work for all the bindings and remove them if they are not supported.
 
+For later ######################################################################################################################
+
+//////////
+ - Add some math functions to measure corruption of matrices
+
+ - Add: matrix difference (sum of squared distances), matrix inverse, measure matrix orgonality (multiply inverse by the transpose and return difference to identity matrix)
+ - Optionally add: orthogonalization - later on... To fix corrupted matrices and compare visual results
+
+/////////
+
+- option to read os some range of keyframes/time/ticks from animation file
+- option to split an animation into a few by keyframe/time/tick etc.
+
+- add move constructor to some classes? (but only the ones which are designed to be returned from methods by object) 
+- add move assignment to some classes? (but only to those for which creating another object from an existing one makes sense)
+
+- test combining poses (skeleton-space, parent-space)
+- add method to substract poses (leave only the difference between poses)
+
+
+- add option to ignore bones which are not in mesh when loading an animation file. How to make sure that missing bones are not in between of the existing ones? Useful to apply complex animation to a sipler version of mesh (LOD etc)
+
+- Refactor Font and FontCharacter classes.
+
+- for methods - opening bracket in the next line. Refactor.
+
+- in BlockMesh, SkeletonMesh buffer getters should return reference?
+
+- 3d text rendering
+
+- make RectangleMesh derive from BlockMesh (to be able to render it with BlockMeshShader) ?
+
+- shouldn't shader path be hardcoded in the shader class? Why two instances of BlockMeshShader can have different path? Is that useful and correct?
+
+Next2:
+
+	- zdublowac gettery w SkeletonMesh tab by byly wersje const i non-const. Jak w BlockMesh.
+
+##################################################################################################################################
+
+--------------------------------------
 	Problems with texture class:
 	- No generic class without template params to be used as method arguments.
 	- PixelType has no usage for textures which are only stored on gpu (like render target) - but restricts their usage in methods etc.
 
-
-	---------------------------------
-
-	IMPORTANT: AssetManager tests (event the first one) make whole test execution to fail for all tests. But only in Release builds. It works fine in Debug. Why?
-
-	---------------------------------
-
 	How to deal with textures which are not loaded, but store file information (when parsing ModelTexture files etc). 
 	Should it ba possible to create empty textures? But lock them internally to make any action impossible?
 	But probably a more elegant solution can be found. 
-
-	----------------------------------
-
-	There should also be a very generic texture class which has no params (not even pixel type). It could contain getters to read it's type for dynamic casting.
-	Could be useful to pass and store textures sometimes.
-
-	---------------------------------
-
-	Manually call constructors in Texture2D class. Inheriting constructors keeps access modifiers the same as in base class.
-
-	Change Visual Studio to 2015. 2013 doesn't support inheriting constructors!
-
-	New texture class is implemented. Create tests. Check whether inheritance really workds properly.
-
-	I can use "delegeting constructors" to avoid having many constructors in the derived class.
-
-	1) Create classes:
-
-	per binding:
-	Texture2D_ShaderResource,
-	Texture2D_RenderTarget,
-	Texture2D_DepthStencil,
-	Texture2D_UnorderedAccess,
-
-	Texture2D_RenderTarget_ShaderResource,
-	Texture2D_RenderTarget_UnorderedAccess,
-	Texture2D_RenderTarget_UnorderedAccess_ShaderResource,
-	Texture2D_DepthStencil_ShaderResource,
-	Texture2D_UnorderedAccess_ShaderResource
-
-	per usage:
-	Texture2D_Immutable
-	Texture2D_Default
-	Texture2D_Dynamic
-
-	They all virtually derive from Texture2D_Generic. They have only the needed getters (real or virtual?).
-
-	2) Create final classes which have nothing but declaration of inheritance:
-	
-	Texture2D_Immutable_ShaderResource,
-	Texture2D_Immutable_RenderTarget,
-	Texture2D_Immutable_DepthStencil,
-	Texture2D_Immutable_UnorderedAccess,
-	Texture2D_Immutable_RenderTarget_ShaderResource,
-	Texture2D_Immutable_RenderTarget_UnorderedAccess,
-	Texture2D_Immutable_RenderTarget_UnorderedAccess_ShaderResource,
-	Texture2D_Immutable_DepthStencil_ShaderResource,
-	Texture2D_Immutable_UnorderedAccess_ShaderResource
-
-	Texture2D_Default_ShaderResource,
-	Texture2D_Default_RenderTarget,
-	Texture2D_Default_DepthStencil,
-	Texture2D_Default_UnorderedAccess,
-	Texture2D_Default_RenderTarget_ShaderResource,
-	Texture2D_Default_RenderTarget_UnorderedAccess,
-	Texture2D_Default_RenderTarget_UnorderedAccess_ShaderResource,
-	Texture2D_Default_DepthStencil_ShaderResource,
-	Texture2D_Default_UnorderedAccess_ShaderResource
-
-	Texture2D_Dynamic_ShaderResource,
-	Texture2D_Dynamic_RenderTarget,
-	Texture2D_Dynamic_DepthStencil,
-	Texture2D_Dynamic_UnorderedAccess,
-	Texture2D_Dynamic_RenderTarget_ShaderResource,
-	Texture2D_Dynamic_RenderTarget_UnorderedAccess,
-	Texture2D_Dynamic_RenderTarget_UnorderedAccess_ShaderResource,
-	Texture2D_Dynamic_DepthStencil_ShaderResource,
-	Texture2D_Dynamic_UnorderedAccess_ShaderResource
-
-	Whooooooaaaaa!!!! How to avoid having 500 constructors???????????????????????????????????? - use constructor delegation in derived classes (using Base::Base;)
-
-
-	Use virtual inheritance to solve the problem with bindings and usage. Create different classes that derive from interface like TTexture2DGeneric.
-
-	
-
-	Fix tests. Add staging texture tests.
-
-	Find a solution for a problem when you need: TTexture2D< ShaderResource >, but can also accept: TTexture2D< ShaderResource_RenderTarget_UnorderedAccess > etc...
- 
-	Commit.
+-------------------------------------
+	IMPORTANT: AssetManager tests (event the first one) make whole test execution to fail for all tests. But only in Release builds. It works fine in Debug. Why?
+-------------------------------------
 
 	!!! Change naming convention: use m_ in class members.
 
@@ -165,91 +121,13 @@ Could be a template class taking it's element type at template argument. It woul
 + Check bind flags on different resources - ex. vertex buffers (and normals etc) have bind flag - "default", but should rather hvae "immutable". Default means that I expect GPU to modify these buffers.
 
 
-Sprobowac potworzyc te kombinacje bindigow i zobaczyc czy na pewno wszystkie dzialaja?
-
-------------------------------------------------
-Poprawic operator | dla enuma z bindingiemw teksturze.
-
-RenderTarget      Default, BIND_RENDER_TARGET,
-RenderTargetSR   Default, BIND_RENDER_TARGET, BIND_SHADER_RES0URCE
-DepthTarget       Default, BIND_DEPTH_STENCIL
-DepthTargetSR       Default, BIND_DEPTH_STENCIL, BIND_SHADER_RES0URCE
-UnorderedAccessTexture   Default, BIND_UNORDERED_ACCESS,
-DynamicTexture           Dynamic, CPU_ACCESS_WRITE, BIND_SHADER_RES0URCE
-ImmutableTexture         Immutable, BIND_SHADER_RES0URCE
-StagingReadTexture       Staging, CPU_ACCESS_READ,
-StagingWriteTexture      Staging, CPU_ACCESS_WRITE, 
-StagingReadWriteTexture  Staging, CPU_ACCESS_READ | CPU_ACCESS_WRITE, 
-
-Texture2D< Dynamic, ShaderResource, uchar4 >
-
-VertexBuffer             Immutable
-VertexBuffer_SR           Immutable
-VertexBuffer_UA           Default
-VertexBuffer_SR_UA           Default
-DynamicVertexBuffer      Dynamic
-DynamicVertexBufferSR      Dynamic
-DynamicVertexBufferUA      Dynamic
-DynamicVertexBufferSR_UA      Dynamic
-IndexBuffer              Immutable
-DyanamicIndexBuffer      Dynamic
-ConstantBuffer           Dynamic, D3D11_BIND_CONSTANT_BUFFER
-UnorderedAccessBuffer
-+
-UnorderedAccessVertexBuffer
-UnorderedAccessIndexBuffer
-
-Immutable
-Dynamic
-Default
-Staging
-UnorderedAccess
-
-RenderTarget2D
-Texture2D
-
-	RenderTargetTexture2D - dziedziczy po okreslonym typie Texture2D - np. RenderTargetTexture2D< T > Texture2D< Dynamic, RenderTarget, T >
-	
-
-A moze miec u podstawy template klasy Texture< ... > i Buffer< ... > i reszte klas stworzyc tylko jako dziedziczenie po okreslonych wersjach tego templatu np. StagingTextureRead : public Texture< Staging, Read >
-
-Nazywam "Texture" to co ma SRV. Ale staging tez ma w nazwie "Texture" a nie ma SRV. Znowu bufory co maja miec w nazwie gdy maja "SRV"?
-Moze wlasnie dodac SRV do nazwy tych klas?
-
-Dla ktorych typow trzymac dane po stronie CPU? Jak dlugo? A moze wywalac zaraz po wyslaniu do GPU?
-
---------------------------------------------------
-Engine1
-Typ tekstury jako template argument? Np float4, float3, uin3? To by wymuszalo automatycznie odpowiednie formaty dla DXa
-
-Not all textures can load to/from GPU. THis methods are not available in base Texture2D class but rather derived classes such as StagingRWTexture2D, StagingRTexture2D, StagingWTexture2D, WTexture2D (or DynamicTexture2D)
-Also, not every texture type has shader resource view (staging doesn't)
-
-Not all texture data is aligned. Textures loaded from a file are usually aligned. But textures created by hand usually aren't. There should be alignment(or lineSize) field in texture used when uploading texture to GPU.
-
-How to calculate alignment for other mipmap levels?
-
-Checking bitsPerPixel in loadCpuToGpu has bug. should be "else if", not "if"
-
-Dopisac do floa4, float3, int3 itp operacje += wektora z wektorem.
---------------------------------------------------
-
+-----------------------------------------
 
 Pass vertex, index buffers to the raytracing shader. Raytrace triangle mesh.
 
 Add my own binary format of mesh (block and skeleton). It could also store bounding box info etc. It would load much faster.
 
-Make fieldOfView application member. Pass it (or set through setters) to renderers.
-
-How to deal with calculating/updating bounding box for SkeletonMesh?
-
-Add new renderer class - like ScreenREnderer or FinalFrameRenderer etc. It should have shaders taking many screen-size textures and combine them together and shade pixels.
-It should be similar to frame renderer.
-
 Ability to select an actor by clicking on it. Using ray tracing.
-Ability to move and rotate actors and lights. Ability to edit light properties by clicking special keys (Ctrl +/-, r,g,b)
-
-Create various models and save them to files.
 
 Add other phases of rendering. Rendering color, normals etc. Then rendering the final image. 
 
@@ -289,43 +167,5 @@ Implementation order:
 
 Idea:
 - when calculatin range of a light source - it's bounding volume doesn't have to be a sphere. The more precise the bounding volume to more calculations we save. Maybe even a few volumes could describe a lights range?
-
-Next 0:
-
-//////////
- - Add some math functions to measure corruption of matrices
-
- - Add: matrix difference (sum of squared distances), matrix inverse, measure matrix orgonality (multiply inverse by the transpose and return difference to identity matrix)
- - Optionally add: orthogonalization - later on... To fix corrupted matrices and compare visual results
-
-/////////
-
-- option to read os some range of keyframes/time/ticks from animation file
-- option to split an animation into a few by keyframe/time/tick etc.
-
-- add move constructor to some classes? (but only the ones which are designed to be returned from methods by object) 
-- add move assignment to some classes? (but only to those for which creating another object from an existing one makes sense)
-
-- test combining poses (skeleton-space, parent-space)
-- add method to substract poses (leave only the difference between poses)
-
-
-- add option to ignore bones which are not in mesh when loading an animation file. How to make sure that missing bones are not in between of the existing ones? Useful to apply complex animation to a sipler version of mesh (LOD etc)
-
-- Refactor Font and FontCharacter classes.
-
-- for methods - opening bracket in the next line. Refactor.
-
-- in BlockMesh, SkeletonMesh buffer getters should return reference?
-
-- 3d text rendering
-
-- make RectangleMesh derive from BlockMesh (to be able to render it with BlockMeshShader) ?
-
-- shouldn't shader path be hardcoded in the shader class? Why two instances of BlockMeshShader can have different path? Is that useful and correct?
-
-Next2:
-
-	- zdublowac gettery w SkeletonMesh tab by byly wersje const i non-const. Jak w BlockMesh.
 
 

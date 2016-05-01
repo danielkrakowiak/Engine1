@@ -147,7 +147,7 @@ Tue 08.12.2015 - 5h - Added Light, PointLight classes. Prepared light bulb mesh 
 Wed 09.12.2015 - 1h - Unified all parsers to use iterators as params. Removed 'file type identifier' checks from parsers.
 Thu 10.12.2015 - 6h - Fixed problem with UnitTests project having different current path than Engine1 project. Added loading a scene on drag&drop, saving on Ctrl + S. Separated main rendering code into Renderer class.
 Sun 27.12.2015 - 4h - Added RaytraceRenderer, ComputeShader classes. Fixed remembering of currently bound shader in RendererCore class. Compiled some trivial compute shader. Read code samples for writing to texture from compute shader.
-Mod 28.12.2015 - 3h - Added ComputeTargetTexture2D class. Fixed remembering of currently bound render targets. Added unbining shaders, render targets, buffers etc.
+Mod 28.12.2015 - 3h - Added ComputeTargetTexture2D class. Fixed remembering of currently bound render targets. Added unbinding shaders, render targets, buffers etc.
 Tue 29.12.2015 - 3h - Successfully run a compute shader. Some testing and learning on compute shader thread ids. Added a method to generate primary rays in compute shader.
 Wed 30.12.2015 - 4h - Passed camera state to the compute shader and generated the primary rays. Added an ability to switch views on keyboard button (albedo, normal, reflection etc). Started creating raytracing shader.
 Thu 31.12.2015 - 6h - Managed to read texture in CS and write to uav in one shader. Raytraced first bounding box in CS. Discovering ways to pass vertex buffer to the compute shader (as vertex buffer can't be used as a shader reasource).
@@ -184,4 +184,6 @@ Fri 25.03.2016 - 3h - Installed Visual Studio 2015 and recompiled freetype libra
 Wed 27.04.2016 - 4h - Fixed test projects configurations - tests run again except for AssetManager tests (may be a VS bug). Installed VS Update 5. Fixed bugs in the new Texture2D class.
 Thu 28.04.2016 - 3h - Refactoring whole code to use new texture class. Fixing compilation errors.
 Fri 29.04.2016 - 3h - Refactoring whole code to use new texture class. Fixing compilation errors.
-Sat 30.04.2016 - 4h - Refactoring whole code to use new texture class. Fixing compilation errors.
+Sat 30.04.2016 - 6h - Refactoring whole code to use new texture class. Fixing compilation errors. Fixed RGB->BGR problem when loading textures. Cleaned up "to do" list. Reading on BVH trees.
+--- April 2016 - 16h
+Sun 01.05.2016 - 8h - Reading on BVH trees. Implemented BVH tree construction from block mesh.

@@ -118,8 +118,8 @@ namespace UnitTests {
 	TEST_METHOD( float44_getScaleRotationTranslationInverse_7__Rotation ) {
 		float3 baseVectorForward( 0.4f, 0.3f, 0.8f ); baseVectorForward.normalize( );
 		float3 up( -0.1f, 0.9f, 0.2f ); up.normalize( );
-		float3 baseVectorSide = float3::cross( up, baseVectorForward ); baseVectorSide.normalize();
-		float3 baseVectorUp = float3::cross( baseVectorForward, baseVectorSide ); baseVectorUp.normalize( );
+		float3 baseVectorSide = cross( up, baseVectorForward ); baseVectorSide.normalize();
+		float3 baseVectorUp = cross( baseVectorForward, baseVectorSide ); baseVectorUp.normalize( );
 
 		float33 rotationTransf( baseVectorSide, baseVectorUp, baseVectorForward );
 
@@ -141,8 +141,8 @@ namespace UnitTests {
 	TEST_METHOD( float44_getScaleRotationTranslationInverse_7__Rotation_Translation ) {
 		float3 baseVectorForward( 0.4f, 0.3f, 0.8f ); baseVectorForward.normalize( );
 		float3 up( -0.1f, 0.9f, 0.2f ); up.normalize( );
-		float3 baseVectorSide = float3::cross( up, baseVectorForward ); baseVectorSide.normalize( );
-		float3 baseVectorUp = float3::cross( baseVectorForward, baseVectorSide ); baseVectorUp.normalize( );
+		float3 baseVectorSide = cross( up, baseVectorForward ); baseVectorSide.normalize( );
+		float3 baseVectorUp = cross( baseVectorForward, baseVectorSide ); baseVectorUp.normalize( );
 
 		float33 rotationTransf( baseVectorSide, baseVectorUp, baseVectorForward );
 
@@ -165,8 +165,8 @@ namespace UnitTests {
 	TEST_METHOD( float44_getScaleRotationTranslationInverse_7__Uniform_Scaling_Rotation_Translation ) {
 		float3 baseVectorForward( 0.4f, 0.3f, 0.8f ); baseVectorForward.normalize( );
 		float3 up( -0.1f, 0.9f, 0.2f ); up.normalize( );
-		float3 baseVectorSide = float3::cross( up, baseVectorForward ); baseVectorSide.normalize( );
-		float3 baseVectorUp = float3::cross( baseVectorForward, baseVectorSide ); baseVectorUp.normalize( );
+		float3 baseVectorSide = cross( up, baseVectorForward ); baseVectorSide.normalize( );
+		float3 baseVectorUp = cross( baseVectorForward, baseVectorSide ); baseVectorUp.normalize( );
 
 		float33 rotationTransf( baseVectorSide, baseVectorUp, baseVectorForward );
 
@@ -189,8 +189,8 @@ namespace UnitTests {
 	TEST_METHOD( float44_getScaleRotationTranslationInverse_7__Non_Uniform_Scaling_Rotation_Translation ) {
 		float3 baseVectorForward( 0.4f, 0.3f, 0.8f ); baseVectorForward.normalize( );
 		float3 up( -0.1f, 0.9f, 0.2f ); up.normalize( );
-		float3 baseVectorSide = float3::cross( up, baseVectorForward ); baseVectorSide.normalize( );
-		float3 baseVectorUp = float3::cross( baseVectorForward, baseVectorSide ); baseVectorUp.normalize( );
+		float3 baseVectorSide = cross( up, baseVectorForward ); baseVectorSide.normalize( );
+		float3 baseVectorUp = cross( baseVectorForward, baseVectorSide ); baseVectorUp.normalize( );
 
 		float33 rotationTransf( baseVectorSide, baseVectorUp, baseVectorForward );
 

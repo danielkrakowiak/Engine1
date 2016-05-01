@@ -257,6 +257,9 @@
     <ClInclude Include="BlockModelFragmentShader.h" />
     <ClInclude Include="BlockModelLOD.h" />
     <ClInclude Include="BlockModelVertexShader.h" />
+    <ClInclude Include="BoundingBox.h" />
+    <ClInclude Include="BVHNode.h" />
+    <ClInclude Include="BVHTree.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComplexModel.h" />
     <ClInclude Include="ComputeShader.h" />
@@ -361,6 +364,9 @@
     <ClCompile Include="BlockModelFragmentShader.cpp" />
     <ClCompile Include="BlockModelLOD.cpp" />
     <ClCompile Include="BlockModelVertexShader.cpp" />
+    <ClCompile Include="BoundingBox.cpp" />
+    <ClCompile Include="BVHNode.cpp" />
+    <ClCompile Include="BVHTree.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ComplexModel.cpp" />
     <ClCompile Include="ComputeShader.cpp" />

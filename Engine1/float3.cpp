@@ -12,11 +12,11 @@ float3 Engine1::operator * ( const float value, const float3& vec ) {
 	return float3(vec.x * value, vec.y * value, vec.z * value);
 }
 
-float float3::dot( const float3& vec1, const float3& vec2 ) {
+float Engine1::dot( const float3& vec1, const float3& vec2 ) {
 	return (vec1.x * vec2.x) + (vec1.y * vec2.y) + (vec1.z * vec2.z);
 }
 
-float3 float3::cross( const float3& vec1, const float3& vec2 ) {
+float3 Engine1::cross( const float3& vec1, const float3& vec2 ) {
 	return float3(
 		(vec1.y * vec2.z) - (vec1.z * vec2.y),
 		(vec1.z * vec2.x) - (vec1.x * vec2.z),
@@ -24,18 +24,18 @@ float3 float3::cross( const float3& vec1, const float3& vec2 ) {
 		);
 }
 
-float3 float3::max( const float3& a, const float3& b ) {
+float3 Engine1::max( const float3& a, const float3& b ) {
 	return float3(
-		a.x > b.x ? a.x : b.x,
-		a.y > b.y ? a.y : b.y,
-		a.z > b.z ? a.z : b.z
+		fmax(a.x, b.x),
+		fmax(a.y, b.y),
+		fmax(a.z, b.z)
 		);
 }
 
-float3 float3::min( const float3& a, const float3& b ) {
+float3 Engine1::min( const float3& a, const float3& b ) {
 	return float3(
-		a.x < b.x ? a.x : b.x,
-		a.y < b.y ? a.y : b.y,
-		a.z < b.z ? a.z : b.z
+		fmin(a.x, b.x),
+		fmin(a.y, b.y),
+		fmin(a.z, b.z)
 		);
 }
