@@ -31,7 +31,7 @@ namespace Engine1
         std::unique_ptr< BVHNode > m_rootNode;
 
         std::unique_ptr< BVHNode > build( const BlockMesh& mesh );
-        std::unique_ptr< BVHNode > recursiveBuild( std::vector< TriangleBoundingBox > triangleBoundingBoxes, int depth = 0 );
+        std::unique_ptr< BVHNode > recursiveBuild( std::vector< TriangleBoundingBox >& triangleBoundingBoxes, int depth = 0 );
 
     };
 };

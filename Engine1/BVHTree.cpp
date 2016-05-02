@@ -62,7 +62,7 @@ std::unique_ptr< BVHNode > BVHTree::build( const BlockMesh& mesh )
     return rootNode;
 }
 
-std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundingBox > triangles, int depth )
+std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundingBox >& triangles, int depth )
 {
     // Terminate recursion case: 
 	// If there is less than 4 triangles left, create a leaf node 
@@ -145,7 +145,7 @@ std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundin
 				}
 			}
 
-			// Now use the Surface Area Heuristic to see if this split has a better "cost"
+			// Now use the Surface Area Heuristic to see if this split has a better "cost".
 
 			// First, check if split is reasonable - bins with 0 or 1 triangles make no sense.
 			if ( leftTriangleCount <= 1 || rightTriangleCount <= 1 ) 

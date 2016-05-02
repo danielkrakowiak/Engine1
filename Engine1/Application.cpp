@@ -24,6 +24,9 @@
 
 #include "Timer.h"
 
+#include "BVHTree.h"
+#include "BVHTreeBuffer.h"
+
 Application* Application::windowsMessageReceiver = nullptr;
 
 // Initialize external libraries.
@@ -73,6 +76,9 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
     std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>(assetManager.getOrLoad( axisMeshFileInfo ));
     axisMesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
+
+    BVHTree axisMeshBvhTree( *axisMesh );
+    BVHTreeBuffer axisMeshBvhTreeBuffer( axisMeshBvhTree );
 
     // Load 'light source' model.
     BlockModelFileInfo lightModelFileInfo( "Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
@@ -234,9 +240,9 @@ void Application::run() {
             std::tie( frameUchar, frameFloat ) = renderer.renderScene( *scene, camera );
 
 		{ // Render FPS.
-			//std::stringstream ss;
-			//ss << "FPS: " << (int)(1000.0 / frameTime) << " / " << frameTime << "ms";
-			//direct3DDefferedRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			std::stringstream ss;
+			ss << "FPS: " << (int)(1000.0 / frameTime) << " / " << frameTime << "ms";
+			defferedRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
 		{ // Render camera state.
