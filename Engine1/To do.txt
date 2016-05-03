@@ -102,11 +102,22 @@ Next2:
 	IMPORTANT: AssetManager tests (event the first one) make whole test execution to fail for all tests. But only in Release builds. It works fine in Debug. Why?
 -------------------------------------
 
+##################################################################################################################################
+
+ - IMPORTANT: ray tracing shader has better performance with D3D10_SHADER_SKIP_OPTIMIZATION flag set. Why? 
+   How to configure the shader to avoid optimizations only where it really improves performance, but not everywhere?
+   
+   Also2: pass stack depth to the shader as constant or...
+   Also3: Compile a few versions of the shader with different stack depth and use the appropriate one?
+
+   - calculate distance to closest intersection
+   - save distance in texture
+   - run raytracing for multiple objects with correct ordering
+
 	!!! Change naming convention: use m_ in class members.
 
 	- use ComPtr wherever possible instead of raw pointers.
 
-Fix one shader warning.
 
 *** IMPORTANT:
 It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.
@@ -123,19 +134,11 @@ Could be a template class taking it's element type at template argument. It woul
 
 -----------------------------------------
 
-Pass vertex, index buffers to the raytracing shader. Raytrace triangle mesh.
-
-Add my own binary format of mesh (block and skeleton). It could also store bounding box info etc. It would load much faster.
-
 Ability to select an actor by clicking on it. Using ray tracing.
 
 Add other phases of rendering. Rendering color, normals etc. Then rendering the final image. 
 
 How to do raytracing on the GPU --------------------------
-
-How to pass vertex data to compute shader if I can't have one buffer as vertex buffer and shader resource at the same time.
-Could use RawBuffers as suggested here: http://stackoverflow.com/questions/19907062/how-can-i-feed-compute-shader-results-into-vertex-shader-w-o-using-a-vertex-buff
-It just requires some casting in compute shader, but works fine.
 
 First shader: For all rays, find the intersection distance, hit actor (or model), hit triangle -> save to texture.
 For each actor in the current scene node run second shader (pass model textures etc):

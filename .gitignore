@@ -154,3 +154,9 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+/UnitTests/DebugDirect3D/UnitTests.tlog/UnitTests.write.1u.tlog
+/Engine1/DebugDirect3D/Engine1.tlog/FXC.command.1.tlog
+/Engine1/DebugDirect3D/Engine1.tlog/fxc.read.1.tlog
+/DebugDirect3D/vs.cso
+/DebugDirect3D/ps.cso
+/DebugDirect3D/cs.cso

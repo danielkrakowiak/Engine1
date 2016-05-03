@@ -12,20 +12,28 @@ cbuffer ConstantBuffer : register( b0 )
 };
 
 // Input.
-Texture2D<float4> rayDirections : register( t0 );
-ByteAddressBuffer meshVertices  : register( t1 );
+Texture2D<float4> rayDirections   : register( t0 );
+ByteAddressBuffer meshVertices    : register( t1 );
 //Buffer<float3>    meshNormals   : register( t2 );
 //Buffer<float2>    meshTexcoords : register( t3 );
-ByteAddressBuffer meshTriangles : register( t2 );
-
+ByteAddressBuffer meshTriangles   : register( t2 );
+Buffer<uint2>     bvhNodes        : register( t3 );
+Buffer<float3>    bvhNodesExtents : register( t4 ); // min, max, min, max interleaved.
+Buffer<uint>      bvhTriangles    : register( t5 );
+;
 // Output.
 RWTexture2D<float4> computeTarget : register( u0 );
+
+bool     rayBoxIntersect( float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxMax );
+uint3    getTriangle( uint index );
+float3x3 getVertices( uint3 index );
+bool     rayTriangleIntersect( float3 rayOrigin, float3 rayDir, float3x3 vertices );
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
 // SV_GroupIndex - index of the group within the whole computation.
-[numthreads(32, 32, 1)]
+[numthreads(16, 16, 1)]
 void main( uint3 groupId : SV_GroupID,
            uint3 groupThreadId : SV_GroupThreadID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
@@ -37,12 +45,84 @@ void main( uint3 groupId : SV_GroupID,
 	float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldMatrixInv ); //#TODO: ray origin could be passed in local space to avoid this calculation.
 	float4 rayDirLocal    = mul( float4( rayOrigin + rayDir, 1.0f ), worldMatrixInv ) - rayOriginLocal;
 
+    float4 output = float4( 0.2f, 0.2f, 0.2f, 1.0f );
+
     // Test the ray against the bounding box
+    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, boundingBoxMin, boundingBoxMax ) ) 
+    {
+        output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
+
+	    //int closestTriangleIndex  = -1;
+	    //float closestTriangleDist = 5000.0f;
+
+        // TODO: Size of the stack could be passed as argument in constant buffer?
+        const uint BVH_STACK_SIZE = 32; 
+
+	    // Stack of BVH nodes (as indices) which were visited or will be visited.
+	    uint bvhStack[ BVH_STACK_SIZE ];
+	    uint bvhStackIndex = 0;
+
+        // Push root node on the stack.
+	    bvhStack[ bvhStackIndex++ ] = 0; 
+
+        // While the stack is not empty.
+	    while ( bvhStackIndex > 0 ) {
+		
+		    // Pop a node from the stack.
+		    int bvhNodeIndex = bvhStack[ --bvhStackIndex ];
+
+            uint2 bvhNodeData = bvhNodes[ bvhNodeIndex ];
+
+		    // Determine if BVH node is an inner node or a leaf node by checking the highest bit.
+		    // Inner node if highest bit is 0, leaf node if 1.
+		    if ( !(bvhNodeData.x & 0x80000000) ) 
+            { // Inner node.
+		        // If ray intersects inner node, push indices of left and right child nodes on the stack.
+			    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, bvhNodesExtents[ bvhNodeIndex * 2 ], bvhNodesExtents[ bvhNodeIndex * 2 + 1 ] )) {
+				
+				    bvhStack[ bvhStackIndex++ ] = bvhNodeData.x; // Left child node index.
+				    bvhStack[ bvhStackIndex++ ] = bvhNodeData.y; // Right child node index.
+				
+				    // Return if stack size is exceeded. 
+                    //TODO: Maybe we can remove that check and check it before running the shader.
+				    if ( bvhStackIndex > BVH_STACK_SIZE )
+					    return; 
+			    }
+            }
+            else
+            { // Leaf node.
+
+                // Loop over every triangle in the leaf node.
+			    // bvhNodeData.x - triangle count (and top-bit set to 1 to indicate leaf node).
+			    // bvhNodeData.y - first triangles index.
+                const uint triangleCount      = bvhNodeData.x & 0x7fffffff;
+                const uint firstTriangleIndex = bvhNodeData.y;
+                const uint lastTriangleIndex  = firstTriangleIndex + triangleCount;
+			    for ( uint i = firstTriangleIndex; i < lastTriangleIndex; ++i ) 
+                {
+				    const uint3    trianglee = getTriangle( bvhTriangles[ i ] );
+                    const float3x3 vertices  = getVertices( trianglee );
+
+                    if ( rayTriangleIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, vertices ) )
+                    {
+                        output = float4( 1.0f, 0.2f, 0.2f, 1.0f );
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    computeTarget[ dispatchThreadId.xy ] = output;
+}
+
+bool rayBoxIntersect( float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxMax )
+{
 	float tmin = -15000.0f;
 	float tmax =  15000.0f;
  
-	float3 t1 = ( boundingBoxMin - rayOriginLocal.xyz ) / rayDirLocal.xyz;
-	float3 t2 = ( boundingBoxMax - rayOriginLocal.xyz ) / rayDirLocal.xyz;
+	float3 t1 = ( boxMin - rayOrigin ) / rayDir;
+	float3 t2 = ( boxMax - rayOrigin ) / rayDir;
  
 	tmin = max(tmin, min(t1.x, t2.x));
 	tmax = min(tmax, max(t1.x, t2.x));
@@ -51,56 +131,47 @@ void main( uint3 groupId : SV_GroupID,
 	tmin = max(tmin, min(t1.z, t2.z));
 	tmax = min(tmax, max(t1.z, t2.z));
 
-    float4 output = float4( 0.2f, 0.2f, 0.2f, 1.0f );
+    return ( tmax >= tmin && tmax > 0.0f );
+}
 
-    if ( tmax >= tmin && tmax > 0.0f ) {
+uint3 getTriangle( uint index ) 
+{
+    const uint address = index * 12; // 12 = 3 components * 4 bytes.
 
-        output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
+    return uint3(
+        asuint( meshTriangles.Load( address ) ),
+        asuint( meshTriangles.Load( address + 4 ) ),
+        asuint( meshTriangles.Load( address + 8 ) ) 
+    );
+}
 
-        for ( uint i = 0; i < 4800; ++i )
-        {
-            const uint addr = i * 4 * 3;
+float3x3 getVertices( uint3 index ) 
+{
+    const uint3 address = index * 12; // 12 = 3 components * 4 bytes.
 
-            const uint3 triangleIndex = uint3(
-                asuint( meshTriangles.Load( addr ) ),
-                asuint( meshTriangles.Load( addr + 4 ) ),
-                asuint( meshTriangles.Load( addr + 8 ) ) 
-            );
+    return float3x3(
+        // Vertex 1.
+        asfloat( meshVertices.Load( address.x ) ),
+        asfloat( meshVertices.Load( address.x + 4 ) ),
+        asfloat( meshVertices.Load( address.x + 8 ) ),
+        // Vertex 2.
+        asfloat( meshVertices.Load( address.y ) ),
+        asfloat( meshVertices.Load( address.y + 4 ) ),
+        asfloat( meshVertices.Load( address.y + 8 ) ),
+        // Vertex 3.
+        asfloat( meshVertices.Load( address.z ) ),
+        asfloat( meshVertices.Load( address.z + 4 ) ),
+        asfloat( meshVertices.Load( address.z + 8 ) )
+    );
+}
 
-            const uint3 vertexAddr = triangleIndex * 4 * 3;
+bool rayTriangleIntersect( float3 rayOrigin, float3 rayDir, float3x3 vertices )
+{
+    const float dot1 = dot( rayDir, cross( vertices[0] - rayOrigin, vertices[1] - rayOrigin ));
+	const float dot2 = dot( rayDir, cross( vertices[1] - rayOrigin, vertices[2] - rayOrigin ));
+	const float dot3 = dot( rayDir, cross( vertices[2] - rayOrigin, vertices[0] - rayOrigin ));
 
-		    const float3 vertex1 = float3(
-                asfloat( meshVertices.Load( vertexAddr.x ) ),
-                asfloat( meshVertices.Load( vertexAddr.x + 4 ) ),
-                asfloat( meshVertices.Load( vertexAddr.x + 8 ) )
-            );
-
-            const float3 vertex2 = float3(
-                asfloat( meshVertices.Load( vertexAddr.y ) ),
-                asfloat( meshVertices.Load( vertexAddr.y + 4 ) ),
-                asfloat( meshVertices.Load( vertexAddr.y + 8 ) )
-            );
-
-            const float3 vertex3 = float3(
-                asfloat( meshVertices.Load( vertexAddr.z ) ),
-                asfloat( meshVertices.Load( vertexAddr.z + 4 ) ),
-                asfloat( meshVertices.Load( vertexAddr.z + 8 ) )
-            );
-		    
-            const float dot1 = dot( rayDirLocal.xyz, cross( vertex1 - rayOriginLocal.xyz, vertex2 - rayOriginLocal.xyz ));
-			const float dot2 = dot( rayDirLocal.xyz, cross( vertex2 - rayOriginLocal.xyz, vertex3 - rayOriginLocal.xyz ));
-			const float dot3 = dot( rayDirLocal.xyz, cross( vertex3 - rayOriginLocal.xyz, vertex1 - rayOriginLocal.xyz ));
-
-            if ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) ) {
-                output = float4( 1.0f, 0.2f, 0.2f, 1.0f );
-                break;
-            }
-        }
-    }
-
-    computeTarget[ dispatchThreadId.xy ] = output;
-
-    
+    return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );
 }
 
 

@@ -13,22 +13,25 @@ namespace Engine1
     // Can be sent to GPU and used for ray traversal or can be also used by the CPU.
     class BVHTreeBuffer
     {
+        public:
+
+        // Bounding box.
+        struct NodeExtents
+        {
+            float3 min;
+	        float3 max;
+        };
+
         struct Node 
         {
-	        // Bounding box.
-	        float3 min;
-	        float3 max;
-
 	        // Parameters for leaf nodes and inner nodes occupy same space (union) to save memory.
 	        // Top bit discriminates between leaf node and inner node.
 	        union 
             {
-		        // inner node - stores indexes to array of CacheFriendlyBVHNode
 		        struct {
 			        unsigned int childIndexLeft;
 			        unsigned int childIndexRight;
 		        } inner;
-		        // leaf node: stores triangle count and starting index in triangle list
 		        struct {
 			        unsigned int triangleCount; // If top-most bit set - leaf node, otherwise inner node.
 			        unsigned int firstTriangleIndex;
@@ -36,17 +39,20 @@ namespace Engine1
 	        } node;
         };
 
-        public:
-
         BVHTreeBuffer( BVHTree& tree );
         ~BVHTreeBuffer();
+
+        const std::vector< unsigned int >&               getTriangles()    const;
+        const std::vector< BVHTreeBuffer::Node >&        getNodes()        const;
+        const std::vector< BVHTreeBuffer::NodeExtents >& getNodesExtents() const;
 
         private:
 
         static const int BVH_STACK_SIZE;
 
         void build( BVHTree& tree );
-        void buildBuffer( std::vector< Node >& bvhBuffer, std::vector< int >& triangles, const BVHNode& node, unsigned int& idxBoxes, unsigned int& idxTriList );
+        void buildBuffer( std::vector< Node >& bvhNodes, std::vector< BVHTreeBuffer::NodeExtents >& bvhNodesExtents, std::vector< unsigned int >& triangles, 
+                          const BVHNode& node, unsigned int& nodesInsertIndex, unsigned int& trianglesInsertIndex );
 
         // Recursively count bounding boxes.
         unsigned int countNodes( const BVHNode& node );
@@ -57,8 +63,9 @@ namespace Engine1
         // Recursively count depth.
         void countDepth( const BVHNode& node, int depth, int& maxDepth );
 
-        std::vector< int >                 m_triangles;
-        std::vector< BVHTreeBuffer::Node > m_bvhBuffer;
+        std::vector< unsigned int >               m_triangles;
+        std::vector< BVHTreeBuffer::Node >        m_bvhNodes;
+        std::vector< BVHTreeBuffer::NodeExtents > m_bvhNodesExtents;
     };
 };
 

@@ -39,12 +39,12 @@ namespace Engine1
     {
         friend class BVHTree;
 
-	    std::vector<int> triangles;
+	    std::vector< unsigned int > triangles;
 
         public:
 
-        const std::vector<int>& getTriangles() const { return triangles; }
-        virtual bool            isLeaf()       const { return true; }
+        const std::vector< unsigned int >& getTriangles() const { return triangles; }
+        virtual bool                       isLeaf()       const { return true; }
     };
 };
 

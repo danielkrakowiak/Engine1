@@ -28,6 +28,9 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
         flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3D10_SHADER_PREFER_FLOW_CONTROL;
 #endif
+        // Note: This shader with BVH actually works faster with optimizations skipped. (2.5x faster)
+        // TODO: Find out why and modify shader code with optimization attributes (such as [branch] etc).
+        flags |= D3D10_SHADER_SKIP_OPTIMIZATION;
 
         result = D3DX11CompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "cs_5_0", flags, 0, nullptr,
                                         shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf(), nullptr );
@@ -71,13 +74,16 @@ void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
     if ( !compiled ) throw std::exception( "RaytracingComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 3;//5;
+        const unsigned int resourceCount = 6;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             rayDirectionsTexture.getShaderResourceView(), 
             mesh.getVertexBufferResource(), 
             //mesh.getNormalBufferResource(), 
             //mesh.getTexcoordBufferResources().front(),
-            mesh.getTriangleBufferResource()
+            mesh.getTriangleBufferResource(),
+            mesh.getBvhTreeBufferNodesShaderResourceView().Get(),
+            mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get(),
+            mesh.getBvhTreeBufferTrianglesShaderResourceView().Get()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -113,6 +119,6 @@ void RaytracingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContex
     if ( !compiled ) throw std::exception( "RaytracingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 3 ] = { nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 3, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 6 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 6, nullResources );
 }

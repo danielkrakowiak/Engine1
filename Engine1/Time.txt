@@ -187,3 +187,5 @@ Fri 29.04.2016 - 3h - Refactoring whole code to use new texture class. Fixing co
 Sat 30.04.2016 - 6h - Refactoring whole code to use new texture class. Fixing compilation errors. Fixed RGB->BGR problem when loading textures. Cleaned up "to do" list. Reading on BVH trees.
 --- April 2016 - 16h
 Sun 01.05.2016 - 8h - Reading on BVH trees. Implemented BVH tree construction from block mesh.
+Mon 02.05.2016 - 5h - Implemented BVH tree buffer (tree placed in contiguous memory). Refactored the raytracing shader - placed code in separate methods. Added BVH tree in BlockMesh and passed it to the raytracing shader.
+Tue 03.05.2016 - 6h - Implemented BVH traversal in raytracing compute shader. Configured HLSL compiler to output generated assembly to file for examination. Examining why shader without optimizations is 2.5x faster than the one with optimizations.

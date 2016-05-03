@@ -19,6 +19,9 @@ struct ID3D11ShaderResourceView;
 
 namespace Engine1
 {
+    class BVHTree;
+    class BVHTreeBuffer;
+
     class BlockMesh : public Asset
     {
         friend class MyOBJFileParser;
@@ -75,6 +78,13 @@ namespace Engine1
         // Returns <min, max> of the bounding box.
         std::tuple<float3, float3> getBoundingBox() const;
 
+        void buildBvhTree();
+        void loadBvhTreeToGpu( ID3D11Device& device );
+
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferNodesShaderResourceView()        const;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferNodesExtentsShaderResourceView() const;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferTrianglesShaderResourceView()    const;
+
         private:
 
         BlockMeshFileInfo fileInfo;
@@ -96,6 +106,15 @@ namespace Engine1
 
         float3 boundingBoxMin;
         float3 boundingBoxMax;
+
+        std::shared_ptr< BVHTree >                       bvhTree;
+        std::shared_ptr< BVHTreeBuffer >                 bvhTreeBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>             bvhTreeBufferNodesGpu;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bvhTreeBufferNodesGpuSRV;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>             bvhTreeBufferNodesExtentsGpu;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bvhTreeBufferNodesExtentsGpuSRV;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>             bvhTreeBufferTrianglesGpu;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bvhTreeBufferTrianglesGpuSRV;
 
         // Copying meshes in not allowed.
         BlockMesh( const BlockMesh& ) = delete;

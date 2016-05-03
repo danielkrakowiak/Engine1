@@ -16,6 +16,9 @@
 
 #include "TextFile.h"
 
+#include "BVHTree.h"
+#include "BVHTreeBuffer.h"
+
 using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
@@ -476,4 +479,125 @@ void BlockMesh::recalculateBoundingBox()
 std::tuple<float3, float3> BlockMesh::getBoundingBox() const
 {
     return std::make_tuple(boundingBoxMin, boundingBoxMax);
+}
+
+void BlockMesh::buildBvhTree()
+{
+    bvhTree       = std::make_shared< BVHTree >( *this );
+    bvhTreeBuffer = std::make_shared< BVHTreeBuffer >( *bvhTree );
+}
+
+void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
+{
+    if ( !bvhTreeBufferNodesGpu ) {
+        D3D11_BUFFER_DESC desc;
+        desc.Usage               = D3D11_USAGE_DEFAULT;
+        desc.ByteWidth           = sizeof( BVHTreeBuffer::Node ) * (unsigned int)bvhTreeBuffer->getNodes().size();
+        desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
+        desc.CPUAccessFlags      = 0;
+        desc.MiscFlags           = 0;
+        desc.StructureByteStride = 0;
+
+        D3D11_SUBRESOURCE_DATA dataPtr;
+        dataPtr.pSysMem          = bvhTreeBuffer->getNodes().data();
+        dataPtr.SysMemPitch      = 0;
+        dataPtr.SysMemSlicePitch = 0;
+
+        HRESULT result = device.CreateBuffer( &desc, &dataPtr, bvhTreeBufferNodesGpu.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadBvhTreeToGpu - Buffer creation for BVH nodes failed." );
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
+        resourceDesc.Format              = DXGI_FORMAT_R32G32_UINT;
+        resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
+        resourceDesc.Buffer.FirstElement = 0;
+        resourceDesc.Buffer.NumElements  = (unsigned int)bvhTreeBuffer->getNodes().size();
+
+        result = device.CreateShaderResourceView( bvhTreeBufferNodesGpu.Get(), &resourceDesc, bvhTreeBufferNodesGpuSRV.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH nodes shader resource view on GPU failed." );
+
+#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        std::string resourceName = std::string( "BlockMesh::bvhNodes" );
+        Direct3DUtil::setResourceName( *bvhTreeBufferNodesGpu.Get(), resourceName );
+#endif
+	}
+
+    if ( !bvhTreeBufferNodesExtentsGpu ) {
+        D3D11_BUFFER_DESC desc;
+        desc.Usage               = D3D11_USAGE_DEFAULT;
+        desc.ByteWidth           = sizeof( BVHTreeBuffer::NodeExtents ) * (unsigned int)bvhTreeBuffer->getNodesExtents().size();
+        desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
+        desc.CPUAccessFlags      = 0;
+        desc.MiscFlags           = 0;
+        desc.StructureByteStride = 0;
+
+        D3D11_SUBRESOURCE_DATA dataPtr;
+        dataPtr.pSysMem          = bvhTreeBuffer->getNodesExtents().data();
+        dataPtr.SysMemPitch      = 0;
+        dataPtr.SysMemSlicePitch = 0;
+
+        HRESULT result = device.CreateBuffer( &desc, &dataPtr, bvhTreeBufferNodesExtentsGpu.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadBvhTreeToGpu - Buffer creation for BVH nodes extents failed." );
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
+        resourceDesc.Format              = DXGI_FORMAT_R32G32B32_FLOAT;
+        resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
+        resourceDesc.Buffer.FirstElement = 0;
+        resourceDesc.Buffer.NumElements  = (unsigned int)bvhTreeBuffer->getNodesExtents().size() * 2; // Multiplied by 2, because SRV accesses 
+                                                                                                      // each float3 separately instead of pair <float3, float3> (min, max).
+
+        result = device.CreateShaderResourceView( bvhTreeBufferNodesExtentsGpu.Get(), &resourceDesc, bvhTreeBufferNodesExtentsGpuSRV.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH nodes extents shader resource view on GPU failed." );
+
+#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        std::string resourceName = std::string( "BlockMesh::bvhNodesExtents" );
+        Direct3DUtil::setResourceName( *bvhTreeBufferNodesExtentsGpu.Get(), resourceName );
+#endif
+	}
+
+    if ( !bvhTreeBufferTrianglesGpu ) {
+        D3D11_BUFFER_DESC desc;
+        desc.Usage               = D3D11_USAGE_DEFAULT;
+        desc.ByteWidth           = sizeof( unsigned int ) * (unsigned int)bvhTreeBuffer->getTriangles().size();
+        desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
+        desc.CPUAccessFlags      = 0;
+        desc.MiscFlags           = 0;
+        desc.StructureByteStride = 0;
+
+        D3D11_SUBRESOURCE_DATA dataPtr;
+        dataPtr.pSysMem          = bvhTreeBuffer->getTriangles().data();
+        dataPtr.SysMemPitch      = 0;
+        dataPtr.SysMemSlicePitch = 0;
+
+        HRESULT result = device.CreateBuffer( &desc, &dataPtr, bvhTreeBufferTrianglesGpu.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadBvhTreeToGpu - Buffer creation for BVH triangles failed." );
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
+        resourceDesc.Format              = DXGI_FORMAT_R32_UINT;
+        resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
+        resourceDesc.Buffer.FirstElement = 0;
+        resourceDesc.Buffer.NumElements  = (unsigned int)bvhTreeBuffer->getTriangles().size();
+
+        result = device.CreateShaderResourceView( bvhTreeBufferTrianglesGpu.Get(), &resourceDesc, bvhTreeBufferTrianglesGpuSRV.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH triangles shader resource view on GPU failed." );
+
+#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        std::string resourceName = std::string( "BlockMesh::bvhTriangles" );
+        Direct3DUtil::setResourceName( *bvhTreeBufferTrianglesGpu.Get(), resourceName );
+#endif
+	}
+}
+
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> BlockMesh::getBvhTreeBufferNodesShaderResourceView() const
+{
+    return bvhTreeBufferNodesGpuSRV;
+}
+
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> BlockMesh::getBvhTreeBufferNodesExtentsShaderResourceView() const
+{
+    return bvhTreeBufferNodesExtentsGpuSRV;
+}
+
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> BlockMesh::getBvhTreeBufferTrianglesShaderResourceView() const
+{
+    return bvhTreeBufferTrianglesGpuSRV;
 }

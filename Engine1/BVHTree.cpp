@@ -93,10 +93,10 @@ std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundin
 	const float3 sides = trianglesMax - trianglesMin;
 	float minCost = triangles.size() * ( sides.x*sides.y + sides.y*sides.z + sides.z*sides.x );
 
-	float bestSplitPos                = FLT_MAX; // Best split position along chosen split axis.
-    int   bestSplitAxis               = -1;      // 0 = X, 1 = Y, 2 = Z axis.
-    int   bestSplitLeftTriangleCount  = 0;
-    int   bestSplitRightTriangleCount = 0;
+	float        bestSplitPos                = FLT_MAX; // Best split position along chosen split axis.
+    int          bestSplitAxis               = -1;      // 0 = X, 1 = Y, 2 = Z axis.
+    unsigned int bestSplitLeftTriangleCount  = 0;
+    unsigned int bestSplitRightTriangleCount = 0;
 
     // Try to split along axises X, Y, Z and check which gives minimal cost.
 	for (int axis = 0; axis < 3; axis++) {  
@@ -116,7 +116,7 @@ std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundin
 		const float splitPosStep = (splitPosStop - splitPosStart) / (1024.0f / (depth + 1.0f));
 
 		// Try to split on different positions and check which gives minimal cost.
-		for (float testSplitPos = splitPosStart + splitPosStep; testSplitPos < splitPosStop - splitPosStep; testSplitPos += splitPosStep) {
+		for ( float testSplitPos = splitPosStart + splitPosStep; testSplitPos < splitPosStop - splitPosStep; testSplitPos += splitPosStep ) {
 
 			// Create left and right bounding box
 			float3 leftMin(  FLT_MAX,  FLT_MAX,  FLT_MAX );
@@ -125,7 +125,7 @@ std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundin
 			float3 rightMin(  FLT_MAX,  FLT_MAX,  FLT_MAX );
 			float3 rightMax( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
-			int leftTriangleCount = 0, rightTriangleCount = 0;
+			unsigned int leftTriangleCount = 0, rightTriangleCount = 0;
 
 			// Count triangles in the left and right bounding boxes and calculate their extents.
             // Needed to calculate SAH cost after split.

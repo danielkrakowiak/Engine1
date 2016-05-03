@@ -898,6 +898,9 @@
     <Text Include="Asset Rules.txt">
       <Filter>Source Files\Notes</Filter>
     </Text>
+    <Text Include="Notes2.txt">
+      <Filter>Source Files\Notes</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\BlockMeshShader\ps.hlsl">

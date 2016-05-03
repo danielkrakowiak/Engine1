@@ -1,0 +1,6 @@
+Difficulties during development:
+- How to pass VertexBuffer to the compute shader. Can't pass VB normally, because it can't have Shader Resource View.
+  Answer: use raw buffers and calculate address in the shader.
+
+- How to implement texturing in raytracing? If GPU decides in the shader which object should be tested for intersection then 
+  there is no way to bind needed textures ahead, because we don't know which object will be tested for intersection.

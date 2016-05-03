@@ -112,7 +112,7 @@ void RaytraceRenderer::traceRays( const Camera& camera, const BlockActor& actor 
     rendererCore.enableComputeShader( raytracingComputeShader );
     rendererCore.enableComputeTarget( rayHitsAlbedoTexture );
 
-    uint3 groupCount( imageWidth / 32, imageHeight / 32, 1 );
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     rendererCore.compute( groupCount );
 

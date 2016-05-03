@@ -15,8 +15,8 @@ namespace Engine1
     {
         struct TriangleBoundingBox
         {
-            int         triangleIndex;
-            BoundingBox boundingBox;
+            unsigned int triangleIndex;
+            BoundingBox  boundingBox;
         };
 
         public:

@@ -48,7 +48,7 @@ Application::Application() :
 	fullscreen( false ),
 	screenWidth( 1024 ),
 	screenHeight( 768 ),
-	verticalSync( true ),
+	verticalSync( false ),
 	displayFrequency( 60 ),
 	screenColorDepth( 32 ),
 	zBufferDepth( 32 ),
@@ -76,9 +76,6 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
     std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>(assetManager.getOrLoad( axisMeshFileInfo ));
     axisMesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
-
-    BVHTree axisMeshBvhTree( *axisMesh );
-    BVHTreeBuffer axisMeshBvhTreeBuffer( axisMeshBvhTree );
 
     // Load 'light source' model.
     BlockModelFileInfo lightModelFileInfo( "Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
@@ -494,8 +491,13 @@ void Application::onDragAndDropFile( std::string filePath )
 
         BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( fileInfo ) );
-        if ( !mesh->isInGpuMemory( ) )
+
+        mesh->buildBvhTree();
+
+        if ( !mesh->isInGpuMemory( ) ) {
             mesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
+            mesh->loadBvhTreeToGpu( *frameRenderer.getDevice().Get() );
+        }
 
         // Add new actor to the scene.
         defaultBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );

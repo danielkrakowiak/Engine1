@@ -16,6 +16,21 @@ BVHTreeBuffer::BVHTreeBuffer( BVHTree& tree )
 BVHTreeBuffer::~BVHTreeBuffer()
 {}
 
+const std::vector< unsigned int >& BVHTreeBuffer::getTriangles() const
+{
+    return m_triangles;
+}
+
+const std::vector< BVHTreeBuffer::Node >& BVHTreeBuffer::getNodes() const
+{
+    return m_bvhNodes;
+}
+
+const std::vector< BVHTreeBuffer::NodeExtents >& BVHTreeBuffer::getNodesExtents() const
+{
+    return m_bvhNodesExtents;
+}
+
 void BVHTreeBuffer::build( BVHTree& tree )
 {
     int maxDepth = 0;
@@ -30,21 +45,23 @@ void BVHTreeBuffer::build( BVHTree& tree )
     m_triangles.resize( triangleCount );
 
 	unsigned int nodeCount = countNodes( tree.getRootNode() );
-	m_bvhBuffer.resize( nodeCount );
+	m_bvhNodes.resize( nodeCount );
+    m_bvhNodesExtents.resize( nodeCount );
 
-	buildBuffer( m_bvhBuffer, m_triangles, tree.getRootNode(), nodesInsertIndex, trianglesInsertIndex);
+	buildBuffer( m_bvhNodes, m_bvhNodesExtents, m_triangles, tree.getRootNode(), nodesInsertIndex, trianglesInsertIndex);
 
     // Check if the created buffer BVH tree is the same as the input BVH tree.
     // TODO: Should be removed later. Replaced by a unit test.
 	assert( ((nodesInsertIndex == nodeCount - 1) && (trianglesInsertIndex == triangleCount)) );
 }
 
-void BVHTreeBuffer::buildBuffer( std::vector< BVHTreeBuffer::Node >& bvhBuffer, std::vector< int >& triangles, const BVHNode& node, unsigned int& nodesInsertIndex, unsigned int& trianglesInsertIndex )
+void BVHTreeBuffer::buildBuffer( std::vector< BVHTreeBuffer::Node >& bvhNodes, std::vector< BVHTreeBuffer::NodeExtents >& bvhNodesExtents, std::vector< unsigned int >& triangles,
+                                 const BVHNode& node, unsigned int& nodesInsertIndex, unsigned int& trianglesInsertIndex )
 {
 	unsigned int currentNodesInsertIndex = nodesInsertIndex;
 
-	bvhBuffer[ currentNodesInsertIndex ].min = node.getMin();
-	bvhBuffer[ currentNodesInsertIndex ].max = node.getMax();
+	bvhNodesExtents[ currentNodesInsertIndex ].min = node.getMin();
+	bvhNodesExtents[ currentNodesInsertIndex ].max = node.getMax();
 
 	// Depth first approach - left child first until completed.
 	if ( !node.isLeaf() ) 
@@ -53,12 +70,12 @@ void BVHTreeBuffer::buildBuffer( std::vector< BVHTreeBuffer::Node >& bvhBuffer, 
 
 		// Recursively build left and right child nodes.
 		int idxLeft = ++nodesInsertIndex;
-		buildBuffer( bvhBuffer, triangles, innerNode.getLeftChild(), nodesInsertIndex, trianglesInsertIndex);
+		buildBuffer( bvhNodes, bvhNodesExtents, triangles, innerNode.getLeftChild(), nodesInsertIndex, trianglesInsertIndex);
 		int idxRight = ++nodesInsertIndex;
-		buildBuffer( bvhBuffer, triangles, innerNode.getRightChild(), nodesInsertIndex, trianglesInsertIndex);
+		buildBuffer( bvhNodes, bvhNodesExtents, triangles, innerNode.getRightChild(), nodesInsertIndex, trianglesInsertIndex);
 
-		bvhBuffer[ currentNodesInsertIndex ].node.inner.childIndexLeft  = idxLeft;
-		bvhBuffer[ currentNodesInsertIndex ].node.inner.childIndexRight = idxRight;
+		bvhNodes[ currentNodesInsertIndex ].node.inner.childIndexLeft  = idxLeft;
+		bvhNodes[ currentNodesInsertIndex ].node.inner.childIndexRight = idxRight;
 	}
 	else 
     { // Leaf node.
@@ -66,10 +83,10 @@ void BVHTreeBuffer::buildBuffer( std::vector< BVHTreeBuffer::Node >& bvhBuffer, 
 
 		unsigned int triangleCount = (unsigned int)leafNode.getTriangles().size();
 
-		bvhBuffer[ currentNodesInsertIndex ].node.leaf.triangleCount      = 0x80000000 | triangleCount;  // Set top bit = 1 to indicate that this node is a leaf node.
-		bvhBuffer[ currentNodesInsertIndex ].node.leaf.firstTriangleIndex = trianglesInsertIndex;
+		bvhNodes[ currentNodesInsertIndex ].node.leaf.triangleCount      = 0x80000000 | triangleCount;  // Set top bit = 1 to indicate that this node is a leaf node.
+		bvhNodes[ currentNodesInsertIndex ].node.leaf.firstTriangleIndex = trianglesInsertIndex;
 
-		for ( const int triangle : leafNode.getTriangles() )
+		for ( const unsigned int triangle : leafNode.getTriangles() )
 			triangles[ trianglesInsertIndex++ ] = triangle;
 	}
 }
