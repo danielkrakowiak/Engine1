@@ -10,41 +10,46 @@ namespace Engine1
     class InputManager
     {
         public:
+
         InputManager();
         ~InputManager();
 
         void updateMouseState();
-        void onKeyboardButton( int key, bool pressed );
-        void onMouseButton( int key, bool pressed );
+        
         void lockCursor( bool lock );
         bool isCursorLocked();
         bool isKeyPressed( unsigned int key );
+        bool isMouseButtonPressed( unsigned int button );
         int2 getMouseMove();
+
+        void onKeyboardButton( int key, bool pressed );
+        void onMouseButton( int key, bool pressed );
 
         class Keys
         {
             public:
-            static const unsigned int back = 8;
-            static const unsigned int tab = 9;
-            static const unsigned int enter = 13;
-            static const unsigned int shift = 16;
-            static const unsigned int ctrl = 17;
+
+            static const unsigned int back     = 8;
+            static const unsigned int tab      = 9;
+            static const unsigned int enter    = 13;
+            static const unsigned int shift    = 16;
+            static const unsigned int ctrl     = 17;
             static const unsigned int capsLock = 20;
-            static const unsigned int esc = 27;
-            static const unsigned int left = 37;
-            static const unsigned int up = 38;
-            static const unsigned int right = 39;
-            static const unsigned int down = 40;
-            static const unsigned int zero = 48;
-            static const unsigned int one = 49;
-            static const unsigned int two = 50;
-            static const unsigned int three = 51;
-            static const unsigned int four = 52;
-            static const unsigned int five = 53;
-            static const unsigned int six = 54;
-            static const unsigned int seven = 55;
-            static const unsigned int eight = 56;
-            static const unsigned int nine = 57;
+            static const unsigned int esc      = 27;
+            static const unsigned int left     = 37;
+            static const unsigned int up       = 38;
+            static const unsigned int right    = 39;
+            static const unsigned int down     = 40;
+            static const unsigned int zero     = 48;
+            static const unsigned int one      = 49;
+            static const unsigned int two      = 50;
+            static const unsigned int three    = 51;
+            static const unsigned int four     = 52;
+            static const unsigned int five     = 53;
+            static const unsigned int six      = 54;
+            static const unsigned int seven    = 55;
+            static const unsigned int eight    = 56;
+            static const unsigned int nine     = 57;
 
             static const unsigned int a = 65;
             static const unsigned int b = 66;
@@ -100,12 +105,21 @@ namespace Engine1
             static const unsigned int apostrophe = 222;
         };
 
+        class MouseButtons
+        {
+            public:
+
+            static const unsigned int left   = 0;
+            static const unsigned int middle = 1;
+            static const unsigned int right  = 2;
+        };
+
         private:
         static const unsigned int keyboardKeyCount = 256;
         std::array<bool, keyboardKeyCount> keyboardButtonState;
 
-        static const unsigned int mouseKeyCount = 5;
-        std::array<bool, mouseKeyCount> mouseButtonState;
+        static const unsigned int mouseButtonCount = 5;
+        std::array<bool, mouseButtonCount> mouseButtonState;
 
         int2 mouseMove;
         int2 mousePrevPos;

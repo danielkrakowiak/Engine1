@@ -182,9 +182,8 @@ void Application::run() {
 	while ( run ) {
 		Timer frameStartTime;
 
-		inputManager.lockCursor( windowFocused );
-
-		inputManager.updateMouseState();
+        // Disable locking when connecting through Team Viewer.
+        bool lockCursor = false;
 
 		while ( PeekMessage( &msg, 0, 0, 0, PM_REMOVE ) ) {
 			TranslateMessage( &msg );
@@ -196,7 +195,7 @@ void Application::run() {
         // Translate / rotate the default actor.
         bool movingActors = false;
         if ( windowFocused && defaultBlockActor ) {
-            const float   translationSensitivity = 0.002f;
+            const float   translationSensitivity = 0.05f;//0.002f;
             const float   rotationSensitivity    = 0.0002f;
             const float43 currentPose            = defaultBlockActor->getPose();
             const int2    mouseMove              = inputManager.getMouseMove();
@@ -217,8 +216,10 @@ void Application::run() {
         }
 
         // Update the camera.
-        if ( windowFocused && !movingActors ) { 
+        if ( windowFocused && !movingActors && inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
             const float cameraRotationSensitivity = 0.0001f;
+
+            lockCursor = true;
 
             if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime );
             else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTime );
@@ -230,6 +231,9 @@ void Application::run() {
 			int2 mouseMove = inputManager.getMouseMove( );
 			camera.rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTime * cameraRotationSensitivity );
 		}
+
+        inputManager.lockCursor( lockCursor );
+        inputManager.updateMouseState();
 
 		camera.updateState( (float)frameTime );
 

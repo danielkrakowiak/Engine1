@@ -9,7 +9,7 @@ InputManager::InputManager() {
 		keyboardButtonState.at( i ) = false;
 	}
 
-	for ( int i = 0; i < mouseKeyCount; ++i ) {
+	for ( int i = 0; i < mouseButtonCount; ++i ) {
 		mouseButtonState.at( i ) = false;
 	}
 
@@ -71,18 +71,29 @@ void InputManager::updateMouseState( ) {
 }
 
 void InputManager::onKeyboardButton( int key, bool pressed ) {
-	if ( 0 > key || keyboardKeyCount <= key ) return;
+	if ( key < 0 || key >= keyboardKeyCount ) 
+        return;
 
 	keyboardButtonState.at( key ) = pressed;
 }
 
 void InputManager::onMouseButton( int key, bool pressed ) {
-	if ( 0 > key || mouseKeyCount <= key ) return;
+	if ( key < 0 || key >= mouseButtonCount ) 
+        return;
 
 	mouseButtonState.at( key ) = pressed;
 }
 
 void InputManager::lockCursor( bool lock ) {
+
+    if (lock && !lockCursorPos) {
+        POINT cursorPos;
+	    GetCursorPos( &cursorPos );
+
+        lockedCursorPos.x = cursorPos.x;		
+	    lockedCursorPos.y = cursorPos.y;
+    }
+
 	lockCursorPos = lock;
 }
 
@@ -91,9 +102,18 @@ bool InputManager::isCursorLocked() {
 }
 
 bool InputManager::isKeyPressed( unsigned int key ) {
-	if ( key >= keyboardKeyCount ) throw std::exception( "given key is outside of the accepted range" );
+	if ( key >= keyboardKeyCount ) 
+        throw std::exception( "InputManager::isKeyPressed - given key is outside of the accepted range." );
 
 	return keyboardButtonState.at( key );
+}
+
+bool InputManager::isMouseButtonPressed( unsigned int button )
+{
+    if ( button >= mouseButtonCount ) 
+        throw std::exception( "InputManager::isMouseButtonPressed - given key is outside of the accepted range." );
+
+	return mouseButtonState.at( button );
 }
 
 int2 InputManager::getMouseMove() {
