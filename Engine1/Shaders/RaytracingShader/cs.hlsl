@@ -21,13 +21,17 @@ Buffer<uint2>     bvhNodes        : register( t3 );
 Buffer<float3>    bvhNodesExtents : register( t4 ); // min, max, min, max interleaved.
 Buffer<uint>      bvhTriangles    : register( t5 );
 ;
+// Input / Output.
+RWTexture2D<float>  hitDistance       : register( u0 );
 // Output.
-RWTexture2D<float4> computeTarget : register( u0 );
+RWTexture2D<float2> barycentricCoords : register( u1 );
 
 bool     rayBoxIntersect( float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxMax );
 uint3    getTriangle( uint index );
 float3x3 getVertices( uint3 index );
 bool     rayTriangleIntersect( float3 rayOrigin, float3 rayDir, float3x3 vertices );
+float    calcDistToTriangle( float3 rayOrigin, float3 rayDir, float3x3 vertices );
+float3   calcBarycentricCoordsInTriangle(float3 p, float3x3 vertices);
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -45,15 +49,16 @@ void main( uint3 groupId : SV_GroupID,
 	float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldMatrixInv ); //#TODO: ray origin could be passed in local space to avoid this calculation.
 	float4 rayDirLocal    = mul( float4( rayOrigin + rayDir, 1.0f ), worldMatrixInv ) - rayOriginLocal;
 
-    float4 output = float4( 0.2f, 0.2f, 0.2f, 1.0f );
+    //float4 output = float4( 0.2f, 0.2f, 0.2f, 1.0f );
 
     // Test the ray against the bounding box
     if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, boundingBoxMin, boundingBoxMax ) ) 
     {
-        output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
+        //output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
 
-	    //int closestTriangleIndex  = -1;
-	    //float closestTriangleDist = 5000.0f;
+	    int    hitTriangle          = -1;
+	    float  hitDist              = 20000.0f;
+        float3 hitBarycentricCoords = float3(0.0f, 0.0f, 0.0f);
 
         // TODO: Size of the stack could be passed as argument in constant buffer?
         const uint BVH_STACK_SIZE = 32; 
@@ -100,20 +105,38 @@ void main( uint3 groupId : SV_GroupID,
                 const uint lastTriangleIndex  = firstTriangleIndex + triangleCount;
 			    for ( uint i = firstTriangleIndex; i < lastTriangleIndex; ++i ) 
                 {
-				    const uint3    trianglee = getTriangle( bvhTriangles[ i ] );
-                    const float3x3 vertices  = getVertices( trianglee );
+                    const uint     triangleIdx = bvhTriangles[ i ];
+				    const uint3    trianglee   = getTriangle( triangleIdx );
+                    const float3x3 vertices    = getVertices( trianglee );
 
                     if ( rayTriangleIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, vertices ) )
                     {
-                        output = float4( 1.0f, 0.2f, 0.2f, 1.0f );
-                        break;
+                        const float dist = calcDistToTriangle( rayOriginLocal.xyz, rayDirLocal.xyz, vertices );
+
+                        if ( dist < hitDist )
+                        {
+                            hitDist     = dist;
+                            hitTriangle = triangleIdx;
+
+                            const float3 hitPos = rayOriginLocal.xyz + rayDirLocal.xyz * dist;
+                            hitBarycentricCoords = calcBarycentricCoordsInTriangle( hitPos, vertices );
+                        }
+
+                        //break;
                     }
                 }
             }
         }
-    }
 
-    computeTarget[ dispatchThreadId.xy ] = output;
+        if ( hitTriangle != -1 )
+        {
+            // Write to output only if found hit is closer than the existing one at that pixel.
+            if ( hitDist < hitDistance[ dispatchThreadId.xy] ) {
+                hitDistance[ dispatchThreadId.xy ]     = hitDist;
+                barycentricCoords[dispatchThreadId.xy] = hitBarycentricCoords.xy;
+            }
+        }
+    }
 }
 
 bool rayBoxIntersect( float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxMax )
@@ -171,7 +194,46 @@ bool rayTriangleIntersect( float3 rayOrigin, float3 rayDir, float3x3 vertices )
 	const float dot2 = dot( rayDir, cross( vertices[1] - rayOrigin, vertices[2] - rayOrigin ));
 	const float dot3 = dot( rayDir, cross( vertices[2] - rayOrigin, vertices[0] - rayOrigin ));
 
-    return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );
+    // Without backface culling:
+    //return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );
+
+    // With backface culling:
+    return (dot1 < 0 && dot2 < 0 && dot3 < 0);
+}
+
+float calcDistToTriangle( float3 rayOrigin, float3 rayDir, float3x3 vertices )
+{
+    const float3 trianglePlaneNormal   = normalize( cross( vertices[ 1 ] - vertices[ 0 ], vertices[ 2 ] - vertices[ 0 ] ));
+	const float  trianglePlaneDistance = -dot( vertices[ 0 ], trianglePlaneNormal );
+	
+	const float rayTriangleDot    = dot( rayDir, trianglePlaneNormal );
+	const float distFromRayOrigin = -( dot( trianglePlaneNormal, rayOrigin ) + trianglePlaneDistance ) / rayTriangleDot;
+
+    return distFromRayOrigin;
+}
+
+float3 calcBarycentricCoordsInTriangle( float3 p, float3x3 vertices )
+{
+    float3 barycentricCoords;
+
+    float3 edge0 = vertices[1] - vertices[0];
+    float3 edge1 = vertices[2] - vertices[0];
+    float3 edge2 = p - vertices[0];
+
+
+    float d00 = dot( edge0, edge0 );
+    float d01 = dot( edge0, edge1 );
+    float d11 = dot( edge1, edge1 );
+    float d20 = dot( edge2, edge0 );
+    float d21 = dot( edge2, edge1 );
+    float denom = d00 * d11 - d01 * d01;
+
+    barycentricCoords.y = (d11 * d20 - d01 * d21) / denom;
+    barycentricCoords.z = (d00 * d21 - d01 * d20) / denom;
+    barycentricCoords.x = 1.0f - barycentricCoords.y - barycentricCoords.z;
+
+    return barycentricCoords;
+
 }
 
 

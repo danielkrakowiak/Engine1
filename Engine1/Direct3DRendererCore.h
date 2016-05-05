@@ -6,6 +6,7 @@
 #include "TTexture2D.h"
 
 #include "uint3.h"
+#include "float2.h"
 #include "float4.h"
 #include "uchar4.h"
 
@@ -41,10 +42,18 @@ namespace Engine1
         void initialize( ID3D11DeviceContext& deviceContext );
 
         void enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargets, 
-                                  const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget );
-        void enableComputeTarget( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > computeTarget );
-        void disableRenderTargets();
-        void disableComputeTargets();
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget );
+
+        // #TODO: Should be refactored to take any UAVs despite of their PixelType in one vector. Impossible until Texture2D class gets refactoring.
+        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > > unorderedAccessTargetsF1,
+                                           const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2,
+                                           const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4 );
+
+        // Temporary. Until refactoring is done.
+        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4 );
+
+        void disableRenderTargetViews();
+        void disableUnorderedAccessViews();
 
         void enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader );
         void enableComputeShader( std::shared_ptr<const ComputeShader> computeShader );
@@ -74,13 +83,13 @@ namespace Engine1
         bool vertexOrFragmentShaderEnabled;
         bool computeShaderEnabled;
 
-        std::weak_ptr<const VertexShader>   currentVertexShader;
-        std::weak_ptr<const FragmentShader> currentFragmentShader;
-        std::weak_ptr<const ComputeShader>  currentComputeShader;
+        std::weak_ptr< const VertexShader >   currentVertexShader;
+        std::weak_ptr< const FragmentShader > currentFragmentShader;
+        std::weak_ptr< const ComputeShader >  currentComputeShader;
 
-        std::vector< std::weak_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > currentRenderTargets;
-        std::weak_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > >                currentDepthRenderTarget;
-        std::weak_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > >             currentComputeTarget;
+        std::vector< ID3D11RenderTargetView* >    currentRenderTargetViews;
+        ID3D11DepthStencilView*                   currentDepthRenderTargetView;
+        std::vector< ID3D11UnorderedAccessView* > currentUnorderedAccessTargetViews;
 
         ID3D11RasterizerState*   currentRasterizerState;
         ID3D11DepthStencilState* currentDepthStencilState;

@@ -10,6 +10,8 @@
 #include "Texture2DEnums.h"
 #include "Texture2DGeneric.h"
 
+#include "uint4.h"
+
 namespace Engine1
 {
     template< TexBind binding, typename PixelType >
@@ -84,6 +86,25 @@ namespace Engine1
         ID3D11UnorderedAccessView* getUnorderedAccessView() const
         {
             return m_unorderedAccessView.Get();
+        }
+
+        // TODO: maybe the input type should be PixelType and based on it the uint/float function gets called.
+        void clearUnorderedAccessViewUint( ID3D11DeviceContext& deviceContext, uint4 value )
+        {
+	        if ( !isInGpuMemory() ) 
+                throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::clearUnorderedAccessViewUint - Texture not in GPU memory." );
+            
+	        deviceContext.ClearUnorderedAccessViewUint( m_unorderedAccessView.Get(), value.getData() );
+        }
+
+        // TODO: maybe the input type should be PixelType and based on it the uint/float function gets called.
+        void clearUnorderedAccessViewFloat( ID3D11DeviceContext& deviceContext, float4 value )
+        {
+	        if ( !isInGpuMemory() ) 
+                throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::clearUnorderedAccessViewFloat - Texture not in GPU memory." );
+            
+            float val[4] = { value.x, value.y, value.z, value.w };
+	        deviceContext.ClearUnorderedAccessViewFloat( m_unorderedAccessView.Get(), val );
         }
     };
 

@@ -5,6 +5,7 @@
 
 #include "uchar4.h"
 #include "float4.h"
+#include "float2.h"
 
 namespace Engine1 
 {
@@ -23,7 +24,8 @@ namespace Engine1
             Albedo = 0,
             Normal,
             RayDirections1,
-            Reflection1
+            RaytracingHitDistance,
+            RaytracingHitBarycentricCoords
         };
 
         Renderer( Direct3DDefferedRenderer& defferedRenderer, RaytraceRenderer& raytraceRenderer );
@@ -33,7 +35,9 @@ namespace Engine1
 
         std::tuple< 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > >
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > >
         renderScene( const CScene& scene, const Camera& camera );
 
         void setActiveView( const View view );

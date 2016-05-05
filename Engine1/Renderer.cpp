@@ -34,7 +34,9 @@ void Renderer::initialize( std::shared_ptr<const BlockMesh> axisMesh, std::share
 
 std::tuple< 
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > > 
+std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
+std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
+std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
 Renderer::renderScene( const CScene& scene, const Camera& camera )
 {
     defferedRenderer.clearRenderTargets( float4( 0.2f, 0.2f, 0.2f, 1.0f ), 1.0f );
@@ -80,37 +82,52 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     }
 
     // Perform raytracing on the first block actor.
+    std::vector< std::shared_ptr< const BlockActor > > blockActors;
+    blockActors.reserve( actors.size() );
     for ( const std::shared_ptr<Actor> actor : actors ) 
     {
-        if ( actor->getType() == Actor::Type::BlockActor ) {
-            const std::shared_ptr<BlockActor> blockActor = std::static_pointer_cast<BlockActor>(actor);
-
-            raytraceRenderer.generateAndTraceRays( camera, *blockActor );
-        }
+        if ( actor->getType() == Actor::Type::BlockActor )
+            blockActors.push_back( std::static_pointer_cast<BlockActor>( actor ) );
     }
+    raytraceRenderer.generateAndTraceRays( camera, blockActors );
 
     switch (activeView)
     {
         case View::Albedo: 
             return std::make_tuple( 
                 defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO ),
-                nullptr 
+                nullptr,
+                nullptr,
+                nullptr
              );
         case View::Normal:
             return std::make_tuple(
                 defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL ),
+                nullptr,
+                nullptr,
                 nullptr
              );
         case View::RayDirections1:
             return std::make_tuple(
                 nullptr,
-                raytraceRenderer.getRayDirectionsTexture() 
+                raytraceRenderer.getRayDirectionsTexture(),
+                nullptr,
+                nullptr
              );
-        case View::Reflection1:
+        case View::RaytracingHitDistance:
+            return std::make_tuple(
+                nullptr,
+                nullptr,
+                nullptr,
+                raytraceRenderer.getRayHitDistanceTexture() 
+            );
+        case View::RaytracingHitBarycentricCoords:
         default:
             return std::make_tuple(
                 nullptr,
-                raytraceRenderer.getRayHitsAlbedoTexture() 
+                nullptr,
+                raytraceRenderer.getRayHitBarycentricTexture(),
+                nullptr
             );
     }
 }

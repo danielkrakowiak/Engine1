@@ -344,6 +344,7 @@
     <ClInclude Include="uint2.h" />
     <ClInclude Include="uint3.h" />
     <ClInclude Include="ComputeTargetTexture2D.h" />
+    <ClInclude Include="uint4.h" />
     <ClInclude Include="VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -445,6 +446,7 @@
     <ClCompile Include="uint2.cpp" />
     <ClCompile Include="uint3.cpp" />
     <ClCompile Include="ComputeTargetTexture2D.cpp" />
+    <ClCompile Include="uint4.cpp" />
     <ClCompile Include="VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>

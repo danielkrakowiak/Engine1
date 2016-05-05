@@ -20,7 +20,7 @@ using Microsoft::WRL::ComPtr;
 
 Direct3DRendererCore::Direct3DRendererCore() :
 deviceContext( nullptr ),
-currentRenderTargets(),
+currentRenderTargetViews(),
 vertexOrFragmentShaderEnabled( false ),
 computeShaderEnabled( false ),
 currentRasterizerState( nullptr ),
@@ -117,10 +117,10 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 	bool sameAsCurrent = true;
 
 	{ // Check if render targets to be enabled are the same as the current ones.
-		if ( renderTargets.size() == currentRenderTargets.size() ) {
+		if ( renderTargets.size() == currentRenderTargetViews.size() ) {
 			for ( unsigned int i = 0; i < renderTargets.size(); ++i ) {
 				// Check each pair of render targets at corresponding indexes.
-				if ( renderTargets.at( i ) != currentRenderTargets.at( i ).lock() ) {
+				if ( currentRenderTargetViews.size() <= i || renderTargets.at( i )->getRenderTargetView() != currentRenderTargetViews.at( i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -131,7 +131,8 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 		}
 
 		// Check if depth render target to be enabled is the same as the current one.
-		if ( depthRenderTarget != currentDepthRenderTarget.lock() )
+		if ( ( depthRenderTarget == nullptr ) != ( currentDepthRenderTargetView == nullptr ) 
+             || ( depthRenderTarget && depthRenderTarget->getDepthStencilView() == currentDepthRenderTargetView ) )
 			sameAsCurrent = false;
 	}
 
@@ -139,61 +140,112 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 	if ( sameAsCurrent )
 		return;
 
-	std::vector<ID3D11RenderTargetView*> renderTargetViews;
-	ID3D11DepthStencilView* depthRenderTargetView = nullptr;
-
-	// Collect render target views from passed render targets.
+	// Collect and save render target views from passed render targets.
+    currentRenderTargetViews.clear();
 	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > >& renderTarget : renderTargets )
-		renderTargetViews.push_back( renderTarget->getRenderTargetView() );
+		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
 
-	// Get depth render target view if passed.
+	// Get and save depth render target view if passed.
 	if ( depthRenderTarget )
-		depthRenderTargetView = depthRenderTarget->getDepthStencilView();
+		currentDepthRenderTargetView = depthRenderTarget->getDepthStencilView();
 
 	// Enable render targets.
-	deviceContext->OMSetRenderTargets( (unsigned int)renderTargetViews.size(), renderTargetViews.data(), depthRenderTargetView );
-
-    // Save current render targets.
-    currentRenderTargets.clear();
-    currentRenderTargets.insert( currentRenderTargets.begin(), renderTargets.begin(), renderTargets.end() );
-    currentDepthRenderTarget = depthRenderTarget;
+	deviceContext->OMSetRenderTargets( (unsigned int)currentRenderTargetViews.size(), currentRenderTargetViews.data(), currentDepthRenderTargetView );
 }
 
-void Direct3DRendererCore::enableComputeTarget( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > computeTarget )
+void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > > unorderedAccessTargetsF1,
+                                                         const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2,
+                                                         const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4 )
 {
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableUnorderedAccessTargets - renderer not initialized." );
     //#TODO: WARNING: For pixel shaders, UAVStartSlot param should be equal to the number of render-target views being bound.
 
-    if ( !computeTarget ) throw std::exception( "Direct3DRendererCore::enableComputeTarget - passed target is nullptr." );
+    bool sameAsCurrent = true;
 
-    if ( computeTarget != currentComputeTarget.lock() )
-    {
-        ID3D11UnorderedAccessView* uavs[1] = { computeTarget->getUnorderedAccessView() };
-        deviceContext->CSSetUnorderedAccessViews( 0, 1, uavs, nullptr );
-        
-        currentComputeTarget = computeTarget;
-    }
+	{ // Check if UAV targets to be enabled are the same as the current ones.
+		//if ( unorderedAccessTargets.size() == currentUnorderedAccessTargetViews.size() ) {
+			for ( unsigned int i = 0; i < unorderedAccessTargetsF1.size(); ++i ) {
+				// Check each pair of UAV targets at corresponding indexes.
+				if ( currentUnorderedAccessTargetViews.size() <= i || unorderedAccessTargetsF1.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( i ) ) {
+					sameAsCurrent = false;
+					break;
+				}
+			}
+
+            const unsigned int first = unorderedAccessTargetsF1.size();
+            for ( unsigned int i = 0; i < unorderedAccessTargetsF2.size(); ++i ) {
+				// Check each pair of UAV targets at corresponding indexes.
+				if ( currentUnorderedAccessTargetViews.size() <= (first + i) || unorderedAccessTargetsF2.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( first + i ) ) {
+					sameAsCurrent = false;
+					break;
+				}
+			}
+
+            const unsigned int second = first + unorderedAccessTargetsF2.size();
+            for ( unsigned int i = 0; i < unorderedAccessTargetsF4.size(); ++i ) {
+				// Check each pair of UAV targets at corresponding indexes.
+				if ( currentUnorderedAccessTargetViews.size() <= (second + i) || unorderedAccessTargetsF4.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( second + i ) ) {
+					sameAsCurrent = false;
+					break;
+				}
+			}
+		//} else {
+		//	// UAV targets are not the same as the current ones, because they have different count.
+		//	sameAsCurrent = false;
+		//}
+	}
+
+	// If UAV targets to be enabled are the same as the current ones - do nothing.
+	if ( sameAsCurrent )
+		return;
+
+	// Collect and save UAV target views from passed UAV targets.
+    currentUnorderedAccessTargetViews.clear();
+	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >& unorderedAccessTarget : unorderedAccessTargetsF1 )
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+
+    for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > >& unorderedAccessTarget : unorderedAccessTargetsF2 )
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+
+    for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > >& unorderedAccessTarget : unorderedAccessTargetsF4 )
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+
+	// Enable UAV targets.
+    deviceContext->CSSetUnorderedAccessViews( 0, (unsigned int)currentUnorderedAccessTargetViews.size(), currentUnorderedAccessTargetViews.data(), nullptr );
 }
 
-void Direct3DRendererCore::disableRenderTargets()
+void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4 )
 {
-    if ( !currentRenderTargets.empty() || currentDepthRenderTarget.lock() )
+    const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >  emptyF1;
+    const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > emptyF2;
+
+    enableUnorderedAccessTargets( emptyF1, emptyF2, unorderedAccessTargetsF4 );
+}
+
+void Direct3DRendererCore::disableRenderTargetViews()
+{
+    if ( !currentRenderTargetViews.empty() || currentDepthRenderTargetView )
     {
         deviceContext->OMSetRenderTargets( 0, nullptr, nullptr );
 
-        currentRenderTargets.clear();
-        currentDepthRenderTarget.reset();
+        currentRenderTargetViews.clear();
+        currentDepthRenderTargetView = nullptr;
     }
 }
 
-void Direct3DRendererCore::disableComputeTargets()
+void Direct3DRendererCore::disableUnorderedAccessViews()
 {
-    if ( currentComputeTarget.lock() )
+    if ( !currentUnorderedAccessTargetViews.empty() )
     {
-        ID3D11UnorderedAccessView* uavs[1] = { nullptr };
-        deviceContext->CSSetUnorderedAccessViews( 0, 1, uavs, nullptr );
+        std::vector< ID3D11UnorderedAccessView* > emptyTargets;
+        emptyTargets.resize( currentUnorderedAccessTargetViews.size() );
+        for (unsigned int i = 0; i < currentUnorderedAccessTargetViews.size(); ++i)
+            emptyTargets[ i ] = nullptr;
+
+        deviceContext->CSSetUnorderedAccessViews( 0, (unsigned int)currentUnorderedAccessTargetViews.size(), emptyTargets.data(), nullptr );
         //deviceContext->OMSetRenderTargetsAndUnorderedAccessViews( D3D11_KEEP_RENDER_TARGETS_AND_DEPTH_STENCIL, nullptr, nullptr, 0, 0, nullptr, nullptr );
 
-        currentComputeTarget.reset();
+        currentUnorderedAccessTargetViews.clear();
     }
 }
 

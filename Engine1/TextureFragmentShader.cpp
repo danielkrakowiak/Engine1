@@ -74,17 +74,33 @@ void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& dev
 	this->shaderId = ++compiledShadersCount;
 }
 
-void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture )
+void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& texture )
 {
-	ID3D11ShaderResourceView* textureResource = albedoTexture.getShaderResourceView();
+	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
 
 	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
 	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
 }
 
-void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& albedoTexture )
+void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture )
 {
-	ID3D11ShaderResourceView* textureResource = albedoTexture.getShaderResourceView();
+	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
+
+	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
+	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+}
+
+void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture )
+{
+	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
+
+	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
+	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+}
+
+void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float >& texture )
+{
+	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
 
 	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
 	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );

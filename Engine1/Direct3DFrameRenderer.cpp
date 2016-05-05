@@ -347,7 +347,67 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	textureFragmentShader->unsetParameters( *deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4>& texture, float posX, float posY )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY )
+{
+	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+
+	float width = ( texture.getWidth() / (float)screenWidth );
+	float height = ( texture.getHeight() / (float)screenHeight );
+
+
+	{ // Enable render targets.
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets;
+		renderTargets.push_back( m_renderTarget );
+
+		rendererCore.enableRenderTargets( renderTargets, nullptr );
+	}
+
+	{ // Configure and enable shaders.
+		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
+		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
+
+		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
+	}
+
+	rendererCore.enableRasterizerState( *rasterizerState.Get() );
+	rendererCore.enableBlendState( *blendState.Get() );
+
+	rendererCore.draw( rectangleMesh );
+
+	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+}
+
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY )
+{
+	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+
+	float width = ( texture.getWidth() / (float)screenWidth );
+	float height = ( texture.getHeight() / (float)screenHeight );
+
+
+	{ // Enable render targets.
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets;
+		renderTargets.push_back( m_renderTarget );
+
+		rendererCore.enableRenderTargets( renderTargets, nullptr );
+	}
+
+	{ // Configure and enable shaders.
+		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
+		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
+
+		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
+	}
+
+	rendererCore.enableRasterizerState( *rasterizerState.Get() );
+	rendererCore.enableBlendState( *blendState.Get() );
+
+	rendererCore.draw( rectangleMesh );
+
+	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+}
+
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY )
 {
 	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 

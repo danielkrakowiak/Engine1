@@ -576,6 +576,9 @@
     <ClInclude Include="BVHTreeBuffer.h">
       <Filter>Header Files\Tools\BVH</Filter>
     </ClInclude>
+    <ClInclude Include="uint4.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -874,6 +877,9 @@
     </ClCompile>
     <ClCompile Include="BVHTreeBuffer.cpp">
       <Filter>Source Files\Tools\BVH</Filter>
+    </ClCompile>
+    <ClCompile Include="uint4.cpp">
+      <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

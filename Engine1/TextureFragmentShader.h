@@ -4,6 +4,10 @@
 
 #include "TTexture2D.h"
 
+#include "uchar4.h"
+#include "float4.h"
+#include "float2.h"
+
 struct ID3D11SamplerState;
 
 namespace Engine1
@@ -18,8 +22,10 @@ namespace Engine1
         virtual ~TextureFragmentShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture );
-        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& albedoTexture );
+        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& texture );
+        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture );
+        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture );
+        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float  >& texture );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:

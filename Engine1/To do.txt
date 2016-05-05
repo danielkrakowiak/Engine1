@@ -110,14 +110,18 @@ Next2:
    Also2: pass stack depth to the shader as constant or...
    Also3: Compile a few versions of the shader with different stack depth and use the appropriate one?
 
-   - calculate distance to closest intersection
-   - save distance in texture
-   - run raytracing for multiple objects with correct ordering
+   - After creating BVH for a mesh - mesh's triangle vector could be replaced with the one from BVH. It's just a matter of reordering the triangles.
+     Then, there would be no need to send a seperate buffer to GPU just to mark which triangles are in BVH nodes. Nodes would already contain triangles from mesh triangle list.
 
-	!!! Change naming convention: use m_ in class members.
+   ----------------------------------------------------
+   Refactoring:
 
+	- Change naming convention: use m_ in class members.
 	- use ComPtr wherever possible instead of raw pointers.
+	- use short "Idx" for "index" in the whole code + shaders.
 
+	- add uint type, which would be just a typedef for unsigned int - could be in math in separate header file.
+   ---------------------------------------------------
 
 *** IMPORTANT:
 It's strange that we set textures in FragmentShader's setParameters method, but we set buffers in RendererCore draw method. It should be unified.

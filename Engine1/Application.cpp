@@ -75,7 +75,10 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     // Load 'axises' model.
     BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
     std::shared_ptr<BlockMesh> axisMesh = std::static_pointer_cast<BlockMesh>(assetManager.getOrLoad( axisMeshFileInfo ));
+    axisMesh->buildBvhTree();
     axisMesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
+    axisMesh->loadBvhTreeToGpu( *frameRenderer.getDevice().Get() );
+            
 
     // Load 'light source' model.
     BlockModelFileInfo lightModelFileInfo( "Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
@@ -230,11 +233,13 @@ void Application::run() {
 
 		camera.updateState( (float)frameTime );
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > frameUchar;
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > frameFloat;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >  frameUchar;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >  frameFloat4;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > > frameFloat2;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >  frameFloat;
 
         if ( scene )
-            std::tie( frameUchar, frameFloat ) = renderer.renderScene( *scene, camera );
+            std::tie( frameUchar, frameFloat4, frameFloat2, frameFloat ) = renderer.renderScene( *scene, camera );
 
 		{ // Render FPS.
 			std::stringstream ss;
@@ -261,6 +266,10 @@ void Application::run() {
 
         if ( frameUchar )
 		    frameRenderer.renderTexture( *frameUchar, 0.0f, 0.0f );
+        else if ( frameFloat4 )
+            frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f );
+        else if ( frameFloat2 )
+            frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f );
         else if ( frameFloat )
             frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f );
 
@@ -407,7 +416,9 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::three )
         renderer.setActiveView( Renderer::View::RayDirections1 );
     else if ( key == InputManager::Keys::four )
-        renderer.setActiveView( Renderer::View::Reflection1 );
+        renderer.setActiveView( Renderer::View::RaytracingHitDistance );
+    else if ( key == InputManager::Keys::five )
+        renderer.setActiveView( Renderer::View::RaytracingHitBarycentricCoords );
 }
 
 void Application::onDragAndDropFile( std::string filePath )

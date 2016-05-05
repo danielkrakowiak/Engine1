@@ -3,6 +3,7 @@
 #include <memory>
 #include <wrl.h>
 
+#include "float2.h"
 #include "float4.h"
 
 #include "TTexture2D.h"
@@ -29,11 +30,12 @@ namespace Engine1
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
-        void generateAndTraceRays( const Camera& camera, const BlockActor& actor );
+        void generateAndTraceRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
 
         // For test - only temporary.
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > getRayDirectionsTexture();
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > getRayHitsAlbedoTexture();
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >  getRayHitDistanceTexture();
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > > getRayHitBarycentricTexture();
 
         private:
 
@@ -41,11 +43,11 @@ namespace Engine1
         void disableComputePipeline();
 
         void generateRays( const Camera& camera );
-        void traceRays( const Camera& camera, const BlockActor& actor );
+        void traceRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
 
         Direct3DRendererCore& rendererCore;
 
-        Microsoft::WRL::ComPtr<ID3D11Device> device;
+        Microsoft::WRL::ComPtr<ID3D11Device>        device;
         Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
 
         bool initialized;
@@ -54,7 +56,8 @@ namespace Engine1
         int imageWidth, imageHeight;
 
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > rayDirectionsTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > rayHitsAlbedoTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >  rayHitDistanceTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > > rayHitBarycentricCoordsTexture;
 
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
