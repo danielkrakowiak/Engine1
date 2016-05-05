@@ -57,6 +57,10 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
     rayHitBarycentricCoordsTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > >
         ( device, imageWidth, imageHeight, false, true,
         DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT );
+
+    rayHitNormalTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > >
+        ( device, imageWidth, imageHeight, false, true,
+        DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT );
 }
 
 void RaytraceRenderer::generateAndTraceRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors )
@@ -119,6 +123,7 @@ void RaytraceRenderer::traceRays( const Camera& camera, const std::vector< std::
     const float maxDist = 15000.0f; // Note: Should be less than max dist in the raytracing shader!
     rayHitDistanceTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
     rayHitBarycentricCoordsTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    rayHitNormalTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >  unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2;
@@ -126,6 +131,7 @@ void RaytraceRenderer::traceRays( const Camera& camera, const std::vector< std::
 
     unorderedAccessTargetsF1.push_back( rayHitDistanceTexture );
     unorderedAccessTargetsF2.push_back( rayHitBarycentricCoordsTexture );
+    unorderedAccessTargetsF2.push_back( rayHitNormalTexture );
 
     rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4 );
 
@@ -161,6 +167,12 @@ std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderR
 RaytraceRenderer::getRayHitBarycentricTexture()
 {
     return rayHitBarycentricCoordsTexture;
+}
+
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > > 
+RaytraceRenderer::getRayHitNormalTexture()
+{
+    return rayHitNormalTexture;
 }
 
 void RaytraceRenderer::loadAndCompileShaders( ID3D11Device& device )

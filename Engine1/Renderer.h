@@ -25,7 +25,8 @@ namespace Engine1
             Normal,
             RayDirections1,
             RaytracingHitDistance,
-            RaytracingHitBarycentricCoords
+            RaytracingHitNormal,
+            RaytracingHitTexCoords,
         };
 
         Renderer( Direct3DDefferedRenderer& defferedRenderer, RaytraceRenderer& raytraceRenderer );

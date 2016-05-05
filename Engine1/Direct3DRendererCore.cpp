@@ -172,7 +172,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
 				}
 			}
 
-            const unsigned int first = unorderedAccessTargetsF1.size();
+            const unsigned int first = (unsigned int)unorderedAccessTargetsF1.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsF2.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
 				if ( currentUnorderedAccessTargetViews.size() <= (first + i) || unorderedAccessTargetsF2.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( first + i ) ) {
@@ -181,7 +181,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
 				}
 			}
 
-            const unsigned int second = first + unorderedAccessTargetsF2.size();
+            const unsigned int second = first + (unsigned int)unorderedAccessTargetsF2.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsF4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
 				if ( currentUnorderedAccessTargetViews.size() <= (second + i) || unorderedAccessTargetsF4.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( second + i ) ) {

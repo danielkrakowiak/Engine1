@@ -195,8 +195,15 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &normalBufferDesc, &normalDataPtr, normalBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh normals failed" );
 
-        //result = device.CreateShaderResourceView( normalBuffer.Get(), nullptr, normalBufferResource.ReleaseAndGetAddressOf() );
-        //if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating normal buffer shader resource on GPU failed." );
+        D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
+        resourceDesc.Format                = DXGI_FORMAT_R32_TYPELESS;
+        resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
+        resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
+        resourceDesc.BufferEx.FirstElement = 0;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)normals.size() * 3;
+
+        result = device.CreateShaderResourceView( normalBuffer.Get(), &resourceDesc, normalBufferResource.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating normal buffer shader resource on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::normalBuffer" );
@@ -237,8 +244,15 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
         ComPtr<ID3D11ShaderResourceView> bufferResource;
 
-        //result = device.CreateShaderResourceView( buffer.Get(), nullptr, bufferResource.ReleaseAndGetAddressOf() );
-        //if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating texcoord buffer shader resource on GPU failed." );
+        D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
+        resourceDesc.Format                = DXGI_FORMAT_R32_TYPELESS;
+        resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
+        resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
+        resourceDesc.BufferEx.FirstElement = 0;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)normals.size() * 2;
+
+        result = device.CreateShaderResourceView( buffer.Get(), &resourceDesc, bufferResource.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating texcoord buffer shader resource on GPU failed." );
 
         texcoordBufferResources.push_back( bufferResource );
 

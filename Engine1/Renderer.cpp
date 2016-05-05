@@ -121,7 +121,14 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
                 nullptr,
                 raytraceRenderer.getRayHitDistanceTexture() 
             );
-        case View::RaytracingHitBarycentricCoords:
+        case View::RaytracingHitNormal:
+            return std::make_tuple(
+                nullptr,
+                nullptr,
+                raytraceRenderer.getRayHitNormalTexture(),
+                nullptr
+            );
+        case View::RaytracingHitTexCoords:
         default:
             return std::make_tuple(
                 nullptr,

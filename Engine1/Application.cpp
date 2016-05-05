@@ -422,7 +422,9 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::four )
         renderer.setActiveView( Renderer::View::RaytracingHitDistance );
     else if ( key == InputManager::Keys::five )
-        renderer.setActiveView( Renderer::View::RaytracingHitBarycentricCoords );
+        renderer.setActiveView( Renderer::View::RaytracingHitNormal );
+    else if ( key == InputManager::Keys::six )
+        renderer.setActiveView( Renderer::View::RaytracingHitTexCoords );
 }
 
 void Application::onDragAndDropFile( std::string filePath )
