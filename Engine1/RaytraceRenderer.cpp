@@ -54,9 +54,9 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
         ( device, imageWidth, imageHeight, false, true,
         DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 
-    rayHitBarycentricCoordsTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > >
+    rayHitAlbedoTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >
         ( device, imageWidth, imageHeight, false, true,
-        DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT );
+        DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM );
 
     rayHitNormalTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > >
         ( device, imageWidth, imageHeight, false, true,
@@ -122,26 +122,33 @@ void RaytraceRenderer::traceRays( const Camera& camera, const std::vector< std::
     // Clear unordered access targets.
     const float maxDist = 15000.0f; // Note: Should be less than max dist in the raytracing shader!
     rayHitDistanceTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
-    rayHitBarycentricCoordsTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    rayHitAlbedoTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     rayHitNormalTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >  unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( rayHitDistanceTexture );
-    unorderedAccessTargetsF2.push_back( rayHitBarycentricCoordsTexture );
     unorderedAccessTargetsF2.push_back( rayHitNormalTexture );
+    unorderedAccessTargetsU4.push_back( rayHitAlbedoTexture );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4 );
+    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU4 );
 
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     for ( const std::shared_ptr< const BlockActor >& actor : actors )
     {
+        if ( actor->getModel()->getAlbedoTextures().empty() )
+            continue; // Skip models without textures.
+
         float3 bbMin, bbMax;
         std::tie( bbMin, bbMax ) = actor->getModel()->getMesh()->getBoundingBox();
-        raytracingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), *rayDirectionsTexture, *actor->getModel()->getMesh(), actor->getPose(), bbMin, bbMax );
+
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture = actor->getModel()->getAlbedoTexture( 0 ).getTexture();
+
+        raytracingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), *rayDirectionsTexture, *actor->getModel()->getMesh(), actor->getPose(), bbMin, bbMax, *albedoTexture );
 
         rendererCore.compute( groupCount );
     }
@@ -163,10 +170,10 @@ RaytraceRenderer::getRayHitDistanceTexture()
     return rayHitDistanceTexture;
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > > 
-RaytraceRenderer::getRayHitBarycentricTexture()
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > 
+RaytraceRenderer::getRayHitAlbedoTexture()
 {
-    return rayHitBarycentricCoordsTexture;
+    return rayHitAlbedoTexture;
 }
 
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > > 

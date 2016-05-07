@@ -424,7 +424,7 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::five )
         renderer.setActiveView( Renderer::View::RaytracingHitNormal );
     else if ( key == InputManager::Keys::six )
-        renderer.setActiveView( Renderer::View::RaytracingHitTexCoords );
+        renderer.setActiveView( Renderer::View::RaytracingHitAlbedo );
 }
 
 void Application::onDragAndDropFile( std::string filePath )
@@ -578,6 +578,13 @@ void Application::onDragAndDropFile( std::string filePath )
 
         BlockModelFileInfo fileInfo( filePath, BlockModelFileInfo::Format::BLOCKMODEL, 0 );
         std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( assetManager.getOrLoad( fileInfo ) );
+
+        if ( model->getMesh() && !model->getMesh()->getBvhTree() )
+        {
+            model->getMesh()->buildBvhTree();
+            model->getMesh()->loadBvhTreeToGpu( *frameRenderer.getDevice( ).Get() );
+        }
+
         if ( !model->isInGpuMemory() )
             model->loadCpuToGpu( *frameRenderer.getDevice( ).Get(), *frameRenderer.getDeviceContext( ).Get() );
 

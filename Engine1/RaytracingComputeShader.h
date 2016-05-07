@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "uchar4.h"
 #include "float2.h"
 #include "float3.h"
 #include "float4.h"
@@ -29,7 +30,8 @@ namespace Engine1
         void compileFromFile( std::string path, ID3D11Device& device );
         void setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, 
                             const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
-                            const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax );
+                            const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax,
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
@@ -45,6 +47,8 @@ namespace Engine1
             float3  boundingBoxMax;
             float   pad3;
         };
+
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
         // Copying is not allowed.
         RaytracingComputeShader( const RaytracingComputeShader& ) = delete;

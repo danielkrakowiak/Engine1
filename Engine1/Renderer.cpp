@@ -128,12 +128,12 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
                 raytraceRenderer.getRayHitNormalTexture(),
                 nullptr
             );
-        case View::RaytracingHitTexCoords:
+        case View::RaytracingHitAlbedo:
         default:
             return std::make_tuple(
+                raytraceRenderer.getRayHitAlbedoTexture(),
                 nullptr,
                 nullptr,
-                raytraceRenderer.getRayHitBarycentricTexture(),
                 nullptr
             );
     }

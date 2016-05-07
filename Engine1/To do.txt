@@ -113,9 +113,8 @@ Next2:
    - After creating BVH for a mesh - mesh's triangle vector could be replaced with the one from BVH. It's just a matter of reordering the triangles.
      Then, there would be no need to send a seperate buffer to GPU just to mark which triangles are in BVH nodes. Nodes would already contain triangles from mesh triangle list.
 
-	 - output normal vector to a UAV (2 components only)
-	 - output hit triangle index to a UAV
-	 - create a shader which reads textures and creates albedo and specular buffers.
+	 - output actor/model unique id to a seperate UAV
+	 - create a shader which reads textures and creates albedo g-buffer
 
    ----------------------------------------------------
    Refactoring:

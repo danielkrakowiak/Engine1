@@ -78,8 +78,9 @@ namespace Engine1
         // Returns <min, max> of the bounding box.
         std::tuple<float3, float3> getBoundingBox() const;
 
-        void buildBvhTree();
-        void loadBvhTreeToGpu( ID3D11Device& device );
+        void                             buildBvhTree();
+        void                             loadBvhTreeToGpu( ID3D11Device& device );
+        std::shared_ptr< const BVHTree > getBvhTree() const;
 
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferNodesShaderResourceView()        const;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferNodesExtentsShaderResourceView() const;

@@ -601,6 +601,11 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
 	}
 }
 
+std::shared_ptr< const BVHTree > BlockMesh::getBvhTree() const
+{
+    return bvhTree;
+}
+
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> BlockMesh::getBvhTreeBufferNodesShaderResourceView() const
 {
     return bvhTreeBufferNodesGpuSRV;

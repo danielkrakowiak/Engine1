@@ -62,6 +62,27 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
         if ( result < 0 ) throw std::exception( "RaytracingComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
+    { // Create sampler configuration.
+		D3D11_SAMPLER_DESC desc;
+		desc.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		desc.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.MipLODBias       = 0.0f;
+		desc.MaxAnisotropy    = 1;
+		desc.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
+		desc.BorderColor[ 0 ] = 0;
+		desc.BorderColor[ 1 ] = 0;
+		desc.BorderColor[ 2 ] = 0;
+		desc.BorderColor[ 3 ] = 0;
+		desc.MinLOD           = 0;
+		desc.MaxLOD           = D3D11_FLOAT32_MAX;
+
+		// Create the texture sampler state.
+		result = device.CreateSamplerState( &desc, samplerState.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) throw std::exception( "RaytracingComputeShader::compileFromFile - Failed to create texture sampler state." );
+	}
+
     this->device = &device;
     this->compiled = true;
     this->shaderId = ++compiledShadersCount;
@@ -69,12 +90,13 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
 
 void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, 
                                              const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
-                                             const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax )
+                                             const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax,
+                                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture )
 {
     if ( !compiled ) throw std::exception( "RaytracingComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 8;
+        const unsigned int resourceCount = 9;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             rayDirectionsTexture.getShaderResourceView(), 
             mesh.getVertexBufferResource(), 
@@ -83,7 +105,8 @@ void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
             mesh.getTriangleBufferResource(),
             mesh.getBvhTreeBufferNodesShaderResourceView().Get(),
             mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get(),
-            mesh.getBvhTreeBufferTrianglesShaderResourceView().Get()
+            mesh.getBvhTreeBufferTrianglesShaderResourceView().Get(),
+            albedoTexture.getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -112,6 +135,10 @@ void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
 
         deviceContext.CSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
     }
+
+    { // Set texture sampler.
+        deviceContext.CSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+    }
 }
 
 void RaytracingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
@@ -119,6 +146,10 @@ void RaytracingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContex
     if ( !compiled ) throw std::exception( "RaytracingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 8 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 8, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 9 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 9, nullResources );
+    
+    // Unset samplers.
+    ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };
+    deviceContext.CSSetSamplers( 0, 1, nullSamplers );
 }

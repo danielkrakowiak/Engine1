@@ -21,11 +21,14 @@ Buffer<uint2>     g_bvhNodes        : register( t5 );
 Buffer<float3>    g_bvhNodesExtents : register( t6 ); // min, max, min, max interleaved.
 Buffer<uint>      g_bvhTriangles    : register( t7 );
 
+Texture2D         g_albedoTexture   : register( t8 );
+SamplerState      g_samplerState;
+
 // Input / Output.
 RWTexture2D<float>  g_hitDistance  : register( u0 );
 // Output.
-RWTexture2D<float2> g_hitTexCoords : register( u1 );
-RWTexture2D<float2> g_hitNormal    : register( u2 );
+RWTexture2D<float2> g_hitNormal    : register( u1 );
+RWTexture2D<uint4>  g_hitAlbedo    : register( u2 );
 
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint index );
@@ -48,6 +51,8 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
+    g_hitAlbedo[ dispatchThreadId.xy ]   = float4(1.0f, 1.0f, 0.0f, 1.0f);
+
     float3 rayDir = g_rayDirections.Load( int3( dispatchThreadId.xy, 0 ) ).xyz;
 
     // Transform the ray from world to local space.
@@ -145,10 +150,10 @@ void main( uint3 groupId : SV_GroupID,
         if ( hitTriangle != -1 )
         {
             // Write to output only if found hit is closer than the existing one at that pixel.
-            if ( hitDist < g_hitDistance[ dispatchThreadId.xy] ) {
-                g_hitDistance[dispatchThreadId.xy]  = hitDist;
-                g_hitNormal[dispatchThreadId.xy]    = hitNormal.xy;
-                g_hitTexCoords[dispatchThreadId.xy] = hitTexCoords;
+            if ( hitDist < g_hitDistance[ dispatchThreadId.xy ] ) {
+                g_hitDistance[ dispatchThreadId.xy ] = hitDist;
+                g_hitNormal[ dispatchThreadId.xy ]   = hitNormal.xy;
+                g_hitAlbedo[ dispatchThreadId.xy ]   = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
             }
         }
     }
