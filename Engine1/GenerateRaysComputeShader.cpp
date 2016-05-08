@@ -63,7 +63,7 @@ void GenerateRaysComputeShader::compileFromFile( std::string path, ID3D11Device&
     this->shaderId = ++compiledShadersCount;
 }
 
-void GenerateRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportTopLeft, 
+void GenerateRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                                                const float3 viewportUp, const float3 viewportRight, const float2 viewportSize )
 {
     if ( !compiled ) throw std::exception( "GenerateRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
@@ -77,10 +77,10 @@ void GenerateRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContex
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
     dataPtr->cameraPos          = cameraPos;
-    dataPtr->viewportTopLeft    = viewportTopLeft;
+    dataPtr->viewportCenter     = viewportCenter;
     dataPtr->viewportUp         = viewportUp;
     dataPtr->viewportRight      = viewportRight;
-    dataPtr->viewportSize       = viewportSize;
+    dataPtr->viewportSizeHalf   = viewportSize / 2.0f;
 
     // Padding.
     dataPtr->pad1 = 0.0f;
