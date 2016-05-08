@@ -579,6 +579,9 @@
     <ClInclude Include="uint4.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="uchar2.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -879,6 +882,9 @@
       <Filter>Source Files\Tools\BVH</Filter>
     </ClCompile>
     <ClCompile Include="uint4.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="uchar2.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>

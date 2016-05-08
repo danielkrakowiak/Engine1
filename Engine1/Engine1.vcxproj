@@ -340,6 +340,7 @@
     <ClInclude Include="TextureVertexShader.h" />
     <ClInclude Include="TextVertexShader.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="uchar2.h" />
     <ClInclude Include="uchar4.h" />
     <ClInclude Include="uint2.h" />
     <ClInclude Include="uint3.h" />
@@ -442,6 +443,7 @@
     <ClCompile Include="TextureVertexShader.cpp" />
     <ClCompile Include="TextVertexShader.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="uchar2.cpp" />
     <ClCompile Include="uchar4.cpp" />
     <ClCompile Include="uint2.cpp" />
     <ClCompile Include="uint3.cpp" />

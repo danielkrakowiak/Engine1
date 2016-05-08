@@ -108,27 +108,37 @@ void Direct3DRendererCore::disableComputeShaders()
     }
 }
 
-void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargets, 
+void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
+                                                const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargetsU4, 
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget )
 {
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - renderer not initialized." );
-	if ( renderTargets.size() > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - too many render targets passed. Number exceeds the supported maximum." );
+	if ( renderTargetsF2.size() + renderTargetsU4.size() > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - too many render targets passed. Number exceeds the supported maximum." );
 
 	bool sameAsCurrent = true;
 
 	{ // Check if render targets to be enabled are the same as the current ones.
-		if ( renderTargets.size() == currentRenderTargetViews.size() ) {
-			for ( unsigned int i = 0; i < renderTargets.size(); ++i ) {
-				// Check each pair of render targets at corresponding indexes.
-				if ( currentRenderTargetViews.size() <= i || renderTargets.at( i )->getRenderTargetView() != currentRenderTargetViews.at( i ) ) {
+		//if ( renderTargets.size() == currentRenderTargetViews.size() ) {
+			for ( unsigned int i = 0; i < renderTargetsF2.size(); ++i ) {
+				// Check each pair of UAV targets at corresponding indexes.
+				if ( currentRenderTargetViews.size() <= i || renderTargetsF2.at( i )->getRenderTargetView() != currentRenderTargetViews.at( i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
 			}
-		} else {
-			// Render targets are not the same as the current ones, because they have different count.
-			sameAsCurrent = false;
-		}
+
+            const unsigned int first = (unsigned int)renderTargetsF2.size();
+            for ( unsigned int i = 0; i < renderTargetsU4.size(); ++i ) {
+				// Check each pair of UAV targets at corresponding indexes.
+				if ( currentRenderTargetViews.size() <= (first + i) || renderTargetsU4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( first + i ) ) {
+					sameAsCurrent = false;
+					break;
+				}
+			}
+		//} else {
+		//	// Render targets are not the same as the current ones, because they have different count.
+		//	sameAsCurrent = false;
+		//}
 
 		// Check if depth render target to be enabled is the same as the current one.
 		if ( ( depthRenderTarget == nullptr ) != ( currentDepthRenderTargetView == nullptr ) 
@@ -142,7 +152,10 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 
 	// Collect and save render target views from passed render targets.
     currentRenderTargetViews.clear();
-	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > >& renderTarget : renderTargets )
+	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > >& renderTarget : renderTargetsF2 )
+		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
+
+    for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > >& renderTarget : renderTargetsU4 )
 		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
 
 	// Get and save depth render target view if passed.

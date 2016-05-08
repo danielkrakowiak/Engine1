@@ -8,9 +8,8 @@ struct PixelInputType
 };
 
 struct PixelOutputType {
-	float4 albedo   : SV_Target0;
-	float4 normal   : SV_Target1;
-	float4 vertexId : SV_Target2;
+    float2 normal   : SV_Target0;
+	float4 albedo   : SV_Target1;
 };
 
 PixelOutputType main( PixelInputType input )
@@ -19,9 +18,8 @@ PixelOutputType main( PixelInputType input )
 
 	float4 textureColor = characterTexture.Sample( samplerState, input.texCoord );
 
-	output.albedo = float4( 1.0f, 1.0f, 1.0f, textureColor.r );
-	output.normal = float4( 0.0f, 0.0f, 1.0f, 1.0f );
-	output.vertexId = 0.0f;
+	output.normal = float2( 0.0f, 0.0f );
+    output.albedo = float4( 1.0f, 1.0f, 1.0f, textureColor.r );
 
 	return output;
 }

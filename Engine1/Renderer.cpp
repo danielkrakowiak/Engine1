@@ -95,16 +95,16 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     {
         case View::Albedo: 
             return std::make_tuple( 
-                defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::ALBEDO ),
+                defferedRenderer.getAlbedoRenderTarget(),
                 nullptr,
                 nullptr,
                 nullptr
              );
         case View::Normal:
             return std::make_tuple(
-                defferedRenderer.getRenderTarget( Direct3DDefferedRenderer::RenderTargetType::NORMAL ),
                 nullptr,
                 nullptr,
+                defferedRenderer.getNormalRenderTarget(),
                 nullptr
              );
         case View::RayDirections1:

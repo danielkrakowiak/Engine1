@@ -82,10 +82,13 @@ void Direct3DDefferedRenderer::render( const BlockMesh& mesh, const float43& wor
 	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
-		// Copy/cast render target textures into render targets.
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets( this->renderTargets.begin(), this->renderTargets.end() );
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-		rendererCore.enableRenderTargets( renderTargets, depthRenderTarget );
+        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsU4.push_back( albedoRenderTarget );
+
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -107,10 +110,13 @@ void Direct3DDefferedRenderer::render( const SkeletonMesh& mesh, const float43& 
 	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
-		// Copy/cast render target textures into render targets.
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets( this->renderTargets.begin(), this->renderTargets.end() );
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-		rendererCore.enableRenderTargets( renderTargets, depthRenderTarget );
+        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsU4.push_back( albedoRenderTarget );
+
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -132,10 +138,13 @@ void Direct3DDefferedRenderer::render( const BlockModel& model, const float43& w
 	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
-		// Copy/cast render target textures into render targets.
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets( this->renderTargets.begin(), this->renderTargets.end() );
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-		rendererCore.enableRenderTargets( renderTargets, depthRenderTarget );
+        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsU4.push_back( albedoRenderTarget );
+
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -161,10 +170,13 @@ void Direct3DDefferedRenderer::render( const SkeletonModel& model, const float43
 	if ( !model.getMesh( ) ) throw std::exception( "Direct3DDefferedRenderer::render - model has no mesh." );
 
 	{ // Enable render targets.
-		// Copy/cast render target textures into render targets.
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets( this->renderTargets.begin(), this->renderTargets.end() );
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-		rendererCore.enableRenderTargets( renderTargets, depthRenderTarget );
+        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsU4.push_back( albedoRenderTarget );
+
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -191,10 +203,13 @@ void Direct3DDefferedRenderer::render( const std::string& text, Font& font, floa
     color; // Unused.
 
 	{ // Enable render targets.
-		// Copy/cast render target textures into render targets.
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargets( this->renderTargets.begin(), this->renderTargets.end() );
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-		rendererCore.enableRenderTargets( renderTargets, depthRenderTarget );
+        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsU4.push_back( albedoRenderTarget );
+
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
 	}
 
 	rendererCore.enableRenderingShaders( textVertexShader, textFragmentShader );
@@ -235,16 +250,26 @@ void Direct3DDefferedRenderer::render( const std::string& text, Font& font, floa
 	}
 }
 
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > Direct3DDefferedRenderer::getRenderTarget( RenderTargetType type )
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > Direct3DDefferedRenderer::getAlbedoRenderTarget()
 {
-	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::getRenderTarget - renderer not initialized." );
+	if ( !initialized ) 
+        throw std::exception( "Direct3DDefferedRenderer::getAlbedoRenderTarget - renderer not initialized." );
 
-	return renderTargets.at( static_cast<int>( type ) );
+	return albedoRenderTarget;
+}
+
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float2 > > Direct3DDefferedRenderer::getNormalRenderTarget()
+{
+	if ( !initialized ) 
+        throw std::exception( "Direct3DDefferedRenderer::getNormalRenderTarget - renderer not initialized." );
+
+	return normalRenderTarget;
 }
 
 std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > Direct3DDefferedRenderer::getDepthRenderTarget()
 {
-	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::getRenderTarget - renderer not initialized." );
+	if ( !initialized ) 
+        throw std::exception( "Direct3DDefferedRenderer::getRenderTarget - renderer not initialized." );
 
 	return depthRenderTarget;
 }
@@ -341,28 +366,25 @@ ComPtr<ID3D11BlendState> Direct3DDefferedRenderer::createBlendStateForTextRender
 	blendDesc.AlphaToCoverageEnable  = false;
 	blendDesc.IndependentBlendEnable = true; // Use different blend settings for each render target.
 
-	// Enable blending for albedo render target.
-	blendDesc.RenderTarget[ 0 ].BlendEnable           = true;
-	blendDesc.RenderTarget[ 0 ].SrcBlend              = D3D11_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[ 0 ].DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;
+    // Disable blending for normal (vector) render target.
+	blendDesc.RenderTarget[ 0 ].BlendEnable           = false;
+	blendDesc.RenderTarget[ 0 ].SrcBlend              = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[ 0 ].DestBlend             = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[ 0 ].BlendOp               = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[ 0 ].SrcBlendAlpha         = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[ 0 ].DestBlendAlpha        = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[ 0 ].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[ 0 ].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE; // Don't write alpha.
 
-	// Disable blending for other render targets.
-	const int maxRenderTargetCount = 8;
-	for ( int i = 1; i < maxRenderTargetCount; ++i ) {
-		blendDesc.RenderTarget[ i ].BlendEnable           = false;
-		blendDesc.RenderTarget[ i ].SrcBlend              = D3D11_BLEND_ONE;
-		blendDesc.RenderTarget[ i ].DestBlend             = D3D11_BLEND_ZERO;
-		blendDesc.RenderTarget[ i ].BlendOp               = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[ i ].SrcBlendAlpha         = D3D11_BLEND_ONE;
-		blendDesc.RenderTarget[ i ].DestBlendAlpha        = D3D11_BLEND_ZERO;
-		blendDesc.RenderTarget[ i ].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[ i ].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE; // Don't write alpha.
-	}
+	// Enable blending for albedo render target.
+	blendDesc.RenderTarget[ 1 ].BlendEnable           = true;
+	blendDesc.RenderTarget[ 1 ].SrcBlend              = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[ 1 ].DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[ 1 ].BlendOp               = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[ 1 ].SrcBlendAlpha         = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[ 1 ].DestBlendAlpha        = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[ 1 ].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[ 1 ].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE; // Don't write alpha.
 
 	HRESULT result = device.CreateBlendState( &blendDesc, blendState.ReleaseAndGetAddressOf() );
 	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createBlendStateForTextRendering - creation of blend state failed." );
@@ -373,11 +395,11 @@ ComPtr<ID3D11BlendState> Direct3DDefferedRenderer::createBlendStateForTextRender
 void Direct3DDefferedRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
 	// Create render targets.
-	for ( int i = 0; i < RENDER_TARGETS_COUNT; ++i )
-		renderTargets.push_back( 
-            std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >
-                ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) 
-        );
+    albedoRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >
+        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
+
+    normalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float2 > >
+        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT );
 
 	// Create depth render target.
 	depthRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
@@ -386,8 +408,8 @@ void Direct3DDefferedRenderer::createRenderTargets( int imageWidth, int imageHei
 
 void Direct3DDefferedRenderer::clearRenderTargets( float4 color, float depth )
 {
-	for ( unsigned int i = 0; i < renderTargets.size(); ++i )
-		renderTargets.at( i )->clearRenderTargetView( *deviceContext.Get( ), color );
+	albedoRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
+    normalRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
 
 	depthRenderTarget->clearDepthStencilView( *deviceContext.Get( ), true, depth, true, 0 );
 }

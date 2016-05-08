@@ -38,7 +38,7 @@ PixelInputType main( VertexInputType input ) {
 	// Normal
 	input.normal.w = 0.0f;
 	output.normal = mul( input.normal, worldMatrix );
-	output.normal = mul( output.normal, viewMatrix );
+	//output.normal = mul( output.normal, viewMatrix );
 
 	// Texcoord
 	output.texCoord = input.texCoord;

@@ -15,6 +15,8 @@
 #include "TextVertexShader.h"
 #include "TextFragmentShader.h"
 
+#include "uchar2.h"
+
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11RasterizerState;
@@ -39,8 +41,7 @@ namespace Engine1
         enum class RenderTargetType : char
         {
             ALBEDO = 0,
-            NORMAL = 1,
-            DEBUG_VERTEX_INDEX = 2
+            NORMAL = 1
         };
 
         Direct3DDefferedRenderer( Direct3DRendererCore& rendererCore );
@@ -57,7 +58,8 @@ namespace Engine1
         void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace );
         void render( const std::string& text, Font& font, float2 position, float4 color );
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > getRenderTarget( RenderTargetType type );
+        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > getAlbedoRenderTarget();
+        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float2 > > getNormalRenderTarget();
         std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > getDepthRenderTarget();
 
         private:
@@ -81,12 +83,11 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTextRendering( ID3D11Device& device );
 
         // Render targets.
-        const int RENDER_TARGETS_COUNT = 3;
-
         int imageWidth, imageHeight;
 
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > > > renderTargets;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >                depthRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > > albedoRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float2 > > normalRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > depthRenderTarget;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
