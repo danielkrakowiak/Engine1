@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "Direct3DDefferedRenderer.h"
+#include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "CScene.h"
 #include "Camera.h"
@@ -17,8 +17,8 @@
 
 using namespace Engine1;
 
-Renderer::Renderer( Direct3DDefferedRenderer& defferedRenderer, RaytraceRenderer& raytraceRenderer ) :
-defferedRenderer( defferedRenderer ),
+Renderer::Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer ) :
+deferredRenderer( deferredRenderer ),
 raytraceRenderer( raytraceRenderer ),
 activeView( View::Albedo )
 {}
@@ -39,13 +39,13 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
 Renderer::renderScene( const CScene& scene, const Camera& camera )
 {
-    defferedRenderer.clearRenderTargets( float4( 0.2f, 0.2f, 0.2f, 1.0f ), 1.0f );
+    deferredRenderer.clearRenderTargets( float4( 0.2f, 0.2f, 0.2f, 1.0f ), 1.0f );
 
     float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
 
     // Render 'axises' model.
     if ( axisMesh )
-        defferedRenderer.render( *axisMesh, float43::IDENTITY, viewMatrix );
+        deferredRenderer.render( *axisMesh, float43::IDENTITY, viewMatrix );
 
     // Render actors in the scene.
     const std::unordered_set< std::shared_ptr<Actor> >& actors = scene.getActors();
@@ -56,18 +56,18 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
             const std::shared_ptr<BlockModel> blockModel = blockActor->getModel();
 
             if ( blockModel->isInGpuMemory() )
-                defferedRenderer.render( *blockModel, blockActor->getPose(), viewMatrix );
+                deferredRenderer.render( *blockModel, blockActor->getPose(), viewMatrix );
             else if ( blockModel->getMesh() && blockModel->getMesh()->isInGpuMemory() )
-                defferedRenderer.render( *blockModel->getMesh(), blockActor->getPose(), viewMatrix );
+                deferredRenderer.render( *blockModel->getMesh(), blockActor->getPose(), viewMatrix );
 
         } else if ( actor->getType() == Actor::Type::SkeletonActor ) {
             const std::shared_ptr<SkeletonActor> skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
             const std::shared_ptr<SkeletonModel> skeletonModel = skeletonActor->getModel();
 
             if ( skeletonModel->isInGpuMemory() )
-                defferedRenderer.render( *skeletonModel, skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose() );
+                deferredRenderer.render( *skeletonModel, skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose() );
             else if ( skeletonModel->getMesh() && skeletonModel->getMesh()->isInGpuMemory() )
-                defferedRenderer.render( *skeletonModel->getMesh(), skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose() );
+                deferredRenderer.render( *skeletonModel->getMesh(), skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose() );
         }
     }
 
@@ -77,7 +77,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         float43 lightPose( float43::IDENTITY );
         for ( const std::shared_ptr<Light> light : lights ) {
             lightPose.setTranslation( light->getPosition() );
-            defferedRenderer.render( *lightModel, lightPose, viewMatrix );
+            deferredRenderer.render( *lightModel, lightPose, viewMatrix );
         }
     }
 
@@ -95,7 +95,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     {
         case View::Albedo: 
             return std::make_tuple( 
-                defferedRenderer.getAlbedoRenderTarget(),
+                deferredRenderer.getAlbedoRenderTarget(),
                 nullptr,
                 nullptr,
                 nullptr
@@ -104,7 +104,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
             return std::make_tuple(
                 nullptr,
                 nullptr,
-                defferedRenderer.getNormalRenderTarget(),
+                deferredRenderer.getNormalRenderTarget(),
                 nullptr
              );
         case View::RayDirections1:

@@ -264,7 +264,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComplexModel.h" />
     <ClInclude Include="ComputeShader.h" />
-    <ClInclude Include="Direct3DDefferedRenderer.h" />
+    <ClInclude Include="Direct3DDeferredRenderer.h" />
     <ClInclude Include="Direct3DRendererCore.h" />
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
@@ -374,7 +374,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ComplexModel.cpp" />
     <ClCompile Include="ComputeShader.cpp" />
-    <ClCompile Include="Direct3DDefferedRenderer.cpp" />
+    <ClCompile Include="Direct3DDeferredRenderer.cpp" />
     <ClCompile Include="Direct3DRendererCore.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="GenerateRaysComputeShader.cpp" />

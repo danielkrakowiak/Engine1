@@ -81,21 +81,21 @@ Sat 02.05.2015 - 1h - Refactoring Texture2D class.
 Sat 09.05.2015 - 8h - Added RenderTargetTexture2D and RenderTargetDepthTexture2D. Refactored tests for Texture2D.
 Sun 10.05.2015 - 3h - Refactoring Texture2D tests, planning on refactoring of Direct3DRenderer into 3 renderers. 
 Mon 11.05.2015 - 2h - Added Direct3DRendererCore.
-Wed 13.05.2015 - 2h - Added Direct3DDefferedRenderer.
+Wed 13.05.2015 - 2h - Added Direct3DDeferredRenderer.
 Thu	14.05.2015 - 2h - Refactoring Direct3DFrameRenderer.
 Sat 16.05.2015 - 5h - Added RectangleMesh, RenderTarget2D, RenderTargetDepth2D. Refactoring Direct3DFrameRenderer.
 Sun 17.05.2015 - 3h - Added TextureVertexShader, TextureFragmentShader.
-Mon 18.05.2015 - 2h - Modified shaders to output to multiple render targets, fixed some bugs and started deffered renderer.
-Tue 19.05.2015 - 1h - Rendering DefferedRenderer output through FrameRenderer.
-Wed 20.05.2015 - 5h - Fixed deffered rendering (pixels not showing on screen) by disabling depth test in depth stencil state. Debugging with Nsight and VS built in graphics debugger.
-Mon 25.05.2015 - 2h - Trying to fix problem with deffered rendered meshes failing depth test.
+Mon 18.05.2015 - 2h - Modified shaders to output to multiple render targets, fixed some bugs and started deferred renderer.
+Tue 19.05.2015 - 1h - Rendering DeferredRenderer output through FrameRenderer.
+Wed 20.05.2015 - 5h - Fixed deferred rendering (pixels not showing on screen) by disabling depth test in depth stencil state. Debugging with Nsight and VS built in graphics debugger.
+Mon 25.05.2015 - 2h - Trying to fix problem with deferred rendered meshes failing depth test.
 --- May 2015 - 40h
 Sat 13.06.2015 - 1h - Fixed depth culling problem. Reason: incorrect combination of depth texture format, depth stencil view format and shader resource format.
-Fri 20.06.2015 - 2h - Prototyped space partitioning hierarchy. Modified BlockModel shaders and SkeletonMesh shaders to work with Deffered Rendering.
+Fri 20.06.2015 - 2h - Prototyped space partitioning hierarchy. Modified BlockModel shaders and SkeletonMesh shaders to work with Deferred Rendering.
 Sat 21.06.2015 - 4h - Refactored BlockMesh - loading from file in a static method. Refactored BlockMeshTests accordingly. Added tests for loading mesh from CPU to GPU.
-Sun 22.06.2015 - 4h - Added initializing/deinitializing FreeImage libarary statically in a new ImageLibrary class. Same for FreeType library. Fixing and refactoring text rendering to be in DefferedRenderer and use RendererCore. Debugging blend state problems.
+Sun 22.06.2015 - 4h - Added initializing/deinitializing FreeImage libarary statically in a new ImageLibrary class. Same for FreeType library. Fixing and refactoring text rendering to be in DeferredRenderer and use RendererCore. Debugging blend state problems.
 Wed 24.06.2015 - 1h - Fixed text rendering pixel shader.
-Thu 25.06.2015 - 2h - Fixed text background no-transparency problem. (Alpha writes were unnecessarily enabled in DefferedRenderer and there was unnecessary alpha blending enabled in FrameRenderer - pixels with alpha were not rendered to final frame).
+Thu 25.06.2015 - 2h - Fixed text background no-transparency problem. (Alpha writes were unnecessarily enabled in DeferredRenderer and there was unnecessary alpha blending enabled in FrameRenderer - pixels with alpha were not rendered to final frame).
 Fri 26.06.2015 - 1h - Added deviceContext member to RendererCore and removed it from methods' arguments.
 Sat 27.06.2015 - 5h - Refactored SkeletonMesh - loading from file in a static method. Switching to use Microsoft::WRL::ComPtr for storing Direct3D pointers in all classes - to avoid not freeing resources.
 --- June 2015 - 20h

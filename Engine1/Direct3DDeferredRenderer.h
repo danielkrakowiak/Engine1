@@ -33,7 +33,7 @@ namespace Engine1
     class SkeletonPose;
     class Font;
 
-    class Direct3DDefferedRenderer
+    class Direct3DDeferredRenderer
     {
 
         public:
@@ -44,8 +44,8 @@ namespace Engine1
             NORMAL = 1
         };
 
-        Direct3DDefferedRenderer( Direct3DRendererCore& rendererCore );
-        ~Direct3DDefferedRenderer();
+        Direct3DDeferredRenderer( Direct3DRendererCore& rendererCore );
+        ~Direct3DDeferredRenderer();
 
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
@@ -110,8 +110,8 @@ namespace Engine1
         void loadAndCompileShaders( ID3D11Device& device );
 
         // Copying is not allowed.
-        Direct3DDefferedRenderer( const Direct3DDefferedRenderer& ) = delete;
-        Direct3DDefferedRenderer& operator=(const Direct3DDefferedRenderer&) = delete;
+        Direct3DDeferredRenderer( const Direct3DDeferredRenderer& ) = delete;
+        Direct3DDeferredRenderer& operator=(const Direct3DDeferredRenderer&) = delete;
     };
 }
 

@@ -1,4 +1,4 @@
-#include "Direct3DDefferedRenderer.h"
+#include "Direct3DDeferredRenderer.h"
 
 #include "Direct3DRendererCore.h"
 
@@ -22,7 +22,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-Direct3DDefferedRenderer::Direct3DDefferedRenderer( Direct3DRendererCore& rendererCore ) :
+Direct3DDeferredRenderer::Direct3DDeferredRenderer( Direct3DRendererCore& rendererCore ) :
 rendererCore( rendererCore ),
 initialized( false ),
 imageWidth( 0 ),
@@ -40,10 +40,10 @@ textFragmentShader(std::make_shared<TextFragmentShader>())
 {}
 
 
-Direct3DDefferedRenderer::~Direct3DDefferedRenderer()
+Direct3DDeferredRenderer::~Direct3DDeferredRenderer()
 {}
 
-void Direct3DDefferedRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext )
+void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext )
 {
 
 	this->device = device;
@@ -77,9 +77,9 @@ void Direct3DDefferedRenderer::initialize( int imageWidth, int imageHeight, ComP
 	initialized = true;
 }
 
-void Direct3DDefferedRenderer::render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix )
+void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix )
 {
-	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::render - renderer not initialized." );
+	if ( !initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
@@ -105,9 +105,9 @@ void Direct3DDefferedRenderer::render( const BlockMesh& mesh, const float43& wor
 	rendererCore.draw( mesh );
 }
 
-void Direct3DDefferedRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace )
+void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace )
 {
-	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::render - renderer not initialized." );
+	if ( !initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
@@ -133,9 +133,9 @@ void Direct3DDefferedRenderer::render( const SkeletonMesh& mesh, const float43& 
 	rendererCore.draw( mesh );
 }
 
-void Direct3DDefferedRenderer::render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix )
+void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix )
 {
-	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::render - renderer not initialized." );
+	if ( !initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
@@ -164,10 +164,10 @@ void Direct3DDefferedRenderer::render( const BlockModel& model, const float43& w
 	rendererCore.draw( *model.getMesh().get() );
 }
 
-void Direct3DDefferedRenderer::render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace )
+void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace )
 {
-	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::render - renderer not initialized." );
-	if ( !model.getMesh( ) ) throw std::exception( "Direct3DDefferedRenderer::render - model has no mesh." );
+	if ( !initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
+	if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
@@ -196,9 +196,9 @@ void Direct3DDefferedRenderer::render( const SkeletonModel& model, const float43
 	rendererCore.draw( *model.getMesh().get() );
 }
 
-void Direct3DDefferedRenderer::render( const std::string& text, Font& font, float2 position, float4 color )
+void Direct3DDeferredRenderer::render( const std::string& text, Font& font, float2 position, float4 color )
 {
-	if ( !initialized ) throw std::exception( "Direct3DDefferedRenderer::renders - renderer not initialized." );
+	if ( !initialized ) throw std::exception( "Direct3DDeferredRenderer::renders - renderer not initialized." );
 
     color; // Unused.
 
@@ -250,31 +250,31 @@ void Direct3DDefferedRenderer::render( const std::string& text, Font& font, floa
 	}
 }
 
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > Direct3DDefferedRenderer::getAlbedoRenderTarget()
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > Direct3DDeferredRenderer::getAlbedoRenderTarget()
 {
 	if ( !initialized ) 
-        throw std::exception( "Direct3DDefferedRenderer::getAlbedoRenderTarget - renderer not initialized." );
+        throw std::exception( "Direct3DDeferredRenderer::getAlbedoRenderTarget - renderer not initialized." );
 
 	return albedoRenderTarget;
 }
 
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float2 > > Direct3DDefferedRenderer::getNormalRenderTarget()
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float2 > > Direct3DDeferredRenderer::getNormalRenderTarget()
 {
 	if ( !initialized ) 
-        throw std::exception( "Direct3DDefferedRenderer::getNormalRenderTarget - renderer not initialized." );
+        throw std::exception( "Direct3DDeferredRenderer::getNormalRenderTarget - renderer not initialized." );
 
 	return normalRenderTarget;
 }
 
-std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > Direct3DDefferedRenderer::getDepthRenderTarget()
+std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > Direct3DDeferredRenderer::getDepthRenderTarget()
 {
 	if ( !initialized ) 
-        throw std::exception( "Direct3DDefferedRenderer::getRenderTarget - renderer not initialized." );
+        throw std::exception( "Direct3DDeferredRenderer::getRenderTarget - renderer not initialized." );
 
 	return depthRenderTarget;
 }
 
-ComPtr<ID3D11RasterizerState> Direct3DDefferedRenderer::createRasterizerState( ID3D11Device& device )
+ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( ID3D11Device& device )
 {
 	D3D11_RASTERIZER_DESC         rasterDesc;
 	ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -296,7 +296,7 @@ ComPtr<ID3D11RasterizerState> Direct3DDefferedRenderer::createRasterizerState( I
 	return rasterizerState;
 }
 
-ComPtr<ID3D11DepthStencilState> Direct3DDefferedRenderer::createDepthStencilState( ID3D11Device& device )
+ComPtr<ID3D11DepthStencilState> Direct3DDeferredRenderer::createDepthStencilState( ID3D11Device& device )
 {
 	D3D11_DEPTH_STENCIL_DESC        depthStencilDesc;
 	ComPtr<ID3D11DepthStencilState> depthStencilState;
@@ -322,12 +322,12 @@ ComPtr<ID3D11DepthStencilState> Direct3DDefferedRenderer::createDepthStencilStat
 	depthStencilDesc.BackFace.StencilFunc         = D3D11_COMPARISON_ALWAYS;
 
 	HRESULT result = device.CreateDepthStencilState( &depthStencilDesc, depthStencilState.ReleaseAndGetAddressOf() );
-	if ( result < 0 ) throw std::exception( "Direct3DDefferedRenderer::createDepthStencilState - creation of depth/stencil state failed." );
+	if ( result < 0 ) throw std::exception( "Direct3DDeferredRenderer::createDepthStencilState - creation of depth/stencil state failed." );
 
 	return depthStencilState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DDefferedRenderer::createBlendStateForMeshRendering( ID3D11Device& device )
+ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForMeshRendering( ID3D11Device& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -356,7 +356,7 @@ ComPtr<ID3D11BlendState> Direct3DDefferedRenderer::createBlendStateForMeshRender
 	return blendState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DDefferedRenderer::createBlendStateForTextRendering( ID3D11Device& device )
+ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRendering( ID3D11Device& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -392,7 +392,7 @@ ComPtr<ID3D11BlendState> Direct3DDefferedRenderer::createBlendStateForTextRender
 	return blendState;
 }
 
-void Direct3DDefferedRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
+void Direct3DDeferredRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
 	// Create render targets.
     albedoRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >
@@ -406,7 +406,7 @@ void Direct3DDefferedRenderer::createRenderTargets( int imageWidth, int imageHei
         ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS );
 }
 
-void Direct3DDefferedRenderer::clearRenderTargets( float4 color, float depth )
+void Direct3DDeferredRenderer::clearRenderTargets( float4 color, float depth )
 {
 	albedoRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
     normalRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
@@ -414,7 +414,7 @@ void Direct3DDefferedRenderer::clearRenderTargets( float4 color, float depth )
 	depthRenderTarget->clearDepthStencilView( *deviceContext.Get( ), true, depth, true, 0 );
 }
 
-void Direct3DDefferedRenderer::loadAndCompileShaders( ID3D11Device& device )
+void Direct3DDeferredRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
 	blockMeshVertexShader->compileFromFile( "../Engine1/Shaders/BlockMeshShader/vs.hlsl", device );
 	blockMeshFragmentShader->compileFromFile( "../Engine1/Shaders/BlockMeshShader/ps.hlsl", device );

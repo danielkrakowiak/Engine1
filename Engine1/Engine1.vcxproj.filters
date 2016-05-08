@@ -408,9 +408,6 @@
     <ClInclude Include="Direct3DRendererCore.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Direct3DDefferedRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Direct3DFrameRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -582,6 +579,9 @@
     <ClInclude Include="uchar2.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Direct3DDeferredRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -726,9 +726,6 @@
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Direct3DRendererCore.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3DDefferedRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Direct3DFrameRenderer.cpp">
@@ -886,6 +883,9 @@
     </ClCompile>
     <ClCompile Include="uchar2.cpp">
       <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3DDeferredRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -38,9 +38,9 @@ using namespace Engine1;
 Application::Application() :
 	rendererCore(),
 	frameRenderer( rendererCore ),
-	defferedRenderer( rendererCore ),
+	deferredRenderer( rendererCore ),
     raytraceRenderer( rendererCore ),
-    renderer( defferedRenderer, raytraceRenderer ),
+    renderer( deferredRenderer, raytraceRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -67,7 +67,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	setupWindow();
 
 	frameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
-	defferedRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+	deferredRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     raytraceRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
 	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
     assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1, frameRenderer.getDevice() );
@@ -248,7 +248,7 @@ void Application::run() {
 		{ // Render FPS.
 			std::stringstream ss;
 			ss << "FPS: " << (int)(1000.0 / frameTime) << " / " << frameTime << "ms";
-			defferedRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			deferredRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
 		{ // Render camera state.
