@@ -195,7 +195,7 @@ void Application::run() {
         // Translate / rotate the default actor.
         bool movingActors = false;
         if ( windowFocused && defaultBlockActor ) {
-            const float   translationSensitivity = 0.05f;//0.002f;
+            const float   translationSensitivity = 0.002f;//0.002f;
             const float   rotationSensitivity    = 0.0002f;
             const float43 currentPose            = defaultBlockActor->getPose();
             const int2    mouseMove              = inputManager.getMouseMove();
@@ -267,6 +267,10 @@ void Application::run() {
 				
 			//direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
+
+        // Required to be able to display depth-stencil buffer.
+        // TODO: Should  be refactored somehow. Such method should not be called here.
+        deferredRenderer.disableRenderTargets();
 
         if ( frameUchar )
 		    frameRenderer.renderTexture( *frameUchar, 0.0f, 0.0f );
@@ -414,16 +418,18 @@ void Application::onKeyPress( int key )
     }
 
     if ( key == InputManager::Keys::one )
-        renderer.setActiveView( Renderer::View::Albedo );
+        renderer.setActiveView( Renderer::View::Depth );
     else if ( key == InputManager::Keys::two )
-        renderer.setActiveView( Renderer::View::Normal );
+        renderer.setActiveView( Renderer::View::Albedo );
     else if ( key == InputManager::Keys::three )
-        renderer.setActiveView( Renderer::View::RayDirections1 );
+        renderer.setActiveView( Renderer::View::Normal );
     else if ( key == InputManager::Keys::four )
-        renderer.setActiveView( Renderer::View::RaytracingHitDistance );
+        renderer.setActiveView( Renderer::View::RayDirections1 );
     else if ( key == InputManager::Keys::five )
-        renderer.setActiveView( Renderer::View::RaytracingHitNormal );
+        renderer.setActiveView( Renderer::View::RaytracingHitDistance );
     else if ( key == InputManager::Keys::six )
+        renderer.setActiveView( Renderer::View::RaytracingHitNormal );
+    else if ( key == InputManager::Keys::seven )
         renderer.setActiveView( Renderer::View::RaytracingHitAlbedo );
 }
 

@@ -51,6 +51,7 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
         void clearRenderTargets( float4 color, float depth );
+        void disableRenderTargets();
 
         void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix );
         void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace );

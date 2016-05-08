@@ -93,6 +93,13 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
 
     switch (activeView)
     {
+        case View::Depth: 
+            return std::make_tuple( 
+                deferredRenderer.getDepthRenderTarget(),
+                nullptr,
+                nullptr,
+                nullptr
+             );
         case View::Albedo: 
             return std::make_tuple( 
                 deferredRenderer.getAlbedoRenderTarget(),

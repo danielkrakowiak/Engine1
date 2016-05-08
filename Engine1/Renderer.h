@@ -21,7 +21,8 @@ namespace Engine1
         public:
 
         enum class View : char {
-            Albedo = 0,
+            Depth = 0,
+            Albedo,
             Normal,
             RayDirections1,
             RaytracingHitDistance,

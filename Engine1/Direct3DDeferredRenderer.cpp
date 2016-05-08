@@ -414,6 +414,11 @@ void Direct3DDeferredRenderer::clearRenderTargets( float4 color, float depth )
 	depthRenderTarget->clearDepthStencilView( *deviceContext.Get( ), true, depth, true, 0 );
 }
 
+void Direct3DDeferredRenderer::disableRenderTargets()
+{
+    rendererCore.disableRenderTargetViews();
+}
+
 void Direct3DDeferredRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
 	blockMeshVertexShader->compileFromFile( "../Engine1/Shaders/BlockMeshShader/vs.hlsl", device );

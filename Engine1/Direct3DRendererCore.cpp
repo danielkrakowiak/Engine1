@@ -253,7 +253,14 @@ void Direct3DRendererCore::disableRenderTargetViews()
 {
     if ( !currentRenderTargetViews.empty() || currentDepthRenderTargetView )
     {
-        deviceContext->OMSetRenderTargets( 0, nullptr, nullptr );
+        std::vector< ID3D11RenderTargetView* > emptyTargets;
+        emptyTargets.resize( currentRenderTargetViews.size() );
+        for (unsigned int i = 0; i < currentRenderTargetViews.size(); ++i)
+            emptyTargets[ i ] = nullptr;
+
+        ID3D11DepthStencilView* emptyDepthTarget = nullptr;
+
+        deviceContext->OMSetRenderTargets( (unsigned int)currentRenderTargetViews.size(), emptyTargets.data(), emptyDepthTarget );
 
         currentRenderTargetViews.clear();
         currentDepthRenderTargetView = nullptr;
