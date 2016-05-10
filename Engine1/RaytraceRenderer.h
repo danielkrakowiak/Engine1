@@ -18,7 +18,9 @@ namespace Engine1
     class ComputeTargetTexture2D;
     class Camera;
     class GenerateRaysComputeShader;
-    class RaytracingComputeShader;
+    class GenerateReflectedRefractedRaysComputeShader;
+    class RaytracingPrimaryRaysComputeShader;
+    class RaytracingSecondaryRaysComputeShader;
     class BlockActor;
 
     class RaytraceRenderer
@@ -31,7 +33,11 @@ namespace Engine1
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
-        void generateAndTraceRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
+        void generateAndTracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
+        void generateAndTraceSecondaryRays( const Camera& camera, 
+                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
+                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > > normalTexture,
+                                            const std::vector< std::shared_ptr< const BlockActor > >& actors );
 
         // For test - only temporary.
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > getRayDirectionsTexture();
@@ -41,11 +47,13 @@ namespace Engine1
 
         private:
 
-        void disableRenderingPipeline();
-        void disableComputePipeline();
+        void generatePrimaryRays( const Camera& camera );
+        void generateSecondaryRays( const Camera& camera, 
+                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
+                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > > normalTexture );
 
-        void generateRays( const Camera& camera );
-        void traceRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
+        void tracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
+        void traceSecondaryRays( const std::vector< std::shared_ptr< const BlockActor > >& actors );
 
         Direct3DRendererCore& rendererCore;
 
@@ -57,6 +65,7 @@ namespace Engine1
         // Render targets.
         int imageWidth, imageHeight;
 
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > rayOriginsTexture;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > rayDirectionsTexture;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >  rayHitDistanceTexture;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > rayHitAlbedoTexture;
@@ -65,8 +74,10 @@ namespace Engine1
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
-        std::shared_ptr<GenerateRaysComputeShader> generateRaysComputeShader;
-        std::shared_ptr<RaytracingComputeShader>   raytracingComputeShader;
+        std::shared_ptr< GenerateRaysComputeShader >                   generateRaysComputeShader;
+        std::shared_ptr< GenerateReflectedRefractedRaysComputeShader > generateReflectedRefractedRaysComputeShader;
+        std::shared_ptr< RaytracingPrimaryRaysComputeShader >          raytracingPrimaryRaysComputeShader;
+        std::shared_ptr< RaytracingSecondaryRaysComputeShader >        raytracingSecondaryRaysComputeShader;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

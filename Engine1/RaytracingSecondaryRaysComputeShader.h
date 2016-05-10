@@ -19,16 +19,17 @@ namespace Engine1
 {
     class BlockMesh;
 
-    class RaytracingComputeShader : public ComputeShader
+    class RaytracingSecondaryRaysComputeShader : public ComputeShader
     {
 
         public:
 
-        RaytracingComputeShader();
-        virtual ~RaytracingComputeShader();
+        RaytracingSecondaryRaysComputeShader();
+        virtual ~RaytracingSecondaryRaysComputeShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, 
+        void setParameters( ID3D11DeviceContext& deviceContext, 
+                            const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayOriginsTexture,
                             const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
                             const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture );
@@ -39,20 +40,18 @@ namespace Engine1
         __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
         struct ConstantBuffer
         {
-            float3  rayOrigin;
-            float   pad1;
             float44 worldMatrixInv;
             float3  boundingBoxMin;
-            float   pad2;
+            float   pad1;
             float3  boundingBoxMax;
-            float   pad3;
+            float   pad2;
         };
 
         Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
         // Copying is not allowed.
-        RaytracingComputeShader( const RaytracingComputeShader& ) = delete;
-        RaytracingComputeShader& operator=(const RaytracingComputeShader&) = delete;
+        RaytracingSecondaryRaysComputeShader( const RaytracingSecondaryRaysComputeShader& ) = delete;
+        RaytracingSecondaryRaysComputeShader& operator=(const RaytracingSecondaryRaysComputeShader&) = delete;
     };
 }
 

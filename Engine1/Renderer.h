@@ -11,6 +11,7 @@ namespace Engine1
 {
     class Direct3DDeferredRenderer;
     class RaytraceRenderer;
+    class ShadingRenderer;
     class CScene;
     class Camera;
     class BlockMesh;
@@ -21,7 +22,8 @@ namespace Engine1
         public:
 
         enum class View : char {
-            Depth = 0,
+            Final = 0,
+            Depth,
             Albedo,
             Normal,
             RayDirections1,
@@ -30,7 +32,7 @@ namespace Engine1
             RaytracingHitAlbedo,
         };
 
-        Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer );
+        Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, ShadingRenderer& shadingRenderer );
         ~Renderer();
 
         void initialize( std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
@@ -51,6 +53,7 @@ namespace Engine1
 
         Direct3DDeferredRenderer& deferredRenderer;
         RaytraceRenderer&         raytraceRenderer;
+        ShadingRenderer&          shadingRenderer;
 
         std::shared_ptr<const BlockMesh>  axisMesh;
         std::shared_ptr<const BlockModel> lightModel;

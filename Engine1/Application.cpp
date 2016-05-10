@@ -40,7 +40,8 @@ Application::Application() :
 	frameRenderer( rendererCore ),
 	deferredRenderer( rendererCore ),
     raytraceRenderer( rendererCore ),
-    renderer( deferredRenderer, raytraceRenderer ),
+    shadingRenderer( rendererCore ),
+    renderer( deferredRenderer, raytraceRenderer, shadingRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -69,6 +70,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	frameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
 	deferredRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     raytraceRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+    shadingRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
 	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
     assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1, frameRenderer.getDevice() );
 
@@ -417,7 +419,9 @@ void Application::onKeyPress( int key )
         }
     }
 
-    if ( key == InputManager::Keys::one )
+    if ( key == InputManager::Keys::tilde )
+        renderer.setActiveView( Renderer::View::Final );
+    else if ( key == InputManager::Keys::one )
         renderer.setActiveView( Renderer::View::Depth );
     else if ( key == InputManager::Keys::two )
         renderer.setActiveView( Renderer::View::Albedo );

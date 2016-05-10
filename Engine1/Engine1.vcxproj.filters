@@ -76,15 +76,6 @@
     <Filter Include="Source Files\Shader">
       <UniqueIdentifier>{9cadc32f-e1ea-4e2f-a9b0-a88db076d257}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Shader\BlockMeshShaders">
-      <UniqueIdentifier>{a3ec6ae4-bfea-4bf6-8221-e18c1a57e053}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\BlockMeshShaders">
-      <UniqueIdentifier>{be418864-ec1e-4e31-ae35-6d9c1e2a3579}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\BlockModelShaders">
-      <UniqueIdentifier>{0c55a1bd-a5ad-4cf7-8dea-2c7cb69f73d6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Camera">
       <UniqueIdentifier>{b4e734e3-d9a4-4e30-a468-4c83e4037c88}</UniqueIdentifier>
     </Filter>
@@ -112,23 +103,8 @@
     <Filter Include="Source Files\Font">
       <UniqueIdentifier>{e5c7ca56-cd88-4da7-a445-be2bde7d40dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Shader\TextShaders">
-      <UniqueIdentifier>{93eee9ed-db22-49f6-882e-6ad9b4663f11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\TextShaders">
-      <UniqueIdentifier>{35266adb-488a-41b6-9e6e-c69a8cd16f3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\SkeletonMeshShaders">
-      <UniqueIdentifier>{c2ba8663-f000-47fa-92b2-1f57c73ec791}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\SkeletonMeshShaders">
-      <UniqueIdentifier>{be6ac98a-cc9e-4304-a002-75312f0e87fe}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\XMLParser">
       <UniqueIdentifier>{20b74e6a-2f11-454e-a9bc-2159ebdbb16f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\BlockModelShaders">
-      <UniqueIdentifier>{aa3ab730-08b6-4c6a-b1b4-beb9329ef30b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Mesh\BlockMesh">
       <UniqueIdentifier>{e2e14d13-d03d-4a6e-a08e-fe32772613f6}</UniqueIdentifier>
@@ -156,12 +132,6 @@
     </Filter>
     <Filter Include="Source Files\Mesh\RectangleMesh">
       <UniqueIdentifier>{93721a77-58c1-45c2-b7e6-6a29f37efa48}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\TextureShader">
-      <UniqueIdentifier>{3a96274e-c5de-46f5-bc84-52ac8b58ac6f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\TextureShader">
-      <UniqueIdentifier>{f689cad5-1317-43cf-9195-c4771ed5c636}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Libraries">
       <UniqueIdentifier>{518752d4-440f-4312-b453-40ff2411510e}</UniqueIdentifier>
@@ -193,12 +163,6 @@
     <Filter Include="Header Files\Mesh\Parsers">
       <UniqueIdentifier>{a32c2290-5249-4891-8868-74b5776ee680}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shader\SkeletonModelShaders">
-      <UniqueIdentifier>{721eec6f-9be2-4544-843b-15e30ec4303d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\SkeletonModelShaders">
-      <UniqueIdentifier>{e568e6b0-fb8f-4cc2-aa12-0851742435ef}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Scene">
       <UniqueIdentifier>{07d79141-eccc-4395-aa9b-e7d0036a5213}</UniqueIdentifier>
     </Filter>
@@ -226,18 +190,6 @@
     <Filter Include="Source Files\Light\Parsers">
       <UniqueIdentifier>{a7a968b4-a1b3-49c3-b05a-a7110031a107}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Shader\GenerateRaysShader">
-      <UniqueIdentifier>{40eb866b-6bcf-4fcb-a890-6e3f15d96a15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\GenerateRaysShader">
-      <UniqueIdentifier>{34507f44-7cd8-4011-af77-b370ee9bb73b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\RaytracingShader">
-      <UniqueIdentifier>{d0d3698f-43aa-4304-96d8-467399b27f95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\RaytracingShader">
-      <UniqueIdentifier>{dc231a18-1f39-427d-909f-77d193c8711e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Texture2">
       <UniqueIdentifier>{6ab99cf2-5059-428c-ba9f-2a3c3bff82e7}</UniqueIdentifier>
     </Filter>
@@ -255,6 +207,72 @@
     </Filter>
     <Filter Include="Source Files\Tools\BVH">
       <UniqueIdentifier>{862b2cbf-a91e-4aee-b34d-94d21010aa01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateReflectedRefractedRays">
+      <UniqueIdentifier>{bf5a5b0f-8e03-4525-ad9b-0ef3a2be9beb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\GenerateReflectedRefractedRays">
+      <UniqueIdentifier>{868a2301-3bb6-4cb7-93f3-dce774de2875}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\BlockMesh">
+      <UniqueIdentifier>{be418864-ec1e-4e31-ae35-6d9c1e2a3579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\BlockModel">
+      <UniqueIdentifier>{0c55a1bd-a5ad-4cf7-8dea-2c7cb69f73d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateRays">
+      <UniqueIdentifier>{34507f44-7cd8-4011-af77-b370ee9bb73b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\RaytracingPrimaryRays">
+      <UniqueIdentifier>{d0d3698f-43aa-4304-96d8-467399b27f95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\RaytracingSecondaryRays">
+      <UniqueIdentifier>{428c1a9e-e786-481f-9c42-18236584894f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\SkeletonMesh">
+      <UniqueIdentifier>{c2ba8663-f000-47fa-92b2-1f57c73ec791}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\SkeletonModel">
+      <UniqueIdentifier>{721eec6f-9be2-4544-843b-15e30ec4303d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Text">
+      <UniqueIdentifier>{35266adb-488a-41b6-9e6e-c69a8cd16f3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Texture">
+      <UniqueIdentifier>{3a96274e-c5de-46f5-bc84-52ac8b58ac6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Shading">
+      <UniqueIdentifier>{36bf9c95-3078-4808-a07b-865648fc645b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\BlockMesh">
+      <UniqueIdentifier>{a3ec6ae4-bfea-4bf6-8221-e18c1a57e053}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\BlockModel">
+      <UniqueIdentifier>{aa3ab730-08b6-4c6a-b1b4-beb9329ef30b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\GenerateRays">
+      <UniqueIdentifier>{40eb866b-6bcf-4fcb-a890-6e3f15d96a15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\RaytracingPrimaryRays">
+      <UniqueIdentifier>{dc231a18-1f39-427d-909f-77d193c8711e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\RaytracingSecondaryRays">
+      <UniqueIdentifier>{f42192b2-0eae-4d96-a517-c6e317095d6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\SkeletonMesh">
+      <UniqueIdentifier>{be6ac98a-cc9e-4304-a002-75312f0e87fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\SkeletonModel">
+      <UniqueIdentifier>{e568e6b0-fb8f-4cc2-aa12-0851742435ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Text">
+      <UniqueIdentifier>{93eee9ed-db22-49f6-882e-6ad9b4663f11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Texture">
+      <UniqueIdentifier>{f689cad5-1317-43cf-9195-c4771ed5c636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Shading">
+      <UniqueIdentifier>{bd1568a1-6a04-4347-856a-08b79deac0c4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -319,19 +337,19 @@
       <Filter>Header Files\Shader</Filter>
     </ClInclude>
     <ClInclude Include="BlockMeshFragmentShader.h">
-      <Filter>Header Files\Shader\BlockMeshShaders</Filter>
+      <Filter>Header Files\Shader\BlockMesh</Filter>
     </ClInclude>
     <ClInclude Include="BlockMeshVertexShader.h">
-      <Filter>Header Files\Shader\BlockMeshShaders</Filter>
+      <Filter>Header Files\Shader\BlockMesh</Filter>
     </ClInclude>
     <ClInclude Include="float44.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="BlockModelVertexShader.h">
-      <Filter>Header Files\Shader\BlockModelShaders</Filter>
+      <Filter>Header Files\Shader\BlockModel</Filter>
     </ClInclude>
     <ClInclude Include="BlockModelFragmentShader.h">
-      <Filter>Header Files\Shader\BlockModelShaders</Filter>
+      <Filter>Header Files\Shader\BlockModel</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Camera</Filter>
@@ -349,10 +367,10 @@
       <Filter>Header Files\Font</Filter>
     </ClInclude>
     <ClInclude Include="TextVertexShader.h">
-      <Filter>Header Files\Shader\TextShaders</Filter>
+      <Filter>Header Files\Shader\Text</Filter>
     </ClInclude>
     <ClInclude Include="TextFragmentShader.h">
-      <Filter>Header Files\Shader\TextShaders</Filter>
+      <Filter>Header Files\Shader\Text</Filter>
     </ClInclude>
     <ClInclude Include="SkeletonModel.h">
       <Filter>Header Files\Model</Filter>
@@ -397,10 +415,10 @@
       <Filter>Header Files\Mesh\Skeleton</Filter>
     </ClInclude>
     <ClInclude Include="SkeletonMeshVertexShader.h">
-      <Filter>Header Files\Shader\SkeletonMeshShaders</Filter>
+      <Filter>Header Files\Shader\SkeletonMesh</Filter>
     </ClInclude>
     <ClInclude Include="SkeletonMeshFragmentShader.h">
-      <Filter>Header Files\Shader\SkeletonMeshShaders</Filter>
+      <Filter>Header Files\Shader\SkeletonMesh</Filter>
     </ClInclude>
     <ClInclude Include="RenderTargetDepthTexture2D.h">
       <Filter>Header Files\Texture</Filter>
@@ -421,10 +439,10 @@
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="TextureVertexShader.h">
-      <Filter>Header Files\Shader\TextureShader</Filter>
+      <Filter>Header Files\Shader\Texture</Filter>
     </ClInclude>
     <ClInclude Include="TextureFragmentShader.h">
-      <Filter>Header Files\Shader\TextureShader</Filter>
+      <Filter>Header Files\Shader\Texture</Filter>
     </ClInclude>
     <ClInclude Include="ImageLibrary.h">
       <Filter>Header Files\Libraries</Filter>
@@ -454,10 +472,10 @@
       <Filter>Header Files\Model\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="SkeletonModelVertexShader.h">
-      <Filter>Header Files\Shader\SkeletonModelShaders</Filter>
+      <Filter>Header Files\Shader\SkeletonModel</Filter>
     </ClInclude>
     <ClInclude Include="SkeletonModelFragmentShader.h">
-      <Filter>Header Files\Shader\SkeletonModelShaders</Filter>
+      <Filter>Header Files\Shader\SkeletonModel</Filter>
     </ClInclude>
     <ClInclude Include="BlockMeshFileInfo.h">
       <Filter>Header Files\Mesh\BlockMesh</Filter>
@@ -535,13 +553,10 @@
       <Filter>Header Files\Shader</Filter>
     </ClInclude>
     <ClInclude Include="GenerateRaysComputeShader.h">
-      <Filter>Header Files\Shader\GenerateRaysShader</Filter>
+      <Filter>Header Files\Shader\GenerateRays</Filter>
     </ClInclude>
     <ClInclude Include="ComputeTargetTexture2D.h">
       <Filter>Header Files\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="RaytracingComputeShader.h">
-      <Filter>Header Files\Shader\RaytracingShader</Filter>
     </ClInclude>
     <ClInclude Include="uchar4.h">
       <Filter>Header Files\Math</Filter>
@@ -580,6 +595,21 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="Direct3DDeferredRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateReflectedRefractedRaysComputeShader.h">
+      <Filter>Header Files\Shader\GenerateReflectedRefractedRays</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytracingPrimaryRaysComputeShader.h">
+      <Filter>Header Files\Shader\RaytracingPrimaryRays</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytracingSecondaryRaysComputeShader.h">
+      <Filter>Header Files\Shader\RaytracingSecondaryRays</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadingComputeShader.h">
+      <Filter>Header Files\Shader\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadingRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
@@ -645,10 +675,10 @@
       <Filter>Source Files\Shader</Filter>
     </ClCompile>
     <ClCompile Include="BlockMeshFragmentShader.cpp">
-      <Filter>Source Files\Shader\BlockMeshShaders</Filter>
+      <Filter>Source Files\Shader\BlockMesh</Filter>
     </ClCompile>
     <ClCompile Include="BlockMeshVertexShader.cpp">
-      <Filter>Source Files\Shader\BlockMeshShaders</Filter>
+      <Filter>Source Files\Shader\BlockMesh</Filter>
     </ClCompile>
     <ClCompile Include="float44.cpp">
       <Filter>Source Files\Math</Filter>
@@ -657,10 +687,10 @@
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="BlockModelVertexShader.cpp">
-      <Filter>Source Files\Shader\BlockModelShaders</Filter>
+      <Filter>Source Files\Shader\BlockModel</Filter>
     </ClCompile>
     <ClCompile Include="BlockModelFragmentShader.cpp">
-      <Filter>Source Files\Shader\BlockModelShaders</Filter>
+      <Filter>Source Files\Shader\BlockModel</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Camera</Filter>
@@ -678,10 +708,10 @@
       <Filter>Source Files\Font</Filter>
     </ClCompile>
     <ClCompile Include="TextVertexShader.cpp">
-      <Filter>Source Files\Shader\TextShaders</Filter>
+      <Filter>Source Files\Shader\Text</Filter>
     </ClCompile>
     <ClCompile Include="TextFragmentShader.cpp">
-      <Filter>Source Files\Shader\TextShaders</Filter>
+      <Filter>Source Files\Shader\Text</Filter>
     </ClCompile>
     <ClCompile Include="SkeletonModel.cpp">
       <Filter>Source Files\Model</Filter>
@@ -714,10 +744,10 @@
       <Filter>Source Files\Mesh\Skeleton</Filter>
     </ClCompile>
     <ClCompile Include="SkeletonMeshVertexShader.cpp">
-      <Filter>Source Files\Shader\SkeletonMeshShaders</Filter>
+      <Filter>Source Files\Shader\SkeletonMesh</Filter>
     </ClCompile>
     <ClCompile Include="SkeletonMeshFragmentShader.cpp">
-      <Filter>Source Files\Shader\SkeletonMeshShaders</Filter>
+      <Filter>Source Files\Shader\SkeletonMesh</Filter>
     </ClCompile>
     <ClCompile Include="RenderTargetTexture2D.cpp">
       <Filter>Source Files\Texture</Filter>
@@ -741,10 +771,10 @@
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="TextureVertexShader.cpp">
-      <Filter>Source Files\Shader\TextureShader</Filter>
+      <Filter>Source Files\Shader\Texture</Filter>
     </ClCompile>
     <ClCompile Include="TextureFragmentShader.cpp">
-      <Filter>Source Files\Shader\TextureShader</Filter>
+      <Filter>Source Files\Shader\Texture</Filter>
     </ClCompile>
     <ClCompile Include="ImageLibrary.cpp">
       <Filter>Source Files\Libraries</Filter>
@@ -774,10 +804,10 @@
       <Filter>Source Files\Model\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="SkeletonModelVertexShader.cpp">
-      <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+      <Filter>Source Files\Shader\SkeletonModel</Filter>
     </ClCompile>
     <ClCompile Include="SkeletonModelFragmentShader.cpp">
-      <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+      <Filter>Source Files\Shader\SkeletonModel</Filter>
     </ClCompile>
     <ClCompile Include="BlockMeshFileInfo.cpp">
       <Filter>Source Files\Mesh\BlockMesh</Filter>
@@ -852,13 +882,10 @@
       <Filter>Source Files\Shader</Filter>
     </ClCompile>
     <ClCompile Include="GenerateRaysComputeShader.cpp">
-      <Filter>Source Files\Shader\GenerateRaysShader</Filter>
+      <Filter>Source Files\Shader\GenerateRays</Filter>
     </ClCompile>
     <ClCompile Include="ComputeTargetTexture2D.cpp">
       <Filter>Source Files\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="RaytracingComputeShader.cpp">
-      <Filter>Source Files\Shader\RaytracingShader</Filter>
     </ClCompile>
     <ClCompile Include="uchar4.cpp">
       <Filter>Source Files\Math</Filter>
@@ -885,6 +912,21 @@
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="Direct3DDeferredRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateReflectedRefractedRaysComputeShader.cpp">
+      <Filter>Source Files\Shader\GenerateReflectedRefractedRays</Filter>
+    </ClCompile>
+    <ClCompile Include="RaytracingPrimaryRaysComputeShader.cpp">
+      <Filter>Source Files\Shader\RaytracingPrimaryRays</Filter>
+    </ClCompile>
+    <ClCompile Include="RaytracingSecondaryRaysComputeShader.cpp">
+      <Filter>Source Files\Shader\RaytracingSecondaryRays</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadingComputeShader.cpp">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadingRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
@@ -916,46 +958,55 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\BlockMeshShader\ps.hlsl">
-      <Filter>Source Files\Shader\BlockMeshShaders</Filter>
+      <Filter>Source Files\Shader\BlockMesh</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\BlockMeshShader\vs.hlsl">
-      <Filter>Source Files\Shader\BlockMeshShaders</Filter>
+      <Filter>Source Files\Shader\BlockMesh</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\BlockModelShader\ps.hlsl">
-      <Filter>Source Files\Shader\BlockModelShaders</Filter>
+      <Filter>Source Files\Shader\BlockModel</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\BlockModelShader\vs.hlsl">
-      <Filter>Source Files\Shader\BlockModelShaders</Filter>
+      <Filter>Source Files\Shader\BlockModel</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\TextShader\ps.hlsl">
-      <Filter>Source Files\Shader\TextShaders</Filter>
+      <Filter>Source Files\Shader\Text</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\TextShader\vs.hlsl">
-      <Filter>Source Files\Shader\TextShaders</Filter>
+      <Filter>Source Files\Shader\Text</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonMeshShader\ps.hlsl">
-      <Filter>Source Files\Shader\SkeletonMeshShaders</Filter>
+      <Filter>Source Files\Shader\SkeletonMesh</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonMeshShader\vs.hlsl">
-      <Filter>Source Files\Shader\SkeletonMeshShaders</Filter>
+      <Filter>Source Files\Shader\SkeletonMesh</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\TextureShader\ps.hlsl">
-      <Filter>Source Files\Shader\TextureShader</Filter>
+      <Filter>Source Files\Shader\Texture</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\TextureShader\vs.hlsl">
-      <Filter>Source Files\Shader\TextureShader</Filter>
+      <Filter>Source Files\Shader\Texture</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonModelShader\ps.hlsl">
-      <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+      <Filter>Source Files\Shader\SkeletonModel</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonModelShader\vs.hlsl">
-      <Filter>Source Files\Shader\SkeletonModelShaders</Filter>
+      <Filter>Source Files\Shader\SkeletonModel</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\GenerateRaysShader\cs.hlsl">
-      <Filter>Source Files\Shader\GenerateRaysShader</Filter>
+      <Filter>Source Files\Shader\GenerateRays</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\RaytracingShader\cs.hlsl">
-      <Filter>Source Files\Shader\RaytracingShader</Filter>
+    <FxCompile Include="Shaders\GenerateReflectedRefractedRaysShader\cs.hlsl">
+      <Filter>Source Files\Shader\GenerateReflectedRefractedRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RaytracingPrimaryRaysShader\cs.hlsl">
+      <Filter>Source Files\Shader\RaytracingPrimaryRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RaytracingSecondaryRaysShader\cs.hlsl">
+      <Filter>Source Files\Shader\RaytracingSecondaryRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadingShader\cs.hlsl">
+      <Filter>Source Files\Shader\Shading</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

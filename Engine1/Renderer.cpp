@@ -4,6 +4,7 @@
 
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
+#include "ShadingRenderer.h"
 #include "CScene.h"
 #include "Camera.h"
 #include "MathUtil.h"
@@ -17,10 +18,11 @@
 
 using namespace Engine1;
 
-Renderer::Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer ) :
+Renderer::Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, ShadingRenderer& shadingRenderer ) :
 deferredRenderer( deferredRenderer ),
 raytraceRenderer( raytraceRenderer ),
-activeView( View::Albedo )
+shadingRenderer( shadingRenderer ),
+activeView( View::Final )
 {}
 
 Renderer::~Renderer()
@@ -89,10 +91,22 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         if ( actor->getType() == Actor::Type::BlockActor )
             blockActors.push_back( std::static_pointer_cast<BlockActor>( actor ) );
     }
-    raytraceRenderer.generateAndTraceRays( camera, blockActors );
+    //raytraceRenderer.generateAndTraceRays( camera, blockActors );
+    raytraceRenderer.generateAndTraceSecondaryRays( camera, deferredRenderer.getDepthRenderTarget(), deferredRenderer.getNormalRenderTarget(), blockActors );
+
+    // Perform shading.
+    std::vector< std::shared_ptr< Light > > lights;
+    shadingRenderer.performShading( deferredRenderer.getAlbedoRenderTarget(), lights );
 
     switch (activeView)
     {
+        case View::Final: 
+            return std::make_tuple( 
+                nullptr,
+                shadingRenderer.getColorRenderTarget(),
+                nullptr,
+                nullptr
+             );
         case View::Depth: 
             return std::make_tuple( 
                 deferredRenderer.getDepthRenderTarget(),

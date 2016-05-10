@@ -39,7 +39,6 @@ textVertexShader(std::make_shared<TextVertexShader>()),
 textFragmentShader(std::make_shared<TextFragmentShader>())
 {}
 
-
 Direct3DDeferredRenderer::~Direct3DDeferredRenderer()
 {}
 

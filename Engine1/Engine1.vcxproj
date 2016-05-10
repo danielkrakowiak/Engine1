@@ -266,18 +266,22 @@
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Direct3DDeferredRenderer.h" />
     <ClInclude Include="Direct3DRendererCore.h" />
+    <ClInclude Include="ShadingRenderer.h" />
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="GenerateRaysComputeShader.h" />
+    <ClInclude Include="GenerateReflectedRefractedRaysComputeShader.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
     <ClInclude Include="CScene.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="PointLightParser.h" />
     <ClInclude Include="RaytraceRenderer.h" />
-    <ClInclude Include="RaytracingComputeShader.h" />
+    <ClInclude Include="RaytracingPrimaryRaysComputeShader.h" />
+    <ClInclude Include="RaytracingSecondaryRaysComputeShader.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SceneParser.h" />
+    <ClInclude Include="ShadingComputeShader.h" />
     <ClInclude Include="SkeletonActor.h" />
     <ClInclude Include="SkeletonAnimationFileInfo.h" />
     <ClInclude Include="SkeletonAnimationFileInfoParser.h" />
@@ -376,17 +380,21 @@
     <ClCompile Include="ComputeShader.cpp" />
     <ClCompile Include="Direct3DDeferredRenderer.cpp" />
     <ClCompile Include="Direct3DRendererCore.cpp" />
+    <ClCompile Include="ShadingRenderer.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="GenerateRaysComputeShader.cpp" />
+    <ClCompile Include="GenerateReflectedRefractedRaysComputeShader.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
     <ClCompile Include="CScene.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="PointLightParser.cpp" />
     <ClCompile Include="RaytraceRenderer.cpp" />
-    <ClCompile Include="RaytracingComputeShader.cpp" />
+    <ClCompile Include="RaytracingPrimaryRaysComputeShader.cpp" />
+    <ClCompile Include="RaytracingSecondaryRaysComputeShader.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SceneParser.cpp" />
+    <ClCompile Include="ShadingComputeShader.cpp" />
     <ClCompile Include="SkeletonActor.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfo.cpp" />
     <ClCompile Include="SkeletonAnimationFileInfoParser.cpp" />
@@ -548,7 +556,27 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Shaders\RaytracingShader\cs.hlsl">
+    <FxCompile Include="Shaders\GenerateReflectedRefractedRaysShader\cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">/Gfp /Fc "..\x64\DebugDirect3D\Shaders\Assembly\GenerateReflectedRefractedRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/Gfp /Fc "..\x64\Debug\Shaders\Assembly\GenerateReflectedRefractedRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Fc "..\x64\Release\Shaders\Assembly\GenerateReflectedRefractedRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/Fc "..\Release\Shaders\Assembly\GenerateReflectedRefractedRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/Gfp /Fc "..\Debug\Shaders\Assembly\GenerateReflectedRefractedRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">/Gfp /Fc "..\DebugDirect3D\Shaders\Assembly\GenerateReflectedRefractedRays_cs_asm.txt"</AdditionalOptions>
+    </FxCompile>
+    <FxCompile Include="Shaders\RaytracingPrimaryRaysShader\cs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">false</ExcludedFromBuild>
@@ -573,14 +601,54 @@
       </AssemblerOutput>
       <AssemblerOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AssemblerOutputFile>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/Fc "..\Release\Shaders\Assembly\raytracing_cs_asm.txt"</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Fc "..\x64\Release\Shaders\Assembly\raytracing_cs_asm.txt"</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/Gfp /Fc "..\Debug\Shaders\Assembly\raytracing_cs_asm.txt"</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/Gfp /Fc "..\x64\Debug\Shaders\Assembly\raytracing_cs_asm.txt"</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">/Gfp /Fc "..\x64\DebugDirect3D\Shaders\Assembly\raytracing_cs_asm.txt"</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">/Gfp /Fc "..\DebugDirect3D\Shaders\Assembly\raytracing_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/Fc "..\Release\Shaders\Assembly\RaytracingPrimaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Fc "..\x64\Release\Shaders\Assembly\RaytracingPrimaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/Gfp /Fc "..\Debug\Shaders\Assembly\RaytracingPrimaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/Gfp /Fc "..\x64\Debug\Shaders\Assembly\RaytracingPrimaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">/Gfp /Fc "..\x64\DebugDirect3D\Shaders\Assembly\RaytracingPrimaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">/Gfp /Fc "..\DebugDirect3D\Shaders\Assembly\RaytracingPrimaryRays_cs_asm.txt"</AdditionalOptions>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnableDebuggingInformation>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableDebuggingInformation>
+    </FxCompile>
+    <FxCompile Include="Shaders\RaytracingSecondaryRaysShader\cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/Gfp /Fc "..\x64\Debug\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/Gfp /Fc "..\Debug\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">/Gfp /Fc "..\DebugDirect3D\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">/Gfp /Fc "..\x64\DebugDirect3D\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Fc "..\x64\Release\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/Fc "..\Release\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadingShader\cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/Gfp /Fc "..\x64\Debug\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/Gfp /Fc "..\Debug\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">/Gfp /Fc "..\DebugDirect3D\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">/Gfp /Fc "..\x64\DebugDirect3D\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Fc "..\x64\Release\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /Fc "..\Release\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
     </FxCompile>
     <FxCompile Include="Shaders\SkeletonMeshShader\ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

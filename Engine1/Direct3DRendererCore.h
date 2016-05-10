@@ -41,6 +41,9 @@ namespace Engine1
 
         void initialize( ID3D11DeviceContext& deviceContext );
 
+        void disableRenderingPipeline();
+        void disableComputePipeline();
+
         void enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
                                   const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargetsU4, 
                                   const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget );

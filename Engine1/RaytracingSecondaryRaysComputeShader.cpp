@@ -1,4 +1,4 @@
-#include "RaytracingComputeShader.h"
+#include "RaytracingSecondaryRaysComputeShader.h"
 
 #include "StringUtil.h"
 #include "BlockMesh.h"
@@ -10,13 +10,13 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-RaytracingComputeShader::RaytracingComputeShader() {}
+RaytracingSecondaryRaysComputeShader::RaytracingSecondaryRaysComputeShader() {}
 
-RaytracingComputeShader::~RaytracingComputeShader() {}
+RaytracingSecondaryRaysComputeShader::~RaytracingSecondaryRaysComputeShader() {}
 
-void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& device )
+void RaytracingSecondaryRaysComputeShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-    if ( compiled ) throw std::exception( "RaytracingComputeShader::compileFromFile - Shader has already been compiled." );
+    if ( compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::compileFromFile - Shader has already been compiled." );
 
     HRESULT result;
     ComPtr<ID3D10Blob> shaderBuffer;
@@ -38,14 +38,14 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
             if ( errorMessage ) {
                 std::string compileMessage( (char*)(errorMessage->GetBufferPointer()) );
 
-                throw std::exception( (std::string( "RaytracingComputeShader::compileFromFile - Compilation failed with errors: " ) + compileMessage).c_str() );
+                throw std::exception( (std::string( "RaytracingSecondaryRaysComputeShader::compileFromFile - Compilation failed with errors: " ) + compileMessage).c_str() );
             } else {
-                throw std::exception( "RaytracingComputeShader::compileFromFile - Failed to open file." );
+                throw std::exception( "RaytracingSecondaryRaysComputeShader::compileFromFile - Failed to open file." );
             }
         }
 
         result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "RaytracingComputeShader::compileFromFile - Failed to create shader." );
+        if ( result < 0 ) throw std::exception( "RaytracingSecondaryRaysComputeShader::compileFromFile - Failed to create shader." );
     }
 
     {
@@ -59,7 +59,7 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
         desc.StructureByteStride = 0;
 
         result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "RaytracingComputeShader::compileFromFile - creating constant buffer failed." );
+        if ( result < 0 ) throw std::exception( "RaytracingSecondaryRaysComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
     { // Create sampler configuration.
@@ -80,7 +80,7 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
 
 		// Create the texture sampler state.
 		result = device.CreateSamplerState( &desc, samplerState.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "RaytracingComputeShader::compileFromFile - Failed to create texture sampler state." );
+		if ( result < 0 ) throw std::exception( "RaytracingSecondaryRaysComputeShader::compileFromFile - Failed to create texture sampler state." );
 	}
 
     this->device = &device;
@@ -88,16 +88,18 @@ void RaytracingComputeShader::compileFromFile( std::string path, ID3D11Device& d
     this->shaderId = ++compiledShadersCount;
 }
 
-void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, 
-                                             const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
-                                             const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax,
-                                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture )
+void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+                                                          const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayOriginsTexture,
+                                                          const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
+                                                          const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax,
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture )
 {
-    if ( !compiled ) throw std::exception( "RaytracingComputeShader::setParameters - Shader hasn't been compiled yet." );
+    if ( !compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 9;
+        const unsigned int resourceCount = 10;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
+            rayOriginsTexture.getShaderResourceView(),
             rayDirectionsTexture.getShaderResourceView(), 
             mesh.getVertexBufferResource(), 
             mesh.getNormalBufferResource(), 
@@ -117,11 +119,10 @@ void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
         ConstantBuffer* dataPtr;
 
         HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
-        if ( result < 0 ) throw std::exception( "RaytracingComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
+        if ( result < 0 ) throw std::exception( "RaytracingSecondaryRaysComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
 
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-        dataPtr->rayOrigin      = rayOrigin;
         dataPtr->worldMatrixInv = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
         dataPtr->boundingBoxMin = boundingBoxMin;
         dataPtr->boundingBoxMax = boundingBoxMax;
@@ -129,7 +130,6 @@ void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
         // Padding.
         dataPtr->pad1 = 0.0f;
         dataPtr->pad2 = 0.0f;
-        dataPtr->pad3 = 0.0f;
 
         deviceContext.Unmap( constantInputBuffer.Get(), 0 );
 
@@ -141,13 +141,13 @@ void RaytracingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
     }
 }
 
-void RaytracingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void RaytracingSecondaryRaysComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-    if ( !compiled ) throw std::exception( "RaytracingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+    if ( !compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 9 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 9, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 10 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 10, nullResources );
     
     // Unset samplers.
     ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };

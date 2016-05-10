@@ -39,6 +39,22 @@ void Direct3DRendererCore::initialize( ID3D11DeviceContext& deviceContext )
 	this->deviceContext = &deviceContext;
 }
 
+void Direct3DRendererCore::disableRenderingPipeline()
+{
+    disableRenderingShaders();
+    disableRenderTargetViews();
+    enableDefaultBlendState();
+    enableDefaultRasterizerState();
+    enableDefaultDepthStencilState();
+    disableShaderInputs();
+}
+
+void Direct3DRendererCore::disableComputePipeline()
+{
+    disableComputeShaders();
+    disableUnorderedAccessViews();
+}
+
 void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader )
 {
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableRenderingShaders - renderer not initialized." );

@@ -38,12 +38,6 @@ namespace Engine1
 
         public:
 
-        enum class RenderTargetType : char
-        {
-            ALBEDO = 0,
-            NORMAL = 1
-        };
-
         Direct3DDeferredRenderer( Direct3DRendererCore& rendererCore );
         ~Direct3DDeferredRenderer();
 

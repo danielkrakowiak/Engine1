@@ -113,8 +113,10 @@ Next2:
    - After creating BVH for a mesh - mesh's triangle vector could be replaced with the one from BVH. It's just a matter of reordering the triangles.
      Then, there would be no need to send a seperate buffer to GPU just to mark which triangles are in BVH nodes. Nodes would already contain triangles from mesh triangle list.
 
-	 - flat floor mesh could be useful
-	 - create a shader to generate rays direcctions and origins based on the existing depth, normal g-buffers.
+	 - textures which use float4 for vectors (rayDir, rayOrigin etc) could use float3, because such format exists.
+	   Also, there is no point in storing normals in float2 if it's possible to store them in float3 format.
+
+	 - create a shader which can combine images using a separate texture as alpha multiplier. Very similar to texture shader.
 
    ----------------------------------------------------
    Refactoring:
@@ -122,10 +124,18 @@ Next2:
 	- Change naming convention: use m_ in class members.
 	- use ComPtr wherever possible instead of raw pointers.
 	- use short "Idx" for "index" in the whole code + shaders.
+	- rename TTexture2D to Texture2D
 
 	- add uint type, which would be just a typedef for unsigned int - could be in math in separate header file.
+	- rename "ReflectedRefracted..." shader names to "SecondaryRays...".
 
 	- shader could use g_ in global variable names. Because names often reapeat.
+
+	- get rid of "Direct3D" from class names. It's used all over the code anyway - no reason to mark specific lass with such prefix.
+
+	- all UAVs and render target could be uniformly called "RenderTargets" - everyone knows what that means. No need to differentiate all the time between UAV and RT.
+
+	- should I also const things inside the vectors -> const std::vector< const std::shared_ptr< const Light > > ??
    ---------------------------------------------------
 
 *** IMPORTANT:
