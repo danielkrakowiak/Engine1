@@ -3,6 +3,7 @@
 #include "Direct3DRendererCore.h"
 
 #include "ShadingComputeShader.h"
+#include "Camera.h"
 
 #include <d3d11.h>
 
@@ -37,12 +38,15 @@ void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D1
 	initialized = true;
 }
 
-void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
+void ShadingRenderer::performShading( const Camera& camera,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > > normalTexture,
                                       const std::vector< std::shared_ptr< Light > >& lights )
 {
     rendererCore.disableRenderingPipeline();
 
-    shadingComputeShader->setParameters( *deviceContext.Get(), albedoTexture, lights );
+    shadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, albedoTexture, normalTexture, lights );
 
     rendererCore.enableComputeShader( shadingComputeShader );
 
@@ -54,6 +58,8 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     rendererCore.compute( groupCount );
+
+    shadingComputeShader->unsetParameters( *deviceContext.Get() );
 
     rendererCore.disableComputePipeline();
 }

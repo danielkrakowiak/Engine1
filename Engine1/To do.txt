@@ -118,6 +118,10 @@ Next2:
 
 	 - create a shader which can combine images using a separate texture as alpha multiplier. Very similar to texture shader.
 
+	 - replace simple shading with PBR.
+
+	 - add a renderer to combine main image and reflections/refractions together.
+
    ----------------------------------------------------
    Refactoring:
 

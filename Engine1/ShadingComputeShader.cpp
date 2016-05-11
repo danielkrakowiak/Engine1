@@ -49,35 +49,39 @@ void ShadingComputeShader::compileFromFile( std::string path, ID3D11Device& devi
         if ( result < 0 ) throw std::exception( "ShadingComputeShader::compileFromFile - Failed to create shader." );
     }
 
-    //{
-    //    // Create constant buffer.
-    //    D3D11_BUFFER_DESC desc;
-    //    desc.Usage               = D3D11_USAGE_DYNAMIC;
-    //    desc.ByteWidth           = sizeof(ConstantBuffer);
-    //    desc.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
-    //    desc.CPUAccessFlags      = D3D11_CPU_ACCESS_WRITE;
-    //    desc.MiscFlags           = 0;
-    //    desc.StructureByteStride = 0;
+    {
+        // Create constant buffer.
+        D3D11_BUFFER_DESC desc;
+        desc.Usage               = D3D11_USAGE_DYNAMIC;
+        desc.ByteWidth           = sizeof(ConstantBuffer);
+        desc.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
+        desc.CPUAccessFlags      = D3D11_CPU_ACCESS_WRITE;
+        desc.MiscFlags           = 0;
+        desc.StructureByteStride = 0;
 
-    //    result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
-    //    if ( result < 0 ) throw std::exception( "ShadingComputeShader::compileFromFile - creating constant buffer failed." );
-    //}
+        result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "ShadingComputeShader::compileFromFile - creating constant buffer failed." );
+    }
 
     this->device = &device;
     this->compiled = true;
     this->shaderId = ++compiledShadersCount;
 }
 
-void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
+                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
+                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > > normalTexture,
                                           const std::vector< std::shared_ptr< Light > >& lights )
 {
     if ( !compiled ) throw std::exception( "ShadingComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 1;
+        const unsigned int resourceCount = 3;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
-            albedoTexture->getShaderResourceView()
+            positionTexture->getShaderResourceView(),
+            albedoTexture->getShaderResourceView(),
+            normalTexture->getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -85,27 +89,24 @@ void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
 
     lights; // Unused.
 
-    //{ // Set constant buffer.
-    //    D3D11_MAPPED_SUBRESOURCE mappedResource;
-    //    ConstantBuffer* dataPtr;
+    { // Set constant buffer.
+        D3D11_MAPPED_SUBRESOURCE mappedResource;
+        ConstantBuffer* dataPtr;
 
-    //    HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
-    //    if ( result < 0 ) throw std::exception( "ShadingComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
+        HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+        if ( result < 0 ) throw std::exception( "ShadingComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
 
-    //    dataPtr = (ConstantBuffer*)mappedResource.pData;
+        dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-    //    //dataPtr->worldMatrixInv = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
-    //    //dataPtr->boundingBoxMin = boundingBoxMin;
-    //    //dataPtr->boundingBoxMax = boundingBoxMax;
+        dataPtr->cameraPos = cameraPos;
 
-    //    //// Padding.
-    //    //dataPtr->pad1 = 0.0f;
-    //    //dataPtr->pad2 = 0.0f;
+        // Padding.
+        dataPtr->pad1 = 0.0f;
 
-    //    deviceContext.Unmap( constantInputBuffer.Get(), 0 );
+        deviceContext.Unmap( constantInputBuffer.Get(), 0 );
 
-    //    deviceContext.CSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
-    //}
+        deviceContext.CSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
+    }
 }
 
 void ShadingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
@@ -113,6 +114,6 @@ void ShadingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
     if ( !compiled ) throw std::exception( "ShadingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };
-    deviceContext.CSSetShaderResources( 0, 1, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 3 ] = { nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 3, nullResources );
 }

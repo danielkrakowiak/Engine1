@@ -28,17 +28,21 @@ namespace Engine1
         virtual ~ShadingComputeShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, 
+        void setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > > normalTexture,
                             const std::vector< std::shared_ptr< Light > >& lights );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
 
-        /*__declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
+        __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
         struct ConstantBuffer
         {
-        };*/
+            float3 cameraPos;
+            float  pad1;
+        };
 
         // Copying is not allowed.
         ShadingComputeShader( const ShadingComputeShader& )          = delete;

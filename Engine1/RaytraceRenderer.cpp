@@ -237,6 +237,12 @@ void RaytraceRenderer::traceSecondaryRays( const std::vector< std::shared_ptr< c
 }
 
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
+RaytraceRenderer::getRayOriginsTexture()
+{
+    return rayOriginsTexture;
+}
+
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
 RaytraceRenderer::getRayDirectionsTexture()
 {
     return rayDirectionsTexture;

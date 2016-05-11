@@ -6,6 +6,7 @@
 #include "TTexture2D.h"
 
 #include "uchar4.h"
+#include "float2.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -18,6 +19,7 @@ namespace Engine1
     class Direct3DRendererCore;
     class ShadingComputeShader;
     class Light;
+    class Camera;
 
     class ShadingRenderer
     {
@@ -29,7 +31,10 @@ namespace Engine1
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
-        void performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
+        void performShading( const Camera& camera,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > > normalTexture,
                              const std::vector< std::shared_ptr< Light > >& lights );
 
         std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 > > getColorRenderTarget();

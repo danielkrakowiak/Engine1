@@ -195,3 +195,4 @@ Sat 07.05.2016 - 3h - Passed albedo texture to raytracing shader and outputted i
 Sun 08.05.2016 - 6h - Fixed calculating primary rays directions. Images generated through rasterization and raytracing are the same now. Change albedo deferred render target format from 4 floats to 4 uchars. Changed normal deferred render target format from 4 floats to 2 floats. Outputs from raytracer and deferred renderer have the same format now. Added uchar2 class. Added rendering of depth buffer. Added generating reflected rays from deferred renderer g-buffers. Added a shader for tracing secondary rays.
 Mon 09.05.2016 - 1h - Fixed calculation of secondary rays orgins (added missing camera pos to the calculation).
 Tue 10.05.2016 - 4h - Added ShadingRenderer, ShadingComputeShader.
+Wed 11.05.2016 - 1h - Added simple shading with hardcoded light position.

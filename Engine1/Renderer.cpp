@@ -96,7 +96,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
 
     // Perform shading.
     std::vector< std::shared_ptr< Light > > lights;
-    shadingRenderer.performShading( deferredRenderer.getAlbedoRenderTarget(), lights );
+    shadingRenderer.performShading( camera, raytraceRenderer.getRayOriginsTexture(), deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getNormalRenderTarget(), lights );
 
     switch (activeView)
     {
