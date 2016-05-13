@@ -82,12 +82,13 @@ void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& wor
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
         renderTargetsF2.push_back( normalRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -110,12 +111,13 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
         renderTargetsF2.push_back( normalRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -138,12 +140,13 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
         renderTargetsF2.push_back( normalRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -170,12 +173,13 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
         renderTargetsF2.push_back( normalRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -203,12 +207,13 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
         renderTargetsF2.push_back( normalRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
 	}
 
 	rendererCore.enableRenderingShaders( textVertexShader, textFragmentShader );

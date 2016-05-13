@@ -274,6 +274,12 @@
     <Filter Include="Header Files\Shader\Shading">
       <UniqueIdentifier>{bd1568a1-6a04-4347-856a-08b79deac0c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\Combining">
+      <UniqueIdentifier>{5895f6ff-fc11-46f7-8d8a-cba127718302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Combining">
+      <UniqueIdentifier>{d5d4dc53-94bf-469a-ba6e-c6ba6d9ede94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -612,6 +618,15 @@
     <ClInclude Include="ShadingRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="CombiningRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="CombiningVertexShader.h">
+      <Filter>Header Files\Shader\Combining</Filter>
+    </ClInclude>
+    <ClInclude Include="CombiningFragmentShader.h">
+      <Filter>Header Files\Shader\Combining</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -929,6 +944,15 @@
     <ClCompile Include="ShadingRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="CombiningRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="CombiningVertexShader.cpp">
+      <Filter>Source Files\Shader\Combining</Filter>
+    </ClCompile>
+    <ClCompile Include="CombiningFragmentShader.cpp">
+      <Filter>Source Files\Shader\Combining</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1007,6 +1031,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\ShadingShader\cs.hlsl">
       <Filter>Source Files\Shader\Shading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CombiningShader\ps.hlsl">
+      <Filter>Source Files\Shader\Combining</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CombiningShader\vs.hlsl">
+      <Filter>Source Files\Shader\Combining</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

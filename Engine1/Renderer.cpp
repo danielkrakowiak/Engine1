@@ -5,6 +5,7 @@
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
+#include "CombiningRenderer.h"
 #include "CScene.h"
 #include "Camera.h"
 #include "MathUtil.h"
@@ -18,10 +19,11 @@
 
 using namespace Engine1;
 
-Renderer::Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, ShadingRenderer& shadingRenderer ) :
+Renderer::Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, ShadingRenderer& shadingRenderer, CombiningRenderer& combiningRenderer ) :
 deferredRenderer( deferredRenderer ),
 raytraceRenderer( raytraceRenderer ),
 shadingRenderer( shadingRenderer ),
+combiningRenderer( combiningRenderer ),
 activeView( View::Final )
 {}
 
@@ -83,7 +85,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         }
     }
 
-    // Perform raytracing on the first block actor.
+    // Perform ray tracing.
     std::vector< std::shared_ptr< const BlockActor > > blockActors;
     blockActors.reserve( actors.size() );
     for ( const std::shared_ptr<Actor> actor : actors ) 
@@ -98,12 +100,17 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     std::vector< std::shared_ptr< Light > > lights;
     shadingRenderer.performShading( camera, raytraceRenderer.getRayOriginsTexture(), deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getNormalRenderTarget(), lights );
 
+    std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > finalRenderTarget = shadingRenderer.getColorRenderTarget();
+
+    // Combine main image with reflections and refractions.
+    combiningRenderer.combine( finalRenderTarget, raytraceRenderer.getRayHitAlbedoTexture(), 0.5f );
+
     switch (activeView)
     {
         case View::Final: 
             return std::make_tuple( 
                 nullptr,
-                shadingRenderer.getColorRenderTarget(),
+                finalRenderTarget,
                 nullptr,
                 nullptr
              );

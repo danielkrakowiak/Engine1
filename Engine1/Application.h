@@ -7,6 +7,7 @@
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
+#include "CombiningRenderer.h"
 #include "FreeCamera.h"
 
 #include "ImageLibrary.h"
@@ -77,6 +78,7 @@ private:
     Direct3DDeferredRenderer deferredRenderer;
     RaytraceRenderer         raytraceRenderer;
     ShadingRenderer          shadingRenderer;
+    CombiningRenderer        combiningRenderer;
     Direct3DFrameRenderer    frameRenderer;
     Renderer                 renderer;
 

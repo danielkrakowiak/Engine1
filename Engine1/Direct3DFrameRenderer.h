@@ -89,8 +89,6 @@ namespace Engine1
 
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > > m_renderTarget;
 
-        float44 orthographicProjectionMatrix;
-
         // Default mesh.
         RectangleMesh rectangleMesh;
 

@@ -12,6 +12,7 @@ namespace Engine1
     class Direct3DDeferredRenderer;
     class RaytraceRenderer;
     class ShadingRenderer;
+    class CombiningRenderer;
     class CScene;
     class Camera;
     class BlockMesh;
@@ -32,7 +33,7 @@ namespace Engine1
             RaytracingHitAlbedo,
         };
 
-        Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, ShadingRenderer& shadingRenderer );
+        Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, ShadingRenderer& shadingRenderer, CombiningRenderer& combiningRenderer );
         ~Renderer();
 
         void initialize( std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
@@ -54,6 +55,7 @@ namespace Engine1
         Direct3DDeferredRenderer& deferredRenderer;
         RaytraceRenderer&         raytraceRenderer;
         ShadingRenderer&          shadingRenderer;
+        CombiningRenderer&        combiningRenderer;
 
         std::shared_ptr<const BlockMesh>  axisMesh;
         std::shared_ptr<const BlockModel> lightModel;

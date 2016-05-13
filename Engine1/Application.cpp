@@ -41,7 +41,8 @@ Application::Application() :
 	deferredRenderer( rendererCore ),
     raytraceRenderer( rendererCore ),
     shadingRenderer( rendererCore ),
-    renderer( deferredRenderer, raytraceRenderer, shadingRenderer ),
+    combiningRenderer( rendererCore ),
+    renderer( deferredRenderer, raytraceRenderer, shadingRenderer, combiningRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -71,6 +72,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	deferredRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     raytraceRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     shadingRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+    combiningRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
 	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
     assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1, frameRenderer.getDevice() );
 
@@ -174,10 +176,13 @@ void Application::run() {
 
     // Setup the camera.
 	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
-	camera.setPosition( float3( 0.0f, 0.0f, -30.0f ) );
+	camera.setPosition( float3( 0.0f, 0.0f, -20.0f ) );
 
 	Font font( uint2(screenWidth, screenHeight) );
 	font.loadFromFile( "../Engine1/Assets/Fonts/DoulosSILR.ttf", 35 );
+
+    Font font2( uint2(screenWidth, screenHeight) );
+    font2.loadFromFile( "../Engine1/Assets/Fonts/DoulosSILR.ttf", 15 );
 
 	double frameTime = 0.0;
 
@@ -254,9 +259,9 @@ void Application::run() {
 		}
 
 		{ // Render camera state.
-			//std::stringstream ss;
-			//ss << "Speed: " << camera.getSpeed( ).x << " / " << camera.getSpeed( ).y << " / " << camera.getSpeed( ).z;
-			//direct3DRenderer.renderText( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			std::stringstream ss;
+			ss << "Cam pos: " << camera.getPosition( ).x << ", " << camera.getPosition( ).y << ", " << camera.getPosition( ).z;
+			deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
 		{ // Render keyboard state.
@@ -599,7 +604,9 @@ void Application::onDragAndDropFile( std::string filePath )
             model->loadCpuToGpu( *frameRenderer.getDevice( ).Get(), *frameRenderer.getDeviceContext( ).Get() );
 
         // Add new actor to the scene.
-        defaultBlockActor = std::make_shared<BlockActor>( model, pose );
+        float43 forcedPose = float43::IDENTITY;
+        forcedPose.setTranslation( float3( 0.0f, 0.0f, -5.0f ) );
+        defaultBlockActor = std::make_shared<BlockActor>( model, forcedPose );
         scene->addActor( defaultBlockActor );
     }
 

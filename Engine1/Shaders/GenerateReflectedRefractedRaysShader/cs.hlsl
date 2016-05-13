@@ -29,8 +29,8 @@ float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal );
 float linearizeDepth( float depthSample );
 
 // pixelPos in range (0,0; screen width, screen height) counting from the top-left corner of the viewport.
-// Returns not normalized direction - vector from camera origin to imaginary viewport plane through the given pixel.
-float3 getPrimaryRayVector( float2 pixelPos )
+// Returns position of a viewport pixel in world coordinates through which given ray passes.
+float3 getViewportPixelPosWorld( float2 pixelPos )
 {
     // cameraPos - camera position in world space.
     // viewportCenter - viewport plane center in world space.
@@ -42,7 +42,7 @@ float3 getPrimaryRayVector( float2 pixelPos )
 
 	const float3 pixelPosWorld = viewportCenter + viewportRight * pixelShift.x - viewportUp * pixelShift.y;
 	
-    return pixelPosWorld - cameraPos;
+    return pixelPosWorld;
 }
 
 // SV_GroupID - group id in the whole computation.
@@ -57,15 +57,20 @@ void main( uint3 groupId : SV_GroupID,
 {
     const float2 pixelPos = (float2)dispatchThreadId.xy;
 
-    const float3 primaryRayVec = getPrimaryRayVector( pixelPos ); 
+    const float3 pixelPosWorld = getViewportPixelPosWorld( pixelPos );
+    const float3 primaryRayVec = pixelPosWorld - cameraPos; 
     const float3 primaryRayDir = normalize( primaryRayVec );
 
-    const float  depth = linearizeDepth( g_depth.Load( float3( pixelPos, 0.0f ) ).x ); // TODO: Maybe could use bilinear sampling if vieport sizes differs for primary and secondary rays?
+    const float pixelDistFromViewportCenter = length( viewportCenter - pixelPosWorld );
+    const float depth = linearizeDepth( g_depth.Load( float3( pixelPos, 0.0f ) ).x ); // TODO: Maybe could use bilinear sampling if vieport sizes differs for primary and secondary rays?
     
+    const float primaryRayLength = sqrt( pixelDistFromViewportCenter*pixelDistFromViewportCenter + depth*depth );// TODO: Could be otpimized: we only need square of pixelDistFromViewportCenter. (np need to calculate pixelDistFromViewportCenter lentgh earlier).
+
     float3 surfaceNormal = float3( g_surfaceNormal[ pixelPos ], 0.0f );
     surfaceNormal.z = sqrt( 1.0f - surfaceNormal.x*surfaceNormal.x - surfaceNormal.y*surfaceNormal.y );
+    surfaceNormal = normalize( surfaceNormal );
 
-    const float3 secondaryRayOrigin = cameraPos + /*primaryRayVec +*/ primaryRayDir * depth;
+    const float3 secondaryRayOrigin = cameraPos + primaryRayDir * primaryRayLength /*+ surfaceNormal * 0.05f*/; //TODO: Add one milimiter along ray direction to avoid self-collisions.
     const float3 secondaryRayDir    = calcReflectedRay( primaryRayDir, surfaceNormal );
 
     g_rayOrigin[ dispatchThreadId.xy ]    = float4( secondaryRayOrigin, 0.0f );

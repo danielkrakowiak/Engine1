@@ -196,3 +196,4 @@ Sun 08.05.2016 - 6h - Fixed calculating primary rays directions. Images generate
 Mon 09.05.2016 - 1h - Fixed calculation of secondary rays orgins (added missing camera pos to the calculation).
 Tue 10.05.2016 - 4h - Added ShadingRenderer, ShadingComputeShader.
 Wed 11.05.2016 - 1h - Added simple shading with hardcoded light position.
+Fri 13.05.2016 - 5h - Added CombiningRenderer, CombiningVertexShader, CombiningFragmentShader - used to combine main image with reflections.

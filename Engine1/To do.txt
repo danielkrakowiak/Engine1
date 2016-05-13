@@ -122,6 +122,8 @@ Next2:
 
 	 - add a renderer to combine main image and reflections/refractions together.
 
+	 - output pixel pos in world space from deffered renderer!!!
+
    ----------------------------------------------------
    Refactoring:
 
@@ -140,6 +142,8 @@ Next2:
 	- all UAVs and render target could be uniformly called "RenderTargets" - everyone knows what that means. No need to differentiate all the time between UAV and RT.
 
 	- should I also const things inside the vectors -> const std::vector< const std::shared_ptr< const Light > > ??
+
+	- rendererCore should also allow for setting viewport dimensions and depth range. It's done manually in FrameRenderer and CombiningRenderer, but it's wrong this way.
    ---------------------------------------------------
 
 *** IMPORTANT:

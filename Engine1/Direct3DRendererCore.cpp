@@ -125,6 +125,7 @@ void Direct3DRendererCore::disableComputeShaders()
 }
 
 void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
+                                                const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >& renderTargetsF4,
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargetsU4, 
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget )
 {
@@ -144,9 +145,18 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 			}
 
             const unsigned int first = (unsigned int)renderTargetsF2.size();
+            for ( unsigned int i = 0; i < renderTargetsF4.size(); ++i ) {
+				// Check each pair of UAV targets at corresponding indexes.
+				if ( currentRenderTargetViews.size() <= (first + i) || renderTargetsF4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( first + i ) ) {
+					sameAsCurrent = false;
+					break;
+				}
+			}
+
+            const unsigned int second = first + (unsigned int)renderTargetsF4.size();
             for ( unsigned int i = 0; i < renderTargetsU4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( currentRenderTargetViews.size() <= (first + i) || renderTargetsU4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( first + i ) ) {
+				if ( currentRenderTargetViews.size() <= (second + i) || renderTargetsU4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( second + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -169,6 +179,9 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 	// Collect and save render target views from passed render targets.
     currentRenderTargetViews.clear();
 	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > >& renderTarget : renderTargetsF2 )
+		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
+
+    for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > >& renderTarget : renderTargetsF4 )
 		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > >& renderTarget : renderTargetsU4 )
