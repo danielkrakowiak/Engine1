@@ -122,7 +122,13 @@ Next2:
 
 	 - add a renderer to combine main image and reflections/refractions together.
 
-	 - output pixel pos in world space from deffered renderer!!!
+	 - add loading (drag&drop) animations and applying it to the default skeleton model if they match.
+	   Would be good to check if they still work and check how reflections look for them.
+
+	- PERFORMANCE: buffer containing "surface position" in DeferredRenderer could be reused to store ray origins in the RaytraceRenderer. 
+	    It would have to be read and rewritten as UAV to slithly adjust ray origins along the surface normal to avoid self-collisions of ray with the reflective surface.
+
+		- reflection don't work when looking in positive x direction. Debug why. Related to normals being black - near zero?
 
    ----------------------------------------------------
    Refactoring:

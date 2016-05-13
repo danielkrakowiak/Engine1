@@ -25,6 +25,7 @@ namespace Engine1
         enum class View : char {
             Final = 0,
             Depth,
+            Position,
             Albedo,
             Normal,
             RayDirections1,

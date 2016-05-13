@@ -85,7 +85,8 @@ void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& wor
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( positionRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
 		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
@@ -114,7 +115,8 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( positionRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
 		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
@@ -143,7 +145,8 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( positionRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
 		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
@@ -176,7 +179,8 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( positionRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
 		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
@@ -210,7 +214,7 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
 
-        renderTargetsF2.push_back( normalRenderTarget );
+        renderTargetsF4.push_back( normalRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
 		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
@@ -254,6 +258,14 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
 	}
 }
 
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > > Direct3DDeferredRenderer::getPositionRenderTarget()
+{
+	if ( !initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::getPositionRenderTarget - renderer not initialized." );
+
+	return positionRenderTarget;
+}
+
 std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > Direct3DDeferredRenderer::getAlbedoRenderTarget()
 {
 	if ( !initialized ) 
@@ -262,7 +274,7 @@ std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4
 	return albedoRenderTarget;
 }
 
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float2 > > Direct3DDeferredRenderer::getNormalRenderTarget()
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > > Direct3DDeferredRenderer::getNormalRenderTarget()
 {
 	if ( !initialized ) 
         throw std::exception( "Direct3DDeferredRenderer::getNormalRenderTarget - renderer not initialized." );
@@ -399,11 +411,14 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRender
 void Direct3DDeferredRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
 	// Create render targets.
+    positionRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+
     albedoRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >
         ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 
-    normalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float2 > >
-        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32G32_FLOAT );
+    normalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 
 	// Create depth render target.
 	depthRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
@@ -412,6 +427,7 @@ void Direct3DDeferredRenderer::createRenderTargets( int imageWidth, int imageHei
 
 void Direct3DDeferredRenderer::clearRenderTargets( float4 color, float depth )
 {
+    positionRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
 	albedoRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
     normalRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
 

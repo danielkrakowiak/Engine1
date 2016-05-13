@@ -27,7 +27,7 @@ SamplerState      g_samplerState;
 // Input / Output.
 RWTexture2D<float>  g_hitDistance  : register( u0 );
 // Output.
-RWTexture2D<float2> g_hitNormal    : register( u1 );
+RWTexture2D<float4> g_hitNormal    : register( u1 );
 RWTexture2D<uint4>  g_hitAlbedo    : register( u2 );
 
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
@@ -51,7 +51,7 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    float3 rayDir = g_rayDirections.Load( int3( dispatchThreadId.xy, 0 ) ).xyz;
+    float3 rayDir = g_rayDirections[ dispatchThreadId.xy ].xyz;
 
     // Transform the ray from world to local space.
 	float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldMatrixInv ); //#TODO: ray origin could be passed in local space to avoid this calculation.
@@ -150,7 +150,7 @@ void main( uint3 groupId : SV_GroupID,
             // Write to output only if found hit is closer than the existing one at that pixel.
             if ( hitDist < g_hitDistance[ dispatchThreadId.xy ] ) {
                 g_hitDistance[ dispatchThreadId.xy ] = hitDist;
-                g_hitNormal[ dispatchThreadId.xy ]   = hitNormal.xy;
+                g_hitNormal[ dispatchThreadId.xy ]   = float4( hitNormal, 0.0f );
                 g_hitAlbedo[ dispatchThreadId.xy ]   = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
             }
         }

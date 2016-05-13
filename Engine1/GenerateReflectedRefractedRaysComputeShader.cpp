@@ -65,15 +65,15 @@ void GenerateReflectedRefractedRaysComputeShader::compileFromFile( std::string p
 
 void GenerateReflectedRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                                                                  const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& depthTexture,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, float2 >& normalTexture )
+                                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
+                                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture )
 {
     if ( !compiled ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
         const unsigned int resourceCount = 2;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
-            depthTexture.getShaderResourceView(), 
+            positionTexture.getShaderResourceView(), 
             normalTexture.getShaderResourceView()
         };
 

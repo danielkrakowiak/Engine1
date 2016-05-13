@@ -43,7 +43,9 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
 Renderer::renderScene( const CScene& scene, const Camera& camera )
 {
-    deferredRenderer.clearRenderTargets( float4( 0.2f, 0.2f, 0.2f, 1.0f ), 1.0f );
+    // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
+    // Be careful when changing!
+    deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 1.0f ), 1.0f ); 
 
     float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
 
@@ -94,7 +96,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
             blockActors.push_back( std::static_pointer_cast<BlockActor>( actor ) );
     }
     //raytraceRenderer.generateAndTraceRays( camera, blockActors );
-    raytraceRenderer.generateAndTraceSecondaryRays( camera, deferredRenderer.getDepthRenderTarget(), deferredRenderer.getNormalRenderTarget(), blockActors );
+    raytraceRenderer.generateAndTraceSecondaryRays( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget(), blockActors );
 
     // Perform shading.
     std::vector< std::shared_ptr< Light > > lights;
@@ -121,6 +123,13 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
                 nullptr,
                 nullptr
              );
+        case View::Position: 
+            return std::make_tuple( 
+                nullptr,
+                deferredRenderer.getPositionRenderTarget(),
+                nullptr,
+                nullptr
+             );
         case View::Albedo: 
             return std::make_tuple( 
                 deferredRenderer.getAlbedoRenderTarget(),
@@ -131,8 +140,8 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         case View::Normal:
             return std::make_tuple(
                 nullptr,
-                nullptr,
                 deferredRenderer.getNormalRenderTarget(),
+                nullptr,
                 nullptr
              );
         case View::RayDirections1:
@@ -152,8 +161,8 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         case View::RaytracingHitNormal:
             return std::make_tuple(
                 nullptr,
-                nullptr,
                 raytraceRenderer.getRayHitNormalTexture(),
+                nullptr,
                 nullptr
             );
         case View::RaytracingHitAlbedo:

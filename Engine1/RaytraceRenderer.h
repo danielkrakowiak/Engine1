@@ -35,8 +35,8 @@ namespace Engine1
 
         void generateAndTracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
         void generateAndTraceSecondaryRays( const Camera& camera, 
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > > normalTexture,
+                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                             const std::vector< std::shared_ptr< const BlockActor > >& actors );
 
         // For test - only temporary.
@@ -44,14 +44,14 @@ namespace Engine1
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > getRayDirectionsTexture();
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >  getRayHitDistanceTexture();
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > getRayHitAlbedoTexture();
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > > getRayHitNormalTexture();
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > getRayHitNormalTexture();
 
         private:
 
         void generatePrimaryRays( const Camera& camera );
         void generateSecondaryRays( const Camera& camera, 
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > > normalTexture );
+                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture );
 
         void tracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
         void traceSecondaryRays( const std::vector< std::shared_ptr< const BlockActor > >& actors );
@@ -70,7 +70,7 @@ namespace Engine1
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > rayDirectionsTexture;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >  rayHitDistanceTexture;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > rayHitAlbedoTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float2 > > rayHitNormalTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > rayHitNormalTexture;
 
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

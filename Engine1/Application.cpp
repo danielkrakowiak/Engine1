@@ -429,16 +429,18 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::one )
         renderer.setActiveView( Renderer::View::Depth );
     else if ( key == InputManager::Keys::two )
-        renderer.setActiveView( Renderer::View::Albedo );
+        renderer.setActiveView( Renderer::View::Position );
     else if ( key == InputManager::Keys::three )
-        renderer.setActiveView( Renderer::View::Normal );
+        renderer.setActiveView( Renderer::View::Albedo );
     else if ( key == InputManager::Keys::four )
-        renderer.setActiveView( Renderer::View::RayDirections1 );
+        renderer.setActiveView( Renderer::View::Normal );
     else if ( key == InputManager::Keys::five )
-        renderer.setActiveView( Renderer::View::RaytracingHitDistance );
+        renderer.setActiveView( Renderer::View::RayDirections1 );
     else if ( key == InputManager::Keys::six )
-        renderer.setActiveView( Renderer::View::RaytracingHitNormal );
+        renderer.setActiveView( Renderer::View::RaytracingHitDistance );
     else if ( key == InputManager::Keys::seven )
+        renderer.setActiveView( Renderer::View::RaytracingHitNormal );
+    else if ( key == InputManager::Keys::eight )
         renderer.setActiveView( Renderer::View::RaytracingHitAlbedo );
 }
 

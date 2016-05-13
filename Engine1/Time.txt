@@ -118,7 +118,7 @@ Fri 24.07.2015 - 3h - Refactoring of blending and skeleton <-> parent space tran
 Sun 13.09.2015 - 3h - Fixed problem with very thin skeleton mesh - caused by an animation file with some bones missing which contained scaling. Added lerp operation on float33. Debugging incorrect interpolation between skeleton poses. 
 Thu 24.09.2015 - 2h - Debugging problem with malformed animated meshes. Problem is related to matrix slerp. Added some tests for quaternion slerp.
 --- September 2015 - 5h
-Wed 28.10.2015 - 4h - Fixed incorrect quaternion -> matrix conversion. A symbol in the formula was incorrect - caused by the mistake in the book.
+Wed 28.10.2015 - 4h - Fixed incorrect quaternion -> matrix conversion. A symbol in the formula was incorrect - caused by a mistake in the book :).
 Thu 29.10.2015 - 4h - Setting up Git and publishing the project to GitHub. Desiging scene space partitioning and scene storage, saving to file etc.
 Fri 30.10.2015 - 5h - Saving BlockModel, Texture2D, ModelTexture2D to file. 
 Sat 31.10.2015 - 5h - Saving BlockModel, Texture2D, ModelTexture2D to file. 
@@ -196,4 +196,4 @@ Sun 08.05.2016 - 6h - Fixed calculating primary rays directions. Images generate
 Mon 09.05.2016 - 1h - Fixed calculation of secondary rays orgins (added missing camera pos to the calculation).
 Tue 10.05.2016 - 4h - Added ShadingRenderer, ShadingComputeShader.
 Wed 11.05.2016 - 1h - Added simple shading with hardcoded light position.
-Fri 13.05.2016 - 5h - Added CombiningRenderer, CombiningVertexShader, CombiningFragmentShader - used to combine main image with reflections.
+Fri 13.05.2016 - 7h - Added CombiningRenderer, CombiningVertexShader, CombiningFragmentShader - used to combine main image with reflections. Outputted surface position in world space from DeferredRenderer - to be used when spawning reflected/refracted rays. Changed RaytraceRenderer to use surface position instead of depth value to generate secondary rays. Switched back to storing normals with 3 components - it's impossible to calculate thrid component from the first two (unknown sign). Fixed all problems with reflections.

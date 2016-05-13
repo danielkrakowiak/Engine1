@@ -21,15 +21,14 @@ struct VertexInputType
 	float4 vertexWeights : BLENDWEIGHT;
 	float4 normal        : NORMAL;
 	float2 texCoord      : TEXCOORD0;
-	//uint   vertexId      : SV_VertexID;
 };
 
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
-	float4 normal   : TEXCOORD0;
-	float2 texCoord : TEXCOORD1;
-	float  vertexId : TEXCOORD2;
+    float4 position      : SV_POSITION;
+    float3 positionWorld : TEXCOORD0;
+	float4 normal        : TEXCOORD1;
+	float2 texCoord      : TEXCOORD2;
 };
 
 PixelInputType main(VertexInputType input)
@@ -67,6 +66,9 @@ PixelInputType main(VertexInputType input)
 
     // Calculate the position of the vertex against the world, view, and projection matrices.
 	output.position = mul( output.position, worldMatrix );
+
+    output.positionWorld = output.position.xyz;
+
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
@@ -76,8 +78,6 @@ PixelInputType main(VertexInputType input)
 	
 	// Texcoord
 	output.texCoord = input.texCoord;
-
-	output.vertexId = 0.0f;// (float)input.vertexId;
 
     return output;
 }

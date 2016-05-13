@@ -53,8 +53,9 @@ namespace Engine1
         void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace );
         void render( const std::string& text, Font& font, float2 position, float4 color );
 
+        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > > getPositionRenderTarget();
         std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > getAlbedoRenderTarget();
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float2 > > getNormalRenderTarget();
+        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > > getNormalRenderTarget();
         std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > getDepthRenderTarget();
 
         private:
@@ -80,8 +81,9 @@ namespace Engine1
         // Render targets.
         int imageWidth, imageHeight;
 
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > > positionRenderTarget;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > > albedoRenderTarget;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float2 > > normalRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > > normalRenderTarget;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > depthRenderTarget;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

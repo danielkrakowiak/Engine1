@@ -1,21 +1,23 @@
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
-	float4 normal   : TEXCOORD0;
-	float  vertexId : TEXCOORD1;
+    float4 position      : SV_POSITION;
+    float3 positionWorld : TEXCOORD0;
+	float3 normal        : TEXCOORD1;
 };
 
 struct PixelOutputType {
-    float2 normal   : SV_Target0;
-	float4 albedo   : SV_Target1;
+    float4 normal   : SV_Target0;
+	float4 position : SV_Target1;
+    float4 albedo   : SV_Target2;
 };
 
 PixelOutputType main( PixelInputType input )
 {
 	PixelOutputType output;
-
-	output.albedo   = float4( 0.0f, 0.0f, 0.0f, 1.0f );
-	output.normal   = input.normal.xy;
+    
+    output.position = float4( input.positionWorld, 0.0f );
+	output.albedo   = float4( 0.5f, 0.5f, 0.5f, 1.0f );
+	output.normal   = float4( input.normal, 0.0f );
 
 	return output;
 }
