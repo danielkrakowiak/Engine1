@@ -38,7 +38,7 @@ namespace Engine1
 
         // TODO: alpha should be replaced by "alpha texture".
         void combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > srcTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                       const float alpha );
 
         private:

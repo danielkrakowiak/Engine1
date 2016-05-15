@@ -586,3 +586,11 @@ void Direct3DRendererCore::createNullShaderInputs()
     for ( int i = 0; i < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT; ++i )
         nullSamplers[ i ] = nullptr;
 }
+
+void Direct3DRendererCore::copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
+                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture )
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+
+    deviceContext->CopyResource( destTexture->getTextureResource().Get(), srcTexture->getTextureResource().Get() );
+}

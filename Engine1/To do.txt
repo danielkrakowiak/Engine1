@@ -120,15 +120,24 @@ Next2:
 
 	 - replace simple shading with PBR.
 
-	 - add a renderer to combine main image and reflections/refractions together.
-
 	 - add loading (drag&drop) animations and applying it to the default skeleton model if they match.
 	   Would be good to check if they still work and check how reflections look for them.
 
 	- PERFORMANCE: buffer containing "surface position" in DeferredRenderer could be reused to store ray origins in the RaytraceRenderer. 
 	    It would have to be read and rewritten as UAV to slithly adjust ray origins along the surface normal to avoid self-collisions of ray with the reflective surface.
 
-		- reflection don't work when looking in positive x direction. Debug why. Related to normals being black - near zero?
+	- make raytracing output hitPosition
+
+	- apply shading to raytraced image.
+
+	- check how reflection looks when calculated only for even pixels. middle pixels can receive half of the calculated color from each side (addition).
+	  What's the performance difference?
+
+	- add reflection texture to mark places with no reflection.
+
+	- algorithm creating BVH uses the same step when moving dividing planes no matter the size of the model. 
+	That's not too goood. It should use something like 1/1000 of longest bbox dimension or similar.
+	
 
    ----------------------------------------------------
    Refactoring:

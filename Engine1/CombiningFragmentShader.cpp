@@ -75,7 +75,7 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 }
 
 void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > srcTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                                              const float alpha )
 {
     alpha; // Unused.

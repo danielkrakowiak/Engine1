@@ -42,7 +42,7 @@ Application::Application() :
     raytraceRenderer( rendererCore ),
     shadingRenderer( rendererCore ),
     combiningRenderer( rendererCore ),
-    renderer( deferredRenderer, raytraceRenderer, shadingRenderer, combiningRenderer ),
+    renderer( rendererCore, deferredRenderer, raytraceRenderer, shadingRenderer, combiningRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -89,7 +89,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     std::shared_ptr<BlockModel> lightModel = std::static_pointer_cast<BlockModel>(assetManager.getOrLoad( lightModelFileInfo ));
     lightModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext().Get() );
 
-    renderer.initialize( axisMesh, lightModel );
+    renderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), axisMesh, lightModel );
 
 	initialized = true;
 }
@@ -437,10 +437,12 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::five )
         renderer.setActiveView( Renderer::View::RayDirections1 );
     else if ( key == InputManager::Keys::six )
-        renderer.setActiveView( Renderer::View::RaytracingHitDistance );
+        renderer.setActiveView( Renderer::View::RaytracingHitPosition );
     else if ( key == InputManager::Keys::seven )
-        renderer.setActiveView( Renderer::View::RaytracingHitNormal );
+        renderer.setActiveView( Renderer::View::RaytracingHitDistance );
     else if ( key == InputManager::Keys::eight )
+        renderer.setActiveView( Renderer::View::RaytracingHitNormal );
+    else if ( key == InputManager::Keys::nine )
         renderer.setActiveView( Renderer::View::RaytracingHitAlbedo );
 }
 

@@ -54,7 +54,7 @@ void CombiningRenderer::initialize( const int screenWidth, const int screenHeigh
 }
 
 void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > srcTexture,
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                                  const float alpha )
 {
     if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );

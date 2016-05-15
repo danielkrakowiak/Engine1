@@ -26,8 +26,9 @@ SamplerState      g_samplerState;
 // Input / Output.
 RWTexture2D<float>  g_hitDistance  : register( u0 );
 // Output.
-RWTexture2D<float4> g_hitNormal    : register( u1 );
-RWTexture2D<uint4>  g_hitAlbedo    : register( u2 );
+RWTexture2D<float4> g_hitPosition  : register( u1 );
+RWTexture2D<float4> g_hitNormal    : register( u2 );
+RWTexture2D<uint4>  g_hitAlbedo    : register( u3 );
 
 bool     isRayActive( const float3 rayDir );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
@@ -156,6 +157,7 @@ void main( uint3 groupId : SV_GroupID,
         {
             // Write to output only if found hit is closer than the existing one at that pixel.
             if ( hitDist < g_hitDistance[ dispatchThreadId.xy ] ) {
+                g_hitPosition[ dispatchThreadId.xy ] = float4( rayOrigin + rayDir * hitDist, 0.0f );
                 g_hitDistance[ dispatchThreadId.xy ] = hitDist;
                 g_hitNormal[ dispatchThreadId.xy ]   = float4( hitNormal, 0.0f );
                 g_hitAlbedo[ dispatchThreadId.xy ]   = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );

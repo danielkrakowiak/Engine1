@@ -9,6 +9,7 @@
 
 namespace Engine1 
 {
+    class Direct3DRendererCore;
     class Direct3DDeferredRenderer;
     class RaytraceRenderer;
     class ShadingRenderer;
@@ -29,15 +30,18 @@ namespace Engine1
             Albedo,
             Normal,
             RayDirections1,
+            RaytracingHitPosition,
             RaytracingHitDistance,
             RaytracingHitNormal,
             RaytracingHitAlbedo,
         };
 
-        Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, ShadingRenderer& shadingRenderer, CombiningRenderer& combiningRenderer );
+        Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
+                  ShadingRenderer& shadingRenderer, CombiningRenderer& combiningRenderer );
         ~Renderer();
 
-        void initialize( std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
+        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
+                         std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
 
         std::tuple< 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
@@ -53,10 +57,16 @@ namespace Engine1
 
         View activeView;
 
+        Direct3DRendererCore&     rendererCore;
         Direct3DDeferredRenderer& deferredRenderer;
         RaytraceRenderer&         raytraceRenderer;
         ShadingRenderer&          shadingRenderer;
         CombiningRenderer&        combiningRenderer;
+
+        // Render target.
+        void createRenderTarget( int imageWidth, int imageHeight, ID3D11Device& device );
+
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > finalRenderTarget;
 
         std::shared_ptr<const BlockMesh>  axisMesh;
         std::shared_ptr<const BlockModel> lightModel;

@@ -49,6 +49,8 @@ namespace Engine1
         bool isInCpuMemory() const;
         bool isInGpuMemory() const;
 
+        Microsoft::WRL::ComPtr< ID3D11Texture2D > getTextureResource();
+
         void loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext );
         void unloadFromCpu();
         void unloadFromGpu();
@@ -708,6 +710,16 @@ namespace Engine1
             return viewFormat2;
         else
             return DXGI_FORMAT_UNKNOWN;
+    }
+
+    template< typename PixelType >
+    Microsoft::WRL::ComPtr< ID3D11Texture2D > Texture2DGeneric< PixelType >
+        ::getTextureResource()
+    {
+        if ( !isInGpuMemory() ) 
+                throw std::exception( "Texture2DGeneric::getTextureResource - Texture not in GPU memory." );
+
+        return m_texture;
     }
 
     template< typename PixelType >

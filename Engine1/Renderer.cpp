@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "Direct3DRendererCore.h"
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
@@ -19,7 +20,11 @@
 
 using namespace Engine1;
 
-Renderer::Renderer( Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, ShadingRenderer& shadingRenderer, CombiningRenderer& combiningRenderer ) :
+using Microsoft::WRL::ComPtr;
+
+Renderer::Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
+                    ShadingRenderer& shadingRenderer, CombiningRenderer& combiningRenderer ) :
+rendererCore( rendererCore ),
 deferredRenderer( deferredRenderer ),
 raytraceRenderer( raytraceRenderer ),
 shadingRenderer( shadingRenderer ),
@@ -30,10 +35,13 @@ activeView( View::Final )
 Renderer::~Renderer()
 {}
 
-void Renderer::initialize( std::shared_ptr<const BlockMesh> axisMesh, std::shared_ptr<const BlockModel> lightModel )
+void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, 
+                         std::shared_ptr<const BlockMesh> axisMesh, std::shared_ptr<const BlockModel> lightModel )
 {
     this->axisMesh = axisMesh;
     this->lightModel = lightModel;
+
+    createRenderTarget( imageWidth, imageHeight, *device.Get() );
 }
 
 std::tuple< 
@@ -98,14 +106,18 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     //raytraceRenderer.generateAndTraceRays( camera, blockActors );
     raytraceRenderer.generateAndTraceSecondaryRays( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget(), blockActors );
 
-    // Perform shading.
+    // Perform shading on the main image.
     std::vector< std::shared_ptr< Light > > lights;
-    shadingRenderer.performShading( camera, raytraceRenderer.getRayOriginsTexture(), deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getNormalRenderTarget(), lights );
+    shadingRenderer.performShading( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getNormalRenderTarget(), lights );
 
-    std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > finalRenderTarget = shadingRenderer.getColorRenderTarget();
+    // Copy main shaded image to final render target.
+    rendererCore.copyTexture( finalRenderTarget, shadingRenderer.getColorRenderTarget() );
+
+    // Perform shading on the reflected image.
+    shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitNormalTexture(), lights );
 
     // Combine main image with reflections and refractions.
-    combiningRenderer.combine( finalRenderTarget, raytraceRenderer.getRayHitAlbedoTexture(), 0.5f );
+    combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), 0.5f );
 
     switch (activeView)
     {
@@ -151,6 +163,13 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
                 nullptr,
                 nullptr
              );
+        case View::RaytracingHitPosition:
+            return std::make_tuple(
+                nullptr,
+                raytraceRenderer.getRayHitPositionTexture(),
+                nullptr,
+                nullptr
+            );
         case View::RaytracingHitDistance:
             return std::make_tuple(
                 nullptr,
@@ -184,4 +203,10 @@ void Renderer::setActiveView( const View view )
 Renderer::View Renderer::getActiveView() const
 {
     return activeView;
+}
+
+void Renderer::createRenderTarget( int imageWidth, int imageHeight, ID3D11Device& device )
+{
+    finalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }

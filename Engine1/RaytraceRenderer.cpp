@@ -58,6 +58,10 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
         ( device, imageWidth, imageHeight, false, true, 
         DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 
+    rayHitPositionTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true,
+        DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+
     rayHitDistanceTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >
         ( device, imageWidth, imageHeight, false, true,
         DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
@@ -156,6 +160,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
 
     // Clear unordered access targets.
     const float maxDist = 15000.0f; // Note: Should be less than max dist in the raytracing shader!
+    rayHitPositionTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
     rayHitDistanceTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
     rayHitAlbedoTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     rayHitNormalTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
@@ -166,6 +171,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( rayHitDistanceTexture );
+    unorderedAccessTargetsF4.push_back( rayHitPositionTexture );
     unorderedAccessTargetsF4.push_back( rayHitNormalTexture );
     unorderedAccessTargetsU4.push_back( rayHitAlbedoTexture );
 
@@ -199,6 +205,7 @@ void RaytraceRenderer::traceSecondaryRays( const std::vector< std::shared_ptr< c
 
     // Clear unordered access targets.
     const float maxDist = 15000.0f; // Note: Should be less than max dist in the raytracing shader!
+    rayHitPositionTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
     rayHitDistanceTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
     rayHitAlbedoTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     rayHitNormalTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
@@ -209,6 +216,7 @@ void RaytraceRenderer::traceSecondaryRays( const std::vector< std::shared_ptr< c
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( rayHitDistanceTexture );
+    unorderedAccessTargetsF4.push_back( rayHitPositionTexture );
     unorderedAccessTargetsF4.push_back( rayHitNormalTexture );
     unorderedAccessTargetsU4.push_back( rayHitAlbedoTexture );
 
@@ -246,6 +254,12 @@ std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderR
 RaytraceRenderer::getRayDirectionsTexture()
 {
     return rayDirectionsTexture;
+}
+
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
+RaytraceRenderer::getRayHitPositionTexture()
+{
+    return rayHitPositionTexture;
 }
 
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > > 
