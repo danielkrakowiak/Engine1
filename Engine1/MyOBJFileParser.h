@@ -28,6 +28,8 @@ namespace Engine1
         private:
         static const int reusedVerticesMaxChecksCount = 50;
 
+        static void skipSpaces( std::vector<char>::const_iterator& it );
+
         static float2 parseFloat2( std::vector<char>::const_iterator& it );
         static float3 parseFloat3( std::vector<char>::const_iterator& it );
 

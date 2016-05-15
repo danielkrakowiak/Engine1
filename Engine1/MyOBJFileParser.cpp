@@ -115,7 +115,7 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 
 			if ( type[ 0 ] == 'v' && type[ 1 ] == ' ' ) {
 
-				it += 3; //jump to the first number in the line
+				it += 2; //jump to the first number in the line
 				float3 vertex = parseFloat3( it );
 				if ( invertZCoordinate ) vertex.z = -vertex.z;
 				uniqueVertices.push_back( vertex ); //TODO: can be accelerated by using resize and then accessing elements through []
@@ -490,10 +490,17 @@ std::shared_ptr<BlockMesh> MyOBJFileParser::parseBlockMeshFile( std::vector<char
 	return mesh;
 }
 
+void MyOBJFileParser::skipSpaces( std::vector<char>::const_iterator& it )
+{
+    while(*it == ' ') ++it;
+}
+
 float2 MyOBJFileParser::parseFloat2( std::vector<char>::const_iterator& it ) {
 	int valueLength;
 	float2 tempFloat2;
 	std::stringstream ss; //for type conversion
+
+    skipSpaces( it );
 
 	//load first component
 	valueLength = 0;
@@ -503,6 +510,8 @@ float2 MyOBJFileParser::parseFloat2( std::vector<char>::const_iterator& it ) {
 	ss << std::string( &( *it ), valueLength ) << '\0';
 	ss >> tempFloat2.x;
 	it += valueLength + 1;
+
+    skipSpaces( it );
 
 	//load second component
 	valueLength = 0;
@@ -520,6 +529,7 @@ float3 MyOBJFileParser::parseFloat3( std::vector<char>::const_iterator& it ) {
 	float3 tempFloat3;
 	std::stringstream ss; //for type conversion
 
+    skipSpaces( it );
 
 	//load first component
 	valueLength = 0;
@@ -530,6 +540,8 @@ float3 MyOBJFileParser::parseFloat3( std::vector<char>::const_iterator& it ) {
 	ss >> tempFloat3.x;
 	it += valueLength + 1;
 
+    skipSpaces( it );
+
 	//load second component
 	valueLength = 0;
 	while ( *( it + valueLength ) != ' ' && *( it + valueLength ) != '\n' ) ++valueLength;
@@ -538,6 +550,8 @@ float3 MyOBJFileParser::parseFloat3( std::vector<char>::const_iterator& it ) {
 	ss << std::string( &( *it ), valueLength ) << '\0';
 	ss >> tempFloat3.y;
 	it += valueLength + 1;
+
+    skipSpaces( it );
 
 	//load third component
 	valueLength = 0;
