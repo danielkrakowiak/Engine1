@@ -21,7 +21,11 @@ Buffer<uint2>     g_bvhNodes        : register( t5 );
 Buffer<float3>    g_bvhNodesExtents : register( t6 ); // min, max, min, max interleaved.
 Buffer<uint>      g_bvhTriangles    : register( t7 );
 
-Texture2D         g_albedoTexture   : register( t8 );
+Texture2D         g_albedoTexture            : register( t8 );
+Texture2D         g_normalTexture            : register( t9 );
+Texture2D         g_metalnessTexture         : register( t10 );
+Texture2D         g_roughnessTexture         : register( t11 );
+Texture2D         g_indexOfRefractionTexture : register( t12 );
 SamplerState      g_samplerState;
 
 // Input / Output.
@@ -156,11 +160,11 @@ void main( uint3 groupId : SV_GroupID,
             {
                 g_hitPosition[ dispatchThreadId.xy ]          = float4( rayOrigin + rayDir * hitDist, 0.0f );
                 g_hitDistance[ dispatchThreadId.xy ]          = hitDist;
-                g_hitNormal[ dispatchThreadId.xy ]            = float4( hitNormal, 0.0f );
+                g_hitNormal[ dispatchThreadId.xy ]            = float4( hitNormal, 0.0f ); //TODO: use normal map as well.
                 g_hitAlbedo[ dispatchThreadId.xy ]            = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
-                g_hitMetalness[ dispatchThreadId.xy ]         = 200;       
-                g_hitRoughness[ dispatchThreadId.xy ]         = 150;       
-                g_hitIndexOfRefraction[ dispatchThreadId.xy ] = 100;
+                g_hitMetalness[ dispatchThreadId.xy ]         = uint( g_metalnessTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );   
+                g_hitRoughness[ dispatchThreadId.xy ]         = uint( g_roughnessTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );    
+                g_hitIndexOfRefraction[ dispatchThreadId.xy ] = uint( g_indexOfRefractionTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );   
             }
         }
     }

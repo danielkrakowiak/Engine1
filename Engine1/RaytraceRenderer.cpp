@@ -202,15 +202,28 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
 
     for ( const std::shared_ptr< const BlockActor >& actor : actors )
     {
-        if ( actor->getModel()->getAlbedoTextures().empty() )
-            continue; // Skip models without textures.
+        const BlockModel& model = *actor->getModel();
 
         float3 bbMin, bbMax;
-        std::tie( bbMin, bbMax ) = actor->getModel()->getMesh()->getBoundingBox();
+        std::tie( bbMin, bbMax ) = model.getMesh()->getBoundingBox();
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture = actor->getModel()->getAlbedoTexture( 0 ).getTexture();
+        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
+            = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *defaultAlbedoTexture;
 
-        raytracingPrimaryRaysComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), *rayDirectionsTexture, *actor->getModel()->getMesh(), actor->getPose(), bbMin, bbMax, *albedoTexture );
+        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
+            = model.getNormalTexturesCount() > 0 ? *model.getNormalTexture( 0 ).getTexture() : *defaultNormalTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
+            = model.getMetalnessTexturesCount() > 0 ? *model.getMetalnessTexture( 0 ).getTexture() : *defaultMetalnessTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
+            = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *defaultRoughnessTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
+            = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *defaultIndexOfRefractionTexture;
+
+        raytracingPrimaryRaysComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), *rayDirectionsTexture, *actor->getModel()->getMesh(), actor->getPose(),
+                                                           bbMin, bbMax, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
 
         rendererCore.compute( groupCount );
     }
@@ -254,15 +267,28 @@ void RaytraceRenderer::traceSecondaryRays( const std::vector< std::shared_ptr< c
 
     for ( const std::shared_ptr< const BlockActor >& actor : actors )
     {
-        if ( actor->getModel()->getAlbedoTextures().empty() )
-            continue; // Skip models without textures.
+        const BlockModel& model = *actor->getModel();
 
         float3 bbMin, bbMax;
-        std::tie( bbMin, bbMax ) = actor->getModel()->getMesh()->getBoundingBox();
+        std::tie( bbMin, bbMax ) = model.getMesh()->getBoundingBox();
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture = actor->getModel()->getAlbedoTexture( 0 ).getTexture();
+        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
+            = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *defaultAlbedoTexture;
 
-        raytracingSecondaryRaysComputeShader->setParameters( *deviceContext.Get(), *rayOriginsTexture, *rayDirectionsTexture, *actor->getModel()->getMesh(), actor->getPose(), bbMin, bbMax, *albedoTexture );
+        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
+            = model.getNormalTexturesCount() > 0 ? *model.getNormalTexture( 0 ).getTexture() : *defaultNormalTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
+            = model.getMetalnessTexturesCount() > 0 ? *model.getMetalnessTexture( 0 ).getTexture() : *defaultMetalnessTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
+            = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *defaultRoughnessTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
+            = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *defaultIndexOfRefractionTexture;
+
+        raytracingSecondaryRaysComputeShader->setParameters( *deviceContext.Get(), *rayOriginsTexture, *rayDirectionsTexture, *actor->getModel()->getMesh(), actor->getPose(), 
+                                                             bbMin, bbMax, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
 
         rendererCore.compute( groupCount );
     }

@@ -91,13 +91,20 @@ void RaytracingSecondaryRaysComputeShader::compileFromFile( std::string path, ID
 void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
                                                           const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayOriginsTexture,
                                                           const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
-                                                          const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax,
-                                                          const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture )
+                                                          const BlockMesh& mesh, 
+                                                          const float43& worldMatrix, 
+                                                          const float3 boundingBoxMin, 
+                                                          const float3 boundingBoxMax,
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture )
 {
     if ( !compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 10;
+        const unsigned int resourceCount = 14;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             rayOriginsTexture.getShaderResourceView(),
             rayDirectionsTexture.getShaderResourceView(), 
@@ -108,7 +115,11 @@ void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& d
             mesh.getBvhTreeBufferNodesShaderResourceView().Get(),
             mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get(),
             mesh.getBvhTreeBufferTrianglesShaderResourceView().Get(),
-            albedoTexture.getShaderResourceView()
+            albedoTexture.getShaderResourceView(),
+            normalTexture.getShaderResourceView(),
+            metalnessTexture.getShaderResourceView(),
+            roughnessTexture.getShaderResourceView(),
+            indexOfRefractionTexture.getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -146,8 +157,8 @@ void RaytracingSecondaryRaysComputeShader::unsetParameters( ID3D11DeviceContext&
     if ( !compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 10 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 10, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 14 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 14, nullResources );
     
     // Unset samplers.
     ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };

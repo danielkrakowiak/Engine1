@@ -88,15 +88,22 @@ void RaytracingPrimaryRaysComputeShader::compileFromFile( std::string path, ID3D
     this->shaderId = ++compiledShadersCount;
 }
 
-void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, 
-                                             const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
-                                             const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax,
-                                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture )
+void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
+                                                        const float3 rayOrigin, 
+                                                        const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
+                                                        const BlockMesh& mesh, const float43& worldMatrix, 
+                                                        const float3 boundingBoxMin, 
+                                                        const float3 boundingBoxMax,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture )
 {
     if ( !compiled ) throw std::exception( "RaytracingPrimaryRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 9;
+        const unsigned int resourceCount = 13;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             rayDirectionsTexture.getShaderResourceView(), 
             mesh.getVertexBufferResource(), 
@@ -106,7 +113,11 @@ void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& dev
             mesh.getBvhTreeBufferNodesShaderResourceView().Get(),
             mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get(),
             mesh.getBvhTreeBufferTrianglesShaderResourceView().Get(),
-            albedoTexture.getShaderResourceView()
+            albedoTexture.getShaderResourceView(),
+            normalTexture.getShaderResourceView(),
+            metalnessTexture.getShaderResourceView(),
+            roughnessTexture.getShaderResourceView(),
+            indexOfRefractionTexture.getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -146,8 +157,8 @@ void RaytracingPrimaryRaysComputeShader::unsetParameters( ID3D11DeviceContext& d
     if ( !compiled ) throw std::exception( "RaytracingPrimaryRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 9 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 9, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 13 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 13, nullResources );
     
     // Unset samplers.
     ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };

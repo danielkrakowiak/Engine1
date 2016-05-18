@@ -28,10 +28,19 @@ namespace Engine1
         virtual ~RaytracingPrimaryRaysComputeShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const float3 rayOrigin, 
+
+        void setParameters( ID3D11DeviceContext& deviceContext, 
+                            const float3 rayOrigin, 
                             const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
-                            const BlockMesh& mesh, const float43& worldMatrix, const float3 boundingBoxMin, const float3 boundingBoxMax,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture );
+                            const BlockMesh& mesh, const float43& worldMatrix, 
+                            const float3 boundingBoxMin, 
+                            const float3 boundingBoxMax,
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture );
+
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:

@@ -116,24 +116,14 @@ Next2:
 	 - textures which use float4 for vectors (rayDir, rayOrigin etc) could use float3, because such format exists.
 	   Also, there is no point in storing normals in float2 if it's possible to store them in float3 format.
 
-	 - create a shader which can combine images using a separate texture as alpha multiplier. Very similar to texture shader.
-
-	 - replace simple shading with PBR.
-
 	 - add loading (drag&drop) animations and applying it to the default skeleton model if they match.
 	   Would be good to check if they still work and check how reflections look for them.
 
 	- PERFORMANCE: buffer containing "surface position" in DeferredRenderer could be reused to store ray origins in the RaytraceRenderer. 
 	    It would have to be read and rewritten as UAV to slithly adjust ray origins along the surface normal to avoid self-collisions of ray with the reflective surface.
 
-	- make raytracing output hitPosition
-
-	- apply shading to raytraced image.
-
 	- check how reflection looks when calculated only for even pixels. middle pixels can receive half of the calculated color from each side (addition).
 	  What's the performance difference?
-
-	- add reflection texture to mark places with no reflection.
 
 	- algorithm creating BVH uses the same step when moving dividing planes no matter the size of the model. 
 	That's not too goood. It should use something like 1/1000 of longest bbox dimension or similar.
