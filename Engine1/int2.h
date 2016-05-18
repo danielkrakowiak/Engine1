@@ -74,17 +74,17 @@ namespace Engine1
             return int2( x / vec.x, y / vec.y );
         }
 
-        int2& operator += (const int value)
+        int2& operator += (const int2& value)
         {
-            x += value;
-            y += value;
+            x += value.x;
+            y += value.y;
             return *this;
         }
 
-        int2& operator -= (const int value)
+        int2& operator -= (const int2& value)
         {
-            x -= value;
-            y -= value;
+            x -= value.x;
+            y -= value.y;
             return *this;
         }
 

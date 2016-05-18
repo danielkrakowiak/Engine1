@@ -201,4 +201,4 @@ Sat 14.05.2016 - 7h - Added outputting hit position from raytracing shaders. Add
 Sun 15.05.2016 - 6h - Read on Physical Based Rendering. Created sphere model for testing. Added new texture types to BlockModel and SkeletonModel: metalness and index of refraction. Created textures for testing PBR shading. Added new render targets and UAVs to store metalness, roughness, IOR in g-buffers. Added default textures in DeferredRenderer and RaytraceRenderer to be used when model misses some textures.
 Mon 16.05.2016 - 4h - Modified ModelTexture2D, BlockModel, SkeletonModel, AssetManager etc to handle loading textures in both uchar4 and uchar1 pixel formats.
 Tue 17.05.2016 - 2h - Continuing modifications to handle loading uchar4 and uchar textures. Added passing model textures or default textures to the raytracing and deferred shaders.
-Wed 18.05.2016 - 2h - Finished modifications to support uchar4 and uchar textures. 
+Wed 18.05.2016 - 5h - Finished modifications to support uchar4 and uchar textures. Passed normal, metalness, roughness, IOR textures to the raytracer. Added picking actors from the scene using mouse.

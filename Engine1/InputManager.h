@@ -21,6 +21,7 @@ namespace Engine1
         bool isKeyPressed( unsigned int key );
         bool isMouseButtonPressed( unsigned int button );
         int2 getMouseMove();
+        int2 getMousePos(); // Relative to top-left screen corner (not app window).
 
         void onKeyboardButton( int key, bool pressed );
         void onMouseButton( int key, bool pressed );

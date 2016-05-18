@@ -13,7 +13,6 @@ namespace Engine1
         };
 
         virtual Type getType() const = 0;
-
     };
 }
 

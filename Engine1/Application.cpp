@@ -47,6 +47,7 @@ Application::Application() :
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
 	deviceContext( nullptr ),
+    windowPosition( 0, 0 ),
 	fullscreen( false ),
 	screenWidth( 1024 ),
 	screenHeight( 768 ),
@@ -280,6 +281,12 @@ void Application::run() {
 			//direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
+        { // Render mouse state.
+			std::stringstream ss;
+			ss << "Mouse pos: " << inputManager.getMousePos().x << ", " << inputManager.getMousePos().y << ", ";
+			deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 100.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		}
+
         // Required to be able to display depth-stencil buffer.
         // TODO: Should  be refactored somehow. Such method should not be called here.
         deferredRenderer.disableRenderTargets();
@@ -325,6 +332,13 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 				windowsMessageReceiver->onResize( newWidth, newHeight );
 			}
 			break;
+        case WM_MOVE:
+			if ( windowsMessageReceiver ) {
+				int posX = LOWORD( lParam );
+				int posY = HIWORD( lParam );
+				windowsMessageReceiver->onMove( posX, posY );
+			}
+			break;
 		case WM_SETFOCUS:
 			if ( windowsMessageReceiver ) windowsMessageReceiver->onFocusChange( true );
 			break;
@@ -349,6 +363,7 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 		case WM_LBUTTONDOWN:
 			if ( windowsMessageReceiver ) {
 				windowsMessageReceiver->inputManager.onMouseButton( 0, true );
+                windowsMessageReceiver->onMouseButtonPress( 0 );
 			}
 			break;
 		case WM_LBUTTONUP:
@@ -359,6 +374,7 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 		case WM_MBUTTONDOWN:
 			if ( windowsMessageReceiver ) {
 				windowsMessageReceiver->inputManager.onMouseButton( 1, true );
+                windowsMessageReceiver->onMouseButtonPress( 1 );
 			}
 			break;
 		case WM_MBUTTONUP:
@@ -369,6 +385,7 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 		case WM_RBUTTONDOWN:
 			if ( windowsMessageReceiver ) {
 				windowsMessageReceiver->inputManager.onMouseButton( 2, true );
+                windowsMessageReceiver->onMouseButtonPress( 2 );
 			}
 			break;
 		case WM_RBUTTONUP:
@@ -410,6 +427,12 @@ void Application::onResize( int newWidth, int newHeight ) {
     // Unused.    
     newWidth;
     newHeight;
+}
+
+void Application::onMove( int newPosX, int newPosY )
+{
+    windowPosition.x = newPosX;
+    windowPosition.y = newPosY;
 }
 
 void Application::onFocusChange( bool windowFocused )
@@ -464,6 +487,71 @@ void Application::onKeyPress( int key )
         renderer.setActiveView( Renderer::View::RaytracingHitRoughness );
     else if ( key == InputManager::Keys::f8 )
         renderer.setActiveView( Renderer::View::RaytracingHitIndexOfRefraction );
+}
+
+void Application::onMouseButtonPress( int button )
+{
+    if ( button == 0 ) // On left button press.
+    {
+        // Calculate mouse pos relative to app window top-left corner.
+        int2 mousePos = inputManager.getMousePos();
+        mousePos -= windowPosition; 
+
+        // TODO: FOV shouldn't be hardcoded.
+        const float fieldOfView = (float)MathUtil::pi / 4.0f;
+
+        std::shared_ptr< BlockActor > pickedActor;
+        std::shared_ptr< Light >      pickedLight;
+        std::tie( pickedActor, pickedLight ) = pickActorOrLight( *scene, camera, float2( (float)mousePos.x, (float)mousePos.y ), (float)screenWidth, (float)screenHeight, fieldOfView );
+
+        if ( pickedActor )
+            defaultBlockActor = pickedActor;
+    }
+}
+
+std::tuple< std::shared_ptr< BlockActor >, std::shared_ptr< Light > > 
+        Application::pickActorOrLight( const CScene& scene, const Camera& camera, const float2& targetPixel,
+                                       const float screenWidth, const float screenHeight, const float fieldOfView )
+{
+    float43 cameraPose;
+    cameraPose.setRow1( camera.getRight() );
+    cameraPose.setRow2( camera.getUp() );
+    cameraPose.setRow3( camera.getDirection() );
+    cameraPose.setTranslation( camera.getPosition() );
+
+    const float2 screenDimensions( screenWidth, screenHeight );
+
+    const float3 rayOriginWorld = camera.getPosition();
+    const float3 rayDirWorld    = MathUtil::getRayDirectionAtPixel( cameraPose, targetPixel, screenDimensions, fieldOfView );
+
+    float                         hitActorDistance = FLT_MAX;
+    std::shared_ptr< BlockActor > hitActor;
+
+    for( const std::shared_ptr< Actor >& actor : scene.getActors() )
+    {
+        if ( actor->getType() != Actor::Type::BlockActor )
+            continue;
+
+        const std::shared_ptr< BlockActor >& blockActor = std::static_pointer_cast< BlockActor >( actor );
+        if ( !blockActor->getModel() || !blockActor->getModel()->getMesh() )
+            continue;
+
+        float3 boxMinLocal, boxMaxLocal;
+        std::tie( boxMinLocal, boxMaxLocal ) = blockActor->getModel()->getMesh()->getBoundingBox();
+
+        bool  hitOccurred;
+        float hitDistance;
+        std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, blockActor->getPose(), boxMinLocal, boxMaxLocal );
+
+        if ( hitOccurred && hitDistance < hitActorDistance ) {
+            hitActorDistance = hitDistance;
+            hitActor         = blockActor;
+        }
+    }
+
+    return std::make_tuple( hitActor, nullptr );
+
+    // TODO: Also add picking light sources.
 }
 
 void Application::onDragAndDropFile( std::string filePath )

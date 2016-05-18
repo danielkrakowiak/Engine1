@@ -2,6 +2,8 @@
 
 #include "MathUtil.h"
 
+#include <algorithm>
+
 using namespace Engine1;
 
 float MathUtil::radiansToDegrees( float radians ) {
@@ -177,4 +179,61 @@ std::tuple<float3, float3> MathUtil::calculateBoundingBox( const std::vector<flo
     }
 
     return std::make_tuple( bbMin, bbMax );
+}
+
+float3 MathUtil::getRayDirectionAtPixel( const float43& cameraPose, const float2& targetPixel,
+                                         const float2& screenDimensions, const float fieldOfView )
+{
+    // viewportCenter - viewport plane center in world space.
+    // viewportUp - viewport up vector in world space. It's length equals half of height of the viewport plane.
+    // viewportRight - viewport right vector in world space. It's length equals half of width of the viewport plane.
+    // screenDimensionsHalf - viewport dimensions in pixels divided by 2.
+    const float  screenAspect          = screenDimensions.x / screenDimensions.y;
+    const float2 screenDimensionsHalf  = screenDimensions * 0.5f;
+    const float3 viewportUp            = cameraPose.getRow2() * tan( fieldOfView * 0.5f );
+    const float3 viewportRight         = cameraPose.getRow1() * screenAspect * viewportUp.length();
+    const float3 viewportCenter        = cameraPose.getTranslation() + cameraPose.getRow3();
+
+    const float2 pixelShift = (targetPixel - screenDimensionsHalf + float2(0.5f, 0.5f)) / screenDimensionsHalf; // In range (-1;1)
+
+	const float3 pixelPosWorld = viewportCenter + viewportRight * pixelShift.x - viewportUp * pixelShift.y;
+	
+    float3 rayDir = pixelPosWorld - cameraPose.getTranslation();
+    rayDir.normalize();
+
+    return rayDir;
+}
+
+std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& rayOriginWorld, const float3& rayDirWorld, const float43& boxPose, const float3& boxMinLocal, const float3& boxMaxLocal )
+{
+    const float43 boxPoseInverse = boxPose.getScaleOrientationTranslationInverse(); 
+
+    float3 rayOriginLocal = rayOriginWorld * boxPoseInverse;
+    float3 rayDirLocal    = ( (rayOriginWorld + rayDirWorld) * boxPoseInverse ) - rayOriginLocal;
+
+    // Transform ray to box's local space and check for intersection.
+    return intersectRayWithBoundingBox( rayOriginLocal, rayDirLocal, boxMinLocal, boxMaxLocal );
+}
+
+std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& rayOriginInBoxSpace, const float3& rayDirInBoxSpace, const float3& boxMinLocal, const float3& boxMaxLocal )
+{
+    float tmin = -FLT_MAX;
+	float tmax =  FLT_MAX;
+ 
+	const float3 t1 = ( boxMinLocal - rayOriginInBoxSpace ) / rayDirInBoxSpace;
+	const float3 t2 = ( boxMaxLocal - rayOriginInBoxSpace ) / rayDirInBoxSpace;
+ 
+	tmin = std::max(tmin, std::min(t1.x, t2.x));
+	tmax = std::min(tmax, std::max(t1.x, t2.x));
+	tmin = std::max(tmin, std::min(t1.y, t2.y));
+	tmax = std::min(tmax, std::max(t1.y, t2.y));
+	tmin = std::max(tmin, std::min(t1.z, t2.z));
+	tmax = std::min(tmax, std::max(t1.z, t2.z));
+
+    const bool hit = tmax >= tmin && tmax > 0.0f;
+
+    if ( hit )
+        return std::make_tuple( true, tmin );
+    else
+        return std::make_tuple( false, 0.0f );
 }

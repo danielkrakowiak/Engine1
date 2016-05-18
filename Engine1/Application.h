@@ -60,9 +60,15 @@ private:
 	void onStart( );
 	void onExit( );
 	void onResize( int newWidth, int newHeight );
+    void onMove( int newPosX, int newPosY );
 	void onFocusChange( bool windowFocused );
     void onKeyPress( int key );
+    void onMouseButtonPress( int button );
 	void onDragAndDropFile( std::string filePath );
+
+    std::tuple< std::shared_ptr< BlockActor >, std::shared_ptr< Light > > 
+        pickActorOrLight( const CScene& scene, const Camera& camera, const float2& targetPixel,
+                          const float screenWidth, const float screenHeight, const float fieldOfView );
 
     void loadScene( std::string path );
     void saveScene( std::string path );
@@ -71,6 +77,9 @@ private:
 	HINSTANCE applicationInstance;
 	HWND      windowHandle;
 	HDC       deviceContext;
+
+    // Window state.
+    int2 windowPosition;
 
 	InputManager inputManager;
 

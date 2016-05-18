@@ -119,3 +119,7 @@ bool InputManager::isMouseButtonPressed( unsigned int button )
 int2 InputManager::getMouseMove() {
 	return mouseMove;
 }
+
+int2 InputManager::getMousePos() {
+     return mousePos;
+}
