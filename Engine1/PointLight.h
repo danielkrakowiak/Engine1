@@ -5,8 +5,6 @@
 #include <vector>
 #include <memory>
 
-using namespace Engine1;
-
 namespace Engine1
 {
     class PointLight : public Light

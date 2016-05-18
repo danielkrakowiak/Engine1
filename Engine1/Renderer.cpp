@@ -45,6 +45,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
 }
 
 std::tuple< 
+std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
@@ -124,12 +125,14 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         case View::Final: 
             return std::make_tuple( 
                 nullptr,
+                nullptr,
                 finalRenderTarget,
                 nullptr,
                 nullptr
              );
         case View::Depth: 
             return std::make_tuple( 
+                nullptr,
                 deferredRenderer.getDepthRenderTarget(),
                 nullptr,
                 nullptr,
@@ -138,12 +141,14 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         case View::Position: 
             return std::make_tuple( 
                 nullptr,
+                nullptr,
                 deferredRenderer.getPositionRenderTarget(),
                 nullptr,
                 nullptr
              );
         case View::Albedo: 
             return std::make_tuple( 
+                nullptr,
                 deferredRenderer.getAlbedoRenderTarget(),
                 nullptr,
                 nullptr,
@@ -152,12 +157,38 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         case View::Normal:
             return std::make_tuple(
                 nullptr,
+                nullptr,
                 deferredRenderer.getNormalRenderTarget(),
+                nullptr,
+                nullptr
+             );
+        case View::Metalness:
+            return std::make_tuple(
+                deferredRenderer.getMetalnessRenderTarget(),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr
+             );
+        case View::Roughness:
+            return std::make_tuple(
+                deferredRenderer.getRoughnessRenderTarget(),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr
+             );
+        case View::IndexOfRefraction:
+            return std::make_tuple(
+                deferredRenderer.getIndexOfRefractionRenderTarget(),
+                nullptr,
+                nullptr,
                 nullptr,
                 nullptr
              );
         case View::RayDirections1:
             return std::make_tuple(
+                nullptr,
                 nullptr,
                 raytraceRenderer.getRayDirectionsTexture(),
                 nullptr,
@@ -165,6 +196,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
              );
         case View::RaytracingHitPosition:
             return std::make_tuple(
+                nullptr,
                 nullptr,
                 raytraceRenderer.getRayHitPositionTexture(),
                 nullptr,
@@ -175,23 +207,50 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
                 nullptr,
                 nullptr,
                 nullptr,
+                nullptr,
                 raytraceRenderer.getRayHitDistanceTexture() 
             );
         case View::RaytracingHitNormal:
             return std::make_tuple(
+                nullptr,
                 nullptr,
                 raytraceRenderer.getRayHitNormalTexture(),
                 nullptr,
                 nullptr
             );
         case View::RaytracingHitAlbedo:
-        default:
             return std::make_tuple(
+                nullptr,
                 raytraceRenderer.getRayHitAlbedoTexture(),
                 nullptr,
                 nullptr,
                 nullptr
             );
+        case View::RaytracingHitMetalness:
+            return std::make_tuple(
+                raytraceRenderer.getRayHitMetalnessTexture(),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr
+             );
+        case View::RaytracingHitRoughness:
+            return std::make_tuple(
+                raytraceRenderer.getRayHitRoughnessTexture(),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr
+             );
+        case View::RaytracingHitIndexOfRefraction:
+        default:
+            return std::make_tuple(
+                raytraceRenderer.getRayHitIndexOfRefractionTexture(),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr
+             );
     }
 }
 

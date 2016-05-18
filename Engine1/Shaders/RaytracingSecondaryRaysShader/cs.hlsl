@@ -26,11 +26,13 @@ SamplerState      g_samplerState;
 // Input / Output.
 RWTexture2D<float>  g_hitDistance  : register( u0 );
 // Output.
-RWTexture2D<float4> g_hitPosition  : register( u1 );
-RWTexture2D<float4> g_hitNormal    : register( u2 );
-RWTexture2D<uint4>  g_hitAlbedo    : register( u3 );
+RWTexture2D<float4> g_hitPosition          : register( u1 );
+RWTexture2D<float4> g_hitNormal            : register( u2 );
+RWTexture2D<uint>   g_hitMetalness         : register( u3 );
+RWTexture2D<uint>   g_hitRoughness         : register( u4 );
+RWTexture2D<uint>   g_hitIndexOfRefraction : register( u5 );
+RWTexture2D<uint4>  g_hitAlbedo            : register( u6 );
 
-bool     isRayActive( const float3 rayDir );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint index );
 float3x3 readVerticesPos( const uint3 vertices_index );
@@ -156,19 +158,18 @@ void main( uint3 groupId : SV_GroupID,
         if ( hitTriangle != -1 )
         {
             // Write to output only if found hit is closer than the existing one at that pixel.
-            if ( hitDist < g_hitDistance[ dispatchThreadId.xy ] ) {
-                g_hitPosition[ dispatchThreadId.xy ] = float4( rayOrigin + rayDir * hitDist, 0.0f );
-                g_hitDistance[ dispatchThreadId.xy ] = hitDist;
-                g_hitNormal[ dispatchThreadId.xy ]   = float4( hitNormal, 0.0f );
-                g_hitAlbedo[ dispatchThreadId.xy ]   = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
+            if ( hitDist < g_hitDistance[ dispatchThreadId.xy ] ) 
+            {
+                g_hitPosition[ dispatchThreadId.xy ]          = float4( rayOrigin + rayDir * hitDist, 0.0f );
+                g_hitDistance[ dispatchThreadId.xy ]          = hitDist;
+                g_hitNormal[ dispatchThreadId.xy ]            = float4( hitNormal, 0.0f );
+                g_hitAlbedo[ dispatchThreadId.xy ]            = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
+                g_hitMetalness[ dispatchThreadId.xy ]         = 200;       
+                g_hitRoughness[ dispatchThreadId.xy ]         = 150;       
+                g_hitIndexOfRefraction[ dispatchThreadId.xy ] = 100;
             }
         }
     }
-}
-
-bool isRayActive( const float3 rayDir )
-{
-    return rayDir.x + rayDir.y + rayDir.z > 0.05f;
 }
 
 bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax )

@@ -13,12 +13,14 @@ std::shared_ptr<Texture2DFileInfo> Texture2DFileInfo::createFromMemory( std::vec
 
 Texture2DFileInfo::Texture2DFileInfo( ) :
 path( "" ),
-format( Format::BMP )
+format( Format::BMP ),
+pixelType( PixelType::UCHAR4 )
 {}
 
-Texture2DFileInfo::Texture2DFileInfo( std::string path, Format format ) :
+Texture2DFileInfo::Texture2DFileInfo( std::string path, Format format, PixelType pixelType ) :
 path( path ),
-format( format )
+format( format ),
+pixelType( pixelType )
 {}
 
 Texture2DFileInfo::~Texture2DFileInfo( )
@@ -44,6 +46,11 @@ void Texture2DFileInfo::setFormat( Format format )
 	this->format = format;
 }
 
+void Texture2DFileInfo::setPixelType( PixelType pixelType )
+{
+    this->pixelType = pixelType;
+}
+
 std::string Texture2DFileInfo::getPath() const
 {
 	return path;
@@ -67,4 +74,9 @@ FileInfo::FileType Texture2DFileInfo::getFileType() const
 Texture2DFileInfo::Format Texture2DFileInfo::getFormat( ) const
 {
 	return format;
+}
+
+Texture2DFileInfo::PixelType Texture2DFileInfo::getPixelType() const
+{
+    return pixelType;
 }

@@ -55,6 +55,7 @@ Application::Application() :
 	screenColorDepth( 32 ),
 	zBufferDepth( 32 ),
 	windowFocused( false ),
+    scenePath( "Assets/Scenes/new.scene" ),
     scene( std::make_shared<CScene>() ),
     assetManager()
 {
@@ -85,11 +86,12 @@ void Application::initialize( HINSTANCE applicationInstance ) {
             
 
     // Load 'light source' model.
-    BlockModelFileInfo lightModelFileInfo( "Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
-    std::shared_ptr<BlockModel> lightModel = std::static_pointer_cast<BlockModel>(assetManager.getOrLoad( lightModelFileInfo ));
-    lightModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext().Get() );
+    //BlockModelFileInfo lightModelFileInfo( "Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
+    //std::shared_ptr<BlockModel> lightModel = std::static_pointer_cast<BlockModel>(assetManager.getOrLoad( lightModelFileInfo ));
+    //lightModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext().Get() );
+    std::shared_ptr<BlockModel> empty = std::make_shared<BlockModel>();
 
-    renderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), axisMesh, lightModel );
+    renderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), axisMesh, empty/*lightModel*/ );
 
 	initialized = true;
 }
@@ -228,12 +230,14 @@ void Application::run() {
 
             lockCursor = true;
 
-            if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTime );
-            if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) camera.accelerateRight( (float)frameTime );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) camera.accelerateLeft( (float)frameTime );
-            if ( inputManager.isKeyPressed( InputManager::Keys::e ) ) camera.accelerateUp( (float)frameTime );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::q ) ) camera.accelerateDown( (float)frameTime );
+            const float acceleration = 1.0f;
+
+            if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime * acceleration );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTime * acceleration );
+            if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) camera.accelerateRight( (float)frameTime * acceleration );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) camera.accelerateLeft( (float)frameTime * acceleration );
+            if ( inputManager.isKeyPressed( InputManager::Keys::e ) ) camera.accelerateUp( (float)frameTime * acceleration );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::q ) ) camera.accelerateDown( (float)frameTime * acceleration );
 
 			int2 mouseMove = inputManager.getMouseMove( );
 			camera.rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTime * cameraRotationSensitivity );
@@ -244,13 +248,14 @@ void Application::run() {
 
 		camera.updateState( (float)frameTime );
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >  frameUchar;
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >  frameFloat4;
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > > frameFloat2;
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >  frameFloat;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >         frameUchar4;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >         frameFloat4;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > >        frameFloat2;
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
 
         if ( scene )
-            std::tie( frameUchar, frameFloat4, frameFloat2, frameFloat ) = renderer.renderScene( *scene, camera );
+            std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) = renderer.renderScene( *scene, camera );
 
 		{ // Render FPS.
 			std::stringstream ss;
@@ -281,6 +286,8 @@ void Application::run() {
 
         if ( frameUchar )
 		    frameRenderer.renderTexture( *frameUchar, 0.0f, 0.0f );
+        else if ( frameUchar4 )
+		    frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f );
         else if ( frameFloat4 )
             frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f );
         else if ( frameFloat2 )
@@ -435,15 +442,28 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::four )
         renderer.setActiveView( Renderer::View::Normal );
     else if ( key == InputManager::Keys::five )
-        renderer.setActiveView( Renderer::View::RayDirections1 );
+        renderer.setActiveView( Renderer::View::Metalness );
     else if ( key == InputManager::Keys::six )
-        renderer.setActiveView( Renderer::View::RaytracingHitPosition );
+        renderer.setActiveView( Renderer::View::Roughness );
     else if ( key == InputManager::Keys::seven )
+        renderer.setActiveView( Renderer::View::IndexOfRefraction );
+
+    else if ( key == InputManager::Keys::f1 )
+        renderer.setActiveView( Renderer::View::RayDirections1 );
+    else if ( key == InputManager::Keys::f2 )
+        renderer.setActiveView( Renderer::View::RaytracingHitPosition );
+    else if ( key == InputManager::Keys::f3 )
         renderer.setActiveView( Renderer::View::RaytracingHitDistance );
-    else if ( key == InputManager::Keys::eight )
+    else if ( key == InputManager::Keys::f4 )
         renderer.setActiveView( Renderer::View::RaytracingHitNormal );
-    else if ( key == InputManager::Keys::nine )
+    else if ( key == InputManager::Keys::f5 )
         renderer.setActiveView( Renderer::View::RaytracingHitAlbedo );
+    else if ( key == InputManager::Keys::f6 )
+        renderer.setActiveView( Renderer::View::RaytracingHitMetalness );
+    else if ( key == InputManager::Keys::f7 )
+        renderer.setActiveView( Renderer::View::RaytracingHitRoughness );
+    else if ( key == InputManager::Keys::f8 )
+        renderer.setActiveView( Renderer::View::RaytracingHitIndexOfRefraction );
 }
 
 void Application::onDragAndDropFile( std::string filePath )
@@ -528,7 +548,8 @@ void Application::onDragAndDropFile( std::string filePath )
         BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( fileInfo ) );
 
-        mesh->buildBvhTree();
+        if ( !mesh->getBvhTree() )
+            mesh->buildBvhTree();
 
         if ( !mesh->isInGpuMemory( ) ) {
             mesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
@@ -569,27 +590,91 @@ void Application::onDragAndDropFile( std::string filePath )
 		else if ( extension.compare( "raw" ) == 0 )  format = Texture2DFileInfo::Format::RAW;
 		else if ( extension.compare( "tga" ) == 0 )  format = Texture2DFileInfo::Format::TGA;
 		else if ( extension.compare( "tiff" ) == 0 ) format = Texture2DFileInfo::Format::TIFF;
+        
+        Texture2DFileInfo::PixelType pixelType;
+        if ( filePath.find( "_A" ) != std::string::npos ||
+             filePath.find( "_N" ) != std::string::npos ||
+             filePath.find( "_E" ) != std::string::npos )
+        {
+            pixelType = Texture2DFileInfo::PixelType::UCHAR4;
+        }
+        else if ( filePath.find( "_M" ) != std::string::npos ||
+                  filePath.find( "_R" ) != std::string::npos ||
+                  filePath.find( "_I" ) != std::string::npos)
+        {
+            pixelType = Texture2DFileInfo::PixelType::UCHAR;
+        }
+        else
+            return; // Unrecognized texture type.
 
-        Texture2DFileInfo fileInfo( filePath, format );
-        auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
-            ( assetManager.getOrLoad( fileInfo ) );
-        //if ( !texture->isInGpuMemory( ) )
-        //    texture->loadCpuToGpu( frameRenderer.getDevice() );
+        Texture2DFileInfo fileInfo( filePath, format, pixelType );
+        std::shared_ptr< Asset > textureAsset = assetManager.getOrLoad( fileInfo );
 
-        ModelTexture2D modelTexture( texture );
+		if ( filePath.find( "_A" ) != std::string::npos ) 
+        {
+            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
+            ModelTexture2D< uchar4 > modelTexture( texture );
 
-		if ( filePath.find( "_A" ) ) {
-            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addAlbedoTexture( modelTexture );
-            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addAlbedoTexture( modelTexture );
-		} else if ( filePath.find( "_N" ) ) {
-            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addNormalTexture( modelTexture );
-            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addNormalTexture( modelTexture );
-		} else if ( filePath.find( "_R" ) ) {
-            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addRoughnessTexture( modelTexture );
-            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addRoughnessTexture( modelTexture );
-		} else if ( filePath.find( "_E" ) ) {
-            if ( defaultBlockActor )    defaultBlockActor->getModel( )->addEmissionTexture( modelTexture );
-            if ( defaultSkeletonActor ) defaultSkeletonActor->getModel( )->addEmissionTexture( modelTexture );
+            if ( defaultBlockActor )    
+                defaultBlockActor->getModel( )->addAlbedoTexture( modelTexture );
+
+            if ( defaultSkeletonActor ) 
+                defaultSkeletonActor->getModel( )->addAlbedoTexture( modelTexture );
+        } 
+        else if ( filePath.find( "_M" ) != std::string::npos ) 
+        {
+            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
+            ModelTexture2D< unsigned char > modelTexture( texture );
+
+            if ( defaultBlockActor )    
+                defaultBlockActor->getModel( )->addMetalnessTexture( modelTexture );
+
+            if ( defaultSkeletonActor ) 
+                defaultSkeletonActor->getModel( )->addMetalnessTexture( modelTexture );
+		} 
+        else if ( filePath.find( "_N" ) != std::string::npos ) 
+        {
+            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
+            ModelTexture2D< uchar4 > modelTexture( texture );
+
+            if ( defaultBlockActor )    
+                defaultBlockActor->getModel( )->addNormalTexture( modelTexture );
+
+            if ( defaultSkeletonActor ) 
+                defaultSkeletonActor->getModel( )->addNormalTexture( modelTexture );
+		} 
+        else if ( filePath.find( "_R" ) != std::string::npos ) 
+        {
+            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
+            ModelTexture2D< unsigned char > modelTexture( texture );
+
+            if ( defaultBlockActor )    
+                defaultBlockActor->getModel( )->addRoughnessTexture( modelTexture );
+
+            if ( defaultSkeletonActor ) 
+                defaultSkeletonActor->getModel( )->addRoughnessTexture( modelTexture );
+		} 
+        else if ( filePath.find( "_E" ) != std::string::npos ) 
+        {
+            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
+            ModelTexture2D< uchar4 > modelTexture( texture );
+
+            if ( defaultBlockActor )    
+                defaultBlockActor->getModel( )->addEmissionTexture( modelTexture );
+
+            if ( defaultSkeletonActor ) 
+                defaultSkeletonActor->getModel( )->addEmissionTexture( modelTexture );
+        } 
+        else if ( filePath.find( "_I" ) != std::string::npos ) 
+        {
+            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
+            ModelTexture2D< unsigned char > modelTexture( texture );
+
+            if ( defaultBlockActor )    
+                defaultBlockActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+
+            if ( defaultSkeletonActor ) 
+                defaultSkeletonActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
 		}
 	}
 
@@ -608,9 +693,7 @@ void Application::onDragAndDropFile( std::string filePath )
             model->loadCpuToGpu( *frameRenderer.getDevice( ).Get(), *frameRenderer.getDeviceContext( ).Get() );
 
         // Add new actor to the scene.
-        float43 forcedPose = float43::IDENTITY;
-        forcedPose.setTranslation( float3( 0.0f, 0.0f, -5.0f ) );
-        defaultBlockActor = std::make_shared<BlockActor>( model, forcedPose );
+        defaultBlockActor = std::make_shared<BlockActor>( model, pose );
         scene->addActor( defaultBlockActor );
     }
 
@@ -654,32 +737,48 @@ void Application::loadScene( std::string path )
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos )
         assetManager.getWhenLoaded( fileInfo->getAssetType(), fileInfo->getPath(), fileInfo->getIndexInFile(), timeout );
 
-    // Swap actors' empty models with the loaded models. Load models to GPU.
+    // Swap actors' empty models with the loaded models. Create BVH trees. Load models to GPU.
     const std::unordered_set< std::shared_ptr< Actor > > sceneActors = scene->getActors();
-    for ( const std::shared_ptr< Actor >& actor : sceneActors ) {
-        if ( actor->getType() == Actor::Type::BlockActor ) {
+    for ( const std::shared_ptr< Actor >& actor : sceneActors ) 
+    {
+        if ( actor->getType() == Actor::Type::BlockActor ) 
+        {
 
             const std::shared_ptr<BlockActor>& blockActor = std::static_pointer_cast<BlockActor>(actor);
-            if ( blockActor->getModel() ) {
+            if ( blockActor->getModel() ) 
+            {
                 const BlockModelFileInfo& fileInfo = blockActor->getModel()->getFileInfo();
                 std::shared_ptr<BlockModel> blockModel = std::static_pointer_cast<BlockModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
-                if ( blockModel ) {
+                if ( blockModel ) 
+                {
+                    // Build BVH tree and load it to GPU.
+                    if ( blockModel->getMesh() ) {
+                        blockModel->getMesh()->buildBvhTree();
+                        blockModel->getMesh()->loadBvhTreeToGpu( *frameRenderer.getDevice().Get() );
+                    }
+
                     blockModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext( ).Get() );
                     blockActor->setModel( blockModel ); // Swap an empty model with a loaded model.
-                } else {
+                } 
+                else 
+                {
                     throw std::exception( "Application::onStart - failed to load one of the scene's models." );
                 }
             }
-        } else if ( actor->getType() == Actor::Type::SkeletonActor ) {
-
+        } 
+        else if ( actor->getType() == Actor::Type::SkeletonActor ) 
+        {
             const std::shared_ptr<SkeletonActor>& skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
             if ( skeletonActor->getModel() ) {
                 const SkeletonModelFileInfo& fileInfo = skeletonActor->getModel()->getFileInfo();
                 std::shared_ptr<SkeletonModel> skeletonModel = std::static_pointer_cast<SkeletonModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
-                if ( skeletonModel ) {
+                if ( skeletonModel ) 
+                {
                     skeletonModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext( ).Get() );
                     skeletonActor->setModel( skeletonModel ); // Swap an empty model with a loaded model.
-                } else {
+                } 
+                else 
+                {
                     throw std::exception( "Application::onStart - failed to load one of the scene's models." );
                 }
             }

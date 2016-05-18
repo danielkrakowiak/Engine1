@@ -137,6 +137,14 @@ Next2:
 
 	- algorithm creating BVH uses the same step when moving dividing planes no matter the size of the model. 
 	That's not too goood. It should use something like 1/1000 of longest bbox dimension or similar.
+
+	- add g-buffer name display in the corner
+
+	- add PBR shading
+
+	- pass model/default textures in raytracer as it's done in deferred renderer. Check if they render correctly in g-buffers.
+	
+		- then Commit code !
 	
 
    ----------------------------------------------------

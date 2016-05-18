@@ -115,7 +115,6 @@ void Direct3DRendererCore::disableRenderingShaders()
 
 void Direct3DRendererCore::disableComputeShaders()
 {
-    //#TODO: Should deviceContext->IASetInputLayout( nullptr ); be called here? is Input Assembler used in Compute Shaders?
     if ( computeShaderEnabled ) {
         deviceContext->CSSetShader( nullptr, nullptr, 0 );
         currentComputeShader.reset();
@@ -126,6 +125,7 @@ void Direct3DRendererCore::disableComputeShaders()
 
 void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >& renderTargetsF4,
+                                                const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > >& renderTargetsU1, 
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargetsU4, 
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget )
 {
@@ -137,7 +137,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 	{ // Check if render targets to be enabled are the same as the current ones.
 		//if ( renderTargets.size() == currentRenderTargetViews.size() ) {
 			for ( unsigned int i = 0; i < renderTargetsF2.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
+				// Check each pair of render targets at corresponding indexes.
 				if ( currentRenderTargetViews.size() <= i || renderTargetsF2.at( i )->getRenderTargetView() != currentRenderTargetViews.at( i ) ) {
 					sameAsCurrent = false;
 					break;
@@ -146,7 +146,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 
             const unsigned int first = (unsigned int)renderTargetsF2.size();
             for ( unsigned int i = 0; i < renderTargetsF4.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
+				// Check each pair of render targets at corresponding indexes.
 				if ( currentRenderTargetViews.size() <= (first + i) || renderTargetsF4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( first + i ) ) {
 					sameAsCurrent = false;
 					break;
@@ -154,9 +154,18 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 			}
 
             const unsigned int second = first + (unsigned int)renderTargetsF4.size();
+            for ( unsigned int i = 0; i < renderTargetsU1.size(); ++i ) {
+				// Check each pair of render targets at corresponding indexes.
+				if ( currentRenderTargetViews.size() <= (second + i) || renderTargetsU1.at( i )->getRenderTargetView() != currentRenderTargetViews.at( second + i ) ) {
+					sameAsCurrent = false;
+					break;
+				}
+			}
+
+            const unsigned int third = second + (unsigned int)renderTargetsU1.size();
             for ( unsigned int i = 0; i < renderTargetsU4.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
-				if ( currentRenderTargetViews.size() <= (second + i) || renderTargetsU4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( second + i ) ) {
+				// Check each pair of render targets at corresponding indexes.
+				if ( currentRenderTargetViews.size() <= (second + i) || renderTargetsU4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( third + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -184,6 +193,9 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > >& renderTarget : renderTargetsF4 )
 		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
 
+    for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > >& renderTarget : renderTargetsU1 )
+		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
+
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > >& renderTarget : renderTargetsU4 )
 		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
 
@@ -198,6 +210,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > > unorderedAccessTargetsF1,
                                                          const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2,
                                                          const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4,
+                                                         const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1,
                                                          const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4 )
 {
     if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableUnorderedAccessTargets - renderer not initialized." );
@@ -234,9 +247,18 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
 			}
 
             const unsigned int third = second + (unsigned int)unorderedAccessTargetsF4.size();
+            for ( unsigned int i = 0; i < unorderedAccessTargetsU1.size(); ++i ) {
+				// Check each pair of UAV targets at corresponding indexes.
+				if ( currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU1.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( third + i ) ) {
+					sameAsCurrent = false;
+					break;
+				}
+			}
+
+            const unsigned int fourth = third + (unsigned int)unorderedAccessTargetsU1.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsU4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU4.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( third + i ) ) {
+				if ( currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU4.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( fourth + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -262,6 +284,9 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > >& unorderedAccessTarget : unorderedAccessTargetsF4 )
 		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
 
+    for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > >& unorderedAccessTarget : unorderedAccessTargetsU1 )
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > >& unorderedAccessTarget : unorderedAccessTargetsU4 )
 		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
 
@@ -273,9 +298,10 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
 {
     const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >  emptyF1;
     const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > emptyF2;
+    const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > emptyU1;
     const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > emptyU4;
 
-    enableUnorderedAccessTargets( emptyF1, emptyF2, unorderedAccessTargetsF4, emptyU4 );
+    enableUnorderedAccessTargets( emptyF1, emptyF2, unorderedAccessTargetsF4, emptyU1, emptyU4 );
 }
 
 void Direct3DRendererCore::disableRenderTargetViews()

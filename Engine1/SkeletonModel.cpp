@@ -44,11 +44,23 @@ std::vector< std::shared_ptr<const Asset> > SkeletonModel::getSubAssets( ) const
 	if ( mesh )
 		subAssets.push_back( mesh );
 
-	std::vector<ModelTexture2D> textures = getAllTextures();
-	for ( const ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() )
-			subAssets.push_back( texture.getTexture() );
-	}
+	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	return subAssets;
 }
@@ -57,56 +69,110 @@ std::vector< std::shared_ptr<Asset> > SkeletonModel::getSubAssets( )
 {
 	std::vector< std::shared_ptr<Asset> > subAssets;
 
-	if ( mesh )
-		subAssets.push_back( mesh );
+	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	std::vector<ModelTexture2D> textures = getAllTextures();
-	for ( ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() )
-			subAssets.push_back( texture.getTexture() );
-	}
+	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
+
+	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	return subAssets;
 }
 
 void SkeletonModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset )
 {
-	if ( !oldAsset )
+	if ( !oldAsset || !newAsset )
 		throw std::exception( "SkeletonModel::swapSubAsset - nullptr passed." );
 
-	if ( mesh == oldAsset ) {
-		std::shared_ptr<SkeletonMesh> newMesh = std::dynamic_pointer_cast<SkeletonMesh>( newAsset );
+    std::shared_ptr< SkeletonMesh > newMesh = std::dynamic_pointer_cast< SkeletonMesh >( newAsset );
 
-		if ( newMesh ) {
-			mesh = newMesh;
-			return;
-		} else {
-			throw std::exception( "SkeletonModel::swapSubAsset - tried to swap mesh with non-mesh asset." );
-		}
-	}
+    if ( newMesh )
+    {
+	    if ( mesh == oldAsset ) 
+        {
+		    mesh = newMesh;
+		    return;
+        }
 
-    std::vector<ModelTexture2D>* textureSets[] = {
-        &emissionTextures,
-        &albedoTextures,
-        &roughnessTextures,
-        &normalTextures
-    };
+        throw std::exception( "SkeletonModel::swapSubAsset - tried to swap assets of different types." );
+    }
 
-    for ( std::vector<ModelTexture2D>* textureSet : textureSets ) {
-        std::vector<ModelTexture2D>& textures = *textureSet;
-        for ( ModelTexture2D& texture : textures ) {
-            if ( texture.getTexture() == oldAsset ) {
-                auto newTexture = std::dynamic_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >(newAsset);
+    typedef Texture2DSpecBind< TexBind::ShaderResource, unsigned char > TextureU1;
+    std::shared_ptr< TextureU1 > newTextureU1 = std::dynamic_pointer_cast< TextureU1 >( newAsset );
 
-                if ( newTexture ) {
-                    texture.setTexture( newTexture );
-                    return;
-                } else {
-                    throw std::exception( "SkeletonModel::swapSubAsset - tried to swap texture with non-texture asset." );
-                }
+    if ( newTextureU1 )
+    {
+        for ( ModelTexture2D< unsigned char >& texture : metalnessTextures )
+        {
+		    if ( texture.getTexture() == oldAsset ) {
+                texture.setTexture( newTextureU1 );
+                return;
             }
         }
+
+	    for ( ModelTexture2D< unsigned char >& texture : roughnessTextures )
+        {
+		    if ( texture.getTexture() == oldAsset ) {
+                texture.setTexture( newTextureU1 );
+                return;
+            }
+        }
+
+        for ( ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+        {
+		    if ( texture.getTexture() == oldAsset ) {
+                texture.setTexture( newTextureU1 );
+                return;
+            }
+        }
+
+        throw std::exception( "SkeletonModel::swapSubAsset - tried to swap assets of different types." );
     }
+
+    typedef Texture2DSpecBind< TexBind::ShaderResource, uchar4 > TextureU4;
+    std::shared_ptr< TextureU4 > newTextureU4 = std::dynamic_pointer_cast< TextureU4 >( newAsset );
+
+    if ( newTextureU4 )
+    {
+        for ( ModelTexture2D< uchar4 >& texture : emissionTextures )
+        {
+		    if ( texture.getTexture() == oldAsset ) {
+                texture.setTexture( newTextureU4 );
+                return;
+            }
+        }
+
+	    for ( ModelTexture2D< uchar4 >& texture : albedoTextures )
+        {
+		    if ( texture.getTexture() == oldAsset ) {
+                texture.setTexture( newTextureU4 );
+                return;
+            }
+        }
+
+        for ( ModelTexture2D< uchar4 >& texture : normalTextures ) 
+        {
+		    if ( texture.getTexture() == oldAsset ) {
+                texture.setTexture( newTextureU4 );
+                return;
+            }
+        }
+
+        throw std::exception( "SkeletonModel::swapSubAsset - tried to swap assets of different types." );
+    }
+
+    throw std::exception( "SkeletonModel::swapSubAsset - tried to swap assets of different types." );
 }
 
 void SkeletonModel::setFileInfo( const SkeletonModelFileInfo& fileInfo )
@@ -147,11 +213,29 @@ void SkeletonModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& dev
 	if ( mesh )
 		mesh->loadCpuToGpu( device );
 
-	std::vector<ModelTexture2D> textures = getAllTextures();
-	for ( ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() )
-			texture.getTexture()->loadCpuToGpu( device, deviceContext );
-	}
+	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+
+	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+
+	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+
+	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+
+	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+
+	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->loadCpuToGpu( device, deviceContext );
 }
 
 void SkeletonModel::loadGpuToCpu( )
@@ -174,11 +258,29 @@ void SkeletonModel::unloadFromCpu( )
 	if ( mesh )
 		mesh->unloadFromCpu();
 
-	std::vector<ModelTexture2D> textures = getAllTextures();
-	for ( ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() )
-			texture.getTexture()->unloadFromCpu();
-	}
+	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromCpu();
+
+	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromCpu();
+
+	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromCpu();
+
+	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromCpu();
+
+	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromCpu();
+
+	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromCpu();
 }
 
 void SkeletonModel::unloadFromGpu( )
@@ -186,11 +288,29 @@ void SkeletonModel::unloadFromGpu( )
 	if ( mesh )
 		mesh->unloadFromGpu();
 
-	std::vector<ModelTexture2D> textures = getAllTextures();
-	for ( ModelTexture2D& texture : textures ) {
-		if ( texture.getTexture() )
-			texture.getTexture()->unloadFromGpu();
-	}
+	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromGpu();
+
+	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromGpu();
+
+	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromGpu();
+
+	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromGpu();
+
+	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromGpu();
+
+	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromGpu();
 }
 
 bool SkeletonModel::isInCpuMemory( ) const
@@ -198,14 +318,29 @@ bool SkeletonModel::isInCpuMemory( ) const
 	if ( !mesh || !mesh->isInCpuMemory() )
 		return false;
 
-	const std::vector<ModelTexture2D> textures = getAllTextures();
-	if ( textures.empty() )
-		return false;
-
-	for ( const ModelTexture2D& texture : textures ) {
+	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
-			return false;
-	}
+            return false;
+
+	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+            return false;
+
+	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+            return false;
+
+	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+            return false;
+
+	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+            return false;
+
+	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+            return false;
 
 	return true;
 }
@@ -215,14 +350,29 @@ bool SkeletonModel::isInGpuMemory( ) const
 	if ( !mesh || !mesh->isInGpuMemory() )
 		return false;
 
-	const std::vector<ModelTexture2D> textures = getAllTextures();
-	if ( textures.empty() )
-		return false;
-
-	for ( const ModelTexture2D& texture : textures ) {
+	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
-			return false;
-	}
+            return false;
+
+	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+            return false;
+
+	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+            return false;
+
+	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+            return false;
+
+	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+            return false;
+
+	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+            return false;
 
 	return true;
 }
@@ -235,70 +385,110 @@ std::shared_ptr<SkeletonMesh> SkeletonModel::getMesh( ) {
 	return mesh;
 }
 
-void SkeletonModel::addEmissionTexture( ModelTexture2D& texture )
+void SkeletonModel::addEmissionTexture( ModelTexture2D< uchar4 >& texture )
 {
 	emissionTextures.push_back( texture );
 }
 
-void SkeletonModel::addAlbedoTexture( ModelTexture2D& texture )
+void SkeletonModel::addAlbedoTexture( ModelTexture2D< uchar4 >& texture )
 {
 	albedoTextures.push_back( texture );
 }
 
-void SkeletonModel::addRoughnessTexture( ModelTexture2D& texture )
+void SkeletonModel::addMetalnessTexture( ModelTexture2D< unsigned char >& texture )
+{
+	metalnessTextures.push_back( texture );
+}
+
+void SkeletonModel::addRoughnessTexture( ModelTexture2D< unsigned char >& texture )
 {
 	roughnessTextures.push_back( texture );
 }
 
-void SkeletonModel::addNormalTexture( ModelTexture2D& texture )
+void SkeletonModel::addNormalTexture( ModelTexture2D< uchar4 >& texture )
 {
 	normalTextures.push_back( texture );
 }
 
-std::vector<ModelTexture2D> SkeletonModel::getAllTextures( ) const
+void SkeletonModel::addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture )
 {
-	std::vector<ModelTexture2D> textures;
-
-	textures.reserve( emissionTextures.size() + albedoTextures.size() + roughnessTextures.size() + normalTextures.size() );
-
-	textures.insert( textures.end(), emissionTextures.begin(), emissionTextures.end() );
-	textures.insert( textures.end(), albedoTextures.begin(), albedoTextures.end() );
-	textures.insert( textures.end(), roughnessTextures.begin(), roughnessTextures.end() );
-	textures.insert( textures.end(), normalTextures.begin(), normalTextures.end() );
-
-	return textures;
+	indexOfRefractionTextures.push_back( texture );
 }
 
-std::vector<ModelTexture2D> SkeletonModel::getEmissionTextures( ) const {
-	return std::vector<ModelTexture2D>( emissionTextures.begin( ), emissionTextures.end( ) );
+int SkeletonModel::getEmissionTexturesCount( ) const {
+	return (int)emissionTextures.size();
 }
 
-std::vector<ModelTexture2D> SkeletonModel::getAlbedoTextures( ) const {
-	return std::vector<ModelTexture2D>( albedoTextures.begin( ), albedoTextures.end( ) );
+std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getEmissionTextures( ) const {
+	return std::vector< ModelTexture2D< uchar4 > >( emissionTextures.begin( ), emissionTextures.end( ) );
 }
 
-ModelTexture2D SkeletonModel::getAlbedoTexture( int index ) const {
+int SkeletonModel::getAlbedoTexturesCount( ) const {
+	return (int)albedoTextures.size();
+}
+
+std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getAlbedoTextures( ) const {
+	return std::vector< ModelTexture2D< uchar4 > >( albedoTextures.begin( ), albedoTextures.end( ) );
+}
+
+ModelTexture2D< uchar4 > SkeletonModel::getAlbedoTexture( int index ) const {
 	if ( index >= (int)albedoTextures.size( ) ) throw std::exception( "SkeletonModel::getAlbedoTexture: Trying to access texture at non-existing index" );
 
 	return albedoTextures.at( index );
 }
 
-std::vector<ModelTexture2D> SkeletonModel::getRoughnessTextures( ) const {
-	return std::vector<ModelTexture2D>( roughnessTextures.begin( ), roughnessTextures.end( ) );
+int SkeletonModel::getMetalnessTexturesCount( ) const {
+	return (int)metalnessTextures.size();
 }
 
-ModelTexture2D SkeletonModel::getRoughnessTexture( int index ) const {
+std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getMetalnessTextures( ) const {
+	return std::vector< ModelTexture2D< unsigned char > >( metalnessTextures.begin( ), metalnessTextures.end( ) );
+}
+
+ModelTexture2D< unsigned char > SkeletonModel::getMetalnessTexture( int index ) const {
+	if ( index >= (int)metalnessTextures.size( ) ) throw std::exception( "SkeletonModel::getMetalnessTexture: Trying to access texture at non-existing index" );
+
+	return metalnessTextures.at( index );
+}
+
+int SkeletonModel::getRoughnessTexturesCount( ) const {
+	return (int)roughnessTextures.size();
+}
+
+std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getRoughnessTextures( ) const {
+	return std::vector< ModelTexture2D< unsigned char > >( roughnessTextures.begin( ), roughnessTextures.end( ) );
+}
+
+ModelTexture2D< unsigned char > SkeletonModel::getRoughnessTexture( int index ) const {
 	if ( index >= (int)roughnessTextures.size( ) ) throw std::exception( "SkeletonModel::getRoughnessTexture: Trying to access texture at non-existing index" );
 
 	return roughnessTextures.at( index );
 }
 
-std::vector<ModelTexture2D> SkeletonModel::getNormalTextures( ) const {
-	return std::vector<ModelTexture2D>( normalTextures.begin( ), normalTextures.end( ) );
+int SkeletonModel::getNormalTexturesCount( ) const {
+	return (int)normalTextures.size();
 }
 
-ModelTexture2D SkeletonModel::getNormalTexture( int index ) const {
+std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getNormalTextures( ) const {
+	return std::vector< ModelTexture2D< uchar4 > >( normalTextures.begin( ), normalTextures.end( ) );
+}
+
+ModelTexture2D< uchar4 > SkeletonModel::getNormalTexture( int index ) const {
 	if ( index >= (int)normalTextures.size( ) ) throw std::exception( "SkeletonModel::getNormalTexture: Trying to access texture at non-existing index" );
 
 	return normalTextures.at( index );
+}
+
+int SkeletonModel::getIndexOfRefractionTexturesCount( ) const {
+	return (int)indexOfRefractionTextures.size();
+}
+
+std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getIndexOfRefractionTextures( ) const {
+	return std::vector< ModelTexture2D< unsigned char > >( indexOfRefractionTextures.begin( ), indexOfRefractionTextures.end( ) );
+}
+
+ModelTexture2D< unsigned char > SkeletonModel::getIndexOfRefractionTexture( int index ) const {
+	if ( index >= (int)indexOfRefractionTextures.size( ) ) throw std::exception( "SkeletonModel::getIndexOfRefractionTexture: Trying to access texture at non-existing index" );
+
+	return indexOfRefractionTextures.at( index );
 }

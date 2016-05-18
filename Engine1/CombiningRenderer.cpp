@@ -60,12 +60,13 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
     if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsF4.push_back( destTexture );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, nullptr );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.

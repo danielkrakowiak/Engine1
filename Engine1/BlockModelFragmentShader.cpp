@@ -73,19 +73,32 @@ void BlockModelFragmentShader::compileFromFile( std::string path, ID3D11Device& 
 	this->shaderId = ++compiledShadersCount;
 }
 
-void BlockModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture )
+void BlockModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture )
 {
-	ID3D11ShaderResourceView* textureResource = albedoTexture.getShaderResourceView();
+    const int resourceCount = 5;
+	ID3D11ShaderResourceView* textureResource[ resourceCount ] = 
+    {
+        albedoTexture.getShaderResourceView(),
+        normalTexture.getShaderResourceView(),
+        metalnessTexture.getShaderResourceView(),
+        roughnessTexture.getShaderResourceView(),
+        indexOfRefractionTexture.getShaderResourceView()
+    };
 
-	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
+	deviceContext.PSSetShaderResources( 0, resourceCount, textureResource );
 	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
 }
 
 void BlockModelFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-	ID3D11ShaderResourceView* nullResource = nullptr;
+    ID3D11ShaderResourceView* nullResources[] = { nullptr, nullptr, nullptr, nullptr, nullptr };
 	ID3D11SamplerState*       nullSampler = nullptr;
 
-	deviceContext.PSSetShaderResources( 0, 1, &nullResource );
+	deviceContext.PSSetShaderResources( 0, 5, nullResources );
 	deviceContext.PSSetSamplers( 0, 1, &nullSampler );
 }

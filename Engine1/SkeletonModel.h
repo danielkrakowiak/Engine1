@@ -46,24 +46,36 @@ namespace Engine1
         std::shared_ptr<const SkeletonMesh> getMesh() const;
         std::shared_ptr<SkeletonMesh> getMesh();
 
-        void addEmissionTexture( ModelTexture2D& texture );
-        void addAlbedoTexture( ModelTexture2D& texture );
-        void addRoughnessTexture( ModelTexture2D& texture );
-        void addNormalTexture( ModelTexture2D& texture );
+        void addEmissionTexture( ModelTexture2D< uchar4 >& texture );
+        void addAlbedoTexture( ModelTexture2D< uchar4 >& texture );
+        void addMetalnessTexture( ModelTexture2D< unsigned char >& texture );
+        void addRoughnessTexture( ModelTexture2D< unsigned char >& texture );
+        void addNormalTexture( ModelTexture2D< uchar4 >& texture );
+        void addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture );
 
-        std::vector<ModelTexture2D>       getAllTextures() const;
+        int                                             getEmissionTexturesCount() const;
+        std::vector< ModelTexture2D< uchar4 > >         getEmissionTextures() const;
+        ModelTexture2D< uchar4 >                        getEmissionTexture( int index = 0 ) const;
 
-        std::vector<ModelTexture2D>       getEmissionTextures() const;
-        ModelTexture2D                    getEmissionTexture( int index = 0 ) const;
+        int                                             getAlbedoTexturesCount() const;
+        std::vector< ModelTexture2D< uchar4 > >	        getAlbedoTextures() const;
+        ModelTexture2D< uchar4 >				        getAlbedoTexture( int index = 0 ) const;
 
-        std::vector<ModelTexture2D>		  getAlbedoTextures() const;
-        ModelTexture2D					  getAlbedoTexture( int index = 0 ) const;
+        int                                             getMetalnessTexturesCount() const;
+        std::vector< ModelTexture2D< unsigned char > >	getMetalnessTextures() const;
+        ModelTexture2D< unsigned char >   				getMetalnessTexture( int index = 0 ) const;
 
-        std::vector<ModelTexture2D>		  getRoughnessTextures() const;
-        ModelTexture2D					  getRoughnessTexture( int index = 0 ) const;
+        int                                             getRoughnessTexturesCount() const;
+        std::vector< ModelTexture2D< unsigned char > >	getRoughnessTextures() const;
+        ModelTexture2D< unsigned char >				    getRoughnessTexture( int index = 0 ) const;
 
-        std::vector<ModelTexture2D>		  getNormalTextures() const;
-        ModelTexture2D					  getNormalTexture( int index = 0 ) const;
+        int                                             getNormalTexturesCount() const;
+        std::vector< ModelTexture2D< uchar4 > >	        getNormalTextures() const;
+        ModelTexture2D< uchar4 >				        getNormalTexture( int index = 0 ) const;
+
+        int                                             getIndexOfRefractionTexturesCount() const;
+        std::vector< ModelTexture2D< unsigned char > >	getIndexOfRefractionTextures() const;
+        ModelTexture2D< unsigned char >                 getIndexOfRefractionTexture( int index = 0 ) const;
 
         private:
 
@@ -71,13 +83,15 @@ namespace Engine1
 
         std::shared_ptr<SkeletonMesh> mesh;
 
-        std::vector<ModelTexture2D> emissionTextures;
-        std::vector<ModelTexture2D> albedoTextures;
-        std::vector<ModelTexture2D> roughnessTextures;
-        std::vector<ModelTexture2D> normalTextures;
+        std::vector< ModelTexture2D< uchar4 > >        emissionTextures;
+        std::vector< ModelTexture2D< uchar4 > >        albedoTextures;
+        std::vector< ModelTexture2D< unsigned char > > metalnessTextures;
+        std::vector< ModelTexture2D< unsigned char > > roughnessTextures;
+        std::vector< ModelTexture2D< uchar4 > >        normalTextures;
+        std::vector< ModelTexture2D< unsigned char > > indexOfRefractionTextures;
 
         // Copying is not allowed.
-        SkeletonModel( const SkeletonModel& ) = delete;
+        SkeletonModel( const SkeletonModel& )          = delete;
         SkeletonModel& operator=(const SkeletonModel&) = delete;
     };
 }

@@ -29,11 +29,17 @@ namespace Engine1
             Position,
             Albedo,
             Normal,
+            Metalness,
+            Roughness,
+            IndexOfRefraction,
             RayDirections1,
             RaytracingHitPosition,
             RaytracingHitDistance,
             RaytracingHitNormal,
             RaytracingHitAlbedo,
+            RaytracingHitMetalness,
+            RaytracingHitRoughness,
+            RaytracingHitIndexOfRefraction
         };
 
         Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
@@ -44,6 +50,7 @@ namespace Engine1
                          std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
 
         std::tuple< 
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,

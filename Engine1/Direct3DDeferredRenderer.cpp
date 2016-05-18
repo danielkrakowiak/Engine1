@@ -73,6 +73,8 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 
 	loadAndCompileShaders( *device.Get() );
 
+    createDefaultTextures( *device.Get() );
+
 	initialized = true;
 }
 
@@ -81,15 +83,19 @@ void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& wor
 	if ( !initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 
         renderTargetsF4.push_back( normalRenderTarget );
         renderTargetsF4.push_back( positionRenderTarget );
+        renderTargetsU1.push_back( metalnessRenderTarget );
+        renderTargetsU1.push_back( roughnessRenderTarget );
+        renderTargetsU1.push_back( indexOfRefractionRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -111,15 +117,19 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
 	if ( !initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 
         renderTargetsF4.push_back( normalRenderTarget );
         renderTargetsF4.push_back( positionRenderTarget );
+        renderTargetsU1.push_back( metalnessRenderTarget );
+        renderTargetsU1.push_back( roughnessRenderTarget );
+        renderTargetsU1.push_back( indexOfRefractionRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -141,22 +151,39 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 	if ( !initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 
         renderTargetsF4.push_back( normalRenderTarget );
         renderTargetsF4.push_back( positionRenderTarget );
+        renderTargetsU1.push_back( metalnessRenderTarget );
+        renderTargetsU1.push_back( roughnessRenderTarget );
+        renderTargetsU1.push_back( indexOfRefractionRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
-		ModelTexture2D modelAlbedoTexture = model.getAlbedoTexture( 0 );
+	    const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
+            = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *defaultAlbedoTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
+            = model.getNormalTexturesCount() > 0 ? *model.getNormalTexture( 0 ).getTexture() : *defaultNormalTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
+            = model.getMetalnessTexturesCount() > 0 ? *model.getMetalnessTexture( 0 ).getTexture() : *defaultMetalnessTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
+            = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *defaultRoughnessTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
+            = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *defaultIndexOfRefractionTexture;
 
 		blockModelVertexShader->setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix );
-		blockModelFragmentShader->setParameters( *deviceContext.Get( ), *modelAlbedoTexture.getTexture().get( ) );
+		blockModelFragmentShader->setParameters( *deviceContext.Get( ), albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
 
 		rendererCore.enableRenderingShaders( blockModelVertexShader, blockModelFragmentShader );
 	}
@@ -175,22 +202,39 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
 	if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 
         renderTargetsF4.push_back( normalRenderTarget );
         renderTargetsF4.push_back( positionRenderTarget );
+        renderTargetsU1.push_back( metalnessRenderTarget );
+        renderTargetsU1.push_back( roughnessRenderTarget );
+        renderTargetsU1.push_back( indexOfRefractionRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
-		ModelTexture2D modelAlbedoTexture = model.getAlbedoTexture( 0 );
+        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
+            = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *defaultAlbedoTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
+            = model.getNormalTexturesCount() > 0 ? *model.getNormalTexture( 0 ).getTexture() : *defaultNormalTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
+            = model.getMetalnessTexturesCount() > 0 ? *model.getMetalnessTexture( 0 ).getTexture() : *defaultMetalnessTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
+            = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *defaultRoughnessTexture;
+
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
+            = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *defaultIndexOfRefractionTexture;
 
 		skeletonModelVertexShader->setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
-		skeletonModelFragmentShader->setParameters( *deviceContext.Get(), *modelAlbedoTexture.getTexture().get() );
+		skeletonModelFragmentShader->setParameters( *deviceContext.Get(), albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
 
 		rendererCore.enableRenderingShaders( skeletonModelVertexShader, skeletonModelFragmentShader );
 	}
@@ -210,14 +254,15 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
     color; // Unused.
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > > renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > > renderTargetsF4;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > > renderTargetsU4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 
         renderTargetsF4.push_back( normalRenderTarget );
         renderTargetsU4.push_back( albedoRenderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU4, depthRenderTarget );
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, depthRenderTarget );
 	}
 
 	rendererCore.enableRenderingShaders( textVertexShader, textFragmentShader );
@@ -274,12 +319,36 @@ std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4
 	return albedoRenderTarget;
 }
 
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > Direct3DDeferredRenderer::getMetalnessRenderTarget()
+{
+	if ( !initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::getMetalnessRenderTarget - renderer not initialized." );
+
+	return metalnessRenderTarget;
+}
+
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > Direct3DDeferredRenderer::getRoughnessRenderTarget()
+{
+	if ( !initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::getRoughnessRenderTarget - renderer not initialized." );
+
+	return roughnessRenderTarget;
+}
+
 std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > > Direct3DDeferredRenderer::getNormalRenderTarget()
 {
 	if ( !initialized ) 
         throw std::exception( "Direct3DDeferredRenderer::getNormalRenderTarget - renderer not initialized." );
 
 	return normalRenderTarget;
+}
+
+std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > Direct3DDeferredRenderer::getIndexOfRefractionRenderTarget()
+{
+	if ( !initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::getIndexOfRefractionRenderTarget - renderer not initialized." );
+
+	return indexOfRefractionRenderTarget;
 }
 
 std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > Direct3DDeferredRenderer::getDepthRenderTarget()
@@ -417,8 +486,17 @@ void Direct3DDeferredRenderer::createRenderTargets( int imageWidth, int imageHei
     albedoRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >
         ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 
+    metalnessRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > >
+        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+
+    roughnessRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > >
+        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+
     normalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+
+    indexOfRefractionRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > >
+        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
 	// Create depth render target.
 	depthRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
@@ -429,7 +507,10 @@ void Direct3DDeferredRenderer::clearRenderTargets( float4 color, float depth )
 {
     positionRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
 	albedoRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
+    metalnessRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
+    roughnessRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
     normalRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
+    indexOfRefractionRenderTarget->clearRenderTargetView( *deviceContext.Get( ), color );
 
 	depthRenderTarget->clearDepthStencilView( *deviceContext.Get( ), true, depth, true, 0 );
 }
@@ -455,4 +536,28 @@ void Direct3DDeferredRenderer::loadAndCompileShaders( ID3D11Device& device )
 
 	textVertexShader->compileFromFile( "../Engine1/Shaders/TextShader/vs.hlsl", device );
 	textFragmentShader->compileFromFile( "../Engine1/Shaders/TextShader/ps.hlsl", device );
+}
+
+void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )
+{
+    std::vector< unsigned char > dataMetalness         = { 180 };
+    std::vector< unsigned char > dataRoughness         = { 150 };
+    std::vector< unsigned char > dataIndexOfRefraction = { 120 };
+    std::vector< uchar4 >        dataAlbedo            = { uchar4( 0, 0, 0, 255 ) };
+    std::vector< uchar4 >        dataNormal            = { uchar4( 0, 0, 255, 0 ) };
+
+    defaultMetalnessTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+        ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+
+    defaultRoughnessTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+        ( device, dataRoughness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+
+    defaultIndexOfRefractionTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+        ( device, dataIndexOfRefraction, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+
+    defaultAlbedoTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
+        ( device, dataAlbedo, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
+
+    defaultNormalTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
+        ( device, dataNormal, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 }

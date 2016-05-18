@@ -4,17 +4,63 @@
 #include <memory>
 #include <d3d11.h>
 
+#include "ModelTexture2D.h"
+#include "BinaryFile.h"
+
 namespace Engine1
 {
-    class ModelTexture2D;
-
+    template< typename PixelType >
     class ModelTexture2DParser
     {
-        friend class ModelTexture2D;
+        public:
 
-        private:
-        static std::shared_ptr<ModelTexture2D> parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device );
-        static void                            writeBinary( std::vector<char>& data, const ModelTexture2D& modelTexture );
+        static std::shared_ptr< ModelTexture2D< PixelType > > parseBinary( std::vector< char >::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device );
+        static void                                           writeBinary( std::vector< char >& data, const ModelTexture2D< PixelType >& modelTexture );
+
+        static DXGI_FORMAT getDefaultFormat();
     };
-}
 
+    template< typename PixelType >
+    std::shared_ptr< ModelTexture2D< PixelType > > ModelTexture2DParser< PixelType >::parseBinary( std::vector< char >::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device )
+    {
+	    std::shared_ptr< ModelTexture2D< PixelType > > modelTexture = std::make_shared< ModelTexture2D< PixelType > >( );
+
+	    Texture2DFileInfo fileInfo = *Texture2DFileInfo::createFromMemory( dataIt );
+
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture;
+        if ( loadRecurrently ) 
+        {
+            const DXGI_FORMAT defaultFormat = ModelTexture2DParser< PixelType >::getDefaultFormat();
+
+	        texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
+                ( device, fileInfo, true, true, true, defaultFormat, defaultFormat );
+        } else {
+            texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >();
+            texture->setFileInfo( fileInfo );
+        }
+
+	    modelTexture->setTexture( texture );
+	    modelTexture->setTexcoordIndex( BinaryFile::readInt( dataIt ) );
+	    modelTexture->setColorMultiplier( BinaryFile::readFloat4( dataIt ) );
+
+	    return modelTexture;
+    }
+
+    template< typename PixelType >
+    void ModelTexture2DParser< PixelType >::writeBinary( std::vector< char >& data, const ModelTexture2D< PixelType >& modelTexture )
+    {
+	    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture = modelTexture.getTexture();
+	
+	    if ( texture ) {
+		    texture->getFileInfo().saveToMemory( data );
+	    } else {
+		    Texture2DFileInfo emptyFileInfo;
+		    emptyFileInfo.saveToMemory( data );
+	    }
+
+	    BinaryFile::writeInt( data, modelTexture.getTexcoordIndex() );
+	    BinaryFile::writeFloat4( data, modelTexture.getColorMultiplier() );
+    }
+
+    
+}

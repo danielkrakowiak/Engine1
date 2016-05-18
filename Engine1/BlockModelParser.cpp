@@ -6,6 +6,8 @@
 #include "BlockModel.h"
 #include "BinaryFile.h"
 
+#include "ModelTexture2DParser.h"
+
 using namespace Engine1;
 
 std::shared_ptr<BlockModel> BlockModelParser::parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device )
@@ -33,26 +35,38 @@ std::shared_ptr<BlockModel> BlockModelParser::parseBinary( std::vector<char>::co
 
 	const int emissiveTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < emissiveTexturesCount; ++i )  {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently, device );
+		ModelTexture2D< uchar4 > modelTexture = *ModelTexture2DParser< uchar4 >::parseBinary( dataIt, loadRecurrently, device );
 		model->addEmissionTexture( modelTexture );
 	}
 	
 	const int albedoTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < albedoTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently, device );
+		ModelTexture2D< uchar4 > modelTexture = *ModelTexture2DParser< uchar4 >::parseBinary( dataIt, loadRecurrently, device );
 		model->addAlbedoTexture( modelTexture );
+	}
+
+    const int metalnessTexturesCount = BinaryFile::readInt( dataIt );
+	for ( int i = 0; i < metalnessTexturesCount; ++i ) {
+		ModelTexture2D< unsigned char > modelTexture = *ModelTexture2DParser< unsigned char >::parseBinary( dataIt, loadRecurrently, device );
+		model->addMetalnessTexture( modelTexture );
 	}
 
 	const int roughnessTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < roughnessTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently, device );
+		ModelTexture2D< unsigned char > modelTexture = *ModelTexture2DParser< unsigned char >::parseBinary( dataIt, loadRecurrently, device );
 		model->addRoughnessTexture( modelTexture );
 	}
 
 	const int normalTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < normalTexturesCount; ++i ) {
-		ModelTexture2D modelTexture = *ModelTexture2D::createFromMemory( dataIt, loadRecurrently, device );
+		ModelTexture2D< uchar4 > modelTexture = *ModelTexture2DParser< uchar4 >::parseBinary( dataIt, loadRecurrently, device );
 		model->addNormalTexture( modelTexture );
+	}
+
+    const int indexOfRefractionTexturesCount = BinaryFile::readInt( dataIt );
+	for ( int i = 0; i < indexOfRefractionTexturesCount; ++i ) {
+		ModelTexture2D< unsigned char > modelTexture = *ModelTexture2DParser< unsigned char >::parseBinary( dataIt, loadRecurrently, device );
+		model->addIndexOfRefractionTexture( modelTexture );
 	}
 
 	return model;
@@ -68,27 +82,40 @@ void BlockModelParser::writeBinary( std::vector<char>& data, const BlockModel& m
 		BlockMeshFileInfo emptyFileInfo;
 		emptyFileInfo.saveToMemory( data );
 	}
+
+    std::vector< ModelTexture2D< unsigned char > > texturesU1;
+    std::vector< ModelTexture2D< uchar4 > >        texturesU4;
 	
 	// Save the textures.
-	std::vector<ModelTexture2D> textures = model.getEmissionTextures();
-	BinaryFile::writeInt( data, (int)textures.size( ) );
-	for ( const ModelTexture2D& modelTexture : textures )
-		modelTexture.saveToMemory( data );
+	texturesU4 = model.getEmissionTextures();
+	BinaryFile::writeInt( data, (int)texturesU4.size( ) );
+	for ( const ModelTexture2D< uchar4 >& modelTexture : texturesU4 )
+		ModelTexture2DParser< uchar4 >::writeBinary( data, modelTexture );
 
-	textures = model.getAlbedoTextures();
-	BinaryFile::writeInt( data, (int)textures.size() );
-	for ( const ModelTexture2D& modelTexture : textures )
-		modelTexture.saveToMemory( data );
+	texturesU4 = model.getAlbedoTextures();
+	BinaryFile::writeInt( data, (int)texturesU4.size() );
+	for ( const ModelTexture2D< uchar4 >& modelTexture : texturesU4 )
+		ModelTexture2DParser< uchar4 >::writeBinary( data, modelTexture );
 
-	textures = model.getRoughnessTextures();
-	BinaryFile::writeInt( data, (int)textures.size() );
-	for ( const ModelTexture2D& modelTexture : textures )
-		modelTexture.saveToMemory( data );
+    texturesU1 = model.getMetalnessTextures();
+	BinaryFile::writeInt( data, (int)texturesU1.size() );
+	for ( const ModelTexture2D< unsigned char >& modelTexture : texturesU1 )
+		ModelTexture2DParser< unsigned char >::writeBinary( data, modelTexture );
 
-	textures = model.getNormalTextures();
-	BinaryFile::writeInt( data, (int)textures.size() );
-	for ( const ModelTexture2D& modelTexture : textures )
-		modelTexture.saveToMemory( data );
+	texturesU1 = model.getRoughnessTextures();
+	BinaryFile::writeInt( data, (int)texturesU1.size() );
+	for ( const ModelTexture2D< unsigned char >& modelTexture : texturesU1 )
+		ModelTexture2DParser< unsigned char >::writeBinary( data, modelTexture );
+
+	texturesU4 = model.getNormalTextures();
+	BinaryFile::writeInt( data, (int)texturesU4.size() );
+	for ( const ModelTexture2D< uchar4 >& modelTexture : texturesU4 )
+		ModelTexture2DParser< uchar4 >::writeBinary( data, modelTexture );
+
+    texturesU1 = model.getIndexOfRefractionTextures();
+	BinaryFile::writeInt( data, (int)texturesU1.size() );
+	for ( const ModelTexture2D< unsigned char >& modelTexture : texturesU1 )
+		ModelTexture2DParser< unsigned char >::writeBinary( data, modelTexture );
 }
 
 

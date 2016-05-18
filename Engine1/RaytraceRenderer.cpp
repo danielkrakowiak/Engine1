@@ -45,6 +45,8 @@ void RaytraceRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D
 
     loadAndCompileShaders( *device.Get() );
 
+    createDefaultTextures( *device.Get() );
+
     initialized = true;
 }
 
@@ -70,9 +72,21 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
         ( device, imageWidth, imageHeight, false, true,
         DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM );
 
+    rayHitMetalnessTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+        ( device, imageWidth, imageHeight, false, true,
+        DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
+
+    rayHitRoughnessTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+        ( device, imageWidth, imageHeight, false, true,
+        DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
+
     rayHitNormalTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true,
         DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+
+    rayHitIndexOfRefractionTexture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+        ( device, imageWidth, imageHeight, false, true,
+        DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 }
 
 void RaytraceRenderer::generateAndTracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors )
@@ -163,19 +177,26 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
     rayHitPositionTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
     rayHitDistanceTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
     rayHitAlbedoTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rayHitMetalnessTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rayHitRoughnessTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     rayHitNormalTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    rayHitIndexOfRefractionTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >  unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( rayHitDistanceTexture );
     unorderedAccessTargetsF4.push_back( rayHitPositionTexture );
     unorderedAccessTargetsF4.push_back( rayHitNormalTexture );
+    unorderedAccessTargetsU1.push_back( rayHitMetalnessTexture );
+    unorderedAccessTargetsU1.push_back( rayHitRoughnessTexture );
+    unorderedAccessTargetsU1.push_back( rayHitIndexOfRefractionTexture );
     unorderedAccessTargetsU4.push_back( rayHitAlbedoTexture );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU4 );
+    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
@@ -208,19 +229,26 @@ void RaytraceRenderer::traceSecondaryRays( const std::vector< std::shared_ptr< c
     rayHitPositionTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
     rayHitDistanceTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
     rayHitAlbedoTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rayHitMetalnessTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rayHitRoughnessTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     rayHitNormalTexture->clearUnorderedAccessViewFloat( *deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    rayHitIndexOfRefractionTexture->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >  unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( rayHitDistanceTexture );
     unorderedAccessTargetsF4.push_back( rayHitPositionTexture );
     unorderedAccessTargetsF4.push_back( rayHitNormalTexture );
+    unorderedAccessTargetsU1.push_back( rayHitMetalnessTexture );
+    unorderedAccessTargetsU1.push_back( rayHitRoughnessTexture );
+    unorderedAccessTargetsU1.push_back( rayHitIndexOfRefractionTexture );
     unorderedAccessTargetsU4.push_back( rayHitAlbedoTexture );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU4 );
+    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
@@ -274,10 +302,28 @@ RaytraceRenderer::getRayHitAlbedoTexture()
     return rayHitAlbedoTexture;
 }
 
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > 
+RaytraceRenderer::getRayHitMetalnessTexture()
+{
+    return rayHitMetalnessTexture;
+}
+
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > 
+RaytraceRenderer::getRayHitRoughnessTexture()
+{
+    return rayHitRoughnessTexture;
+}
+
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
 RaytraceRenderer::getRayHitNormalTexture()
 {
     return rayHitNormalTexture;
+}
+
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > 
+RaytraceRenderer::getRayHitIndexOfRefractionTexture()
+{
+    return rayHitIndexOfRefractionTexture;
 }
 
 void RaytraceRenderer::loadAndCompileShaders( ID3D11Device& device )
@@ -286,6 +332,30 @@ void RaytraceRenderer::loadAndCompileShaders( ID3D11Device& device )
     generateReflectedRefractedRaysComputeShader->compileFromFile( "../Engine1/Shaders/GenerateReflectedRefractedRaysShader/cs.hlsl", device );
     raytracingPrimaryRaysComputeShader->compileFromFile( "../Engine1/Shaders/RaytracingPrimaryRaysShader/cs.hlsl", device );
     raytracingSecondaryRaysComputeShader->compileFromFile( "../Engine1/Shaders/RaytracingSecondaryRaysShader/cs.hlsl", device );
+}
+
+void RaytraceRenderer::createDefaultTextures( ID3D11Device& device )
+{
+    std::vector< unsigned char > dataMetalness         = { 0 };
+    std::vector< unsigned char > dataRoughness         = { 0 };
+    std::vector< unsigned char > dataIndexOfRefraction = { 0 };
+    std::vector< uchar4 >        dataAlbedo            = { uchar4( 0, 0, 0, 255 ) };
+    std::vector< uchar4 >        dataNormal            = { uchar4( 0, 0, 255, 0 ) };
+
+    defaultMetalnessTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+        ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+
+    defaultRoughnessTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+        ( device, dataRoughness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+
+    defaultIndexOfRefractionTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+        ( device, dataIndexOfRefraction, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+
+    defaultAlbedoTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
+        ( device, dataAlbedo, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
+
+    defaultNormalTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
+        ( device, dataNormal, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 }
 
 

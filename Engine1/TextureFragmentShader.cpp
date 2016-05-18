@@ -74,6 +74,14 @@ void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& dev
 	this->shaderId = ++compiledShadersCount;
 }
 
+void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& texture )
+{
+	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
+
+	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
+	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+}
+
 void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& texture )
 {
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();

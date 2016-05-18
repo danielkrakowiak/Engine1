@@ -343,8 +343,19 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
 				throw std::exception( "AssetManager::createFromFile - failed to load reference mesh for the animation." );
 		}
 		case Asset::Type::Texture2D:
-			return std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
-                ( *m_device.Get(), static_cast<const Texture2DFileInfo&>( fileInfo ), true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
+        {
+            const Texture2DFileInfo& textureFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
+            if ( textureFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR4 )
+            {
+			    return std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
+                    ( *m_device.Get(), textureFileInfo, true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
+            }
+            else if ( textureFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR )
+            {
+                return std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
+                    ( *m_device.Get(), textureFileInfo, true, true, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+            }
+        }
 		default:
 			throw std::exception( "AssetManager::createFromFile - asset type not yet supported." );
 	}
@@ -413,11 +424,23 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::Texture2D:
 		{
 			const Texture2DFileInfo& texFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
-            auto texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
-                ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
-            texture->setFileInfo( texFileInfo );
 
-            return texture;
+            if ( texFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR4 )
+            {
+                auto texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
+                    ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
+                texture->setFileInfo( texFileInfo );
+
+                return texture;
+            }
+            else if ( texFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR )
+            {
+                auto texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
+                    ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+                texture->setFileInfo( texFileInfo );
+
+                return texture;
+            }
 		}
 		default:
 			throw std::exception( "AssetManager::createFromMemory - asset type not yet supported." );

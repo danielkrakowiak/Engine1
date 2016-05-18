@@ -349,7 +349,7 @@ namespace UnitTests
 
         TEST_METHOD( Texture_Create_From_File_1 ) 
         {
-            Texture2DFileInfo fileInfo( "TestAssets/Textures/stone.png", Texture2DFileInfo::Format::PNG );
+            Texture2DFileInfo fileInfo( "TestAssets/Textures/stone.png", Texture2DFileInfo::Format::PNG, Texture2DFileInfo::PixelType::UCHAR4 );
 
             typedef uchar4 PixelType;
             const int   expectedWidth         = 256;

@@ -13,7 +13,7 @@ std::shared_ptr< std::vector<char> > TextFile::load( const std::string& path ) {
 	file.open( path.c_str( ), std::ifstream::in | std::ifstream::binary );
 
 	// Check if open succeeded.
-	if ( !file.is_open( ) )	throw std::exception( "TextFile::load - Failed to open file." );
+	if ( !file.is_open( ) )	throw std::exception( ("TextFile::load - Failed to open file. (" + path + ")").c_str() );
 
 	try {
 		// Check file size.

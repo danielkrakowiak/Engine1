@@ -23,10 +23,16 @@ namespace Engine1
             TGA = 6
         };
 
+        enum class PixelType : char
+        {
+            UCHAR  = 0,
+            UCHAR4 = 1,
+        };
+
         static std::shared_ptr<Texture2DFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );
 
         Texture2DFileInfo();
-        Texture2DFileInfo( std::string path, Format format );
+        Texture2DFileInfo( std::string path, Format format, PixelType pixelType );
         ~Texture2DFileInfo();
 
         std::shared_ptr<FileInfo> clone() const;
@@ -35,17 +41,20 @@ namespace Engine1
 
         void setPath( std::string path );
         void setFormat( Format format );
+        void setPixelType( PixelType pixelType );
 
         std::string getPath() const;
         int         getIndexInFile() const;
         Asset::Type getAssetType() const;
         FileType    getFileType() const;
         Format      getFormat() const;
+        PixelType   getPixelType() const;
 
         private:
 
         std::string path;
-        Format format;
+        Format      format;
+        PixelType   pixelType;
     };
 }
 
