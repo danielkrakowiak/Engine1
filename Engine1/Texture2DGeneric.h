@@ -122,7 +122,8 @@ namespace Engine1
                                       DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat );
 
         virtual bool isUsageBindingSupported( TexUsage usage, TexBind binding );
-        bool supportsLoadCpuToGpu();
+        bool         supportsLoadCpuToGpu();
+        bool         supportsMipmapGenerationOnGpu();
 
         DXGI_FORMAT readShaderResourceViewFormat( DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 );
         DXGI_FORMAT readRenderTargetViewFormat( DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 );
@@ -133,6 +134,7 @@ namespace Engine1
         UINT        getTextureCPUAccessFlags();
         UINT        getTextureBindFlags();
         D3D11_MAP   getMapForWriteFlag();
+        UINT        getTextureMiscFlags();
 
         Texture2DFileInfo m_fileInfo;
 
@@ -503,23 +505,25 @@ namespace Engine1
         if ( width <= 0 || height <= 0)
             throw std::exception( "Texture2DGeneric::createTextureOnGpu - given width or height has zero or negative value." );
 
-        const UINT mipmapCount = generateMipmaps ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
+        // Note: for now, only texture which support mipmap generation on GPU can have mipmaps
+        // TODO: add manual creation of mipmaps on CPU to allow for mipmaps for different kinds of textures.
+        const UINT mipmapCount = supportsMipmapGenerationOnGpu() ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
 
-        mipmapCount; // Unused.
+        generateMipmaps; // Unused.
 
         D3D11_TEXTURE2D_DESC desc;
         ZeroMemory( &desc, sizeof(desc) );
         desc.Width              = width;
         desc.Height             = height;
-        desc.MipLevels          = 1; //mipmapCount; #TODO: add support for mipmaps.
-        desc.ArraySize          = 1; //mipmapCount;
+        desc.MipLevels          = mipmapCount;
+        desc.ArraySize          = mipmapCount;
         desc.Format             = textureFormat;
         desc.SampleDesc.Count   = 1;
         desc.SampleDesc.Quality = 0;
         desc.Usage              = getTextureUsageFlag();
         desc.BindFlags          = getTextureBindFlags();
         desc.CPUAccessFlags     = getTextureCPUAccessFlags();
-        desc.MiscFlags          = 0;
+        desc.MiscFlags          = getTextureMiscFlags();
 
         HRESULT result = device.CreateTexture2D( &desc, nullptr, m_texture.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "Texture2DGeneric::createTextureOnGpu - creating texture on GPU failed." );
@@ -536,23 +540,25 @@ namespace Engine1
         if ( (int)data.size() != width * height )
             throw std::exception( "Texture2DGeneric::createTextureOnGpu - given data size doesn't match given width and height." );
 
-        const UINT mipmapCount = generateMipmaps ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
+        // Note: for now, olny texture which support mipmap generation on GPU can have mipmaps
+        // TODO: add manual creation of mipmaps on CPU to allow for mipmaps for different kinds of textures.
+        const UINT mipmapCount = supportsMipmapGenerationOnGpu() ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
 
-        mipmapCount; // Unused.
+        generateMipmaps; // Unused.
 
         D3D11_TEXTURE2D_DESC desc;
         ZeroMemory( &desc, sizeof(desc) );
         desc.Width              = width;
         desc.Height             = height;
-        desc.MipLevels          = 1; //mipmapCount; // #TODO: add support for mipmaps. Generated on CPU or GPU or both.
-        desc.ArraySize          = 1; //mipmapCount;
+        desc.MipLevels          = mipmapCount;
+        desc.ArraySize          = mipmapCount;
         desc.Format             = textureFormat;
         desc.SampleDesc.Count   = 1;
         desc.SampleDesc.Quality = 0;
         desc.Usage              = getTextureUsageFlag();
         desc.BindFlags          = getTextureBindFlags();
         desc.CPUAccessFlags     = getTextureCPUAccessFlags();
-        desc.MiscFlags          = 0;
+        desc.MiscFlags          = getTextureMiscFlags();
 
         D3D11_SUBRESOURCE_DATA dataDesc;
         ZeroMemory( &dataDesc, sizeof(dataDesc) );
@@ -577,7 +583,7 @@ namespace Engine1
 	        desc.Format                    = shaderResourceViewFormat;
 	        desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
 	        desc.Texture2D.MostDetailedMip = 0;
-	        desc.Texture2D.MipLevels       = 1; // #TODO: add support for mipmaps.
+	        desc.Texture2D.MipLevels       = (UINT)-1; // All mipmaps.
 
             HRESULT result = device.CreateShaderResourceView( m_texture.Get(), &desc, m_shaderResourceView.ReleaseAndGetAddressOf() );
             if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating shader resource view on GPU failed." );
@@ -654,6 +660,13 @@ namespace Engine1
         ::supportsLoadCpuToGpu()
     {
         return m_usage == TexUsage::Dynamic;
+    }
+    template< typename PixelType >
+    bool Texture2DGeneric< PixelType >
+        ::supportsMipmapGenerationOnGpu()
+    {
+        return m_binding == TexBind::RenderTarget_ShaderResource ||
+               m_binding == TexBind::RenderTarget_UnorderedAccess_ShaderResource;
     }
 
     template< typename PixelType >
@@ -924,6 +937,17 @@ namespace Engine1
         ::getMapForWriteFlag()
     {
         return D3D11_MAP_WRITE_DISCARD;
+    }
+
+    template< typename PixelType >
+    UINT Texture2DGeneric< PixelType >::getTextureMiscFlags()
+    {
+        UINT flags = 0;
+
+        if ( supportsMipmapGenerationOnGpu() )
+            flags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+        return flags;
     }
 }
 

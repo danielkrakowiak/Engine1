@@ -112,7 +112,19 @@ namespace Engine1
     class Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, PixelType > 
         : public Texture2DSpecBind< TexBind::RenderTarget, PixelType >, 
           public Texture2DSpecBind< TexBind::ShaderResource, PixelType > 
-    {};
+    {
+        public:
+
+        void generateMipMapsOnGpu( ID3D11DeviceContext& deviceContext )
+        {
+            if ( !isInGpuMemory() )
+                throw std::exception( "Texture2DSpecBind< TexBind::RenderTarget_ShaderResource >::generateMipMapsOnGpu - Can't generate because texture is not in GPU memory." );
+
+            deviceContext.GenerateMips( m_shaderResourceView.Get() );
+
+            m_hasMipmapsOnGpu = true;
+        }
+    };
 
     template< typename PixelType >
     class Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess, PixelType > 
@@ -137,5 +149,17 @@ namespace Engine1
         : public Texture2DSpecBind< TexBind::RenderTarget, PixelType >, 
           public Texture2DSpecBind< TexBind::UnorderedAccess, PixelType >, 
           public Texture2DSpecBind< TexBind::ShaderResource, PixelType >
-    {};
+    {
+        public:
+
+        void generateMipMapsOnGpu( ID3D11DeviceContext& deviceContext )
+        {
+            if ( !isInGpuMemory() )
+                throw std::exception( "Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource >::generateMipMapsOnGpu - Can't generate because texture is not in GPU memory." );
+
+            deviceContext.GenerateMips( m_shaderResourceView.Get() );
+
+            m_hasMipmapsOnGpu = true;
+        }
+    };
 }

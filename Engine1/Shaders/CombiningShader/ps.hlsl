@@ -11,7 +11,7 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_Target
 {
-	float4 textureColor = srcTexture.Sample( samplerState, input.texCoord );
+	float4 textureColor = srcTexture.SampleLevel( samplerState, input.texCoord, 0.0f );
 
     textureColor.a = 0.5f;
 
