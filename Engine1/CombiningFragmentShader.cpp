@@ -50,7 +50,7 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 
 	{ // Create sampler configuration
 		D3D11_SAMPLER_DESC samplerConfiguration;
-		samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_MIP_POINT;//D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR; //D3D11_FILTER_MIN_MAG_MIP_POINT;
 		samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -76,14 +76,13 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 
 void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                                             const float alpha )
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > edgeDistanceTexture )
 {
-    alpha; // Unused.
-
     { // Set input textures.
-        const unsigned int resourceCount = 1;
+        const unsigned int resourceCount = 2;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
-            srcTexture->getShaderResourceView()
+            srcTexture->getShaderResourceView(),
+            edgeDistanceTexture->getShaderResourceView()
         };
 
         deviceContext.PSSetShaderResources( 0, resourceCount, resources );
@@ -94,9 +93,9 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
 
 void CombiningFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-	ID3D11ShaderResourceView* nullResource = nullptr;
-	ID3D11SamplerState*       nullSampler = nullptr;
+    ID3D11ShaderResourceView* nullResources[ 2 ] = { nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 2, nullResources );
 
-	deviceContext.PSSetShaderResources( 0, 1, &nullResource );
+    ID3D11SamplerState*       nullSampler = nullptr;
 	deviceContext.PSSetSamplers( 0, 1, &nullSampler );
 }

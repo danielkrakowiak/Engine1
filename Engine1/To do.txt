@@ -153,6 +153,8 @@ Next2:
 
 	  - Check numthreads per group for best performance when calculating edge distance.
 
+	  - have to upscale mipmaps to at least half the screen size to avoid aliasing when moving camera.
+
 
    ----------------------------------------------------
    Refactoring:
