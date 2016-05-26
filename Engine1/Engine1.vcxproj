@@ -269,6 +269,9 @@
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Direct3DDeferredRenderer.h" />
     <ClInclude Include="Direct3DRendererCore.h" />
+    <ClInclude Include="EdgeDetectionComputeShader.h" />
+    <ClInclude Include="EdgeDetectionRenderer.h" />
+    <ClInclude Include="EdgeDistanceComputeShader.h" />
     <ClInclude Include="ShadingRenderer.h" />
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
@@ -386,6 +389,9 @@
     <ClCompile Include="ComputeShader.cpp" />
     <ClCompile Include="Direct3DDeferredRenderer.cpp" />
     <ClCompile Include="Direct3DRendererCore.cpp" />
+    <ClCompile Include="EdgeDetectionComputeShader.cpp" />
+    <ClCompile Include="EdgeDetectionRenderer.cpp" />
+    <ClCompile Include="EdgeDistanceComputeShader.cpp" />
     <ClCompile Include="ShadingRenderer.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="GenerateRaysComputeShader.cpp" />
@@ -595,6 +601,35 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/Fc "..\Release\Shaders\Assembly\Combining_vs_asm.txt"</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">/Gfp /Fc "..\DebugDirect3D\Shaders\Assembly\Combining_vs_asm.txt"</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/Gfp /Fc "..\Debug\Shaders\Assembly\Combining_vs_asm.txt"</AdditionalOptions>
+    </FxCompile>
+    <FxCompile Include="Shaders\EdgeDetectionShader\cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\EdgeDistanceShader\cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">/Gfp /Fc "..\x64\DebugDirect3D\Shaders\Assembly\EdgeDistance_cs_asm.txt"</AdditionalOptions>
     </FxCompile>
     <FxCompile Include="Shaders\GenerateRaysShader\cs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

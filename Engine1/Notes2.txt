@@ -4,3 +4,84 @@ Difficulties during development:
 
 - How to implement texturing in raytracing? If GPU decides in the shader which object should be tested for intersection then 
   there is no way to bind needed textures ahead, because we don't know which object will be tested for intersection.
+
+- How to blur reflections/refractions? Objects with high roughness need very blurred reflections (radius of 50-100px).
+  1) Could generate mipmaps for the reflected image and then sample its various mipmaps when combining with the main image.
+     But then lower mipmaps have huge pixels which looks very ugly (aliasing) and colors bleed through the edges of objects.
+	 It can be improved by sambling a few mipmaps with weights. But colors still bleed through the edges. How to avoid that?
+	 Could I somehow smoothen the mipmaps? Or not sample some mipmaps close to edges of objects? 
+  2) Could use blur kernels. But they are really expensive for large blur radius. 
+     How to blur with different kernel size per pixel - could be hard, need to store gaussian kernels for different sizes in textures...
+  3) Could mix blur kernels and mipmaps.
+  4) Could create several blurred versions of the image and sample like mipmaps? Even store them as mipmaps, but with full resolution.
+
+  We probably don't need to have precise blur for each kernel size, but could linearly interpolate between blur 3x3 and blur 6x6, 27x27 etc.
+
+  Huge problem: blurred colors bleeding through the edges of objects.
+  Problem: When sampling low-res mipmaps some shivering can be seen in the image when translating camera. Could be avoided through larger blur kernel when samplign mipmaps or through upscaling mipmaps before sampling them.
+
+  Note: generating mipmaps through DirectX for 1024x768 image cost almost nothing (~0.1ms). Probably the same when using custom shaders. Upscaling textures should also be fast...
+
+  How to avoid bleeding:
+  1) After creating mipmaps and blurring them I could upscale them and then compare object id and only sample from downsized mipma if object id is the same. Not really well thought. Just an idea...
+
+  Ideas:
+  1) To get let's say gaussian blur of 10px (radius) it's enough to downscale an image 2x and apply gaussian blur 5px. Can decrease image size and blur radius as long as the results look ok.
+     It's enough to blur 3px each mipmap to get rid of aliasing. Blurring could even be done when sampling, 
+	 because there is no need to blur all the mipmaps if we sample some pixels from one mipmap and some other pixel from another mipmap.
+
+	 Could use Kawase blur algorithm to reduce number of samples: https://software.intel.com/en-us/blogs/2014/07/15/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms
+	 (You sample at pixel corners to read 4 interpolated pixel values). But Kawase doesn't give much benefit for small blur kernels so may not be worth development time.
+
+  2) Could create own mipmapping generation shader which accounts for object borders? Could even use object ids stored in the g-buffer or depth, positon values... 
+     Blur shader also has to account for object edges.
+
+  3) Could use down-scaling and up-scling without bluring the mipmaps in between. We can simply sample lower mipmaps (upscaled to normal size) and account for larger space between pixels when calculating blur. 
+     Like pretending there are less pixel than it really is.
+
+  Note:
+
+  Successively applying multiple gaussian blurs to an image has the same effect as applying a single, larger gaussian blur, 
+  whose radius is the square root of the sum of the squares of the blur radii that were actually applied. 
+  In your case, s2 = sqrt(n*s1^2), and the blur radii is approximated as 3*si where i = 1, 2, 
+  which means pixels at a distance of more than 3si are small enough to be considered effectively zero during the blurring process.
+
+  Conclusions:
+  1) Can't really use gaussian blur with larger kernels, because each pixel has different blur radius - that makes impossible to use two-pass vertical/horizontal blurring and forces us to use radius^2 cost blur shader.
+     It's even worse, because blur kernel is different for each pixel so it needs to be stored somewhere in textures. Also we need to account for object edges which makes it a very complex shader probably...
+  1) We know how to quickly blur the image - create mipmaps and blur the mipmaps. Then sample the right mipmaps when combining main image and reflections.
+  2) How to avoid bleeding - maybe create own mipmapping generation shader which accounts for object borders? Could even use object ids stored in the g-buffer or depth, positon values... 
+     Blur shader also has to account for object edges.
+
+Semi final idea: (COMPLEX)
+1) Create mipmaps of the reflected image.
+2) Blur mipmaps using 9-tap, 4-sample gaussian blur.
+3) Upscale mipmaps to half screen-size (full size is not needed - half is better for memory and performance). 
+   Use object id/position/depth information to deduce whether pixel should be taken from downsized texture or from normal texuture - to avoid color bleeding.
+
+   Have to use edge detection! Can't calculate object edges for each upscaled mipmap!
+
+   How to upscale - idea 1:
+   - upscale reflection mipmap to half-size image through:
+	1) creating half-size image - filling it with original reflection data (or second mipmaps or something)
+	2) sampling mipmap which is supposed to be upscaled
+	3) using mipmap's color if distance between neighbouring pixel positions samples from position g-buffer is less than some value. (normal should also be checked).
+
+	How to upscale - idea 2:
+	- Don't copy orignal reflections into upscaled images, but rather sample original image when needed or its mipmaps. 
+	  Could even sample more than one tap from given mipmap to compenstate on object edges.
+
+	We probably need to upscale to avoid aliasing when translating camera. But maybe even quarter-size is enough to avoid that.
+
+Another semi-final idea: (VERY COMPLEX)
+1) Create mipmaps of the reflected image.
+2) Run shader on main image and check what is the distance to the nearest object edge (NOE) (in terms of position, normal). 
+   Could be done as edge detection and then run in several passes to fill image with colors describing distance to the edge.
+3) Use NOE to select the mipmap (0 level for NOE = 0, 1 level for NOE = 1) and sample the mipmap in radius depanding on the pixel roughness.
+
+My references:
+https://software.intel.com/en-us/blogs/2014/07/15/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms - great analysis of performance of different methods and tricks to get fast blur.
+https://bartwronski.com/2014/01/25/the-future-of-screenspace-reflections/ - about screen-space reflections but also usable for my case.
+http://http.developer.nvidia.com/GPUGems3/gpugems3_ch28.html - about faking depth of field effect in games - similar problems with variable size blur radius.
+
+

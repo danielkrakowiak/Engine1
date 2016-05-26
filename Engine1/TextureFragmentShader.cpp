@@ -50,7 +50,7 @@ void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& dev
 
 	{ // Create sampler configuration
 		D3D11_SAMPLER_DESC samplerConfiguration;
-		samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_MIP_POINT;//D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;

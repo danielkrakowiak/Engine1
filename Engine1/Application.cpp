@@ -35,14 +35,17 @@ FontLibrary  Application::fontLibrary;
 
 using namespace Engine1;
 
+using Microsoft::WRL::ComPtr;
+
 Application::Application() :
 	rendererCore(),
 	frameRenderer( rendererCore ),
 	deferredRenderer( rendererCore ),
     raytraceRenderer( rendererCore ),
     shadingRenderer( rendererCore ),
+    edgeDetectionRenderer( rendererCore ),
     combiningRenderer( rendererCore ),
-    renderer( rendererCore, deferredRenderer, raytraceRenderer, shadingRenderer, combiningRenderer ),
+    renderer( rendererCore, deferredRenderer, raytraceRenderer, shadingRenderer, edgeDetectionRenderer, combiningRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -74,9 +77,12 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	deferredRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     raytraceRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     shadingRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+    edgeDetectionRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     combiningRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
 	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
     assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1, frameRenderer.getDevice() );
+
+    createUcharDisplayFrame( screenWidth, screenHeight, frameRenderer.getDevice() );
 
     // Load 'axises' model.
     BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, true, true, true );
@@ -92,9 +98,15 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     //lightModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext().Get() );
     std::shared_ptr<BlockModel> empty = std::make_shared<BlockModel>();
 
-    renderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), axisMesh, empty/*lightModel*/ );
+    renderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext(), axisMesh, empty/*lightModel*/ );
 
 	initialized = true;
+}
+
+void Application::createUcharDisplayFrame( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device )
+{
+    ucharDisplayFrame = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
+        ( *device.Get(), imageWidth, imageHeight, false, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM );
 }
 
 void Application::setupWindow() {
@@ -179,7 +191,7 @@ void Application::run() {
 
     // Setup the camera.
 	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
-	camera.setPosition( float3( 0.0f, 0.0f, -20.0f ) );
+	camera.setPosition( float3( 0.0f, 4.5f, -45.0f ) );
 
 	Font font( uint2(screenWidth, screenHeight) );
 	font.loadFromFile( "../Engine1/Assets/Fonts/DoulosSILR.ttf", 35 );
@@ -291,9 +303,10 @@ void Application::run() {
         // TODO: Should  be refactored somehow. Such method should not be called here.
         deferredRenderer.disableRenderTargets();
 
-        if ( frameUchar )
-		    frameRenderer.renderTexture( *frameUchar, 0.0f, 0.0f );
-        else if ( frameUchar4 )
+        if ( frameUchar ) {
+            rendererCore.copyTexture( ucharDisplayFrame, frameUchar );
+		    frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f );
+        } else if ( frameUchar4 )
 		    frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f );
         else if ( frameFloat4 )
             frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f );
@@ -470,6 +483,8 @@ void Application::onKeyPress( int key )
         renderer.setActiveView( Renderer::View::Roughness );
     else if ( key == InputManager::Keys::seven )
         renderer.setActiveView( Renderer::View::IndexOfRefraction );
+    else if ( key == InputManager::Keys::eight )
+        renderer.setActiveView( Renderer::View::DistanceToEdge );
 
     else if ( key == InputManager::Keys::f1 )
         renderer.setActiveView( Renderer::View::RayDirections1 );

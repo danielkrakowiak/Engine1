@@ -87,6 +87,9 @@ namespace Engine1
         void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture );
 
+        void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > destTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > srcTexture );
+
         private:
 
         ID3D11DeviceContext* deviceContext;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <wrl.h>
 #include "TTexture2D.h"
 
 #include "uchar4.h"
@@ -13,6 +14,7 @@ namespace Engine1
     class Direct3DDeferredRenderer;
     class RaytraceRenderer;
     class ShadingRenderer;
+    class EdgeDetectionRenderer;
     class CombiningRenderer;
     class CScene;
     class Camera;
@@ -32,6 +34,7 @@ namespace Engine1
             Metalness,
             Roughness,
             IndexOfRefraction,
+            DistanceToEdge,
             RayDirections1,
             RaytracingHitPosition,
             RaytracingHitDistance,
@@ -43,10 +46,10 @@ namespace Engine1
         };
 
         Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
-                  ShadingRenderer& shadingRenderer, CombiningRenderer& combiningRenderer );
+                  ShadingRenderer& shadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer );
         ~Renderer();
 
-        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
+        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
                          std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
 
         std::tuple< 
@@ -62,12 +65,16 @@ namespace Engine1
 
         private:
 
+        Microsoft::WRL::ComPtr< ID3D11Device >        device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
+
         View activeView;
 
         Direct3DRendererCore&     rendererCore;
         Direct3DDeferredRenderer& deferredRenderer;
         RaytraceRenderer&         raytraceRenderer;
         ShadingRenderer&          shadingRenderer;
+        EdgeDetectionRenderer&    edgeDetectionRenderer;
         CombiningRenderer&        combiningRenderer;
 
         // Render target.

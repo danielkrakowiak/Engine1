@@ -620,3 +620,11 @@ void Direct3DRendererCore::copyTexture( std::shared_ptr< TTexture2D< TexUsage::D
 
     deviceContext->CopyResource( destTexture->getTextureResource().Get(), srcTexture->getTextureResource().Get() );
 }
+
+void Direct3DRendererCore::copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > destTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > srcTexture )
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+
+    deviceContext->CopyResource( destTexture->getTextureResource().Get(), srcTexture->getTextureResource().Get() );
+}

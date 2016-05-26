@@ -134,6 +134,24 @@ Next2:
 
 	- add PBR shading
 
+	- final blurring of reflections: sample mipmap one/two levels less blurry than you need (with/without filtering? any cost? use filtering between points) 
+	  and then apply 5x5 gaussian blurr to smoothen pixel borders. Or similar.
+	  Must read before!!! : https://bartwronski.com/2014/03/23/gdc-follow-up-screenspace-reflections-filtering-and-up-sampling/
+
+	  - should measure the cost of generating mipmaps for the color target! Compare it with cost of running blur kernels.
+
+	  - the problem is bleeding reflections through the edges - note it down somewhere.
+
+	  - add removing actors from the scene on delete key.
+
+	  - create a edge-detection shader which writes distance to the nearest "reflection edge" based on position/normal/ray direction whatever.. Could use multiple passes and shaders.
+
+	  - probably need to add some memory barriers in the compute shader for edge distance. Pixels written by some threads are read by others. Read aboubt sync in DX book.
+
+	  - IMPORTANT: optimization of edge distance calculation: pass "current render pass index" to shader and then ignore threads with current edge distance smaller than pass index 
+	    (they are calculated already - no point in recalculating it again). This way less and less pixels will have to be calculated each pass. And zero at some point!
+
+	  - Check numthreads per group for best performance when calculating edge distance.
 
 
    ----------------------------------------------------

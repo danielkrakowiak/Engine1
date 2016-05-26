@@ -7,6 +7,7 @@
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
+#include "EdgeDetectionRenderer.h"
 #include "CombiningRenderer.h"
 #include "FreeCamera.h"
 
@@ -87,6 +88,7 @@ private:
     Direct3DDeferredRenderer deferredRenderer;
     RaytraceRenderer         raytraceRenderer;
     ShadingRenderer          shadingRenderer;
+    EdgeDetectionRenderer    edgeDetectionRenderer;
     CombiningRenderer        combiningRenderer;
     Direct3DFrameRenderer    frameRenderer;
     Renderer                 renderer;
@@ -108,6 +110,12 @@ private:
 	// For creation of new assets.
 	std::shared_ptr<BlockActor>    defaultBlockActor;
 	std::shared_ptr<SkeletonActor> defaultSkeletonActor;
+
+    // Debug uchar render target.
+    void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
+
+    // Needed to display uchar textures using usual texture shader (unorm view is required - integer as 0-1 float).
+    std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > ucharDisplayFrame;
 
     std::string scenePath;
     std::shared_ptr<CScene> scene;

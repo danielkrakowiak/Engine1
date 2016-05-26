@@ -280,6 +280,21 @@
     <Filter Include="Header Files\Shader\Combining">
       <UniqueIdentifier>{d5d4dc53-94bf-469a-ba6e-c6ba6d9ede94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\Blur">
+      <UniqueIdentifier>{e300a0e6-95bf-4469-bd24-fcb688644fce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\EdgeDetection">
+      <UniqueIdentifier>{dfa38a37-435e-4bae-9fce-a4c6343a2eca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\EdgeDetection">
+      <UniqueIdentifier>{f202cd24-e82d-4fd1-aa21-078a1dceb357}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\EdgeDistance">
+      <UniqueIdentifier>{bd544cfd-240b-44fd-8e0f-710354e593a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\EdgeDistance">
+      <UniqueIdentifier>{64c1ac24-81aa-4ebe-af25-c4e0003b7184}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -627,6 +642,15 @@
     <ClInclude Include="CombiningFragmentShader.h">
       <Filter>Header Files\Shader\Combining</Filter>
     </ClInclude>
+    <ClInclude Include="EdgeDetectionComputeShader.h">
+      <Filter>Header Files\Shader\EdgeDetection</Filter>
+    </ClInclude>
+    <ClInclude Include="EdgeDetectionRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="EdgeDistanceComputeShader.h">
+      <Filter>Header Files\Shader\EdgeDistance</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -953,6 +977,15 @@
     <ClCompile Include="CombiningFragmentShader.cpp">
       <Filter>Source Files\Shader\Combining</Filter>
     </ClCompile>
+    <ClCompile Include="EdgeDetectionComputeShader.cpp">
+      <Filter>Source Files\Shader\EdgeDetection</Filter>
+    </ClCompile>
+    <ClCompile Include="EdgeDetectionRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="EdgeDistanceComputeShader.cpp">
+      <Filter>Source Files\Shader\EdgeDistance</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1037,6 +1070,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\CombiningShader\vs.hlsl">
       <Filter>Source Files\Shader\Combining</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\EdgeDetectionShader\cs.hlsl">
+      <Filter>Source Files\Shader\EdgeDetection</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\EdgeDistanceShader\cs.hlsl">
+      <Filter>Source Files\Shader\EdgeDistance</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

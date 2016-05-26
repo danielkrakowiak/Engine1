@@ -6,6 +6,7 @@
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
+#include "EdgeDetectionRenderer.h"
 #include "CombiningRenderer.h"
 #include "CScene.h"
 #include "Camera.h"
@@ -23,11 +24,12 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 Renderer::Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
-                    ShadingRenderer& shadingRenderer, CombiningRenderer& combiningRenderer ) :
+                    ShadingRenderer& shadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer ) :
 rendererCore( rendererCore ),
 deferredRenderer( deferredRenderer ),
 raytraceRenderer( raytraceRenderer ),
 shadingRenderer( shadingRenderer ),
+edgeDetectionRenderer( edgeDetectionRenderer ),
 combiningRenderer( combiningRenderer ),
 activeView( View::Final )
 {}
@@ -35,9 +37,12 @@ activeView( View::Final )
 Renderer::~Renderer()
 {}
 
-void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, 
+void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext, 
                          std::shared_ptr<const BlockMesh> axisMesh, std::shared_ptr<const BlockModel> lightModel )
 {
+    this->device        = device;
+    this->deviceContext = deviceContext;
+
     this->axisMesh = axisMesh;
     this->lightModel = lightModel;
 
@@ -117,6 +122,12 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     // Perform shading on the reflected image.
     shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitNormalTexture(), lights );
 
+    // Generate mipmaps for the shaded, reflected image.
+    shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
+
+    // Perform edge detection on the main image (position + normal) - to detect discontinuities in reflections.
+    edgeDetectionRenderer.performEdgeDetection( deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget() );
+
     // Combine main image with reflections and refractions.
     combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), 0.5f );
 
@@ -181,6 +192,14 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         case View::IndexOfRefraction:
             return std::make_tuple(
                 deferredRenderer.getIndexOfRefractionRenderTarget(),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr
+             );
+        case View::DistanceToEdge:
+            return std::make_tuple(
+                edgeDetectionRenderer.getValueRenderTarget(),
                 nullptr,
                 nullptr,
                 nullptr,
