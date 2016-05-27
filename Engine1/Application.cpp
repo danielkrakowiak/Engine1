@@ -45,7 +45,8 @@ Application::Application() :
     shadingRenderer( rendererCore ),
     edgeDetectionRenderer( rendererCore ),
     combiningRenderer( rendererCore ),
-    renderer( rendererCore, deferredRenderer, raytraceRenderer, shadingRenderer, edgeDetectionRenderer, combiningRenderer ),
+    textureRescaleRenderer( rendererCore ),
+    renderer( rendererCore, deferredRenderer, raytraceRenderer, shadingRenderer, edgeDetectionRenderer, combiningRenderer, textureRescaleRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -79,6 +80,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     shadingRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     edgeDetectionRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     combiningRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+    textureRescaleRenderer.initialize( frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
 	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
     assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1, frameRenderer.getDevice() );
 

@@ -87,6 +87,7 @@ void EdgeDistanceComputeShader::setParameters( ID3D11DeviceContext& deviceContex
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
     dataPtr->passIndex = passIndex;
+    dataPtr->pad1      = float3( 0.0f, 0.0f, 0.0f ); // Padding.
 
     deviceContext.Unmap( constantInputBuffer.Get(), 0 );
 

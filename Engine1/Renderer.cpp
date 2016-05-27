@@ -8,6 +8,7 @@
 #include "ShadingRenderer.h"
 #include "EdgeDetectionRenderer.h"
 #include "CombiningRenderer.h"
+#include "TextureRescaleRenderer.h"
 #include "CScene.h"
 #include "Camera.h"
 #include "MathUtil.h"
@@ -24,13 +25,15 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 Renderer::Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
-                    ShadingRenderer& shadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer ) :
+                    ShadingRenderer& shadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer,
+                    TextureRescaleRenderer& textureRescaleRenderer ) :
 rendererCore( rendererCore ),
 deferredRenderer( deferredRenderer ),
 raytraceRenderer( raytraceRenderer ),
 shadingRenderer( shadingRenderer ),
 edgeDetectionRenderer( edgeDetectionRenderer ),
 combiningRenderer( combiningRenderer ),
+textureRescaleRenderer( textureRescaleRenderer ),
 activeView( View::Final )
 {}
 
@@ -46,7 +49,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     this->axisMesh = axisMesh;
     this->lightModel = lightModel;
 
-    createRenderTarget( imageWidth, imageHeight, *device.Get() );
+    createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
 
 std::tuple< 
@@ -125,11 +128,16 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     // Generate mipmaps for the shaded, reflected image.
     shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
 
+    // Upscale reflected image low-resolution mipmaps to half of the screen size to avoid visible aliasing.
+    const int mipmapCount = shadingRenderer.getColorRenderTarget()->getMipMapCountOnGpu();
+    for ( int mipmapLevel = 2; mipmapLevel < mipmapCount; ++mipmapLevel )
+        textureRescaleRenderer.rescaleTexture( shadingRenderer.getColorRenderTarget(), (unsigned char)mipmapLevel, halfSizeTempRenderTargets.at( mipmapLevel - 2 ) );
+
     // Perform edge detection on the main image (position + normal) - to detect discontinuities in reflections.
     edgeDetectionRenderer.performEdgeDetection( deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget() );
 
     // Combine main image with reflections and refractions.
-    combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), edgeDetectionRenderer.getValueRenderTarget() );
+    combiningRenderer.combine( finalRenderTarget, edgeDetectionRenderer.getValueRenderTarget(), shadingRenderer.getColorRenderTarget(), halfSizeTempRenderTargets );
 
     switch (activeView)
     {
@@ -283,8 +291,21 @@ Renderer::View Renderer::getActiveView() const
     return activeView;
 }
 
-void Renderer::createRenderTarget( int imageWidth, int imageHeight, ID3D11Device& device )
+void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
     finalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+
+    // Create one temp render target for each screen image mipmap smaller than half of the screen size.
+    const int tempRenderTargetCount = (int)floor( log2( std::max( imageWidth / 2, imageHeight / 2 ) ) ); 
+
+    //#TODO: Could probably use only RGB instead of RGBA. Could also ignore 1x1, 2x2 mipmaps to save memory.
+    for ( int i = 0; i < tempRenderTargetCount; ++i )
+    {
+        halfSizeTempRenderTargets.push_back(
+            std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
+            ( device, imageWidth / 2, imageHeight / 2, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT )
+        );
+    }
+
 }

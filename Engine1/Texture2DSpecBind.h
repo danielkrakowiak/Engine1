@@ -36,17 +36,23 @@ namespace Engine1
     {
         public:
 
-        ID3D11RenderTargetView* getRenderTargetView() const
+        ID3D11RenderTargetView* getRenderTargetView( int mipmapLevel = 0 ) const
         {
-            return m_renderTargetView.Get();
+            if ( mipmapLevel < 0 || mipmapLevel >= m_renderTargetViews.size() )
+                throw std::exception( "Texture2DSpecBind< TexBind::RenderTarget >::getRenderTargetView - Tried to access render target view for non-existing mipmap level." );
+
+            return m_renderTargetViews[ mipmapLevel ].Get();
         }
 
-        void clearRenderTargetView( ID3D11DeviceContext& deviceContext, float4 colorRGBA )
+        void clearRenderTargetView( ID3D11DeviceContext& deviceContext, float4 colorRGBA, int mipmapLevel = 0 )
         {
 	        if ( !isInGpuMemory() ) 
                 throw std::exception( "Texture2DSpecBind< TexBind::RenderTarget >::clearRenderTargetView - Texture not in GPU memory." );
 
-	        deviceContext.ClearRenderTargetView( m_renderTargetView.Get(), colorRGBA.getData() );
+            if ( mipmapLevel < 0 || mipmapLevel >= m_renderTargetViews.size() )
+                throw std::exception( "Texture2DSpecBind< TexBind::RenderTarget >::clearRenderTargetView - Tried to clear render target view for non-existing mipmap level." );
+
+	        deviceContext.ClearRenderTargetView( m_renderTargetViews[ mipmapLevel ].Get(), colorRGBA.getData() );
         }
     };
 
@@ -56,12 +62,15 @@ namespace Engine1
     {
         public:
 
-        ID3D11DepthStencilView* getDepthStencilView() const
+        ID3D11DepthStencilView* getDepthStencilView( int mipmapLevel = 0 ) const
         {
-            return m_depthStencilView.Get();
+            if ( mipmapLevel < 0 || mipmapLevel >= m_depthStencilViews.size() )
+                throw std::exception( "Texture2DSpecBind< TexBind::DepthStencil >::getDepthStencilView - Tried to access depth stencil view for non-existing mipmap level." );
+
+            return m_depthStencilViews[ mipmapLevel ].Get();
         }
 
-        void clearDepthStencilView( ID3D11DeviceContext& deviceContext, bool clearDepth, float depth, bool clearStencil, unsigned char stencil )
+        void clearDepthStencilView( ID3D11DeviceContext& deviceContext, bool clearDepth, float depth, bool clearStencil, unsigned char stencil, int mipmapLevel = 0 )
         {
             if ( !clearDepth && !clearStencil )
 		        return;
@@ -69,11 +78,14 @@ namespace Engine1
 	        if ( !isInGpuMemory() ) 
                 throw std::exception( "Texture2DSpecBind< TexBind::DepthStencil >::clearDepthStencilView - Texture not in GPU memory." );
 
+            if ( mipmapLevel < 0 || mipmapLevel >= m_depthStencilViews.size() )
+                throw std::exception( "Texture2DSpecBind< TexBind::DepthStencil >::clearDepthStencilView - Tried to clear depth stencil view for non-existing mipmap level." );
+
 	        UINT flags = 0;
 	        if ( clearDepth )   flags |= D3D11_CLEAR_DEPTH;
 	        if ( clearStencil ) flags |= D3D11_CLEAR_STENCIL;
 
-	        deviceContext.ClearDepthStencilView( m_depthStencilView.Get(), flags, depth, stencil );
+	        deviceContext.ClearDepthStencilView( m_depthStencilViews[ mipmapLevel ].Get(), flags, depth, stencil );
         }
     };
 
@@ -83,28 +95,37 @@ namespace Engine1
     {
         public:
 
-        ID3D11UnorderedAccessView* getUnorderedAccessView() const
+        ID3D11UnorderedAccessView* getUnorderedAccessView( int mipmapLevel = 0 ) const
         {
-            return m_unorderedAccessView.Get();
+            if ( mipmapLevel < 0 || mipmapLevel >= m_unorderedAccessViews.size() )
+                throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::getUnorderedAccessView - Tried to access unordered access view for non-existing mipmap level." );
+
+            return m_unorderedAccessViews[ mipmapLevel ].Get();
         }
 
         // TODO: maybe the input type should be PixelType and based on it the uint/float function gets called.
-        void clearUnorderedAccessViewUint( ID3D11DeviceContext& deviceContext, uint4 value )
+        void clearUnorderedAccessViewUint( ID3D11DeviceContext& deviceContext, uint4 value, int mipmapLevel = 0 )
         {
 	        if ( !isInGpuMemory() ) 
                 throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::clearUnorderedAccessViewUint - Texture not in GPU memory." );
+
+            if ( mipmapLevel < 0 || mipmapLevel >= m_unorderedAccessViews.size() )
+                throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::clearUnorderedAccessViewUint - Tried to clear unordered access view for non-existing mipmap level." );
             
-	        deviceContext.ClearUnorderedAccessViewUint( m_unorderedAccessView.Get(), value.getData() );
+	        deviceContext.ClearUnorderedAccessViewUint( m_unorderedAccessViews[ mipmapLevel ].Get(), value.getData() );
         }
 
         // TODO: maybe the input type should be PixelType and based on it the uint/float function gets called.
-        void clearUnorderedAccessViewFloat( ID3D11DeviceContext& deviceContext, float4 value )
+        void clearUnorderedAccessViewFloat( ID3D11DeviceContext& deviceContext, float4 value, int mipmapLevel = 0 )
         {
 	        if ( !isInGpuMemory() ) 
                 throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::clearUnorderedAccessViewFloat - Texture not in GPU memory." );
+
+            if ( mipmapLevel < 0 || mipmapLevel >= m_unorderedAccessViews.size() )
+                throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::clearUnorderedAccessViewFloat - Tried to clear unordered access view for non-existing mipmap level." );
             
             float val[4] = { value.x, value.y, value.z, value.w };
-	        deviceContext.ClearUnorderedAccessViewFloat( m_unorderedAccessView.Get(), val );
+	        deviceContext.ClearUnorderedAccessViewFloat( m_unorderedAccessViews[ mipmapLevel ].Get(), val );
         }
     };
 

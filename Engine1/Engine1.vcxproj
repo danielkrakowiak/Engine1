@@ -343,6 +343,8 @@
     <ClInclude Include="Texture2DGeneric.h" />
     <ClInclude Include="Texture2DSpecBind.h" />
     <ClInclude Include="Texture2DSpecUsage.h" />
+    <ClInclude Include="TextureRescaleComputeShader.h" />
+    <ClInclude Include="TextureRescaleRenderer.h" />
     <ClInclude Include="TTexture2D.h" />
     <ClInclude Include="Texture2DFileInfo.h" />
     <ClInclude Include="Texture2DFileInfoParser.h" />
@@ -456,6 +458,8 @@
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="TextFragmentShader.cpp" />
     <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="TextureRescaleComputeShader.cpp" />
+    <ClCompile Include="TextureRescaleRenderer.cpp" />
     <ClCompile Include="TTexture2D.cpp" />
     <ClCompile Include="Texture2DFileInfo.cpp" />
     <ClCompile Include="Texture2DFileInfoParser.cpp" />
@@ -858,6 +862,20 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureRescaleShader\cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\TextureShader\ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

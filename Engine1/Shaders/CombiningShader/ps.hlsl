@@ -1,5 +1,6 @@
-Texture2D       srcTexture          : register( t0 );
-Texture2D<uint> edgeDistanceTexture : register( t1 );
+Texture2D<uint>   edgeDistanceTexture           : register( t0 );
+Texture2D<float4> srcTexture                    : register( t1 );
+Texture2D<float4> srcTextureUpscaledMipmaps[30] : register( t2 ); // #TODO: How to know texture array size?
 
 
 SamplerState samplerState;
@@ -15,7 +16,7 @@ static const float2 imageSize = float2( 1024.0f, 768.0f );
 
 float4 main(PixelInputType input) : SV_Target
 {
-    float level = 2.0f;
+    float level = 10.0f;
 
     float4 textureColor = float4( 0.0f, 0.0f, 0.0f, 0.5f );
 

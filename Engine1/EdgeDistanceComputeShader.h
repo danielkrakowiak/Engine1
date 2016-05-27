@@ -35,7 +35,8 @@ namespace Engine1
         __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
         struct ConstantBuffer
         {
-            unsigned char passIndex;
+            unsigned int passIndex;
+            float3       pad1;
         };
 
         // Copying is not allowed.

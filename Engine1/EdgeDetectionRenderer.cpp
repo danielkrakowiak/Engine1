@@ -75,7 +75,7 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
 
          uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
-         for ( int i = 0; i < 255; ++i ) 
+         for ( int i = 1; i <= 255; ++i ) 
          {
              // Unset parameters to avoid binding the same resource twice.
              edgeDistanceComputeShader->unsetParameters( *deviceContext.Get() );
@@ -89,7 +89,7 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
              rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
                                                         unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-             edgeDistanceComputeShader->setParameters( *deviceContext.Get(), *valueRenderTargetSrc, i );
+             edgeDistanceComputeShader->setParameters( *deviceContext.Get(), *valueRenderTargetSrc, (unsigned char)i );
 
              rendererCore.compute( groupCount );
          }

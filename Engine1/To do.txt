@@ -154,6 +154,19 @@ Next2:
 
 	  - have to upscale mipmaps to at least half the screen size to avoid aliasing when moving camera.
 
+	  - I could limit reflection mipmaps to let's say 4x4 - there is not much point in having even rougher reflections - and to store their upscaled mipmaps at half screen resolution.
+
+	  - upscaling has to happen in steps - upscale by factor of 2 each render pass. Otherwise it gives no advantage over simple sampling. How to do that efficently with 3d texture?
+
+	  - instead of texture array for reflection upscaled mipmaps use 3d texture. It allows for sampling between layers based on dynamic, float level.
+
+	  - add option to get shader view/unordered view for any mipmap level of texture2D
+
+	  How to generate upscaled mipmaps:
+	  - start with 2 level mipmap - render it stretched to 3d texture layer 0.
+	  - take level 3 mipmap and render it to level 2 mipmap. Then render level 2 mipmap to 3d texture layer 1.
+	  - take level 4 mipmap and render it to level 3 mipmap. Then render it to level 2 mipmap. Then to 3d texture layer 2.
+	     and so on...
 
    ----------------------------------------------------
    Refactoring:

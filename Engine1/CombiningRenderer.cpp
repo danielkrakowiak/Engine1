@@ -54,8 +54,9 @@ void CombiningRenderer::initialize( const int screenWidth, const int screenHeigh
 }
 
 void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > edgeDistanceTexture,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > edgeDistanceTexture )
+                                 const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >& srcTextureUpscaledMipmaps )
 {
     if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 
@@ -71,7 +72,7 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
 
 	{ // Configure and enable shaders.
 		combiningVertexShader->setParameters( *deviceContext.Get() );
-		combiningFragmentShader->setParameters( *deviceContext.Get(), srcTexture, edgeDistanceTexture );
+		combiningFragmentShader->setParameters( *deviceContext.Get(), edgeDistanceTexture, srcTexture, srcTextureUpscaledMipmaps );
 
 		rendererCore.enableRenderingShaders( combiningVertexShader, combiningFragmentShader );
 	}

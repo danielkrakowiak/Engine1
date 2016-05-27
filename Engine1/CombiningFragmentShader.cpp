@@ -11,7 +11,9 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-CombiningFragmentShader::CombiningFragmentShader() {}
+CombiningFragmentShader::CombiningFragmentShader() :
+resourceCount( 0 )
+{}
 
 CombiningFragmentShader::~CombiningFragmentShader()
 {}
@@ -75,17 +77,21 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 }
 
 void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > edgeDistanceTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > edgeDistanceTexture )
+                                             const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >& srcTextureUpscaledMipmaps )
 {
     { // Set input textures.
-        const unsigned int resourceCount = 2;
-        ID3D11ShaderResourceView* resources[ resourceCount ] = { 
-            srcTexture->getShaderResourceView(),
-            edgeDistanceTexture->getShaderResourceView()
-        };
+        resourceCount = 2 + (int)srcTextureUpscaledMipmaps.size();
+        std::vector< ID3D11ShaderResourceView* > resources;
+        resources.reserve( resourceCount );
 
-        deviceContext.PSSetShaderResources( 0, resourceCount, resources );
+        resources.push_back( edgeDistanceTexture->getShaderResourceView() );
+        resources.push_back( srcTexture->getShaderResourceView() );
+        for ( int i = 0; i < (int)srcTextureUpscaledMipmaps.size(); ++i )
+            resources.push_back( srcTextureUpscaledMipmaps[ i ]->getShaderResourceView() );
+
+        deviceContext.PSSetShaderResources( 0, resourceCount, resources.data() );
     }
 
 	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
@@ -93,9 +99,13 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
 
 void CombiningFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-    ID3D11ShaderResourceView* nullResources[ 2 ] = { nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 2, nullResources );
+    std::vector< ID3D11ShaderResourceView* > nullResources;
+    nullResources.resize( resourceCount );
+    for ( int i = 0; i < resourceCount; ++i )
+        nullResources[ i ] = nullptr;
 
-    ID3D11SamplerState*       nullSampler = nullptr;
+    deviceContext.CSSetShaderResources( 0, 2, nullResources.data() );
+
+    ID3D11SamplerState* nullSampler = nullptr;
 	deviceContext.PSSetSamplers( 0, 1, &nullSampler );
 }

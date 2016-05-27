@@ -16,6 +16,7 @@ namespace Engine1
     class ShadingRenderer;
     class EdgeDetectionRenderer;
     class CombiningRenderer;
+    class TextureRescaleRenderer;
     class CScene;
     class Camera;
     class BlockMesh;
@@ -46,7 +47,8 @@ namespace Engine1
         };
 
         Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
-                  ShadingRenderer& shadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer );
+                  ShadingRenderer& shadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer,
+                  TextureRescaleRenderer& textureRescaleRenderer );
         ~Renderer();
 
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
@@ -76,11 +78,15 @@ namespace Engine1
         ShadingRenderer&          shadingRenderer;
         EdgeDetectionRenderer&    edgeDetectionRenderer;
         CombiningRenderer&        combiningRenderer;
+        TextureRescaleRenderer&   textureRescaleRenderer;
 
         // Render target.
-        void createRenderTarget( int imageWidth, int imageHeight, ID3D11Device& device );
+        void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > finalRenderTarget;
+
+        // Half size, temporary render targets (to store upscaled reflection/refraction mipmaps).
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > > halfSizeTempRenderTargets;
 
         std::shared_ptr<const BlockMesh>  axisMesh;
         std::shared_ptr<const BlockModel> lightModel;

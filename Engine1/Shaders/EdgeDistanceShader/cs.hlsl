@@ -2,7 +2,8 @@
 
 cbuffer ConstantBuffer
 {
-    uint passIndex;
+    uint   passIndex;
+    float3 pad1;      // Padding.
 };
 
 // Input.
@@ -24,7 +25,7 @@ void main( uint3 groupId : SV_GroupID,
     const uint currDistToEdge = g_distToEdgeSrc[ dispatchThreadId.xy ];
 
     // Optimization - don't recalculate pixels, which were calculated in the previous passes.
-    if ( currDistToEdge < passIndex )
+    if ( currDistToEdge < passIndex - 1 )
         return;
    
     uint distToNearestEdge = 254;

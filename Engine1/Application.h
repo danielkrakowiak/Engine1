@@ -9,6 +9,7 @@
 #include "ShadingRenderer.h"
 #include "EdgeDetectionRenderer.h"
 #include "CombiningRenderer.h"
+#include "TextureRescaleRenderer.h"
 #include "FreeCamera.h"
 
 #include "ImageLibrary.h"
@@ -91,6 +92,7 @@ private:
     EdgeDetectionRenderer    edgeDetectionRenderer;
     CombiningRenderer        combiningRenderer;
     Direct3DFrameRenderer    frameRenderer;
+    TextureRescaleRenderer   textureRescaleRenderer;
     Renderer                 renderer;
 
 	bool fullscreen;

@@ -295,6 +295,12 @@
     <Filter Include="Header Files\Shader\EdgeDistance">
       <UniqueIdentifier>{64c1ac24-81aa-4ebe-af25-c4e0003b7184}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\TextureRescale">
+      <UniqueIdentifier>{cc330be3-35cc-49f4-811d-6c3a674cb1b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\TextureRescale">
+      <UniqueIdentifier>{22885fb1-8f59-456f-ae79-3faf97e19e85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -651,6 +657,12 @@
     <ClInclude Include="EdgeDistanceComputeShader.h">
       <Filter>Header Files\Shader\EdgeDistance</Filter>
     </ClInclude>
+    <ClInclude Include="TextureRescaleComputeShader.h">
+      <Filter>Header Files\Shader\TextureRescale</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRescaleRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -986,6 +998,12 @@
     <ClCompile Include="EdgeDistanceComputeShader.cpp">
       <Filter>Source Files\Shader\EdgeDistance</Filter>
     </ClCompile>
+    <ClCompile Include="TextureRescaleComputeShader.cpp">
+      <Filter>Source Files\Shader\TextureRescale</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRescaleRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1076,6 +1094,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\EdgeDistanceShader\cs.hlsl">
       <Filter>Source Files\Shader\EdgeDistance</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureRescaleShader\cs.hlsl">
+      <Filter>Source Files\Shader\TextureRescale</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

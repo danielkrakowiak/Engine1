@@ -118,7 +118,7 @@ namespace Engine1
         void createTextureOnGpu( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, 
                                  const bool generateMipmaps, DXGI_FORMAT textureFormat );
 
-        void createTextureViewsOnGpu( ID3D11Device& device, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+        void createTextureViewsOnGpu( ID3D11Device& device, const int width, const int height, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
                                       DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat );
 
         virtual bool isUsageBindingSupported( TexUsage usage, TexBind binding );
@@ -154,10 +154,13 @@ namespace Engine1
         DXGI_FORMAT m_depthStencilViewFormat;
         DXGI_FORMAT m_unorderedAccessViewFormat;
 
-        Microsoft::WRL::ComPtr< ID3D11ShaderResourceView >  m_shaderResourceView;
-        Microsoft::WRL::ComPtr< ID3D11RenderTargetView >    m_renderTargetView;
-        Microsoft::WRL::ComPtr< ID3D11DepthStencilView >    m_depthStencilView;
-        Microsoft::WRL::ComPtr< ID3D11UnorderedAccessView > m_unorderedAccessView;
+        
+        Microsoft::WRL::ComPtr< ID3D11ShaderResourceView > m_shaderResourceView;
+
+        // Resource views for each mipmap level.
+        std::vector< Microsoft::WRL::ComPtr< ID3D11DepthStencilView > >    m_depthStencilViews;
+        std::vector< Microsoft::WRL::ComPtr< ID3D11RenderTargetView > >    m_renderTargetViews;
+        std::vector< Microsoft::WRL::ComPtr< ID3D11UnorderedAccessView > > m_unorderedAccessViews;
 
     };
 
@@ -286,7 +289,7 @@ namespace Engine1
 
         if ( storeOnGpu ) {
             createTextureOnGpu( device, m_dataMipmaps.front(), image.getWidth(), image.getHeight(), generateMipmaps, textureFormat );
-            createTextureViewsOnGpu( device, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureViewsOnGpu( device, image.getWidth(), image.getHeight(), m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
         if ( !storeOnCpu )
@@ -322,7 +325,7 @@ namespace Engine1
 
         if ( storeOnGpu ) {
             createTextureOnGpu( device, width, height, false, textureFormat );
-            createTextureViewsOnGpu( device, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureViewsOnGpu( device, width, height, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
         m_width           = width;
@@ -358,7 +361,7 @@ namespace Engine1
 
         if ( storeOnGpu ) {
             createTextureOnGpu( device, data, width, height, generateMipmaps, textureFormat );
-            createTextureViewsOnGpu( device, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureViewsOnGpu( device, width, height, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
         m_width           = width;
@@ -379,7 +382,7 @@ namespace Engine1
         m_height           = 0;
         m_hasMipmapsOnGpu  = false;
 
-        createTextureViewsOnGpu( device, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN );
+        createTextureViewsOnGpu( device, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN );
     }
 
     template< typename PixelType >
@@ -540,7 +543,7 @@ namespace Engine1
         if ( (int)data.size() != width * height )
             throw std::exception( "Texture2DGeneric::createTextureOnGpu - given data size doesn't match given width and height." );
 
-        // Note: for now, olny texture which support mipmap generation on GPU can have mipmaps
+        // Note: for now, olny texture which support mipmap generation on GPU can have mipmaps.
         // TODO: add manual creation of mipmaps on CPU to allow for mipmaps for different kinds of textures.
         const UINT mipmapCount = supportsMipmapGenerationOnGpu() ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
 
@@ -572,10 +575,12 @@ namespace Engine1
 
     template< typename PixelType >
     void Texture2DGeneric< PixelType >
-        ::createTextureViewsOnGpu( ID3D11Device& device, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+        ::createTextureViewsOnGpu( ID3D11Device& device, const int width, const int height, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
                                    DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat )
     {
         const UINT textureBindFlags = getTextureBindFlags();
+
+        const int mipmapCount = supportsMipmapGenerationOnGpu() ? (1 + (int)(floor( log2( std::max( width, height ) ) ))) : 1;
 
         if ( (textureBindFlags & D3D11_BIND_SHADER_RESOURCE) != 0 ) {
             D3D11_SHADER_RESOURCE_VIEW_DESC desc;
@@ -591,51 +596,67 @@ namespace Engine1
             m_shaderResourceViewFormat = shaderResourceViewFormat;
         }
 
-        if ( (textureBindFlags & D3D11_BIND_RENDER_TARGET) != 0 ) {
+        if ( (textureBindFlags & D3D11_BIND_RENDER_TARGET) != 0 ) 
+        {
             if ( renderTargetViewFormat != DXGI_FORMAT_UNKNOWN )
             {
-                D3D11_RENDER_TARGET_VIEW_DESC desc;
-                ZeroMemory( &desc, sizeof(desc) );
-                desc.Format             = renderTargetViewFormat;
-                desc.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
-                desc.Texture2D.MipSlice = 0;
+                m_renderTargetViews.resize( mipmapCount );
+                for ( int mipmapIndex = 0; mipmapIndex < mipmapCount; ++mipmapIndex )
+                {
+                    D3D11_RENDER_TARGET_VIEW_DESC desc;
+                    ZeroMemory( &desc, sizeof(desc) );
+                    desc.Format             = renderTargetViewFormat;
+                    desc.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
+                    desc.Texture2D.MipSlice = mipmapIndex;
 
-                HRESULT result = device.CreateRenderTargetView( m_texture.Get(), &desc, m_renderTargetView.ReleaseAndGetAddressOf() );
-                if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating render target view on GPU failed." );
+                    HRESULT result = device.CreateRenderTargetView( m_texture.Get(), &desc, m_renderTargetViews[ mipmapIndex ].ReleaseAndGetAddressOf() );
+                    if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating render target view on GPU failed." );
+                }
 
                 m_renderTargetViewFormat = renderTargetViewFormat;
             }
             else // Note: Should happen only when render target is created from the frame back buffer.
             {
-                HRESULT result = device.CreateRenderTargetView( m_texture.Get(), nullptr, m_renderTargetView.ReleaseAndGetAddressOf() );
+                m_renderTargetViews.resize( 1 );
+                HRESULT result = device.CreateRenderTargetView( m_texture.Get(), nullptr, m_renderTargetViews[ 0 ].ReleaseAndGetAddressOf() );
                 if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating render target view on GPU failed." );
 
                 m_renderTargetViewFormat = renderTargetViewFormat;
             }
         }
 
-        if ( (textureBindFlags & D3D11_BIND_DEPTH_STENCIL) != 0 ) {
-            D3D11_DEPTH_STENCIL_VIEW_DESC desc;
-            ZeroMemory( &desc, sizeof(desc) );
-            desc.Format             = depthStencilViewFormat;
-            desc.ViewDimension      = D3D11_DSV_DIMENSION_TEXTURE2D;
-            desc.Texture2D.MipSlice = 0;
+        if ( (textureBindFlags & D3D11_BIND_DEPTH_STENCIL) != 0 ) 
+        {
+            m_depthStencilViews.resize( mipmapCount );
+            for ( int mipmapIndex = 0; mipmapIndex < mipmapCount; ++mipmapIndex )
+            {
+                D3D11_DEPTH_STENCIL_VIEW_DESC desc;
+                ZeroMemory( &desc, sizeof(desc) );
+                desc.Format             = depthStencilViewFormat;
+                desc.ViewDimension      = D3D11_DSV_DIMENSION_TEXTURE2D;
+                desc.Texture2D.MipSlice = mipmapIndex;
 
-            HRESULT result = device.CreateDepthStencilView( m_texture.Get(), &desc, m_depthStencilView.ReleaseAndGetAddressOf() );
-            if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating depth stencil view on GPU failed." );
+                HRESULT result = device.CreateDepthStencilView( m_texture.Get(), &desc, m_depthStencilViews[ mipmapIndex ].ReleaseAndGetAddressOf() );
+                if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating depth stencil view on GPU failed." );
+            }
 
             m_depthStencilViewFormat = depthStencilViewFormat;
         }
 
-        if ( (textureBindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0 ) {
-            D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
-            ZeroMemory( &desc, sizeof(desc) );
-            desc.Format             = unorderedAccessViewFormat;
-            desc.ViewDimension      = D3D11_UAV_DIMENSION_TEXTURE2D;
-            desc.Texture2D.MipSlice = 0;
+        if ( (textureBindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0 ) 
+        {
+            m_unorderedAccessViews.resize( mipmapCount );
+            for ( int mipmapIndex = 0; mipmapIndex < mipmapCount; ++mipmapIndex )
+            {
+                D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+                ZeroMemory( &desc, sizeof(desc) );
+                desc.Format             = unorderedAccessViewFormat;
+                desc.ViewDimension      = D3D11_UAV_DIMENSION_TEXTURE2D;
+                desc.Texture2D.MipSlice = mipmapIndex;
 
-            HRESULT result = device.CreateUnorderedAccessView( m_texture.Get(), &desc, m_unorderedAccessView.ReleaseAndGetAddressOf() );
-            if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating unordered access view on GPU failed." );
+                HRESULT result = device.CreateUnorderedAccessView( m_texture.Get(), &desc, m_unorderedAccessViews[ mipmapIndex ].ReleaseAndGetAddressOf() );
+                if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating unordered access view on GPU failed." );
+            }
 
             m_unorderedAccessViewFormat = unorderedAccessViewFormat;
         }
@@ -744,7 +765,7 @@ namespace Engine1
 
         if ( !isInGpuMemory() ) {
             createTextureOnGpu( device, m_dataMipmaps.front(), m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
-            createTextureViewsOnGpu( device, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureViewsOnGpu( device, m_width, m_height, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         } else {
             if ( supportsLoadCpuToGpu() ) {
                 D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -760,7 +781,7 @@ namespace Engine1
             } else {
                 unloadFromGpu();
                 createTextureOnGpu( device, m_dataMipmaps.front(), m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
-                createTextureViewsOnGpu( device, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+                createTextureViewsOnGpu( device, m_width, m_height, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
             }
         }
     }
@@ -779,9 +800,10 @@ namespace Engine1
 	    m_texture.Reset();
 
         m_shaderResourceView.Reset();
-        m_renderTargetView.Reset();
-        m_depthStencilView.Reset();
-        m_unorderedAccessView.Reset();
+
+        m_renderTargetViews.clear();
+        m_depthStencilViews.clear();
+        m_unorderedAccessViews.clear();
 
 	    m_hasMipmapsOnGpu = false;
     }
