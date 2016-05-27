@@ -191,7 +191,7 @@ void Application::run() {
 
     // Setup the camera.
 	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
-	camera.setPosition( float3( 0.0f, 4.5f, -45.0f ) );
+	camera.setPosition( float3( -3.5f, -2.5f, -53.0f ) );
 
 	Font font( uint2(screenWidth, screenHeight) );
 	font.loadFromFile( "../Engine1/Assets/Fonts/DoulosSILR.ttf", 35 );

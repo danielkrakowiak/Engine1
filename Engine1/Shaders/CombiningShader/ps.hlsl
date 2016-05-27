@@ -15,7 +15,7 @@ static const float2 imageSize = float2( 1024.0f, 768.0f );
 
 float4 main(PixelInputType input) : SV_Target
 {
-    float level = 3.0f;
+    float level = 2.0f;
 
     float4 textureColor = float4( 0.0f, 0.0f, 0.0f, 0.5f );
 

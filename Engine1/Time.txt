@@ -207,3 +207,4 @@ Sat 21.05.2016 - 7h - Thinking hard how to blur reflections efficently using gau
 Mon 23.05.2016 - 3h - Added EdgeDetectionRenderer, EdgeDetectionComputeShader, EdgeDistanceComputeShader. Trying to render distance to the nearest edge for each pixel.
 Wed 25.05.2016 - 2h - Trying to fix edge distance calculation.
 Thu 26.05.2016 - 10h - Fixed edge distance calculation - had to use two textures instead of one to store intermediate results and avoid threads corrupting each other's work. Used edge distance to decide which mipmap level to sample near the edges. Played with sampling, calculating mipmap level etc.
+Fri 27.05.2016 - 1h - Optimized edge distance calculation.

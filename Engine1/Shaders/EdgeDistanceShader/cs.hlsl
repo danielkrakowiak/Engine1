@@ -1,5 +1,10 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+cbuffer ConstantBuffer
+{
+    uint passIndex;
+};
+
 // Input.
 Texture2D<uint>   g_distToEdgeSrc  : register( t0 );
 
@@ -10,32 +15,27 @@ RWTexture2D<uint> g_distToEdgeDest : register( u0 );
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
 // SV_GroupIndex - index of the group within the whole computation.
-[numthreads(8, 8, 1)]
+[numthreads(16, 16, 1)]
 void main( uint3 groupId : SV_GroupID,
            uint3 groupThreadId : SV_GroupThreadID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
     const uint currDistToEdge = g_distToEdgeSrc[ dispatchThreadId.xy ];
-   
-     uint distToNearestEdge = 254;
 
-    //[unroll]
-    for ( int x = -1; x <= 1; ++x ) {
-        //[unroll]
-        for ( int y = -1; y <= 1; ++y ) {
-            distToNearestEdge = min( distToNearestEdge, g_distToEdgeSrc[ ( int2 )dispatchThreadId.xy + int2( x, y ) ] );
-        }
-    }
+    // Optimization - don't recalculate pixels, which were calculated in the previous passes.
+    if ( currDistToEdge < passIndex )
+        return;
+   
+    uint distToNearestEdge = 254;
+
+    distToNearestEdge = min( distToNearestEdge, g_distToEdgeSrc[ ( int2 )dispatchThreadId.xy + int2(  0, -1 ) ] ); // Top-neighbor.
+    distToNearestEdge = min( distToNearestEdge, g_distToEdgeSrc[ ( int2 )dispatchThreadId.xy + int2( -1,  0 ) ] ); // Left-neighbor.
+    distToNearestEdge = min( distToNearestEdge, g_distToEdgeSrc[ ( int2 )dispatchThreadId.xy + int2(  1,  0 ) ] ); // Right-neighbor.
+    distToNearestEdge = min( distToNearestEdge, g_distToEdgeSrc[ ( int2 )dispatchThreadId.xy + int2(  0,  1 ) ] ); // Bottom-neighbor.
+
+    // Note: Top-left, top-right, bottom-left and bottom-right comparisons are probably redundant.
 
     g_distToEdgeDest[ dispatchThreadId.xy ] = min( currDistToEdge, distToNearestEdge + 1 );
-
-    //
-
-    //if ( currDistToEdge == 0 )
-        //g_distToEdge[ dispatchThreadId.xy ] = currDistToEdge + 100;
-
-    // Distance to nearest edge + 1. Limited to maximum of 255.
-    //g_distToEdge[ dispatchThreadId.xy ] = min(255, currDistToEdge + 100);//min( currDistToEdge, distToNearestEdge + 10 ); //min( currDistToEdge, min( 255, distToNearestEdge + 10 ) );
 }
 

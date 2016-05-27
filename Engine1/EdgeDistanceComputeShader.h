@@ -26,10 +26,17 @@ namespace Engine1
 
         void compileFromFile( std::string path, ID3D11Device& device );
         void setParameters( ID3D11DeviceContext& deviceContext,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& distToEdgeTexture );
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& distToEdgeTexture,
+                            const unsigned char passIndex );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
+
+        __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
+        struct ConstantBuffer
+        {
+            unsigned char passIndex;
+        };
 
         // Copying is not allowed.
         EdgeDistanceComputeShader( const EdgeDistanceComputeShader& )          = delete;

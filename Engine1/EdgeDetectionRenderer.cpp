@@ -63,7 +63,7 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
 
         rendererCore.enableComputeShader( edgeDetectionComputeShader );
 
-        uint3 groupCount( imageWidth / 32, imageHeight / 32, 1 );
+        uint3 groupCount( imageWidth / 8, imageHeight / 8, 1 );
 
         rendererCore.compute( groupCount );
 
@@ -73,7 +73,7 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
     { // Calculate distance to nearest edge for each pixel - in 255 passes (because max dist is 255).
          rendererCore.enableComputeShader( edgeDistanceComputeShader );
 
-         uint3 groupCount( imageWidth / 8, imageHeight / 8, 1 );
+         uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
          for ( int i = 0; i < 255; ++i ) 
          {
@@ -89,7 +89,7 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
              rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
                                                         unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-             edgeDistanceComputeShader->setParameters( *deviceContext.Get(), *valueRenderTargetSrc );
+             edgeDistanceComputeShader->setParameters( *deviceContext.Get(), *valueRenderTargetSrc, i );
 
              rendererCore.compute( groupCount );
          }

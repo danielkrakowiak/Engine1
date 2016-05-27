@@ -151,7 +151,6 @@ Next2:
 	  - IMPORTANT: optimization of edge distance calculation: pass "current render pass index" to shader and then ignore threads with current edge distance smaller than pass index 
 	    (they are calculated already - no point in recalculating it again). This way less and less pixels will have to be calculated each pass. And zero at some point!
 
-	  - Check numthreads per group for best performance when calculating edge distance.
 
 	  - have to upscale mipmaps to at least half the screen size to avoid aliasing when moving camera.
 

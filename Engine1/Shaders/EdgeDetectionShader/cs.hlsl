@@ -11,7 +11,7 @@ RWTexture2D<uint> g_distToEdge : register( u0 );
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
 // SV_GroupIndex - index of the group within the whole computation.
-[numthreads(32, 32, 1)]
+[numthreads(8, 8, 1)]
 void main( uint3 groupId : SV_GroupID,
            uint3 groupThreadId : SV_GroupThreadID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
@@ -44,28 +44,14 @@ void main( uint3 groupId : SV_GroupID,
         }
     }
 
-    { // Compare with right-down neighbor pixel.
-        const float3 surfaceNormalRight = g_surfaceNormal[ dispatchThreadId.xy + uint2( 1, 1 ) ].xyz;
-        const float  normalsDot = dot( surfaceNormal, surfaceNormalRight );
-        if ( normalsDot < 0.95f ) {
-            g_distToEdge[ dispatchThreadId.xy ] = 0;
-            return;
-        }
-    }
+    // Right-down check is probably redundant.
 
-
-    //[unroll]
-    //for ( int y = 0; y <= 1; ++y ) 
-    //{
-    //    [unroll]
-    //    for ( int x = 0; x <= 1; ++x ) 
-    //    {
-    //        const float normalsDot = dot( surfaceNormal, g_surfaceNormal[ dispatchThreadId.xy + int2( x, y ) ].xyz );
-    //        if ( normalsDot < 0.99f )
-    //        {
-    //            g_distToEdge[ dispatchThreadId.xy ] = 0;
-    //            return;
-    //        }
+    //{ // Compare with right-down neighbor pixel.
+    //    const float3 surfaceNormalRight = g_surfaceNormal[ dispatchThreadId.xy + uint2( 1, 1 ) ].xyz;
+    //    const float  normalsDot = dot( surfaceNormal, surfaceNormalRight );
+    //    if ( normalsDot < 0.95f ) {
+    //        g_distToEdge[ dispatchThreadId.xy ] = 0;
+    //        return;
     //    }
     //}
 }
