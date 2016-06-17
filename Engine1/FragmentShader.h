@@ -3,6 +3,8 @@
 #include <string>
 #include <wrl.h>
 
+#define DIRECTX_CONSTANT_BUFFER_ALIGNMENT 16
+
 struct ID3D11InputLayout;
 struct ID3D11PixelShader;
 struct ID3D11Device;

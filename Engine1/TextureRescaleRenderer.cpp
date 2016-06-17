@@ -32,7 +32,8 @@ void TextureRescaleRenderer::initialize( ComPtr< ID3D11Device > device,
 
 void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                                              const unsigned char srcMipmapLevel,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 > > destTexture )
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture,
+                                             const unsigned char destMipmapLevel )
 {
     rendererCore.disableRenderingPipeline();
 
@@ -44,7 +45,7 @@ void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpe
     
     unorderedAccessTargetsF4.push_back( destTexture );
     rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+                                                unorderedAccessTargetsU1, unorderedAccessTargetsU4, destMipmapLevel );
 
     textureRescaleComputeShader->setParameters( *deviceContext.Get(), *srcTexture, destTexture->getWidth(), destTexture->getHeight(), srcMipmapLevel );
 

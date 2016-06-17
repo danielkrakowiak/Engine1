@@ -52,6 +52,14 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
 
+// Should be called at the beginning of each frame, before calling renderScene(). 
+void Renderer::prepare()
+{
+    // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
+    // Be careful when changing!
+    deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 1.0f ), 1.0f ); 
+}
+
 std::tuple< 
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
@@ -60,10 +68,6 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
 Renderer::renderScene( const CScene& scene, const Camera& camera )
 {
-    // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
-    // Be careful when changing!
-    deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 1.0f ), 1.0f ); 
-
     float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
 
     // Render 'axises' model.
@@ -104,6 +108,10 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         }
     }
 
+    // Generate mipmaps for normal and position g-buffers.
+    deferredRenderer.getNormalRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
+    deferredRenderer.getPositionRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
+
     // Perform ray tracing.
     std::vector< std::shared_ptr< const BlockActor > > blockActors;
     blockActors.reserve( actors.size() );
@@ -129,15 +137,15 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
 
     // Upscale reflected image low-resolution mipmaps to half of the screen size to avoid visible aliasing.
-    const int mipmapCount = shadingRenderer.getColorRenderTarget()->getMipMapCountOnGpu();
-    for ( int mipmapLevel = 2; mipmapLevel < mipmapCount; ++mipmapLevel )
-        textureRescaleRenderer.rescaleTexture( shadingRenderer.getColorRenderTarget(), (unsigned char)mipmapLevel, halfSizeTempRenderTargets.at( mipmapLevel - 2 ) );
+    //const int srcMipmapCount = shadingRenderer.getColorRenderTarget()->getMipMapCountOnGpu();
+    //for ( int srcMipmapLevel = 3; srcMipmapLevel > 2; --srcMipmapLevel )
+    //    textureRescaleRenderer.rescaleTexture( shadingRenderer.getColorRenderTarget(), (unsigned char)srcMipmapLevel, shadingRenderer.getColorRenderTarget(), (unsigned char)( srcMipmapLevel - 1 ) );
 
     // Perform edge detection on the main image (position + normal) - to detect discontinuities in reflections.
-    edgeDetectionRenderer.performEdgeDetection( deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget() );
+    //edgeDetectionRenderer.performEdgeDetection( deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget() );
 
     // Combine main image with reflections and refractions.
-    combiningRenderer.combine( finalRenderTarget, edgeDetectionRenderer.getValueRenderTarget(), shadingRenderer.getColorRenderTarget(), halfSizeTempRenderTargets );
+    combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), deferredRenderer.getNormalRenderTarget(), deferredRenderer.getPositionRenderTarget(), deferredRenderer.getDepthRenderTarget() );
 
     switch (activeView)
     {

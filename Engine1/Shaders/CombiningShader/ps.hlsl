@@ -1,9 +1,18 @@
-Texture2D<uint>   edgeDistanceTexture           : register( t0 );
-Texture2D<float4> srcTexture                    : register( t1 );
-Texture2D<float4> srcTextureUpscaledMipmaps[30] : register( t2 ); // #TODO: How to know texture array size?
+Texture2D<float4> g_colorTexture           : register( t0 );
+Texture2D<float4> g_normalTexture          : register( t1 );
+Texture2D<float4> g_positionTexture        : register( t2 );
+Texture2D<float>  g_depthTexture           : register( t3 );
 
+SamplerState g_pointSamplerState;
+SamplerState g_linearSamplerState;
 
-SamplerState samplerState;
+cbuffer ConstantBuffer
+{
+    float  normalThreshold;
+    float3 pad1;
+    float  positionThresholdSquare;
+    float3 pad2;
+};
 
 struct PixelInputType
 {
@@ -12,53 +21,118 @@ struct PixelInputType
 	float2 texCoord : TEXCOORD1;
 };
 
-static const float2 imageSize = float2( 1024.0f, 768.0f );
+static const float2 g_imageSize = float2( 1024.0f, 768.0f );
+
+// Position threshold needs to be larger when we sample with larger radius (oversampling ratio). Same for normal threshold.
+// Some object id buffer would be useful to reject samples from different objects. It's impossible now to tell whether we hit the same object when sampling radius is big.
+
+// Wanted sampling level should decrease with distance to the pixel - because roughness in screen-space decreaes (and sampling radius).
+
+static const float zNear = 0.1f;
+static const float zFar  = 1000.0f;
+
+// Idea: Could check which level normal differs from highest level normal to learn how far from the edge center pixel is.
+// IDEA: Could use depth to decide the maximum sampling level. It's because when we are very close to the object, there is more flat surface on the screen.
+
+float linearizeDepth( float depthSample );
 
 float4 main(PixelInputType input) : SV_Target
 {
-    float level = 10.0f;
+    // IDEA: When depth is below 1 - skip taking log2 from it. log2 is too steep below 1. Use depth directly.
+
+    const float depth = max( 0.0f, linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ) ) ); // Have to account for fov tanges?
 
     float4 textureColor = float4( 0.0f, 0.0f, 0.0f, 0.5f );
 
-    const int2 texCoordsInt = (int2)( imageSize * input.texCoord );
-    const uint distToEdge   = edgeDistanceTexture.Load( int3( texCoordsInt, 0 ) );
+    const float samplingLevel0 = 0.0f;
 
-    //level = ( distToEdge == 0 ? 0.0f : round( min( level, floor( log2( distToEdge ) ) ) ) ); // OK - but jerky transitions.
-    level = ( distToEdge == 0 ? 0.0f : min( level, log2( distToEdge ) ) );
+    // Decreased by one from the real wanted level.
+    const float samplingLevel1 = depth > 1.0f 
+        ? min( 8.0f, samplingLevel0 / log2( depth ) )
+        : min( 8.0f, samplingLevel0 /       depth ); 
 
-    { // 9-tap Gaussian blur applied through 4 texture samples (bilinear sampling).
-        float2 pixelHalfSize0 = float2( 1.0f / 2048.0f, 1.0f / 1536.0f ); // 1024x768 * 2
-        float2 pixelSize = pixelHalfSize0 * 2.0f * level;
+    const int2 texCoordsInt = (int2)( g_imageSize * input.texCoord );
 
-        float3 textureColorLeftUp    = srcTexture.SampleLevel( samplerState, input.texCoord + float2( -pixelSize.x, -pixelSize.y ), level ).rgb;
-        float3 textureColorRightUp   = srcTexture.SampleLevel( samplerState, input.texCoord + float2(  pixelSize.x, -pixelSize.y ), level ).rgb;
-        float3 textureColorLeftDown  = srcTexture.SampleLevel( samplerState, input.texCoord + float2( -pixelSize.x,  pixelSize.y ), level ).rgb;
-        float3 textureColorRightDown = srcTexture.SampleLevel( samplerState, input.texCoord + float2(  pixelSize.x,  pixelSize.y ), level ).rgb;
+    const float samplingLevel2 = min( 4.0f, samplingLevel1 );
+    const float samplingRadius = pow( 2.0f, samplingLevel1 - samplingLevel2 );
 
-        textureColor.rgb = ( textureColorLeftUp + textureColorRightUp + textureColorLeftDown + textureColorRightDown ) * 0.25f;
+    const float samplingStep = max( 1.0f, floor( sqrt( samplingRadius ) ) );
+
+    if ( samplingLevel2 <= 0.0001f )
+    {
+        textureColor.rgb = g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).rgb;
+    }
+    else
+    {
+        // Sample highest resolution mipmap to get precise normal at the center pixel.
+        const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
+        const float3 centerPosition = g_positionTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
+
+        float2 pixelSize0 = float2( 1.0f / 1024.0f, 1.0f / 768.0f );
+        float2 pixelSize = pixelSize0 * (float)pow( 2, samplingLevel2 );
+
+        // Always use highest resolution center pixel sample to avoid black pixels.
+        float sampleCount = 0.0f;
+
+        const float2 centerTexCoords = input.texCoord;
+
+        // Note: Sample more sparsly when large sampling radius is used to avoid taking too many samples and decreasing performance.
+        // Usually large sampling radius is caused by zooming on an object or very high roughness, to skipping some samples causes no problem then.
+        for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep ) 
+        {
+            for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
+            {
+                // Has to account for depth, because the farther we are from the object,
+                // the bigger the difference in world position between neighboring pixels.
+                // TODO: How does it relate to sampling level?
+                const float neighborMaxAllowedDistFromCenter = sqrt(positionThresholdSquare) * sqrt(x*x + y*y) * depth;
+
+                const float2 texCoordShift = float2( pixelSize.x * x, pixelSize.y * y );
+
+                //const int2   texCoordsInt2 = (int2)( g_imageSize * (input.texCoord + texCoordShift) );
+                const int2   texCoordsInt2 = (int2)( g_imageSize * (float2(0.5f, 0.5f) + texCoordShift) );
+
+                if ( abs(texCoordsInt.x - texCoordsInt2.x) <= 1 || abs(texCoordsInt.y - texCoordsInt2.y) <= 1 )
+                    return float4(1.0f, 0.0f, 0.0f, 0.15f);
+
+                //const float  neighborDistToEdge = (float)g_edgeDistanceTexture.Load( int3( texCoordsInt2, 0 ) );
+
+                // Sample lower res normal to get possibly blurred or sharp normal at neighbor pixel.
+                const float3 neightborNormal   = normalize( g_normalTexture.SampleLevel( g_pointSamplerState, centerTexCoords + texCoordShift, samplingLevel2 ).xyz );
+                const float3 neightborPosition = g_positionTexture.SampleLevel( g_linearSamplerState, centerTexCoords + texCoordShift, samplingLevel2 ).xyz;
+                    
+                const float  normalsDot = dot( centerNormal, neightborNormal );
+                const float3 positionDiff = centerPosition - neightborPosition;
+
+                // Why normals sometimes get 0 correct samples, when they should get at least several? The same with position. Because of avaraged colors in mipmaps! Obviously...
+
+                //// PROBLEM: normal texture has much higher resolution, so normals near the edge can match, while colors near the edge don't match. 
+                if ( /*dot( positionDiff, positionDiff )*/ length( positionDiff ) < neighborMaxAllowedDistFromCenter && normalsDot > normalThreshold ) 
+                {
+                    textureColor.rgb += g_colorTexture.SampleLevel( g_linearSamplerState, centerTexCoords + texCoordShift * 0.5f, samplingLevel2 ).rgb;
+                    
+                    sampleCount += 1.0f;
+                }
+            }
+        }
+
+        //textureColor.r = sampleCount / 5.0f;
+
+        if ( sampleCount > 0 ) {
+            // Divide summed color by the number of samples.
+            textureColor.rgb /= sampleCount;
+        } else {
+            textureColor.rgb += g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).rgb;
+        }
     }
 
-    // No blur.
-    //textureColor.rgb = srcTexture.SampleLevel( samplerState, input.texCoord, round(level) ).rgb;
-
-    //if ( level >= 3.99f )
-    //    textureColor.rgb = float3( 0.0f, 1.0f, 0.0f ); // green
-    //else if ( level >= 2.99f )
-    //    textureColor.rgb = float3( 1.0f, 1.0f, 0.0f ); // yellow
-    //else if ( level >= 1.99f )
-    //    textureColor.rgb = float3( 1.0f, 0.0f, 0.0f ); // red
-    //else if ( level >= 0.99f )
-    //    textureColor.rgb = float3( 1.0f, 0.0f, 1.0f ); // purple
-    //else if ( level >= 0.0f )
-    //    textureColor.rgb = float3( 1.0f, 1.0f, 1.0f ); // white
-
-    // When sampling mipmaps, sampling between mipmaps gets us free bilinear filtering.
-    // Sampling at different level of mipmaps is actually a gaussian blur (if used higher weights for sharper mipmaps).
-	//   float4 textureColor = 0.2f * srcTexture.SampleLevel( samplerState, input.texCoord, 4.5f );
-    //   textureColor += 0.2f * srcTexture.SampleLevel( samplerState, input.texCoord, 5.5f );
-    //   textureColor += 0.2f * srcTexture.SampleLevel( samplerState, input.texCoord, 6.5f );
-    //   textureColor += 0.2f * srcTexture.SampleLevel( samplerState, input.texCoord, 7.5f );
-    //   textureColor += 0.2f * srcTexture.SampleLevel( samplerState, input.texCoord, 8.5f );
-
 	return textureColor;
+}
+
+float linearizeDepth( float depthSample )
+{
+    depthSample = 2.0 * depthSample - 1.0;
+    float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthSample * (zFar - zNear));
+
+    return zLinear;
 }

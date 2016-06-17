@@ -127,7 +127,8 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >& renderTargetsF4,
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > >& renderTargetsU1, 
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargetsU4, 
-                                                const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget )
+                                                const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget,
+                                                const int mipmapLevel )
 {
 	if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - renderer not initialized." );
 	if ( renderTargetsF2.size() + renderTargetsU4.size() > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - too many render targets passed. Number exceeds the supported maximum." );
@@ -138,7 +139,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 		//if ( renderTargets.size() == currentRenderTargetViews.size() ) {
 			for ( unsigned int i = 0; i < renderTargetsF2.size(); ++i ) {
 				// Check each pair of render targets at corresponding indexes.
-				if ( currentRenderTargetViews.size() <= i || renderTargetsF2.at( i )->getRenderTargetView() != currentRenderTargetViews.at( i ) ) {
+				if ( currentRenderTargetViews.size() <= i || renderTargetsF2.at( i )->getRenderTargetView( mipmapLevel ) != currentRenderTargetViews.at( i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -147,7 +148,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
             const unsigned int first = (unsigned int)renderTargetsF2.size();
             for ( unsigned int i = 0; i < renderTargetsF4.size(); ++i ) {
 				// Check each pair of render targets at corresponding indexes.
-				if ( currentRenderTargetViews.size() <= (first + i) || renderTargetsF4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( first + i ) ) {
+				if ( currentRenderTargetViews.size() <= (first + i) || renderTargetsF4.at( i )->getRenderTargetView( mipmapLevel ) != currentRenderTargetViews.at( first + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -156,7 +157,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
             const unsigned int second = first + (unsigned int)renderTargetsF4.size();
             for ( unsigned int i = 0; i < renderTargetsU1.size(); ++i ) {
 				// Check each pair of render targets at corresponding indexes.
-				if ( currentRenderTargetViews.size() <= (second + i) || renderTargetsU1.at( i )->getRenderTargetView() != currentRenderTargetViews.at( second + i ) ) {
+				if ( currentRenderTargetViews.size() <= (second + i) || renderTargetsU1.at( i )->getRenderTargetView( mipmapLevel ) != currentRenderTargetViews.at( second + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -165,7 +166,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
             const unsigned int third = second + (unsigned int)renderTargetsU1.size();
             for ( unsigned int i = 0; i < renderTargetsU4.size(); ++i ) {
 				// Check each pair of render targets at corresponding indexes.
-				if ( currentRenderTargetViews.size() <= (second + i) || renderTargetsU4.at( i )->getRenderTargetView() != currentRenderTargetViews.at( third + i ) ) {
+				if ( currentRenderTargetViews.size() <= (second + i) || renderTargetsU4.at( i )->getRenderTargetView( mipmapLevel ) != currentRenderTargetViews.at( third + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -177,7 +178,7 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 
 		// Check if depth render target to be enabled is the same as the current one.
 		if ( ( depthRenderTarget == nullptr ) != ( currentDepthRenderTargetView == nullptr ) 
-             || ( depthRenderTarget && depthRenderTarget->getDepthStencilView() == currentDepthRenderTargetView ) )
+             || ( depthRenderTarget && depthRenderTarget->getDepthStencilView( mipmapLevel ) == currentDepthRenderTargetView ) )
 			sameAsCurrent = false;
 	}
 
@@ -188,20 +189,20 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 	// Collect and save render target views from passed render targets.
     currentRenderTargetViews.clear();
 	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > >& renderTarget : renderTargetsF2 )
-		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
+		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > >& renderTarget : renderTargetsF4 )
-		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
+		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > >& renderTarget : renderTargetsU1 )
-		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
+		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > >& renderTarget : renderTargetsU4 )
-		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView() );
+		currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
 	// Get and save depth render target view if passed.
 	if ( depthRenderTarget )
-		currentDepthRenderTargetView = depthRenderTarget->getDepthStencilView();
+		currentDepthRenderTargetView = depthRenderTarget->getDepthStencilView( mipmapLevel );
 
 	// Enable render targets.
 	deviceContext->OMSetRenderTargets( (unsigned int)currentRenderTargetViews.size(), currentRenderTargetViews.data(), currentDepthRenderTargetView );
@@ -211,7 +212,8 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
                                                          const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2,
                                                          const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4,
                                                          const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1,
-                                                         const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4 )
+                                                         const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4,
+                                                         const int mipmapLevel )
 {
     if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::enableUnorderedAccessTargets - renderer not initialized." );
     //#TODO: WARNING: For pixel shaders, UAVStartSlot param should be equal to the number of render-target views being bound.
@@ -222,7 +224,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
 		//if ( unorderedAccessTargets.size() == currentUnorderedAccessTargetViews.size() ) {
 			for ( unsigned int i = 0; i < unorderedAccessTargetsF1.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( currentUnorderedAccessTargetViews.size() <= i || unorderedAccessTargetsF1.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( i ) ) {
+				if ( currentUnorderedAccessTargetViews.size() <= i || unorderedAccessTargetsF1.at( i )->getUnorderedAccessView( mipmapLevel ) != currentUnorderedAccessTargetViews.at( i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -231,7 +233,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             const unsigned int first = (unsigned int)unorderedAccessTargetsF1.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsF2.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( currentUnorderedAccessTargetViews.size() <= (first + i) || unorderedAccessTargetsF2.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( first + i ) ) {
+				if ( currentUnorderedAccessTargetViews.size() <= (first + i) || unorderedAccessTargetsF2.at( i )->getUnorderedAccessView( mipmapLevel ) != currentUnorderedAccessTargetViews.at( first + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -240,7 +242,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             const unsigned int second = first + (unsigned int)unorderedAccessTargetsF2.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsF4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( currentUnorderedAccessTargetViews.size() <= (second + i) || unorderedAccessTargetsF4.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( second + i ) ) {
+				if ( currentUnorderedAccessTargetViews.size() <= (second + i) || unorderedAccessTargetsF4.at( i )->getUnorderedAccessView( mipmapLevel ) != currentUnorderedAccessTargetViews.at( second + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -249,7 +251,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             const unsigned int third = second + (unsigned int)unorderedAccessTargetsF4.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsU1.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU1.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( third + i ) ) {
+				if ( currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU1.at( i )->getUnorderedAccessView( mipmapLevel ) != currentUnorderedAccessTargetViews.at( third + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -258,7 +260,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             const unsigned int fourth = third + (unsigned int)unorderedAccessTargetsU1.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsU4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU4.at( i )->getUnorderedAccessView() != currentUnorderedAccessTargetViews.at( fourth + i ) ) {
+				if ( currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU4.at( i )->getUnorderedAccessView( mipmapLevel ) != currentUnorderedAccessTargetViews.at( fourth + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -276,32 +278,33 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
 	// Collect and save UAV target views from passed UAV targets.
     currentUnorderedAccessTargetViews.clear();
 	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >& unorderedAccessTarget : unorderedAccessTargetsF1 )
-		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > >& unorderedAccessTarget : unorderedAccessTargetsF2 )
-		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > >& unorderedAccessTarget : unorderedAccessTargetsF4 )
-		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > >& unorderedAccessTarget : unorderedAccessTargetsU1 )
-		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > >& unorderedAccessTarget : unorderedAccessTargetsU4 )
-		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView() );
+		currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
 
 	// Enable UAV targets.
     deviceContext->CSSetUnorderedAccessViews( 0, (unsigned int)currentUnorderedAccessTargetViews.size(), currentUnorderedAccessTargetViews.data(), nullptr );
 }
 
-void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4 )
+void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4,
+                                                         const int mipmapLevel )
 {
     const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >  emptyF1;
     const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > emptyF2;
     const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > emptyU1;
     const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > emptyU4;
 
-    enableUnorderedAccessTargets( emptyF1, emptyF2, unorderedAccessTargetsF4, emptyU1, emptyU4 );
+    enableUnorderedAccessTargets( emptyF1, emptyF2, unorderedAccessTargetsF4, emptyU1, emptyU4, mipmapLevel );
 }
 
 void Direct3DRendererCore::disableRenderTargetViews()

@@ -160,13 +160,23 @@ Next2:
 
 	  - instead of texture array for reflection upscaled mipmaps use 3d texture. It allows for sampling between layers based on dynamic, float level.
 
-	  - add option to get shader view/unordered view for any mipmap level of texture2D
+	  - why rendering from one mipmap level to another doesn't work?
+
+	  - create normal buffer and position buffer mipmaps. Render it to check how it looks near the edges?
+	  - this mipmaps could be used to detect edges - normals on the edges will be blended, thus will be different from normals further from the edges.
+	  - sample those mipmaps in combining shader, instead of high res buffers. Ignore dist to edge texture.
+
+	  -- pass normal_dot tolerance to shader as param and play with it.
+
+
+	  - sample more sparsly when there is large oversampling ratio !!
+
 
 	  How to generate upscaled mipmaps:
 	  - start with 2 level mipmap - render it stretched to 3d texture layer 0.
 	  - take level 3 mipmap and render it to level 2 mipmap. Then render level 2 mipmap to 3d texture layer 1.
 	  - take level 4 mipmap and render it to level 3 mipmap. Then render it to level 2 mipmap. Then to 3d texture layer 2.
-	     and so on...
+	     and so on... - but how about the problem of binding the same resource on input and output? Should I have separate shader resource view for each mipmap level as well to avoid the problem?
 
    ----------------------------------------------------
    Refactoring:

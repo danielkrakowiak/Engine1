@@ -38,9 +38,15 @@ namespace Engine1
 
         // TODO: alpha should be replaced by "alpha texture".
         void combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > edgeDistanceTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                      const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >& srcTextureUpscaledMipmaps );
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture );
+
+        void  setNormalThreshold( float threshold );
+        float getNormalThreshold() const;
+        void  setPositionThreshold( float threshold );
+        float getPositionThreshold() const;
 
         private:
 
@@ -56,6 +62,10 @@ namespace Engine1
 
         Microsoft::WRL::ComPtr< ID3D11RasterizerState > rasterizerState;
         Microsoft::WRL::ComPtr< ID3D11BlendState >      blendState;
+
+        // For debug.
+        float normalThreshold;   // Normals with dot higher than this threshold are treated as part of the same surface.
+        float positionThreshold; // Positions where each component is smaller than this threshold are treated as part of the same surface.
 
         // Default mesh.
         RectangleMesh rectangleMesh;

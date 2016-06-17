@@ -94,7 +94,7 @@ void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext& deviceCont
     { // Set input textures.
         const unsigned int resourceCount = 1;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
-            srcTexture.getShaderResourceView()
+            srcTexture.getShaderResourceView( (int)srcMipmapLevel )
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );

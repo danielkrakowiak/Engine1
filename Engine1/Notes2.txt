@@ -79,6 +79,10 @@ Another semi-final idea: (VERY COMPLEX)
    Could be done as edge detection and then run in several passes to fill image with colors describing distance to the edge.
 3) Use NOE to select the mipmap (0 level for NOE = 0, 1 level for NOE = 1) and sample the mipmap in radius depanding on the pixel roughness.
 
+Third idea:
+1) Instead of sampling the lowest mipmap needed, sample one mipmap higher areound the pixel.
+2) Generate mipmaps for normal and position buffers. Use them to detect edges when sampling around the pixel (sample them at the same level as color texture).
+
 My references:
 https://software.intel.com/en-us/blogs/2014/07/15/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms - great analysis of performance of different methods and tricks to get fast blur.
 https://bartwronski.com/2014/01/25/the-future-of-screenspace-reflections/ - about screen-space reflections but also usable for my case.

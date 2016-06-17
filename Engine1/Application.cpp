@@ -269,6 +269,8 @@ void Application::run() {
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > >        frameFloat2;
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
 
+        renderer.prepare();
+
         if ( scene )
             std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) = renderer.renderScene( *scene, camera );
 
@@ -299,6 +301,13 @@ void Application::run() {
 			std::stringstream ss;
 			ss << "Mouse pos: " << inputManager.getMousePos().x << ", " << inputManager.getMousePos().y << ", ";
 			deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 100.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		}
+
+        { // Render combining renderer position/normal thresholds.
+			std::stringstream ss;
+			ss << "Combining renderer normal threshold:   " << combiningRenderer.getNormalThreshold() << std::endl;
+            ss << "Combining renderer position threshold: " << combiningRenderer.getPositionThreshold() << std::endl;
+			deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
         // Required to be able to display depth-stencil buffer.
@@ -467,6 +476,24 @@ void Application::onKeyPress( int key )
         if ( scene && !scenePath.empty() && inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::s ) ) {
             saveScene( scenePath );
         }
+    }
+
+    static float normalThresholdChange = 0.01f;
+    if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::n ) )
+    {
+        if ( key == InputManager::Keys::plus )
+            combiningRenderer.setNormalThreshold( combiningRenderer.getNormalThreshold() + normalThresholdChange );
+        else if ( key == InputManager::Keys::minus )
+            combiningRenderer.setNormalThreshold( combiningRenderer.getNormalThreshold() - normalThresholdChange );
+    }
+
+    static float positionThresholdChange = 0.01f;
+    if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::p ) )
+    {
+        if ( key == InputManager::Keys::plus )
+            combiningRenderer.setPositionThreshold( combiningRenderer.getPositionThreshold() + positionThresholdChange );
+        else if ( key == InputManager::Keys::minus )
+            combiningRenderer.setPositionThreshold( combiningRenderer.getPositionThreshold() - positionThresholdChange );
     }
 
     if ( key == InputManager::Keys::tilde )

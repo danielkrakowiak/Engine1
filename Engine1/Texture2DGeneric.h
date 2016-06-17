@@ -158,6 +158,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11ShaderResourceView > m_shaderResourceView;
 
         // Resource views for each mipmap level.
+        std::vector< Microsoft::WRL::ComPtr< ID3D11ShaderResourceView > >  m_shaderResourceViews;
         std::vector< Microsoft::WRL::ComPtr< ID3D11DepthStencilView > >    m_depthStencilViews;
         std::vector< Microsoft::WRL::ComPtr< ID3D11RenderTargetView > >    m_renderTargetViews;
         std::vector< Microsoft::WRL::ComPtr< ID3D11UnorderedAccessView > > m_unorderedAccessViews;
@@ -583,15 +584,32 @@ namespace Engine1
         const int mipmapCount = supportsMipmapGenerationOnGpu() ? (1 + (int)(floor( log2( std::max( width, height ) ) ))) : 1;
 
         if ( (textureBindFlags & D3D11_BIND_SHADER_RESOURCE) != 0 ) {
-            D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-	        ZeroMemory( &desc, sizeof( desc ) );
-	        desc.Format                    = shaderResourceViewFormat;
-	        desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	        desc.Texture2D.MostDetailedMip = 0;
-	        desc.Texture2D.MipLevels       = (UINT)-1; // All mipmaps.
+            { // Create shader resource view to access all mipmap levels.
+                D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+	            ZeroMemory( &desc, sizeof( desc ) );
+	            desc.Format                    = shaderResourceViewFormat;
+	            desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+	            desc.Texture2D.MostDetailedMip = 0;
+	            desc.Texture2D.MipLevels       = (UINT)-1; // All mipmaps.
 
-            HRESULT result = device.CreateShaderResourceView( m_texture.Get(), &desc, m_shaderResourceView.ReleaseAndGetAddressOf() );
-            if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating shader resource view on GPU failed." );
+                HRESULT result = device.CreateShaderResourceView( m_texture.Get(), &desc, m_shaderResourceView.ReleaseAndGetAddressOf() );
+                if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating shader resource view on GPU failed." );
+            }
+
+            // Create shader resource view to access each mipmap separately.
+            m_shaderResourceViews.resize( mipmapCount );
+            for ( int mipmapIndex = 0; mipmapIndex < mipmapCount; ++mipmapIndex )
+            {
+                D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+	            ZeroMemory( &desc, sizeof( desc ) );
+	            desc.Format                    = shaderResourceViewFormat;
+	            desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+	            desc.Texture2D.MostDetailedMip = mipmapIndex;
+	            desc.Texture2D.MipLevels       = 1;
+
+                HRESULT result = device.CreateShaderResourceView( m_texture.Get(), &desc, m_shaderResourceViews[ mipmapIndex ].ReleaseAndGetAddressOf() );
+                if ( result < 0 ) throw std::exception( "Texture2D::createTextureViewsOnGpu - creating shader resource view on GPU failed." );
+            }
 
             m_shaderResourceViewFormat = shaderResourceViewFormat;
         }
@@ -599,7 +617,7 @@ namespace Engine1
         if ( (textureBindFlags & D3D11_BIND_RENDER_TARGET) != 0 ) 
         {
             if ( renderTargetViewFormat != DXGI_FORMAT_UNKNOWN )
-            {
+            { // Create render target view to access each mipmap separately.
                 m_renderTargetViews.resize( mipmapCount );
                 for ( int mipmapIndex = 0; mipmapIndex < mipmapCount; ++mipmapIndex )
                 {
@@ -626,7 +644,7 @@ namespace Engine1
         }
 
         if ( (textureBindFlags & D3D11_BIND_DEPTH_STENCIL) != 0 ) 
-        {
+        { // Create depth stencil view to access each mipmap separately.
             m_depthStencilViews.resize( mipmapCount );
             for ( int mipmapIndex = 0; mipmapIndex < mipmapCount; ++mipmapIndex )
             {
@@ -644,7 +662,7 @@ namespace Engine1
         }
 
         if ( (textureBindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0 ) 
-        {
+        { // Create unordered access view to access each mipmap separately.
             m_unorderedAccessViews.resize( mipmapCount );
             for ( int mipmapIndex = 0; mipmapIndex < mipmapCount; ++mipmapIndex )
             {
@@ -801,6 +819,7 @@ namespace Engine1
 
         m_shaderResourceView.Reset();
 
+        m_shaderResourceViews.clear();
         m_renderTargetViews.clear();
         m_depthStencilViews.clear();
         m_unorderedAccessViews.clear();

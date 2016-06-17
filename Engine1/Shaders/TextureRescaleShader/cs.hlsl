@@ -27,7 +27,8 @@ void main( uint3 groupId : SV_GroupID,
 {
     const float2 texCoords = ((float2)dispatchThreadId.xy + float2( 0.5f, 0.5f )) * destTexturePixelSize;
 
-    const float4 srcColor = g_srcTexture.SampleLevel( samplerState, texCoords, (float)srcMipmapLevel );
+    // Sample 0 level, because passed SRV already points to a specific mipmap.
+    const float4 srcColor = g_srcTexture.SampleLevel( samplerState, texCoords, 0.0f/*(float)srcMipmapLevel*/ ); 
 
     g_DestTexture[ dispatchThreadId.xy ] = srcColor;
 }

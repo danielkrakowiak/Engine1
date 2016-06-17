@@ -54,6 +54,9 @@ namespace Engine1
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
                          std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
 
+        // Should be called at the beginning of each frame, before calling renderScene(). 
+        void prepare();
+
         std::tuple< 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,

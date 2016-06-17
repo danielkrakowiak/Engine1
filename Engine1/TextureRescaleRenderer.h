@@ -28,7 +28,8 @@ namespace Engine1
 
         void rescaleTexture( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                              const unsigned char srcMipmapLevel,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 > > destTexture );
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture,
+                             const unsigned char destMipmapLevel );
 
         private:
 

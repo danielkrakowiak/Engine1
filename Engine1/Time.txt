@@ -207,4 +207,9 @@ Sat 21.05.2016 - 7h - Thinking hard how to blur reflections efficently using gau
 Mon 23.05.2016 - 3h - Added EdgeDetectionRenderer, EdgeDetectionComputeShader, EdgeDistanceComputeShader. Trying to render distance to the nearest edge for each pixel.
 Wed 25.05.2016 - 2h - Trying to fix edge distance calculation.
 Thu 26.05.2016 - 9h - Fixed edge distance calculation - had to use two textures instead of one to store intermediate results and avoid threads corrupting each other's work. Used edge distance to decide which mipmap level to sample near the edges. Played with sampling, calculating mipmap level etc.
-Fri 27.05.2016 - 4h - Optimized edge distance calculation. Added TextureRescaleRenderer, TextureRescaleComputeShader to upscale reflection/refraction mipmaps. Added an option to get UAV/RenderTarget/DepthStencil view for each texture mipmap separately.
+Fri 27.05.2016 - 6h - Optimized edge distance calculation. Added TextureRescaleRenderer, TextureRescaleComputeShader to upscale reflection/refraction mipmaps. Added an option to get UAV/RenderTarget/DepthStencil/ShaderResource view for each texture mipmap separately. Trying to upscale one mipmap and render it into another mipmap of the same texture.
+--- May 2016 - 109h
+Sat 11.05.2016 - 3h - Trying to blur reflections near the edges of object using multisampling. Failed on several approaches. Found a new way to detect edges using normal/position buffer mipmaps.
+Sun 12.05.2016 - 4h - Modified combining shader to use normal/position g-buffer mipmaps to detect edges when sampling reflection image.
+Tue 14.05.2016 - 3h - Experimented with the combining shader to blur reflections nicely.
+Wed 15.05.2016 - 2h - Accounted for distance to object when selecting which reflection mipmap to sample. The farther the camera the higher-resolution mipmap has to be sampled.

@@ -15,7 +15,9 @@ CombiningRenderer::CombiningRenderer( Direct3DRendererCore& rendererCore ) :
 rendererCore( rendererCore ),
 initialized( false ),
 combiningVertexShader( std::make_shared< CombiningVertexShader >() ),
-combiningFragmentShader( std::make_shared< CombiningFragmentShader >() )
+combiningFragmentShader( std::make_shared< CombiningFragmentShader >() ),
+normalThreshold( 0.97f ),
+positionThreshold( 0.15f )
 {}
 
 CombiningRenderer::~CombiningRenderer()
@@ -54,9 +56,10 @@ void CombiningRenderer::initialize( const int screenWidth, const int screenHeigh
 }
 
 void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > edgeDistanceTexture,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                                 const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >& srcTextureUpscaledMipmaps )
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture )
 {
     if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 
@@ -72,7 +75,7 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
 
 	{ // Configure and enable shaders.
 		combiningVertexShader->setParameters( *deviceContext.Get() );
-		combiningFragmentShader->setParameters( *deviceContext.Get(), edgeDistanceTexture, srcTexture, srcTextureUpscaledMipmaps );
+		combiningFragmentShader->setParameters( *deviceContext.Get(), srcTexture, normalTexture, positionTexture, depthTexture, normalThreshold, positionThreshold );
 
 		rendererCore.enableRenderingShaders( combiningVertexShader, combiningFragmentShader );
 	}
@@ -83,6 +86,26 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
 	rendererCore.draw( rectangleMesh );
 
 	combiningFragmentShader->unsetParameters( *deviceContext.Get() );
+}
+
+void CombiningRenderer::setNormalThreshold( float threshold )
+{
+    normalThreshold = fmax( 0.0f, fmin( 1.0f, threshold));
+}
+
+float CombiningRenderer::getNormalThreshold() const
+{
+    return normalThreshold;
+}
+
+void CombiningRenderer::setPositionThreshold( float threshold )
+{
+    positionThreshold = fmax( 0.0f, threshold);
+}
+
+float CombiningRenderer::getPositionThreshold() const
+{
+    return positionThreshold;
 }
 
 ComPtr<ID3D11RasterizerState> CombiningRenderer::createRasterizerState( ID3D11Device& device )
