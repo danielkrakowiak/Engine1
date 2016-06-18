@@ -33,18 +33,17 @@ static const float zFar  = 1000.0f;
 
 // Idea: Could check which level normal differs from highest level normal to learn how far from the edge center pixel is.
 // IDEA: Could use depth to decide the maximum sampling level. It's because when we are very close to the object, there is more flat surface on the screen.
+// IDEA: When depth is below 1 - skip taking log2 from it. log2 is too steep below 1. Use depth directly or something else.
 
 float linearizeDepth( float depthSample );
 
 float4 main(PixelInputType input) : SV_Target
 {
-    // IDEA: When depth is below 1 - skip taking log2 from it. log2 is too steep below 1. Use depth directly.
-
     const float depth = max( 0.0f, linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ) ) ); // Have to account for fov tanges?
 
     float4 textureColor = float4( 0.0f, 0.0f, 0.0f, 0.5f );
 
-    const float samplingLevel0 = 0.0f;
+    const float samplingLevel0 = 5.0f;
 
     // Decreased by one from the real wanted level.
     const float samplingLevel1 = depth > 1.0f 
@@ -104,9 +103,6 @@ float4 main(PixelInputType input) : SV_Target
                 const float  normalsDot = dot( centerNormal, neightborNormal );
                 const float3 positionDiff = centerPosition - neightborPosition;
 
-                // Why normals sometimes get 0 correct samples, when they should get at least several? The same with position. Because of avaraged colors in mipmaps! Obviously...
-
-                //// PROBLEM: normal texture has much higher resolution, so normals near the edge can match, while colors near the edge don't match. 
                 if ( /*dot( positionDiff, positionDiff )*/ length( positionDiff ) < neighborMaxAllowedDistFromCenter && normalsDot > normalThreshold ) 
                 {
                     textureColor.rgb += g_colorTexture.SampleLevel( g_linearSamplerState, centerTexCoords + texCoordShift * 0.5f, samplingLevel2 ).rgb;
@@ -115,8 +111,6 @@ float4 main(PixelInputType input) : SV_Target
                 }
             }
         }
-
-        //textureColor.r = sampleCount / 5.0f;
 
         if ( sampleCount > 0 ) {
             // Divide summed color by the number of samples.

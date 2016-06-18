@@ -11,7 +11,9 @@ struct PixelInputType
     float4 position      : SV_POSITION;
     float3 positionWorld : TEXCOORD0;
 	float3 normal        : TEXCOORD1;
-	float2 texCoord      : TEXCOORD2;
+    float3 bitangent     : TEXCOORD2;
+    float3 tangent       : TEXCOORD3;
+	float2 texCoord      : TEXCOORD4;
 };
 
 struct PixelOutputType 
@@ -30,7 +32,15 @@ PixelOutputType main( PixelInputType input )
 
     output.position = float4( input.positionWorld, 0.0f );
 	output.albedo   = albedoTexture.Sample( samplerState, input.texCoord );
-	output.normal   = float4( input.normal, 0.0f );
+
+    float3x3 tangentToWorldMatrix = float3x3( 
+        normalize( input.tangent ),
+        normalize( input.bitangent ),
+        normalize( input.normal )
+    );
+			
+	const float3 normalFromMap = ( normalTexture.Sample( samplerState, input.texCoord ).rgb - 0.5f ) * 2.0f;
+	output.normal = float4( normalize( mul( normalFromMap, tangentToWorldMatrix ) ), 0.0f );
 
     output.metalness         = metalnessTexture.Sample( samplerState, input.texCoord ).r;
     output.roughness         = roughnessTexture.Sample( samplerState, input.texCoord ).r;

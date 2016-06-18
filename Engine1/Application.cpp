@@ -201,7 +201,7 @@ void Application::run() {
     Font font2( uint2(screenWidth, screenHeight) );
     font2.loadFromFile( "../Engine1/Assets/Fonts/DoulosSILR.ttf", 15 );
 
-	double frameTime = 0.0;
+	double frameTimeMs = 0.0;
 
 	while ( run ) {
 		Timer frameStartTime;
@@ -218,10 +218,17 @@ void Application::run() {
 
         // Translate / rotate the default actor.
         bool movingActors = false;
-        if ( windowFocused && defaultBlockActor ) {
+        if ( windowFocused && ( defaultBlockActor || defaultSkeletonActor ) ) {
+
+            std::shared_ptr< Actor > actor;
+            if ( defaultBlockActor )
+                actor = defaultBlockActor;
+            else
+                actor = defaultSkeletonActor;
+
             const float   translationSensitivity = 0.002f;//0.002f;
             const float   rotationSensitivity    = 0.0002f;
-            const float43 currentPose            = defaultBlockActor->getPose();
+            const float43 currentPose            = actor->getPose();
             const int2    mouseMove              = inputManager.getMouseMove();
 
             const float3 sensitivity(
@@ -231,10 +238,10 @@ void Application::run() {
                 );
 
             if ( inputManager.isKeyPressed( InputManager::Keys::r ) ) {
-                defaultBlockActor->getPose().rotate( (float)(mouseMove.x - mouseMove.y) * (float)frameTime * sensitivity * rotationSensitivity );
+                actor->getPose().rotate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * rotationSensitivity );
                 movingActors = true;
             } else if ( inputManager.isKeyPressed( InputManager::Keys::t ) ) {
-                defaultBlockActor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTime * sensitivity * translationSensitivity );
+                actor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity );
                 movingActors = true;
             }
         }
@@ -247,21 +254,35 @@ void Application::run() {
 
             const float acceleration = 1.0f;
 
-            if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTime * acceleration );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTime * acceleration );
-            if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) camera.accelerateRight( (float)frameTime * acceleration );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) camera.accelerateLeft( (float)frameTime * acceleration );
-            if ( inputManager.isKeyPressed( InputManager::Keys::e ) ) camera.accelerateUp( (float)frameTime * acceleration );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::q ) ) camera.accelerateDown( (float)frameTime * acceleration );
+            if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTimeMs * acceleration );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTimeMs * acceleration );
+            if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) camera.accelerateRight( (float)frameTimeMs * acceleration );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) camera.accelerateLeft( (float)frameTimeMs * acceleration );
+            if ( inputManager.isKeyPressed( InputManager::Keys::e ) ) camera.accelerateUp( (float)frameTimeMs * acceleration );
+            else if ( inputManager.isKeyPressed( InputManager::Keys::q ) ) camera.accelerateDown( (float)frameTimeMs * acceleration );
 
 			int2 mouseMove = inputManager.getMouseMove( );
-			camera.rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTime * cameraRotationSensitivity );
+			camera.rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTimeMs * cameraRotationSensitivity );
 		}
 
         inputManager.lockCursor( lockCursor );
         inputManager.updateMouseState();
 
-		camera.updateState( (float)frameTime );
+		camera.updateState( (float)frameTimeMs );
+
+        { // Update animations.
+            const std::unordered_set< std::shared_ptr<Actor> >& sceneActors = scene->getActors();
+
+            for ( const std::shared_ptr<Actor>& actor : sceneActors )
+            {
+                if ( actor->getType() != Actor::Type::SkeletonActor )
+                    continue;
+
+                const std::shared_ptr< SkeletonActor > skeletonActor = std::dynamic_pointer_cast< SkeletonActor >( actor );
+
+                skeletonActor->updateAnimation( (float)frameTimeMs / 1000.0f );
+            }
+        }
 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >         frameUchar4;
@@ -276,7 +297,7 @@ void Application::run() {
 
 		{ // Render FPS.
 			std::stringstream ss;
-			ss << "FPS: " << (int)(1000.0 / frameTime) << " / " << frameTime << "ms";
+			ss << "FPS: " << (int)(1000.0 / frameTimeMs) << " / " << frameTimeMs << "ms";
 			deferredRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
@@ -329,7 +350,7 @@ void Application::run() {
 		frameRenderer.displayFrame();
 
 		Timer frameEndTime;
-		frameTime = Timer::lapse( frameEndTime, frameStartTime );
+		frameTimeMs = Timer::lapse( frameEndTime, frameStartTime );
 	}
 }
 
@@ -478,6 +499,18 @@ void Application::onKeyPress( int key )
         }
     }
 
+    if ( key == InputManager::Keys::delete_ ) {
+        if ( scene ) {
+            if ( defaultBlockActor ) {
+                scene->removeActor( defaultBlockActor );
+                defaultBlockActor.reset();
+            } else if ( defaultSkeletonActor ) {
+                scene->removeActor( defaultSkeletonActor );
+                defaultSkeletonActor.reset();
+            }
+        }
+    }
+
     static float normalThresholdChange = 0.01f;
     if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::n ) )
     {
@@ -544,16 +577,21 @@ void Application::onMouseButtonPress( int button )
         // TODO: FOV shouldn't be hardcoded.
         const float fieldOfView = (float)MathUtil::pi / 4.0f;
 
-        std::shared_ptr< BlockActor > pickedActor;
-        std::shared_ptr< Light >      pickedLight;
+        std::shared_ptr< Actor > pickedActor;
+        std::shared_ptr< Light > pickedLight;
         std::tie( pickedActor, pickedLight ) = pickActorOrLight( *scene, camera, float2( (float)mousePos.x, (float)mousePos.y ), (float)screenWidth, (float)screenHeight, fieldOfView );
 
-        if ( pickedActor )
-            defaultBlockActor = pickedActor;
+        if ( pickedActor && pickedActor->getType() == Actor::Type::BlockActor ) {
+            defaultBlockActor    = std::static_pointer_cast< BlockActor >( pickedActor );
+            defaultSkeletonActor = nullptr;
+        } else {
+            defaultBlockActor    = nullptr;
+            defaultSkeletonActor = std::static_pointer_cast< SkeletonActor >( pickedActor );
+        }
     }
 }
 
-std::tuple< std::shared_ptr< BlockActor >, std::shared_ptr< Light > > 
+std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > > 
         Application::pickActorOrLight( const CScene& scene, const Camera& camera, const float2& targetPixel,
                                        const float screenWidth, const float screenHeight, const float fieldOfView )
 {
@@ -568,28 +606,45 @@ std::tuple< std::shared_ptr< BlockActor >, std::shared_ptr< Light > >
     const float3 rayOriginWorld = camera.getPosition();
     const float3 rayDirWorld    = MathUtil::getRayDirectionAtPixel( cameraPose, targetPixel, screenDimensions, fieldOfView );
 
-    float                         hitActorDistance = FLT_MAX;
-    std::shared_ptr< BlockActor > hitActor;
+    float                    hitActorDistance = FLT_MAX;
+    std::shared_ptr< Actor > hitActor;
 
     for( const std::shared_ptr< Actor >& actor : scene.getActors() )
     {
-        if ( actor->getType() != Actor::Type::BlockActor )
-            continue;
+        bool  hitOccurred = false;
+        float hitDistance = FLT_MAX;
 
-        const std::shared_ptr< BlockActor >& blockActor = std::static_pointer_cast< BlockActor >( actor );
-        if ( !blockActor->getModel() || !blockActor->getModel()->getMesh() )
-            continue;
+        if ( actor->getType() == Actor::Type::BlockActor )
+        {
+            const std::shared_ptr< BlockActor >& blockActor = std::static_pointer_cast< BlockActor >( actor );
+            if ( !blockActor->getModel() || !blockActor->getModel()->getMesh() )
+                continue;
 
-        float3 boxMinLocal, boxMaxLocal;
-        std::tie( boxMinLocal, boxMaxLocal ) = blockActor->getModel()->getMesh()->getBoundingBox();
+            float3 boxMinLocal, boxMaxLocal;
+            std::tie( boxMinLocal, boxMaxLocal ) = blockActor->getModel()->getMesh()->getBoundingBox();
+        
+            std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, blockActor->getPose(), boxMinLocal, boxMaxLocal );
 
-        bool  hitOccurred;
-        float hitDistance;
-        std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, blockActor->getPose(), boxMinLocal, boxMaxLocal );
+            if ( hitOccurred && hitDistance < hitActorDistance ) {
+                hitActorDistance = hitDistance;
+                hitActor         = blockActor;
+            }
+        }
+        else if ( actor->getType() == Actor::Type::SkeletonActor )
+        {
+            const std::shared_ptr< SkeletonActor >& skeletonActor = std::static_pointer_cast< SkeletonActor >( actor );
+            if ( !skeletonActor->getModel() || !skeletonActor->getModel()->getMesh() )
+                continue;
 
-        if ( hitOccurred && hitDistance < hitActorDistance ) {
-            hitActorDistance = hitDistance;
-            hitActor         = blockActor;
+            float3 boxMinLocal, boxMaxLocal;
+            std::tie( boxMinLocal, boxMaxLocal ) = skeletonActor->getModel()->getMesh()->getBoundingBox();
+        
+            std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, skeletonActor->getPose(), boxMinLocal, boxMaxLocal );
+
+            if ( hitOccurred && hitDistance < hitActorDistance ) {
+                hitActorDistance = hitDistance;
+                hitActor         = skeletonActor;
+            }
         }
     }
 
@@ -629,6 +684,7 @@ void Application::onDragAndDropFile( std::string filePath )
 	std::array< const std::string, 8 > textureExtensions       = { "bmp", "dds", "jpg", "jpeg", "png", "raw", "tga", "tiff" };
     std::array< const std::string, 1 > blockModelExtensions    = { "blockmodel" };
     std::array< const std::string, 1 > skeletonModelExtensions = { "skeletonmodel" };
+    std::array< const std::string, 1 > animationExtensions     = { "xaf" };
     std::array< const std::string, 1 > sceneExtensions         = { "scene" };
 
 	bool isBlockMesh     = false;
@@ -636,6 +692,7 @@ void Application::onDragAndDropFile( std::string filePath )
 	bool isTexture       = false;
     bool isBlockModel    = false;
     bool isSkeletonModel = false;
+    bool isAnimation     = false;
     bool isScene         = false;
 
 	for ( const std::string& blockMeshExtension : blockMeshExtensions ) {
@@ -661,6 +718,11 @@ void Application::onDragAndDropFile( std::string filePath )
     for ( const std::string& skeletonModelExtension : skeletonModelExtensions ) {
         if ( extension.compare( skeletonModelExtension ) == 0 )
             isSkeletonModel = true;
+    }
+
+    for ( const std::string& animationExtension : animationExtensions ) {
+        if ( extension.compare( animationExtension ) == 0 )
+            isAnimation = true;
     }
 
     for ( const std::string& sceneExtension : sceneExtensions ) {
@@ -839,6 +901,19 @@ void Application::onDragAndDropFile( std::string filePath )
         // Add new actor to the scene.
         defaultSkeletonActor = std::make_shared<SkeletonActor>( model, pose );
         scene->addActor( defaultSkeletonActor );
+    }
+
+    if ( isAnimation && defaultSkeletonActor ) {
+        if ( defaultSkeletonActor->getModel() && defaultSkeletonActor->getModel()->getMesh() )
+        {
+            SkeletonMeshFileInfo&     referenceMeshFileInfo = defaultSkeletonActor->getModel()->getMesh()->getFileInfo();
+            SkeletonAnimationFileInfo fileInfo( filePath, SkeletonAnimationFileInfo::Format::XAF, referenceMeshFileInfo, false );
+
+            std::shared_ptr< SkeletonAnimation > animation = std::static_pointer_cast< SkeletonAnimation >( assetManager.getOrLoad( fileInfo ) );
+
+            if ( animation )
+                defaultSkeletonActor->startAnimation( animation );
+        }
     }
 
 

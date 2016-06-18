@@ -544,7 +544,7 @@ void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )
     std::vector< unsigned char > dataRoughness         = { 150 };
     std::vector< unsigned char > dataIndexOfRefraction = { 120 };
     std::vector< uchar4 >        dataAlbedo            = { uchar4( 0, 0, 0, 255 ) };
-    std::vector< uchar4 >        dataNormal            = { uchar4( 0, 0, 255, 0 ) };
+    std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 0 ) };
 
     defaultMetalnessTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
         ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );

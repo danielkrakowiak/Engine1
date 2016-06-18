@@ -36,7 +36,7 @@ PixelInputType main(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
-	// Normal
+	// Normal.
 	input.normal.w = 0.0f;
 	output.normal = mul( input.normal, worldMatrix ).xyz;
 

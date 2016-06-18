@@ -144,7 +144,10 @@ SkeletonPose SkeletonPose::calculatePoseInParentSpace( const SkeletonPose& poseI
 
 SkeletonPose::SkeletonPose( ) {}
 
-SkeletonPose::SkeletonPose( const SkeletonPose& obj ) {
+SkeletonPose::SkeletonPose( const SkeletonPose& obj ) 
+{
+    bonesPoses.clear();
+
 	// Copy the vector.
 	bonesPoses.insert( bonesPoses.begin(), obj.bonesPoses.begin( ), obj.bonesPoses.end( ) );
 }
@@ -153,6 +156,8 @@ SkeletonPose::~SkeletonPose( ) {}
 
 SkeletonPose& SkeletonPose::operator = ( const SkeletonPose& obj )
 {
+    bonesPoses.clear();
+
     // Copy the vector.
     bonesPoses.insert( bonesPoses.begin( ), obj.bonesPoses.begin( ), obj.bonesPoses.end( ) );
 

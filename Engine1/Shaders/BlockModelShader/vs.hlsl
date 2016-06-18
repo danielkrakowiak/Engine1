@@ -11,6 +11,7 @@ struct VertexInputType
 {
 	float4 position : POSITION;
 	float4 normal   : NORMAL;
+    float4 tangent  : TANGENT;
 	float2 texCoord : TEXCOORD0;
 };
 
@@ -19,7 +20,9 @@ struct PixelInputType
 	float4 position      : SV_POSITION;
     float3 positionWorld : TEXCOORD0;
 	float3 normal        : TEXCOORD1;
-	float2 texCoord      : TEXCOORD2;
+    float3 bitangent     : TEXCOORD2; // Perpendicular to normal and tangent.
+    float3 tangent       : TEXCOORD3; // Perpendicular to normal and binormal.
+	float2 texCoord      : TEXCOORD4;
 };
 
 PixelInputType main( VertexInputType input ) {
@@ -39,7 +42,10 @@ PixelInputType main( VertexInputType input ) {
 	// Normal
 	input.normal.w = 0.0f;
 	output.normal = mul( input.normal, worldMatrix ).xyz;
-	//output.normal = mul( output.normal, viewMatrix );
+
+    // For normal mapping.
+	output.tangent   = input.tangent.xyz;
+	output.bitangent = cross( output.normal, output.tangent ); // TODO: Normalize needed?
 
 	// Texcoord
 	output.texCoord = input.texCoord;

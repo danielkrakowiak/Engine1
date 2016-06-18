@@ -320,6 +320,8 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
 			return BlockModel::createFromFile( static_cast<const BlockModelFileInfo&>( fileInfo ), false, *m_device.Get() );
 		case Asset::Type::BlockMesh:
 			return BlockMesh::createFromFile( static_cast<const BlockMeshFileInfo&>( fileInfo ) );
+        case Asset::Type::SkeletonModel:
+			return SkeletonModel::createFromFile( static_cast<const SkeletonModelFileInfo&>( fileInfo ), false, *m_device.Get() );
 		case Asset::Type::SkeletonMesh:
 			return SkeletonMesh::createFromFile( static_cast<const SkeletonMeshFileInfo&>( fileInfo ) );
 		case Asset::Type::SkeletonAnimation:

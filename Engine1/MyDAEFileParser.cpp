@@ -19,7 +19,7 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( s
 
 	Assimp::Importer importer;
 
-	unsigned int flags = aiProcess_Triangulate;
+	unsigned int flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
 
 	if ( invertZCoordinate )        flags |= aiProcess_MakeLeftHanded;
 	if ( invertVertexWindingOrder ) flags |= aiProcess_FlipWindingOrder;
@@ -42,6 +42,11 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( s
 		if ( aimesh.HasNormals() ) {
 			mesh.normals.reserve( aimesh.mNumVertices );
 			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.normals.push_back( *(float3*)&aimesh.mNormals[ i ] );
+		}
+
+        if ( aimesh.HasTangentsAndBitangents() ) {
+			mesh.tangents.reserve( aimesh.mNumVertices );
+			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.tangents.push_back( *(float3*)&aimesh.mTangents[ i ] );
 		}
 
 		if ( aimesh.HasTextureCoords( 0 ) ) { 
@@ -71,7 +76,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 
 	Assimp::Importer importer;
 
-	unsigned int flags = aiProcess_Triangulate;
+	unsigned int flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
 
 	if ( invertZCoordinate )        flags |= aiProcess_MakeLeftHanded;
 	if ( invertVertexWindingOrder ) flags |= aiProcess_FlipWindingOrder;
@@ -94,6 +99,11 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
 		if ( aimesh.HasNormals( ) ) {
 			mesh.normals.reserve( aimesh.mNumVertices );
 			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.normals.push_back( *(float3*)&aimesh.mNormals[ i ] );
+		}
+
+        if ( aimesh.HasTangentsAndBitangents() ) {
+			mesh.tangents.reserve( aimesh.mNumVertices );
+			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.tangents.push_back( *(float3*)&aimesh.mTangents[ i ] );
 		}
 
 		if ( aimesh.HasTextureCoords( 0 ) ) {

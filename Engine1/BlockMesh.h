@@ -58,6 +58,9 @@ namespace Engine1
         std::vector<float3>& getVertices();
         const std::vector<float3>& getNormals() const;
         std::vector<float3>& getNormals();
+        const std::vector<float3>& getTangents() const;
+        std::vector<float3>& getTangents();
+
         int getTexcoordsCount() const;
         const std::vector<float2>& getTexcoords( int setIndex = 0 ) const;
         std::vector<float2>& getTexcoords( int setIndex = 0 );
@@ -66,11 +69,13 @@ namespace Engine1
 
         ID3D11Buffer* getVertexBuffer() const;
         ID3D11Buffer* getNormalBuffer() const;
+        ID3D11Buffer* getTangentBuffer() const;
         std::list< ID3D11Buffer* > getTexcoordBuffers() const;
         ID3D11Buffer* getTriangleBuffer() const;
 
         ID3D11ShaderResourceView* getVertexBufferResource() const;
         ID3D11ShaderResourceView* getNormalBufferResource() const;
+        ID3D11ShaderResourceView* getTangentBufferResource() const;
         std::list< ID3D11ShaderResourceView* > getTexcoordBufferResources() const;
         ID3D11ShaderResourceView* getTriangleBufferResource() const;
 
@@ -92,16 +97,19 @@ namespace Engine1
 
         std::vector<float3> vertices;
         std::vector<float3> normals;
+        std::vector<float3> tangents;
         std::list< std::vector<float2> > texcoords;
         std::vector<uint3> triangles;
 
         Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
         Microsoft::WRL::ComPtr<ID3D11Buffer> normalBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> tangentBuffer;
         std::list< Microsoft::WRL::ComPtr<ID3D11Buffer> > texcoordBuffers;
         Microsoft::WRL::ComPtr<ID3D11Buffer> triangleBuffer;
 
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> vertexBufferResource;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalBufferResource;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tangentBufferResource;
         std::list< Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> > texcoordBufferResources;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> triangleBufferResource;
 

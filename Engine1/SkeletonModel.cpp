@@ -5,6 +5,11 @@
 
 using namespace Engine1;
 
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const SkeletonModelFileInfo& fileInfo, const bool loadRecurrently, ID3D11Device& device )
+{
+	return createFromFile( fileInfo.getPath(), fileInfo.getFormat(), loadRecurrently, device );
+}
+
 std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device& device )
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
@@ -68,6 +73,9 @@ std::vector< std::shared_ptr<const Asset> > SkeletonModel::getSubAssets( ) const
 std::vector< std::shared_ptr<Asset> > SkeletonModel::getSubAssets( )
 {
 	std::vector< std::shared_ptr<Asset> > subAssets;
+
+    if ( mesh )
+		subAssets.push_back( mesh );
 
 	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );

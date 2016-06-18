@@ -22,6 +22,7 @@ using namespace Engine1;
 namespace Engine1
 {
     class CScene;
+    class Actor;
     class BlockActor;
     class SkeletonActor;
 }
@@ -68,7 +69,7 @@ private:
     void onMouseButtonPress( int button );
 	void onDragAndDropFile( std::string filePath );
 
-    std::tuple< std::shared_ptr< BlockActor >, std::shared_ptr< Light > > 
+    std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > > 
         pickActorOrLight( const CScene& scene, const Camera& camera, const float2& targetPixel,
                           const float screenWidth, const float screenHeight, const float fieldOfView );
 

@@ -20,6 +20,7 @@ struct VertexInputType
 	uint4  boneIndices   : BLENDINDICES;
 	float4 vertexWeights : BLENDWEIGHT;
 	float4 normal        : NORMAL;
+    float4 tangent       : TANGENT;
 	float2 texCoord      : TEXCOORD0;
 };
 
@@ -28,7 +29,9 @@ struct PixelInputType
     float4 position      : SV_POSITION;
     float3 positionWorld : TEXCOORD0;
 	float4 normal        : TEXCOORD1;
-	float2 texCoord      : TEXCOORD2;
+    float4 bitangent     : TEXCOORD2;
+    float4 tangent       : TEXCOORD3;
+	float2 texCoord      : TEXCOORD4;
 };
 
 PixelInputType main(VertexInputType input)
@@ -39,7 +42,8 @@ PixelInputType main(VertexInputType input)
 	input.normal.w = 0.0f;
 
 	output.position = float4( 0.0f, 0.0f, 0.0f, 1.0f );
-	output.normal = float4( 0.0f, 0.0f, 0.0f, 0.0f );
+	output.normal   = float4( 0.0f, 0.0f, 0.0f, 0.0f );
+    output.tangent  = float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
 	[ unroll( MAX_BONES_PER_VERTEX_COUNT ) ] // Unroll is required for the shader to compile - it removes dynamic indexing of input attributes.
 	for ( uint i = 0; i < bonesPerVertex; ++i )
@@ -59,6 +63,13 @@ PixelInputType main(VertexInputType input)
 			normal = mul( normal, boneBindPoseInv[ boneIndex ] ); //move to mesh's coordinate system
 
 			output.normal += normal * input.vertexWeights[ i ];
+
+            float4 tangent;
+			tangent = mul( input.tangent, boneBindPose[ boneIndex ] ); //move to bone's coordinate system
+			tangent = mul( tangent, mul( bonePose[ boneIndex ], boneBindPose[ boneIndex ] ) ); //move vertex along with the bone
+			tangent = mul( tangent, boneBindPoseInv[ boneIndex ] ); //move to mesh's coordinate system
+
+			output.tangent += tangent * input.vertexWeights[ i ];
 		}
 	}
 
@@ -72,9 +83,14 @@ PixelInputType main(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
-	// Normal
+	// Normal, Tangent, Bitangent
 	output.normal = normalize( output.normal );
 	output.normal = mul( output.normal, worldMatrix );
+
+    output.tangent = normalize( output.tangent );
+	output.tangent = mul( output.tangent, worldMatrix );
+
+    output.bitangent = float4( cross( output.normal.xyz, output.tangent.xyz ), 0.0f ); // TODO: Normalize needed?
 	
 	// Texcoord
 	output.texCoord = input.texCoord;

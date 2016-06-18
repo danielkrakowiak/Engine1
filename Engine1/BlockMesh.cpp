@@ -81,14 +81,12 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( std::vector<char>::const
 
 std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	if ( BlockMeshFileInfo::Format::OBJ == format ) {
-
-		std::vector< std::shared_ptr<BlockMesh> > meshes;
-        meshes.push_back( MyOBJFileParser::parseBlockMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs ) );
-
-		return meshes;
-
-	} else if ( BlockMeshFileInfo::Format::DAE == format ) {
+	if ( BlockMeshFileInfo::Format::OBJ == format ) 
+    {
+        return MyOBJFileParser::parseBlockMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+	} 
+    else if ( BlockMeshFileInfo::Format::DAE == format ) 
+    {
         return MyDAEFileParser::parseBlockMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 	}
 
@@ -211,6 +209,39 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 #endif
 	}
 
+    if ( tangents.size() > 0 && !tangentBuffer ) {
+		D3D11_BUFFER_DESC tangentBufferDesc;
+		tangentBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
+		tangentBufferDesc.ByteWidth           = sizeof(float3) * (unsigned int)tangents.size();
+		tangentBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
+		tangentBufferDesc.CPUAccessFlags      = 0;
+		tangentBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+		tangentBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA tangentDataPtr;
+		tangentDataPtr.pSysMem = tangents.data();
+		tangentDataPtr.SysMemPitch = 0;
+		tangentDataPtr.SysMemSlicePitch = 0;
+
+		HRESULT result = device.CreateBuffer( &tangentBufferDesc, &tangentDataPtr, tangentBuffer.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh tangents failed" );
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
+        resourceDesc.Format                = DXGI_FORMAT_R32_TYPELESS;
+        resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
+        resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
+        resourceDesc.BufferEx.FirstElement = 0;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)tangents.size() * 3;
+
+        result = device.CreateShaderResourceView( tangentBuffer.Get(), &resourceDesc, tangentBufferResource.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating tangent buffer shader resource on GPU failed." );
+
+#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+		std::string resourceName = std::string( "BlockMesh::tangentBuffer" );
+		Direct3DUtil::setResourceName( *tangentBuffer.Get(), resourceName );
+#endif
+	}
+
 	std::list< std::vector<float2> >::iterator texcoordsIt, texcoordsEnd = texcoords.end();
     int texcoordsIndex = -1;
 
@@ -249,7 +280,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
         resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
         resourceDesc.BufferEx.FirstElement = 0;
-        resourceDesc.BufferEx.NumElements  = (unsigned int)normals.size() * 2;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)texcoordsIt->size() * 2;
 
         result = device.CreateShaderResourceView( buffer.Get(), &resourceDesc, bufferResource.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating texcoord buffer shader resource on GPU failed." );
@@ -310,6 +341,8 @@ void BlockMesh::unloadFromCpu()
 	vertices.shrink_to_fit();
 	normals.clear();
 	normals.shrink_to_fit();
+    tangents.clear();
+	tangents.shrink_to_fit();
 	texcoords.clear(); // Calls destructor on each texcoord set.
 	triangles.clear();
 	triangles.shrink_to_fit();
@@ -321,6 +354,8 @@ void BlockMesh::unloadFromGpu()
     vertexBufferResource.Reset();
 	normalBuffer.Reset();
     normalBufferResource.Reset();
+    tangentBuffer.Reset();
+    tangentBufferResource.Reset();
 
 	while ( !texcoordBuffers.empty() ) {
 		texcoordBuffers.front( ).Reset();
@@ -372,6 +407,20 @@ std::vector<float3>& BlockMesh::getNormals()
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getNormals - Mesh not loaded in CPU memory." );
 
 	return normals;
+}
+
+const std::vector<float3>& BlockMesh::getTangents() const
+{
+	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTangents - Mesh not loaded in CPU memory." );
+
+	return tangents;
+}
+
+std::vector<float3>& BlockMesh::getTangents()
+{
+	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTangents - Mesh not loaded in CPU memory." );
+
+	return tangents;
 }
 
 int BlockMesh::getTexcoordsCount() const
@@ -431,6 +480,13 @@ ID3D11Buffer* BlockMesh::getNormalBuffer() const
 	return normalBuffer.Get();
 }
 
+ID3D11Buffer* BlockMesh::getTangentBuffer() const
+{
+	if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTangentBuffer - Mesh not loaded in GPU memory." );
+
+	return tangentBuffer.Get();
+}
+
 std::list< ID3D11Buffer* > BlockMesh::getTexcoordBuffers() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTexcoordBuffers - Mesh not loaded in GPU memory." );
@@ -463,6 +519,13 @@ ID3D11ShaderResourceView* BlockMesh::getNormalBufferResource() const
     if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getNormalBufferResource - Mesh not loaded in GPU memory." );
 
     return normalBufferResource.Get();
+}
+
+ID3D11ShaderResourceView* BlockMesh::getTangentBufferResource() const
+{
+    if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTangentBufferResource - Mesh not loaded in GPU memory." );
+
+    return tangentBufferResource.Get();
 }
 
 std::list< ID3D11ShaderResourceView* > BlockMesh::getTexcoordBufferResources() const

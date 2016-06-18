@@ -272,6 +272,7 @@
     <ClInclude Include="EdgeDetectionComputeShader.h" />
     <ClInclude Include="EdgeDetectionRenderer.h" />
     <ClInclude Include="EdgeDistanceComputeShader.h" />
+    <ClInclude Include="MyOBJFileParser.h" />
     <ClInclude Include="ShadingRenderer.h" />
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
@@ -318,7 +319,6 @@
     <ClInclude Include="MathUtil.h" />
     <ClInclude Include="BlockModel.h" />
     <ClInclude Include="ModelTexture2D.h" />
-    <ClInclude Include="MyOBJFileParser.h" />
     <ClInclude Include="MyXAFFileParser.h" />
     <ClInclude Include="quat.h" />
     <ClInclude Include="rapidxml.hpp" />
@@ -394,6 +394,7 @@
     <ClCompile Include="EdgeDetectionComputeShader.cpp" />
     <ClCompile Include="EdgeDetectionRenderer.cpp" />
     <ClCompile Include="EdgeDistanceComputeShader.cpp" />
+    <ClCompile Include="MyOBJFileParser.cpp" />
     <ClCompile Include="ShadingRenderer.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="GenerateRaysComputeShader.cpp" />
@@ -440,7 +441,6 @@
     <ClCompile Include="BlockModel.cpp" />
     <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="ModelTexture2D.cpp" />
-    <ClCompile Include="MyOBJFileParser.cpp" />
     <ClCompile Include="MyXAFFileParser.cpp" />
     <ClCompile Include="quat.cpp" />
     <ClCompile Include="RectangleMesh.cpp" />

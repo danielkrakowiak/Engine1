@@ -20,6 +20,7 @@ PixelOutputType main( PixelInputType input )
     
     output.position = float4( input.positionWorld, 0.0f );
 	output.albedo   = float4( 0.5f, 0.5f, 0.5f, 1.0f );
+
 	output.normal   = float4( input.normal, 0.0f );
 
     output.metalness         = 0.9f;

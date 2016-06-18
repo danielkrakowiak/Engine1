@@ -2,6 +2,8 @@
 
 namespace Engine1
 {
+    class float43;
+
     class Actor
     {
         public:
@@ -13,6 +15,11 @@ namespace Engine1
         };
 
         virtual Type getType() const = 0;
+
+        virtual const float43& getPose() const = 0;
+        virtual       float43& getPose()       = 0;
+
+        virtual void setPose( const float43& pose ) = 0;
     };
 }
 

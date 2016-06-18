@@ -41,6 +41,7 @@ namespace Engine1
             static const unsigned int up       = 38;
             static const unsigned int right    = 39;
             static const unsigned int down     = 40;
+            static const unsigned int delete_  = 46;
             static const unsigned int zero     = 48;
             static const unsigned int one      = 49;
             static const unsigned int two      = 50;

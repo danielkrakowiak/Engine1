@@ -162,14 +162,13 @@ Next2:
 
 	  - why rendering from one mipmap level to another doesn't work?
 
-	  - create normal buffer and position buffer mipmaps. Render it to check how it looks near the edges?
-	  - this mipmaps could be used to detect edges - normals on the edges will be blended, thus will be different from normals further from the edges.
-	  - sample those mipmaps in combining shader, instead of high res buffers. Ignore dist to edge texture.
+	  - add normalmapping
+	  - add proper shading
 
-	  -- pass normal_dot tolerance to shader as param and play with it.
+	  - get rid of my own obj parser and use assimp
+	  - add tangent, bitangent to mesh
 
-
-	  - sample more sparsly when there is large oversampling ratio !!
+	  - add drag&drop animations and apply them to active skeleton mesh. Use exception handling to avoid crashing if anim doesn't match the mesh.
 
 
 	  How to generate upscaled mipmaps:

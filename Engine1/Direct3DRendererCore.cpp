@@ -465,11 +465,11 @@ void Direct3DRendererCore::draw( const BlockMesh& mesh )
 	if ( !mesh.isInGpuMemory() ) throw std::exception( "Direct3DRenderer::drawBlockMesh - mesh hasn't been loaded to GPU yet" );
 
 	{ // set mesh buffers
-		if ( mesh.getVertexBuffer() && mesh.getNormalBuffer() && mesh.getTexcoordBuffers().size() > 0 && mesh.getTexcoordBuffers().front() ) {
-			const unsigned int bufferCount = 3;
-			unsigned int strides[ bufferCount ] = { sizeof( float3 ), sizeof( float3 ), sizeof( float2 ) };
-			unsigned int offsets[ bufferCount ] = { 0, 0, 0 };
-			ID3D11Buffer* buffers[ bufferCount ] = { mesh.getVertexBuffer(), mesh.getNormalBuffer(), mesh.getTexcoordBuffers().front() };
+		if ( mesh.getVertexBuffer() && mesh.getNormalBuffer() && mesh.getTangentBuffer() && mesh.getTexcoordBuffers().size() > 0 && mesh.getTexcoordBuffers().front() ) {
+			const unsigned int bufferCount = 4;
+			unsigned int strides[ bufferCount ] = { sizeof( float3 ), sizeof( float3 ), sizeof( float3 ), sizeof( float2 ) };
+			unsigned int offsets[ bufferCount ] = { 0, 0, 0, 0 };
+			ID3D11Buffer* buffers[ bufferCount ] = { mesh.getVertexBuffer(), mesh.getNormalBuffer(), mesh.getTangentBuffer(), mesh.getTexcoordBuffers().front() };
 
 			deviceContext->IASetVertexBuffers( 0, bufferCount, buffers, strides, offsets );
 			deviceContext->IASetIndexBuffer( mesh.getTriangleBuffer(), DXGI_FORMAT_R32_UINT, 0 );
@@ -512,22 +512,26 @@ void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 	if ( !mesh.isInGpuMemory() )           throw std::exception( "Direct3DRenderer::drawSkeletonMesh - mesh is not in GPU memory." );
 
 	const bool hasNormals   = mesh.getNormalBuffer() != nullptr;
+    const bool hasTangents  = mesh.getTangentBuffer() != nullptr;
 	const bool hasTexcoords = !mesh.getTexcoordBuffers().empty() && mesh.getTexcoordBuffers().front() != nullptr;
 
-	unsigned int bufferCount = 3; //vertices + vertex-bones + vertex-weights
-	if ( hasNormals ) ++bufferCount; //normals
-	if ( hasTexcoords ) ++bufferCount; //texcoords
+	unsigned int bufferCount = 3;      // vertices + vertex-bones + vertex-weights
+	if ( hasNormals ) ++bufferCount;   // normals
+    if ( hasTangents ) ++bufferCount;  // tangents
+	if ( hasTexcoords ) ++bufferCount; // texcoords
 
 	const unsigned int vertexStride        = sizeof( float3 );
 	const unsigned int vertexBonesStride   = static_cast<unsigned int>( mesh.getBonesPerVertexCount() ) * sizeof( unsigned char );
 	const unsigned int vertexWeightsStride = static_cast<unsigned int>( mesh.getBonesPerVertexCount() ) * sizeof( float );
 	const unsigned int normalStride        = sizeof( float3 );
+    const unsigned int tangentStride       = sizeof( float3 );
 	const unsigned int texcoordStride      = sizeof( float2 );
 
 	const unsigned int vertexOffset        = 0;
 	const unsigned int vertexBonesOffset   = 0;
 	const unsigned int vertexWeightsOffset = 0;
 	const unsigned int normalOffset        = 0;
+    const unsigned int tangentOffset       = 0;
 	const unsigned int texcoordOffset      = 0;
 
 	std::vector<unsigned int> strides;
@@ -535,13 +539,15 @@ void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 	strides.push_back( vertexBonesStride );
 	strides.push_back( vertexWeightsStride );
 	if ( hasNormals )   strides.push_back( normalStride );
+    if ( hasTangents )  strides.push_back( tangentStride );
 	if ( hasTexcoords ) strides.push_back( texcoordStride );
 
 	std::vector<unsigned int> offsets;
 	offsets.push_back( vertexOffset );
 	offsets.push_back( vertexBonesOffset );
 	offsets.push_back( vertexWeightsOffset );
-	if ( hasNormals ) offsets.push_back( normalOffset );
+	if ( hasNormals )   offsets.push_back( normalOffset );
+    if ( hasTangents )  offsets.push_back( tangentOffset );
 	if ( hasTexcoords ) offsets.push_back( texcoordOffset );
 
 	std::vector<ID3D11Buffer*> buffers;
@@ -549,6 +555,7 @@ void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 	buffers.push_back( mesh.getVertexBonesBuffer() );
 	buffers.push_back( mesh.getVertexWeightsBuffer() );
 	if ( hasNormals )   buffers.push_back( mesh.getNormalBuffer() );
+    if ( hasTangents )  buffers.push_back( mesh.getTangentBuffer() );
 	if ( hasTexcoords ) buffers.push_back( mesh.getTexcoordBuffers().front() );
 
 	deviceContext->IASetVertexBuffers( 0, bufferCount, buffers.data(), strides.data(), offsets.data() );

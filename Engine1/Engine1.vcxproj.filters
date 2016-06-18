@@ -402,9 +402,6 @@
     <ClInclude Include="SkeletonModel.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
-    <ClInclude Include="MyOBJFileParser.h">
-      <Filter>Header Files\Mesh\Parsers</Filter>
-    </ClInclude>
     <ClInclude Include="MyDAEFileParser.h">
       <Filter>Header Files\Mesh\Parsers</Filter>
     </ClInclude>
@@ -663,6 +660,9 @@
     <ClInclude Include="TextureRescaleRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="MyOBJFileParser.h">
+      <Filter>Header Files\Mesh\Parsers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -766,9 +766,6 @@
     </ClCompile>
     <ClCompile Include="SkeletonModel.cpp">
       <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="MyOBJFileParser.cpp">
-      <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="MyDAEFileParser.cpp">
       <Filter>Source Files\Mesh\Parsers</Filter>
@@ -1003,6 +1000,9 @@
     </ClCompile>
     <ClCompile Include="TextureRescaleRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="MyOBJFileParser.cpp">
+      <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

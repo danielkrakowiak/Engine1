@@ -60,6 +60,8 @@ namespace Engine1
         std::vector<unsigned char>&       getVertexBones();
         const std::vector<float3>&        getNormals() const;
         std::vector<float3>&              getNormals();
+        const std::vector<float3>&        getTangents() const;
+        std::vector<float3>&              getTangents();
         int                               getTexcoordsCount() const;
         const std::vector<float2>&        getTexcoords( int setIndex = 0 ) const;
         std::vector<float2>&              getTexcoords( int setIndex = 0 );
@@ -70,6 +72,7 @@ namespace Engine1
         ID3D11Buffer*              getVertexWeightsBuffer() const;
         ID3D11Buffer*              getVertexBonesBuffer() const;
         ID3D11Buffer*              getNormalBuffer() const;
+        ID3D11Buffer*              getTangentBuffer() const;
         std::list< ID3D11Buffer* > getTexcoordBuffers() const;
         ID3D11Buffer*              getTriangleBuffer() const;
 
@@ -132,6 +135,7 @@ namespace Engine1
         std::vector< float >             vertexWeights;
         std::vector< unsigned char >     vertexBones; // Index starts from 1, 0 means no bone assigned.
         std::vector<float3>              normals;
+        std::vector<float3>              tangents;
         std::list< std::vector<float2> > texcoords;
         std::vector<uint3>               triangles;
 
@@ -142,6 +146,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11Buffer>              vertexWeightsBuffer;
         Microsoft::WRL::ComPtr<ID3D11Buffer>              vertexBonesBuffer;
         Microsoft::WRL::ComPtr<ID3D11Buffer>              normalBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>              tangentBuffer;
         std::list< Microsoft::WRL::ComPtr<ID3D11Buffer> > texcoordBuffers;
         Microsoft::WRL::ComPtr<ID3D11Buffer>              triangleBuffer;
 

@@ -10,6 +10,7 @@
 namespace Engine1
 {
     class SkeletonModel;
+    class SkeletonAnimation;
 
     class SkeletonActor : public Actor
     {
@@ -34,12 +35,21 @@ namespace Engine1
 
         void resetSkeletonPose();
 
+        // Temporary.
+        void startAnimation( const std::shared_ptr< SkeletonAnimation > animationInSkeletonSpace );
+        void updateAnimation( const float deltaTime );
+
         private:
 
         float43 pose;
         SkeletonPose skeletonPose;
 
-        std::shared_ptr<SkeletonModel> model;
+        std::shared_ptr< SkeletonModel > model;
+
+        // Temporary.
+        std::shared_ptr< SkeletonAnimation > animation;
+        float animationProgress;
+        float animationSpeed;
     };
 }
 

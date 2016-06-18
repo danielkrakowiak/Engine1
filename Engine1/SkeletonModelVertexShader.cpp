@@ -70,7 +70,7 @@ void SkeletonModelVertexShader::compileFromFile( std::string path, ID3D11Device&
 			boneWeightsFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		}
 
-		const int inputLayoutCount = 5;
+		const int inputLayoutCount = 6;
 		D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[ inputLayoutCount ];
 
 		inputLayoutDesc[ 0 ].SemanticName = "POSITION";
@@ -105,13 +105,21 @@ void SkeletonModelVertexShader::compileFromFile( std::string path, ID3D11Device&
 		inputLayoutDesc[ 3 ].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 		inputLayoutDesc[ 3 ].InstanceDataStepRate = 0;
 
-		inputLayoutDesc[ 4 ].SemanticName = "TEXCOORD";
+        inputLayoutDesc[ 4 ].SemanticName = "TANGENT";
 		inputLayoutDesc[ 4 ].SemanticIndex = 0;
-		inputLayoutDesc[ 4 ].Format = DXGI_FORMAT_R32G32_FLOAT;
+		inputLayoutDesc[ 4 ].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		inputLayoutDesc[ 4 ].InputSlot = 4;
 		inputLayoutDesc[ 4 ].AlignedByteOffset = 0;
 		inputLayoutDesc[ 4 ].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 		inputLayoutDesc[ 4 ].InstanceDataStepRate = 0;
+
+		inputLayoutDesc[ 5 ].SemanticName = "TEXCOORD";
+		inputLayoutDesc[ 5 ].SemanticIndex = 0;
+		inputLayoutDesc[ 5 ].Format = DXGI_FORMAT_R32G32_FLOAT;
+		inputLayoutDesc[ 5 ].InputSlot = 5;
+		inputLayoutDesc[ 5 ].AlignedByteOffset = 0;
+		inputLayoutDesc[ 5 ].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		inputLayoutDesc[ 5 ].InstanceDataStepRate = 0;
 
 		ComPtr<ID3D11InputLayout> inputLayout;
 

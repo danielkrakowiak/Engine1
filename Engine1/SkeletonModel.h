@@ -17,6 +17,7 @@ namespace Engine1
 
         public:
 
+        static std::shared_ptr<SkeletonModel> createFromFile( const SkeletonModelFileInfo& fileInfo, const bool loadRecurrently, ID3D11Device& device );
         static std::shared_ptr<SkeletonModel> createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device& device );
         static std::shared_ptr<SkeletonModel> createFromMemory( std::vector<char>::const_iterator dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device& device );
 

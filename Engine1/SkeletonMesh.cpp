@@ -223,6 +223,29 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 #endif
 	}
 
+    if ( tangents.size() > 0 && !tangentBuffer ) {
+		D3D11_BUFFER_DESC tangentBufferDesc;
+		tangentBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		tangentBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)tangents.size();
+		tangentBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		tangentBufferDesc.CPUAccessFlags = 0;
+		tangentBufferDesc.MiscFlags = 0;
+		tangentBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA tangentDataPtr;
+		tangentDataPtr.pSysMem = tangents.data();
+		tangentDataPtr.SysMemPitch = 0;
+		tangentDataPtr.SysMemSlicePitch = 0;
+
+		HRESULT result = device.CreateBuffer( &tangentBufferDesc, &tangentDataPtr, tangentBuffer.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh tangents failed" );
+
+#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+		std::string resourceName = std::string( "SkeletonMesh::tangentBuffer" );
+		Direct3DUtil::setResourceName( *tangentBuffer.Get(), resourceName );
+#endif
+	}
+
 	std::list< std::vector<float2> >::iterator texcoordsIt, texcoordsEnd = texcoords.end();
     int texcoordsIndex = -1;
 
@@ -302,6 +325,8 @@ void SkeletonMesh::unloadFromCpu()
 	vertexBones.shrink_to_fit();
 	normals.clear();
 	normals.shrink_to_fit();
+    tangents.clear();
+	tangents.shrink_to_fit();
 	texcoords.clear(); // Calls destructor on each texcoord set.
 	triangles.clear();
 	triangles.shrink_to_fit();
@@ -313,6 +338,7 @@ void SkeletonMesh::unloadFromGpu()
 	vertexWeightsBuffer.Reset();
 	vertexBonesBuffer.Reset();
 	normalBuffer.Reset();
+    tangentBuffer.Reset();
 
 	while ( !texcoordBuffers.empty( ) ) {
 		texcoordBuffers.front( ).Reset( );
@@ -380,6 +406,18 @@ std::vector<float3>& SkeletonMesh::getNormals()
 	return normals;
 }
 
+const std::vector<float3>& SkeletonMesh::getTangents() const
+{
+	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTangents - Mesh not loaded in CPU memory." );
+	return normals;
+}
+
+std::vector<float3>& SkeletonMesh::getTangents()
+{
+	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTangents - Mesh not loaded in CPU memory." );
+	return normals;
+}
+
 int SkeletonMesh::getTexcoordsCount() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTexcoordsCount - Mesh not loaded in CPU memory." );
@@ -442,6 +480,12 @@ ID3D11Buffer* SkeletonMesh::getNormalBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "SkeletonMesh::getNormalBuffer - Mesh not loaded in GPU memory." );
 	return normalBuffer.Get();
+}
+
+ID3D11Buffer* SkeletonMesh::getTangentBuffer() const
+{
+	if ( !isInGpuMemory() ) throw std::exception( "SkeletonMesh::getTangentBuffer - Mesh not loaded in GPU memory." );
+	return tangentBuffer.Get();
 }
 
 std::list< ID3D11Buffer* > SkeletonMesh::getTexcoordBuffers() const

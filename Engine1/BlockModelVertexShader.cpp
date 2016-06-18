@@ -44,7 +44,7 @@ void BlockModelVertexShader::compileFromFile( std::string path, ID3D11Device& de
 	}
 
 	{
-		const unsigned int inputLayoutCount = 3;
+		const unsigned int inputLayoutCount = 4;
 		D3D11_INPUT_ELEMENT_DESC desc[ inputLayoutCount ];
 		desc[ 0 ].SemanticName              = "POSITION";
 		desc[ 0 ].SemanticIndex             = 0;
@@ -62,13 +62,21 @@ void BlockModelVertexShader::compileFromFile( std::string path, ID3D11Device& de
 		desc[ 1 ].InputSlotClass            = D3D11_INPUT_PER_VERTEX_DATA;
 		desc[ 1 ].InstanceDataStepRate      = 0;
 
-		desc[ 2 ].SemanticName              = "TEXCOORD";
+        desc[ 2 ].SemanticName              = "TANGENT";
 		desc[ 2 ].SemanticIndex             = 0;
-		desc[ 2 ].Format                    = DXGI_FORMAT_R32G32_FLOAT;
+		desc[ 2 ].Format                    = DXGI_FORMAT_R32G32B32_FLOAT;
 		desc[ 2 ].InputSlot                 = 2;
 		desc[ 2 ].AlignedByteOffset         = 0;
 		desc[ 2 ].InputSlotClass            = D3D11_INPUT_PER_VERTEX_DATA;
 		desc[ 2 ].InstanceDataStepRate      = 0;
+
+		desc[ 3 ].SemanticName              = "TEXCOORD";
+		desc[ 3 ].SemanticIndex             = 0;
+		desc[ 3 ].Format                    = DXGI_FORMAT_R32G32_FLOAT;
+		desc[ 3 ].InputSlot                 = 3;
+		desc[ 3 ].AlignedByteOffset         = 0;
+		desc[ 3 ].InputSlotClass            = D3D11_INPUT_PER_VERTEX_DATA;
+		desc[ 3 ].InstanceDataStepRate      = 0;
 
 		// Create the vertex input layout.
 		result = device.CreateInputLayout( desc, inputLayoutCount, shaderBuffer->GetBufferPointer( ),

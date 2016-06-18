@@ -86,6 +86,8 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
 	rendererCore.draw( rectangleMesh );
 
 	combiningFragmentShader->unsetParameters( *deviceContext.Get() );
+    
+    rendererCore.disableRenderTargetViews();
 }
 
 void CombiningRenderer::setNormalThreshold( float threshold )
