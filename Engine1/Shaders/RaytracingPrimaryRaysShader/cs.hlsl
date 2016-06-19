@@ -4,7 +4,8 @@ cbuffer ConstantBuffer : register( b0 )
 {
     float3   rayOrigin;      // Ray origin in world space.
     float    pad1;
-    float4x4 worldMatrixInv; // Transform from world to local space.
+    float4x4 localToWorldMatrix; // Transform from local to world space.
+    float4x4 worldToLocalMatrix; // Transform from world to local space.
     float3   boundingBoxMin; // In local space.
     float    pad2;
     float3   boundingBoxMax; // In local space.
@@ -62,8 +63,8 @@ void main( uint3 groupId : SV_GroupID,
     float3 rayDir = g_rayDirections[ dispatchThreadId.xy ].xyz;
 
     // Transform the ray from world to local space.
-	float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldMatrixInv ); //#TODO: ray origin could be passed in local space to avoid this calculation.
-	float4 rayDirLocal    = mul( float4( rayOrigin + rayDir, 1.0f ), worldMatrixInv ) - rayOriginLocal;
+	float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
+	float4 rayDirLocal    = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
 
     //float4 output = float4( 0.2f, 0.2f, 0.2f, 1.0f );
 
@@ -141,6 +142,9 @@ void main( uint3 groupId : SV_GroupID,
 
                             const float3x3 verticesNormals = readVerticesNormals( trianglee );
                             hitNormal = calcInterpolatedNormal( hitBarycentricCoords, verticesNormals );
+
+                            // Transform normal from local to world space.
+                            hitNormal = mul( float4( hitNormal, 0.0f ), localToWorldMatrix ).xyz;
 
                             const float2x3 verticesTexCoords = readVerticesTexCoords( trianglee );
                             hitTexCoords = calcInterpolatedTexCoords( hitBarycentricCoords, verticesTexCoords );

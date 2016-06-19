@@ -145,7 +145,8 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     //edgeDetectionRenderer.performEdgeDetection( deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget() );
 
     // Combine main image with reflections and refractions.
-    combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), deferredRenderer.getNormalRenderTarget(), deferredRenderer.getPositionRenderTarget(), deferredRenderer.getDepthRenderTarget() );
+    combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), deferredRenderer.getNormalRenderTarget(), 
+                               deferredRenderer.getPositionRenderTarget(), deferredRenderer.getDepthRenderTarget(), raytraceRenderer.getRayHitDistanceTexture() );
 
     switch (activeView)
     {

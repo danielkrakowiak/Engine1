@@ -133,7 +133,8 @@ void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& dev
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
         dataPtr->rayOrigin      = rayOrigin;
-        dataPtr->worldMatrixInv = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
+        dataPtr->localToWorldMatrix = float44( worldMatrix ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
+        dataPtr->worldToLocalMatrix = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
         dataPtr->boundingBoxMin = boundingBoxMin;
         dataPtr->boundingBoxMax = boundingBoxMax;
 

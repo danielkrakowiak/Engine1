@@ -49,7 +49,8 @@ namespace Engine1
         __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
         struct ConstantBuffer
         {
-            float44 worldMatrixInv;
+            float44 localToWorldMatrix;
+            float44 worldToLocalMatrix;
             float3  boundingBoxMin;
             float   pad1;
             float3  boundingBoxMax;

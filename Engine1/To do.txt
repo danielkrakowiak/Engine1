@@ -162,13 +162,7 @@ Next2:
 
 	  - why rendering from one mipmap level to another doesn't work?
 
-	  - add normalmapping
 	  - add proper shading
-
-	  - get rid of my own obj parser and use assimp
-	  - add tangent, bitangent to mesh
-
-	  - add drag&drop animations and apply them to active skeleton mesh. Use exception handling to avoid crashing if anim doesn't match the mesh.
 
 
 	  How to generate upscaled mipmaps:

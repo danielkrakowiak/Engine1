@@ -59,7 +59,8 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture )
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture )
 {
     if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 
@@ -75,7 +76,7 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
 
 	{ // Configure and enable shaders.
 		combiningVertexShader->setParameters( *deviceContext.Get() );
-		combiningFragmentShader->setParameters( *deviceContext.Get(), srcTexture, normalTexture, positionTexture, depthTexture, normalThreshold, positionThreshold );
+		combiningFragmentShader->setParameters( *deviceContext.Get(), srcTexture, normalTexture, positionTexture, depthTexture, hitDistanceTexture, normalThreshold, positionThreshold );
 
 		rendererCore.enableRenderingShaders( combiningVertexShader, combiningFragmentShader );
 	}

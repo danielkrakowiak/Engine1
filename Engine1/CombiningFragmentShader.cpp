@@ -116,11 +116,12 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
                                              const float normalThreshold,
                                              const float positionThreshold )
 {
     { // Set input textures.
-        resourceCount = 4;
+        resourceCount = 5;
         std::vector< ID3D11ShaderResourceView* > resources;
         resources.reserve( resourceCount );
 
@@ -128,6 +129,7 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
         resources.push_back( normalTexture->getShaderResourceView() );
         resources.push_back( positionTexture->getShaderResourceView() );
         resources.push_back( depthTexture->getShaderResourceView() );
+        resources.push_back( hitDistanceTexture->getShaderResourceView() );
 
         deviceContext.PSSetShaderResources( 0, (UINT)resources.size(), resources.data() );
     }

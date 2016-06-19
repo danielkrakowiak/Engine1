@@ -50,7 +50,8 @@ namespace Engine1
         {
             float3  rayOrigin;
             float   pad1;
-            float44 worldMatrixInv;
+            float44 localToWorldMatrix;
+            float44 worldToLocalMatrix;
             float3  boundingBoxMin;
             float   pad2;
             float3  boundingBoxMax;
