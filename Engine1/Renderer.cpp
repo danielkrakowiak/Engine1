@@ -121,17 +121,17 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
             blockActors.push_back( std::static_pointer_cast<BlockActor>( actor ) );
     }
     //raytraceRenderer.generateAndTraceRays( camera, blockActors );
-    raytraceRenderer.generateAndTraceSecondaryRays( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget(), blockActors );
+    raytraceRenderer.generateAndTraceSecondaryRays( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget(), deferredRenderer.getRoughnessRenderTarget(), blockActors );
 
     // Perform shading on the main image.
     std::vector< std::shared_ptr< Light > > lights;
-    shadingRenderer.performShading( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getNormalRenderTarget(), lights );
+    shadingRenderer.performShading( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getEmissiveRenderTarget(), deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getNormalRenderTarget(), lights );
 
     // Copy main shaded image to final render target.
     rendererCore.copyTexture( finalRenderTarget, shadingRenderer.getColorRenderTarget() );
 
     // Perform shading on the reflected image.
-    shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitNormalTexture(), lights );
+    shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitEmissiveTexture(), raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitNormalTexture(), lights );
 
     // Generate mipmaps for the shaded, reflected image.
     shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
@@ -171,6 +171,14 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
                 nullptr,
                 nullptr,
                 deferredRenderer.getPositionRenderTarget(),
+                nullptr,
+                nullptr
+             );
+        case View::Emissive: 
+            return std::make_tuple( 
+                nullptr,
+                deferredRenderer.getEmissiveRenderTarget(),
+                nullptr,
                 nullptr,
                 nullptr
              );
@@ -251,6 +259,14 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
                 nullptr,
                 nullptr,
                 raytraceRenderer.getRayHitNormalTexture(),
+                nullptr,
+                nullptr
+            );
+        case View::RaytracingHitEmissive:
+            return std::make_tuple(
+                nullptr,
+                raytraceRenderer.getRayHitEmissiveTexture(),
+                nullptr,
                 nullptr,
                 nullptr
             );

@@ -22,8 +22,7 @@ namespace Engine1
 {
     class SkeletonMesh : public Asset
     {
-        friend class MyOBJFileParser;
-        friend class MyDAEFileParser;
+        friend class MeshFileParser;
 
         public:
 

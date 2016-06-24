@@ -162,6 +162,6 @@ void CombiningFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContex
 
     deviceContext.PSSetShaderResources( 0, (unsigned int)nullResources.size(), nullResources.data() );
 
-    ID3D11SamplerState* nullSampler = nullptr;
-	deviceContext.PSSetSamplers( 0, 1, &nullSampler );
+    ID3D11SamplerState* nullSampler[2] = { nullptr, nullptr };
+	deviceContext.PSSetSamplers( 0, 2, nullSampler );
 }

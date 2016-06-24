@@ -79,7 +79,15 @@ Asset::Type BlockMeshFileInfo::getAssetType( ) const
 
 FileInfo::FileType BlockMeshFileInfo::getFileType() const
 {
-	return FileInfo::FileType::Textual;
+    if ( format == BlockMeshFileInfo::Format::OBJ || format == BlockMeshFileInfo::Format::DAE )
+	    return FileInfo::FileType::Textual;
+    else
+        return FileInfo::FileType::Binary;
+}
+
+bool BlockMeshFileInfo::canHaveSubAssets() const
+{
+    return false;
 }
 
 std::string BlockMeshFileInfo::getPath() const

@@ -26,7 +26,8 @@ namespace Engine1
         void setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                             const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture );
+                            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:

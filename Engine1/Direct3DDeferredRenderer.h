@@ -54,6 +54,7 @@ namespace Engine1
         void render( const std::string& text, Font& font, float2 position, float4 color );
 
         std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > >        getPositionRenderTarget();
+        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > >        getEmissiveRenderTarget();
         std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > >        getAlbedoRenderTarget();
         std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > getMetalnessRenderTarget();
         std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > getRoughnessRenderTarget();
@@ -85,6 +86,7 @@ namespace Engine1
         int imageWidth, imageHeight;
 
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >        positionRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >        emissiveRenderTarget;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >        albedoRenderTarget;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > metalnessRenderTarget;
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > roughnessRenderTarget;
@@ -116,6 +118,7 @@ namespace Engine1
         std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultMetalnessTexture;
         std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultRoughnessTexture;
         std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultIndexOfRefractionTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultEmissiveTexture;
         std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultAlbedoTexture;
         std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultNormalTexture;
 

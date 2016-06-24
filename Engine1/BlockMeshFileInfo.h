@@ -15,7 +15,8 @@ namespace Engine1
         enum class Format : char
         {
             OBJ = 0,
-            DAE = 1
+            DAE = 1,
+            FBX = 2
         };
 
         static std::shared_ptr<BlockMeshFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );
@@ -37,6 +38,7 @@ namespace Engine1
 
         Asset::Type getAssetType() const;
         FileType    getFileType() const;
+        bool        canHaveSubAssets() const; 
         std::string getPath() const;
         Format      getFormat() const;
         int         getIndexInFile() const;

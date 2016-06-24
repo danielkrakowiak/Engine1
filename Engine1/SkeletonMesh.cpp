@@ -3,8 +3,7 @@
 #include <fstream>
 #include <assert.h>
 
-#include "MyOBJFileParser.h"
-#include "MyDAEFileParser.h"
+#include "MeshFileParser.h"
 
 #include "StringUtil.h"
 #include "Direct3DUtil.h"
@@ -74,7 +73,7 @@ std::shared_ptr<SkeletonMesh> SkeletonMesh::createFromMemory( std::vector<char>:
 std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const SkeletonMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	if ( SkeletonMeshFileInfo::Format::DAE == format ) {
-		return MyDAEFileParser::parseSkeletonMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+		return MeshFileParser::parseSkeletonMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 	}
 
 	throw std::exception( "SkeletonMesh::createFromMemory() - incorrect 'format' argument." );

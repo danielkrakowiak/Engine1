@@ -40,13 +40,14 @@ void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D1
 
 void ShadingRenderer::performShading( const Camera& camera,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                       const std::vector< std::shared_ptr< Light > >& lights )
 {
     rendererCore.disableRenderingPipeline();
 
-    shadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, albedoTexture, normalTexture, lights );
+    shadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, normalTexture, lights );
 
     rendererCore.enableComputeShader( shadingComputeShader );
 

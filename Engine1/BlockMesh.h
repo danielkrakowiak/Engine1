@@ -24,8 +24,7 @@ namespace Engine1
 
     class BlockMesh : public Asset
     {
-        friend class MyOBJFileParser;
-        friend class MyDAEFileParser;
+        friend class MeshFileParser;
 
         public:
 

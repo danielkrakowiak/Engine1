@@ -23,6 +23,8 @@ namespace Engine1
         AssetManager();
         ~AssetManager();
 
+        // loadingThreadCount - should be around twice the number of threads the CPU can run in parallel.
+        // Higher number is needed because some threads may be waiting (sleeping) for sub-assets to be loaded and thus not doing any work.
         void initialize( int loadingThreadCount, Microsoft::WRL::ComPtr< ID3D11Device > device );
 
         void                   load( const FileInfo& fileInfo );
@@ -47,16 +49,17 @@ namespace Engine1
 
         std::string getId( Asset::Type type, const std::string path, const int indexInFile );
 
-        std::thread              loadingFromDiskThread;
-        std::vector<std::thread> loadingThreads;
+        std::thread              readingFromDiskThread;
+        std::vector<std::thread> parsingThreads;
 
         // List of all assets which are in the course of loading or were loaded already.
         std::mutex                      assetsMutex;
         std::unordered_set<std::string> assets;
 
-        std::mutex                                     assetsToLoadFromDiskMutex;
-        std::condition_variable                        assetsToLoadFromDiskNotEmpty;
-        std::list< std::shared_ptr< const FileInfo > > assetsToLoadFromDisk;
+        std::mutex                                     assetsToReadFromDiskMutex;
+        std::condition_variable                        assetsToReadFromDiskNotEmpty;
+        std::list< std::shared_ptr< const FileInfo > > basicAssetsToReadFromDisk;
+        std::list< std::shared_ptr< const FileInfo > > complexAssetsToReadFromDisk;
 
         struct AssetToLoad
         {
@@ -79,9 +82,10 @@ namespace Engine1
             {}
         };
 
-        std::mutex               assetsToLoadMutex;
-        std::condition_variable  assetsToLoadNotEmpty;
-        std::list< AssetToLoad > assetsToLoad;
+        std::mutex               assetsToParseMutex;
+        std::condition_variable  assetsToParseNotEmpty;
+        std::list< AssetToLoad > basicAssetsToParse;
+        std::list< AssetToLoad > complexAssetsToParse;
 
         std::mutex                                                loadedAssetsMutex;
         std::unordered_map< std::string, std::shared_ptr<Asset> > loadedAssets;

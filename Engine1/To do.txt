@@ -50,6 +50,9 @@
 	- [Includes Cleanup] Some headers include <d3d11.h> although they only contain references and pointers to DX types. Replace with forward declarations.
 	- [Test Texture] I should test whether constructor options like generateMipMaps (ex. for RenderTarget) really work for all the bindings and remove them if they are not supported.
 
+24.06.2016
+	- [AssetManager] BIG PROBLEM: If loading threads wait for an subasset to load, they are not loading other assets. So there may be situation when they all wait for the subassets to load, but there is no thread to actually load the assets.
+	  Potential solution: threads load basic assets first (the ones without sub-assets). Use two separate queues for basic and complex assets.
 For later ######################################################################################################################
 
 //////////
@@ -163,6 +166,14 @@ Next2:
 	  - why rendering from one mipmap level to another doesn't work?
 
 	  - add proper shading
+
+	  ////////////////////
+
+	  - create skybox meshes and models. Throug hdrag&drop and testing.
+
+	  Test this idea:
+
+	  - try decreasing far neighbors weigth and check how it influences image. It mimics how most rays reflect near center ray, so they have bigger impact.
 
 
 	  How to generate upscaled mipmaps:

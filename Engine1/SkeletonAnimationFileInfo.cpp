@@ -67,6 +67,11 @@ FileInfo::FileType SkeletonAnimationFileInfo::getFileType() const
 	return FileInfo::FileType::Textual;
 }
 
+bool SkeletonAnimationFileInfo::canHaveSubAssets() const
+{
+    return true; // Note: Animation may require a reference mesh to be loaded.
+}
+
 std::string SkeletonAnimationFileInfo::getPath() const
 {
 	return path;

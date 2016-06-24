@@ -82,6 +82,11 @@ FileInfo::FileType SkeletonMeshFileInfo::getFileType( ) const
 	return FileInfo::FileType::Textual;
 }
 
+bool SkeletonMeshFileInfo::canHaveSubAssets() const
+{
+    return false;
+}
+
 std::string SkeletonMeshFileInfo::getPath( ) const
 {
 	return path;

@@ -66,15 +66,17 @@ void GenerateReflectedRefractedRaysComputeShader::compileFromFile( std::string p
 void GenerateReflectedRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                                                                  const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture )
+                                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
+                                                                 const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture )
 {
     if ( !compiled ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 2;
+        const unsigned int resourceCount = 3;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             positionTexture.getShaderResourceView(), 
-            normalTexture.getShaderResourceView()
+            normalTexture.getShaderResourceView(),
+            roughnessTexture.getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -111,6 +113,6 @@ void GenerateReflectedRefractedRaysComputeShader::unsetParameters( ID3D11DeviceC
     if ( !compiled ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 2 ] = { nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 2, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 3 ] = { nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 3, nullResources );
 }

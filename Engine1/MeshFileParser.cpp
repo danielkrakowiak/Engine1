@@ -1,4 +1,4 @@
-#include "MyDAEFileParser.h"
+#include "MeshFileParser.h"
 
 #include <algorithm>
 
@@ -13,7 +13,7 @@
 
 using namespace Engine1;
 
-std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<BlockMesh> > MeshFileParser::parseBlockMeshFile( BlockMeshFileInfo::Format format, std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	std::vector< std::shared_ptr<BlockMesh> > meshes;
 
@@ -25,10 +25,19 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( s
 	if ( invertVertexWindingOrder ) flags |= aiProcess_FlipWindingOrder;
 	if ( flipUVs )                  flags |= aiProcess_FlipUVs; 
 
-    const int      dataSize = (int)(dataEndIt - dataIt) / sizeof(char);
-    const aiScene* aiscene = importer.ReadFileFromMemory( &(*dataIt), dataSize, flags );
+    // #TODO: refactor - use something like toString(format);
+    std::string formatHint;
+    if ( format == BlockMeshFileInfo::Format::OBJ )
+        formatHint = "obj";
+    else if ( format == BlockMeshFileInfo::Format::DAE )
+        formatHint = "dae";
+    else if ( format == BlockMeshFileInfo::Format::FBX )
+        formatHint = "fbx";
 
-	if ( !aiscene ) throw std::exception( "MyDAEFileParser::parseBlockMeshFile - parsing failed" );
+    const int      dataSize = (int)(dataEndIt - dataIt) / sizeof(char);
+    const aiScene* aiscene = importer.ReadFileFromMemory( &(*dataIt), dataSize, flags, formatHint.c_str() );
+
+	if ( !aiscene ) throw std::exception( ("MeshFileParser::parseBlockMeshFile - parsing failed - " + std::string( importer.GetErrorString() )).c_str() );
 
 	for ( unsigned int meshIndex = 0; meshIndex < aiscene->mNumMeshes; ++meshIndex ) {
 		meshes.push_back( std::make_shared<BlockMesh>( ) );
@@ -70,7 +79,7 @@ std::vector< std::shared_ptr<BlockMesh> > MyDAEFileParser::parseBlockMeshFile( s
 	return meshes;
 }
 
-std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
+std::vector< std::shared_ptr<SkeletonMesh> > MeshFileParser::parseSkeletonMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
 	std::vector< std::shared_ptr<SkeletonMesh> > meshes;
 
@@ -85,7 +94,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > MyDAEFileParser::parseSkeletonMeshF
     const int      dataSize = (int)(dataEndIt - dataIt) / sizeof(char);
     const aiScene* aiscene = importer.ReadFileFromMemory( &(*dataIt), dataSize, flags );
 
-	if ( !aiscene ) throw std::exception( "MyDAEFileParser::parseRiggedMeshFile - parsing failed" );
+	if ( !aiscene ) throw std::exception( "MeshFileParser::parseRiggedMeshFile - parsing failed" );
 
 	for ( unsigned int meshIndex = 0; meshIndex < aiscene->mNumMeshes; ++meshIndex ) {
 		meshes.push_back( std::make_shared<SkeletonMesh>( ) );

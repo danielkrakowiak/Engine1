@@ -71,6 +71,11 @@ FileInfo::FileType Texture2DFileInfo::getFileType() const
 	return FileInfo::FileType::Binary;
 }
 
+bool Texture2DFileInfo::canHaveSubAssets() const
+{
+    return false;
+}
+
 Texture2DFileInfo::Format Texture2DFileInfo::getFormat( ) const
 {
 	return format;

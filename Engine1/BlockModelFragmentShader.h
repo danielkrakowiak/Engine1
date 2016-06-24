@@ -19,6 +19,7 @@ namespace Engine1
         void compileFromFile( std::string path, ID3D11Device& device );
 
         void setParameters( ID3D11DeviceContext& deviceContext, 
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,

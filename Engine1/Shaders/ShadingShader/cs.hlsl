@@ -8,8 +8,9 @@ cbuffer ConstantBuffer : register( b0 )
 
 // Input.
 Texture2D<float4> g_positionTexture : register( t0 );
-Texture2D<float4> g_albedoTexture   : register( t1 );
-Texture2D<float4> g_normalTexture   : register( t2 ); 
+Texture2D<float4> g_emissiveTexture : register( t1 );
+Texture2D<float4> g_albedoTexture   : register( t2 );
+Texture2D<float4> g_normalTexture   : register( t3 ); 
 
 // Output.
 RWTexture2D<float4> g_colorTexture : register( u0 );
@@ -30,6 +31,7 @@ void main( uint3 groupId : SV_GroupID,
            uint  groupIndex : SV_GroupIndex )
 {
     const float3 position = g_positionTexture[ dispatchThreadId.xy ].xyz;
+    const float3 emissive = g_emissiveTexture[ dispatchThreadId.xy ].xyz;
     const float3 albedo   = g_albedoTexture[ dispatchThreadId.xy ].xyz;
 
     const float3 normal = g_normalTexture[ dispatchThreadId.xy ].xyz;
@@ -41,7 +43,7 @@ void main( uint3 groupId : SV_GroupID,
     const float3 diffuseColor  = getDiffuseColor( albedo, dirToLight, normal );
     const float3 specularColor = getSpecularColor( albedo, dirToLight, dirToCamera, normal );
 
-    g_colorTexture[ dispatchThreadId.xy ] = float4( diffuseColor + specularColor, 1.0f );
+    g_colorTexture[ dispatchThreadId.xy ] = float4( emissive + diffuseColor + specularColor, 1.0f );
 }
 
 float3 getDiffuseColor( float3 albedo, float3 dirToLight, float3 surfaceNormal )

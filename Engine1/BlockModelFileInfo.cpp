@@ -61,6 +61,11 @@ FileInfo::FileType BlockModelFileInfo::getFileType( ) const
 	return FileInfo::FileType::Binary;
 }
 
+bool BlockModelFileInfo::canHaveSubAssets() const
+{
+    return true;
+}
+
 std::string BlockModelFileInfo::getPath( ) const
 {
 	return path;

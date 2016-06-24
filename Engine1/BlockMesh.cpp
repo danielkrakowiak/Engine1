@@ -6,8 +6,7 @@
 
 #include <d3d11.h>
 
-#include "MyOBJFileParser.h"
-#include "MyDAEFileParser.h"
+#include "MeshFileParser.h"
 #include "BlockMeshFileInfoParser.h"
 
 #include "StringUtil.h"
@@ -15,6 +14,7 @@
 #include "MathUtil.h"
 
 #include "TextFile.h"
+#include "BinaryFile.h"
 
 #include "BVHTree.h"
 #include "BVHTreeBuffer.h"
@@ -30,7 +30,11 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const BlockMeshFileInfo& f
 
 std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const std::string& path, const BlockMeshFileInfo::Format format, const int indexInFile, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
+    std::shared_ptr< std::vector<char> > fileData;
+    if ( BlockMeshFileInfo::Format::OBJ == format || BlockMeshFileInfo::Format::DAE == format ) 
+	    fileData = TextFile::load( path );
+    else if ( BlockMeshFileInfo::Format::FBX == format )
+        fileData = BinaryFile::load( path );
 
     std::shared_ptr<BlockMesh> mesh = createFromMemory( fileData->cbegin( ), fileData->cend( ), format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
@@ -47,7 +51,11 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const std::string& path, c
 
 std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromFile( const std::string& path, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	std::shared_ptr< std::vector<char> > fileData = TextFile::load( path );
+    std::shared_ptr< std::vector<char> > fileData;
+    if ( BlockMeshFileInfo::Format::OBJ == format || BlockMeshFileInfo::Format::DAE == format ) 
+	    fileData = TextFile::load( path );
+    else if ( BlockMeshFileInfo::Format::FBX == format )
+        fileData = BinaryFile::load( path );
 
     std::vector< std::shared_ptr<BlockMesh> > meshes = createFromMemory( fileData->cbegin( ), fileData->cend( ), format, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 
@@ -81,13 +89,9 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( std::vector<char>::const
 
 std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	if ( BlockMeshFileInfo::Format::OBJ == format ) 
+	if ( BlockMeshFileInfo::Format::OBJ == format || BlockMeshFileInfo::Format::DAE == format || BlockMeshFileInfo::Format::FBX == format ) 
     {
-        return MyOBJFileParser::parseBlockMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
-	} 
-    else if ( BlockMeshFileInfo::Format::DAE == format ) 
-    {
-        return MyDAEFileParser::parseBlockMeshFile( dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
+        return MeshFileParser::parseBlockMeshFile( format, dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 	}
 
 	throw std::exception( "BlockMesh::createFromMemory() - incorrect 'format' argument." );

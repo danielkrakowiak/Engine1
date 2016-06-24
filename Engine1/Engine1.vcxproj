@@ -272,7 +272,6 @@
     <ClInclude Include="EdgeDetectionComputeShader.h" />
     <ClInclude Include="EdgeDetectionRenderer.h" />
     <ClInclude Include="EdgeDistanceComputeShader.h" />
-    <ClInclude Include="MyOBJFileParser.h" />
     <ClInclude Include="ShadingRenderer.h" />
     <ClInclude Include="Direct3DUtil.h" />
     <ClInclude Include="FileInfo.h" />
@@ -302,7 +301,7 @@
     <ClInclude Include="TextFile.h" />
     <ClInclude Include="FontLibrary.h" />
     <ClInclude Include="ImageLibrary.h" />
-    <ClInclude Include="MyDAEFileParser.h" />
+    <ClInclude Include="MeshFileParser.h" />
     <ClInclude Include="Direct3DFrameRenderer.h" />
     <ClInclude Include="float2.h" />
     <ClInclude Include="float3.h" />
@@ -394,7 +393,6 @@
     <ClCompile Include="EdgeDetectionComputeShader.cpp" />
     <ClCompile Include="EdgeDetectionRenderer.cpp" />
     <ClCompile Include="EdgeDistanceComputeShader.cpp" />
-    <ClCompile Include="MyOBJFileParser.cpp" />
     <ClCompile Include="ShadingRenderer.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
     <ClCompile Include="GenerateRaysComputeShader.cpp" />
@@ -423,7 +421,7 @@
     <ClCompile Include="TextFile.cpp" />
     <ClCompile Include="FontLibrary.cpp" />
     <ClCompile Include="ImageLibrary.cpp" />
-    <ClCompile Include="MyDAEFileParser.cpp" />
+    <ClCompile Include="MeshFileParser.cpp" />
     <ClCompile Include="Direct3DFrameRenderer.cpp" />
     <ClCompile Include="float2.cpp" />
     <ClCompile Include="float3.cpp" />

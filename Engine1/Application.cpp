@@ -82,7 +82,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     combiningRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     textureRescaleRenderer.initialize( frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
 	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
-    assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1, frameRenderer.getDevice() );
+    assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) * 2 : 1, frameRenderer.getDevice() );
 
     createUcharDisplayFrame( screenWidth, screenHeight, frameRenderer.getDevice() );
 
@@ -92,7 +92,6 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     axisMesh->buildBvhTree();
     axisMesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
     axisMesh->loadBvhTreeToGpu( *frameRenderer.getDevice().Get() );
-            
 
     // Load 'light source' model.
     //BlockModelFileInfo lightModelFileInfo( "Assets/Models/bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
@@ -100,7 +99,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     //lightModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext().Get() );
     std::shared_ptr<BlockModel> empty = std::make_shared<BlockModel>();
 
-    renderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext(), axisMesh, empty/*lightModel*/ );
+    renderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext(), axisMesh, empty/*lightModel*/);
 
 	initialized = true;
 }
@@ -536,16 +535,18 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::two )
         renderer.setActiveView( Renderer::View::Position );
     else if ( key == InputManager::Keys::three )
-        renderer.setActiveView( Renderer::View::Albedo );
+        renderer.setActiveView( Renderer::View::Emissive );
     else if ( key == InputManager::Keys::four )
-        renderer.setActiveView( Renderer::View::Normal );
+        renderer.setActiveView( Renderer::View::Albedo );
     else if ( key == InputManager::Keys::five )
-        renderer.setActiveView( Renderer::View::Metalness );
+        renderer.setActiveView( Renderer::View::Normal );
     else if ( key == InputManager::Keys::six )
-        renderer.setActiveView( Renderer::View::Roughness );
+        renderer.setActiveView( Renderer::View::Metalness );
     else if ( key == InputManager::Keys::seven )
-        renderer.setActiveView( Renderer::View::IndexOfRefraction );
+        renderer.setActiveView( Renderer::View::Roughness );
     else if ( key == InputManager::Keys::eight )
+        renderer.setActiveView( Renderer::View::IndexOfRefraction );
+    else if ( key == InputManager::Keys::nine )
         renderer.setActiveView( Renderer::View::DistanceToEdge );
 
     else if ( key == InputManager::Keys::f1 )
@@ -557,12 +558,14 @@ void Application::onKeyPress( int key )
     else if ( key == InputManager::Keys::f4 )
         renderer.setActiveView( Renderer::View::RaytracingHitNormal );
     else if ( key == InputManager::Keys::f5 )
-        renderer.setActiveView( Renderer::View::RaytracingHitAlbedo );
+        renderer.setActiveView( Renderer::View::RaytracingHitEmissive );
     else if ( key == InputManager::Keys::f6 )
-        renderer.setActiveView( Renderer::View::RaytracingHitMetalness );
+        renderer.setActiveView( Renderer::View::RaytracingHitAlbedo );
     else if ( key == InputManager::Keys::f7 )
-        renderer.setActiveView( Renderer::View::RaytracingHitRoughness );
+        renderer.setActiveView( Renderer::View::RaytracingHitMetalness );
     else if ( key == InputManager::Keys::f8 )
+        renderer.setActiveView( Renderer::View::RaytracingHitRoughness );
+    else if ( key == InputManager::Keys::f9 )
         renderer.setActiveView( Renderer::View::RaytracingHitIndexOfRefraction );
 }
 
@@ -679,7 +682,7 @@ void Application::onDragAndDropFile( std::string filePath )
 
 	std::string extension = StringUtil::toLowercase( filePath.substr( dotIndex + 1 ) );
 
-	std::array< const std::string, 2 > blockMeshExtensions     = { "obj", "dae" };
+	std::array< const std::string, 3 > blockMeshExtensions     = { "obj", "dae", "fbx" };
 	std::array< const std::string, 1 > skeletonkMeshExtensions = { "dae" };
 	std::array< const std::string, 8 > textureExtensions       = { "bmp", "dds", "jpg", "jpeg", "png", "raw", "tga", "tiff" };
     std::array< const std::string, 1 > blockModelExtensions    = { "blockmodel" };
@@ -738,6 +741,7 @@ void Application::onDragAndDropFile( std::string filePath )
 
 		if (      extension.compare( "obj" ) == 0 ) format = BlockMeshFileInfo::Format::OBJ;
 		else if ( extension.compare( "dae" ) == 0 ) format = BlockMeshFileInfo::Format::DAE;
+        else if ( extension.compare( "fbx" ) == 0 ) format = BlockMeshFileInfo::Format::FBX;
 
         BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
         std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( fileInfo ) );

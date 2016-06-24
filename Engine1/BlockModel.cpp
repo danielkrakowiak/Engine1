@@ -435,6 +435,12 @@ std::vector< ModelTexture2D< uchar4 > > BlockModel::getEmissionTextures( ) const
 	return std::vector< ModelTexture2D< uchar4 > >( emissionTextures.begin( ), emissionTextures.end( ) );
 }
 
+ModelTexture2D< uchar4 > BlockModel::getEmissionTexture( int index ) const {
+	if ( index >= (int)emissionTextures.size() ) throw std::exception( "BlockModel::getEmissionTexture: Trying to access texture at non-existing index" );
+
+	return emissionTextures.at( index );
+}
+
 int BlockModel::getAlbedoTexturesCount( ) const {
 	return (int)albedoTextures.size();
 }

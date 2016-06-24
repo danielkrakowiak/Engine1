@@ -47,6 +47,7 @@ namespace Engine1
         int         getIndexInFile() const;
         Asset::Type getAssetType() const;
         FileType    getFileType() const;
+        bool        canHaveSubAssets() const;
         Format      getFormat() const;
         PixelType   getPixelType() const;
 

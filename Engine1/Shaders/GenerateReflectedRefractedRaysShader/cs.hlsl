@@ -15,8 +15,9 @@ cbuffer ConstantBuffer
 };
 
 // Input.
-Texture2D<float4> g_surfacePosition : register( t0 );
-Texture2D<float4> g_surfaceNormal   : register( t1 );
+Texture2D<float4> g_surfacePosition  : register( t0 );
+Texture2D<float4> g_surfaceNormal    : register( t1 );
+Texture2D<float>  g_surfaceRoughness : register( t2 ); // Used to decide whether to generate reflected/refracted ray. If roughness > 0.999, ray is not generated.
 
 // Output.
 RWTexture2D<float4> g_rayOrigin    : register( u0 );
@@ -58,7 +59,8 @@ void main( uint3 groupId : SV_GroupID,
 
     const float3 surfacePosition = g_surfacePosition[ pixelPos ].xyz;
 
-    if ( !any( surfacePosition ) ) { // If all position components are zeros - there is no reflected ray.
+    // TODO: Could be otpimized to check only roughness (not position). Roughness buffer needs to be filled with maximal value at the beginning of each frame.
+    if ( !any( surfacePosition ) || g_surfaceRoughness[ dispatchThreadId.xy ] > 0.999f ) { // If all position components are zeros or roughness is maximal - there is no reflected ray.
         // Deactivate the ray.
         g_rayDirection[ dispatchThreadId.xy ] = float4( 0.0f, 0.0f, 0.0f, 0.0f );
         return;

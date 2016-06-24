@@ -431,6 +431,12 @@ std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getEmissionTextures( ) co
 	return std::vector< ModelTexture2D< uchar4 > >( emissionTextures.begin( ), emissionTextures.end( ) );
 }
 
+ModelTexture2D< uchar4 > SkeletonModel::getEmissionTexture( int index ) const {
+	if ( index >= (int)emissionTextures.size( ) ) throw std::exception( "SkeletonModel::getEmissionTexture: Trying to access texture at non-existing index" );
+
+	return emissionTextures.at( index );
+}
+
 int SkeletonModel::getAlbedoTexturesCount( ) const {
 	return (int)albedoTextures.size();
 }

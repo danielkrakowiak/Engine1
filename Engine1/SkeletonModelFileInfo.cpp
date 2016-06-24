@@ -61,6 +61,11 @@ FileInfo::FileType SkeletonModelFileInfo::getFileType( ) const
 	return FileInfo::FileType::Binary;
 }
 
+bool SkeletonModelFileInfo::canHaveSubAssets() const
+{
+    return true;
+}
+
 std::string SkeletonModelFileInfo::getPath( ) const
 {
 	return path;

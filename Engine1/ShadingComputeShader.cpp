@@ -70,6 +70,7 @@ void ShadingComputeShader::compileFromFile( std::string path, ID3D11Device& devi
 
 void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture,
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                           const std::vector< std::shared_ptr< Light > >& lights )
@@ -77,9 +78,10 @@ void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, co
     if ( !compiled ) throw std::exception( "ShadingComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 3;
+        const unsigned int resourceCount = 4;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             positionTexture->getShaderResourceView(),
+            emissiveTexture->getShaderResourceView(),
             albedoTexture->getShaderResourceView(),
             normalTexture->getShaderResourceView()
         };
@@ -114,6 +116,6 @@ void ShadingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
     if ( !compiled ) throw std::exception( "ShadingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 3 ] = { nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 3, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 4 ] = { nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 4, nullResources );
 }

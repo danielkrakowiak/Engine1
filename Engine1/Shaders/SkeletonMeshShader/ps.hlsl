@@ -13,7 +13,8 @@ struct PixelOutputType {
     float  metalness         : SV_Target2;
     float  roughness         : SV_Target3;
     float  indexOfRefraction : SV_Target4;
-	float4 albedo            : SV_Target5;
+    float4 emissive          : SV_Target5;
+	float4 albedo            : SV_Target6;
 };
 
 PixelOutputType main( PixelInputType input )
@@ -21,6 +22,7 @@ PixelOutputType main( PixelInputType input )
 	PixelOutputType output;
 
     output.position = float4( input.positionWorld, 0.0f );
+    output.emissive = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 	output.albedo   = float4( 0.5f, 0.5f, 0.5f, 1.0f );
 	output.normal   = float4( input.normal.xyz, 0.0f );
 
