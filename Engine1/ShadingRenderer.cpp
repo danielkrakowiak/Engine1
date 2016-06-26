@@ -42,12 +42,15 @@ void ShadingRenderer::performShading( const Camera& camera,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > indexOfRefractionTexture,
                                       const std::vector< std::shared_ptr< Light > >& lights )
 {
     rendererCore.disableRenderingPipeline();
 
-    shadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, normalTexture, lights );
+    shadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, indexOfRefractionTexture, lights );
 
     rendererCore.enableComputeShader( shadingComputeShader );
 

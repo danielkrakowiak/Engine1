@@ -124,14 +124,21 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     raytraceRenderer.generateAndTraceSecondaryRays( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget(), deferredRenderer.getRoughnessRenderTarget(), blockActors );
 
     // Perform shading on the main image.
-    std::vector< std::shared_ptr< Light > > lights;
-    shadingRenderer.performShading( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getEmissiveRenderTarget(), deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getNormalRenderTarget(), lights );
+    const std::unordered_set< std::shared_ptr< Light > >& lights = scene.getLights();
+    const std::vector< std::shared_ptr< Light > > lightsVec( lights.begin(), lights.end() );
+    shadingRenderer.performShading( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getEmissiveRenderTarget(), 
+                                    deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getMetalnessRenderTarget(), 
+                                    deferredRenderer.getRoughnessRenderTarget(), deferredRenderer.getNormalRenderTarget(), 
+                                    deferredRenderer.getIndexOfRefractionRenderTarget(), lightsVec );
 
     // Copy main shaded image to final render target.
     rendererCore.copyTexture( finalRenderTarget, shadingRenderer.getColorRenderTarget() );
 
     // Perform shading on the reflected image.
-    shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitEmissiveTexture(), raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitNormalTexture(), lights );
+    shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitEmissiveTexture(), 
+                                    raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitMetalnessTexture(),
+                                    raytraceRenderer.getRayHitRoughnessTexture(), raytraceRenderer.getRayHitNormalTexture(),
+                                    raytraceRenderer.getRayHitIndexOfRefractionTexture(), lightsVec );
 
     // Generate mipmaps for the shaded, reflected image.
     shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );

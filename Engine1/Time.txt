@@ -221,3 +221,4 @@ Tue 21.06.2016 - 4h - Trying to find a way to blur reflection smoothly when ray 
 Wed 22.06.2016 - 2h - Adam is creating 3d scene for me. Trying to import that to the engine.
 Thu 23.06.2016 - 3h - Added emissive to raytracing and to deferred renderer. Creating skybox models.
 Fri 24.06.2016 - 4h - Created skybox meshes and models. Disabled generating secondary rays for surfaces with maximal roughness (to disable reflections on skybox). Debugged and fixed deadlock when loading many assets using AssetManager (parsing threads were all waiting for sub-assets to be parsed while no one was parsing). Fixed by parsing basic assets first (the ones without sub-assets).
+Sat 25.06.2016 - 2h - Added selecting and moving/deleting light sources. Passed light sources to the shading shader using constant buffer.

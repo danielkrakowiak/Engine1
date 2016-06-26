@@ -4,14 +4,12 @@ using namespace Engine1;
 
 Light::Light() :
 position( float3::ZERO ),
-diffuseColor( float3::ZERO ),
-specularColor( float3::ZERO )
+color( float3::ZERO )
 {}
 
-Light::Light( const float3& position, const float3& diffuseColor, const float3& specularColor ) :
+Light::Light( const float3& position, const float3& color ) :
 position( position ),
-diffuseColor( diffuseColor ),
-specularColor( specularColor )
+color( color )
 {}
 
 Light::~Light( )
@@ -22,14 +20,9 @@ void Light::setPosition( const float3& position )
     this->position = position;
 }
 
-void Light::setDiffuseColor( const float3& diffuseColor )
+void Light::setColor( const float3& color )
 {
-    this->diffuseColor = diffuseColor;
-}
-
-void Light::setSpecularColor( const float3& specularColor )
-{
-    this->specularColor = specularColor;
+    this->color = color;
 }
 
 float3 Light::getPosition() const
@@ -37,12 +30,7 @@ float3 Light::getPosition() const
     return position;
 }
 
-float3 Light::getDiffuseColor() const
+float3 Light::getColor() const
 {
-    return diffuseColor;
-}
-
-float3 Light::getSpecularColor() const
-{
-    return specularColor;
+    return color;
 }

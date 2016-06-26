@@ -111,8 +111,9 @@ private:
     AssetManager assetManager;
 
 	// For creation of new assets.
-	std::shared_ptr<BlockActor>    defaultBlockActor;
-	std::shared_ptr<SkeletonActor> defaultSkeletonActor;
+    std::shared_ptr< Light >         selectedLight;
+	std::shared_ptr< BlockActor >    selectedBlockActor;
+	std::shared_ptr< SkeletonActor > selectedSkeletonActor;
 
     // Debug uchar render target.
     void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );

@@ -14,6 +14,8 @@
 #include "Texture2DFileInfo.h"
 #include "BinaryFile.h"
 
+#include "Direct3DUtil.h"
+
 // #TODO: Add support for mipmaps. Generated on CPU or GPU or both.
 // #TODO: Add support for writing/reading mipmaps CPU -> GPU, GPU -> CPU.
 // #TODO: PixelType should be compared with textureFormat passed in constructor. If they are different, wrong amounts of memory will be allocated on CPU vs GPU and future copying will fail.
@@ -240,7 +242,7 @@ namespace Engine1
         initialize( device, fileData->cbegin(), fileData->cend(), fileInfo.getFormat(), storeOnCpu, storeOnGpu, generateMipmaps,
                     usage, binding, textureFormat, viewFormat1, viewFormat2, viewFormat3 );
 
-        m_fileInfo = fileInfo;
+        setFileInfo( fileInfo );
     }
 
     template< typename PixelType >
@@ -284,6 +286,11 @@ namespace Engine1
             } else if ( image.getBitsPerPixel() != 8 ) {
                 throw std::exception( "Texture2DGeneric::initialize - loaded texture is neither 32, 24 or 8 bits per pixel. This byte per pixel fromat is not supported." );
             }
+        }
+
+        if ( image.getBitsPerPixel() != ( sizeof( PixelType ) * 8 ) ) {
+            throw std::exception( ( "Texture2DGeneric::initialize - loaded texture has different pixel size ("
+            + std::to_string( image.getBitsPerPixel() / 8 ) + " bytes) than texture PixelType (" + std::to_string( sizeof( PixelType ) )  + " bytes)." ).c_str() );
         }
 
         createTextureOnCpu( (char*)image.accessPixels(), image.getWidth(), image.getHeight(), image.getLine() );
@@ -433,6 +440,13 @@ namespace Engine1
         ::setFileInfo( const Texture2DFileInfo& fileInfo )
     {
         m_fileInfo = fileInfo;
+
+        #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        if ( m_texture ) {
+		    std::string resourceName = std::string( "Texture2D (" + fileInfo.getPath() + ")" );
+		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
+        }
+        #endif
     }
 
     template< typename PixelType >
@@ -531,6 +545,13 @@ namespace Engine1
 
         HRESULT result = device.CreateTexture2D( &desc, nullptr, m_texture.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "Texture2DGeneric::createTextureOnGpu - creating texture on GPU failed." );
+
+        #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        if ( !getFileInfo().getPath().empty() ) {
+		    std::string resourceName = std::string( "Texture2D (" + getFileInfo().getPath() + ")" );
+		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
+        }
+        #endif
     }
 
     template< typename PixelType >
@@ -572,6 +593,13 @@ namespace Engine1
 
         HRESULT result = device.CreateTexture2D( &desc, &dataDesc, m_texture.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "Texture2DGeneric::createTextureOnGpu - creating texture on GPU failed." );
+
+        #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        if ( !getFileInfo().getPath().empty() ) {
+		    std::string resourceName = std::string( "Texture2D (" + getFileInfo().getPath() + ")" );
+		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
+        }
+        #endif
     }
 
     template< typename PixelType >

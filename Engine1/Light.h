@@ -16,23 +16,20 @@ namespace Engine1
         virtual Type getType() const = 0;
 
         void setPosition( const float3& position );
-        void setDiffuseColor( const float3& diffuseColor );
-        void setSpecularColor( const float3& specularColor );
+        void setColor( const float3& color );
 
         float3 getPosition() const;
-        float3 getDiffuseColor( ) const;
-        float3 getSpecularColor( ) const;
+        float3 getColor( ) const;
 
         protected:
 
         Light();
-        Light( const float3& position, const float3& diffuseColor, const float3& specularColor );
+        Light( const float3& position, const float3& color );
         ~Light();
 
         float3 position;
 
-        float3 diffuseColor;
-        float3 specularColor;
+        float3 color;
     };
 };
 

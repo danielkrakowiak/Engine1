@@ -22,8 +22,8 @@ std::shared_ptr<PointLight> PointLight::createFromMemory( std::vector<char>::con
 PointLight::PointLight()
 {}
 
-PointLight::PointLight( const float3& position, const float3& diffuseColor, const float3& specularColor ) :
-Light( position, diffuseColor, specularColor )
+PointLight::PointLight( const float3& position, const float3& color ) :
+Light( position, color )
 {}
 
 PointLight::~PointLight()
