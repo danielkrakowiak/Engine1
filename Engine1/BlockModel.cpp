@@ -37,6 +37,16 @@ BlockModel::BlockModel( )
 : mesh( nullptr ) 
 {}
 
+BlockModel::BlockModel( const BlockModel& obj ) :
+fileInfo( obj.fileInfo ),
+mesh( obj.mesh ),
+emissionTextures( obj.emissionTextures ),
+albedoTextures( obj.albedoTextures ),
+metalnessTextures( obj.metalnessTextures ),
+roughnessTextures( obj.roughnessTextures ),
+normalTextures( obj.normalTextures ),
+indexOfRefractionTextures( obj.indexOfRefractionTextures )
+{}
 
 BlockModel::~BlockModel( ) 
 {}
@@ -425,6 +435,31 @@ void BlockModel::addNormalTexture( ModelTexture2D< uchar4 >& texture )
 void BlockModel::addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture )
 {
 	indexOfRefractionTextures.push_back( texture );
+}
+
+void BlockModel::removeAllEmissionTextures()
+{
+    emissionTextures.clear();
+}
+void BlockModel::removeAllAlbedoTextures()
+{
+    albedoTextures.clear();
+}
+void BlockModel::removeAllMetalnessTextures()
+{
+    metalnessTextures.clear();
+}
+void BlockModel::removeAllRoughnessTextures()
+{
+    roughnessTextures.clear();
+}
+void BlockModel::removeAllNormalTextures()
+{
+    normalTextures.clear();
+}
+void BlockModel::removeAllIndexOfRefractionTextures()
+{
+    indexOfRefractionTextures.clear();
 }
 
 int BlockModel::getEmissionTexturesCount( ) const {

@@ -60,7 +60,11 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture )
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
+                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                                 const float3 cameraPosition )
 {
     if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 
@@ -76,7 +80,8 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
 
 	{ // Configure and enable shaders.
 		combiningVertexShader->setParameters( *deviceContext.Get() );
-		combiningFragmentShader->setParameters( *deviceContext.Get(), srcTexture, normalTexture, positionTexture, depthTexture, hitDistanceTexture, normalThreshold, positionThreshold );
+		combiningFragmentShader->setParameters( *deviceContext.Get(), srcTexture, normalTexture, positionTexture, depthTexture, hitDistanceTexture,
+                                                albedoTexture, metalnessTexture, roughnessTexture, normalThreshold, positionThreshold, cameraPosition );
 
 		rendererCore.enableRenderingShaders( combiningVertexShader, combiningFragmentShader );
 	}
@@ -144,23 +149,23 @@ ComPtr<ID3D11BlendState> CombiningRenderer::createBlendState( ID3D11Device& devi
 
 	blendDesc.AlphaToCoverageEnable  = false;
 	blendDesc.IndependentBlendEnable = false;
-
-    blendDesc.RenderTarget[ 0 ].BlendEnable           = true;
-	blendDesc.RenderTarget[ 0 ].SrcBlend              = D3D11_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[ 0 ].DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[ 0 ].BlendOp               = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[ 0 ].SrcBlendAlpha         = D3D11_BLEND_ONE;
-	blendDesc.RenderTarget[ 0 ].DestBlendAlpha        = D3D11_BLEND_ZERO;
-	blendDesc.RenderTarget[ 0 ].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+    // SRC * SRC_ALPHA + DEST * 1.0
+ //   blendDesc.RenderTarget[ 0 ].BlendEnable           = true;
+	//blendDesc.RenderTarget[ 0 ].SrcBlend              = D3D11_BLEND_SRC_ALPHA;
+	//blendDesc.RenderTarget[ 0 ].DestBlend             = D3D11_BLEND_ONE;//D3D11_BLEND_INV_SRC_ALPHA;
+	//blendDesc.RenderTarget[ 0 ].BlendOp               = D3D11_BLEND_OP_ADD;
+	//blendDesc.RenderTarget[ 0 ].SrcBlendAlpha         = D3D11_BLEND_ZERO;
+	//blendDesc.RenderTarget[ 0 ].DestBlendAlpha        = D3D11_BLEND_ONE;
+	//blendDesc.RenderTarget[ 0 ].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
 
 	// Enable blending.
-	/*blendDesc.RenderTarget[ 0 ].BlendEnable           = true;
+	blendDesc.RenderTarget[ 0 ].BlendEnable           = true;
 	blendDesc.RenderTarget[ 0 ].SrcBlend              = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[ 0 ].DestBlend             = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[ 0 ].BlendOp               = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[ 0 ].SrcBlendAlpha         = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[ 0 ].DestBlendAlpha        = D3D11_BLEND_ONE;
-	blendDesc.RenderTarget[ 0 ].BlendOpAlpha          = D3D11_BLEND_OP_ADD;*/
+	blendDesc.RenderTarget[ 0 ].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[ 0 ].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE; // Don't write alpha.
 
 	HRESULT result = device.CreateBlendState( &blendDesc, blendState.ReleaseAndGetAddressOf() );

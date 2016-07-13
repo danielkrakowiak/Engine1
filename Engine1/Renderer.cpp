@@ -153,7 +153,8 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
 
     // Combine main image with reflections and refractions.
     combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), deferredRenderer.getNormalRenderTarget(), 
-                               deferredRenderer.getPositionRenderTarget(), deferredRenderer.getDepthRenderTarget(), raytraceRenderer.getRayHitDistanceTexture() );
+                               deferredRenderer.getPositionRenderTarget(), deferredRenderer.getDepthRenderTarget(), raytraceRenderer.getRayHitDistanceTexture(),
+                               deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getMetalnessRenderTarget(), deferredRenderer.getRoughnessRenderTarget(), camera.getPosition() );
 
     switch (activeView)
     {

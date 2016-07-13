@@ -35,6 +35,17 @@ SkeletonModel::SkeletonModel( )
 : mesh( nullptr ) 
 {}
 
+SkeletonModel::SkeletonModel( const SkeletonModel& obj ) :
+fileInfo( obj.fileInfo ),
+mesh( obj.mesh ),
+emissionTextures( obj.emissionTextures ),
+albedoTextures( obj.albedoTextures ),
+metalnessTextures( obj.metalnessTextures ),
+roughnessTextures( obj.roughnessTextures ),
+normalTextures( obj.normalTextures ),
+indexOfRefractionTextures( obj.indexOfRefractionTextures )
+{}
+
 SkeletonModel::~SkeletonModel( ) {}
 
 Asset::Type SkeletonModel::getType( ) const
@@ -421,6 +432,31 @@ void SkeletonModel::addNormalTexture( ModelTexture2D< uchar4 >& texture )
 void SkeletonModel::addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture )
 {
 	indexOfRefractionTextures.push_back( texture );
+}
+
+void SkeletonModel::removeAllEmissionTextures()
+{
+    emissionTextures.clear();
+}
+void SkeletonModel::removeAllAlbedoTextures()
+{
+    albedoTextures.clear();
+}
+void SkeletonModel::removeAllMetalnessTextures()
+{
+    metalnessTextures.clear();
+}
+void SkeletonModel::removeAllRoughnessTextures()
+{
+    roughnessTextures.clear();
+}
+void SkeletonModel::removeAllNormalTextures()
+{
+    normalTextures.clear();
+}
+void SkeletonModel::removeAllIndexOfRefractionTextures()
+{
+    indexOfRefractionTextures.clear();
 }
 
 int SkeletonModel::getEmissionTexturesCount( ) const {

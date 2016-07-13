@@ -28,8 +28,12 @@ namespace Engine1
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                             const float normalThreshold,
-                            const float positionThreshold );
+                            const float positionThreshold,
+                            const float3 cameraPosition );
 
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
@@ -42,6 +46,8 @@ namespace Engine1
             float3 padding1;
             float  positionThresholdSquare;
             float3 padding2;
+            float3 cameraPosition;
+            float  padding3;
         };
 
         int resourceCount;

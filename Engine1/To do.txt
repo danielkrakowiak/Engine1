@@ -166,6 +166,12 @@ Next2:
 
 	  ////////////////////
 
+	  - why blending (add operation) doesn't work when combining reflection with main image?
+
+	  - add fresnel to reflections
+
+	  - when cloning an actor it's model should be cloned. Should I use copy constructor or create a separate clone() method?
+
 	  - add cloning actors/models/meshes etc - it will facilitate creating test scenes
 	  - add replacing texutres and meshes on actor when holding Ctrl during drag&drop
 
@@ -181,6 +187,12 @@ Next2:
 
 	  - try decreasing far neighbors weigth and check how it influences image. It mimics how most rays reflect near center ray, so they have bigger impact.
 
+
+	  - why Normal distribution function term is so weird. Changing roughness causes reflection to be black, normal or super bright.
+
+	  - for metals, the reflection parallel to normal is tinted to metal color, but reflection at glancing angle has it's natural color.
+
+	  - what specular color to use when combining reflections? When using 4% for dielectrics reflections are barely visible. But in Substance Painter they are much more visible for dielectrics.
 
 	  How to generate upscaled mipmaps:
 	  - start with 2 level mipmap - render it stretched to 3d texture layer 0.

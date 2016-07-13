@@ -503,23 +503,30 @@ void Application::onFocusChange( bool windowFocused )
 
 void Application::onKeyPress( int key )
 {
-    if ( key == InputManager::Keys::l ) {
-        if ( scene ) {
+    if ( key == InputManager::Keys::l ) 
+    {
+        if ( scene )
+        {
             float3 lightPosition = camera.getPosition() + camera.getDirection();
 
             std::shared_ptr< Light > light = std::make_shared<PointLight>( lightPosition );
+            light->setColor( float3( 1.0f, 1.0f, 1.0f ) );
             scene->addLight( light );
 
             selectedLight = light;
         }
-    } else if ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) {
+    } 
+    else if ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) 
+    {
         if ( scene && !scenePath.empty() && inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::s ) ) {
             saveScene( scenePath );
         }
     }
 
-    if ( key == InputManager::Keys::delete_ ) {
-        if ( scene ) {
+    if ( key == InputManager::Keys::delete_ ) 
+    {
+        if ( scene ) 
+        {
             if ( selectedBlockActor ) {
                 scene->removeActor( selectedBlockActor );
                 selectedBlockActor.reset();
@@ -529,6 +536,38 @@ void Application::onKeyPress( int key )
             } else if ( selectedLight ) {
                 scene->removeLight( selectedLight );
                 selectedLight.reset();
+            }
+        }
+    }
+
+    // Clone the actor, but share the model with the original actor.
+    if ( key == InputManager::Keys::c && inputManager.isKeyPressed( InputManager::Keys::shift ) ) 
+    {
+        if ( scene ) 
+        {
+            if ( selectedBlockActor ) {
+                selectedBlockActor = std::make_shared< BlockActor >( *selectedBlockActor ); // Clone the actor.
+                scene->addActor( selectedBlockActor );
+            } else if ( selectedSkeletonActor ) {
+                selectedSkeletonActor = std::make_shared< SkeletonActor >( *selectedSkeletonActor ); // Clone the actor.
+                scene->addActor( selectedSkeletonActor );
+            }
+        }
+    }
+
+    // Clone the actor and clone the model.
+    if ( key == InputManager::Keys::c && inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    {
+        if ( scene ) 
+        {
+            if ( selectedBlockActor ) {
+                selectedBlockActor = std::make_shared< BlockActor >( *selectedBlockActor ); // Clone the actor.
+                selectedBlockActor->setModel( std::make_shared< BlockModel >( *selectedBlockActor->getModel() ) ); // Clone it's model.
+                scene->addActor( selectedBlockActor );
+            } else if ( selectedSkeletonActor ) {
+                selectedSkeletonActor = std::make_shared< SkeletonActor >( *selectedSkeletonActor ); // Clone the actor.
+                selectedSkeletonActor->setModel( std::make_shared< SkeletonModel >( *selectedSkeletonActor->getModel() ) ); // Clone it's model.
+                scene->addActor( selectedSkeletonActor );
             }
         }
     }
@@ -780,6 +819,8 @@ void Application::onDragAndDropFile( std::string filePath )
             isScene = true;
     }
 
+    const bool replaceAsset = inputManager.isKeyPressed( InputManager::Keys::ctrl );
+
     float43 pose = float43::IDENTITY;
     pose.setTranslation( camera.getPosition() + camera.getDirection() );
 
@@ -801,10 +842,17 @@ void Application::onDragAndDropFile( std::string filePath )
             mesh->loadBvhTreeToGpu( *frameRenderer.getDevice().Get() );
         }
 
-        // Add new actor to the scene.
-        selectedBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
-        selectedBlockActor->getModel( )->setMesh( mesh );
-        scene->addActor( selectedBlockActor );
+        if ( replaceAsset ) {
+            // Replace a mesh of an existing model.
+            if ( selectedBlockActor && selectedBlockActor->getModel() ) {
+                selectedBlockActor->getModel( )->setMesh( mesh );
+            }
+        } else {
+            // Add new actor to the scene.
+            selectedBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
+            selectedBlockActor->getModel( )->setMesh( mesh );
+            scene->addActor( selectedBlockActor );
+        }
 	}
 
 	if ( isSkeletonMesh ) {
@@ -817,6 +865,7 @@ void Application::onDragAndDropFile( std::string filePath )
         if ( !mesh->isInGpuMemory( ) )
             mesh->loadCpuToGpu( *frameRenderer.getDevice( ).Get() );
 
+        // #TODO: add replacing mesh? How to deal with non-matching animation?
         // Add new actor to the scene.
         selectedSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
         selectedSkeletonActor->getModel( )->setMesh( mesh );
@@ -861,66 +910,114 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( selectedBlockActor )    
-                selectedBlockActor->getModel( )->addAlbedoTexture( modelTexture );
+            if ( selectedBlockActor ) {  
+                if ( replaceAsset )
+                    selectedBlockActor->getModel( )->removeAllAlbedoTextures();
 
-            if ( selectedSkeletonActor ) 
+                selectedBlockActor->getModel( )->addAlbedoTexture( modelTexture );
+            }
+
+            if ( selectedSkeletonActor ) {
+                if ( replaceAsset )
+                    selectedSkeletonActor->getModel( )->removeAllAlbedoTextures();
+
                 selectedSkeletonActor->getModel( )->addAlbedoTexture( modelTexture );
+            }
         } 
         else if ( filePath.find( "_M" ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( selectedBlockActor )    
-                selectedBlockActor->getModel( )->addMetalnessTexture( modelTexture );
+            if ( selectedBlockActor ) {    
+                if ( replaceAsset )
+                    selectedBlockActor->getModel( )->removeAllMetalnessTextures();
 
-            if ( selectedSkeletonActor ) 
+                selectedBlockActor->getModel( )->addMetalnessTexture( modelTexture );
+            }
+
+            if ( selectedSkeletonActor ) {
+                if ( replaceAsset )
+                    selectedSkeletonActor->getModel( )->removeAllMetalnessTextures();
+
                 selectedSkeletonActor->getModel( )->addMetalnessTexture( modelTexture );
+            }
 		} 
         else if ( filePath.find( "_N" ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( selectedBlockActor )    
-                selectedBlockActor->getModel( )->addNormalTexture( modelTexture );
+            if ( selectedBlockActor ) {  
+                if ( replaceAsset )
+                    selectedBlockActor->getModel( )->removeAllNormalTextures();
 
-            if ( selectedSkeletonActor ) 
+                selectedBlockActor->getModel( )->addNormalTexture( modelTexture );
+            }
+
+            if ( selectedSkeletonActor ) {
+                if ( replaceAsset )
+                    selectedSkeletonActor->getModel( )->removeAllNormalTextures();
+
                 selectedSkeletonActor->getModel( )->addNormalTexture( modelTexture );
+            }
 		} 
         else if ( filePath.find( "_R" ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( selectedBlockActor )    
-                selectedBlockActor->getModel( )->addRoughnessTexture( modelTexture );
+            if ( selectedBlockActor ) {   
+                if ( replaceAsset )
+                    selectedBlockActor->getModel( )->removeAllRoughnessTextures();
 
-            if ( selectedSkeletonActor ) 
+                selectedBlockActor->getModel( )->addRoughnessTexture( modelTexture );
+            }
+
+            if ( selectedSkeletonActor ) {
+                if ( replaceAsset )
+                    selectedSkeletonActor->getModel( )->removeAllRoughnessTextures();
+
                 selectedSkeletonActor->getModel( )->addRoughnessTexture( modelTexture );
+            }
 		} 
         else if ( filePath.find( "_E" ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( selectedBlockActor )    
-                selectedBlockActor->getModel( )->addEmissionTexture( modelTexture );
+            if ( selectedBlockActor ) {    
+                if ( replaceAsset )
+                    selectedBlockActor->getModel( )->removeAllEmissionTextures();
 
-            if ( selectedSkeletonActor ) 
+                selectedBlockActor->getModel( )->addEmissionTexture( modelTexture );
+            }
+
+            if ( selectedSkeletonActor ) {
+                if ( replaceAsset )
+                    selectedSkeletonActor->getModel( )->removeAllEmissionTextures();
+
                 selectedSkeletonActor->getModel( )->addEmissionTexture( modelTexture );
+            }
         } 
         else if ( filePath.find( "_I" ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( selectedBlockActor )    
-                selectedBlockActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+            if ( selectedBlockActor ) {   
+                if ( replaceAsset )
+                    selectedBlockActor->getModel( )->removeAllIndexOfRefractionTextures();
 
-            if ( selectedSkeletonActor ) 
+                selectedBlockActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+            }
+
+            if ( selectedSkeletonActor ) {
+                if ( replaceAsset )
+                    selectedSkeletonActor->getModel( )->removeAllIndexOfRefractionTextures();
+
                 selectedSkeletonActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+            }
 		}
 	}
 

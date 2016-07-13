@@ -22,6 +22,7 @@ namespace Engine1
         static std::shared_ptr<SkeletonModel> createFromMemory( std::vector<char>::const_iterator dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device& device );
 
         SkeletonModel();
+        SkeletonModel( const SkeletonModel& );
         ~SkeletonModel();
 
         Asset::Type                                 getType() const;
@@ -53,6 +54,13 @@ namespace Engine1
         void addRoughnessTexture( ModelTexture2D< unsigned char >& texture );
         void addNormalTexture( ModelTexture2D< uchar4 >& texture );
         void addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture );
+
+        void removeAllEmissionTextures();
+        void removeAllAlbedoTextures();
+        void removeAllMetalnessTextures();
+        void removeAllRoughnessTextures();
+        void removeAllNormalTextures();
+        void removeAllIndexOfRefractionTextures();
 
         int                                             getEmissionTexturesCount() const;
         std::vector< ModelTexture2D< uchar4 > >         getEmissionTextures() const;
@@ -91,8 +99,6 @@ namespace Engine1
         std::vector< ModelTexture2D< uchar4 > >        normalTextures;
         std::vector< ModelTexture2D< unsigned char > > indexOfRefractionTextures;
 
-        // Copying is not allowed.
-        SkeletonModel( const SkeletonModel& )          = delete;
         SkeletonModel& operator=(const SkeletonModel&) = delete;
     };
 }
