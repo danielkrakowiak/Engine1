@@ -307,6 +307,18 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
     enableUnorderedAccessTargets( emptyF1, emptyF2, unorderedAccessTargetsF4, emptyU1, emptyU4, mipmapLevel );
 }
 
+void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4,
+                                                         const int mipmapLevel )
+{
+    const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >  emptyF1;
+    const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > emptyF2;
+    const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > emptyF4;
+    const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > emptyU1;
+    const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > emptyU4;
+
+    enableUnorderedAccessTargets( emptyF1, emptyF2, emptyF4, emptyU1, unorderedAccessTargetsU4, mipmapLevel );
+}
+
 void Direct3DRendererCore::disableRenderTargetViews()
 {
     if ( !currentRenderTargetViews.empty() || currentDepthRenderTargetView )
@@ -625,6 +637,14 @@ void Direct3DRendererCore::createNullShaderInputs()
 
 void Direct3DRendererCore::copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
                                         const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture )
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+
+    deviceContext->CopyResource( destTexture->getTextureResource().Get(), srcTexture->getTextureResource().Get() );
+}
+
+void Direct3DRendererCore::copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > destTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > srcTexture )
 {
     if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
 

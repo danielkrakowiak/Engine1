@@ -14,6 +14,7 @@ namespace Engine1
     class Direct3DDeferredRenderer;
     class RaytraceRenderer;
     class ShadingRenderer;
+    class ReflectionShadingRenderer;
     class EdgeDetectionRenderer;
     class CombiningRenderer;
     class TextureRescaleRenderer;
@@ -28,6 +29,7 @@ namespace Engine1
 
         enum class View : char {
             Final = 0,
+            Shaded,
             Depth,
             Position,
             Emissive,
@@ -36,20 +38,12 @@ namespace Engine1
             Metalness,
             Roughness,
             IndexOfRefraction,
-            DistanceToEdge,
-            RayDirections1,
-            RaytracingHitPosition,
-            RaytracingHitDistance,
-            RaytracingHitNormal,
-            RaytracingHitEmissive,
-            RaytracingHitAlbedo,
-            RaytracingHitMetalness,
-            RaytracingHitRoughness,
-            RaytracingHitIndexOfRefraction
+            RayDirections,
+            Test
         };
 
-        Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
-                  ShadingRenderer& shadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer,
+        Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, RaytraceRenderer& raytraceRenderer2,
+                  ShadingRenderer& shadingRenderer, ReflectionShadingRenderer& reflectionShadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer,
                   TextureRescaleRenderer& textureRescaleRenderer );
         ~Renderer();
 
@@ -70,20 +64,30 @@ namespace Engine1
         void setActiveView( const View view );
         View getActiveView() const;
 
+        void setActiveViewLevel( const int viewLevel );
+        int  getActiveViewLevel() const;
+
+        void setMaxLevelCount( const int levelCount );
+        int  getMaxLevelCount() const;
+
         private:
 
         Microsoft::WRL::ComPtr< ID3D11Device >        device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
 
         View activeView;
+        int  activeViewLevel;
+        int maxLevelCount;
 
-        Direct3DRendererCore&     rendererCore;
-        Direct3DDeferredRenderer& deferredRenderer;
-        RaytraceRenderer&         raytraceRenderer;
-        ShadingRenderer&          shadingRenderer;
-        EdgeDetectionRenderer&    edgeDetectionRenderer;
-        CombiningRenderer&        combiningRenderer;
-        TextureRescaleRenderer&   textureRescaleRenderer;
+        Direct3DRendererCore&      rendererCore;
+        Direct3DDeferredRenderer&  deferredRenderer;
+        RaytraceRenderer&          raytraceRenderer;
+        RaytraceRenderer&          raytraceRenderer2;
+        ShadingRenderer&           shadingRenderer;
+        ReflectionShadingRenderer& reflectionShadingRenderer;
+        EdgeDetectionRenderer&     edgeDetectionRenderer;
+        CombiningRenderer&         combiningRenderer;
+        TextureRescaleRenderer&    textureRescaleRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

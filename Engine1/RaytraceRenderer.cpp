@@ -5,7 +5,10 @@
 #include "Direct3DRendererCore.h"
 #include "ComputeTargetTexture2D.h"
 #include "GenerateRaysComputeShader.h"
-#include "GenerateReflectedRefractedRaysComputeShader.h"
+#include "GenerateFirstReflectedRaysComputeShader.h"
+#include "GenerateFirstRefractedRaysComputeShader.h"
+#include "GenerateReflectedRaysComputeShader.h"
+#include "GenerateRefractedRaysComputeShader.h"
 #include "RaytracingPrimaryRaysComputeShader.h"
 #include "RaytracingSecondaryRaysComputeShader.h"
 #include "uint3.h"
@@ -24,7 +27,10 @@ initialized( false ),
 imageWidth( 0 ),
 imageHeight( 0 ),
 generateRaysComputeShader( std::make_shared< GenerateRaysComputeShader >() ),
-generateReflectedRefractedRaysComputeShader( std::make_shared< GenerateReflectedRefractedRaysComputeShader >() ),
+generateFirstReflectedRaysComputeShader( std::make_shared< GenerateFirstReflectedRaysComputeShader >() ),
+generateFirstRefractedRaysComputeShader( std::make_shared< GenerateFirstRefractedRaysComputeShader >() ),
+generateReflectedRaysComputeShader( std::make_shared< GenerateReflectedRaysComputeShader >() ),
+generateRefractedRaysComputeShader( std::make_shared< GenerateRefractedRaysComputeShader >() ),
 raytracingPrimaryRaysComputeShader( std::make_shared< RaytracingPrimaryRaysComputeShader >() ),
 raytracingSecondaryRaysComputeShader( std::make_shared< RaytracingSecondaryRaysComputeShader >() )
 {}
@@ -103,21 +109,6 @@ void RaytraceRenderer::generateAndTracePrimaryRays( const Camera& camera, const 
     rendererCore.disableComputePipeline();
 }
 
-void RaytraceRenderer::generateAndTraceSecondaryRays( const Camera& camera, 
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture, 
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                                      const std::vector< std::shared_ptr< const BlockActor > >& actors )
-{
-    rendererCore.disableRenderingPipeline();
-
-    //generatePrimaryRays( camera );
-    generateSecondaryRays( camera, positionTexture, normalTexture, roughnessTexture );
-    traceSecondaryRays( actors );
-
-    rendererCore.disableComputePipeline();
-}
-
 void RaytraceRenderer::generatePrimaryRays( const Camera& camera )
 {
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
@@ -144,10 +135,73 @@ void RaytraceRenderer::generatePrimaryRays( const Camera& camera )
     rendererCore.disableUnorderedAccessViews();
 }
 
-void RaytraceRenderer::generateSecondaryRays( const Camera& camera, 
+void RaytraceRenderer::generateAndTraceFirstReflectedRays( const Camera& camera, 
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture, 
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture,
+                                                           const std::vector< std::shared_ptr< const BlockActor > >& actors )
+{
+    rendererCore.disableRenderingPipeline();
+
+    //generatePrimaryRays( camera );
+    generateFirstReflectedRays( camera, positionTexture, normalTexture, roughnessTexture, reflectionTermTexture );
+    traceSecondaryRays( actors );
+
+    rendererCore.disableComputePipeline();
+}
+
+void RaytraceRenderer::generateAndTraceFirstRefractedRays( const Camera& camera, 
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture, 
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture,
+                                                           const std::vector< std::shared_ptr< const BlockActor > >& actors )
+{
+    rendererCore.disableRenderingPipeline();
+
+    //generatePrimaryRays( camera );
+    generateFirstRefractedRays( camera, positionTexture, normalTexture, roughnessTexture, reflectionTermTexture );
+    traceSecondaryRays( actors );
+
+    rendererCore.disableComputePipeline();
+}
+
+void RaytraceRenderer::generateAndTraceReflectedRays( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture,
+                                                      const std::vector< std::shared_ptr< const BlockActor > >& actors )
+{
+    rendererCore.disableRenderingPipeline();
+
+    generateReflectedRays( rayDirectionTexture, rayHitPositionTexture, rayHitNormalTexture, rayHitRoughnessTexture, reflectionTermTexture );
+    traceSecondaryRays( actors );
+
+    rendererCore.disableComputePipeline();
+}
+
+void RaytraceRenderer::generateAndTraceRefractedRays( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture,
+                                                      const std::vector< std::shared_ptr< const BlockActor > >& actors )
+{
+    rendererCore.disableRenderingPipeline();
+
+    generateRefractedRays( rayDirectionTexture, rayHitPositionTexture, rayHitNormalTexture, rayHitRoughnessTexture, reflectionTermTexture );
+    traceSecondaryRays( actors );
+
+    rendererCore.disableComputePipeline();
+}
+
+void RaytraceRenderer::generateFirstReflectedRays( const Camera& camera, 
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture )
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture )
 {
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
     const float screenAspect     = (float)imageWidth / (float)imageHeight;
@@ -156,9 +210,88 @@ void RaytraceRenderer::generateSecondaryRays( const Camera& camera,
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
 
-    generateReflectedRefractedRaysComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, *positionTexture, *normalTexture, *roughnessTexture );
+    generateFirstReflectedRaysComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, *positionTexture, *normalTexture, *roughnessTexture, *reflectionTermTexture );
 
-    rendererCore.enableComputeShader( generateReflectedRefractedRaysComputeShader );
+    rendererCore.enableComputeShader( generateFirstReflectedRaysComputeShader );
+
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
+    unorderedAccessTargets.push_back( rayOriginsTexture );
+    unorderedAccessTargets.push_back( rayDirectionsTexture );
+
+    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+
+    uint3 groupCount( imageWidth / 32, imageHeight / 32, 1 );
+
+    rendererCore.compute( groupCount );
+
+    // Unbind resources to avoid binding the same resource on input and output.
+    rendererCore.disableUnorderedAccessViews();
+}
+
+void RaytraceRenderer::generateFirstRefractedRays( const Camera& camera, 
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture )
+{
+    const float fieldOfView      = (float)MathUtil::pi / 4.0f;
+    const float screenAspect     = (float)imageWidth / (float)imageHeight;
+    const float2 viewportSize    = float2( 1024.0f, 768.0f );
+    const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
+    const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
+    const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
+
+    generateFirstRefractedRaysComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, *positionTexture, *normalTexture, *roughnessTexture, *reflectionTermTexture );
+
+    rendererCore.enableComputeShader( generateFirstRefractedRaysComputeShader );
+
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
+    unorderedAccessTargets.push_back( rayOriginsTexture );
+    unorderedAccessTargets.push_back( rayDirectionsTexture );
+
+    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+
+    uint3 groupCount( imageWidth / 32, imageHeight / 32, 1 );
+
+    rendererCore.compute( groupCount );
+
+    // Unbind resources to avoid binding the same resource on input and output.
+    rendererCore.disableUnorderedAccessViews();
+}
+
+void RaytraceRenderer::generateReflectedRays( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture )
+{
+    generateReflectedRaysComputeShader->setParameters( *deviceContext.Get(), *rayDirectionTexture, *rayHitPositionTexture, *rayHitNormalTexture, *rayHitRoughnessTexture, *reflectionTermTexture );
+
+    rendererCore.enableComputeShader( generateReflectedRaysComputeShader );
+
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
+    unorderedAccessTargets.push_back( rayOriginsTexture );
+    unorderedAccessTargets.push_back( rayDirectionsTexture );
+
+    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+
+    uint3 groupCount( imageWidth / 32, imageHeight / 32, 1 );
+
+    rendererCore.compute( groupCount );
+
+    // Unbind resources to avoid binding the same resource on input and output.
+    rendererCore.disableUnorderedAccessViews();
+}
+
+void RaytraceRenderer::generateRefractedRays( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture )
+{
+    generateRefractedRaysComputeShader->setParameters( *deviceContext.Get(), *rayDirectionTexture, *rayHitPositionTexture, *rayHitNormalTexture, *rayHitRoughnessTexture, *reflectionTermTexture );
+
+    rendererCore.enableComputeShader( generateRefractedRaysComputeShader );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( rayOriginsTexture );
@@ -377,7 +510,10 @@ RaytraceRenderer::getRayHitIndexOfRefractionTexture()
 void RaytraceRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
     generateRaysComputeShader->compileFromFile( "../Engine1/Shaders/GenerateRaysShader/cs.hlsl", device );
-    generateReflectedRefractedRaysComputeShader->compileFromFile( "../Engine1/Shaders/GenerateReflectedRefractedRaysShader/cs.hlsl", device );
+    generateFirstReflectedRaysComputeShader->compileFromFile( "../Engine1/Shaders/GenerateFirstReflectedRaysShader/cs.hlsl", device );
+    generateReflectedRaysComputeShader->compileFromFile( "../Engine1/Shaders/GenerateReflectedRaysShader/cs.hlsl", device );
+    generateFirstRefractedRaysComputeShader->compileFromFile( "../Engine1/Shaders/GenerateFirstRefractedRaysShader/cs.hlsl", device );
+    generateRefractedRaysComputeShader->compileFromFile( "../Engine1/Shaders/GenerateRefractedRaysShader/cs.hlsl", device );
     raytracingPrimaryRaysComputeShader->compileFromFile( "../Engine1/Shaders/RaytracingPrimaryRaysShader/cs.hlsl", device );
     raytracingSecondaryRaysComputeShader->compileFromFile( "../Engine1/Shaders/RaytracingSecondaryRaysShader/cs.hlsl", device );
 }

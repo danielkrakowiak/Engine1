@@ -228,3 +228,10 @@ Mod 27.06.2016 - 3h - Fixed cloning actors. Used roughness from texture to calcu
 Wed 06.07.2016 - 1h - Fixed fresnel.
 Sat 09.07.2016 - 5h - Added specular highlight shading based on an Unreal 4 paper. Failed to use the same shading when combining reflection image with the main image. Set specular color to fixed value for dielectrics.
 Mon 11.07.2016 - 3h - Fixing shading. Added missing N dot L multiplication for specular term which caused sharp cut in shading. Improved shading of reflections for metals and dielectrics.
+Wed 13.07.2016 - 2h - Added generating and tracing second level of reflected rays.
+Fri 15.07.2016 - 3h - Fixed generating second level of reflected rays and shading for them.
+Sun 17.07.2016 - 3h - Trying to create reflection shading renderer and shader. To calculate and accumulate reflection term to be used when combining reflection images together. 
+Mon 18.07.2016 - 1h - Passed reflection term to the combining shaders.
+Tue 19.07.2016 - 1h - Created a loop to allow for any number of reflection levels.
+Wed 20.07.2016 - 2h - Adding refracted rays generation. Optimized secondary rays generation to avoid generating rays which color has really small contribution to the final image (because if low reflection term after a few bounces).
+Thu 21.07.2016 - 2h - Fixed self-collision problem for refracted rays by ignoring really close intersections in raytracing shader.

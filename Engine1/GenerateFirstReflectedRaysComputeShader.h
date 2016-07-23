@@ -14,20 +14,21 @@ struct ID3D11DeviceContext;
 
 namespace Engine1
 {
-    class GenerateReflectedRefractedRaysComputeShader : public ComputeShader
+    class GenerateFirstReflectedRaysComputeShader : public ComputeShader
     {
 
         public:
 
-        GenerateReflectedRefractedRaysComputeShader();
-        virtual ~GenerateReflectedRefractedRaysComputeShader();
+        GenerateFirstReflectedRaysComputeShader();
+        virtual ~GenerateFirstReflectedRaysComputeShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
         void setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                             const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture );
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& reflectionTermTexture );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
@@ -48,8 +49,8 @@ namespace Engine1
         };
 
         // Copying is not allowed.
-        GenerateReflectedRefractedRaysComputeShader( const GenerateReflectedRefractedRaysComputeShader& ) = delete;
-        GenerateReflectedRefractedRaysComputeShader& operator=(const GenerateReflectedRefractedRaysComputeShader&) = delete;
+        GenerateFirstReflectedRaysComputeShader( const GenerateFirstReflectedRaysComputeShader& ) = delete;
+        GenerateFirstReflectedRaysComputeShader& operator=(const GenerateFirstReflectedRaysComputeShader&) = delete;
     };
 }
 

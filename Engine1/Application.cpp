@@ -42,11 +42,13 @@ Application::Application() :
 	frameRenderer( rendererCore ),
 	deferredRenderer( rendererCore ),
     raytraceRenderer( rendererCore ),
+    raytraceRenderer2( rendererCore ),
     shadingRenderer( rendererCore ),
+    reflectionShadingRenderer( rendererCore ),
     edgeDetectionRenderer( rendererCore ),
     combiningRenderer( rendererCore ),
     textureRescaleRenderer( rendererCore ),
-    renderer( rendererCore, deferredRenderer, raytraceRenderer, shadingRenderer, edgeDetectionRenderer, combiningRenderer, textureRescaleRenderer ),
+    renderer( rendererCore, deferredRenderer, raytraceRenderer, raytraceRenderer2, shadingRenderer, reflectionShadingRenderer, edgeDetectionRenderer, combiningRenderer, textureRescaleRenderer ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -77,7 +79,9 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	frameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
 	deferredRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     raytraceRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+    raytraceRenderer2.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     shadingRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
+    reflectionShadingRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     edgeDetectionRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     combiningRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
     textureRescaleRenderer.initialize( frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
@@ -593,42 +597,37 @@ void Application::onKeyPress( int key )
     if ( key == InputManager::Keys::tilde )
         renderer.setActiveView( Renderer::View::Final );
     else if ( key == InputManager::Keys::one )
-        renderer.setActiveView( Renderer::View::Depth );
+        renderer.setActiveView( Renderer::View::Shaded );
     else if ( key == InputManager::Keys::two )
-        renderer.setActiveView( Renderer::View::Position );
+        renderer.setActiveView( Renderer::View::Depth );
     else if ( key == InputManager::Keys::three )
-        renderer.setActiveView( Renderer::View::Emissive );
+        renderer.setActiveView( Renderer::View::Position );
     else if ( key == InputManager::Keys::four )
-        renderer.setActiveView( Renderer::View::Albedo );
+        renderer.setActiveView( Renderer::View::Emissive );
     else if ( key == InputManager::Keys::five )
-        renderer.setActiveView( Renderer::View::Normal );
+        renderer.setActiveView( Renderer::View::Albedo );
     else if ( key == InputManager::Keys::six )
-        renderer.setActiveView( Renderer::View::Metalness );
+        renderer.setActiveView( Renderer::View::Normal );
     else if ( key == InputManager::Keys::seven )
-        renderer.setActiveView( Renderer::View::Roughness );
+        renderer.setActiveView( Renderer::View::Metalness );
     else if ( key == InputManager::Keys::eight )
-        renderer.setActiveView( Renderer::View::IndexOfRefraction );
+        renderer.setActiveView( Renderer::View::Roughness );
     else if ( key == InputManager::Keys::nine )
-        renderer.setActiveView( Renderer::View::DistanceToEdge );
+        renderer.setActiveView( Renderer::View::IndexOfRefraction );
+    else if ( key == InputManager::Keys::zero )
+        renderer.setActiveView( Renderer::View::RayDirections );
+    else if ( key == InputManager::Keys::back )
+        renderer.setActiveView( Renderer::View::Test );
 
-    else if ( key == InputManager::Keys::f1 )
-        renderer.setActiveView( Renderer::View::RayDirections1 );
-    else if ( key == InputManager::Keys::f2 )
-        renderer.setActiveView( Renderer::View::RaytracingHitPosition );
-    else if ( key == InputManager::Keys::f3 )
-        renderer.setActiveView( Renderer::View::RaytracingHitDistance );
-    else if ( key == InputManager::Keys::f4 )
-        renderer.setActiveView( Renderer::View::RaytracingHitNormal );
-    else if ( key == InputManager::Keys::f5 )
-        renderer.setActiveView( Renderer::View::RaytracingHitEmissive );
-    else if ( key == InputManager::Keys::f6 )
-        renderer.setActiveView( Renderer::View::RaytracingHitAlbedo );
-    else if ( key == InputManager::Keys::f7 )
-        renderer.setActiveView( Renderer::View::RaytracingHitMetalness );
-    else if ( key == InputManager::Keys::f8 )
-        renderer.setActiveView( Renderer::View::RaytracingHitRoughness );
-    else if ( key == InputManager::Keys::f9 )
-        renderer.setActiveView( Renderer::View::RaytracingHitIndexOfRefraction );
+    if ( key == InputManager::Keys::plus && inputManager.isKeyPressed( InputManager::Keys::shift ) )
+        renderer.setMaxLevelCount( std::min( 10, renderer.getMaxLevelCount() + 1 ) );
+    else if ( key == InputManager::Keys::minus && inputManager.isKeyPressed( InputManager::Keys::shift ) )
+        renderer.setMaxLevelCount( std::max( 0, renderer.getMaxLevelCount() - 1 ) );
+    else if ( key == InputManager::Keys::plus )
+        renderer.setActiveViewLevel( std::min( 10, renderer.getActiveViewLevel() + 1 ) );
+    else if ( key == InputManager::Keys::minus )
+        renderer.setActiveViewLevel( std::max( 0, renderer.getActiveViewLevel() - 1 ) );
+    
 }
 
 void Application::onMouseButtonPress( int button )

@@ -51,6 +51,8 @@ float3   calcBarycentricCoordsInTriangle( const float3 p, const float3x3 vertice
 float3   calcInterpolatedNormal( const float3 barycentricCoords, const float3x3 verticesNormals );
 float2   calcInterpolatedTexCoords( const float3 barycentricCoords, const float2x3 verticesTexCoords );
 
+static const float minHitDist = 0.01f;
+
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
@@ -140,7 +142,7 @@ void main( uint3 groupId : SV_GroupID,
                     {
                         const float dist = calcDistToTriangle( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos );
 
-                        if ( dist < hitDist )
+                        if ( dist > minHitDist && dist < hitDist )
                         {
                             hitDist     = dist;
                             hitTriangle = triangleIdx;
@@ -275,10 +277,10 @@ bool rayTriangleIntersect( const float3 rayOrigin, const float3 rayDir, const fl
 	const float dot3 = dot( rayDir, cross( vertices[2] - rayOrigin, vertices[0] - rayOrigin ));
 
     // Without backface culling:
-    //return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );
+    return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );
 
     // With backface culling:
-    return (dot1 < 0 && dot2 < 0 && dot3 < 0);
+    //return (dot1 < 0 && dot2 < 0 && dot3 < 0);
 }
 
 float calcDistToTriangle( const float3 rayOrigin, const float3 rayDir, const float3x3 vertices )

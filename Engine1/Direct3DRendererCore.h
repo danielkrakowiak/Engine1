@@ -63,6 +63,10 @@ namespace Engine1
         void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4, 
                                            const int mipmapLevel = 0 );
 
+        // Temporary. Until refactoring is done.
+        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4, 
+                                           const int mipmapLevel = 0 );
+
         void disableRenderTargetViews();
         void disableUnorderedAccessViews();
 
@@ -89,6 +93,9 @@ namespace Engine1
 
         void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture );
+
+        void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > destTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > srcTexture );
 
         void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > destTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > srcTexture );

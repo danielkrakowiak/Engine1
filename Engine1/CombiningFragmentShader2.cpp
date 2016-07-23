@@ -1,4 +1,4 @@
-#include "CombiningFragmentShader.h"
+#include "CombiningFragmentShader2.h"
 
 #include "StringUtil.h"
 
@@ -11,17 +11,17 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-CombiningFragmentShader::CombiningFragmentShader() :
+CombiningFragmentShader2::CombiningFragmentShader2() :
 resourceCount( 0 )
 {}
 
-CombiningFragmentShader::~CombiningFragmentShader()
+CombiningFragmentShader2::~CombiningFragmentShader2()
 {}
 
 
-void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& device )
+void CombiningFragmentShader2::compileFromFile( std::string path, ID3D11Device& device )
 {
-	if ( compiled ) throw std::exception( "CombiningFragmentShader::compileFromFile - Shader has already been compiled." );
+	if ( compiled ) throw std::exception( "CombiningFragmentShader2::compileFromFile - Shader has already been compiled." );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -40,14 +40,14 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 			if ( errorMessage ) {
 				std::string compileMessage( (char*)( errorMessage->GetBufferPointer() ) );
 
-				throw std::exception( ( std::string( "CombiningFragmentShader::compileFromFile - Compilation failed with errors: " ) + compileMessage ).c_str() );
+				throw std::exception( ( std::string( "CombiningFragmentShader2::compileFromFile - Compilation failed with errors: " ) + compileMessage ).c_str() );
 			} else {
-				throw std::exception( "CombiningFragmentShader::compileFromFile - Failed to open file." );
+				throw std::exception( "CombiningFragmentShader2::compileFromFile - Failed to open file." );
 			}
 		}
 
 		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "CombiningFragmentShader::compileFromFile - Failed to create shader." );
+		if ( result < 0 ) throw std::exception( "CombiningFragmentShader2::compileFromFile - Failed to create shader." );
 	}
 
     { // Create point filter sampler configuration
@@ -68,7 +68,7 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 
 		// Create the texture sampler state.
 		result = device.CreateSamplerState( &samplerConfiguration, samplerStatePointFilter.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "CombiningFragmentShader::compileFromFile - Failed to create texture sampler state." );
+		if ( result < 0 ) throw std::exception( "CombiningFragmentShader2::compileFromFile - Failed to create texture sampler state." );
 	}
 
     { // Create linear filter sampler configuration
@@ -89,7 +89,7 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 
 		// Create the texture sampler state.
 		result = device.CreateSamplerState( &samplerConfiguration, samplerStateLinearFilter.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "CombiningFragmentShader::compileFromFile - Failed to create texture sampler state." );
+		if ( result < 0 ) throw std::exception( "CombiningFragmentShader2::compileFromFile - Failed to create texture sampler state." );
 	}
 
     {
@@ -111,34 +111,35 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 	this->shaderId = ++compiledShadersCount;
 }
 
-void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
+void CombiningFragmentShader2::setParameters( ID3D11DeviceContext& deviceContext, 
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture, 
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousHitAlbedoTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitMetalnessTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitRoughnessTexture,
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture,
                                              const float normalThreshold,
-                                             const float positionThreshold,
-                                             const float3 cameraPosition )
+                                             const float positionThreshold )
 {
     { // Set input textures.
-        resourceCount = 9;
+        resourceCount = 10;
         std::vector< ID3D11ShaderResourceView* > resources;
         resources.reserve( resourceCount );
 
         resources.push_back( srcTexture->getShaderResourceView() );
         resources.push_back( reflectionTermTexture->getShaderResourceView() );
-        resources.push_back( normalTexture->getShaderResourceView() );
-        resources.push_back( positionTexture->getShaderResourceView() );
-        resources.push_back( depthTexture->getShaderResourceView() );
+        resources.push_back( previousHitNormalTexture->getShaderResourceView() );
+        resources.push_back( previousHitPositionTexture->getShaderResourceView() );
+        resources.push_back( previousHitDistanceTexture->getShaderResourceView() );
         resources.push_back( hitDistanceTexture->getShaderResourceView() );
-        resources.push_back( albedoTexture->getShaderResourceView() );
-        resources.push_back( metalnessTexture->getShaderResourceView() );
-        resources.push_back( roughnessTexture->getShaderResourceView() );
+        resources.push_back( previousHitAlbedoTexture->getShaderResourceView() );
+        resources.push_back( previousHitMetalnessTexture->getShaderResourceView() );
+        resources.push_back( previousHitRoughnessTexture->getShaderResourceView() );
+        resources.push_back( previousRayOriginTexture->getShaderResourceView() );
 
         deviceContext.PSSetShaderResources( 0, (UINT)resources.size(), resources.data() );
     }
@@ -147,13 +148,12 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
     ConstantBuffer* dataPtr;
 
     HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
-    if ( result < 0 ) throw std::exception( "CombiningFragmentShader::setParameters - mapping constant buffer to CPU memory failed." );
+    if ( result < 0 ) throw std::exception( "CombiningFragmentShader2::setParameters - mapping constant buffer to CPU memory failed." );
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
     dataPtr->normalThreshold         = normalThreshold;
     dataPtr->positionThresholdSquare = positionThreshold * positionThreshold;
-    dataPtr->cameraPosition          = cameraPosition;
 
     deviceContext.Unmap( constantInputBuffer.Get(), 0 );
 
@@ -163,7 +163,7 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
 	deviceContext.PSSetSamplers( 0, 2, samplerStates );
 }
 
-void CombiningFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void CombiningFragmentShader2::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
     std::vector< ID3D11ShaderResourceView* > nullResources;
     nullResources.resize( resourceCount );

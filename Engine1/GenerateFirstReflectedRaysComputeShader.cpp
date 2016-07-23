@@ -1,4 +1,4 @@
-#include "GenerateReflectedRefractedRaysComputeShader.h"
+#include "GenerateFirstReflectedRaysComputeShader.h"
 
 #include "StringUtil.h"
 
@@ -9,13 +9,13 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-GenerateReflectedRefractedRaysComputeShader::GenerateReflectedRefractedRaysComputeShader() {}
+GenerateFirstReflectedRaysComputeShader::GenerateFirstReflectedRaysComputeShader() {}
 
-GenerateReflectedRefractedRaysComputeShader::~GenerateReflectedRefractedRaysComputeShader() {}
+GenerateFirstReflectedRaysComputeShader::~GenerateFirstReflectedRaysComputeShader() {}
 
-void GenerateReflectedRefractedRaysComputeShader::compileFromFile( std::string path, ID3D11Device& device )
+void GenerateFirstReflectedRaysComputeShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-    if ( compiled ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::compileFromFile - Shader has already been compiled." );
+    if ( compiled ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::compileFromFile - Shader has already been compiled." );
 
     HRESULT result;
     ComPtr<ID3D10Blob> shaderBuffer;
@@ -34,14 +34,14 @@ void GenerateReflectedRefractedRaysComputeShader::compileFromFile( std::string p
             if ( errorMessage ) {
                 std::string compileMessage( (char*)(errorMessage->GetBufferPointer()) );
 
-                throw std::exception( (std::string( "GenerateReflectedRefractedRaysComputeShader::compileFromFile - Compilation failed with errors: " ) + compileMessage).c_str() );
+                throw std::exception( (std::string( "GenerateFirstReflectedRaysComputeShader::compileFromFile - Compilation failed with errors: " ) + compileMessage).c_str() );
             } else {
-                throw std::exception( "GenerateReflectedRefractedRaysComputeShader::compileFromFile - Failed to open file." );
+                throw std::exception( "GenerateFirstReflectedRaysComputeShader::compileFromFile - Failed to open file." );
             }
         }
 
         result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::compileFromFile - Failed to create shader." );
+        if ( result < 0 ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::compileFromFile - Failed to create shader." );
     }
 
     {
@@ -55,7 +55,7 @@ void GenerateReflectedRefractedRaysComputeShader::compileFromFile( std::string p
         desc.StructureByteStride = 0;
 
         result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::compileFromFile - creating constant buffer failed." );
+        if ( result < 0 ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
     this->device = &device;
@@ -63,20 +63,22 @@ void GenerateReflectedRefractedRaysComputeShader::compileFromFile( std::string p
     this->shaderId = ++compiledShadersCount;
 }
 
-void GenerateReflectedRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
+void GenerateFirstReflectedRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                                                                  const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture )
+                                                                 const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
+                                                                 const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& reflectionTermTexture )
 {
-    if ( !compiled ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
+    if ( !compiled ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 3;
+        const unsigned int resourceCount = 4;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             positionTexture.getShaderResourceView(), 
             normalTexture.getShaderResourceView(),
-            roughnessTexture.getShaderResourceView()
+            roughnessTexture.getShaderResourceView(),
+            reflectionTermTexture.getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -86,7 +88,7 @@ void GenerateReflectedRefractedRaysComputeShader::setParameters( ID3D11DeviceCon
     ConstantBuffer* dataPtr;
 
     HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
-    if ( result < 0 ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
+    if ( result < 0 ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
@@ -108,11 +110,11 @@ void GenerateReflectedRefractedRaysComputeShader::setParameters( ID3D11DeviceCon
     deviceContext.CSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
 }
 
-void GenerateReflectedRefractedRaysComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void GenerateFirstReflectedRaysComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-    if ( !compiled ) throw std::exception( "GenerateReflectedRefractedRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+    if ( !compiled ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 3 ] = { nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 3, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 4 ] = { nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 4, nullResources );
 }

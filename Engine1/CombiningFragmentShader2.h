@@ -14,27 +14,27 @@ namespace Engine1
 {
     class uchar4;
 
-    class CombiningFragmentShader : public FragmentShader
+    class CombiningFragmentShader2 : public FragmentShader
     {
         public:
 
-        CombiningFragmentShader();
-        virtual ~CombiningFragmentShader();
+        CombiningFragmentShader2();
+        virtual ~CombiningFragmentShader2();
 
         void compileFromFile( std::string path, ID3D11Device& device );
         void setParameters( ID3D11DeviceContext& deviceContext,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture, 
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousHitAlbedoTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitMetalnessTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitRoughnessTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture,
                             const float normalThreshold,
-                            const float positionThreshold,
-                            const float3 cameraPosition );
+                            const float positionThreshold );
 
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
@@ -47,8 +47,6 @@ namespace Engine1
             float3 padding1;
             float  positionThresholdSquare;
             float3 padding2;
-            float3 cameraPosition;
-            float  padding3;
         };
 
         int resourceCount;
@@ -57,8 +55,8 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateLinearFilter;
 
         // Copying is not allowed.
-        CombiningFragmentShader( const CombiningFragmentShader& ) = delete;
-        CombiningFragmentShader& operator=(const CombiningFragmentShader&) = delete;
+        CombiningFragmentShader2( const CombiningFragmentShader2& ) = delete;
+        CombiningFragmentShader2& operator=(const CombiningFragmentShader2&) = delete;
     };
 }
 

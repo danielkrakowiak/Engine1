@@ -187,12 +187,16 @@ Next2:
 
 	  - try decreasing far neighbors weigth and check how it influences image. It mimics how most rays reflect near center ray, so they have bigger impact.
 
+	  - maybe use two raytrace renderers like double buffers. One stores all the data of previous level rays. The other traces new rays. 
 
-	  - why Normal distribution function term is so weird. Changing roughness causes reflection to be black, normal or super bright.
+	  - how to deal with reflected/refracted ray directions with multiple bounces. How to reduce the memory footprint? Can we avoid storing all of them?
 
-	  - for metals, the reflection parallel to normal is tinted to metal color, but reflection at glancing angle has it's natural color.
+	  - add debug render for any level of reflection or refraction
 
-	  - what specular color to use when combining reflections? When using 4% for dielectrics reflections are barely visible. But in Substance Painter they are much more visible for dielectrics.
+	  * To allow for recursive ray tracing:
+	  - accumulate specular term multiplier (something like combined surface param)
+	  - add total distance covered by ray (maybe except for primary ray depth)
+	  - accumulate roughness? accumulate based on distances between levels?
 
 	  How to generate upscaled mipmaps:
 	  - start with 2 level mipmap - render it stretched to 3d texture layer 0.
@@ -275,3 +279,24 @@ Idea:
 - when calculatin range of a light source - it's bounding volume doesn't have to be a sphere. The more precise the bounding volume to more calculations we save. Maybe even a few volumes could describe a lights range?
 
 
+
+
+----------------------------
+
+	  - make sure rays which are not needed are not raytraced. Ray where reflection term is really low, or roughness is maximal etc. After a few levels there should be few rays traced?
+
+	  - Make sure to enable/disable backface culling whn raytracing rays when neccessary. (needed when tracing refracted rays, not needed when tracing reflected rays). Two separate shaders?
+
+	  - transmission term is = 1 - reflection term.
+
+	  - should I rename refration into transmission? To differentiate them more..
+
+	  - use more complex fresnel term calculation - because schlick approximation doesn't work when refraction index1 is greater than refraction index2.
+	  - but in shading i may still use schlick approx, becaise we always account for light which are in front of the surface.
+
+	  - we probably need to store current ray refraction index - the whole history for each ray - as many buffers as there is for reflection/transmission term.
+	  - if we hit surface from inside (deduced from normal), than we need to invert refraction index? How to know refractive index of air, water if we are in one mesh, inside another and another etc?
+
+	  - Fix calculating blur radius when transmitting/reflecting multiple times.
+
+	  -----------------------------

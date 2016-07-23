@@ -8,6 +8,7 @@
 
 #include "CombiningVertexShader.h"
 #include "CombiningFragmentShader.h"
+#include "CombiningFragmentShader2.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -39,6 +40,7 @@ namespace Engine1
         // TODO: alpha should be replaced by "alpha texture".
         void combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture, 
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
@@ -47,6 +49,18 @@ namespace Engine1
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                       const float3 cameraPosition );
+
+        void combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture, 
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousHitAlbedoTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitMetalnessTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitRoughnessTexture,
+                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture );
 
         void  setNormalThreshold( float threshold );
         float getNormalThreshold() const;
@@ -76,8 +90,9 @@ namespace Engine1
         RectangleMesh rectangleMesh;
 
         // Shaders.
-        std::shared_ptr< CombiningVertexShader >   combiningVertexShader;
-        std::shared_ptr< CombiningFragmentShader > combiningFragmentShader;
+        std::shared_ptr< CombiningVertexShader >    combiningVertexShader;
+        std::shared_ptr< CombiningFragmentShader >  combiningFragmentShader;
+        std::shared_ptr< CombiningFragmentShader2 > combiningFragmentShader2;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

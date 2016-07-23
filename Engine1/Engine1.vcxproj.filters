@@ -208,12 +208,6 @@
     <Filter Include="Source Files\Tools\BVH">
       <UniqueIdentifier>{862b2cbf-a91e-4aee-b34d-94d21010aa01}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shader\GenerateReflectedRefractedRays">
-      <UniqueIdentifier>{bf5a5b0f-8e03-4525-ad9b-0ef3a2be9beb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\GenerateReflectedRefractedRays">
-      <UniqueIdentifier>{868a2301-3bb6-4cb7-93f3-dce774de2875}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Shader\BlockMesh">
       <UniqueIdentifier>{be418864-ec1e-4e31-ae35-6d9c1e2a3579}</UniqueIdentifier>
     </Filter>
@@ -300,6 +294,36 @@
     </Filter>
     <Filter Include="Header Files\Shader\TextureRescale">
       <UniqueIdentifier>{22885fb1-8f59-456f-ae79-3faf97e19e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateFirstReflectedRefractedRays">
+      <UniqueIdentifier>{bf5a5b0f-8e03-4525-ad9b-0ef3a2be9beb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\GenerateFirstReflectedRefractedRays">
+      <UniqueIdentifier>{868a2301-3bb6-4cb7-93f3-dce774de2875}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\GenerateReflectedRefractedRays">
+      <UniqueIdentifier>{9105f580-caf7-4b31-b0fa-2cb1253cd105}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\ReflectionShading">
+      <UniqueIdentifier>{7de113cf-84e3-4970-a1f6-2915973d9df2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\ReflectionShading">
+      <UniqueIdentifier>{8e3feadd-766e-4eae-9c6f-e4a114fe948f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateReflectedRays">
+      <UniqueIdentifier>{cb46a1d6-6c4d-43ad-af95-1b1fbabfcff2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateRefractedRays">
+      <UniqueIdentifier>{0f4b9495-efc0-4aed-bb48-2e035d276325}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateFirstRefractedRays">
+      <UniqueIdentifier>{c04e3fdd-3320-4d86-b0f6-1cbe9414ee39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\GenerateFirstRefractedRays">
+      <UniqueIdentifier>{60cabe9e-cb23-48d9-87e7-2472b026b678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\GenerateRefractedRays">
+      <UniqueIdentifier>{ca2624e9-4cb3-4b22-b2fe-2cf9681722d4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -618,9 +642,6 @@
     <ClInclude Include="Direct3DDeferredRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="GenerateReflectedRefractedRaysComputeShader.h">
-      <Filter>Header Files\Shader\GenerateReflectedRefractedRays</Filter>
-    </ClInclude>
     <ClInclude Include="RaytracingPrimaryRaysComputeShader.h">
       <Filter>Header Files\Shader\RaytracingPrimaryRays</Filter>
     </ClInclude>
@@ -659,6 +680,30 @@
     </ClInclude>
     <ClInclude Include="MeshFileParser.h">
       <Filter>Header Files\Mesh\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="CombiningFragmentShader2.h">
+      <Filter>Header Files\Shader\Combining</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadingComputeShader2.h">
+      <Filter>Header Files\Shader\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ReflectionShadingComputeShader.h">
+      <Filter>Header Files\Shader\ReflectionShading</Filter>
+    </ClInclude>
+    <ClInclude Include="ReflectionShadingRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateReflectedRaysComputeShader.h">
+      <Filter>Header Files\Shader\GenerateReflectedRefractedRays</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateFirstReflectedRaysComputeShader.h">
+      <Filter>Header Files\Shader\GenerateFirstReflectedRefractedRays</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateFirstRefractedRaysComputeShader.h">
+      <Filter>Header Files\Shader\GenerateFirstRefractedRays</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateRefractedRaysComputeShader.h">
+      <Filter>Header Files\Shader\GenerateRefractedRays</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -956,9 +1001,6 @@
     <ClCompile Include="Direct3DDeferredRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="GenerateReflectedRefractedRaysComputeShader.cpp">
-      <Filter>Source Files\Shader\GenerateReflectedRefractedRays</Filter>
-    </ClCompile>
     <ClCompile Include="RaytracingPrimaryRaysComputeShader.cpp">
       <Filter>Source Files\Shader\RaytracingPrimaryRays</Filter>
     </ClCompile>
@@ -997,6 +1039,30 @@
     </ClCompile>
     <ClCompile Include="MeshFileParser.cpp">
       <Filter>Source Files\Mesh\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="CombiningFragmentShader2.cpp">
+      <Filter>Source Files\Shader\Combining</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadingComputeShader2.cpp">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ReflectionShadingComputeShader.cpp">
+      <Filter>Source Files\Shader\ReflectionShading</Filter>
+    </ClCompile>
+    <ClCompile Include="ReflectionShadingRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateReflectedRaysComputeShader.cpp">
+      <Filter>Source Files\Shader\GenerateReflectedRays</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateFirstReflectedRaysComputeShader.cpp">
+      <Filter>Source Files\Shader\GenerateFirstReflectedRefractedRays</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateFirstRefractedRaysComputeShader.cpp">
+      <Filter>Source Files\Shader\GenerateFirstRefractedRays</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateRefractedRaysComputeShader.cpp">
+      <Filter>Source Files\Shader\GenerateRefractedRays</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1065,9 +1131,6 @@
     <FxCompile Include="Shaders\GenerateRaysShader\cs.hlsl">
       <Filter>Source Files\Shader\GenerateRays</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\GenerateReflectedRefractedRaysShader\cs.hlsl">
-      <Filter>Source Files\Shader\GenerateReflectedRefractedRays</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\RaytracingPrimaryRaysShader\cs.hlsl">
       <Filter>Source Files\Shader\RaytracingPrimaryRays</Filter>
     </FxCompile>
@@ -1091,6 +1154,27 @@
     </FxCompile>
     <FxCompile Include="Shaders\TextureRescaleShader\cs.hlsl">
       <Filter>Source Files\Shader\TextureRescale</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CombiningShader\ps2.hlsl">
+      <Filter>Source Files\Shader\Combining</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadingShader\cs2.hlsl">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ReflectionShadingShader\cs.hlsl">
+      <Filter>Source Files\Shader\ReflectionShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateReflectedRaysShader\cs.hlsl">
+      <Filter>Source Files\Shader\GenerateReflectedRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateFirstReflectedRaysShader\cs.hlsl">
+      <Filter>Source Files\Shader\GenerateFirstReflectedRefractedRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateFirstRefractedRaysShader\cs.hlsl">
+      <Filter>Source Files\Shader\GenerateFirstRefractedRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateRefractedRaysShader\cs.hlsl">
+      <Filter>Source Files\Shader\GenerateRefractedRays</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

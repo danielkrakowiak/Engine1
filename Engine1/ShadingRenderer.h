@@ -18,6 +18,7 @@ namespace Engine1
 {
     class Direct3DRendererCore;
     class ShadingComputeShader;
+    class ShadingComputeShader2;
     class Light;
     class Camera;
 
@@ -41,6 +42,16 @@ namespace Engine1
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > indexOfRefractionTexture,
                              const std::vector< std::shared_ptr< Light > >& lights );
 
+        void performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitEmissiveTexture,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture, 
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture, 
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture, 
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitIndexOfRefractionTexture,
+                             const std::vector< std::shared_ptr< Light > >& lights );
+
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > getColorRenderTarget();
 
         private:
@@ -60,7 +71,8 @@ namespace Engine1
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
-        std::shared_ptr< ShadingComputeShader > shadingComputeShader;
+        std::shared_ptr< ShadingComputeShader >  shadingComputeShader;
+        std::shared_ptr< ShadingComputeShader2 > shadingComputeShader2;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

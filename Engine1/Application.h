@@ -7,6 +7,7 @@
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
+#include "ReflectionShadingRenderer.h"
 #include "EdgeDetectionRenderer.h"
 #include "CombiningRenderer.h"
 #include "TextureRescaleRenderer.h"
@@ -86,15 +87,17 @@ private:
 
 	InputManager inputManager;
 
-	Direct3DRendererCore     rendererCore;
-    Direct3DDeferredRenderer deferredRenderer;
-    RaytraceRenderer         raytraceRenderer;
-    ShadingRenderer          shadingRenderer;
-    EdgeDetectionRenderer    edgeDetectionRenderer;
-    CombiningRenderer        combiningRenderer;
-    Direct3DFrameRenderer    frameRenderer;
-    TextureRescaleRenderer   textureRescaleRenderer;
-    Renderer                 renderer;
+	Direct3DRendererCore      rendererCore;
+    Direct3DDeferredRenderer  deferredRenderer;
+    RaytraceRenderer          raytraceRenderer;
+    RaytraceRenderer          raytraceRenderer2;
+    ShadingRenderer           shadingRenderer;
+    ReflectionShadingRenderer reflectionShadingRenderer;
+    EdgeDetectionRenderer     edgeDetectionRenderer;
+    CombiningRenderer         combiningRenderer;
+    Direct3DFrameRenderer     frameRenderer;
+    TextureRescaleRenderer    textureRescaleRenderer;
+    Renderer                  renderer;
 
 	bool fullscreen;
 	int  screenWidth;

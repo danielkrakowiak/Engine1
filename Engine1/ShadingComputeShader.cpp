@@ -29,9 +29,6 @@ void ShadingComputeShader::compileFromFile( std::string path, ID3D11Device& devi
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
         flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3D10_SHADER_PREFER_FLOW_CONTROL;
 #endif
-        // Note: This shader with BVH actually works faster with optimizations skipped. (2.5x faster)
-        // TODO: Find out why and modify shader code with optimization attributes (such as [branch] etc).
-        flags |= D3D10_SHADER_SKIP_OPTIMIZATION;
 
         result = D3DX11CompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "cs_5_0", flags, 0, nullptr,
                                         shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf(), nullptr );

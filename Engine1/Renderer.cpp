@@ -6,6 +6,7 @@
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
+#include "ReflectionShadingRenderer.h"
 #include "EdgeDetectionRenderer.h"
 #include "CombiningRenderer.h"
 #include "TextureRescaleRenderer.h"
@@ -24,17 +25,21 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-Renderer::Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, 
-                    ShadingRenderer& shadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer,
+Renderer::Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, RaytraceRenderer& raytraceRenderer2,
+                    ShadingRenderer& shadingRenderer, ReflectionShadingRenderer& reflectionShadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer,
                     TextureRescaleRenderer& textureRescaleRenderer ) :
 rendererCore( rendererCore ),
 deferredRenderer( deferredRenderer ),
 raytraceRenderer( raytraceRenderer ),
+raytraceRenderer2( raytraceRenderer2 ),
 shadingRenderer( shadingRenderer ),
+reflectionShadingRenderer( reflectionShadingRenderer ),
 edgeDetectionRenderer( edgeDetectionRenderer ),
 combiningRenderer( combiningRenderer ),
 textureRescaleRenderer( textureRescaleRenderer ),
-activeView( View::Final )
+activeView( View::Final ),
+activeViewLevel( 0 ),
+maxLevelCount( 3 )
 {}
 
 Renderer::~Renderer()
@@ -108,11 +113,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         }
     }
 
-    // Generate mipmaps for normal and position g-buffers.
-    deferredRenderer.getNormalRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
-    deferredRenderer.getPositionRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
-
-    // Perform ray tracing.
+    // Gather block actors.
     std::vector< std::shared_ptr< const BlockActor > > blockActors;
     blockActors.reserve( actors.size() );
     for ( const std::shared_ptr<Actor> actor : actors ) 
@@ -120,8 +121,33 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         if ( actor->getType() == Actor::Type::BlockActor )
             blockActors.push_back( std::static_pointer_cast<BlockActor>( actor ) );
     }
-    //raytraceRenderer.generateAndTraceRays( camera, blockActors );
-    raytraceRenderer.generateAndTraceSecondaryRays( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget(), deferredRenderer.getRoughnessRenderTarget(), blockActors );
+
+    if (activeViewLevel == 0)
+    {
+        switch (activeView)
+        {
+            case View::Depth: 
+                return std::make_tuple( nullptr, deferredRenderer.getDepthRenderTarget(), nullptr, nullptr, nullptr );
+            case View::Position: 
+                return std::make_tuple( nullptr, nullptr, deferredRenderer.getPositionRenderTarget(), nullptr, nullptr );
+            case View::Emissive: 
+                return std::make_tuple( nullptr, deferredRenderer.getEmissiveRenderTarget(), nullptr, nullptr, nullptr );
+            case View::Albedo: 
+                return std::make_tuple( nullptr, deferredRenderer.getAlbedoRenderTarget(), nullptr, nullptr, nullptr );
+            case View::Normal:
+                return std::make_tuple( nullptr, nullptr, deferredRenderer.getNormalRenderTarget(), nullptr, nullptr );
+            case View::Metalness:
+                return std::make_tuple( deferredRenderer.getMetalnessRenderTarget(), nullptr, nullptr, nullptr, nullptr );
+            case View::Roughness:
+                return std::make_tuple( deferredRenderer.getRoughnessRenderTarget(), nullptr, nullptr, nullptr, nullptr );
+            case View::IndexOfRefraction:
+                return std::make_tuple( deferredRenderer.getIndexOfRefractionRenderTarget(), nullptr, nullptr, nullptr, nullptr );
+        }
+    }
+
+    // Generate mipmaps for normal and position g-buffers.
+    deferredRenderer.getNormalRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
+    deferredRenderer.getPositionRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
 
     // Perform shading on the main image.
     const std::unordered_set< std::shared_ptr< Light > >& lights = scene.getLights();
@@ -134,184 +160,133 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     // Copy main shaded image to final render target.
     rendererCore.copyTexture( finalRenderTarget, shadingRenderer.getColorRenderTarget() );
 
-    // Perform shading on the reflected image.
-    shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitEmissiveTexture(), 
-                                    raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitMetalnessTexture(),
-                                    raytraceRenderer.getRayHitRoughnessTexture(), raytraceRenderer.getRayHitNormalTexture(),
-                                    raytraceRenderer.getRayHitIndexOfRefractionTexture(), lightsVec );
+    if ( activeView == Renderer::View::Shaded && activeViewLevel == 0 )
+        return std::make_tuple( nullptr, nullptr, shadingRenderer.getColorRenderTarget(), nullptr, nullptr );
 
-    // Generate mipmaps for the shaded, reflected image.
-    shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
-
-    // Upscale reflected image low-resolution mipmaps to half of the screen size to avoid visible aliasing.
-    //const int srcMipmapCount = shadingRenderer.getColorRenderTarget()->getMipMapCountOnGpu();
-    //for ( int srcMipmapLevel = 3; srcMipmapLevel > 2; --srcMipmapLevel )
-    //    textureRescaleRenderer.rescaleTexture( shadingRenderer.getColorRenderTarget(), (unsigned char)srcMipmapLevel, shadingRenderer.getColorRenderTarget(), (unsigned char)( srcMipmapLevel - 1 ) );
-
-    // Perform edge detection on the main image (position + normal) - to detect discontinuities in reflections.
-    //edgeDetectionRenderer.performEdgeDetection( deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget() );
-
-    // Combine main image with reflections and refractions.
-    combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), deferredRenderer.getNormalRenderTarget(), 
-                               deferredRenderer.getPositionRenderTarget(), deferredRenderer.getDepthRenderTarget(), raytraceRenderer.getRayHitDistanceTexture(),
-                               deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getMetalnessRenderTarget(), deferredRenderer.getRoughnessRenderTarget(), camera.getPosition() );
-
-    switch (activeView)
+    if ( maxLevelCount >= 2 )
     {
-        case View::Final: 
-            return std::make_tuple( 
-                nullptr,
-                nullptr,
-                finalRenderTarget,
-                nullptr,
-                nullptr
-             );
-        case View::Depth: 
-            return std::make_tuple( 
-                nullptr,
-                deferredRenderer.getDepthRenderTarget(),
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::Position: 
-            return std::make_tuple( 
-                nullptr,
-                nullptr,
-                deferredRenderer.getPositionRenderTarget(),
-                nullptr,
-                nullptr
-             );
-        case View::Emissive: 
-            return std::make_tuple( 
-                nullptr,
-                deferredRenderer.getEmissiveRenderTarget(),
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::Albedo: 
-            return std::make_tuple( 
-                nullptr,
-                deferredRenderer.getAlbedoRenderTarget(),
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::Normal:
-            return std::make_tuple(
-                nullptr,
-                nullptr,
-                deferredRenderer.getNormalRenderTarget(),
-                nullptr,
-                nullptr
-             );
-        case View::Metalness:
-            return std::make_tuple(
-                deferredRenderer.getMetalnessRenderTarget(),
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::Roughness:
-            return std::make_tuple(
-                deferredRenderer.getRoughnessRenderTarget(),
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::IndexOfRefraction:
-            return std::make_tuple(
-                deferredRenderer.getIndexOfRefractionRenderTarget(),
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::DistanceToEdge:
-            return std::make_tuple(
-                edgeDetectionRenderer.getValueRenderTarget(),
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::RayDirections1:
-            return std::make_tuple(
-                nullptr,
-                nullptr,
-                raytraceRenderer.getRayDirectionsTexture(),
-                nullptr,
-                nullptr
-             );
-        case View::RaytracingHitPosition:
-            return std::make_tuple(
-                nullptr,
-                nullptr,
-                raytraceRenderer.getRayHitPositionTexture(),
-                nullptr,
-                nullptr
-            );
-        case View::RaytracingHitDistance:
-            return std::make_tuple(
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr,
-                raytraceRenderer.getRayHitDistanceTexture() 
-            );
-        case View::RaytracingHitNormal:
-            return std::make_tuple(
-                nullptr,
-                nullptr,
-                raytraceRenderer.getRayHitNormalTexture(),
-                nullptr,
-                nullptr
-            );
-        case View::RaytracingHitEmissive:
-            return std::make_tuple(
-                nullptr,
-                raytraceRenderer.getRayHitEmissiveTexture(),
-                nullptr,
-                nullptr,
-                nullptr
-            );
-        case View::RaytracingHitAlbedo:
-            return std::make_tuple(
-                nullptr,
-                raytraceRenderer.getRayHitAlbedoTexture(),
-                nullptr,
-                nullptr,
-                nullptr
-            );
-        case View::RaytracingHitMetalness:
-            return std::make_tuple(
-                raytraceRenderer.getRayHitMetalnessTexture(),
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::RaytracingHitRoughness:
-            return std::make_tuple(
-                raytraceRenderer.getRayHitRoughnessTexture(),
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr
-             );
-        case View::RaytracingHitIndexOfRefraction:
-        default:
-            return std::make_tuple(
-                raytraceRenderer.getRayHitIndexOfRefractionTexture(),
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr
-             );
+        // Perform reflection shading.
+        reflectionShadingRenderer.performShading( 0, camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget(), deferredRenderer.getAlbedoRenderTarget(),
+                                                  deferredRenderer.getMetalnessRenderTarget(), deferredRenderer.getRoughnessRenderTarget() );
+
+        if ( activeView == Renderer::View::Test && activeViewLevel == 1 )
+            return std::make_tuple( nullptr, reflectionShadingRenderer.getReflectionTermTarget( 0 ), nullptr, nullptr, nullptr );
+
+        // Perform ray tracing.
+        raytraceRenderer.generateAndTraceFirstRefractedRays( camera, deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget(),
+                                                             deferredRenderer.getRoughnessRenderTarget(), reflectionShadingRenderer.getReflectionTermTarget( 0 ), blockActors );
+
+        if (activeViewLevel == 1)
+        {
+            switch (activeView)
+            {
+                /*case View::Depth: 
+                    return std::make_tuple( nullptr, raytraceRenderer.getRayHitDistanceTexture(), nullptr, nullptr, nullptr );*/
+                case View::Position: 
+                    return std::make_tuple( nullptr, nullptr, raytraceRenderer.getRayHitPositionTexture(), nullptr, nullptr );
+                case View::Emissive: 
+                    return std::make_tuple( nullptr, raytraceRenderer.getRayHitEmissiveTexture(), nullptr, nullptr, nullptr );
+                case View::Albedo: 
+                    return std::make_tuple( nullptr, raytraceRenderer.getRayHitAlbedoTexture(), nullptr, nullptr, nullptr );
+                case View::Normal:
+                    return std::make_tuple( nullptr, nullptr, raytraceRenderer.getRayHitNormalTexture(), nullptr, nullptr );
+                case View::Metalness:
+                    return std::make_tuple( raytraceRenderer.getRayHitMetalnessTexture(), nullptr, nullptr, nullptr, nullptr );
+                case View::Roughness:
+                    return std::make_tuple( raytraceRenderer.getRayHitRoughnessTexture(), nullptr, nullptr, nullptr, nullptr );
+                case View::IndexOfRefraction:
+                    return std::make_tuple( raytraceRenderer.getRayHitIndexOfRefractionTexture(), nullptr, nullptr, nullptr, nullptr );
+                case View::RayDirections: 
+                    return std::make_tuple( nullptr, nullptr, raytraceRenderer.getRayDirectionsTexture(), nullptr, nullptr );
+            }
+        }
+
+        // Perform shading on the reflected image.
+        shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitEmissiveTexture(), 
+                                        raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitMetalnessTexture(),
+                                        raytraceRenderer.getRayHitRoughnessTexture(), raytraceRenderer.getRayHitNormalTexture(),
+                                        raytraceRenderer.getRayHitIndexOfRefractionTexture(), lightsVec );
+
+        if ( activeView == Renderer::View::Shaded && activeViewLevel == 1 )
+            return std::make_tuple( nullptr, nullptr, shadingRenderer.getColorRenderTarget(), nullptr, nullptr );
+
+        // Generate mipmaps for the shaded, reflected image.
+        shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
+
+        // Upscale reflected image low-resolution mipmaps to half of the screen size to avoid visible aliasing.
+        //const int srcMipmapCount = shadingRenderer.getColorRenderTarget()->getMipMapCountOnGpu();
+        //for ( int srcMipmapLevel = 3; srcMipmapLevel > 2; --srcMipmapLevel )
+        //    textureRescaleRenderer.rescaleTexture( shadingRenderer.getColorRenderTarget(), (unsigned char)srcMipmapLevel, shadingRenderer.getColorRenderTarget(), (unsigned char)( srcMipmapLevel - 1 ) );
+
+        // Perform edge detection on the main image (position + normal) - to detect discontinuities in reflections.
+        //edgeDetectionRenderer.performEdgeDetection( deferredRenderer.getPositionRenderTarget(), deferredRenderer.getNormalRenderTarget() );
+
+        // Combine main image with reflections and refractions.
+        combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), reflectionShadingRenderer.getReflectionTermTarget( 0 ), deferredRenderer.getNormalRenderTarget(), 
+                                   deferredRenderer.getPositionRenderTarget(), deferredRenderer.getDepthRenderTarget(), raytraceRenderer.getRayHitDistanceTexture(),
+                                   deferredRenderer.getAlbedoRenderTarget(), deferredRenderer.getMetalnessRenderTarget(), deferredRenderer.getRoughnessRenderTarget(), camera.getPosition() );
     }
+
+    for (int level = 2; level < maxLevelCount; level++)
+    { 
+        RaytraceRenderer& prevRaytraceRenderer = level % 2 == 0 ? raytraceRenderer : raytraceRenderer2;
+        RaytraceRenderer& currRaytraceRenderer = level % 2 == 0 ? raytraceRenderer2 : raytraceRenderer;
+
+        reflectionShadingRenderer.performShading( level - 1, camera, prevRaytraceRenderer.getRayHitPositionTexture(), prevRaytraceRenderer.getRayHitNormalTexture(), prevRaytraceRenderer.getRayHitAlbedoTexture(),
+                                              prevRaytraceRenderer.getRayHitMetalnessTexture(), prevRaytraceRenderer.getRayHitRoughnessTexture() );
+
+        if ( activeView == Renderer::View::Test && activeViewLevel == level )
+            return std::make_tuple( nullptr, reflectionShadingRenderer.getReflectionTermTarget( level - 1 ), nullptr, nullptr, nullptr );
+
+        currRaytraceRenderer.generateAndTraceRefractedRays( prevRaytraceRenderer.getRayDirectionsTexture(), prevRaytraceRenderer.getRayHitPositionTexture(), 
+                                                            prevRaytraceRenderer.getRayHitNormalTexture(), prevRaytraceRenderer.getRayHitRoughnessTexture(), reflectionShadingRenderer.getReflectionTermTarget( level - 1 ), blockActors );
+
+        if ( activeView == Renderer::View::RayDirections && activeViewLevel == level )
+            return std::make_tuple( nullptr, nullptr, currRaytraceRenderer.getRayDirectionsTexture(), nullptr, nullptr );
+
+        // Perform shading on the reflected image.
+        shadingRenderer.performShading( currRaytraceRenderer.getRayOriginsTexture(), currRaytraceRenderer.getRayHitPositionTexture(), currRaytraceRenderer.getRayHitEmissiveTexture(), 
+                                        currRaytraceRenderer.getRayHitAlbedoTexture(), currRaytraceRenderer.getRayHitMetalnessTexture(),
+                                        currRaytraceRenderer.getRayHitRoughnessTexture(), currRaytraceRenderer.getRayHitNormalTexture(),
+                                        currRaytraceRenderer.getRayHitIndexOfRefractionTexture(), lightsVec );
+
+        if ( activeView == Renderer::View::Shaded && activeViewLevel == level )
+            return std::make_tuple( nullptr, nullptr, shadingRenderer.getColorRenderTarget(), nullptr, nullptr );
+
+        if (activeViewLevel == 2)
+        {
+            switch (activeView)
+            {
+                /*case View::Depth: 
+                    return std::make_tuple( nullptr, raytraceRenderer2.getRayHitDistanceTexture(), nullptr, nullptr, nullptr );*/
+                case View::Position: 
+                    return std::make_tuple( nullptr, nullptr, currRaytraceRenderer.getRayHitPositionTexture(), nullptr, nullptr );
+                case View::Emissive: 
+                    return std::make_tuple( nullptr, currRaytraceRenderer.getRayHitEmissiveTexture(), nullptr, nullptr, nullptr );
+                case View::Albedo: 
+                    return std::make_tuple( nullptr, currRaytraceRenderer.getRayHitAlbedoTexture(), nullptr, nullptr, nullptr );
+                case View::Normal:
+                    return std::make_tuple( nullptr, nullptr, currRaytraceRenderer.getRayHitNormalTexture(), nullptr, nullptr );
+                case View::Metalness:
+                    return std::make_tuple( currRaytraceRenderer.getRayHitMetalnessTexture(), nullptr, nullptr, nullptr, nullptr );
+                case View::Roughness:
+                    return std::make_tuple( currRaytraceRenderer.getRayHitRoughnessTexture(), nullptr, nullptr, nullptr, nullptr );
+                case View::IndexOfRefraction:
+                    return std::make_tuple( currRaytraceRenderer.getRayHitIndexOfRefractionTexture(), nullptr, nullptr, nullptr, nullptr );
+                case View::RayDirections: 
+                    return std::make_tuple( nullptr, nullptr, currRaytraceRenderer.getRayDirectionsTexture(), nullptr, nullptr );
+            }
+        }
+
+        // Generate mipmaps for the shaded, reflected image.
+        shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *deviceContext.Get() );
+
+        combiningRenderer.combine( finalRenderTarget, shadingRenderer.getColorRenderTarget(), reflectionShadingRenderer.getReflectionTermTarget( level - 1 ), prevRaytraceRenderer.getRayHitNormalTexture(), 
+                                   prevRaytraceRenderer.getRayHitPositionTexture(), deferredRenderer.getDepthRenderTarget(), currRaytraceRenderer.getRayHitDistanceTexture(),
+                                   prevRaytraceRenderer.getRayHitAlbedoTexture(), prevRaytraceRenderer.getRayHitMetalnessTexture(), prevRaytraceRenderer.getRayHitRoughnessTexture(), camera.getPosition() );
+    }
+
+    return std::make_tuple( nullptr, nullptr, finalRenderTarget, nullptr, nullptr );
 }
 
 void Renderer::setActiveView( const View view )
@@ -322,6 +297,27 @@ void Renderer::setActiveView( const View view )
 Renderer::View Renderer::getActiveView() const
 {
     return activeView;
+}
+
+void Renderer::setActiveViewLevel( const int viewLevel )
+{
+    activeViewLevel = std::max( 0, std::min( maxLevelCount - 1, viewLevel ) );
+}
+
+int Renderer::getActiveViewLevel() const
+{
+    return activeViewLevel;
+}
+
+void Renderer::setMaxLevelCount( const int levelCount )
+{
+    maxLevelCount = std::max( 1, levelCount );
+    activeViewLevel = std::min( maxLevelCount - 1, activeViewLevel );
+}
+
+int Renderer::getMaxLevelCount() const
+{
+    return maxLevelCount;
 }
 
 void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
