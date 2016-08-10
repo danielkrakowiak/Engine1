@@ -62,5 +62,5 @@ void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpe
 
 void TextureRescaleRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    textureRescaleComputeShader->compileFromFile( "../Engine1/Shaders/TextureRescaleShader/cs.hlsl", device );
+    textureRescaleComputeShader->compileFromFile( "Shaders/TextureRescaleShader/cs.hlsl", device );
 }

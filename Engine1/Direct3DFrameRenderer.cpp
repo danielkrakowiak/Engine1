@@ -28,6 +28,7 @@ screenHeight(768),
 verticalSync(true),
 textureVertexShader(std::make_shared<TextureVertexShader>()),
 textureFragmentShader(std::make_shared<TextureFragmentShader>()),
+textureAlphaFragmentShader(std::make_shared<TextureFragmentShader>()),
 textVertexShader(std::make_shared<TextVertexShader>()),
 textFragmentShader(std::make_shared<TextFragmentShader>())
 {
@@ -309,11 +310,12 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendState( ID3D11Device& 
 
 void Direct3DFrameRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-	textureVertexShader->compileFromFile( "../Engine1/Shaders/TextureShader/vs.hlsl", device );
-	textureFragmentShader->compileFromFile( "../Engine1/Shaders/TextureShader/ps.hlsl", device );
+	textureVertexShader->compileFromFile( "Shaders/TextureShader/vs.hlsl", device );
+	textureFragmentShader->compileFromFile( "Shaders/TextureShader/ps.hlsl", device );
+    textureAlphaFragmentShader->compileFromFile( "Shaders/TextureShader/ps2.hlsl", device );
 
-	textVertexShader->compileFromFile( "../Engine1/Shaders/TextShader/vs.hlsl", device );
-	textFragmentShader->compileFromFile( "../Engine1/Shaders/TextShader/ps.hlsl", device );
+	textVertexShader->compileFromFile( "Shaders/TextShader/vs.hlsl", device );
+	textFragmentShader->compileFromFile( "Shaders/TextShader/ps.hlsl", device );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY )
@@ -479,6 +481,39 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	rendererCore.draw( rectangleMesh );
 
 	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+}
+
+void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY )
+{
+	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+
+	float width = ( texture.getWidth() / (float)screenWidth );
+	float height = ( texture.getHeight() / (float)screenHeight );
+
+
+	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+		renderTargetsU4.push_back( m_renderTarget );
+
+		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+	}
+
+	{ // Configure and enable shaders.
+		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
+		textureAlphaFragmentShader->setParameters( *deviceContext.Get(), texture );
+
+		rendererCore.enableRenderingShaders( textureVertexShader, textureAlphaFragmentShader );
+	}
+
+	rendererCore.enableRasterizerState( *rasterizerState.Get() );
+	rendererCore.enableBlendState( *blendState.Get() );
+
+	rendererCore.draw( rectangleMesh );
+
+	textureAlphaFragmentShader->unsetParameters( *deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::displayFrame()

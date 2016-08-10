@@ -40,6 +40,7 @@ BlockModel::BlockModel( )
 BlockModel::BlockModel( const BlockModel& obj ) :
 fileInfo( obj.fileInfo ),
 mesh( obj.mesh ),
+alphaTextures( obj.alphaTextures ),
 emissionTextures( obj.emissionTextures ),
 albedoTextures( obj.albedoTextures ),
 metalnessTextures( obj.metalnessTextures ),
@@ -62,6 +63,9 @@ std::vector< std::shared_ptr< const Asset > > BlockModel::getSubAssets( ) const
 
 	if ( mesh )
 		subAssets.push_back( mesh );
+
+    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
@@ -90,6 +94,9 @@ std::vector< std::shared_ptr< Asset > > BlockModel::getSubAssets()
 
 	if ( mesh )
 		subAssets.push_back( mesh );
+
+    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
@@ -135,6 +142,14 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
 
     if ( newTextureU1 )
     {
+        for ( ModelTexture2D< unsigned char >& texture : alphaTextures )
+        {
+		    if ( texture.getTexture() == oldAsset ) {
+                texture.setTexture( newTextureU1 );
+                return;
+            }
+        }
+
         for ( ModelTexture2D< unsigned char >& texture : metalnessTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
@@ -231,6 +246,10 @@ void BlockModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& device
 	if ( mesh )
 		mesh->loadCpuToGpu( device );
 
+    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+
     for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
@@ -276,6 +295,10 @@ void BlockModel::unloadFromCpu()
 	if ( mesh )
 		mesh->unloadFromCpu();
 
+    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromCpu();
+
     for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
@@ -306,6 +329,10 @@ void BlockModel::unloadFromGpu()
 	if ( mesh )
 		mesh->unloadFromGpu();
 
+    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+		if ( texture.getTexture() ) 
+            texture.getTexture()->unloadFromGpu();
+
 	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
@@ -335,6 +362,10 @@ bool BlockModel::isInCpuMemory() const
 {
 	if ( !mesh || !mesh->isInCpuMemory() )
 		return false;
+
+    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+            return false;
 
     for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
@@ -367,6 +398,10 @@ bool BlockModel::isInGpuMemory() const
 {
 	if ( !mesh || !mesh->isInGpuMemory() )
 		return false;
+
+    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+            return false;
 
     for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
@@ -407,6 +442,11 @@ std::shared_ptr<BlockMesh> BlockModel::getMesh( ) {
 	return mesh;
 }
 
+void BlockModel::addAlphaTexture( ModelTexture2D< unsigned char >& texture )
+{
+	alphaTextures.push_back( texture );
+}
+
 void BlockModel::addEmissionTexture( ModelTexture2D< uchar4 >& texture )
 {
 	emissionTextures.push_back( texture );
@@ -437,29 +477,53 @@ void BlockModel::addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& t
 	indexOfRefractionTextures.push_back( texture );
 }
 
+void BlockModel::removeAllAlphaTextures()
+{
+    alphaTextures.clear();
+}
+
 void BlockModel::removeAllEmissionTextures()
 {
     emissionTextures.clear();
 }
+
 void BlockModel::removeAllAlbedoTextures()
 {
     albedoTextures.clear();
 }
+
 void BlockModel::removeAllMetalnessTextures()
 {
     metalnessTextures.clear();
 }
+
 void BlockModel::removeAllRoughnessTextures()
 {
     roughnessTextures.clear();
 }
+
 void BlockModel::removeAllNormalTextures()
 {
     normalTextures.clear();
 }
+
 void BlockModel::removeAllIndexOfRefractionTextures()
 {
     indexOfRefractionTextures.clear();
+}
+
+int BlockModel::getAlphaTexturesCount( ) const {
+	return (int)alphaTextures.size();
+}
+
+std::vector< ModelTexture2D< unsigned char > > BlockModel::getAlphaTextures( ) const {
+	return std::vector< ModelTexture2D< unsigned char > >( alphaTextures.begin( ), alphaTextures.end( ) );
+}
+
+ModelTexture2D< unsigned char > BlockModel::getAlphaTexture( int index ) const {
+	if ( index >= (int)alphaTextures.size() ) throw std::exception( "BlockModel::getAlphaTexture: Trying to access texture at non-existing index" );
+
+	return alphaTextures.at( index );
 }
 
 int BlockModel::getEmissionTexturesCount( ) const {

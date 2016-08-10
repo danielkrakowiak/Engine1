@@ -325,6 +325,12 @@
     <Filter Include="Header Files\Shader\GenerateRefractedRays">
       <UniqueIdentifier>{ca2624e9-4cb3-4b22-b2fe-2cf9681722d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shader\RefractionShading">
+      <UniqueIdentifier>{bbc37afe-3d71-4138-badf-bf8ba2f21c31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\RefractionShading">
+      <UniqueIdentifier>{f8a50721-7235-4b15-a440-3629eb049cfc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -690,9 +696,6 @@
     <ClInclude Include="ReflectionShadingComputeShader.h">
       <Filter>Header Files\Shader\ReflectionShading</Filter>
     </ClInclude>
-    <ClInclude Include="ReflectionShadingRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="GenerateReflectedRaysComputeShader.h">
       <Filter>Header Files\Shader\GenerateReflectedRefractedRays</Filter>
     </ClInclude>
@@ -704,6 +707,18 @@
     </ClInclude>
     <ClInclude Include="GenerateRefractedRaysComputeShader.h">
       <Filter>Header Files\Shader\GenerateRefractedRays</Filter>
+    </ClInclude>
+    <ClInclude Include="RefractionShadingComputeShader.h">
+      <Filter>Header Files\Shader\RefractionShading</Filter>
+    </ClInclude>
+    <ClInclude Include="ReflectionRefractionShadingRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ReflectionShadingComputeShader2.h">
+      <Filter>Header Files\Shader\ReflectionShading</Filter>
+    </ClInclude>
+    <ClInclude Include="RefractionShadingComputeShader2.h">
+      <Filter>Header Files\Shader\RefractionShading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1049,9 +1064,6 @@
     <ClCompile Include="ReflectionShadingComputeShader.cpp">
       <Filter>Source Files\Shader\ReflectionShading</Filter>
     </ClCompile>
-    <ClCompile Include="ReflectionShadingRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="GenerateReflectedRaysComputeShader.cpp">
       <Filter>Source Files\Shader\GenerateReflectedRays</Filter>
     </ClCompile>
@@ -1063,6 +1075,18 @@
     </ClCompile>
     <ClCompile Include="GenerateRefractedRaysComputeShader.cpp">
       <Filter>Source Files\Shader\GenerateRefractedRays</Filter>
+    </ClCompile>
+    <ClCompile Include="RefractionShadingComputeShader.cpp">
+      <Filter>Source Files\Shader\RefractionShading</Filter>
+    </ClCompile>
+    <ClCompile Include="ReflectionRefractionShadingRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ReflectionShadingComputeShader2.cpp">
+      <Filter>Source Files\Shader\ReflectionShading</Filter>
+    </ClCompile>
+    <ClCompile Include="RefractionShadingComputeShader2.cpp">
+      <Filter>Source Files\Shader\RefractionShading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1175,6 +1199,18 @@
     </FxCompile>
     <FxCompile Include="Shaders\GenerateRefractedRaysShader\cs.hlsl">
       <Filter>Source Files\Shader\GenerateRefractedRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RefractionShadingShader\cs.hlsl">
+      <Filter>Source Files\Shader\RefractionShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ReflectionShadingShader\cs2.hlsl">
+      <Filter>Source Files\Shader\ReflectionShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RefractionShadingShader\cs2.hlsl">
+      <Filter>Source Files\Shader\RefractionShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShader\ps2.hlsl">
+      <Filter>Source Files\Shader\Texture</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

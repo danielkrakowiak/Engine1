@@ -52,6 +52,8 @@ namespace Engine1
         void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float2  >&        texture, float posX, float posY );
         void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float  >&         texture, float posX, float posY );
 
+        void renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >& texture, float posX, float posY );
+
         void displayFrame();
 
         Microsoft::WRL::ComPtr< ID3D11Device > getDevice();
@@ -98,6 +100,7 @@ namespace Engine1
 
         std::shared_ptr<TextureVertexShader>   textureVertexShader;
         std::shared_ptr<TextureFragmentShader> textureFragmentShader;
+        std::shared_ptr<TextureFragmentShader> textureAlphaFragmentShader;
         std::shared_ptr<TextVertexShader>      textVertexShader;
         std::shared_ptr<TextFragmentShader>    textFragmentShader;
 

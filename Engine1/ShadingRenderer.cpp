@@ -114,6 +114,6 @@ void ShadingRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D
 
 void ShadingRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    shadingComputeShader->compileFromFile( "../Engine1/Shaders/ShadingShader/cs.hlsl", device );
-    shadingComputeShader2->compileFromFile( "../Engine1/Shaders/ShadingShader/cs2.hlsl", device );
+    shadingComputeShader->compileFromFile( "Shaders/ShadingShader/cs.hlsl", device );
+    shadingComputeShader2->compileFromFile( "Shaders/ShadingShader/cs2.hlsl", device );
 }

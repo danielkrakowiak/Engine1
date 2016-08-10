@@ -19,13 +19,13 @@ namespace Engine1
 {
     class Light;
 
-    class ReflectionShadingComputeShader : public ComputeShader
+    class RefractionShadingComputeShader : public ComputeShader
     {
 
         public:
 
-        ReflectionShadingComputeShader();
-        virtual ~ReflectionShadingComputeShader();
+        RefractionShadingComputeShader();
+        virtual ~RefractionShadingComputeShader();
 
         void compileFromFile( std::string path, ID3D11Device& device );
 
@@ -53,8 +53,8 @@ namespace Engine1
         };
 
         // Copying is not allowed.
-        ReflectionShadingComputeShader( const ReflectionShadingComputeShader& )          = delete;
-        ReflectionShadingComputeShader& operator=(const ReflectionShadingComputeShader&) = delete;
+        RefractionShadingComputeShader( const RefractionShadingComputeShader& )          = delete;
+        RefractionShadingComputeShader& operator=(const RefractionShadingComputeShader&) = delete;
     };
 }
 

@@ -1,20 +1,13 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
-cbuffer ConstantBuffer : register( b0 )
-{
-    float3 cameraPos;
-    float  pad1;
-    int    level;
-    float3 pad2;
-};
-
 // Input.
-Texture2D<float4> g_positionTexture                    : register( t0 );
-Texture2D<float4> g_normalTexture                      : register( t1 ); 
-Texture2D<float4> g_albedoTexture                      : register( t2 );
-Texture2D<float>  g_metalnessTexture                   : register( t3 );
-Texture2D<float>  g_roughnessTexture                   : register( t4 );
-Texture2D<float4> g_prevContributionTermRoughnessTexture : register( t5 ); // TODO: Not needed anymore.
+Texture2D<float4> g_rayOriginTexture                   : register( t0 );
+Texture2D<float4> g_positionTexture                    : register( t1 );
+Texture2D<float4> g_normalTexture                      : register( t2 ); 
+Texture2D<float4> g_albedoTexture                      : register( t3 );
+Texture2D<float>  g_metalnessTexture                   : register( t4 );
+Texture2D<float>  g_roughnessTexture                   : register( t5 );
+Texture2D<float4> g_prevContributionTermRoughnessTexture : register( t6 );
 
 // Output.
 RWTexture2D<float4> g_contributionTermRoughnessTexture : register( u0 ); 
@@ -35,6 +28,7 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
+    const float3 rayOrigin        = g_rayOriginTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfacePosition  = g_positionTexture[ dispatchThreadId.xy ].xyz;
     float3       surfaceNormal    = g_normalTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfaceAlbedo    = g_albedoTexture[ dispatchThreadId.xy ].xyz;
@@ -44,7 +38,7 @@ void main( uint3 groupId : SV_GroupID,
     
     float3 surfaceSpecularColor = lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
 
-    const float3 dirToCamera = normalize( cameraPos - surfacePosition );
+    const float3 dirToCamera = normalize( rayOrigin - surfacePosition );
 
     // Invert normal if surface was hit in the backface.
     if ( dot( dirToCamera, surfaceNormal ) < 0.0f )
@@ -55,8 +49,10 @@ void main( uint3 groupId : SV_GroupID,
     // Calculate how much of the incoming reflection light is visible from the ray origin (at current light bounce level).
     const float3 reflectionTerm = calculateReflectionTerm( surfaceSpecularColor, surfaceNormal, dirToCamera );
 
+    const float4 prevContributionTermRoughness = g_prevContributionTermRoughnessTexture[ dispatchThreadId.xy ];
+
     // Calculate how much of the incoming reflection light is visible at the camera (after all the light bounces).
-    g_contributionTermRoughnessTexture[ dispatchThreadId.xy ] = float4( reflectionTerm, min( 1.0f, surfaceRoughness ) );
+    g_contributionTermRoughnessTexture[ dispatchThreadId.xy ] = float4( prevContributionTermRoughness.rgb * reflectionTerm, min( 1.0f, prevContributionTermRoughness.a + surfaceRoughness ) );
 }
 
 float3 calculateReflectionTerm( float3 surfaceSpecularColor, float3 surfaceNormal, float3 dirToCamera )

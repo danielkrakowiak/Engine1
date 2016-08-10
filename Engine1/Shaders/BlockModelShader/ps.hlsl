@@ -1,3 +1,4 @@
+Texture2D alphaTexture;
 Texture2D emissiveTexture;
 Texture2D albedoTexture;
 Texture2D normalTexture;
@@ -25,16 +26,16 @@ struct PixelOutputType
     float  roughness         : SV_Target3;
     float  indexOfRefraction : SV_Target4;
     float4 emissive          : SV_Target5;
-    float4 albedo            : SV_Target6;
+    float4 albedoAlpha       : SV_Target6;
 };
 
 PixelOutputType main( PixelInputType input )
 {
 	PixelOutputType output;
 
-    output.position = float4( input.positionWorld, 0.0f );
-    output.emissive = emissiveTexture.Sample( samplerState, input.texCoord );
-	output.albedo   = albedoTexture.Sample( samplerState, input.texCoord );
+    output.position    = float4( input.positionWorld, 0.0f );
+    output.emissive    = emissiveTexture.Sample( samplerState, input.texCoord );
+	output.albedoAlpha = float4( albedoTexture.Sample( samplerState, input.texCoord ).rgb, alphaTexture.Sample( samplerState, input.texCoord ).r );
 
     float3x3 tangentToWorldMatrix = float3x3( 
         normalize( input.tangent ),

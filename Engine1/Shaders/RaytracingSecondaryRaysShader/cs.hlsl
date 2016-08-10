@@ -21,12 +21,13 @@ Buffer<uint2>     g_bvhNodes        : register( t6 );
 Buffer<float3>    g_bvhNodesExtents : register( t7 ); // min, max, min, max interleaved.
 Buffer<uint>      g_bvhTriangles    : register( t8 );
 
-Texture2D         g_emissiveTexture          : register( t9 );
-Texture2D         g_albedoTexture            : register( t10 );
-Texture2D         g_normalTexture            : register( t11 );
-Texture2D         g_metalnessTexture         : register( t12 );
-Texture2D         g_roughnessTexture         : register( t13 );
-Texture2D         g_indexOfRefractionTexture : register( t14 );
+Texture2D         g_alphaTexture             : register( t9 );
+Texture2D         g_emissiveTexture          : register( t10 );
+Texture2D         g_albedoTexture            : register( t11 );
+Texture2D         g_normalTexture            : register( t12 );
+Texture2D         g_metalnessTexture         : register( t13 );
+Texture2D         g_roughnessTexture         : register( t14 );
+Texture2D         g_indexOfRefractionTexture : register( t15 );
 SamplerState      g_samplerState;
 
 // Input / Output.
@@ -38,7 +39,7 @@ RWTexture2D<uint>   g_hitMetalness         : register( u3 );
 RWTexture2D<uint>   g_hitRoughness         : register( u4 );
 RWTexture2D<uint>   g_hitIndexOfRefraction : register( u5 );
 RWTexture2D<uint4>  g_hitEmissive          : register( u6 );
-RWTexture2D<uint4>  g_hitAlbedo            : register( u7 );
+RWTexture2D<uint4>  g_hitAlbedoAlpha       : register( u7 );
 
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint index );
@@ -176,7 +177,7 @@ void main( uint3 groupId : SV_GroupID,
                 g_hitDistance[ dispatchThreadId.xy ]          = hitDist;
                 g_hitNormal[ dispatchThreadId.xy ]            = float4( hitNormal, 0.0f );
                 g_hitEmissive[ dispatchThreadId.xy ]          = uint4( g_emissiveTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
-                g_hitAlbedo[ dispatchThreadId.xy ]            = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
+                g_hitAlbedoAlpha[ dispatchThreadId.xy ]       = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).rgb * 255.0f, g_alphaTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );
                 g_hitMetalness[ dispatchThreadId.xy ]         = uint( g_metalnessTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );   
                 g_hitRoughness[ dispatchThreadId.xy ]         = uint( g_roughnessTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );    
                 g_hitIndexOfRefraction[ dispatchThreadId.xy ] = uint( g_indexOfRefractionTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );  

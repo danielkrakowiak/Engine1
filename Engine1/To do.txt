@@ -297,6 +297,40 @@ Idea:
 	  - we probably need to store current ray refraction index - the whole history for each ray - as many buffers as there is for reflection/transmission term.
 	  - if we hit surface from inside (deduced from normal), than we need to invert refraction index? How to know refractive index of air, water if we are in one mesh, inside another and another etc?
 
-	  - Fix calculating blur radius when transmitting/reflecting multiple times.
+	  - rename albedo render targets to albedoAlpha.
 
+	  - BUG: (Probably fixed) Alpha is not saved to the albedo render targets when tracing rays. It causes second refraction to be zero.
+
+	  - BUG: Refractions don't work because of the recurrent calls. What's wrong? Is refraction reading contribution term from too high level, which is reflection term which is zero and applying it?
+
+	  - rename reflectionTerm texture in combining shader and classes. Should be called contributionTerm. Check for incorrect assumption regarding reflection/refraction too.
+
+	  - how to add debug rednering when there are so many layers at the same level?
+
+
+	  BIIIIIIG PROBLEM: !!!!!!!!!!!!!!!!!!!!!!
+	  - as we mix reflections and refrections, when we render reflections up to some level and then go down to render refractions - prev raytracer has wrong conent in buffers. 
+	  At level 2 it's assumed to contain data from level 1, but it may contain data from level 5 (reflections).
+	  - Do I have to have one raytracer per level? Do I need all of the raytracer's data buffers?
+
+	  Let's keep one raytracer per level - around 60 MB per level for full resolution.
+
+
+	  
+
+
+	  http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
+
+	  - look like the light gts trapped inside of objects and doesn't get refracted to the outside. Why is that? Index of refraction?
+
+	  - add exceptions and check if wrong level is passed to reflectionrefraction renderer.
+	  - remove unnecessary 'level' and 'prev contribution term' from firstreflectionshading and firstrefractionshading.
+
+	  - IMPORTANT: do I take the right cameraPos in reflectionShading and refractionShading? It seems i take cameraPos via constant buffer, but for higher levels i should read it from buffers as ray origins.
+	  
+	  - IMPORTANT2: Is accumulated roughness read in combining shader? Or is it taken from deffered renderer buffers?
 	  -----------------------------
+
+	  - PERFORMANCE IDEA: higher level reflections/refractions could be calculated with smaller work groups - because only some pixels in the group need to be traced and many are black. Large groups cause waste of cores.
+
+	  - get rid of useless inputs for combinign shader. Use only contribution term.

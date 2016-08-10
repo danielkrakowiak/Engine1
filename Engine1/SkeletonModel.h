@@ -48,6 +48,7 @@ namespace Engine1
         std::shared_ptr<const SkeletonMesh> getMesh() const;
         std::shared_ptr<SkeletonMesh> getMesh();
 
+        void addAlphaTexture( ModelTexture2D< unsigned char >& texture );
         void addEmissionTexture( ModelTexture2D< uchar4 >& texture );
         void addAlbedoTexture( ModelTexture2D< uchar4 >& texture );
         void addMetalnessTexture( ModelTexture2D< unsigned char >& texture );
@@ -55,12 +56,17 @@ namespace Engine1
         void addNormalTexture( ModelTexture2D< uchar4 >& texture );
         void addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture );
 
+        void removeAllAlphaTextures();
         void removeAllEmissionTextures();
         void removeAllAlbedoTextures();
         void removeAllMetalnessTextures();
         void removeAllRoughnessTextures();
         void removeAllNormalTextures();
         void removeAllIndexOfRefractionTextures();
+
+        int                                             getAlphaTexturesCount() const;
+        std::vector< ModelTexture2D< unsigned char > >  getAlphaTextures() const;
+        ModelTexture2D< unsigned char >                 getAlphaTexture( int index = 0 ) const;
 
         int                                             getEmissionTexturesCount() const;
         std::vector< ModelTexture2D< uchar4 > >         getEmissionTextures() const;
@@ -92,6 +98,7 @@ namespace Engine1
 
         std::shared_ptr<SkeletonMesh> mesh;
 
+        std::vector< ModelTexture2D< unsigned char > > alphaTextures;
         std::vector< ModelTexture2D< uchar4 > >        emissionTextures;
         std::vector< ModelTexture2D< uchar4 > >        albedoTextures;
         std::vector< ModelTexture2D< unsigned char > > metalnessTextures;

@@ -19,17 +19,18 @@ namespace Engine1
 {
     class Light;
 
-    class ReflectionShadingComputeShader : public ComputeShader
+    class RefractionShadingComputeShader2 : public ComputeShader
     {
 
         public:
 
-        ReflectionShadingComputeShader();
-        virtual ~ReflectionShadingComputeShader();
+        RefractionShadingComputeShader2();
+        virtual ~RefractionShadingComputeShader2();
 
         void compileFromFile( std::string path, ID3D11Device& device );
 
-        void setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos, const int level,
+        void setParameters( ID3D11DeviceContext& deviceContext,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                             /*const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,*/
@@ -43,18 +44,9 @@ namespace Engine1
 
         private:
 
-        __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
-        struct ConstantBuffer
-        {
-            float3 cameraPos;
-            float  pad1;
-            int    level;
-            float3 pad2;
-        };
-
         // Copying is not allowed.
-        ReflectionShadingComputeShader( const ReflectionShadingComputeShader& )          = delete;
-        ReflectionShadingComputeShader& operator=(const ReflectionShadingComputeShader&) = delete;
+        RefractionShadingComputeShader2( const RefractionShadingComputeShader2& )          = delete;
+        RefractionShadingComputeShader2& operator=(const RefractionShadingComputeShader2&) = delete;
     };
 }
 

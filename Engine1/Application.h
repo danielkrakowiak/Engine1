@@ -4,13 +4,6 @@
 #include "Direct3DRendererCore.h"
 #include "Renderer.h"
 #include "Direct3DFrameRenderer.h"
-#include "Direct3DDeferredRenderer.h"
-#include "RaytraceRenderer.h"
-#include "ShadingRenderer.h"
-#include "ReflectionShadingRenderer.h"
-#include "EdgeDetectionRenderer.h"
-#include "CombiningRenderer.h"
-#include "TextureRescaleRenderer.h"
 #include "FreeCamera.h"
 
 #include "ImageLibrary.h"
@@ -88,15 +81,7 @@ private:
 	InputManager inputManager;
 
 	Direct3DRendererCore      rendererCore;
-    Direct3DDeferredRenderer  deferredRenderer;
-    RaytraceRenderer          raytraceRenderer;
-    RaytraceRenderer          raytraceRenderer2;
-    ShadingRenderer           shadingRenderer;
-    ReflectionShadingRenderer reflectionShadingRenderer;
-    EdgeDetectionRenderer     edgeDetectionRenderer;
-    CombiningRenderer         combiningRenderer;
     Direct3DFrameRenderer     frameRenderer;
-    TextureRescaleRenderer    textureRescaleRenderer;
     Renderer                  renderer;
 
 	bool fullscreen;
@@ -117,6 +102,8 @@ private:
     std::shared_ptr< Light >         selectedLight;
 	std::shared_ptr< BlockActor >    selectedBlockActor;
 	std::shared_ptr< SkeletonActor > selectedSkeletonActor;
+
+    bool debugRenderAlpha;
 
     // Debug uchar render target.
     void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );

@@ -121,6 +121,6 @@ void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight
 
 void EdgeDetectionRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    edgeDetectionComputeShader->compileFromFile( "../Engine1/Shaders/EdgeDetectionShader/cs.hlsl", device );
-    edgeDistanceComputeShader->compileFromFile( "../Engine1/Shaders/EdgeDistanceShader/cs.hlsl", device );
+    edgeDetectionComputeShader->compileFromFile( "Shaders/EdgeDetectionShader/cs.hlsl", device );
+    edgeDistanceComputeShader->compileFromFile( "Shaders/EdgeDistanceShader/cs.hlsl", device );
 }

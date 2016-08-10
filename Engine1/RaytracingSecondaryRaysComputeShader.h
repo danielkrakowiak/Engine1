@@ -36,6 +36,7 @@ namespace Engine1
                             const float43& worldMatrix, 
                             const float3 boundingBoxMin, 
                             const float3 boundingBoxMax,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,

@@ -4,6 +4,14 @@
 #include <wrl.h>
 #include "TTexture2D.h"
 
+#include "Direct3DDeferredRenderer.h"
+#include "RaytraceRenderer.h"
+#include "ShadingRenderer.h"
+#include "ReflectionRefractionShadingRenderer.h"
+#include "EdgeDetectionRenderer.h"
+#include "CombiningRenderer.h"
+#include "TextureRescaleRenderer.h"
+
 #include "uchar4.h"
 #include "float4.h"
 #include "float2.h"
@@ -11,17 +19,12 @@
 namespace Engine1 
 {
     class Direct3DRendererCore;
-    class Direct3DDeferredRenderer;
-    class RaytraceRenderer;
-    class ShadingRenderer;
-    class ReflectionShadingRenderer;
-    class EdgeDetectionRenderer;
-    class CombiningRenderer;
-    class TextureRescaleRenderer;
     class CScene;
     class Camera;
     class BlockMesh;
     class BlockModel;
+    class BlockActor;
+    class Light;
 
     class Renderer
     {
@@ -42,9 +45,7 @@ namespace Engine1
             Test
         };
 
-        Renderer( Direct3DRendererCore& rendererCore, Direct3DDeferredRenderer& deferredRenderer, RaytraceRenderer& raytraceRenderer, RaytraceRenderer& raytraceRenderer2,
-                  ShadingRenderer& shadingRenderer, ReflectionShadingRenderer& reflectionShadingRenderer, EdgeDetectionRenderer& edgeDetectionRenderer, CombiningRenderer& combiningRenderer,
-                  TextureRescaleRenderer& textureRescaleRenderer );
+        Renderer( Direct3DRendererCore& rendererCore );
         ~Renderer();
 
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
@@ -61,33 +62,61 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > >
         renderScene( const CScene& scene, const Camera& camera );
 
-        void setActiveView( const View view );
-        View getActiveView() const;
+        std::tuple< 
+        bool,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
+        renderMainImage( const CScene& scene, const Camera& camera, const std::vector< std::shared_ptr< Light > >& lightsVector,
+                         const std::vector< bool >& activeViewLevel, const View activeViewType );
 
-        void setActiveViewLevel( const int viewLevel );
-        int  getActiveViewLevel() const;
+        std::tuple<
+        bool,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
+        renderReflectionsRefractions( const bool reflectionFirst, const int level, const int maxLevelCount, const Camera& camera, 
+                                      const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                      const std::vector< std::shared_ptr< Light > >& lightsVector,
+                                      std::vector< bool >& renderedViewLevel,
+                                      const std::vector< bool >& activeViewLevel,
+                                      const View activeViewType );
 
-        void setMaxLevelCount( const int levelCount );
-        int  getMaxLevelCount() const;
+        void renderFirstReflections( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
+        void renderFirstRefractions( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
+
+        void renderReflections( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
+        void renderRefractions( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
+
+        void                       setActiveViewType( const View view );
+        View                       getActiveViewType() const;
+        void                       activateNextViewLevel( const bool reflection );
+        void                       activatePrevViewLevel();
+        const std::vector< bool >& getActiveViewLevel() const;
+        void                       setMaxLevelCount( const int levelCount );
+        int                        getMaxLevelCount() const;
 
         private:
 
         Microsoft::WRL::ComPtr< ID3D11Device >        device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
 
-        View activeView;
-        int  activeViewLevel;
-        int maxLevelCount;
+        View              activeViewType;
+        std::vector<bool> activeViewLevel; // Empty - main image. true - reflection, false - refraction.
+        int               maxLevelCount;
 
-        Direct3DRendererCore&      rendererCore;
-        Direct3DDeferredRenderer&  deferredRenderer;
-        RaytraceRenderer&          raytraceRenderer;
-        RaytraceRenderer&          raytraceRenderer2;
-        ShadingRenderer&           shadingRenderer;
-        ReflectionShadingRenderer& reflectionShadingRenderer;
-        EdgeDetectionRenderer&     edgeDetectionRenderer;
-        CombiningRenderer&         combiningRenderer;
-        TextureRescaleRenderer&    textureRescaleRenderer;
+        Direct3DRendererCore&     rendererCore;
+        Direct3DDeferredRenderer  deferredRenderer;
+        RaytraceRenderer          raytraceRenderer;
+        ShadingRenderer           shadingRenderer;
+        ReflectionRefractionShadingRenderer reflectionRefractionShadingRenderer;
+        EdgeDetectionRenderer     edgeDetectionRenderer;
+        CombiningRenderer         combiningRenderer;
+        TextureRescaleRenderer    textureRescaleRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

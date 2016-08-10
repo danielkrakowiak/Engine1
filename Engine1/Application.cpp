@@ -40,15 +40,7 @@ using Microsoft::WRL::ComPtr;
 Application::Application() :
 	rendererCore(),
 	frameRenderer( rendererCore ),
-	deferredRenderer( rendererCore ),
-    raytraceRenderer( rendererCore ),
-    raytraceRenderer2( rendererCore ),
-    shadingRenderer( rendererCore ),
-    reflectionShadingRenderer( rendererCore ),
-    edgeDetectionRenderer( rendererCore ),
-    combiningRenderer( rendererCore ),
-    textureRescaleRenderer( rendererCore ),
-    renderer( rendererCore, deferredRenderer, raytraceRenderer, raytraceRenderer2, shadingRenderer, reflectionShadingRenderer, edgeDetectionRenderer, combiningRenderer, textureRescaleRenderer ),
+    renderer( rendererCore ),
 	initialized( false ),
 	applicationInstance( nullptr ),
 	windowHandle( nullptr ),
@@ -62,6 +54,7 @@ Application::Application() :
 	screenColorDepth( 32 ),
 	zBufferDepth( 32 ),
 	windowFocused( false ),
+    debugRenderAlpha( false ),
     scenePath( "Assets/Scenes/new.scene" ),
     scene( std::make_shared<CScene>() ),
     assetManager()
@@ -77,14 +70,6 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	setupWindow();
 
 	frameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
-	deferredRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
-    raytraceRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
-    raytraceRenderer2.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
-    shadingRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
-    reflectionShadingRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
-    edgeDetectionRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
-    combiningRenderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
-    textureRescaleRenderer.initialize( frameRenderer.getDevice(), frameRenderer.getDeviceContext() );
 	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
     assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) * 2 : 1, frameRenderer.getDevice() );
 
@@ -195,13 +180,14 @@ void Application::run() {
 
     // Setup the camera.
 	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
-	camera.setPosition( float3( -3.5f, -2.5f, -53.0f ) );
-
+	camera.setPosition( float3( 0.0f, 4.0f, -53.0f ) );
+    camera.rotate( float3( 0.0f, MathUtil::piHalf, 0.0f ) );
+     
 	Font font( uint2(screenWidth, screenHeight) );
-	font.loadFromFile( "../Engine1/Assets/Fonts/DoulosSILR.ttf", 35 );
+	font.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 35 );
 
     Font font2( uint2(screenWidth, screenHeight) );
-    font2.loadFromFile( "../Engine1/Assets/Fonts/DoulosSILR.ttf", 15 );
+    font2.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 15 );
 
 	double frameTimeMs = 0.0;
 
@@ -270,9 +256,7 @@ void Application::run() {
         if ( windowFocused && !movingObjects && inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
             const float cameraRotationSensitivity = 0.0001f;
 
-            lockCursor = true;
-
-            const float acceleration = 1.0f;
+            const float acceleration = 7.0f;
 
             if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTimeMs * acceleration );
             else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTimeMs * acceleration );
@@ -316,15 +300,15 @@ void Application::run() {
             std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) = renderer.renderScene( *scene, camera );
 
 		{ // Render FPS.
-			std::stringstream ss;
-			ss << "FPS: " << (int)(1000.0 / frameTimeMs) << " / " << frameTimeMs << "ms";
-			deferredRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			//std::stringstream ss;
+			//ss << "FPS: " << (int)(1000.0 / frameTimeMs) << " / " << frameTimeMs << "ms";
+			//deferredRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
 		{ // Render camera state.
-			std::stringstream ss;
-			ss << "Cam pos: " << camera.getPosition( ).x << ", " << camera.getPosition( ).y << ", " << camera.getPosition( ).z;
-			deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			//std::stringstream ss;
+			//ss << "Cam pos: " << camera.getPosition( ).x << ", " << camera.getPosition( ).y << ", " << camera.getPosition( ).z;
+			//deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
 		{ // Render keyboard state.
@@ -339,28 +323,31 @@ void Application::run() {
 		}
 
         { // Render mouse state.
-			std::stringstream ss;
-			ss << "Mouse pos: " << inputManager.getMousePos().x << ", " << inputManager.getMousePos().y << ", ";
-			deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 100.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			//std::stringstream ss;
+			//ss << "Mouse pos: " << inputManager.getMousePos().x << ", " << inputManager.getMousePos().y << ", ";
+			//deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 100.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
         { // Render combining renderer position/normal thresholds.
-			std::stringstream ss;
-			ss << "Combining renderer normal threshold:   " << combiningRenderer.getNormalThreshold() << std::endl;
-            ss << "Combining renderer position threshold: " << combiningRenderer.getPositionThreshold() << std::endl;
-			deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			//std::stringstream ss;
+			//ss << "Combining renderer normal threshold:   " << combiningRenderer.getNormalThreshold() << std::endl;
+            //ss << "Combining renderer position threshold: " << combiningRenderer.getPositionThreshold() << std::endl;
+			//deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		}
 
         // Required to be able to display depth-stencil buffer.
         // TODO: Should  be refactored somehow. Such method should not be called here.
-        deferredRenderer.disableRenderTargets();
+        //deferredRenderer.disableRenderTargets();
 
         if ( frameUchar ) {
             rendererCore.copyTexture( ucharDisplayFrame, frameUchar );
 		    frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f );
-        } else if ( frameUchar4 )
-		    frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f );
-        else if ( frameFloat4 )
+        } else if ( frameUchar4 ) {
+            if ( debugRenderAlpha )
+		        frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f );
+            else
+                frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f );
+        } else if ( frameFloat4 )
             frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f );
         else if ( frameFloat2 )
             frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f );
@@ -576,7 +563,7 @@ void Application::onKeyPress( int key )
         }
     }
 
-    static float normalThresholdChange = 0.01f;
+    /*static float normalThresholdChange = 0.01f;
     if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::n ) )
     {
         if ( key == InputManager::Keys::plus )
@@ -592,42 +579,44 @@ void Application::onKeyPress( int key )
             combiningRenderer.setPositionThreshold( combiningRenderer.getPositionThreshold() + positionThresholdChange );
         else if ( key == InputManager::Keys::minus )
             combiningRenderer.setPositionThreshold( combiningRenderer.getPositionThreshold() - positionThresholdChange );
-    }
+    }*/
 
     if ( key == InputManager::Keys::tilde )
-        renderer.setActiveView( Renderer::View::Final );
+        renderer.setActiveViewType( Renderer::View::Final );
     else if ( key == InputManager::Keys::one )
-        renderer.setActiveView( Renderer::View::Shaded );
+        renderer.setActiveViewType( Renderer::View::Shaded );
     else if ( key == InputManager::Keys::two )
-        renderer.setActiveView( Renderer::View::Depth );
+        renderer.setActiveViewType( Renderer::View::Depth );
     else if ( key == InputManager::Keys::three )
-        renderer.setActiveView( Renderer::View::Position );
+        renderer.setActiveViewType( Renderer::View::Position );
     else if ( key == InputManager::Keys::four )
-        renderer.setActiveView( Renderer::View::Emissive );
+        renderer.setActiveViewType( Renderer::View::Emissive );
     else if ( key == InputManager::Keys::five )
-        renderer.setActiveView( Renderer::View::Albedo );
+        renderer.setActiveViewType( Renderer::View::Albedo );
     else if ( key == InputManager::Keys::six )
-        renderer.setActiveView( Renderer::View::Normal );
+        renderer.setActiveViewType( Renderer::View::Normal );
     else if ( key == InputManager::Keys::seven )
-        renderer.setActiveView( Renderer::View::Metalness );
+        renderer.setActiveViewType( Renderer::View::Metalness );
     else if ( key == InputManager::Keys::eight )
-        renderer.setActiveView( Renderer::View::Roughness );
+        renderer.setActiveViewType( Renderer::View::Roughness );
     else if ( key == InputManager::Keys::nine )
-        renderer.setActiveView( Renderer::View::IndexOfRefraction );
+        renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
     else if ( key == InputManager::Keys::zero )
-        renderer.setActiveView( Renderer::View::RayDirections );
+        renderer.setActiveViewType( Renderer::View::RayDirections );
     else if ( key == InputManager::Keys::back )
-        renderer.setActiveView( Renderer::View::Test );
+        renderer.setActiveViewType( Renderer::View::Test );
 
     if ( key == InputManager::Keys::plus && inputManager.isKeyPressed( InputManager::Keys::shift ) )
         renderer.setMaxLevelCount( std::min( 10, renderer.getMaxLevelCount() + 1 ) );
     else if ( key == InputManager::Keys::minus && inputManager.isKeyPressed( InputManager::Keys::shift ) )
         renderer.setMaxLevelCount( std::max( 0, renderer.getMaxLevelCount() - 1 ) );
     else if ( key == InputManager::Keys::plus )
-        renderer.setActiveViewLevel( std::min( 10, renderer.getActiveViewLevel() + 1 ) );
+        renderer.activateNextViewLevel( false );
     else if ( key == InputManager::Keys::minus )
-        renderer.setActiveViewLevel( std::max( 0, renderer.getActiveViewLevel() - 1 ) );
-    
+        renderer.activatePrevViewLevel();
+
+    if ( key == InputManager::Keys::enter ) 
+        debugRenderAlpha = !debugRenderAlpha;
 }
 
 void Application::onMouseButtonPress( int button )
@@ -886,15 +875,16 @@ void Application::onDragAndDropFile( std::string filePath )
         else if ( extension.compare( "tif" ) == 0 )  format = Texture2DFileInfo::Format::TIFF;
         
         Texture2DFileInfo::PixelType pixelType;
-        if ( filePath.find( "_A" ) != std::string::npos ||
-             filePath.find( "_N" ) != std::string::npos ||
-             filePath.find( "_E" ) != std::string::npos )
+        if ( filePath.find( "_A." ) != std::string::npos ||
+             filePath.find( "_N." ) != std::string::npos ||
+             filePath.find( "_E." ) != std::string::npos )
         {
             pixelType = Texture2DFileInfo::PixelType::UCHAR4;
         }
-        else if ( filePath.find( "_M" ) != std::string::npos ||
-                  filePath.find( "_R" ) != std::string::npos ||
-                  filePath.find( "_I" ) != std::string::npos)
+        else if ( filePath.find( "_AL." ) != std::string::npos ||
+                  filePath.find( "_M." ) != std::string::npos ||
+                  filePath.find( "_R." ) != std::string::npos ||
+                  filePath.find( "_I." ) != std::string::npos)
         {
             pixelType = Texture2DFileInfo::PixelType::UCHAR;
         }
@@ -904,7 +894,7 @@ void Application::onDragAndDropFile( std::string filePath )
         Texture2DFileInfo fileInfo( filePath, format, pixelType );
         std::shared_ptr< Asset > textureAsset = assetManager.getOrLoad( fileInfo );
 
-		if ( filePath.find( "_A" ) != std::string::npos ) 
+		if ( filePath.find( "_A." ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
@@ -923,7 +913,26 @@ void Application::onDragAndDropFile( std::string filePath )
                 selectedSkeletonActor->getModel( )->addAlbedoTexture( modelTexture );
             }
         } 
-        else if ( filePath.find( "_M" ) != std::string::npos ) 
+        else if ( filePath.find( "_AL." ) != std::string::npos ) 
+        {
+            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
+            ModelTexture2D< unsigned char > modelTexture( texture );
+
+            if ( selectedBlockActor ) {    
+                if ( replaceAsset )
+                    selectedBlockActor->getModel( )->removeAllAlphaTextures();
+
+                selectedBlockActor->getModel( )->addAlphaTexture( modelTexture );
+            }
+
+            if ( selectedSkeletonActor ) {
+                if ( replaceAsset )
+                    selectedSkeletonActor->getModel( )->removeAllAlphaTextures();
+
+                selectedSkeletonActor->getModel( )->addAlphaTexture( modelTexture );
+            }
+		} 
+        else if ( filePath.find( "_M." ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
@@ -942,7 +951,7 @@ void Application::onDragAndDropFile( std::string filePath )
                 selectedSkeletonActor->getModel( )->addMetalnessTexture( modelTexture );
             }
 		} 
-        else if ( filePath.find( "_N" ) != std::string::npos ) 
+        else if ( filePath.find( "_N." ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
@@ -961,7 +970,7 @@ void Application::onDragAndDropFile( std::string filePath )
                 selectedSkeletonActor->getModel( )->addNormalTexture( modelTexture );
             }
 		} 
-        else if ( filePath.find( "_R" ) != std::string::npos ) 
+        else if ( filePath.find( "_R." ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
@@ -980,7 +989,7 @@ void Application::onDragAndDropFile( std::string filePath )
                 selectedSkeletonActor->getModel( )->addRoughnessTexture( modelTexture );
             }
 		} 
-        else if ( filePath.find( "_E" ) != std::string::npos ) 
+        else if ( filePath.find( "_E." ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
@@ -999,7 +1008,7 @@ void Application::onDragAndDropFile( std::string filePath )
                 selectedSkeletonActor->getModel( )->addEmissionTexture( modelTexture );
             }
         } 
-        else if ( filePath.find( "_I" ) != std::string::npos ) 
+        else if ( filePath.find( "_I." ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );

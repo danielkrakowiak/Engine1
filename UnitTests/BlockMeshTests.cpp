@@ -120,8 +120,8 @@ namespace UnitTests {
 
 			try {
 				mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
-
-				Assert::IsTrue( mesh->isInCpuMemory(), L"BlockMesh::isInCpuMemory() returned false" );
+				
+                Assert::IsTrue( mesh->isInCpuMemory(), L"BlockMesh::isInCpuMemory() returned false" );
 				Assert::IsFalse( mesh->isInGpuMemory(), L"BlockMesh::isInGpuMemory() returned true" );
 			} catch ( ... ) {
 				Assert::Fail( L"BlockMesh::createFromFile() threw an exception" );

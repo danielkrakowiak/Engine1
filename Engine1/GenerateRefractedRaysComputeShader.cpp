@@ -54,7 +54,7 @@ void GenerateRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& dev
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitPositionTexture,
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitNormalTexture,
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& rayHitRoughnessTexture,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& reflectionTermTexture )
+                                                                 const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& refractionTermTexture )
 {
     if ( !compiled ) throw std::exception( "GenerateRefractedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
@@ -65,7 +65,7 @@ void GenerateRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& dev
             rayHitPositionTexture.getShaderResourceView(), 
             rayHitNormalTexture.getShaderResourceView(),
             rayHitRoughnessTexture.getShaderResourceView(),
-            reflectionTermTexture.getShaderResourceView()
+            refractionTermTexture.getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );

@@ -170,6 +170,9 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 	}
 
 	{ // Configure and set shaders.
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
+            = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *defaultAlphaTexture;
+
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
             = model.getEmissionTexturesCount() > 0 ? *model.getEmissionTexture( 0 ).getTexture() : *defaultEmissiveTexture;
 
@@ -189,7 +192,7 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
             = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *defaultIndexOfRefractionTexture;
 
 		blockModelVertexShader->setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix );
-		blockModelFragmentShader->setParameters( *deviceContext.Get( ), emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
+		blockModelFragmentShader->setParameters( *deviceContext.Get( ), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
 
 		rendererCore.enableRenderingShaders( blockModelVertexShader, blockModelFragmentShader );
 	}
@@ -225,6 +228,9 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
 	}
 
 	{ // Configure and set shaders.
+        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
+            = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *defaultAlphaTexture;
+
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
             = model.getEmissionTexturesCount() > 0 ? *model.getEmissionTexture( 0 ).getTexture() : *defaultEmissiveTexture;
 
@@ -244,7 +250,7 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
             = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *defaultIndexOfRefractionTexture;
 
 		skeletonModelVertexShader->setParameters( *deviceContext.Get( ), worldMatrix, viewMatrix, perspectiveProjectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
-		skeletonModelFragmentShader->setParameters( *deviceContext.Get(), emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
+		skeletonModelFragmentShader->setParameters( *deviceContext.Get(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
 
 		rendererCore.enableRenderingShaders( skeletonModelVertexShader, skeletonModelFragmentShader );
 	}
@@ -544,30 +550,34 @@ void Direct3DDeferredRenderer::disableRenderTargets()
 
 void Direct3DDeferredRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-	blockMeshVertexShader->compileFromFile( "../Engine1/Shaders/BlockMeshShader/vs.hlsl", device );
-	blockMeshFragmentShader->compileFromFile( "../Engine1/Shaders/BlockMeshShader/ps.hlsl", device );
+	blockMeshVertexShader->compileFromFile( "Shaders/BlockMeshShader/vs.hlsl", device );
+	blockMeshFragmentShader->compileFromFile( "Shaders/BlockMeshShader/ps.hlsl", device );
 
-	skeletonMeshVertexShader->compileFromFile( "../Engine1/Shaders/SkeletonMeshShader/vs.hlsl", device );
-	skeletonMeshFragmentShader->compileFromFile( "../Engine1/Shaders/SkeletonMeshShader/ps.hlsl", device );
+	skeletonMeshVertexShader->compileFromFile( "Shaders/SkeletonMeshShader/vs.hlsl", device );
+	skeletonMeshFragmentShader->compileFromFile( "Shaders/SkeletonMeshShader/ps.hlsl", device );
 
-	blockModelVertexShader->compileFromFile( "../Engine1/Shaders/BlockModelShader/vs.hlsl", device );
-	blockModelFragmentShader->compileFromFile( "../Engine1/Shaders/BlockModelShader/ps.hlsl", device );
+	blockModelVertexShader->compileFromFile( "Shaders/BlockModelShader/vs.hlsl", device );
+	blockModelFragmentShader->compileFromFile( "Shaders/BlockModelShader/ps.hlsl", device );
 
-	skeletonModelVertexShader->compileFromFile( "../Engine1/Shaders/SkeletonModelShader/vs.hlsl", device );
-	skeletonModelFragmentShader->compileFromFile( "../Engine1/Shaders/SkeletonModelShader/ps.hlsl", device );
+	skeletonModelVertexShader->compileFromFile( "Shaders/SkeletonModelShader/vs.hlsl", device );
+	skeletonModelFragmentShader->compileFromFile( "Shaders/SkeletonModelShader/ps.hlsl", device );
 
-	textVertexShader->compileFromFile( "../Engine1/Shaders/TextShader/vs.hlsl", device );
-	textFragmentShader->compileFromFile( "../Engine1/Shaders/TextShader/ps.hlsl", device );
+	textVertexShader->compileFromFile( "Shaders/TextShader/vs.hlsl", device );
+	textFragmentShader->compileFromFile( "Shaders/TextShader/ps.hlsl", device );
 }
 
 void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )
 {
+    std::vector< unsigned char > dataAlpha             = { 255 };
     std::vector< unsigned char > dataMetalness         = { 180 };
     std::vector< unsigned char > dataRoughness         = { 150 };
     std::vector< unsigned char > dataIndexOfRefraction = { 120 };
     std::vector< uchar4 >        dataEmissive          = { uchar4( 0, 0, 0, 255 ) };
     std::vector< uchar4 >        dataAlbedo            = { uchar4( 0, 0, 0, 255 ) };
     std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 0 ) };
+
+    defaultAlphaTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+        ( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
     defaultMetalnessTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
         ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );

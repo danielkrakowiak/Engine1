@@ -74,6 +74,7 @@ void SkeletonModelFragmentShader::compileFromFile( std::string path, ID3D11Devic
 }
 
 void SkeletonModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
+                                                 const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture,
                                                  const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
                                                  const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
                                                  const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
@@ -81,9 +82,10 @@ void SkeletonModelFragmentShader::setParameters( ID3D11DeviceContext& deviceCont
                                                  const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
                                                  const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture )
 {
-	const int resourceCount = 6;
+	const int resourceCount = 7;
 	ID3D11ShaderResourceView* textureResource[ resourceCount ] = 
     {
+        alphaTexture.getShaderResourceView(),
         emissiveTexture.getShaderResourceView(),
         albedoTexture.getShaderResourceView(),
         normalTexture.getShaderResourceView(),
@@ -98,9 +100,9 @@ void SkeletonModelFragmentShader::setParameters( ID3D11DeviceContext& deviceCont
 
 void SkeletonModelFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-	ID3D11ShaderResourceView* nullResources[] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	ID3D11ShaderResourceView* nullResources[] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	ID3D11SamplerState*       nullSampler = nullptr;
 
-	deviceContext.PSSetShaderResources( 0, 6, nullResources );
+	deviceContext.PSSetShaderResources( 0, 7, nullResources );
 	deviceContext.PSSetSamplers( 0, 1, &nullSampler );
 }

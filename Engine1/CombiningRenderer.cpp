@@ -220,7 +220,7 @@ ComPtr<ID3D11BlendState> CombiningRenderer::createBlendState( ID3D11Device& devi
 
 void CombiningRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    combiningVertexShader->compileFromFile( "../Engine1/Shaders/CombiningShader/vs.hlsl", device );
-    combiningFragmentShader->compileFromFile( "../Engine1/Shaders/CombiningShader/ps.hlsl", device );
-    combiningFragmentShader2->compileFromFile( "../Engine1/Shaders/CombiningShader/ps2.hlsl", device );
+    combiningVertexShader->compileFromFile( "Shaders/CombiningShader/vs.hlsl", device );
+    combiningFragmentShader->compileFromFile( "Shaders/CombiningShader/ps.hlsl", device );
+    combiningFragmentShader2->compileFromFile( "Shaders/CombiningShader/ps2.hlsl", device );
 }
