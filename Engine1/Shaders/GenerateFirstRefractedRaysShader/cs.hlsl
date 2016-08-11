@@ -63,7 +63,7 @@ void main( uint3 groupId : SV_GroupID,
     if ( dot(primaryRayDir, surfaceNormal) > 0.0f )
         surfaceNormal = -surfaceNormal;
 
-    const float3 secondaryRayDir    = calcRefractedRay( primaryRayDir, surfaceNormal, 1.0f );
+    const float3 secondaryRayDir    = calcRefractedRay( primaryRayDir, surfaceNormal, 0.8f );
     const float3 secondaryRayOrigin = surfacePosition + secondaryRayDir * 0.01f; // Modify ray origin to avoid self-collisions.
 
     g_rayOrigin[ dispatchThreadId.xy ]    = float4( secondaryRayOrigin, 0.0f );

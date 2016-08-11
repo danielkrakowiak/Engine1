@@ -101,7 +101,6 @@ void RefractionShadingComputeShader::setParameters( ID3D11DeviceContext& deviceC
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
         dataPtr->cameraPos = cameraPos;
-        dataPtr->level     = level;
 
         deviceContext.Unmap( constantInputBuffer.Get(), 0 );
 

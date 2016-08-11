@@ -113,32 +113,26 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 
 void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture, 
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture, 
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                              const float normalThreshold,
                                              const float positionThreshold,
                                              const float3 cameraPosition )
 {
     { // Set input textures.
-        resourceCount = 9;
+        resourceCount = 6;
         std::vector< ID3D11ShaderResourceView* > resources;
         resources.reserve( resourceCount );
 
         resources.push_back( srcTexture->getShaderResourceView() );
-        resources.push_back( reflectionTermTexture->getShaderResourceView() );
+        resources.push_back( contributionTermTexture->getShaderResourceView() );
         resources.push_back( normalTexture->getShaderResourceView() );
         resources.push_back( positionTexture->getShaderResourceView() );
         resources.push_back( depthTexture->getShaderResourceView() );
         resources.push_back( hitDistanceTexture->getShaderResourceView() );
-        resources.push_back( albedoTexture->getShaderResourceView() );
-        resources.push_back( metalnessTexture->getShaderResourceView() );
-        resources.push_back( roughnessTexture->getShaderResourceView() );
 
         deviceContext.PSSetShaderResources( 0, (UINT)resources.size(), resources.data() );
     }

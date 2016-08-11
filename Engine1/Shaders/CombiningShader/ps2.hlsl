@@ -1,13 +1,10 @@
 Texture2D<float4> g_colorTexture          : register( t0 );
-Texture2D<float4> g_reflectionTermTexture : register( t1 );
+Texture2D<float4> g_contributionTermRoughnessTexture : register( t1 );
 Texture2D<float4> g_normalTexture         : register( t2 );
 Texture2D<float4> g_positionTexture       : register( t3 );
 Texture2D<float>  g_depthTexture          : register( t4 );
 Texture2D<float>  g_hitDistanceTexture    : register( t5 );
-Texture2D<float4> g_albedoTexture         : register( t6 );
-Texture2D<float>  g_metalnessTexture      : register( t7 );
-Texture2D<float>  g_roughnessTexture      : register( t8 );
-Texture2D<float4> g_rayOriginTexture      : register( t9 );
+Texture2D<float4> g_rayOriginTexture      : register( t6 );
 
 SamplerState g_pointSamplerState  : register( s0 );
 SamplerState g_linearSamplerState : register( s1 );
@@ -49,8 +46,6 @@ static const float hitDistanceBlendOut = 200.0f; // Should be less than the init
 static const float blurRadiusFadeMin = 50.0f;
 static const float blurRadiusFadeMax = 100.0f;
 
-static const float3 dielectricSpecularColor = float3( 0.04f, 0.04f, 0.04f );
-
 // Idea: Could check which level normal differs from highest level normal to learn how far from the edge center pixel is.
 // IDEA: Could use depth to decide the maximum sampling level. It's because when we are very close to the object, there is more flat surface on the screen.
 // IDEA: When depth is below 1 - skip taking log2 from it. log2 is too steep below 1. Use depth directly or something else.
@@ -83,9 +78,7 @@ static const float3 dielectricSpecularColor = float3( 0.04f, 0.04f, 0.04f );
 // - perceived blur changed when moving camera closer/farther to the reflective surface. Should be the same. Only the distance from the reflective surface to the object should changed perceived blur.
 
 float linearizeDepth( float depthSample );
-float3 calculateFresnel( float3 specularColor, float3 dirToCamera, float3 surfaceNormal );
 float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal );
-float3 calculateReflectionOutputColor( float3 surfaceSpecularColor, float surfaceRoughness, float3 surfaceNormal, float3 lightColor, float3 dirToLight, float3 dirToCamera );
 
 float4 main(PixelInputType input) : SV_Target
 {
@@ -133,7 +126,7 @@ float4 main(PixelInputType input) : SV_Target
     //    return float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
     const float roughnessMult = 75.0f;
-    const float roughness = roughnessMult * g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
+    const float roughness = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).a/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
     float blurRadius = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( depth + 1.0f ) );// * tan( roughness * PiHalf );
 
     //const float alpha = 1.0f - min( 1.0f,  max( 0.0f, blurRadius - blurRadiusFadeMin ) / ( blurRadiusFadeMax - blurRadiusFadeMin ) );
@@ -151,16 +144,7 @@ float4 main(PixelInputType input) : SV_Target
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
     const float3 centerPosition = g_positionTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
 
-    const float3 dirToCamera = normalize( cameraPosition - centerPosition );
-    const float3 dirToReflectionSource = normalize( calcReflectedRay( -dirToCamera, centerNormal ) );
-
-    const float3 surfaceAlbedo    = g_albedoTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).rgb;
-    const float  surfaceMetalness = g_metalnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
-    const float  surfaceRoughness = g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
-
-    const float3 reflectionTerm = g_reflectionTermTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).rgb;
-    
-    float3 surfaceSpecularColor = lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
+    const float3 contributionTerm = g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).rgb;
     
     float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 
@@ -266,7 +250,7 @@ float4 main(PixelInputType input) : SV_Target
         }
     }
 
-    float3 outputColor = reflectionTerm * reflectionColor.rgb; //calculateReflectionOutputColor( surfaceSpecularColor, surfaceRoughness, centerNormal, reflectionColor.rgb, dirToReflectionSource, dirToCamera );
+    float3 outputColor = contributionTerm * reflectionColor.rgb;
 	return float4( outputColor, 1.0f );
 }
 
@@ -276,29 +260,6 @@ float linearizeDepth( float depthSample )
     float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthSample * (zFar - zNear));
 
     return zLinear;
-}
-
-// Schlick approximation. Modified by me to be used for reflections (no idea if it's correct).
-float3 calculateFresnel( float3 specularColor, float3 dirToCamera, float3 surfaceNormal )
-{
-    return specularColor + (( 1.0f - specularColor ) * pow( 1.0f - max( 0.0f, dot( dirToCamera, surfaceNormal ) ), 5.0f ));
-}
-
-float3 calculateReflectionOutputColor( float3 surfaceSpecularColor, float surfaceRoughness, float3 surfaceNormal, float3 lightColor, float3 dirToLight, float3 dirToCamera )
-{
-    float3 halfDir = normalize( dirToLight + dirToCamera );
-
-    const float normalViewDot = dot( surfaceNormal, dirToCamera );
-
-    // Fresnel term. Schlick Approximation.
-    const float3 fresnel = surfaceSpecularColor + (( 1.0f - surfaceSpecularColor ) * pow( 1.0f - max( 0.0f, normalViewDot), 5.0f ));
-
-    // We normalize specular color because it doesn't influence the amount of reflection directly (only through fresnel), but rather the tint of it.
-    // We lerp, bacause at glancing angles, the light color is unaltered in reflection, but at normal incidence the light is modulated by the color of the metal.
-    // #TODO: Should the same theory be applied to specular shading?
-    const float3 tintColor = lerp( float3( 1.0f, 1.0f, 1.0f ), normalize(surfaceSpecularColor), normalViewDot );
-    
-    return fresnel * tintColor * lightColor;
 }
 
 // Reflects the vector which represents an incident ray hitting a surface.

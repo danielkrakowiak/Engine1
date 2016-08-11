@@ -4,8 +4,6 @@ cbuffer ConstantBuffer : register( b0 )
 {
     float3 cameraPos;
     float  pad1;
-    int    level;
-    float3 pad2;
 };
 
 // Input.

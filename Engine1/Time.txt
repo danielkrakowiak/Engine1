@@ -246,4 +246,5 @@ Wed 03.08.2016 - 2h - Adding debug display of render buffers at any level and co
 Sun 07.08.2016 - 3h - Fixed problem with refraction being black. Caused by overriding contribution term from lower levels by higher level reflections/refractions. Fixed by using a set of buffers per each level (wasteful!).
 Mon 08.08.2016 - 1h - Trying to fix refraction being too bright and being black for backfacing surfaces.
 Tue 09.08.2016 - 1h - Added debug rendering of texture alpha.
-Wed 10.08.2016 - 1h - Fixed problem with incorrect refraction - caused by inverting normal for front facing rays, instead of for back facing rays.
+Wed 10.08.2016 - 2h - Fixed problem with incorrect refraction - caused by inverting normal for front facing rays, instead of for back facing rays. Removed unnecessary inputs from combining shader.
+Thu 11.08.2016 - 2h - Started using accumulated roughness in combining shader (the one calculated during reflection/refraction shading). Fixed problem with overbright objects after refractions - fixed by using alpha to decrease shaded color. Fixed incorrect default alpha in raytracer.

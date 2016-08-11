@@ -48,8 +48,6 @@ namespace Engine1
         {
             float3 cameraPos;
             float  pad1;
-            int    level;
-            float3 pad2;
         };
 
         // Copying is not allowed.

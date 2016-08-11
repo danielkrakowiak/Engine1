@@ -256,7 +256,7 @@ void Application::run() {
         if ( windowFocused && !movingObjects && inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
             const float cameraRotationSensitivity = 0.0001f;
 
-            const float acceleration = 7.0f;
+            const float acceleration = 2.0f;
 
             if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTimeMs * acceleration );
             else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTimeMs * acceleration );
@@ -610,7 +610,9 @@ void Application::onKeyPress( int key )
         renderer.setMaxLevelCount( std::min( 10, renderer.getMaxLevelCount() + 1 ) );
     else if ( key == InputManager::Keys::minus && inputManager.isKeyPressed( InputManager::Keys::shift ) )
         renderer.setMaxLevelCount( std::max( 0, renderer.getMaxLevelCount() - 1 ) );
-    else if ( key == InputManager::Keys::plus )
+    else if ( key == InputManager::Keys::plus && inputManager.isKeyPressed( InputManager::Keys::r ) )
+        renderer.activateNextViewLevel( true );
+    else if ( key == InputManager::Keys::plus && inputManager.isKeyPressed( InputManager::Keys::t ) )
         renderer.activateNextViewLevel( false );
     else if ( key == InputManager::Keys::minus )
         renderer.activatePrevViewLevel();

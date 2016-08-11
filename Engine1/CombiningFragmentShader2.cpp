@@ -113,32 +113,26 @@ void CombiningFragmentShader2::compileFromFile( std::string path, ID3D11Device& 
 
 void CombiningFragmentShader2::setParameters( ID3D11DeviceContext& deviceContext, 
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture, 
+                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture, 
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousHitAlbedoTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitMetalnessTexture,
-                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitRoughnessTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture,
                                              const float normalThreshold,
                                              const float positionThreshold )
 {
     { // Set input textures.
-        resourceCount = 10;
+        resourceCount = 7;
         std::vector< ID3D11ShaderResourceView* > resources;
         resources.reserve( resourceCount );
 
         resources.push_back( srcTexture->getShaderResourceView() );
-        resources.push_back( reflectionTermTexture->getShaderResourceView() );
+        resources.push_back( contributionTermTexture->getShaderResourceView() );
         resources.push_back( previousHitNormalTexture->getShaderResourceView() );
         resources.push_back( previousHitPositionTexture->getShaderResourceView() );
         resources.push_back( previousHitDistanceTexture->getShaderResourceView() );
         resources.push_back( hitDistanceTexture->getShaderResourceView() );
-        resources.push_back( previousHitAlbedoTexture->getShaderResourceView() );
-        resources.push_back( previousHitMetalnessTexture->getShaderResourceView() );
-        resources.push_back( previousHitRoughnessTexture->getShaderResourceView() );
         resources.push_back( previousRayOriginTexture->getShaderResourceView() );
 
         deviceContext.PSSetShaderResources( 0, (UINT)resources.size(), resources.data() );

@@ -44,13 +44,14 @@ void main( uint3 groupId : SV_GroupID,
     const float3 surfacePosition          = g_positionTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfaceEmissive          = g_emissiveTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfaceAlbedo            = g_albedoTexture[ dispatchThreadId.xy ].xyz;
+    const float  surfaceAlpha             = g_albedoTexture[ dispatchThreadId.xy ].w;
     const float  surfaceMetalness         = g_metalnessTexture[ dispatchThreadId.xy ];
     const float  surfaceRoughness         = g_roughnessTexture[ dispatchThreadId.xy ];
     const float3 surfaceNormal            = g_normalTexture[ dispatchThreadId.xy ].xyz;
     const float  surfaceIndexOfRefraction = g_indexOfRefractionTexture[ dispatchThreadId.xy ];
     
-    float3 surfaceDiffuseColor  = (1.0f - surfaceMetalness) * surfaceAlbedo;
-    float3 surfaceSpecularColor = lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
+    float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
+    float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
 
     float4 outputColor = float4( surfaceEmissive, 1.0f );
 

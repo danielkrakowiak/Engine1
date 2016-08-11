@@ -45,9 +45,6 @@ namespace Engine1
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                       const float3 cameraPosition );
 
         void combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
@@ -57,9 +54,6 @@ namespace Engine1
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousHitAlbedoTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitMetalnessTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitRoughnessTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture );
 
         void  setNormalThreshold( float threshold );

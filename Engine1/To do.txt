@@ -74,15 +74,11 @@ For later ######################################################################
 
 - Refactor Font and FontCharacter classes.
 
-- for methods - opening bracket in the next line. Refactor.
-
 - in BlockMesh, SkeletonMesh buffer getters should return reference?
 
 - 3d text rendering
 
 - make RectangleMesh derive from BlockMesh (to be able to render it with BlockMeshShader) ?
-
-- shouldn't shader path be hardcoded in the shader class? Why two instances of BlockMeshShader can have different path? Is that useful and correct?
 
 Next2:
 
@@ -114,7 +110,6 @@ Next2:
      Then, there would be no need to send a seperate buffer to GPU just to mark which triangles are in BVH nodes. Nodes would already contain triangles from mesh triangle list.
 
 	 - textures which use float4 for vectors (rayDir, rayOrigin etc) could use float3, because such format exists.
-	   Also, there is no point in storing normals in float2 if it's possible to store them in float3 format.
 
 	 - add loading (drag&drop) animations and applying it to the default skeleton model if they match.
 	   Would be good to check if they still work and check how reflections look for them.
@@ -130,10 +125,6 @@ Next2:
 
 	- add g-buffer name display in the corner - how to do it elegantly? These are not full rgba textures...
 
-	- pass lights to the shading shader
-
-	- add PBR shading
-
 	- final blurring of reflections: sample mipmap one/two levels less blurry than you need (with/without filtering? any cost? use filtering between points) 
 	  and then apply 5x5 gaussian blurr to smoothen pixel borders. Or similar.
 	  Must read before!!! : https://bartwronski.com/2014/03/23/gdc-follow-up-screenspace-reflections-filtering-and-up-sampling/
@@ -141,8 +132,6 @@ Next2:
 	  - should measure the cost of generating mipmaps for the color target! Compare it with cost of running blur kernels.
 
 	  - the problem is bleeding reflections through the edges - note it down somewhere.
-
-	  - add removing actors from the scene on delete key.
 
 	  - create a edge-detection shader which writes distance to the nearest "reflection edge" based on position/normal/ray direction whatever.. Could use multiple passes and shaders.
 
@@ -160,38 +149,18 @@ Next2:
 
 	  - instead of texture array for reflection upscaled mipmaps use 3d texture. It allows for sampling between layers based on dynamic, float level.
 
-	  - why rendering from one mipmap level to another doesn't work?
-
-	  - add proper shading
-
 	  ////////////////////
-
-	  - why blending (add operation) doesn't work when combining reflection with main image?
-
-	  - add fresnel to reflections
-
-	  - when cloning an actor it's model should be cloned. Should I use copy constructor or create a separate clone() method?
-
-	  - add cloning actors/models/meshes etc - it will facilitate creating test scenes
-	  - add replacing texutres and meshes on actor when holding Ctrl during drag&drop
 
 	  - why unsigned char textures are displayed/loaded with artifacts? Add texture path to debug name.
 
 	  - IMPORTANT: FreeImage has some trouble loading grayscale png image. What's the problem?
 
-	  - add reading roughness from texture instead of using hardcoded value.
-	  - add passing light positions/params to shaders. Implement multiple lights in shading.
 	  - add modifying light params using keyboard shortcuts.
 
 	  Test this idea:
 
 	  - try decreasing far neighbors weigth and check how it influences image. It mimics how most rays reflect near center ray, so they have bigger impact.
 
-	  - maybe use two raytrace renderers like double buffers. One stores all the data of previous level rays. The other traces new rays. 
-
-	  - how to deal with reflected/refracted ray directions with multiple bounces. How to reduce the memory footprint? Can we avoid storing all of them?
-
-	  - add debug render for any level of reflection or refraction
 
 	  * To allow for recursive ray tracing:
 	  - accumulate specular term multiplier (something like combined surface param)
@@ -278,59 +247,40 @@ Implementation order:
 Idea:
 - when calculatin range of a light source - it's bounding volume doesn't have to be a sphere. The more precise the bounding volume to more calculations we save. Maybe even a few volumes could describe a lights range?
 
-
-
-
 ----------------------------
 
-	  - make sure rays which are not needed are not raytraced. Ray where reflection term is really low, or roughness is maximal etc. After a few levels there should be few rays traced?
-
-	  - Make sure to enable/disable backface culling whn raytracing rays when neccessary. (needed when tracing refracted rays, not needed when tracing reflected rays). Two separate shaders?
-
-	  - transmission term is = 1 - reflection term.
-
 	  - should I rename refration into transmission? To differentiate them more..
-
-	  - use more complex fresnel term calculation - because schlick approximation doesn't work when refraction index1 is greater than refraction index2.
-	  - but in shading i may still use schlick approx, becaise we always account for light which are in front of the surface.
 
 	  - we probably need to store current ray refraction index - the whole history for each ray - as many buffers as there is for reflection/transmission term.
 	  - if we hit surface from inside (deduced from normal), than we need to invert refraction index? How to know refractive index of air, water if we are in one mesh, inside another and another etc?
 
 	  - rename albedo render targets to albedoAlpha.
 
-	  - BUG: (Probably fixed) Alpha is not saved to the albedo render targets when tracing rays. It causes second refraction to be zero.
-
-	  - BUG: Refractions don't work because of the recurrent calls. What's wrong? Is refraction reading contribution term from too high level, which is reflection term which is zero and applying it?
-
 	  - rename reflectionTerm texture in combining shader and classes. Should be called contributionTerm. Check for incorrect assumption regarding reflection/refraction too.
 
-	  - how to add debug rednering when there are so many layers at the same level?
-
-
-	  BIIIIIIG PROBLEM: !!!!!!!!!!!!!!!!!!!!!!
-	  - as we mix reflections and refrections, when we render reflections up to some level and then go down to render refractions - prev raytracer has wrong conent in buffers. 
-	  At level 2 it's assumed to contain data from level 1, but it may contain data from level 5 (reflections).
-	  - Do I have to have one raytracer per level? Do I need all of the raytracer's data buffers?
-
-	  Let's keep one raytracer per level - around 60 MB per level for full resolution.
-
-
-	  
-
+	  - experiment with increasing minimal contribtuion for the ray to be generated and traced. How high can we go for higher levels?
 
 	  http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
 
-	  - look like the light gts trapped inside of objects and doesn't get refracted to the outside. Why is that? Index of refraction?
-
 	  - add exceptions and check if wrong level is passed to reflectionrefraction renderer.
 	  - remove unnecessary 'level' and 'prev contribution term' from firstreflectionshading and firstrefractionshading.
-
-	  - IMPORTANT: do I take the right cameraPos in reflectionShading and refractionShading? It seems i take cameraPos via constant buffer, but for higher levels i should read it from buffers as ray origins.
 	  
-	  - IMPORTANT2: Is accumulated roughness read in combining shader? Or is it taken from deffered renderer buffers?
 	  -----------------------------
 
 	  - PERFORMANCE IDEA: higher level reflections/refractions could be calculated with smaller work groups - because only some pixels in the group need to be traced and many are black. Large groups cause waste of cores.
 
-	  - get rid of useless inputs for combinign shader. Use only contribution term.
+	  - MINOR: do we really care about solid object having reflections from backfacing triangles? Like inside a glass wall or aquarium wall? How could we ignore it elegantly with customization?
+
+	  - shading is incorrect for reflection (possibly refraction too). 
+	  When something has white albedo and high metalness, I should not see white albedo in reflection but only the reflected color. At least I think so...
+	  Commenting out specular part in reflection shading fixes the problem. But what should I really do? Or it actually works when roughness is really low.
+
+	  - should alpha impact the surface color used for shading? Yes. Should it also impact shading reflections?
+
+	  - skybox default alpha?
+
+	  - IMPORTANT: why everything gets so bright after multiple refractions / reflections? - It's probably because of shaded color on white, transparent surfaces.
+
+	  - alpha is not displayed correctly for higher levels? Or is alpha wrong for higher levels?
+
+	  - NEXT: dealing with varying refraction index.

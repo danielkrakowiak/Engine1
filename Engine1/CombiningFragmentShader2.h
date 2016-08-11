@@ -24,14 +24,11 @@ namespace Engine1
         void compileFromFile( std::string path, ID3D11Device& device );
         void setParameters( ID3D11DeviceContext& deviceContext,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture, 
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture, 
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousHitAlbedoTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitMetalnessTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitRoughnessTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture,
                             const float normalThreshold,
                             const float positionThreshold );

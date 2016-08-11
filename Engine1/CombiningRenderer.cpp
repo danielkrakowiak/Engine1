@@ -63,9 +63,6 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                  const float3 cameraPosition )
 {
     if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
@@ -83,7 +80,7 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
 	{ // Configure and enable shaders.
 		combiningVertexShader->setParameters( *deviceContext.Get() );
 		combiningFragmentShader->setParameters( *deviceContext.Get(), srcTexture, reflectionTermTexture, normalTexture, positionTexture, depthTexture, hitDistanceTexture,
-                                                albedoTexture, metalnessTexture, roughnessTexture, normalThreshold, positionThreshold, cameraPosition );
+                                                normalThreshold, positionThreshold, cameraPosition );
 
 		rendererCore.enableRenderingShaders( combiningVertexShader, combiningFragmentShader );
 	}
@@ -105,9 +102,6 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousHitAlbedoTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitMetalnessTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > previousHitRoughnessTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture )
 {
     if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
@@ -125,7 +119,7 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
 	{ // Configure and enable shaders.
 		combiningVertexShader->setParameters( *deviceContext.Get() );
 		combiningFragmentShader2->setParameters( *deviceContext.Get(), srcTexture, reflectionTermTexture, previousHitNormalTexture, previousHitPositionTexture, previousHitDistanceTexture, hitDistanceTexture,
-                                                previousHitAlbedoTexture, previousHitMetalnessTexture, previousHitRoughnessTexture, previousRayOriginTexture, normalThreshold, positionThreshold );
+                                                previousRayOriginTexture, normalThreshold, positionThreshold );
 
 		rendererCore.enableRenderingShaders( combiningVertexShader, combiningFragmentShader2 );
 	}

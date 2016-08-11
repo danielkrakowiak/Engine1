@@ -89,3 +89,9 @@ https://bartwronski.com/2014/01/25/the-future-of-screenspace-reflections/ - abou
 http://http.developer.nvidia.com/GPUGems3/gpugems3_ch28.html - about faking depth of field effect in games - similar problems with variable size blur radius.
 
 
+BIIIIIIG PROBLEM: !!!!!!!!!!!!!!!!!!!!!!
+	  - as we mix reflections and refrections, when we render reflections up to some level and then go down to render refractions - prev raytracer has wrong conent in buffers. 
+	  At level 2 it's assumed to contain data from level 1, but it may contain data from level 5 (reflections).
+	  - Do I have to have one raytracer per level? Do I need all of the raytracer's data buffers?
+
+

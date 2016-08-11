@@ -14,7 +14,7 @@ RWTexture2D<float4> g_rayDirection : register( u1 );
 static const float zNear = 0.1f;
 static const float zFar  = 1000.0f;
 
-static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
+static const float requiredContributionTerm = 0.35f; // Discard rays which color is visible in less than 5% by the camera.
 
 float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal );
 

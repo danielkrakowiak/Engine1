@@ -343,9 +343,6 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
                                 deferredRenderer.getPositionRenderTarget(), 
                                 deferredRenderer.getDepthRenderTarget(), 
                                 raytraceRenderer.getRayHitDistanceTexture( 0 ),
-                                deferredRenderer.getAlbedoRenderTarget(), 
-                                deferredRenderer.getMetalnessRenderTarget(), 
-                                deferredRenderer.getRoughnessRenderTarget(), 
                                 camera.getPosition() );
 }
 
@@ -394,9 +391,6 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                deferredRenderer.getPositionRenderTarget(), 
                                deferredRenderer.getDepthRenderTarget(), 
                                raytraceRenderer.getRayHitDistanceTexture( 0 ),
-                               deferredRenderer.getAlbedoRenderTarget(), 
-                               deferredRenderer.getMetalnessRenderTarget(), 
-                               deferredRenderer.getRoughnessRenderTarget(), 
                                camera.getPosition() );
 }
 
@@ -440,9 +434,6 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
                                raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
                                deferredRenderer.getDepthRenderTarget(), 
                                raytraceRenderer.getRayHitDistanceTexture( level - 1 ), // ARRRRREEEEEEEEE YOU SUUUUREEEEEEEEEEEE???????
-                               raytraceRenderer.getRayHitAlbedoTexture( level - 2 ), 
-                               raytraceRenderer.getRayHitMetalnessTexture( level - 2 ), 
-                               raytraceRenderer.getRayHitRoughnessTexture( level - 2 ), 
                                camera.getPosition() );
 }
 
@@ -485,9 +476,6 @@ void Renderer::renderRefractions( const int level, const Camera& camera, const s
                                raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
                                deferredRenderer.getDepthRenderTarget(), 
                                raytraceRenderer.getRayHitDistanceTexture( level - 1 ),
-                               raytraceRenderer.getRayHitAlbedoTexture( level - 2 ), 
-                               raytraceRenderer.getRayHitMetalnessTexture( level - 2 ), 
-                               raytraceRenderer.getRayHitRoughnessTexture( level - 2 ), 
                                camera.getPosition() );
 }
 

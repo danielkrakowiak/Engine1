@@ -4,8 +4,6 @@ cbuffer ConstantBuffer : register( b0 )
 {
     float3 cameraPos;
     float  pad1;
-    int    level;
-    float3 pad2;
 };
 
 // Input.
@@ -14,7 +12,6 @@ Texture2D<float4> g_normalTexture                      : register( t1 );
 Texture2D<float4> g_albedoTexture                      : register( t2 );
 Texture2D<float>  g_metalnessTexture                   : register( t3 );
 Texture2D<float>  g_roughnessTexture                   : register( t4 );
-Texture2D<float4> g_prevContributionTermRoughnessTexture : register( t5 ); // TODO: Not needed anymore.
 
 // Output.
 RWTexture2D<float4> g_contributionTermRoughnessTexture : register( u0 ); 
@@ -38,7 +35,7 @@ void main( uint3 groupId : SV_GroupID,
     const float3 surfacePosition  = g_positionTexture[ dispatchThreadId.xy ].xyz;
     float3       surfaceNormal    = g_normalTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfaceAlbedo    = g_albedoTexture[ dispatchThreadId.xy ].xyz;
-    //const float  surfaceAlpha     = g_albedoTexture[ dispatchThreadId.xy ].w;
+    //const float  surfaceAlpha     = g_albedoTexture[ dispatchThreadId.xy ].w; // #TODO: Is alpha important here? Does it influence how much reflection is going?
     const float  surfaceMetalness = g_metalnessTexture[ dispatchThreadId.xy ];
     const float  surfaceRoughness = g_roughnessTexture[ dispatchThreadId.xy ];
     

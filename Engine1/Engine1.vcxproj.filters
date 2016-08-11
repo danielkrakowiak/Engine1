@@ -295,9 +295,6 @@
     <Filter Include="Header Files\Shader\TextureRescale">
       <UniqueIdentifier>{22885fb1-8f59-456f-ae79-3faf97e19e85}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shader\GenerateFirstReflectedRefractedRays">
-      <UniqueIdentifier>{bf5a5b0f-8e03-4525-ad9b-0ef3a2be9beb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Shader\GenerateFirstReflectedRefractedRays">
       <UniqueIdentifier>{868a2301-3bb6-4cb7-93f3-dce774de2875}</UniqueIdentifier>
     </Filter>
@@ -330,6 +327,9 @@
     </Filter>
     <Filter Include="Source Files\Shader\RefractionShading">
       <UniqueIdentifier>{f8a50721-7235-4b15-a440-3629eb049cfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateFirstReflectedRays">
+      <UniqueIdentifier>{bf5a5b0f-8e03-4525-ad9b-0ef3a2be9beb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1068,7 +1068,7 @@
       <Filter>Source Files\Shader\GenerateReflectedRays</Filter>
     </ClCompile>
     <ClCompile Include="GenerateFirstReflectedRaysComputeShader.cpp">
-      <Filter>Source Files\Shader\GenerateFirstReflectedRefractedRays</Filter>
+      <Filter>Source Files\Shader\GenerateFirstReflectedRays</Filter>
     </ClCompile>
     <ClCompile Include="GenerateFirstRefractedRaysComputeShader.cpp">
       <Filter>Source Files\Shader\GenerateFirstRefractedRays</Filter>
@@ -1192,7 +1192,7 @@
       <Filter>Source Files\Shader\GenerateReflectedRays</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\GenerateFirstReflectedRaysShader\cs.hlsl">
-      <Filter>Source Files\Shader\GenerateFirstReflectedRefractedRays</Filter>
+      <Filter>Source Files\Shader\GenerateFirstReflectedRays</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\GenerateFirstRefractedRaysShader\cs.hlsl">
       <Filter>Source Files\Shader\GenerateFirstRefractedRays</Filter>

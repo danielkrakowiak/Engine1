@@ -68,24 +68,20 @@ void ReflectionShadingComputeShader::compileFromFile( std::string path, ID3D11De
 void ReflectionShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos, const int level,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                                    /*const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,*/
-                                                    /*const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,*/
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-                                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousContributionTermRoughnessTexture )
+                                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture )
 {
     if ( !compiled ) throw std::exception( "ReflectionShadingComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 6;
+        const unsigned int resourceCount = 5;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             positionTexture->getShaderResourceView(),
             normalTexture->getShaderResourceView(),
             albedoTexture->getShaderResourceView(),
             metalnessTexture->getShaderResourceView(),
-            roughnessTexture->getShaderResourceView(),
-            previousContributionTermRoughnessTexture ? previousContributionTermRoughnessTexture->getShaderResourceView() : nullptr
+            roughnessTexture->getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -101,7 +97,6 @@ void ReflectionShadingComputeShader::setParameters( ID3D11DeviceContext& deviceC
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
         dataPtr->cameraPos = cameraPos;
-        dataPtr->level     = level;
 
         deviceContext.Unmap( constantInputBuffer.Get(), 0 );
 
