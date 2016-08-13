@@ -160,3 +160,7 @@ $RECYCLE.BIN/
 /DebugDirect3D/vs.cso
 /DebugDirect3D/ps.cso
 /DebugDirect3D/cs.cso
+
+# Had to add it in VS 2015, because Git Tool was failing to open them (as they were used by VS 2015) and it caused Git Tool to not see any changes to other files.
+/Engine1.VC.opendb
+/Engine1.VC.db

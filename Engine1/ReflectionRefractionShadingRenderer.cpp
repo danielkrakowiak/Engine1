@@ -55,7 +55,7 @@ void ReflectionRefractionShadingRenderer::performFirstReflectionShading( const C
 {
     rendererCore.disableRenderingPipeline();
 
-    reflectionShadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), 0, positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture );
+    reflectionShadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture );
 
     rendererCore.enableComputeShader( reflectionShadingComputeShader );
 
@@ -110,7 +110,7 @@ void ReflectionRefractionShadingRenderer::performFirstRefractionShading( const C
 {
     rendererCore.disableRenderingPipeline();
 
-    refractionShadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), 0, positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture, nullptr );
+    refractionShadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture, nullptr );
 
     rendererCore.enableComputeShader( refractionShadingComputeShader );
 

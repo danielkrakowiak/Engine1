@@ -65,7 +65,7 @@ void RefractionShadingComputeShader::compileFromFile( std::string path, ID3D11De
     this->shaderId = ++compiledShadersCount;
 }
 
-void RefractionShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos, const int level,
+void RefractionShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                                     /*const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,*/

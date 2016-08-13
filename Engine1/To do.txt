@@ -271,16 +271,14 @@ Idea:
 
 	  - MINOR: do we really care about solid object having reflections from backfacing triangles? Like inside a glass wall or aquarium wall? How could we ignore it elegantly with customization?
 
+	  - why roughness, metalness etc are not displayed correctly in debug from deffered renderer?
+
 	  - shading is incorrect for reflection (possibly refraction too). 
 	  When something has white albedo and high metalness, I should not see white albedo in reflection but only the reflected color. At least I think so...
 	  Commenting out specular part in reflection shading fixes the problem. But what should I really do? Or it actually works when roughness is really low.
 
 	  - should alpha impact the surface color used for shading? Yes. Should it also impact shading reflections?
 
-	  - skybox default alpha?
-
-	  - IMPORTANT: why everything gets so bright after multiple refractions / reflections? - It's probably because of shaded color on white, transparent surfaces.
-
-	  - alpha is not displayed correctly for higher levels? Or is alpha wrong for higher levels?
-
 	  - NEXT: dealing with varying refraction index.
+
+	  - why mipmaps are not generated on gpu in TTexture? There is already a method for that in TTExtureSpecBind. Should we wait for CPU implemantation of generating mipmaps?

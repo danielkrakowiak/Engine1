@@ -120,7 +120,7 @@ namespace Engine1
         void createTextureOnGpu( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, 
                                  const bool generateMipmaps, DXGI_FORMAT textureFormat );
 
-        void createTextureViewsOnGpu( ID3D11Device& device, const int width, const int height, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+        void createTextureViewsOnGpu( ID3D11Device& device, const int width, const int height, const bool hasMipmaps, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
                                       DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat );
 
         virtual bool isUsageBindingSupported( TexUsage usage, TexBind binding );
@@ -297,7 +297,7 @@ namespace Engine1
 
         if ( storeOnGpu ) {
             createTextureOnGpu( device, m_dataMipmaps.front(), image.getWidth(), image.getHeight(), generateMipmaps, textureFormat );
-            createTextureViewsOnGpu( device, image.getWidth(), image.getHeight(), m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureViewsOnGpu( device, image.getWidth(), image.getHeight(), generateMipmaps, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
         if ( !storeOnCpu )
@@ -333,7 +333,7 @@ namespace Engine1
 
         if ( storeOnGpu ) {
             createTextureOnGpu( device, width, height, false, textureFormat );
-            createTextureViewsOnGpu( device, width, height, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureViewsOnGpu( device, width, height, false, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
         m_width           = width;
@@ -369,7 +369,7 @@ namespace Engine1
 
         if ( storeOnGpu ) {
             createTextureOnGpu( device, data, width, height, generateMipmaps, textureFormat );
-            createTextureViewsOnGpu( device, width, height, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureViewsOnGpu( device, width, height, generateMipmaps, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
         m_width           = width;
@@ -390,7 +390,7 @@ namespace Engine1
         m_height           = 0;
         m_hasMipmapsOnGpu  = false;
 
-        createTextureViewsOnGpu( device, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN );
+        createTextureViewsOnGpu( device, 0, 0, false, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN );
     }
 
     template< typename PixelType >
@@ -525,7 +525,7 @@ namespace Engine1
 
         // Note: for now, only texture which support mipmap generation on GPU can have mipmaps
         // TODO: add manual creation of mipmaps on CPU to allow for mipmaps for different kinds of textures.
-        const UINT mipmapCount = supportsMipmapGenerationOnGpu() ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
+        const UINT mipmapCount = supportsMipmapGenerationOnGpu() && generateMipmaps ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
 
         generateMipmaps; // Unused.
 
@@ -567,7 +567,7 @@ namespace Engine1
 
         // Note: for now, olny texture which support mipmap generation on GPU can have mipmaps.
         // TODO: add manual creation of mipmaps on CPU to allow for mipmaps for different kinds of textures.
-        const UINT mipmapCount = supportsMipmapGenerationOnGpu() ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
+        const UINT mipmapCount = supportsMipmapGenerationOnGpu() && generateMipmaps ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
 
         generateMipmaps; // Unused.
 
@@ -604,12 +604,12 @@ namespace Engine1
 
     template< typename PixelType >
     void Texture2DGeneric< PixelType >
-        ::createTextureViewsOnGpu( ID3D11Device& device, const int width, const int height, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
+        ::createTextureViewsOnGpu( ID3D11Device& device, const int width, const int height, const bool hasMipmaps, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
                                    DXGI_FORMAT depthStencilViewFormat, DXGI_FORMAT unorderedAccessViewFormat )
     {
         const UINT textureBindFlags = getTextureBindFlags();
 
-        const int mipmapCount = supportsMipmapGenerationOnGpu() ? (1 + (int)(floor( log2( std::max( width, height ) ) ))) : 1;
+        const int mipmapCount = supportsMipmapGenerationOnGpu() && hasMipmaps ? (1 + (int)(floor( log2( std::max( width, height ) ) ))) : 1;
 
         if ( (textureBindFlags & D3D11_BIND_SHADER_RESOURCE) != 0 ) {
             { // Create shader resource view to access all mipmap levels.
@@ -811,7 +811,7 @@ namespace Engine1
 
         if ( !isInGpuMemory() ) {
             createTextureOnGpu( device, m_dataMipmaps.front(), m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
-            createTextureViewsOnGpu( device, m_width, m_height, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureViewsOnGpu( device, m_width, m_height, getMipMapCountOnCpu() > 1, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         } else {
             if ( supportsLoadCpuToGpu() ) {
                 D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -827,7 +827,7 @@ namespace Engine1
             } else {
                 unloadFromGpu();
                 createTextureOnGpu( device, m_dataMipmaps.front(), m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
-                createTextureViewsOnGpu( device, m_width, m_height, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+                createTextureViewsOnGpu( device, m_width, m_height, getMipMapCountOnCpu() > 1, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
             }
         }
     }

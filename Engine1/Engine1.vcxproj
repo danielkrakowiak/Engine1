@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugDirect3D|Win32">
       <Configuration>DebugDirect3D</Configuration>
@@ -30,43 +30,44 @@
     <ProjectGuid>{33E69B51-7F8C-4488-9124-857B8E476DFC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Engine1</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -110,7 +111,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</IncludePath>
-    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib64;F:\Biblioteki\freetype-2.6\objs\vc2010\x64;F:\Biblioteki\boost_1_53_0_64bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
+    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib64;F:\Biblioteki\freetype-2.6\builds\windows\vc2015\x64\Debug;F:\Biblioteki\boost_1_53_0_64bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -188,7 +189,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG_DIRECT3D;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
