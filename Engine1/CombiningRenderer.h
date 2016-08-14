@@ -63,30 +63,30 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& rendererCore;
+        Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
 
-        bool initialized;
+        bool m_initialized;
 
         Microsoft::WRL::ComPtr< ID3D11RasterizerState > createRasterizerState( ID3D11Device& device );
         Microsoft::WRL::ComPtr< ID3D11BlendState >      createBlendState( ID3D11Device& device );
 
-        Microsoft::WRL::ComPtr< ID3D11RasterizerState > rasterizerState;
-        Microsoft::WRL::ComPtr< ID3D11BlendState >      blendState;
+        Microsoft::WRL::ComPtr< ID3D11RasterizerState > m_rasterizerState;
+        Microsoft::WRL::ComPtr< ID3D11BlendState >      m_blendState;
 
         // For debug.
-        float normalThreshold;   // Normals with dot higher than this threshold are treated as part of the same surface.
-        float positionThreshold; // Positions where each component is smaller than this threshold are treated as part of the same surface.
+        float m_normalThreshold;   // Normals with dot higher than this threshold are treated as part of the same surface.
+        float m_positionThreshold; // Positions where each component is smaller than this threshold are treated as part of the same surface.
 
         // Default mesh.
-        RectangleMesh rectangleMesh;
+        RectangleMesh m_rectangleMesh;
 
         // Shaders.
-        std::shared_ptr< CombiningVertexShader >    combiningVertexShader;
-        std::shared_ptr< CombiningFragmentShader >  combiningFragmentShader;
-        std::shared_ptr< CombiningFragmentShader2 > combiningFragmentShader2;
+        std::shared_ptr< CombiningVertexShader >    m_combiningVertexShader;
+        std::shared_ptr< CombiningFragmentShader >  m_combiningFragmentShader;
+        std::shared_ptr< CombiningFragmentShader2 > m_combiningFragmentShader2;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

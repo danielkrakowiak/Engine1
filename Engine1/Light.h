@@ -27,9 +27,9 @@ namespace Engine1
         Light( const float3& position, const float3& color );
         ~Light();
 
-        float3 position;
+        float3 m_position;
 
-        float3 color;
+        float3 m_color;
     };
 };
 

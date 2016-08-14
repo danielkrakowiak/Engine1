@@ -118,26 +118,26 @@ namespace Engine1
 
         private:
         static const unsigned int keyboardKeyCount = 256;
-        std::array<bool, keyboardKeyCount> keyboardButtonState;
+        std::array<bool, keyboardKeyCount> m_keyboardButtonState;
 
         static const unsigned int mouseButtonCount = 5;
-        std::array<bool, mouseButtonCount> mouseButtonState;
+        std::array<bool, mouseButtonCount> m_mouseButtonState;
 
-        int2 mouseMove;
-        int2 mousePrevPos;
-        int2 mousePos;
+        int2 m_mouseMove;
+        int2 m_mousePrevPos;
+        int2 m_mousePos;
 
-        bool limitMouseMove;
-        int2 maxMouseMove;
+        bool m_limitMouseMove;
+        int2 m_maxMouseMove;
 
-        bool lockCursorPos;
-        int2 lockedCursorPos;
+        bool m_lockCursorPos;
+        int2 m_lockedCursorPos;
 
         //unsigned int inputTimerId;
         //unsigned int inputTimerInterval;
 
-        Timer awaitMouseMoveLastTick;
-        double awaitMouseMoveInterval; //in ms
+        Timer m_awaitMouseMoveLastTick;
+        double m_awaitMouseMoveInterval; //in ms
 
         // Copying is not allowed.
         InputManager( const InputManager& ) = delete;

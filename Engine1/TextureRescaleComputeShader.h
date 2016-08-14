@@ -33,7 +33,7 @@ namespace Engine1
 
         private:
 
-        Microsoft::WRL::ComPtr< ID3D11SamplerState > samplerState;
+        Microsoft::WRL::ComPtr< ID3D11SamplerState > m_samplerState;
 
         __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
         struct ConstantBuffer

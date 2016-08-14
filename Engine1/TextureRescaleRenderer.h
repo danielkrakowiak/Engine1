@@ -33,15 +33,15 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& rendererCore;
+        Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
 
-        bool initialized;
+        bool m_initialized;
 
         // Shaders.
-        std::shared_ptr< TextureRescaleComputeShader > textureRescaleComputeShader;
+        std::shared_ptr< TextureRescaleComputeShader > m_textureRescaleComputeShader;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

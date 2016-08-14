@@ -17,7 +17,7 @@ ReflectionShadingComputeShader2::~ReflectionShadingComputeShader2() {}
 
 void ReflectionShadingComputeShader2::compileFromFile( std::string path, ID3D11Device& device )
 {
-    if ( compiled ) throw std::exception( "ReflectionShadingComputeShader2::compileFromFile - Shader has already been compiled." );
+    if ( m_compiled ) throw std::exception( "ReflectionShadingComputeShader2::compileFromFile - Shader has already been compiled." );
 
     HRESULT result;
     ComPtr<ID3D10Blob> shaderBuffer;
@@ -42,13 +42,13 @@ void ReflectionShadingComputeShader2::compileFromFile( std::string path, ID3D11D
             }
         }
 
-        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "ReflectionShadingComputeShader2::compileFromFile - Failed to create shader." );
     }
 
-    this->device = &device;
-    this->compiled = true;
-    this->shaderId = ++compiledShadersCount;
+    this->m_device = &device;
+    this->m_compiled = true;
+    this->m_shaderId = ++compiledShadersCount;
 }
 
 void ReflectionShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
@@ -62,7 +62,7 @@ void ReflectionShadingComputeShader2::setParameters( ID3D11DeviceContext& device
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > previousContributionTermRoughnessTexture )
 {
-    if ( !compiled ) throw std::exception( "ReflectionShadingComputeShader2::setParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "ReflectionShadingComputeShader2::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
         const unsigned int resourceCount = 7;
@@ -82,7 +82,7 @@ void ReflectionShadingComputeShader2::setParameters( ID3D11DeviceContext& device
 
 void ReflectionShadingComputeShader2::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-    if ( !compiled ) throw std::exception( "ReflectionShadingComputeShader2::unsetParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "ReflectionShadingComputeShader2::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 7 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };

@@ -38,26 +38,26 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 Application::Application() :
-	rendererCore(),
-	frameRenderer( rendererCore ),
-    renderer( rendererCore ),
-	initialized( false ),
-	applicationInstance( nullptr ),
-	windowHandle( nullptr ),
-	deviceContext( nullptr ),
-    windowPosition( 0, 0 ),
-	fullscreen( false ),
-	screenWidth( 1024 ),
-	screenHeight( 768 ),
-	verticalSync( false ),
-	displayFrequency( 60 ),
-	screenColorDepth( 32 ),
-	zBufferDepth( 32 ),
-	windowFocused( false ),
-    debugRenderAlpha( false ),
-    scenePath( "Assets/Scenes/new.scene" ),
-    scene( std::make_shared<CScene>() ),
-    assetManager()
+	m_rendererCore(),
+	m_frameRenderer( m_rendererCore ),
+    m_renderer( m_rendererCore ),
+	m_initialized( false ),
+	m_applicationInstance( nullptr ),
+	m_windowHandle( nullptr ),
+	m_deviceContext( nullptr ),
+    m_windowPosition( 0, 0 ),
+	m_fullscreen( false ),
+	m_screenWidth( 1024 ),
+	m_screenHeight( 768 ),
+	m_verticalSync( false ),
+	m_displayFrequency( 60 ),
+	m_screenColorDepth( 32 ),
+	m_zBufferDepth( 32 ),
+	m_windowFocused( false ),
+    m_debugRenderAlpha( false ),
+    m_scenePath( "Assets/Scenes/new.scene" ),
+    m_scene( std::make_shared<CScene>() ),
+    m_assetManager()
 {
 	windowsMessageReceiver = this;
 }
@@ -65,15 +65,15 @@ Application::Application() :
 Application::~Application() {}
 
 void Application::initialize( HINSTANCE applicationInstance ) {
-	this->applicationInstance = applicationInstance;
+	this->m_applicationInstance = applicationInstance;
 
 	setupWindow();
 
-	frameRenderer.initialize( windowHandle, screenWidth, screenHeight, fullscreen, verticalSync );
-	rendererCore.initialize( *frameRenderer.getDeviceContext( ).Get() );
-    assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) * 2 : 1, frameRenderer.getDevice() );
+	m_frameRenderer.initialize( m_windowHandle, m_screenWidth, m_screenHeight, m_fullscreen, m_verticalSync );
+	m_rendererCore.initialize( *m_frameRenderer.getDeviceContext( ).Get() );
+    m_assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) * 2 : 1, m_frameRenderer.getDevice() );
 
-    createUcharDisplayFrame( screenWidth, screenHeight, frameRenderer.getDevice() );
+    createUcharDisplayFrame( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice() );
 
     // Load 'axises' model.
     //BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, false, false, false );
@@ -84,18 +84,18 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
     //// Load 'light source' model.
     BlockModelFileInfo lightModelFileInfo( "Assets/Models/light_bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
-    std::shared_ptr<BlockModel> lightModel = std::static_pointer_cast<BlockModel>(assetManager.getOrLoad( lightModelFileInfo ));
-    lightModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext().Get() );
+    std::shared_ptr<BlockModel> lightModel = std::static_pointer_cast<BlockModel>(m_assetManager.getOrLoad( lightModelFileInfo ));
+    lightModel->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext().Get() );
 
-    renderer.initialize( screenWidth, screenHeight, frameRenderer.getDevice(), frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
+    m_renderer.initialize( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
 
-	initialized = true;
+	m_initialized = true;
 }
 
 void Application::createUcharDisplayFrame( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device )
 {
     ucharDisplayFrame = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
-        ( *device.Get(), imageWidth, imageHeight, false, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM );
+        ( *device.Get(), imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM );
 }
 
 void Application::setupWindow() {
@@ -108,7 +108,7 @@ void Application::setupWindow() {
 	ZeroMemory( &wc, sizeof( WNDCLASSEX ) );
 	wc.cbSize = sizeof( WNDCLASSEX );
 	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.hInstance = applicationInstance;
+	wc.hInstance = m_applicationInstance;
 	wc.lpfnWndProc = Application::windowsMessageHandler;
 	wc.hbrBackground = (HBRUSH)( COLOR_WINDOW );
 	wc.hCursor = LoadCursor( NULL, IDC_ARROW );
@@ -120,14 +120,14 @@ void Application::setupWindow() {
 	wc.cbWndExtra = 0;
 	RegisterClassEx( &wc );
 
-	if ( fullscreen ) {
+	if ( m_fullscreen ) {
 		DEVMODE screen = { 0 };
 
 		screen.dmSize = sizeof( DEVMODE );
-		screen.dmPelsWidth = screenWidth;
-		screen.dmPelsHeight = screenHeight;
-		screen.dmBitsPerPel = screenColorDepth;
-		screen.dmDisplayFrequency = displayFrequency;
+		screen.dmPelsWidth = m_screenWidth;
+		screen.dmPelsHeight = m_screenHeight;
+		screen.dmBitsPerPel = m_screenColorDepth;
+		screen.dmDisplayFrequency = m_displayFrequency;
 		screen.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
 
 		ChangeDisplaySettings( &screen, CDS_FULLSCREEN );
@@ -139,22 +139,22 @@ void Application::setupWindow() {
 
 	DWORD exStyle = WS_EX_ACCEPTFILES; // Allow drag&drop files.
 
-	windowHandle = CreateWindowEx( exStyle, className, wndCaption, style, 0, 0, screenWidth, screenHeight, NULL, NULL, applicationInstance, NULL );
+	m_windowHandle = CreateWindowEx( exStyle, className, wndCaption, style, 0, 0, m_screenWidth, m_screenHeight, NULL, NULL, m_applicationInstance, NULL );
 
-	deviceContext = GetDC( windowHandle );
+	m_deviceContext = GetDC( m_windowHandle );
 
 	int pixelFormat;
 	static PIXELFORMATDESCRIPTOR pfd = {
 		sizeof( PIXELFORMATDESCRIPTOR ),
 		1,
 		PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER, PFD_TYPE_RGBA,
-		(BYTE)screenColorDepth,
+		(BYTE)m_screenColorDepth,
 		0, 0, 0, 0, 0, 0,
 		0,
 		0,
 		0,
 		0, 0, 0, 0,
-		(BYTE)zBufferDepth,
+		(BYTE)m_zBufferDepth,
 		0,
 		0,
 		PFD_MAIN_PLANE,
@@ -162,31 +162,31 @@ void Application::setupWindow() {
 		0, 0, 0
 	};
 
-	pixelFormat = ChoosePixelFormat( deviceContext, &pfd );
-	SetPixelFormat( deviceContext, pixelFormat, &pfd );
+	pixelFormat = ChoosePixelFormat( m_deviceContext, &pfd );
+	SetPixelFormat( m_deviceContext, pixelFormat, &pfd );
 }
 
 void Application::show() {
-	if ( !initialized ) throw std::exception( "Application::show called on uninitialized Application" );
+	if ( !m_initialized ) throw std::exception( "Application::show called on uninitialized Application" );
 
-	ShowWindow( windowHandle, SW_SHOW );
+	ShowWindow( m_windowHandle, SW_SHOW );
 }
 
 void Application::run() {
-	if ( !initialized ) throw std::exception( "Application::run called on uninitialized Application" );
+	if ( !m_initialized ) throw std::exception( "Application::run called on uninitialized Application" );
 
 	bool run = true;
 	MSG msg;
 
     // Setup the camera.
-	camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
-	camera.setPosition( float3( 0.0f, 4.0f, -53.0f ) );
-    camera.rotate( float3( 0.0f, MathUtil::piHalf, 0.0f ) );
+	m_camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
+	m_camera.setPosition( float3( 0.0f, 4.0f, -53.0f ) );
+    m_camera.rotate( float3( 0.0f, MathUtil::piHalf, 0.0f ) );
      
-	Font font( uint2(screenWidth, screenHeight) );
+	Font font( uint2(m_screenWidth, m_screenHeight) );
 	font.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 35 );
 
-    Font font2( uint2(screenWidth, screenHeight) );
+    Font font2( uint2(m_screenWidth, m_screenHeight) );
     font2.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 15 );
 
 	double frameTimeMs = 0.0;
@@ -206,76 +206,76 @@ void Application::run() {
 
         // Translate / rotate the selected actor.
         bool movingObjects = false;
-        if ( windowFocused && ( selectedBlockActor || selectedSkeletonActor ) ) 
+        if ( m_windowFocused && ( m_selectedBlockActor || m_selectedSkeletonActor ) ) 
         {
             std::shared_ptr< Actor > actor;
-            if ( selectedBlockActor )
-                actor = selectedBlockActor;
+            if ( m_selectedBlockActor )
+                actor = m_selectedBlockActor;
             else
-                actor = selectedSkeletonActor;
+                actor = m_selectedSkeletonActor;
 
             const float   translationSensitivity = 0.002f;//0.002f;
             const float   rotationSensitivity    = 0.0002f;
             const float43 currentPose            = actor->getPose();
-            const int2    mouseMove              = inputManager.getMouseMove();
+            const int2    mouseMove              = m_inputManager.getMouseMove();
 
             const float3 sensitivity(
-                inputManager.isKeyPressed( InputManager::Keys::x ) ? 1.0f : 0.0f,
-                inputManager.isKeyPressed( InputManager::Keys::y ) ? 1.0f : 0.0f,
-                inputManager.isKeyPressed( InputManager::Keys::z ) ? 1.0f : 0.0f
+                m_inputManager.isKeyPressed( InputManager::Keys::x ) ? 1.0f : 0.0f,
+                m_inputManager.isKeyPressed( InputManager::Keys::y ) ? 1.0f : 0.0f,
+                m_inputManager.isKeyPressed( InputManager::Keys::z ) ? 1.0f : 0.0f
                 );
 
-            if ( inputManager.isKeyPressed( InputManager::Keys::r ) ) {
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) ) {
                 actor->getPose().rotate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * rotationSensitivity );
                 movingObjects = true;
-            } else if ( inputManager.isKeyPressed( InputManager::Keys::t ) ) {
+            } else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) {
                 actor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity );
                 movingObjects = true;
             }
         }
 
         // Translate the selected light.
-        if ( windowFocused && selectedLight ) 
+        if ( m_windowFocused && m_selectedLight ) 
         {
             const float   translationSensitivity = 0.002f;//0.002f;
-            const int2    mouseMove              = inputManager.getMouseMove();
+            const int2    mouseMove              = m_inputManager.getMouseMove();
 
             const float3 sensitivity(
-                inputManager.isKeyPressed( InputManager::Keys::x ) ? 1.0f : 0.0f,
-                inputManager.isKeyPressed( InputManager::Keys::y ) ? 1.0f : 0.0f,
-                inputManager.isKeyPressed( InputManager::Keys::z ) ? 1.0f : 0.0f
+                m_inputManager.isKeyPressed( InputManager::Keys::x ) ? 1.0f : 0.0f,
+                m_inputManager.isKeyPressed( InputManager::Keys::y ) ? 1.0f : 0.0f,
+                m_inputManager.isKeyPressed( InputManager::Keys::z ) ? 1.0f : 0.0f
                 );
 
-            if ( inputManager.isKeyPressed( InputManager::Keys::t ) ) {
-                selectedLight->setPosition( selectedLight->getPosition() + ((float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity ) );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) {
+                m_selectedLight->setPosition( m_selectedLight->getPosition() + ((float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity ) );
                 movingObjects = true;
             }
         }
 
         // Update the camera.
-        if ( windowFocused && !movingObjects && inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
+        if ( m_windowFocused && !movingObjects && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
             const float cameraRotationSensitivity = 0.0001f;
 
             const float acceleration = 2.0f;
 
-            if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) camera.accelerateForward( (float)frameTimeMs * acceleration );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) camera.accelerateReverse( (float)frameTimeMs * acceleration );
-            if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) camera.accelerateRight( (float)frameTimeMs * acceleration );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) camera.accelerateLeft( (float)frameTimeMs * acceleration );
-            if ( inputManager.isKeyPressed( InputManager::Keys::e ) ) camera.accelerateUp( (float)frameTimeMs * acceleration );
-            else if ( inputManager.isKeyPressed( InputManager::Keys::q ) ) camera.accelerateDown( (float)frameTimeMs * acceleration );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) ) m_camera.accelerateForward( (float)frameTimeMs * acceleration );
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_camera.accelerateReverse( (float)frameTimeMs * acceleration );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::d ) ) m_camera.accelerateRight( (float)frameTimeMs * acceleration );
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::a ) ) m_camera.accelerateLeft( (float)frameTimeMs * acceleration );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::e ) ) m_camera.accelerateUp( (float)frameTimeMs * acceleration );
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::q ) ) m_camera.accelerateDown( (float)frameTimeMs * acceleration );
 
-			int2 mouseMove = inputManager.getMouseMove( );
-			camera.rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTimeMs * cameraRotationSensitivity );
+			int2 mouseMove = m_inputManager.getMouseMove( );
+			m_camera.rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTimeMs * cameraRotationSensitivity );
 		}
 
-        inputManager.lockCursor( lockCursor );
-        inputManager.updateMouseState();
+        m_inputManager.lockCursor( lockCursor );
+        m_inputManager.updateMouseState();
 
-		camera.updateState( (float)frameTimeMs );
+		m_camera.updateState( (float)frameTimeMs );
 
         { // Update animations.
-            const std::unordered_set< std::shared_ptr<Actor> >& sceneActors = scene->getActors();
+            const std::unordered_set< std::shared_ptr<Actor> >& sceneActors = m_scene->getActors();
 
             for ( const std::shared_ptr<Actor>& actor : sceneActors )
             {
@@ -294,10 +294,10 @@ void Application::run() {
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > >        frameFloat2;
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
 
-        renderer.prepare();
+        m_renderer.prepare();
 
-        if ( scene )
-            std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) = renderer.renderScene( *scene, camera );
+        if ( m_scene )
+            std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) = m_renderer.renderScene( *m_scene, m_camera );
 
 		{ // Render FPS.
 			//std::stringstream ss;
@@ -340,21 +340,21 @@ void Application::run() {
         //deferredRenderer.disableRenderTargets();
 
         if ( frameUchar ) {
-            rendererCore.copyTexture( ucharDisplayFrame, frameUchar );
-		    frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f );
+            m_rendererCore.copyTexture( ucharDisplayFrame, frameUchar );
+		    m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f );
         } else if ( frameUchar4 ) {
-            if ( debugRenderAlpha )
-		        frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f );
+            if ( m_debugRenderAlpha )
+		        m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f );
             else
-                frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f );
+                m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f );
         } else if ( frameFloat4 )
-            frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f );
+            m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f );
         else if ( frameFloat2 )
-            frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f );
+            m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f );
         else if ( frameFloat )
-            frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f );
+            m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f );
 
-		frameRenderer.displayFrame();
+		m_frameRenderer.displayFrame();
 
 		Timer frameEndTime;
 		frameTimeMs = Timer::lapse( frameEndTime, frameStartTime );
@@ -399,13 +399,13 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 			break;
 		case WM_KEYDOWN:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onKeyboardButton( (int)wParam, true );
+				windowsMessageReceiver->m_inputManager.onKeyboardButton( (int)wParam, true );
                 windowsMessageReceiver->onKeyPress( (int)wParam );
 			}
 			break;
 		case WM_KEYUP:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onKeyboardButton( (int)wParam, false );
+				windowsMessageReceiver->m_inputManager.onKeyboardButton( (int)wParam, false );
 			}
 			break;
 		case WM_MOUSEMOVE:
@@ -414,35 +414,35 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 			break;
 		case WM_LBUTTONDOWN:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onMouseButton( 0, true );
+				windowsMessageReceiver->m_inputManager.onMouseButton( 0, true );
                 windowsMessageReceiver->onMouseButtonPress( 0 );
 			}
 			break;
 		case WM_LBUTTONUP:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onMouseButton( 0, false );
+				windowsMessageReceiver->m_inputManager.onMouseButton( 0, false );
 			}
 			break;
 		case WM_MBUTTONDOWN:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onMouseButton( 1, true );
+				windowsMessageReceiver->m_inputManager.onMouseButton( 1, true );
                 windowsMessageReceiver->onMouseButtonPress( 1 );
 			}
 			break;
 		case WM_MBUTTONUP:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onMouseButton( 1, false );
+				windowsMessageReceiver->m_inputManager.onMouseButton( 1, false );
 			}
 			break;
 		case WM_RBUTTONDOWN:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onMouseButton( 2, true );
+				windowsMessageReceiver->m_inputManager.onMouseButton( 2, true );
                 windowsMessageReceiver->onMouseButtonPress( 2 );
 			}
 			break;
 		case WM_RBUTTONUP:
 			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->inputManager.onMouseButton( 2, false );
+				windowsMessageReceiver->m_inputManager.onMouseButton( 2, false );
 			}
 			break;
 		case WM_TIMER:
@@ -483,82 +483,82 @@ void Application::onResize( int newWidth, int newHeight ) {
 
 void Application::onMove( int newPosX, int newPosY )
 {
-    windowPosition.x = newPosX;
-    windowPosition.y = newPosY;
+    m_windowPosition.x = newPosX;
+    m_windowPosition.y = newPosY;
 }
 
 void Application::onFocusChange( bool windowFocused )
 {
-	this->windowFocused = windowFocused;
+	this->m_windowFocused = windowFocused;
 }
 
 void Application::onKeyPress( int key )
 {
     if ( key == InputManager::Keys::l ) 
     {
-        if ( scene )
+        if ( m_scene )
         {
-            float3 lightPosition = camera.getPosition() + camera.getDirection();
+            float3 lightPosition = m_camera.getPosition() + m_camera.getDirection();
 
             std::shared_ptr< Light > light = std::make_shared<PointLight>( lightPosition );
             light->setColor( float3( 1.0f, 1.0f, 1.0f ) );
-            scene->addLight( light );
+            m_scene->addLight( light );
 
-            selectedLight = light;
+            m_selectedLight = light;
         }
     } 
     else if ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) 
     {
-        if ( scene && !scenePath.empty() && inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::s ) ) {
-            saveScene( scenePath );
+        if ( m_scene && !m_scenePath.empty() && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::s ) ) {
+            saveScene( m_scenePath );
         }
     }
 
     if ( key == InputManager::Keys::delete_ ) 
     {
-        if ( scene ) 
+        if ( m_scene ) 
         {
-            if ( selectedBlockActor ) {
-                scene->removeActor( selectedBlockActor );
-                selectedBlockActor.reset();
-            } else if ( selectedSkeletonActor ) {
-                scene->removeActor( selectedSkeletonActor );
-                selectedSkeletonActor.reset();
-            } else if ( selectedLight ) {
-                scene->removeLight( selectedLight );
-                selectedLight.reset();
+            if ( m_selectedBlockActor ) {
+                m_scene->removeActor( m_selectedBlockActor );
+                m_selectedBlockActor.reset();
+            } else if ( m_selectedSkeletonActor ) {
+                m_scene->removeActor( m_selectedSkeletonActor );
+                m_selectedSkeletonActor.reset();
+            } else if ( m_selectedLight ) {
+                m_scene->removeLight( m_selectedLight );
+                m_selectedLight.reset();
             }
         }
     }
 
     // Clone the actor, but share the model with the original actor.
-    if ( key == InputManager::Keys::c && inputManager.isKeyPressed( InputManager::Keys::shift ) ) 
+    if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) 
     {
-        if ( scene ) 
+        if ( m_scene ) 
         {
-            if ( selectedBlockActor ) {
-                selectedBlockActor = std::make_shared< BlockActor >( *selectedBlockActor ); // Clone the actor.
-                scene->addActor( selectedBlockActor );
-            } else if ( selectedSkeletonActor ) {
-                selectedSkeletonActor = std::make_shared< SkeletonActor >( *selectedSkeletonActor ); // Clone the actor.
-                scene->addActor( selectedSkeletonActor );
+            if ( m_selectedBlockActor ) {
+                m_selectedBlockActor = std::make_shared< BlockActor >( *m_selectedBlockActor ); // Clone the actor.
+                m_scene->addActor( m_selectedBlockActor );
+            } else if ( m_selectedSkeletonActor ) {
+                m_selectedSkeletonActor = std::make_shared< SkeletonActor >( *m_selectedSkeletonActor ); // Clone the actor.
+                m_scene->addActor( m_selectedSkeletonActor );
             }
         }
     }
 
     // Clone the actor and clone the model.
-    if ( key == InputManager::Keys::c && inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
     {
-        if ( scene ) 
+        if ( m_scene ) 
         {
-            if ( selectedBlockActor ) {
-                selectedBlockActor = std::make_shared< BlockActor >( *selectedBlockActor ); // Clone the actor.
-                selectedBlockActor->setModel( std::make_shared< BlockModel >( *selectedBlockActor->getModel() ) ); // Clone it's model.
-                scene->addActor( selectedBlockActor );
-            } else if ( selectedSkeletonActor ) {
-                selectedSkeletonActor = std::make_shared< SkeletonActor >( *selectedSkeletonActor ); // Clone the actor.
-                selectedSkeletonActor->setModel( std::make_shared< SkeletonModel >( *selectedSkeletonActor->getModel() ) ); // Clone it's model.
-                scene->addActor( selectedSkeletonActor );
+            if ( m_selectedBlockActor ) {
+                m_selectedBlockActor = std::make_shared< BlockActor >( *m_selectedBlockActor ); // Clone the actor.
+                m_selectedBlockActor->setModel( std::make_shared< BlockModel >( *m_selectedBlockActor->getModel() ) ); // Clone it's model.
+                m_scene->addActor( m_selectedBlockActor );
+            } else if ( m_selectedSkeletonActor ) {
+                m_selectedSkeletonActor = std::make_shared< SkeletonActor >( *m_selectedSkeletonActor ); // Clone the actor.
+                m_selectedSkeletonActor->setModel( std::make_shared< SkeletonModel >( *m_selectedSkeletonActor->getModel() ) ); // Clone it's model.
+                m_scene->addActor( m_selectedSkeletonActor );
             }
         }
     }
@@ -582,43 +582,43 @@ void Application::onKeyPress( int key )
     }*/
 
     if ( key == InputManager::Keys::tilde )
-        renderer.setActiveViewType( Renderer::View::Final );
+        m_renderer.setActiveViewType( Renderer::View::Final );
     else if ( key == InputManager::Keys::one )
-        renderer.setActiveViewType( Renderer::View::Shaded );
+        m_renderer.setActiveViewType( Renderer::View::Shaded );
     else if ( key == InputManager::Keys::two )
-        renderer.setActiveViewType( Renderer::View::Depth );
+        m_renderer.setActiveViewType( Renderer::View::Depth );
     else if ( key == InputManager::Keys::three )
-        renderer.setActiveViewType( Renderer::View::Position );
+        m_renderer.setActiveViewType( Renderer::View::Position );
     else if ( key == InputManager::Keys::four )
-        renderer.setActiveViewType( Renderer::View::Emissive );
+        m_renderer.setActiveViewType( Renderer::View::Emissive );
     else if ( key == InputManager::Keys::five )
-        renderer.setActiveViewType( Renderer::View::Albedo );
+        m_renderer.setActiveViewType( Renderer::View::Albedo );
     else if ( key == InputManager::Keys::six )
-        renderer.setActiveViewType( Renderer::View::Normal );
+        m_renderer.setActiveViewType( Renderer::View::Normal );
     else if ( key == InputManager::Keys::seven )
-        renderer.setActiveViewType( Renderer::View::Metalness );
+        m_renderer.setActiveViewType( Renderer::View::Metalness );
     else if ( key == InputManager::Keys::eight )
-        renderer.setActiveViewType( Renderer::View::Roughness );
+        m_renderer.setActiveViewType( Renderer::View::Roughness );
     else if ( key == InputManager::Keys::nine )
-        renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
+        m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
     else if ( key == InputManager::Keys::zero )
-        renderer.setActiveViewType( Renderer::View::RayDirections );
+        m_renderer.setActiveViewType( Renderer::View::RayDirections );
     else if ( key == InputManager::Keys::back )
-        renderer.setActiveViewType( Renderer::View::Test );
+        m_renderer.setActiveViewType( Renderer::View::Test );
 
-    if ( key == InputManager::Keys::plus && inputManager.isKeyPressed( InputManager::Keys::shift ) )
-        renderer.setMaxLevelCount( std::min( 10, renderer.getMaxLevelCount() + 1 ) );
-    else if ( key == InputManager::Keys::minus && inputManager.isKeyPressed( InputManager::Keys::shift ) )
-        renderer.setMaxLevelCount( std::max( 0, renderer.getMaxLevelCount() - 1 ) );
-    else if ( key == InputManager::Keys::plus && inputManager.isKeyPressed( InputManager::Keys::r ) )
-        renderer.activateNextViewLevel( true );
-    else if ( key == InputManager::Keys::plus && inputManager.isKeyPressed( InputManager::Keys::t ) )
-        renderer.activateNextViewLevel( false );
+    if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+        m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );
+    else if ( key == InputManager::Keys::minus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+        m_renderer.setMaxLevelCount( std::max( 0, m_renderer.getMaxLevelCount() - 1 ) );
+    else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
+        m_renderer.activateNextViewLevel( true );
+    else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::t ) )
+        m_renderer.activateNextViewLevel( false );
     else if ( key == InputManager::Keys::minus )
-        renderer.activatePrevViewLevel();
+        m_renderer.activatePrevViewLevel();
 
     if ( key == InputManager::Keys::enter ) 
-        debugRenderAlpha = !debugRenderAlpha;
+        m_debugRenderAlpha = !m_debugRenderAlpha;
 }
 
 void Application::onMouseButtonPress( int button )
@@ -626,28 +626,28 @@ void Application::onMouseButtonPress( int button )
     if ( button == 0 ) // On left button press.
     {
         // Calculate mouse pos relative to app window top-left corner.
-        int2 mousePos = inputManager.getMousePos();
-        mousePos -= windowPosition; 
+        int2 mousePos = m_inputManager.getMousePos();
+        mousePos -= m_windowPosition; 
 
         // TODO: FOV shouldn't be hardcoded.
         const float fieldOfView = (float)MathUtil::pi / 4.0f;
 
         std::shared_ptr< Actor > pickedActor;
         std::shared_ptr< Light > pickedLight;
-        std::tie( pickedActor, pickedLight ) = pickActorOrLight( *scene, camera, float2( (float)mousePos.x, (float)mousePos.y ), (float)screenWidth, (float)screenHeight, fieldOfView );
+        std::tie( pickedActor, pickedLight ) = pickActorOrLight( *m_scene, m_camera, float2( (float)mousePos.x, (float)mousePos.y ), (float)m_screenWidth, (float)m_screenHeight, fieldOfView );
 
         if ( pickedActor && pickedActor->getType() == Actor::Type::BlockActor ) {
-            selectedBlockActor    = std::static_pointer_cast< BlockActor >( pickedActor );
-            selectedSkeletonActor = nullptr;
-            selectedLight         = nullptr;
+            m_selectedBlockActor    = std::static_pointer_cast< BlockActor >( pickedActor );
+            m_selectedSkeletonActor = nullptr;
+            m_selectedLight         = nullptr;
         } else if ( pickedActor && pickedActor->getType() == Actor::Type::SkeletonActor ) {
-            selectedBlockActor    = nullptr;
-            selectedSkeletonActor = std::static_pointer_cast< SkeletonActor >( pickedActor );
-            selectedLight         = nullptr;
+            m_selectedBlockActor    = nullptr;
+            m_selectedSkeletonActor = std::static_pointer_cast< SkeletonActor >( pickedActor );
+            m_selectedLight         = nullptr;
         } else if ( pickedLight ) {
-            selectedBlockActor    = nullptr;
-            selectedSkeletonActor = nullptr;
-            selectedLight         = pickedLight;
+            m_selectedBlockActor    = nullptr;
+            m_selectedSkeletonActor = nullptr;
+            m_selectedLight         = pickedLight;
         }
     }
 }
@@ -809,10 +809,10 @@ void Application::onDragAndDropFile( std::string filePath )
             isScene = true;
     }
 
-    const bool replaceAsset = inputManager.isKeyPressed( InputManager::Keys::ctrl );
+    const bool replaceAsset = m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
 
     float43 pose = float43::IDENTITY;
-    pose.setTranslation( camera.getPosition() + camera.getDirection() );
+    pose.setTranslation( m_camera.getPosition() + m_camera.getDirection() );
 
 	if ( isBlockMesh ) {
 		BlockMeshFileInfo::Format format = BlockMeshFileInfo::Format::OBJ;
@@ -822,26 +822,26 @@ void Application::onDragAndDropFile( std::string filePath )
         else if ( extension.compare( "fbx" ) == 0 ) format = BlockMeshFileInfo::Format::FBX;
 
         BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
-        std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( assetManager.getOrLoad( fileInfo ) );
+        std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( m_assetManager.getOrLoad( fileInfo ) );
 
         if ( !mesh->getBvhTree() )
             mesh->buildBvhTree();
 
         if ( !mesh->isInGpuMemory( ) ) {
-            mesh->loadCpuToGpu( *frameRenderer.getDevice().Get() );
-            mesh->loadBvhTreeToGpu( *frameRenderer.getDevice().Get() );
+            mesh->loadCpuToGpu( *m_frameRenderer.getDevice().Get() );
+            mesh->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
         }
 
         if ( replaceAsset ) {
             // Replace a mesh of an existing model.
-            if ( selectedBlockActor && selectedBlockActor->getModel() ) {
-                selectedBlockActor->getModel( )->setMesh( mesh );
+            if ( m_selectedBlockActor && m_selectedBlockActor->getModel() ) {
+                m_selectedBlockActor->getModel( )->setMesh( mesh );
             }
         } else {
             // Add new actor to the scene.
-            selectedBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
-            selectedBlockActor->getModel( )->setMesh( mesh );
-            scene->addActor( selectedBlockActor );
+            m_selectedBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
+            m_selectedBlockActor->getModel( )->setMesh( mesh );
+            m_scene->addActor( m_selectedBlockActor );
         }
 	}
 
@@ -851,16 +851,16 @@ void Application::onDragAndDropFile( std::string filePath )
 		if ( extension.compare( "dae" ) == 0 ) format = SkeletonMeshFileInfo::Format::DAE;
 
         SkeletonMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
-        std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>(assetManager.getOrLoad( fileInfo ));  
+        std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>(m_assetManager.getOrLoad( fileInfo ));  
         if ( !mesh->isInGpuMemory( ) )
-            mesh->loadCpuToGpu( *frameRenderer.getDevice( ).Get() );
+            mesh->loadCpuToGpu( *m_frameRenderer.getDevice( ).Get() );
 
         // #TODO: add replacing mesh? How to deal with non-matching animation?
         // Add new actor to the scene.
-        selectedSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
-        selectedSkeletonActor->getModel( )->setMesh( mesh );
-        selectedSkeletonActor->resetSkeletonPose();
-        scene->addActor( selectedSkeletonActor );
+        m_selectedSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
+        m_selectedSkeletonActor->getModel( )->setMesh( mesh );
+        m_selectedSkeletonActor->resetSkeletonPose();
+        m_scene->addActor( m_selectedSkeletonActor );
 	}
 
 	if ( isTexture ) {
@@ -894,25 +894,25 @@ void Application::onDragAndDropFile( std::string filePath )
             return; // Unrecognized texture type.
 
         Texture2DFileInfo fileInfo( filePath, format, pixelType );
-        std::shared_ptr< Asset > textureAsset = assetManager.getOrLoad( fileInfo );
+        std::shared_ptr< Asset > textureAsset = m_assetManager.getOrLoad( fileInfo );
 
 		if ( filePath.find( "_A." ) != std::string::npos ) 
         {
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( selectedBlockActor ) {  
+            if ( m_selectedBlockActor ) {  
                 if ( replaceAsset )
-                    selectedBlockActor->getModel( )->removeAllAlbedoTextures();
+                    m_selectedBlockActor->getModel( )->removeAllAlbedoTextures();
 
-                selectedBlockActor->getModel( )->addAlbedoTexture( modelTexture );
+                m_selectedBlockActor->getModel( )->addAlbedoTexture( modelTexture );
             }
 
-            if ( selectedSkeletonActor ) {
+            if ( m_selectedSkeletonActor ) {
                 if ( replaceAsset )
-                    selectedSkeletonActor->getModel( )->removeAllAlbedoTextures();
+                    m_selectedSkeletonActor->getModel( )->removeAllAlbedoTextures();
 
-                selectedSkeletonActor->getModel( )->addAlbedoTexture( modelTexture );
+                m_selectedSkeletonActor->getModel( )->addAlbedoTexture( modelTexture );
             }
         } 
         else if ( filePath.find( "_AL." ) != std::string::npos ) 
@@ -920,18 +920,18 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( selectedBlockActor ) {    
+            if ( m_selectedBlockActor ) {    
                 if ( replaceAsset )
-                    selectedBlockActor->getModel( )->removeAllAlphaTextures();
+                    m_selectedBlockActor->getModel( )->removeAllAlphaTextures();
 
-                selectedBlockActor->getModel( )->addAlphaTexture( modelTexture );
+                m_selectedBlockActor->getModel( )->addAlphaTexture( modelTexture );
             }
 
-            if ( selectedSkeletonActor ) {
+            if ( m_selectedSkeletonActor ) {
                 if ( replaceAsset )
-                    selectedSkeletonActor->getModel( )->removeAllAlphaTextures();
+                    m_selectedSkeletonActor->getModel( )->removeAllAlphaTextures();
 
-                selectedSkeletonActor->getModel( )->addAlphaTexture( modelTexture );
+                m_selectedSkeletonActor->getModel( )->addAlphaTexture( modelTexture );
             }
 		} 
         else if ( filePath.find( "_M." ) != std::string::npos ) 
@@ -939,18 +939,18 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( selectedBlockActor ) {    
+            if ( m_selectedBlockActor ) {    
                 if ( replaceAsset )
-                    selectedBlockActor->getModel( )->removeAllMetalnessTextures();
+                    m_selectedBlockActor->getModel( )->removeAllMetalnessTextures();
 
-                selectedBlockActor->getModel( )->addMetalnessTexture( modelTexture );
+                m_selectedBlockActor->getModel( )->addMetalnessTexture( modelTexture );
             }
 
-            if ( selectedSkeletonActor ) {
+            if ( m_selectedSkeletonActor ) {
                 if ( replaceAsset )
-                    selectedSkeletonActor->getModel( )->removeAllMetalnessTextures();
+                    m_selectedSkeletonActor->getModel( )->removeAllMetalnessTextures();
 
-                selectedSkeletonActor->getModel( )->addMetalnessTexture( modelTexture );
+                m_selectedSkeletonActor->getModel( )->addMetalnessTexture( modelTexture );
             }
 		} 
         else if ( filePath.find( "_N." ) != std::string::npos ) 
@@ -958,18 +958,18 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( selectedBlockActor ) {  
+            if ( m_selectedBlockActor ) {  
                 if ( replaceAsset )
-                    selectedBlockActor->getModel( )->removeAllNormalTextures();
+                    m_selectedBlockActor->getModel( )->removeAllNormalTextures();
 
-                selectedBlockActor->getModel( )->addNormalTexture( modelTexture );
+                m_selectedBlockActor->getModel( )->addNormalTexture( modelTexture );
             }
 
-            if ( selectedSkeletonActor ) {
+            if ( m_selectedSkeletonActor ) {
                 if ( replaceAsset )
-                    selectedSkeletonActor->getModel( )->removeAllNormalTextures();
+                    m_selectedSkeletonActor->getModel( )->removeAllNormalTextures();
 
-                selectedSkeletonActor->getModel( )->addNormalTexture( modelTexture );
+                m_selectedSkeletonActor->getModel( )->addNormalTexture( modelTexture );
             }
 		} 
         else if ( filePath.find( "_R." ) != std::string::npos ) 
@@ -977,18 +977,18 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( selectedBlockActor ) {   
+            if ( m_selectedBlockActor ) {   
                 if ( replaceAsset )
-                    selectedBlockActor->getModel( )->removeAllRoughnessTextures();
+                    m_selectedBlockActor->getModel( )->removeAllRoughnessTextures();
 
-                selectedBlockActor->getModel( )->addRoughnessTexture( modelTexture );
+                m_selectedBlockActor->getModel( )->addRoughnessTexture( modelTexture );
             }
 
-            if ( selectedSkeletonActor ) {
+            if ( m_selectedSkeletonActor ) {
                 if ( replaceAsset )
-                    selectedSkeletonActor->getModel( )->removeAllRoughnessTextures();
+                    m_selectedSkeletonActor->getModel( )->removeAllRoughnessTextures();
 
-                selectedSkeletonActor->getModel( )->addRoughnessTexture( modelTexture );
+                m_selectedSkeletonActor->getModel( )->addRoughnessTexture( modelTexture );
             }
 		} 
         else if ( filePath.find( "_E." ) != std::string::npos ) 
@@ -996,18 +996,18 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( selectedBlockActor ) {    
+            if ( m_selectedBlockActor ) {    
                 if ( replaceAsset )
-                    selectedBlockActor->getModel( )->removeAllEmissionTextures();
+                    m_selectedBlockActor->getModel( )->removeAllEmissionTextures();
 
-                selectedBlockActor->getModel( )->addEmissionTexture( modelTexture );
+                m_selectedBlockActor->getModel( )->addEmissionTexture( modelTexture );
             }
 
-            if ( selectedSkeletonActor ) {
+            if ( m_selectedSkeletonActor ) {
                 if ( replaceAsset )
-                    selectedSkeletonActor->getModel( )->removeAllEmissionTextures();
+                    m_selectedSkeletonActor->getModel( )->removeAllEmissionTextures();
 
-                selectedSkeletonActor->getModel( )->addEmissionTexture( modelTexture );
+                m_selectedSkeletonActor->getModel( )->addEmissionTexture( modelTexture );
             }
         } 
         else if ( filePath.find( "_I." ) != std::string::npos ) 
@@ -1015,18 +1015,18 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( selectedBlockActor ) {   
+            if ( m_selectedBlockActor ) {   
                 if ( replaceAsset )
-                    selectedBlockActor->getModel( )->removeAllIndexOfRefractionTextures();
+                    m_selectedBlockActor->getModel( )->removeAllIndexOfRefractionTextures();
 
-                selectedBlockActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+                m_selectedBlockActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
             }
 
-            if ( selectedSkeletonActor ) {
+            if ( m_selectedSkeletonActor ) {
                 if ( replaceAsset )
-                    selectedSkeletonActor->getModel( )->removeAllIndexOfRefractionTextures();
+                    m_selectedSkeletonActor->getModel( )->removeAllIndexOfRefractionTextures();
 
-                selectedSkeletonActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+                m_selectedSkeletonActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
             }
 		}
 	}
@@ -1034,57 +1034,57 @@ void Application::onDragAndDropFile( std::string filePath )
     if ( isBlockModel ) {
 
         BlockModelFileInfo fileInfo( filePath, BlockModelFileInfo::Format::BLOCKMODEL, 0 );
-        std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( assetManager.getOrLoad( fileInfo ) );
+        std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( m_assetManager.getOrLoad( fileInfo ) );
 
         if ( model->getMesh() && !model->getMesh()->getBvhTree() )
         {
             model->getMesh()->buildBvhTree();
-            model->getMesh()->loadBvhTreeToGpu( *frameRenderer.getDevice( ).Get() );
+            model->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice( ).Get() );
         }
 
         if ( !model->isInGpuMemory() )
-            model->loadCpuToGpu( *frameRenderer.getDevice( ).Get(), *frameRenderer.getDeviceContext( ).Get() );
+            model->loadCpuToGpu( *m_frameRenderer.getDevice( ).Get(), *m_frameRenderer.getDeviceContext( ).Get() );
 
         // Add new actor to the scene.
-        selectedBlockActor = std::make_shared<BlockActor>( model, pose );
-        scene->addActor( selectedBlockActor );
+        m_selectedBlockActor = std::make_shared<BlockActor>( model, pose );
+        m_scene->addActor( m_selectedBlockActor );
     }
 
     if ( isSkeletonModel ) {
 
         SkeletonModelFileInfo fileInfo( filePath, SkeletonModelFileInfo::Format::SKELETONMODEL, 0 );
-        std::shared_ptr<SkeletonModel> model = std::static_pointer_cast<SkeletonModel>(assetManager.getOrLoad( fileInfo ));
+        std::shared_ptr<SkeletonModel> model = std::static_pointer_cast<SkeletonModel>(m_assetManager.getOrLoad( fileInfo ));
         if ( !model->isInGpuMemory( ) )
-            model->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext( ).Get() );
+            model->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext( ).Get() );
 
         // Add new actor to the scene.
-        selectedSkeletonActor = std::make_shared<SkeletonActor>( model, pose );
-        scene->addActor( selectedSkeletonActor );
+        m_selectedSkeletonActor = std::make_shared<SkeletonActor>( model, pose );
+        m_scene->addActor( m_selectedSkeletonActor );
     }
 
-    if ( isAnimation && selectedSkeletonActor ) {
-        if ( selectedSkeletonActor->getModel() && selectedSkeletonActor->getModel()->getMesh() )
+    if ( isAnimation && m_selectedSkeletonActor ) {
+        if ( m_selectedSkeletonActor->getModel() && m_selectedSkeletonActor->getModel()->getMesh() )
         {
-            SkeletonMeshFileInfo&     referenceMeshFileInfo = selectedSkeletonActor->getModel()->getMesh()->getFileInfo();
+            SkeletonMeshFileInfo&     referenceMeshFileInfo = m_selectedSkeletonActor->getModel()->getMesh()->getFileInfo();
             SkeletonAnimationFileInfo fileInfo( filePath, SkeletonAnimationFileInfo::Format::XAF, referenceMeshFileInfo, false );
 
-            std::shared_ptr< SkeletonAnimation > animation = std::static_pointer_cast< SkeletonAnimation >( assetManager.getOrLoad( fileInfo ) );
+            std::shared_ptr< SkeletonAnimation > animation = std::static_pointer_cast< SkeletonAnimation >( m_assetManager.getOrLoad( fileInfo ) );
 
             if ( animation )
-                selectedSkeletonActor->startAnimation( animation );
+                m_selectedSkeletonActor->startAnimation( animation );
         }
     }
 
 
-    if ( (isBlockMesh || isTexture) && selectedBlockActor && selectedBlockActor->getModel( ) && selectedBlockActor->getModel( )->isInCpuMemory( ) )
-        selectedBlockActor->getModel()->saveToFile( "Assets/Models/new.blockmodel" );
+    if ( (isBlockMesh || isTexture) && m_selectedBlockActor && m_selectedBlockActor->getModel( ) && m_selectedBlockActor->getModel( )->isInCpuMemory( ) )
+        m_selectedBlockActor->getModel()->saveToFile( "Assets/Models/new.blockmodel" );
 
-    if ( (isSkeletonMesh || isTexture) && selectedSkeletonActor && selectedSkeletonActor->getModel( ) && selectedSkeletonActor->getModel( )->isInCpuMemory( ) )
-        selectedSkeletonActor->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
+    if ( (isSkeletonMesh || isTexture) && m_selectedSkeletonActor && m_selectedSkeletonActor->getModel( ) && m_selectedSkeletonActor->getModel( )->isInCpuMemory( ) )
+        m_selectedSkeletonActor->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
 
     if ( isScene ) {
         loadScene( filePath );
-        scenePath = filePath;
+        m_scenePath = filePath;
     }
 }
 
@@ -1092,19 +1092,19 @@ void Application::loadScene( std::string path )
 {
     std::shared_ptr< std::vector < std::shared_ptr< FileInfo > > > fileInfos;
 
-    std::tie( scene, fileInfos ) = CScene::createFromFile( path );
+    std::tie( m_scene, fileInfos ) = CScene::createFromFile( path );
 
     // Load all assets.
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos )
-        assetManager.loadAsync( *fileInfo );
+        m_assetManager.loadAsync( *fileInfo );
 
     // Wait for all assets to be loaded.
     const float timeout = 60.0f;
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos )
-        assetManager.getWhenLoaded( fileInfo->getAssetType(), fileInfo->getPath(), fileInfo->getIndexInFile(), timeout );
+        m_assetManager.getWhenLoaded( fileInfo->getAssetType(), fileInfo->getPath(), fileInfo->getIndexInFile(), timeout );
 
     // Swap actors' empty models with the loaded models. Create BVH trees. Load models to GPU.
-    const std::unordered_set< std::shared_ptr< Actor > > sceneActors = scene->getActors();
+    const std::unordered_set< std::shared_ptr< Actor > > sceneActors = m_scene->getActors();
     for ( const std::shared_ptr< Actor >& actor : sceneActors ) 
     {
         if ( actor->getType() == Actor::Type::BlockActor ) 
@@ -1114,16 +1114,16 @@ void Application::loadScene( std::string path )
             if ( blockActor->getModel() ) 
             {
                 const BlockModelFileInfo& fileInfo = blockActor->getModel()->getFileInfo();
-                std::shared_ptr<BlockModel> blockModel = std::static_pointer_cast<BlockModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
+                std::shared_ptr<BlockModel> blockModel = std::static_pointer_cast<BlockModel>(m_assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
                 if ( blockModel ) 
                 {
                     // Build BVH tree and load it to GPU.
                     if ( blockModel->getMesh() ) {
                         blockModel->getMesh()->buildBvhTree();
-                        blockModel->getMesh()->loadBvhTreeToGpu( *frameRenderer.getDevice().Get() );
+                        blockModel->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
                     }
 
-                    blockModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext( ).Get() );
+                    blockModel->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext( ).Get() );
                     blockActor->setModel( blockModel ); // Swap an empty model with a loaded model.
                 } 
                 else 
@@ -1137,10 +1137,10 @@ void Application::loadScene( std::string path )
             const std::shared_ptr<SkeletonActor>& skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
             if ( skeletonActor->getModel() ) {
                 const SkeletonModelFileInfo& fileInfo = skeletonActor->getModel()->getFileInfo();
-                std::shared_ptr<SkeletonModel> skeletonModel = std::static_pointer_cast<SkeletonModel>(assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
+                std::shared_ptr<SkeletonModel> skeletonModel = std::static_pointer_cast<SkeletonModel>(m_assetManager.get( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() ));
                 if ( skeletonModel ) 
                 {
-                    skeletonModel->loadCpuToGpu( *frameRenderer.getDevice().Get(), *frameRenderer.getDeviceContext( ).Get() );
+                    skeletonModel->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext( ).Get() );
                     skeletonActor->setModel( skeletonModel ); // Swap an empty model with a loaded model.
                 } 
                 else 
@@ -1154,5 +1154,5 @@ void Application::loadScene( std::string path )
 
 void Application::saveScene( std::string path )
 {
-    scene->saveToFile( path );
+    m_scene->saveToFile( path );
 }

@@ -48,12 +48,12 @@ namespace Engine1
 
         private:
 
-        std::string path;
-        Format format;
-        int indexInFile;
-        bool invertZCoordinate;
-        bool invertVertexWindingOrder;
-        bool flipUVs;
+        std::string m_path;
+        Format m_format;
+        int m_indexInFile;
+        bool m_invertZCoordinate;
+        bool m_invertVertexWindingOrder;
+        bool m_flipUVs;
     };
 }
 

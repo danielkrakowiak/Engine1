@@ -81,8 +81,8 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std
 
 SkeletonMesh::SkeletonMesh() :
 bonesPerVertexCount( BonesPerVertexCount::Type::ZERO ),
-boundingBoxMin( float3::ZERO ),
-boundingBoxMax( float3::ZERO )
+m_boundingBoxMin( float3::ZERO ),
+m_boundingBoxMax( float3::ZERO )
 {}
 
 SkeletonMesh::~SkeletonMesh() 
@@ -110,17 +110,17 @@ void SkeletonMesh::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_pt
 
 void SkeletonMesh::setFileInfo( const SkeletonMeshFileInfo& fileInfo )
 {
-	this->fileInfo = fileInfo;
+	this->m_fileInfo = fileInfo;
 }
 
 const SkeletonMeshFileInfo& SkeletonMesh::getFileInfo( ) const
 {
-	return fileInfo;
+	return m_fileInfo;
 }
 
 SkeletonMeshFileInfo& SkeletonMesh::getFileInfo( )
 {
-	return fileInfo;
+	return m_fileInfo;
 }
 
 void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
@@ -130,128 +130,128 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
     if ( reload )
         throw std::exception( "SkeletonMesh::loadCpuToGpu - reload not yet implemented." );
 
-	if ( vertices.size() > 0 && !vertexBuffer ) {
+	if ( m_vertices.size() > 0 && !m_vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)m_vertices.size();
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
 		vertexBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA vertexDataPtr;
-		vertexDataPtr.pSysMem = vertices.data();
+		vertexDataPtr.pSysMem = m_vertices.data();
 		vertexDataPtr.SysMemPitch = 0;
 		vertexDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &vertexBufferDesc, &vertexDataPtr, vertexBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &vertexBufferDesc, &vertexDataPtr, m_vertexBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh vertices failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexBuffer" );
-		Direct3DUtil::setResourceName( *vertexBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_vertexBuffer.Get(), resourceName );
 #endif
 	}
 
-	if ( vertexBones.size() > 0 && !vertexBonesBuffer ) {
+	if ( m_vertexBones.size() > 0 && !m_vertexBonesBuffer ) {
 		D3D11_BUFFER_DESC vertexBonesBufferDesc;
 		vertexBonesBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBonesBufferDesc.ByteWidth = sizeof(unsigned char) * (unsigned int)vertexBones.size();
+		vertexBonesBufferDesc.ByteWidth = sizeof(unsigned char) * (unsigned int)m_vertexBones.size();
 		vertexBonesBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBonesBufferDesc.CPUAccessFlags = 0;
 		vertexBonesBufferDesc.MiscFlags = 0;
 		vertexBonesBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA vertexBonesDataPtr;
-		vertexBonesDataPtr.pSysMem = vertexBones.data();
+		vertexBonesDataPtr.pSysMem = m_vertexBones.data();
 		vertexBonesDataPtr.SysMemPitch = 0;
 		vertexBonesDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &vertexBonesBufferDesc, &vertexBonesDataPtr, vertexBonesBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &vertexBonesBufferDesc, &vertexBonesDataPtr, m_vertexBonesBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh vertex-bones failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexBonesBuffer" );
-		Direct3DUtil::setResourceName( *vertexBonesBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_vertexBonesBuffer.Get(), resourceName );
 #endif
 	}
 
-	if ( vertexWeights.size() > 0 && !vertexWeightsBuffer ) {
+	if ( m_vertexWeights.size() > 0 && !m_vertexWeightsBuffer ) {
 		D3D11_BUFFER_DESC vertexWeightsBufferDesc;
 		vertexWeightsBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexWeightsBufferDesc.ByteWidth = sizeof(float) * (unsigned int)vertexWeights.size();
+		vertexWeightsBufferDesc.ByteWidth = sizeof(float) * (unsigned int)m_vertexWeights.size();
 		vertexWeightsBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexWeightsBufferDesc.CPUAccessFlags = 0;
 		vertexWeightsBufferDesc.MiscFlags = 0;
 		vertexWeightsBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA vertexWeightsDataPtr;
-		vertexWeightsDataPtr.pSysMem = vertexWeights.data();
+		vertexWeightsDataPtr.pSysMem = m_vertexWeights.data();
 		vertexWeightsDataPtr.SysMemPitch = 0;
 		vertexWeightsDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &vertexWeightsBufferDesc, &vertexWeightsDataPtr, vertexWeightsBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &vertexWeightsBufferDesc, &vertexWeightsDataPtr, m_vertexWeightsBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh vertex-weights failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexWeightsBuffer" );
-		Direct3DUtil::setResourceName( *vertexWeightsBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_vertexWeightsBuffer.Get(), resourceName );
 #endif
 	}
 
-	if ( normals.size() > 0 && !normalBuffer ) {
+	if ( m_normals.size() > 0 && !m_normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
 		normalBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		normalBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)normals.size();
+		normalBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)m_normals.size();
 		normalBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		normalBufferDesc.CPUAccessFlags = 0;
 		normalBufferDesc.MiscFlags = 0;
 		normalBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA normalDataPtr;
-		normalDataPtr.pSysMem = normals.data();
+		normalDataPtr.pSysMem = m_normals.data();
 		normalDataPtr.SysMemPitch = 0;
 		normalDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &normalBufferDesc, &normalDataPtr, normalBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &normalBufferDesc, &normalDataPtr, m_normalBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh normals failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::normalBuffer" );
-		Direct3DUtil::setResourceName( *normalBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_normalBuffer.Get(), resourceName );
 #endif
 	}
 
-    if ( tangents.size() > 0 && !tangentBuffer ) {
+    if ( m_tangents.size() > 0 && !m_tangentBuffer ) {
 		D3D11_BUFFER_DESC tangentBufferDesc;
 		tangentBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		tangentBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)tangents.size();
+		tangentBufferDesc.ByteWidth = sizeof(float3) * (unsigned int)m_tangents.size();
 		tangentBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		tangentBufferDesc.CPUAccessFlags = 0;
 		tangentBufferDesc.MiscFlags = 0;
 		tangentBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA tangentDataPtr;
-		tangentDataPtr.pSysMem = tangents.data();
+		tangentDataPtr.pSysMem = m_tangents.data();
 		tangentDataPtr.SysMemPitch = 0;
 		tangentDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &tangentBufferDesc, &tangentDataPtr, tangentBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &tangentBufferDesc, &tangentDataPtr, m_tangentBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh tangents failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::tangentBuffer" );
-		Direct3DUtil::setResourceName( *tangentBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_tangentBuffer.Get(), resourceName );
 #endif
 	}
 
-	std::list< std::vector<float2> >::iterator texcoordsIt, texcoordsEnd = texcoords.end();
+	std::list< std::vector<float2> >::iterator texcoordsIt, texcoordsEnd = m_texcoords.end();
     int texcoordsIndex = -1;
 
-	for ( texcoordsIt = texcoords.begin(); texcoordsIt != texcoordsEnd; ++texcoordsIt ) {
+	for ( texcoordsIt = m_texcoords.begin(); texcoordsIt != texcoordsEnd; ++texcoordsIt ) {
         ++texcoordsIndex;
 
-        if ( texcoordsIndex < (int)texcoordBuffers.size() )
+        if ( texcoordsIndex < (int)m_texcoordBuffers.size() )
             continue; // Skip texcoords which are already loaded.
 
 		if ( texcoordsIt->empty() ) throw std::exception( "SkeletonMesh::loadToGpu - One of mesh's texcoord sets is empty" );
@@ -274,36 +274,36 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &texcoordBufferDesc, &texcoordDataPtr, buffer.GetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh texcoords failed" );
 
-		texcoordBuffers.push_back( buffer );
+		m_texcoordBuffers.push_back( buffer );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
-		std::string resourceName = std::string( "SkeletonMesh::texcoordBuffer[" ) + std::to_string( texcoordBuffers.size() - 1 ) + std::string( "]" );
+		std::string resourceName = std::string( "SkeletonMesh::texcoordBuffer[" ) + std::to_string( m_texcoordBuffers.size() - 1 ) + std::string( "]" );
 		Direct3DUtil::setResourceName( *buffer.Get(), resourceName );
 #endif
 	}
 
-    if ( triangles.empty() ) throw std::exception( "SkeletonMesh::loadToGpu - Mesh has no triangles" );
+    if ( m_triangles.empty() ) throw std::exception( "SkeletonMesh::loadToGpu - Mesh has no triangles" );
 
-    if ( !triangleBuffer ) {
+    if ( !m_triangleBuffer ) {
 		D3D11_BUFFER_DESC triangleBufferDesc;
 		triangleBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		triangleBufferDesc.ByteWidth = sizeof(uint3) * (unsigned int)triangles.size();
+		triangleBufferDesc.ByteWidth = sizeof(uint3) * (unsigned int)m_triangles.size();
 		triangleBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		triangleBufferDesc.CPUAccessFlags = 0;
 		triangleBufferDesc.MiscFlags = 0;
 		triangleBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA triangleDataPtr;
-		triangleDataPtr.pSysMem = triangles.data();
+		triangleDataPtr.pSysMem = m_triangles.data();
 		triangleDataPtr.SysMemPitch = 0;
 		triangleDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, triangleBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, m_triangleBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh triangles failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::triangleBuffer" );
-		Direct3DUtil::setResourceName( *triangleBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif
 	}
 }
@@ -316,119 +316,119 @@ void SkeletonMesh::loadGpuToCpu()
 
 void SkeletonMesh::unloadFromCpu()
 {
-	vertices.clear();
-	vertices.shrink_to_fit();
-	vertexWeights.clear();
-	vertexWeights.shrink_to_fit();
-	vertexBones.clear();
-	vertexBones.shrink_to_fit();
-	normals.clear();
-	normals.shrink_to_fit();
-    tangents.clear();
-	tangents.shrink_to_fit();
-	texcoords.clear(); // Calls destructor on each texcoord set.
-	triangles.clear();
-	triangles.shrink_to_fit();
+	m_vertices.clear();
+	m_vertices.shrink_to_fit();
+	m_vertexWeights.clear();
+	m_vertexWeights.shrink_to_fit();
+	m_vertexBones.clear();
+	m_vertexBones.shrink_to_fit();
+	m_normals.clear();
+	m_normals.shrink_to_fit();
+    m_tangents.clear();
+	m_tangents.shrink_to_fit();
+	m_texcoords.clear(); // Calls destructor on each texcoord set.
+	m_triangles.clear();
+	m_triangles.shrink_to_fit();
 }
 
 void SkeletonMesh::unloadFromGpu()
 {
-	vertexBuffer.Reset();
-	vertexWeightsBuffer.Reset();
-	vertexBonesBuffer.Reset();
-	normalBuffer.Reset();
-    tangentBuffer.Reset();
+	m_vertexBuffer.Reset();
+	m_vertexWeightsBuffer.Reset();
+	m_vertexBonesBuffer.Reset();
+	m_normalBuffer.Reset();
+    m_tangentBuffer.Reset();
 
-	while ( !texcoordBuffers.empty( ) ) {
-		texcoordBuffers.front( ).Reset( );
-		texcoordBuffers.pop_front( );
+	while ( !m_texcoordBuffers.empty( ) ) {
+		m_texcoordBuffers.front( ).Reset( );
+		m_texcoordBuffers.pop_front( );
 	}
 
-	triangleBuffer.Reset();
+	m_triangleBuffer.Reset();
 }
 
 bool SkeletonMesh::isInCpuMemory() const
 {
-	return !vertices.empty() && !triangles.empty() && !vertexWeights.empty() && !vertexBones.empty();
+	return !m_vertices.empty() && !m_triangles.empty() && !m_vertexWeights.empty() && !m_vertexBones.empty();
 }
 
 bool SkeletonMesh::isInGpuMemory() const
 {
-	return vertexBuffer && triangleBuffer && vertexWeightsBuffer && vertexBonesBuffer;
+	return m_vertexBuffer && m_triangleBuffer && m_vertexWeightsBuffer && m_vertexBonesBuffer;
 }
 
 const std::vector<float3>& SkeletonMesh::getVertices() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getVertices - Mesh not loaded in CPU memory." );
-	return vertices;
+	return m_vertices;
 }
 
 std::vector<float3>& SkeletonMesh::getVertices()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getVertices - Mesh not loaded in CPU memory." );
-	return vertices;
+	return m_vertices;
 }
 
 std::vector<float>& SkeletonMesh::getVertexWeights()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getVertexWeights - Mesh not loaded in CPU memory." );
-	return vertexWeights;
+	return m_vertexWeights;
 }
 
 const std::vector<float>& SkeletonMesh::getVertexWeights() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getVertexWeights - Mesh not loaded in CPU memory." );
-	return vertexWeights;
+	return m_vertexWeights;
 }
 
 const std::vector<unsigned char>& SkeletonMesh::getVertexBones() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getVertexBones - Mesh not loaded in CPU memory." );
-	return vertexBones;
+	return m_vertexBones;
 }
 
 std::vector<unsigned char>& SkeletonMesh::getVertexBones()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getVertexBones - Mesh not loaded in CPU memory." );
-	return vertexBones;
+	return m_vertexBones;
 }
 
 const std::vector<float3>& SkeletonMesh::getNormals() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getNormals - Mesh not loaded in CPU memory." );
-	return normals;
+	return m_normals;
 }
 
 std::vector<float3>& SkeletonMesh::getNormals()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getNormals - Mesh not loaded in CPU memory." );
-	return normals;
+	return m_normals;
 }
 
 const std::vector<float3>& SkeletonMesh::getTangents() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTangents - Mesh not loaded in CPU memory." );
-	return normals;
+	return m_normals;
 }
 
 std::vector<float3>& SkeletonMesh::getTangents()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTangents - Mesh not loaded in CPU memory." );
-	return normals;
+	return m_normals;
 }
 
 int SkeletonMesh::getTexcoordsCount() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTexcoordsCount - Mesh not loaded in CPU memory." );
-	return (int)texcoords.size();
+	return (int)m_texcoords.size();
 }
 
 const std::vector<float2>& SkeletonMesh::getTexcoords( int setIndex ) const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTexcoords - Mesh not loaded in CPU memory." );
-	if ( setIndex >= (int)texcoords.size() ) throw std::exception( "SkeletonMesh::getTexcoords: Trying to access texcoords at non-existing index" );
+	if ( setIndex >= (int)m_texcoords.size() ) throw std::exception( "SkeletonMesh::getTexcoords: Trying to access texcoords at non-existing index" );
 
-	std::list< std::vector<float2> >::const_iterator it = texcoords.begin();
+	std::list< std::vector<float2> >::const_iterator it = m_texcoords.begin();
 	for ( int i = 0; i < setIndex; ++i ) ++it;
 
 	return *it;
@@ -437,9 +437,9 @@ const std::vector<float2>& SkeletonMesh::getTexcoords( int setIndex ) const
 std::vector<float2>& SkeletonMesh::getTexcoords( int setIndex )
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTexcoords - Mesh not loaded in CPU memory." );
-	if ( setIndex >= (int)texcoords.size() ) throw std::exception( "SkeletonMesh::getTexcoords: Trying to access texcoords at non-existing index" );
+	if ( setIndex >= (int)m_texcoords.size() ) throw std::exception( "SkeletonMesh::getTexcoords: Trying to access texcoords at non-existing index" );
 
-	std::list< std::vector<float2> >::iterator it = texcoords.begin();
+	std::list< std::vector<float2> >::iterator it = m_texcoords.begin();
 	for ( int i = 0; i < setIndex; ++i ) ++it;
 
 	return *it;
@@ -448,43 +448,43 @@ std::vector<float2>& SkeletonMesh::getTexcoords( int setIndex )
 const std::vector<uint3>& SkeletonMesh::getTriangles() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTriangles - Mesh not loaded in CPU memory." );
-	return triangles;
+	return m_triangles;
 }
 
 std::vector<uint3>& SkeletonMesh::getTriangles()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::getTriangles - Mesh not loaded in CPU memory." );
-	return triangles;
+	return m_triangles;
 }
 
 ID3D11Buffer* SkeletonMesh::getVertexBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "SkeletonMesh::getVertexBuffer - Mesh not loaded in GPU memory." );
-	return vertexBuffer.Get();
+	return m_vertexBuffer.Get();
 }
 
 ID3D11Buffer* SkeletonMesh::getVertexWeightsBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "SkeletonMesh::getVertexWeightsBuffer - Mesh not loaded in GPU memory." );
-	return vertexWeightsBuffer.Get();
+	return m_vertexWeightsBuffer.Get();
 }
 
 ID3D11Buffer* SkeletonMesh::getVertexBonesBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "SkeletonMesh::getVertexBonesBuffer - Mesh not loaded in GPU memory." );
-	return vertexBonesBuffer.Get();
+	return m_vertexBonesBuffer.Get();
 }
 
 ID3D11Buffer* SkeletonMesh::getNormalBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "SkeletonMesh::getNormalBuffer - Mesh not loaded in GPU memory." );
-	return normalBuffer.Get();
+	return m_normalBuffer.Get();
 }
 
 ID3D11Buffer* SkeletonMesh::getTangentBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "SkeletonMesh::getTangentBuffer - Mesh not loaded in GPU memory." );
-	return tangentBuffer.Get();
+	return m_tangentBuffer.Get();
 }
 
 std::list< ID3D11Buffer* > SkeletonMesh::getTexcoordBuffers() const
@@ -493,7 +493,7 @@ std::list< ID3D11Buffer* > SkeletonMesh::getTexcoordBuffers() const
 	
 	std::list< ID3D11Buffer* > tmpTexcoordBuffers;
 
-	for ( auto it = texcoordBuffers.begin( ); it != texcoordBuffers.end( ); ++it ) {
+	for ( auto it = m_texcoordBuffers.begin( ); it != m_texcoordBuffers.end( ); ++it ) {
 		tmpTexcoordBuffers.push_back( it->Get( ) );
 	}
 
@@ -503,7 +503,7 @@ std::list< ID3D11Buffer* > SkeletonMesh::getTexcoordBuffers() const
 ID3D11Buffer* SkeletonMesh::getTriangleBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "SkeletonMesh::getTriangleBuffer - Mesh not loaded in GPU memory." );
-	return triangleBuffer.Get();
+	return m_triangleBuffer.Get();
 }
 
 void SkeletonMesh::attachVertexToBone( int vertexIndex, unsigned char boneIndex, float weight )
@@ -514,8 +514,8 @@ void SkeletonMesh::attachVertexToBone( int vertexIndex, unsigned char boneIndex,
 
 	const int bonesPerVertexCountInt = static_cast<int>( bonesPerVertexCount );
 
-	unsigned char* selectedVertexBones = &vertexBones.at( vertexIndex * bonesPerVertexCountInt );
-	float*         selectedVertexWeights = &vertexWeights.at( vertexIndex * bonesPerVertexCountInt );
+	unsigned char* selectedVertexBones = &m_vertexBones.at( vertexIndex * bonesPerVertexCountInt );
+	float*         selectedVertexWeights = &m_vertexWeights.at( vertexIndex * bonesPerVertexCountInt );
 
 	if ( selectedVertexBones[ 0 ] == 0 ) { // If all slots are empty.
 		selectedVertexBones[ 0 ] = boneIndex;
@@ -552,8 +552,8 @@ bool SkeletonMesh::attachVertexToBoneIfPossible( int vertexIndex, unsigned char 
 
 	const int bonesPerVertexCountInt = static_cast<int>( bonesPerVertexCount );
 
-	unsigned char* selectedVertexBones = &vertexBones.at( vertexIndex * bonesPerVertexCountInt );
-	float* selectedVertexWeights = &vertexWeights.at( vertexIndex * bonesPerVertexCountInt );
+	unsigned char* selectedVertexBones = &m_vertexBones.at( vertexIndex * bonesPerVertexCountInt );
+	float* selectedVertexWeights = &m_vertexWeights.at( vertexIndex * bonesPerVertexCountInt );
 
 	if ( selectedVertexBones[ 0 ] == 0 ) { // If all slots are empty.
 		selectedVertexBones[ 0 ] = boneIndex;
@@ -592,9 +592,9 @@ void SkeletonMesh::normalizeVertexWeights()
 {
 	const unsigned int bonesPerVertexCountInt = static_cast<unsigned int>( bonesPerVertexCount );
 
-	for ( unsigned int i = 0; i < vertexWeights.size( ); i += bonesPerVertexCountInt )
+	for ( unsigned int i = 0; i < m_vertexWeights.size( ); i += bonesPerVertexCountInt )
 	{
-		float* selectedVertexWeights = &vertexWeights.at( i );
+		float* selectedVertexWeights = &m_vertexWeights.at( i );
 
 		// Calculate sum of weights.
 		float weightsSum = 0.0f;
@@ -611,7 +611,7 @@ void SkeletonMesh::normalizeVertexWeights()
 
 unsigned char SkeletonMesh::getBoneCount( ) const 
 { 
-	return static_cast<unsigned char>( bones.size( ) ); 
+	return static_cast<unsigned char>( m_bones.size( ) ); 
 }
 
 BonesPerVertexCount::Type SkeletonMesh::getBonesPerVertexCount( ) const 
@@ -648,7 +648,7 @@ void SkeletonMesh::addOrModifyBone( const unsigned char boneIndex, const std::st
 
 #ifdef _DEBUG
 	unsigned char checkedBoneIndex = 1;
-	for ( Bone& bone : bones )
+	for ( Bone& bone : m_bones )
 	{
 		if ( checkedBoneIndex != boneIndex && bone.getName().compare( name ) == 0 ) {
 			throw std::exception( ( std::string( "SkeletonMesh::addOrModifyBone - another bone with such name already exists. (name = \"" ) + name + std::string( "\")." ) ).c_str() );
@@ -658,10 +658,10 @@ void SkeletonMesh::addOrModifyBone( const unsigned char boneIndex, const std::st
 #endif
 
 	// Increse the size of the vector of bones if needed.
-	if ( bones.size() < boneIndex ) bones.resize( boneIndex );
+	if ( m_bones.size() < boneIndex ) m_bones.resize( boneIndex );
 
 	// Assign the bone.
-	bones.at( boneIndex - 1 ) = Bone( name, parentBoneIndex, bindPose );
+	m_bones.at( boneIndex - 1 ) = Bone( name, parentBoneIndex, bindPose );
 }
 
 void SkeletonMesh::addOrModifyBone( const unsigned char boneIndex, const std::string& name, const unsigned char parentBoneIndex, const float43& bindPose, const float43& bindPoseInv )
@@ -671,7 +671,7 @@ void SkeletonMesh::addOrModifyBone( const unsigned char boneIndex, const std::st
 
 #ifdef _DEBUG
 	unsigned char checkedBoneIndex = 1;
-	for ( Bone& bone : bones )
+	for ( Bone& bone : m_bones )
 	{
 		if ( checkedBoneIndex != boneIndex && bone.getName().compare( name ) == 0 ) {
 			throw std::exception( ( std::string( "SkeletonMesh::addOrModifyBone - another bone with such name already exists. (name = \"" ) + name + std::string( "\")." ) ).c_str() );
@@ -681,16 +681,16 @@ void SkeletonMesh::addOrModifyBone( const unsigned char boneIndex, const std::st
 #endif
 
 	// Increse the size of the vector of bones if needed.
-	if ( bones.size() < boneIndex ) bones.resize( boneIndex );
+	if ( m_bones.size() < boneIndex ) m_bones.resize( boneIndex );
 
 	// Assign the bone.
-	bones.at( boneIndex - 1 ) = Bone( name, parentBoneIndex, bindPose, bindPoseInv );
+	m_bones.at( boneIndex - 1 ) = Bone( name, parentBoneIndex, bindPose, bindPoseInv );
 }
 
 unsigned char SkeletonMesh::getBoneIndex( const std::string& name ) const
 {
-	for ( unsigned char i = 0; i < bones.size(); ++i ) {
-		if ( bones.at( i ).getName().compare( name ) == 0 ) return i + 1; // i + 1 - because bone indexing starts at 1.
+	for ( unsigned char i = 0; i < m_bones.size(); ++i ) {
+		if ( m_bones.at( i ).getName().compare( name ) == 0 ) return i + 1; // i + 1 - because bone indexing starts at 1.
 	}
 
 	//bone not found
@@ -699,8 +699,8 @@ unsigned char SkeletonMesh::getBoneIndex( const std::string& name ) const
 
 std::tuple< bool, unsigned char > SkeletonMesh::findBoneIndex( const std::string& name ) const
 {
-	for ( unsigned char i = 0; i < bones.size(); ++i ) {
-		if ( bones.at( i ).getName().compare( name ) == 0 ) return std::make_tuple( true, i + 1 ); // i + 1 - because bone indexing starts at 1.
+	for ( unsigned char i = 0; i < m_bones.size(); ++i ) {
+		if ( m_bones.at( i ).getName().compare( name ) == 0 ) return std::make_tuple( true, i + 1 ); // i + 1 - because bone indexing starts at 1.
 	}
 
 	return std::make_tuple( false, 0 );
@@ -708,7 +708,7 @@ std::tuple< bool, unsigned char > SkeletonMesh::findBoneIndex( const std::string
 
 const SkeletonMesh::Bone& SkeletonMesh::getBone( const std::string& name ) const
 {
-	return bones.at( getBoneIndex( name ) );
+	return m_bones.at( getBoneIndex( name ) );
 }
 
 const SkeletonMesh::Bone& SkeletonMesh::getBone( unsigned char index ) const
@@ -716,15 +716,15 @@ const SkeletonMesh::Bone& SkeletonMesh::getBone( unsigned char index ) const
 	// Note: boneIndex is in range 1 - 255.
 	if ( index == 0 ) throw std::exception( "SkeletonMesh::getBone - boneIndex cannot be 0." );
 
-	return bones.at( index - 1 );
+	return m_bones.at( index - 1 );
 }
 
 void SkeletonMesh::recalculateBoundingBox()
 {
-    std::tie( boundingBoxMin, boundingBoxMax ) = MathUtil::calculateBoundingBox( vertices );
+    std::tie( m_boundingBoxMin, m_boundingBoxMax ) = MathUtil::calculateBoundingBox( m_vertices );
 }
 
 std::tuple<float3, float3> SkeletonMesh::getBoundingBox() const
 {
-    return std::make_tuple( boundingBoxMin, boundingBoxMax );
+    return std::make_tuple( m_boundingBoxMin, m_boundingBoxMax );
 }

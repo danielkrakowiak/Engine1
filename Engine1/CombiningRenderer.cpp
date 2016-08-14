@@ -12,13 +12,13 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 CombiningRenderer::CombiningRenderer( Direct3DRendererCore& rendererCore ) :
-rendererCore( rendererCore ),
-initialized( false ),
-combiningVertexShader( std::make_shared< CombiningVertexShader >() ),
-combiningFragmentShader( std::make_shared< CombiningFragmentShader >() ),
-combiningFragmentShader2( std::make_shared< CombiningFragmentShader2 >() ),
-normalThreshold( 0.97f ),
-positionThreshold( 0.15f )
+    m_rendererCore( rendererCore ),
+    m_initialized( false ),
+    m_combiningVertexShader( std::make_shared< CombiningVertexShader >() ),
+    m_combiningFragmentShader( std::make_shared< CombiningFragmentShader >() ),
+    m_combiningFragmentShader2( std::make_shared< CombiningFragmentShader2 >() ),
+    m_normalThreshold( 0.97f ),
+    m_positionThreshold( 0.15f )
 {}
 
 CombiningRenderer::~CombiningRenderer()
@@ -28,11 +28,11 @@ void CombiningRenderer::initialize( const int screenWidth, const int screenHeigh
                                     ComPtr< ID3D11Device > device, 
                                     ComPtr< ID3D11DeviceContext > deviceContext )
 {
-    this->device        = device;
-	this->deviceContext = deviceContext;
+    this->m_device        = device;
+	this->m_deviceContext = deviceContext;
 
-    rasterizerState = createRasterizerState( *device.Get() );
-	blendState      = createBlendState( *device.Get() );
+    m_rasterizerState = createRasterizerState( *device.Get() );
+	m_blendState      = createBlendState( *device.Get() );
 
     // TODO: Should be done through rendererCore every time before rendering.
 	{ // Initialize viewport.
@@ -50,10 +50,10 @@ void CombiningRenderer::initialize( const int screenWidth, const int screenHeigh
     loadAndCompileShaders( *device.Get() );
 
     { // Load default rectangle mesh to GPU.
-		rectangleMesh.loadCpuToGpu( *device.Get() );
+		m_rectangleMesh.loadCpuToGpu( *device.Get() );
 	}
 
-	initialized = true;
+	m_initialized = true;
 }
 
 void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
@@ -65,7 +65,7 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
                                  const float3 cameraPosition )
 {
-    if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
+    if ( !m_initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -74,25 +74,25 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsF4.push_back( destTexture );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
-		combiningVertexShader->setParameters( *deviceContext.Get() );
-		combiningFragmentShader->setParameters( *deviceContext.Get(), srcTexture, reflectionTermTexture, normalTexture, positionTexture, depthTexture, hitDistanceTexture,
-                                                normalThreshold, positionThreshold, cameraPosition );
+		m_combiningVertexShader->setParameters( *m_deviceContext.Get() );
+		m_combiningFragmentShader->setParameters( *m_deviceContext.Get(), srcTexture, reflectionTermTexture, normalTexture, positionTexture, depthTexture, hitDistanceTexture,
+                                                m_normalThreshold, m_positionThreshold, cameraPosition );
 
-		rendererCore.enableRenderingShaders( combiningVertexShader, combiningFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_combiningVertexShader, m_combiningFragmentShader );
 	}
 
-	rendererCore.enableRasterizerState( *rasterizerState.Get() );
-	rendererCore.enableBlendState( *blendState.Get() );
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
 
-	rendererCore.draw( rectangleMesh );
+	m_rendererCore.draw( m_rectangleMesh );
 
-	combiningFragmentShader->unsetParameters( *deviceContext.Get() );
+	m_combiningFragmentShader->unsetParameters( *m_deviceContext.Get() );
     
-    rendererCore.disableRenderTargetViews();
+    m_rendererCore.disableRenderTargetViews();
 }
 
 void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
@@ -104,7 +104,7 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture )
 {
-    if ( !initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
+    if ( !m_initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -113,45 +113,45 @@ void CombiningRenderer::combine( std::shared_ptr< TTexture2D< TexUsage::Default,
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsF4.push_back( destTexture );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
-		combiningVertexShader->setParameters( *deviceContext.Get() );
-		combiningFragmentShader2->setParameters( *deviceContext.Get(), srcTexture, reflectionTermTexture, previousHitNormalTexture, previousHitPositionTexture, previousHitDistanceTexture, hitDistanceTexture,
-                                                previousRayOriginTexture, normalThreshold, positionThreshold );
+		m_combiningVertexShader->setParameters( *m_deviceContext.Get() );
+		m_combiningFragmentShader2->setParameters( *m_deviceContext.Get(), srcTexture, reflectionTermTexture, previousHitNormalTexture, previousHitPositionTexture, previousHitDistanceTexture, hitDistanceTexture,
+                                                previousRayOriginTexture, m_normalThreshold, m_positionThreshold );
 
-		rendererCore.enableRenderingShaders( combiningVertexShader, combiningFragmentShader2 );
+		m_rendererCore.enableRenderingShaders( m_combiningVertexShader, m_combiningFragmentShader2 );
 	}
 
-	rendererCore.enableRasterizerState( *rasterizerState.Get() );
-	rendererCore.enableBlendState( *blendState.Get() );
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
 
-	rendererCore.draw( rectangleMesh );
+	m_rendererCore.draw( m_rectangleMesh );
 
-	combiningFragmentShader2->unsetParameters( *deviceContext.Get() );
+	m_combiningFragmentShader2->unsetParameters( *m_deviceContext.Get() );
     
-    rendererCore.disableRenderTargetViews();
+    m_rendererCore.disableRenderTargetViews();
 }
 
 void CombiningRenderer::setNormalThreshold( float threshold )
 {
-    normalThreshold = fmax( 0.0f, fmin( 1.0f, threshold));
+    m_normalThreshold = fmax( 0.0f, fmin( 1.0f, threshold));
 }
 
 float CombiningRenderer::getNormalThreshold() const
 {
-    return normalThreshold;
+    return m_normalThreshold;
 }
 
 void CombiningRenderer::setPositionThreshold( float threshold )
 {
-    positionThreshold = fmax( 0.0f, threshold);
+    m_positionThreshold = fmax( 0.0f, threshold);
 }
 
 float CombiningRenderer::getPositionThreshold() const
 {
-    return positionThreshold;
+    return m_positionThreshold;
 }
 
 ComPtr<ID3D11RasterizerState> CombiningRenderer::createRasterizerState( ID3D11Device& device )
@@ -214,7 +214,7 @@ ComPtr<ID3D11BlendState> CombiningRenderer::createBlendState( ID3D11Device& devi
 
 void CombiningRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    combiningVertexShader->compileFromFile( "Shaders/CombiningShader/vs.hlsl", device );
-    combiningFragmentShader->compileFromFile( "Shaders/CombiningShader/ps.hlsl", device );
-    combiningFragmentShader2->compileFromFile( "Shaders/CombiningShader/ps2.hlsl", device );
+    m_combiningVertexShader->compileFromFile( "Shaders/CombiningShader/vs.hlsl", device );
+    m_combiningFragmentShader->compileFromFile( "Shaders/CombiningShader/ps.hlsl", device );
+    m_combiningFragmentShader2->compileFromFile( "Shaders/CombiningShader/ps2.hlsl", device );
 }

@@ -6,20 +6,20 @@
 using namespace Engine1;
 
 SkeletonActor::SkeletonActor( std::shared_ptr<SkeletonModel> model, const float43& pose ) :
-    pose( pose ),
-    model( model ),
-    animationProgress( 0.0f ),
-    animationSpeed( 0.0f )
+    m_pose( pose ),
+    m_model( model ),
+    m_animationProgress( 0.0f ),
+    m_animationSpeed( 0.0f )
 {
     resetSkeletonPose();
 }
 
 SkeletonActor::SkeletonActor( std::shared_ptr<SkeletonModel> model, const float43& pose, const SkeletonPose& skeletonPose ) :
-    pose( pose ),
-    skeletonPose( skeletonPose ),
-    model( model ),
-    animationProgress( 0.0f ),
-    animationSpeed( 0.0f )
+    m_pose( pose ),
+    m_skeletonPose( skeletonPose ),
+    m_model( model ),
+    m_animationProgress( 0.0f ),
+    m_animationSpeed( 0.0f )
 {
     //#TODO: should it check whether skeletonPose is correct for the passed mesh?
 }
@@ -36,48 +36,48 @@ Actor::Type SkeletonActor::getType() const
 
 const float43& SkeletonActor::getPose( ) const
 {
-    return pose;
+    return m_pose;
 }
 
 float43& SkeletonActor::getPose( )
 {
-    return pose;
+    return m_pose;
 }
 
 const SkeletonPose& SkeletonActor::getSkeletonPose( ) const
 {
-    return skeletonPose;
+    return m_skeletonPose;
 }
 
 SkeletonPose& SkeletonActor::getSkeletonPose( )
 {
-    return skeletonPose;
+    return m_skeletonPose;
 }
 
 std::shared_ptr<const SkeletonModel> SkeletonActor::getModel( ) const
 {
-    return model;
+    return m_model;
 }
 
 std::shared_ptr<SkeletonModel> SkeletonActor::getModel( )
 {
-    return model;
+    return m_model;
 }
 
 void SkeletonActor::setPose( const float43& pose )
 {
-    this->pose = pose;
+    this->m_pose = pose;
 }
 
 void SkeletonActor::setSkeletonPose( const SkeletonPose& poseInSkeletonSpace )
 {
-    this->skeletonPose = poseInSkeletonSpace;
+    this->m_skeletonPose = poseInSkeletonSpace;
     //#TODO: should it check whether skeletonPose is correct for the passed mesh?
 }
 
 void SkeletonActor::setModel( std::shared_ptr<SkeletonModel> model )
 {
-    this->model = model;
+    this->m_model = model;
     
     //#TODO: should it check whether skeletonPose is correct for the passed mesh?
     resetSkeletonPose();
@@ -85,32 +85,32 @@ void SkeletonActor::setModel( std::shared_ptr<SkeletonModel> model )
 
 void SkeletonActor::resetSkeletonPose()
 {
-    if ( model && model->getMesh() )
-        skeletonPose = SkeletonPose::createIdentityPoseInSkeletonSpace( *model->getMesh() );
+    if ( m_model && m_model->getMesh() )
+        m_skeletonPose = SkeletonPose::createIdentityPoseInSkeletonSpace( *m_model->getMesh() );
     else
-        skeletonPose.clear();
+        m_skeletonPose.clear();
 }
 
 void SkeletonActor::startAnimation( const std::shared_ptr< SkeletonAnimation > animationInSkeletonSpace )
 {
-    if ( !model || !model->getMesh() || !animationInSkeletonSpace || animationInSkeletonSpace->getKeyframeCount() == 0 ||
-         animationInSkeletonSpace->getPose( 0 ).getBonesCount() != model->getMesh()->getBoneCount() )
+    if ( !m_model || !m_model->getMesh() || !animationInSkeletonSpace || animationInSkeletonSpace->getKeyframeCount() == 0 ||
+         animationInSkeletonSpace->getPose( 0 ).getBonesCount() != m_model->getMesh()->getBoneCount() )
         return;
 
-    this->animation         = animationInSkeletonSpace;
-    this->animationProgress = 0.0f;
-    this->animationSpeed    = 1.0f / (float)animationInSkeletonSpace->getKeyframeCount(); // Temporarily assuming that whole animation takes 1 second.
+    this->m_animation         = animationInSkeletonSpace;
+    this->m_animationProgress = 0.0f;
+    this->m_animationSpeed    = 1.0f / (float)animationInSkeletonSpace->getKeyframeCount(); // Temporarily assuming that whole animation takes 1 second.
 
     setSkeletonPose( animationInSkeletonSpace->getPose( 0 ) );
 }
 
 void SkeletonActor::updateAnimation( const float deltaTime )
 {
-    if (!animation)
+    if (!m_animation)
         return;
 
-    animationProgress += animationSpeed * deltaTime;
-    animationProgress = fmod( animationProgress, 1.0f );
+    m_animationProgress += m_animationSpeed * deltaTime;
+    m_animationProgress = fmod( m_animationProgress, 1.0f );
 
-    setSkeletonPose( animation->getInterpolatedPose( animationProgress ) );
+    setSkeletonPose( m_animation->getInterpolatedPose( m_animationProgress ) );
 }

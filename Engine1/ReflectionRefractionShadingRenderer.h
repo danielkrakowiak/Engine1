@@ -70,25 +70,25 @@ namespace Engine1
 
         static const int maxRenderTargetCount;
 
-        Direct3DRendererCore& rendererCore;
+        Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
 
-        bool initialized;
+        bool m_initialized;
 
         // Render targets.
-        int imageWidth, imageHeight;
+        int m_imageWidth, m_imageHeight;
         
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > > contributionTermRoughnessRenderTargets;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > > m_contributionTermRoughnessRenderTargets;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
-        std::shared_ptr< ReflectionShadingComputeShader >   reflectionShadingComputeShader;
-        std::shared_ptr< ReflectionShadingComputeShader2 >  reflectionShadingComputeShader2;
-        std::shared_ptr< RefractionShadingComputeShader >   refractionShadingComputeShader;
-        std::shared_ptr< RefractionShadingComputeShader2 >  refractionShadingComputeShader2;
+        std::shared_ptr< ReflectionShadingComputeShader >   m_reflectionShadingComputeShader;
+        std::shared_ptr< ReflectionShadingComputeShader2 >  m_reflectionShadingComputeShader2;
+        std::shared_ptr< RefractionShadingComputeShader >   m_refractionShadingComputeShader;
+        std::shared_ptr< RefractionShadingComputeShader2 >  m_refractionShadingComputeShader2;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

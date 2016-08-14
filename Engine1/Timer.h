@@ -18,7 +18,7 @@ namespace Engine1
         static double timerFrequencyInKHz;
 
 
-        LARGE_INTEGER time;
+        LARGE_INTEGER m_time;
 
         // Copying is not allowed.
         Timer( const Timer& ) = delete;

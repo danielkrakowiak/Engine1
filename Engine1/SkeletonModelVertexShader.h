@@ -32,7 +32,7 @@ namespace Engine1
 
         private:
 
-        BonesPerVertexCount::Type bonesPerVertexCurrentConfig;
+        BonesPerVertexCount::Type m_bonesPerVertexCurrentConfig;
 
         // Input layouts for each possible number of bones per vertex.
         std::map< BonesPerVertexCount::Type, Microsoft::WRL::ComPtr<ID3D11InputLayout> > inputLayouts;

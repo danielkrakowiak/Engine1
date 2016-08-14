@@ -12,12 +12,12 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 EdgeDetectionRenderer::EdgeDetectionRenderer( Direct3DRendererCore& rendererCore ) :
-rendererCore( rendererCore ),
-initialized( false ),
-imageWidth( 0 ),
-imageHeight( 0 ),
-edgeDetectionComputeShader( std::make_shared< EdgeDetectionComputeShader >() ),
-edgeDistanceComputeShader( std::make_shared< EdgeDistanceComputeShader >() )
+    m_rendererCore( rendererCore ),
+    m_initialized( false ),
+    m_imageWidth( 0 ),
+    m_imageHeight( 0 ),
+    m_edgeDetectionComputeShader( std::make_shared< EdgeDetectionComputeShader >() ),
+    m_edgeDistanceComputeShader( std::make_shared< EdgeDistanceComputeShader >() )
 {}
 
 EdgeDetectionRenderer::~EdgeDetectionRenderer()
@@ -26,27 +26,27 @@ EdgeDetectionRenderer::~EdgeDetectionRenderer()
 void EdgeDetectionRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, 
                                           ComPtr< ID3D11DeviceContext > deviceContext )
 {
-    this->device        = device;
-	this->deviceContext = deviceContext;
+    this->m_device        = device;
+	this->m_deviceContext = deviceContext;
 
-	this->imageWidth  = imageWidth;
-	this->imageHeight = imageHeight;
+	this->m_imageWidth  = imageWidth;
+	this->m_imageHeight = imageHeight;
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 
     loadAndCompileShaders( *device.Get() );
 
-	initialized = true;
+	m_initialized = true;
 }
 
 void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                                   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture )
 {
     // For test - may not be necessary.
-    valueRenderTargetSrc->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 255, 0, 0, 0 ) );
-    valueRenderTargetDest->clearUnorderedAccessViewUint( *deviceContext.Get(), uint4( 255, 0, 0, 0 ) );
+    m_valueRenderTargetSrc->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 0, 0, 0 ) );
+    m_valueRenderTargetDest->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 0, 0, 0 ) );
 
-    rendererCore.disableRenderingPipeline();
+    m_rendererCore.disableRenderingPipeline();
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
@@ -55,72 +55,72 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
     
     { // Mark edges with value of 0.
-        unorderedAccessTargetsU1.push_back( valueRenderTargetDest );
-        rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
+        unorderedAccessTargetsU1.push_back( m_valueRenderTargetDest );
+        m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
                                                    unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-        edgeDetectionComputeShader->setParameters( *deviceContext.Get(), *positionTexture, *normalTexture );
+        m_edgeDetectionComputeShader->setParameters( *m_deviceContext.Get(), *positionTexture, *normalTexture );
 
-        rendererCore.enableComputeShader( edgeDetectionComputeShader );
+        m_rendererCore.enableComputeShader( m_edgeDetectionComputeShader );
 
-        uint3 groupCount( imageWidth / 8, imageHeight / 8, 1 );
+        uint3 groupCount( m_imageWidth / 8, m_imageHeight / 8, 1 );
 
-        rendererCore.compute( groupCount );
+        m_rendererCore.compute( groupCount );
 
-        edgeDetectionComputeShader->unsetParameters( *deviceContext.Get() );
+        m_edgeDetectionComputeShader->unsetParameters( *m_deviceContext.Get() );
     }
 
     { // Calculate distance to nearest edge for each pixel - in 255 passes (because max dist is 255).
-         rendererCore.enableComputeShader( edgeDistanceComputeShader );
+         m_rendererCore.enableComputeShader( m_edgeDistanceComputeShader );
 
-         uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+         uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
 
          for ( int i = 1; i <= 255; ++i ) 
          {
              // Unset parameters to avoid binding the same resource twice.
-             edgeDistanceComputeShader->unsetParameters( *deviceContext.Get() );
+             m_edgeDistanceComputeShader->unsetParameters( *m_deviceContext.Get() );
 
              // Swap source and destination texture.
              swapSrcDestRenderTargets();
 
              // Enable new destination render target.
              unorderedAccessTargetsU1.clear();
-             unorderedAccessTargetsU1.push_back( valueRenderTargetDest );
-             rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
+             unorderedAccessTargetsU1.push_back( m_valueRenderTargetDest );
+             m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
                                                         unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-             edgeDistanceComputeShader->setParameters( *deviceContext.Get(), *valueRenderTargetSrc, (unsigned char)i );
+             m_edgeDistanceComputeShader->setParameters( *m_deviceContext.Get(), *m_valueRenderTargetSrc, (unsigned char)i );
 
-             rendererCore.compute( groupCount );
+             m_rendererCore.compute( groupCount );
          }
     }
 
-    rendererCore.disableComputePipeline();
+    m_rendererCore.disableComputePipeline();
 }
 
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > EdgeDetectionRenderer::getValueRenderTarget()
 {
-    return valueRenderTargetDest;
+    return m_valueRenderTargetDest;
 }
 
 void EdgeDetectionRenderer::swapSrcDestRenderTargets()
 {
-    auto valueRenderTargetTemp = valueRenderTargetSrc;
-    valueRenderTargetSrc       = valueRenderTargetDest;
-    valueRenderTargetDest      = valueRenderTargetTemp;
+    auto valueRenderTargetTemp = m_valueRenderTargetSrc;
+    m_valueRenderTargetSrc       = m_valueRenderTargetDest;
+    m_valueRenderTargetDest      = valueRenderTargetTemp;
 }
 
 void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    valueRenderTargetDest = valueRenderTarget0 = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+    m_valueRenderTargetDest = m_valueRenderTarget0 = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 
-    valueRenderTargetSrc = valueRenderTarget1 = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+    m_valueRenderTargetSrc = m_valueRenderTarget1 = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 }
 
 void EdgeDetectionRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    edgeDetectionComputeShader->compileFromFile( "Shaders/EdgeDetectionShader/cs.hlsl", device );
-    edgeDistanceComputeShader->compileFromFile( "Shaders/EdgeDistanceShader/cs.hlsl", device );
+    m_edgeDetectionComputeShader->compileFromFile( "Shaders/EdgeDetectionShader/cs.hlsl", device );
+    m_edgeDistanceComputeShader->compileFromFile( "Shaders/EdgeDistanceShader/cs.hlsl", device );
 }

@@ -56,23 +56,23 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& rendererCore;
+        Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
 
-        bool initialized;
+        bool m_initialized;
 
         // Render targets.
-        int imageWidth, imageHeight;
+        int m_imageWidth, m_imageHeight;
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > colorRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_colorRenderTarget;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
-        std::shared_ptr< ShadingComputeShader >  shadingComputeShader;
-        std::shared_ptr< ShadingComputeShader2 > shadingComputeShader2;
+        std::shared_ptr< ShadingComputeShader >  m_shadingComputeShader;
+        std::shared_ptr< ShadingComputeShader2 > m_shadingComputeShader2;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

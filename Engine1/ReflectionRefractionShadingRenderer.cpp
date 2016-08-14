@@ -17,14 +17,14 @@ using Microsoft::WRL::ComPtr;
 const int ReflectionRefractionShadingRenderer::maxRenderTargetCount = 10;
 
 ReflectionRefractionShadingRenderer::ReflectionRefractionShadingRenderer( Direct3DRendererCore& rendererCore ) :
-rendererCore( rendererCore ),
-initialized( false ),
-imageWidth( 0 ),
-imageHeight( 0 ),
-reflectionShadingComputeShader( std::make_shared< ReflectionShadingComputeShader >() ),
-reflectionShadingComputeShader2( std::make_shared< ReflectionShadingComputeShader2 >() ),
-refractionShadingComputeShader( std::make_shared< RefractionShadingComputeShader >() ),
-refractionShadingComputeShader2( std::make_shared< RefractionShadingComputeShader2 >() )
+    m_rendererCore( rendererCore ),
+    m_initialized( false ),
+    m_imageWidth( 0 ),
+    m_imageHeight( 0 ),
+    m_reflectionShadingComputeShader( std::make_shared< ReflectionShadingComputeShader >() ),
+    m_reflectionShadingComputeShader2( std::make_shared< ReflectionShadingComputeShader2 >() ),
+    m_refractionShadingComputeShader( std::make_shared< RefractionShadingComputeShader >() ),
+    m_refractionShadingComputeShader2( std::make_shared< RefractionShadingComputeShader2 >() )
 {}
 
 ReflectionRefractionShadingRenderer::~ReflectionRefractionShadingRenderer()
@@ -33,17 +33,17 @@ ReflectionRefractionShadingRenderer::~ReflectionRefractionShadingRenderer()
 void ReflectionRefractionShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, 
                                           ComPtr< ID3D11DeviceContext > deviceContext )
 {
-    this->device        = device;
-	this->deviceContext = deviceContext;
+    this->m_device        = device;
+	this->m_deviceContext = deviceContext;
 
-	this->imageWidth  = imageWidth;
-	this->imageHeight = imageHeight;
+	this->m_imageWidth  = imageWidth;
+	this->m_imageHeight = imageHeight;
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 
     loadAndCompileShaders( *device.Get() );
 
-	initialized = true;
+	m_initialized = true;
 }
 
 void ReflectionRefractionShadingRenderer::performFirstReflectionShading( const Camera& camera,
@@ -53,24 +53,24 @@ void ReflectionRefractionShadingRenderer::performFirstReflectionShading( const C
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture )
 {
-    rendererCore.disableRenderingPipeline();
+    m_rendererCore.disableRenderingPipeline();
 
-    reflectionShadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture );
+    m_reflectionShadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture );
 
-    rendererCore.enableComputeShader( reflectionShadingComputeShader );
+    m_rendererCore.enableComputeShader( m_reflectionShadingComputeShader );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( contributionTermRoughnessRenderTargets.at( 0 ) );
+    unorderedAccessTargets.push_back( m_contributionTermRoughnessRenderTargets.at( 0 ) );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
 
-    rendererCore.compute( groupCount );
+    m_rendererCore.compute( groupCount );
 
-    reflectionShadingComputeShader->unsetParameters( *deviceContext.Get() );
+    m_reflectionShadingComputeShader->unsetParameters( *m_deviceContext.Get() );
 
-    rendererCore.disableComputePipeline();
+    m_rendererCore.disableComputePipeline();
 }
 
 void ReflectionRefractionShadingRenderer::performReflectionShading( const int level,
@@ -81,24 +81,24 @@ void ReflectionRefractionShadingRenderer::performReflectionShading( const int le
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture )
 {
-    rendererCore.disableRenderingPipeline();
+    m_rendererCore.disableRenderingPipeline();
 
-    reflectionShadingComputeShader2->setParameters( *deviceContext.Get(), rayOriginTexture, positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture, getContributionTermRoughnessTarget( level - 1 ) );
+    m_reflectionShadingComputeShader2->setParameters( *m_deviceContext.Get(), rayOriginTexture, positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture, getContributionTermRoughnessTarget( level - 1 ) );
 
-    rendererCore.enableComputeShader( reflectionShadingComputeShader2 );
+    m_rendererCore.enableComputeShader( m_reflectionShadingComputeShader2 );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( contributionTermRoughnessRenderTargets.at( level ) );
+    unorderedAccessTargets.push_back( m_contributionTermRoughnessRenderTargets.at( level ) );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
 
-    rendererCore.compute( groupCount );
+    m_rendererCore.compute( groupCount );
 
-    reflectionShadingComputeShader2->unsetParameters( *deviceContext.Get() );
+    m_reflectionShadingComputeShader2->unsetParameters( *m_deviceContext.Get() );
 
-    rendererCore.disableComputePipeline();
+    m_rendererCore.disableComputePipeline();
 }
 
 void ReflectionRefractionShadingRenderer::performFirstRefractionShading( const Camera& camera,
@@ -108,24 +108,24 @@ void ReflectionRefractionShadingRenderer::performFirstRefractionShading( const C
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture )
 {
-    rendererCore.disableRenderingPipeline();
+    m_rendererCore.disableRenderingPipeline();
 
-    refractionShadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture, nullptr );
+    m_refractionShadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture, nullptr );
 
-    rendererCore.enableComputeShader( refractionShadingComputeShader );
+    m_rendererCore.enableComputeShader( m_refractionShadingComputeShader );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( contributionTermRoughnessRenderTargets.at( 0 ) );
+    unorderedAccessTargets.push_back( m_contributionTermRoughnessRenderTargets.at( 0 ) );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
 
-    rendererCore.compute( groupCount );
+    m_rendererCore.compute( groupCount );
 
-    refractionShadingComputeShader->unsetParameters( *deviceContext.Get() );
+    m_refractionShadingComputeShader->unsetParameters( *m_deviceContext.Get() );
 
-    rendererCore.disableComputePipeline();
+    m_rendererCore.disableComputePipeline();
 }
 
 void ReflectionRefractionShadingRenderer::performRefractionShading( const int level,
@@ -136,41 +136,41 @@ void ReflectionRefractionShadingRenderer::performRefractionShading( const int le
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture )
 {
-    rendererCore.disableRenderingPipeline();
+    m_rendererCore.disableRenderingPipeline();
 
-    refractionShadingComputeShader2->setParameters( *deviceContext.Get(), rayOriginTexture, positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture, getContributionTermRoughnessTarget( level - 1 ) );
+    m_refractionShadingComputeShader2->setParameters( *m_deviceContext.Get(), rayOriginTexture, positionTexture, normalTexture, albedoTexture, metalnessTexture, roughnessTexture, getContributionTermRoughnessTarget( level - 1 ) );
 
-    rendererCore.enableComputeShader( refractionShadingComputeShader2 );
+    m_rendererCore.enableComputeShader( m_refractionShadingComputeShader2 );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( contributionTermRoughnessRenderTargets.at( level ) );
+    unorderedAccessTargets.push_back( m_contributionTermRoughnessRenderTargets.at( level ) );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
 
-    rendererCore.compute( groupCount );
+    m_rendererCore.compute( groupCount );
 
-    refractionShadingComputeShader2->unsetParameters( *deviceContext.Get() );
+    m_refractionShadingComputeShader2->unsetParameters( *m_deviceContext.Get() );
 
-    rendererCore.disableComputePipeline();
+    m_rendererCore.disableComputePipeline();
 }
 
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > ReflectionRefractionShadingRenderer::getContributionTermRoughnessTarget( int level )
 {
-    if ( level < 0 || level >= contributionTermRoughnessRenderTargets.size() )
+    if ( level < 0 || level >= m_contributionTermRoughnessRenderTargets.size() )
         throw std::exception( "ReflectionRefractionShadingRenderer::getReflectionTermTarget - level out of bounds or negative." );
 
-    return contributionTermRoughnessRenderTargets.at( level );
+    return m_contributionTermRoughnessRenderTargets.at( level );
 }
 
 void ReflectionRefractionShadingRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    contributionTermRoughnessRenderTargets.reserve( maxRenderTargetCount );
+    m_contributionTermRoughnessRenderTargets.reserve( maxRenderTargetCount );
 
     for ( int i = 0; i < maxRenderTargetCount; ++i )
     {
-        contributionTermRoughnessRenderTargets.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
+        m_contributionTermRoughnessRenderTargets.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM ) );
     }
     
@@ -178,8 +178,8 @@ void ReflectionRefractionShadingRenderer::createRenderTargets( int imageWidth, i
 
 void ReflectionRefractionShadingRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    reflectionShadingComputeShader->compileFromFile( "Shaders/ReflectionShadingShader/cs.hlsl", device );
-    reflectionShadingComputeShader2->compileFromFile( "Shaders/ReflectionShadingShader/cs2.hlsl", device );
-    refractionShadingComputeShader->compileFromFile( "Shaders/RefractionShadingShader/cs.hlsl", device );
-    refractionShadingComputeShader2->compileFromFile( "Shaders/RefractionShadingShader/cs2.hlsl", device );
+    m_reflectionShadingComputeShader->compileFromFile( "Shaders/ReflectionShadingShader/cs.hlsl", device );
+    m_reflectionShadingComputeShader2->compileFromFile( "Shaders/ReflectionShadingShader/cs2.hlsl", device );
+    m_refractionShadingComputeShader->compileFromFile( "Shaders/RefractionShadingShader/cs.hlsl", device );
+    m_refractionShadingComputeShader2->compileFromFile( "Shaders/RefractionShadingShader/cs2.hlsl", device );
 }

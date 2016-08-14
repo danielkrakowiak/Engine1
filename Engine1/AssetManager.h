@@ -39,7 +39,7 @@ namespace Engine1
 
         Microsoft::WRL::ComPtr< ID3D11Device > m_device;
 
-        bool executeThreads;
+        bool m_executeThreads;
 
         void loadAssetsFromDisk();
         void loadAssets();
@@ -49,17 +49,17 @@ namespace Engine1
 
         std::string getId( Asset::Type type, const std::string path, const int indexInFile );
 
-        std::thread              readingFromDiskThread;
-        std::vector<std::thread> parsingThreads;
+        std::thread              m_readingFromDiskThread;
+        std::vector<std::thread> m_parsingThreads;
 
         // List of all assets which are in the course of loading or were loaded already.
-        std::mutex                      assetsMutex;
-        std::unordered_set<std::string> assets;
+        std::mutex                      m_assetsMutex;
+        std::unordered_set<std::string> m_assets;
 
-        std::mutex                                     assetsToReadFromDiskMutex;
-        std::condition_variable                        assetsToReadFromDiskNotEmpty;
-        std::list< std::shared_ptr< const FileInfo > > basicAssetsToReadFromDisk;
-        std::list< std::shared_ptr< const FileInfo > > complexAssetsToReadFromDisk;
+        std::mutex                                     m_assetsToReadFromDiskMutex;
+        std::condition_variable                        m_assetsToReadFromDiskNotEmpty;
+        std::list< std::shared_ptr< const FileInfo > > m_basicAssetsToReadFromDisk;
+        std::list< std::shared_ptr< const FileInfo > > m_complexAssetsToReadFromDisk;
 
         struct AssetToLoad
         {
@@ -82,16 +82,16 @@ namespace Engine1
             {}
         };
 
-        std::mutex               assetsToParseMutex;
-        std::condition_variable  assetsToParseNotEmpty;
-        std::list< AssetToLoad > basicAssetsToParse;
-        std::list< AssetToLoad > complexAssetsToParse;
+        std::mutex               m_assetsToParseMutex;
+        std::condition_variable  m_assetsToParseNotEmpty;
+        std::list< AssetToLoad > m_basicAssetsToParse;
+        std::list< AssetToLoad > m_complexAssetsToParse;
 
-        std::mutex                                                loadedAssetsMutex;
-        std::unordered_map< std::string, std::shared_ptr<Asset> > loadedAssets;
+        std::mutex                                                m_loadedAssetsMutex;
+        std::unordered_map< std::string, std::shared_ptr<Asset> > m_loadedAssets;
 
         // Used to notify 'getWhenLoaded' method that a new asset has just finished loading.
-        std::condition_variable assetLoaded;
+        std::condition_variable m_assetLoaded;
     };
 }
 

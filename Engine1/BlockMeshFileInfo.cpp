@@ -12,21 +12,21 @@ std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfo::createFromMemory( std::vec
 }
 
 BlockMeshFileInfo::BlockMeshFileInfo() : 
-	path( "" ),
-	format( Format::OBJ ),
-	indexInFile( 0 ),
-	invertZCoordinate( false ),
-	invertVertexWindingOrder( false ),
-	flipUVs( false )
+	m_path( "" ),
+	m_format( Format::OBJ ),
+	m_indexInFile( 0 ),
+	m_invertZCoordinate( false ),
+	m_invertVertexWindingOrder( false ),
+	m_flipUVs( false )
 {}
 
 BlockMeshFileInfo::BlockMeshFileInfo( std::string path, Format format, int indexInFile, bool invertZCoordinate, bool invertVertexWindingOrder, bool flipUVs ) :
-	path( path ),
-	format( format ),
-	indexInFile( indexInFile ),
-	invertZCoordinate( invertZCoordinate ),
-	invertVertexWindingOrder( invertVertexWindingOrder ),
-	flipUVs( flipUVs )
+    m_path( path ),
+    m_format( format ),
+    m_indexInFile( indexInFile ),
+    m_invertZCoordinate( invertZCoordinate ),
+    m_invertVertexWindingOrder( invertVertexWindingOrder ),
+    m_flipUVs( flipUVs )
 {}
 
 BlockMeshFileInfo::~BlockMeshFileInfo()
@@ -44,32 +44,32 @@ void BlockMeshFileInfo::saveToMemory( std::vector<char>& data ) const
 
 void BlockMeshFileInfo::setPath( std::string path ) 
 {
-	this->path = path;
+	this->m_path = path;
 }
 
 void BlockMeshFileInfo::setFormat( Format format )
 {
-	this->format = format;
+	this->m_format = format;
 }
 
 void BlockMeshFileInfo::setIndexInFile( int indexInFile )
 {
-	this->indexInFile = indexInFile;
+	this->m_indexInFile = indexInFile;
 }
 
 void BlockMeshFileInfo::setInvertZCoordinate( bool invertZCoordinate )
 {
-	this->invertZCoordinate = invertZCoordinate;
+	this->m_invertZCoordinate = invertZCoordinate;
 }
 
 void BlockMeshFileInfo::setInvertVertexWindingOrder( bool invertVertexWindingOrder )
 {
-	this->invertVertexWindingOrder = invertVertexWindingOrder;
+	this->m_invertVertexWindingOrder = invertVertexWindingOrder;
 }
 
 void BlockMeshFileInfo::setFlipUVs( bool flipUVs )
 {
-	this->flipUVs = flipUVs;
+	this->m_flipUVs = flipUVs;
 }
 
 Asset::Type BlockMeshFileInfo::getAssetType( ) const
@@ -79,7 +79,7 @@ Asset::Type BlockMeshFileInfo::getAssetType( ) const
 
 FileInfo::FileType BlockMeshFileInfo::getFileType() const
 {
-    if ( format == BlockMeshFileInfo::Format::OBJ || format == BlockMeshFileInfo::Format::DAE )
+    if ( m_format == BlockMeshFileInfo::Format::OBJ || m_format == BlockMeshFileInfo::Format::DAE )
 	    return FileInfo::FileType::Textual;
     else
         return FileInfo::FileType::Binary;
@@ -92,30 +92,30 @@ bool BlockMeshFileInfo::canHaveSubAssets() const
 
 std::string BlockMeshFileInfo::getPath() const
 {
-	return path;
+	return m_path;
 }
 
 BlockMeshFileInfo::Format BlockMeshFileInfo::getFormat() const
 {
-	return format;
+	return m_format;
 }
 
 int BlockMeshFileInfo::getIndexInFile() const
 {
-	return indexInFile;
+	return m_indexInFile;
 }
 
 bool BlockMeshFileInfo::getInvertZCoordinate() const
 {
-	return invertZCoordinate;
+	return m_invertZCoordinate;
 }
 
 bool BlockMeshFileInfo::getInvertVertexWindingOrder() const
 {
-	return invertVertexWindingOrder;
+	return m_invertVertexWindingOrder;
 }
 
 bool BlockMeshFileInfo::getFlipUVs() const
 {
-	return flipUVs;
+	return m_flipUVs;
 }

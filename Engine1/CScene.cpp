@@ -26,7 +26,7 @@ void CScene::addActor( std::shared_ptr<Actor> actor )
     if ( !actor )
         throw std::exception( "Scene::addActor - nullptr passed." );
 
-    actors.insert( actor );
+    m_actors.insert( actor );
 }
 
 void CScene::removeActor( std::shared_ptr<Actor> actor )
@@ -34,12 +34,12 @@ void CScene::removeActor( std::shared_ptr<Actor> actor )
     if ( !actor )
         throw std::exception( "Scene::removeActor - nullptr passed." );
 
-    actors.erase( actor );
+    m_actors.erase( actor );
 }
 
 void CScene::removeAllActors()
 {
-    actors.clear();
+    m_actors.clear();
 }
 
 void CScene::addLight( std::shared_ptr<Light> light )
@@ -47,7 +47,7 @@ void CScene::addLight( std::shared_ptr<Light> light )
     if ( !light )
         throw std::exception( "Scene::addLight - nullptr passed." );
 
-    lights.insert( light );
+    m_lights.insert( light );
 }
 
 void CScene::removeLight( std::shared_ptr<Light> light )
@@ -55,12 +55,12 @@ void CScene::removeLight( std::shared_ptr<Light> light )
     if ( !light )
         throw std::exception( "Scene::removeLight - nullptr passed." );
 
-    lights.erase( light );
+    m_lights.erase( light );
 }
 
 void CScene::removeAllLights()
 {
-    lights.clear();
+    m_lights.clear();
 }
 
 void CScene::saveToFile( const std::string& path ) const
@@ -74,12 +74,12 @@ void CScene::saveToFile( const std::string& path ) const
 
 const std::unordered_set< std::shared_ptr<Actor> >& CScene::getActors( ) const
 {
-    return actors;
+    return m_actors;
 }
 
 const std::unordered_set< std::shared_ptr<Light> >& CScene::getLights() const
 {
-    return lights;
+    return m_lights;
 }
 
 

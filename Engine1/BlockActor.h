@@ -29,8 +29,8 @@ namespace Engine1
 
         private:
 
-        float43 pose;
-        std::shared_ptr<BlockModel> model;
+        float43 m_pose;
+        std::shared_ptr<BlockModel> m_model;
     };
 }
 

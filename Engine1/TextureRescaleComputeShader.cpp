@@ -15,7 +15,7 @@ TextureRescaleComputeShader::~TextureRescaleComputeShader() {}
 
 void TextureRescaleComputeShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-    if ( compiled ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - Shader has already been compiled." );
+    if ( m_compiled ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - Shader has already been compiled." );
 
     HRESULT result;
     ComPtr<ID3D10Blob> shaderBuffer;
@@ -40,7 +40,7 @@ void TextureRescaleComputeShader::compileFromFile( std::string path, ID3D11Devic
             }
         }
 
-        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - Failed to create shader." );
     }
 
@@ -54,7 +54,7 @@ void TextureRescaleComputeShader::compileFromFile( std::string path, ID3D11Devic
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
-        result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+        result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
@@ -75,13 +75,13 @@ void TextureRescaleComputeShader::compileFromFile( std::string path, ID3D11Devic
 		samplerConfiguration.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &samplerConfiguration, samplerState.ReleaseAndGetAddressOf() );
+		result = device.CreateSamplerState( &samplerConfiguration, m_samplerState.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - Failed to create texture sampler state." );
 	}
 
-    this->device = &device;
-    this->compiled = true;
-    this->shaderId = ++compiledShadersCount;
+    this->m_device = &device;
+    this->m_compiled = true;
+    this->m_shaderId = ++compiledShadersCount;
 }
 
 void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
@@ -89,7 +89,7 @@ void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext& deviceCont
                                                const int destTextureWidth, const int destTextureHeight,
                                                const unsigned char srcMipmapLevel )
 {
-    if ( !compiled ) throw std::exception( "TextureRescaleComputeShader::setParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "TextureRescaleComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input textures.
         const unsigned int resourceCount = 1;
@@ -103,7 +103,7 @@ void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext& deviceCont
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     ConstantBuffer* dataPtr;
 
-    HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+    HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
     if ( result < 0 ) throw std::exception( "TextureRescaleComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
@@ -113,16 +113,16 @@ void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext& deviceCont
     dataPtr->srcMipmapLevel       = srcMipmapLevel;
     dataPtr->pad2                 = float3( 0.0f, 0.0f, 0.0f );
 
-    deviceContext.Unmap( constantInputBuffer.Get(), 0 );
+    deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
-    deviceContext.CSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
+    deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 
-    deviceContext.CSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+    deviceContext.CSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
 void TextureRescaleComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-    if ( !compiled ) throw std::exception( "TextureRescaleComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "TextureRescaleComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };

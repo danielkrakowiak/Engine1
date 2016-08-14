@@ -15,7 +15,7 @@ CombiningVertexShader::~CombiningVertexShader() {}
 
 void CombiningVertexShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-	if ( compiled ) throw std::exception( "CombiningVertexShader::compileFromFile - Shader has already been compiled" );
+	if ( m_compiled ) throw std::exception( "CombiningVertexShader::compileFromFile - Shader has already been compiled" );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -40,7 +40,7 @@ void CombiningVertexShader::compileFromFile( std::string path, ID3D11Device& dev
 			}
 		}
 
-		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "CombiningVertexShader::compileFromFile - Failed to create shader" );
 	}
 
@@ -73,7 +73,7 @@ void CombiningVertexShader::compileFromFile( std::string path, ID3D11Device& dev
 
 		// Create the vertex input layout.
 		result = device.CreateInputLayout( desc, inputLayoutCount, shaderBuffer->GetBufferPointer(),
-										   shaderBuffer->GetBufferSize(), inputLayout.ReleaseAndGetAddressOf() );
+										   shaderBuffer->GetBufferSize(), m_inputLayout.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "CombiningVertexShader::compileFromFile - creating input layout failed" );
 	}
 
@@ -92,9 +92,9 @@ void CombiningVertexShader::compileFromFile( std::string path, ID3D11Device& dev
 	//	if ( result < 0 ) throw std::exception( "BlockMeshVertexShader::compileFromFile - creating constant buffer failed" );
 	//}
 
-	this->device = &device;
-	this->compiled = true;
-	this->shaderId = ++compiledShadersCount;
+	this->m_device = &device;
+	this->m_compiled = true;
+	this->m_shaderId = ++compiledShadersCount;
 }
 
 void CombiningVertexShader::setParameters( ID3D11DeviceContext& deviceContext )
@@ -123,7 +123,7 @@ void CombiningVertexShader::setParameters( ID3D11DeviceContext& deviceContext )
 
 ID3D11InputLayout& CombiningVertexShader::getInputLauout( ) const
 {
-	if ( !compiled ) throw std::exception( "CombiningVertexShader::getInputLauout() - Shader hasn't been compiled yet." );
+	if ( !m_compiled ) throw std::exception( "CombiningVertexShader::getInputLauout() - Shader hasn't been compiled yet." );
 
-	return *inputLayout.Get( );
+	return *m_inputLayout.Get( );
 }

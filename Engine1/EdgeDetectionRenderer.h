@@ -36,29 +36,29 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& rendererCore;
+        Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
 
-        bool initialized;
+        bool m_initialized;
 
         // Render targets.
-        int imageWidth, imageHeight;
+        int m_imageWidth, m_imageHeight;
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > valueRenderTarget0;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > valueRenderTarget1;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTarget0;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTarget1;
 
         void swapSrcDestRenderTargets();
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > valueRenderTargetSrc;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > valueRenderTargetDest;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTargetSrc;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTargetDest;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
-        std::shared_ptr< EdgeDetectionComputeShader > edgeDetectionComputeShader;
-        std::shared_ptr< EdgeDistanceComputeShader >  edgeDistanceComputeShader;
+        std::shared_ptr< EdgeDetectionComputeShader > m_edgeDetectionComputeShader;
+        std::shared_ptr< EdgeDistanceComputeShader >  m_edgeDistanceComputeShader;
 
         void loadAndCompileShaders( ID3D11Device& device );
 

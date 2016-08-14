@@ -128,31 +128,31 @@ namespace Engine1
 
         private:
 
-        SkeletonMeshFileInfo fileInfo;
+        SkeletonMeshFileInfo m_fileInfo;
 
-        std::vector<float3>              vertices;
-        std::vector< float >             vertexWeights;
-        std::vector< unsigned char >     vertexBones; // Index starts from 1, 0 means no bone assigned.
-        std::vector<float3>              normals;
-        std::vector<float3>              tangents;
-        std::list< std::vector<float2> > texcoords;
-        std::vector<uint3>               triangles;
+        std::vector<float3>              m_vertices;
+        std::vector< float >             m_vertexWeights;
+        std::vector< unsigned char >     m_vertexBones; // Index starts from 1, 0 means no bone assigned.
+        std::vector<float3>              m_normals;
+        std::vector<float3>              m_tangents;
+        std::list< std::vector<float2> > m_texcoords;
+        std::vector<uint3>               m_triangles;
 
         // To how many bones at maximum can one vertex be attached in this mesh.
         BonesPerVertexCount::Type bonesPerVertexCount;
 
-        Microsoft::WRL::ComPtr<ID3D11Buffer>              vertexBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer>              vertexWeightsBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer>              vertexBonesBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer>              normalBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer>              tangentBuffer;
-        std::list< Microsoft::WRL::ComPtr<ID3D11Buffer> > texcoordBuffers;
-        Microsoft::WRL::ComPtr<ID3D11Buffer>              triangleBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>              m_vertexBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>              m_vertexWeightsBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>              m_vertexBonesBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>              m_normalBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>              m_tangentBuffer;
+        std::list< Microsoft::WRL::ComPtr<ID3D11Buffer> > m_texcoordBuffers;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>              m_triangleBuffer;
 
-        std::vector< Bone > bones;
+        std::vector< Bone > m_bones;
 
-        float3 boundingBoxMin;
-        float3 boundingBoxMax;
+        float3 m_boundingBoxMin;
+        float3 m_boundingBoxMax;
 
         // Copying mesh in not allowed.
         SkeletonMesh( const SkeletonMesh& ) = delete;

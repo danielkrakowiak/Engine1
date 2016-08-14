@@ -19,7 +19,7 @@ TextureFragmentShader::~TextureFragmentShader()
 
 void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-	if ( compiled ) throw std::exception( "TextureFragmentShader::compileFromFile - Shader has already been compiled." );
+	if ( m_compiled ) throw std::exception( "TextureFragmentShader::compileFromFile - Shader has already been compiled." );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -44,7 +44,7 @@ void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& dev
 			}
 		}
 
-		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextureFragmentShader::compileFromFile - Failed to create shader." );
 	}
 
@@ -65,13 +65,13 @@ void TextureFragmentShader::compileFromFile( std::string path, ID3D11Device& dev
 		samplerConfiguration.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &samplerConfiguration, samplerState.ReleaseAndGetAddressOf() );
+		result = device.CreateSamplerState( &samplerConfiguration, m_samplerState.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextureFragmentShader::compileFromFile - Failed to create texture sampler state." );
 	}
 
-	this->device = &device;
-	this->compiled = true;
-	this->shaderId = ++compiledShadersCount;
+	this->m_device = &device;
+	this->m_compiled = true;
+	this->m_shaderId = ++compiledShadersCount;
 }
 
 void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& texture )
@@ -79,7 +79,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
 
 	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
-	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
 void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& texture )
@@ -87,7 +87,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
 
 	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
-	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
 void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture )
@@ -95,7 +95,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
 
 	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
-	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
 void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture )
@@ -103,7 +103,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
 
 	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
-	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
 void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float >& texture )
@@ -111,7 +111,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView();
 
 	deviceContext.PSSetShaderResources( 0, 1, &textureResource );
-	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
 void TextureFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )

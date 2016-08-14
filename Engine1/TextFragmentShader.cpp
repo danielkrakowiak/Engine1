@@ -16,7 +16,7 @@ TextFragmentShader::~TextFragmentShader()
 
 void TextFragmentShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-	if ( compiled ) throw std::exception( "TextFragmentShader::compileFromFile - Shader has already been compiled" );
+	if ( m_compiled ) throw std::exception( "TextFragmentShader::compileFromFile - Shader has already been compiled" );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -41,7 +41,7 @@ void TextFragmentShader::compileFromFile( std::string path, ID3D11Device& device
 			}
 		}
 
-		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextFragmentShader::compileFromFile - Failed to create shader" );
 	}
 
@@ -62,17 +62,17 @@ void TextFragmentShader::compileFromFile( std::string path, ID3D11Device& device
 		desc.MaxLOD           = D3D11_FLOAT32_MAX; //0
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &desc, samplerState.ReleaseAndGetAddressOf() );
+		result = device.CreateSamplerState( &desc, m_samplerState.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextFragmentShader::compileFromFile - Failed to create texture sampler state" );
 	}
 
-	this->device = &device;
-	this->compiled = true;
-	this->shaderId = ++compiledShadersCount;
+	this->m_device = &device;
+	this->m_compiled = true;
+	this->m_shaderId = ++compiledShadersCount;
 }
 
 void TextFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, ID3D11ShaderResourceView* characterTextureResource )
 {
 	deviceContext.PSSetShaderResources( 0, 1, &characterTextureResource );
-	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }

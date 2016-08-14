@@ -40,15 +40,15 @@ namespace Engine1
 
         private:
 
-        std::vector<float3> vertices;
-        std::vector<float3> normals;
-        std::vector<float2> texcoords;
-        std::vector<uint3>  triangles;
+        std::vector<float3> m_vertices;
+        std::vector<float3> m_normals;
+        std::vector<float2> m_texcoords;
+        std::vector<uint3>  m_triangles;
 
-        Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer> normalBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer> texcoordBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer> triangleBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_normalBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_texcoordBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_triangleBuffer;
 
         // Copying is not allowed.
         RectangleMesh( const RectangleMesh& ) = delete;

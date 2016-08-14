@@ -41,15 +41,15 @@ namespace Engine1
 
         private:
 
-        float43 pose;
-        SkeletonPose skeletonPose;
+        float43 m_pose;
+        SkeletonPose m_skeletonPose;
 
-        std::shared_ptr< SkeletonModel > model;
+        std::shared_ptr< SkeletonModel > m_model;
 
         // Temporary.
-        std::shared_ptr< SkeletonAnimation > animation;
-        float animationProgress;
-        float animationSpeed;
+        std::shared_ptr< SkeletonAnimation > m_animation;
+        float m_animationProgress;
+        float m_animationSpeed;
     };
 }
 

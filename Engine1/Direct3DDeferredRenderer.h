@@ -64,18 +64,18 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& rendererCore;
+        Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr<ID3D11Device> device;
-        Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
+        Microsoft::WRL::ComPtr<ID3D11Device> m_device;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
-        bool initialized;
+        bool m_initialized;
 
         // Rasterizer states.
-        Microsoft::WRL::ComPtr<ID3D11RasterizerState>   rasterizerState;
-        Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
-        Microsoft::WRL::ComPtr<ID3D11BlendState>        blendStateForMeshRendering;
-        Microsoft::WRL::ComPtr<ID3D11BlendState>        blendStateForTextRendering;
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState>   m_rasterizerState;
+        Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
+        Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForMeshRendering;
+        Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForTextRendering;
 
         Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createRasterizerState( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11DepthStencilState> createDepthStencilState( ID3D11Device& device );
@@ -83,45 +83,45 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTextRendering( ID3D11Device& device );
 
         // Render targets.
-        int imageWidth, imageHeight;
+        int m_imageWidth, m_imageHeight;
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >        positionRenderTarget;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >        emissiveRenderTarget;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >        albedoRenderTarget;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > metalnessRenderTarget;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > roughnessRenderTarget;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >        normalRenderTarget;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > indexOfRefractionRenderTarget;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >        depthRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >        m_positionRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >        m_emissiveRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >        m_albedoRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > m_metalnessRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > m_roughnessRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >        m_normalRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > m_indexOfRefractionRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >        m_depthRenderTarget;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Projection matrices.
-        float44 perspectiveProjectionMatrix;
-        float44 orthographicProjectionMatrix;
+        float44 m_perspectiveProjectionMatrix;
+        float44 m_orthographicProjectionMatrix;
 
         // Shaders.
-        std::shared_ptr<BlockMeshVertexShader>        blockMeshVertexShader;
-        std::shared_ptr<BlockMeshFragmentShader>      blockMeshFragmentShader;
-        std::shared_ptr<SkeletonMeshVertexShader>     skeletonMeshVertexShader;
-        std::shared_ptr<SkeletonMeshFragmentShader>   skeletonMeshFragmentShader;
-        std::shared_ptr<BlockModelVertexShader>	      blockModelVertexShader;
-        std::shared_ptr<BlockModelFragmentShader>	  blockModelFragmentShader;
-        std::shared_ptr<SkeletonModelVertexShader>    skeletonModelVertexShader;
-        std::shared_ptr<SkeletonModelFragmentShader>  skeletonModelFragmentShader;
-        std::shared_ptr<TextVertexShader>             textVertexShader;
-        std::shared_ptr<TextFragmentShader>           textFragmentShader;
+        std::shared_ptr<BlockMeshVertexShader>        m_blockMeshVertexShader;
+        std::shared_ptr<BlockMeshFragmentShader>      m_blockMeshFragmentShader;
+        std::shared_ptr<SkeletonMeshVertexShader>     m_skeletonMeshVertexShader;
+        std::shared_ptr<SkeletonMeshFragmentShader>   m_skeletonMeshFragmentShader;
+        std::shared_ptr<BlockModelVertexShader>	      m_blockModelVertexShader;
+        std::shared_ptr<BlockModelFragmentShader>	  m_blockModelFragmentShader;
+        std::shared_ptr<SkeletonModelVertexShader>    m_skeletonModelVertexShader;
+        std::shared_ptr<SkeletonModelFragmentShader>  m_skeletonModelFragmentShader;
+        std::shared_ptr<TextVertexShader>             m_textVertexShader;
+        std::shared_ptr<TextFragmentShader>           m_textFragmentShader;
 
         void loadAndCompileShaders( ID3D11Device& device );
 
         // Default textures.
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultAlphaTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultMetalnessTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultRoughnessTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultIndexOfRefractionTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultEmissiveTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultAlbedoTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultNormalTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultAlphaTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultMetalnessTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultRoughnessTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultIndexOfRefractionTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultEmissiveTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultAlbedoTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultNormalTexture;
 
         void createDefaultTextures( ID3D11Device& device );
 

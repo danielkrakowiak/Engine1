@@ -15,7 +15,7 @@ GenerateRefractedRaysComputeShader::~GenerateRefractedRaysComputeShader() {}
 
 void GenerateRefractedRaysComputeShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-    if ( compiled ) throw std::exception( "GenerateRefractedRaysComputeShader::compileFromFile - Shader has already been compiled." );
+    if ( m_compiled ) throw std::exception( "GenerateRefractedRaysComputeShader::compileFromFile - Shader has already been compiled." );
 
     HRESULT result;
     ComPtr<ID3D10Blob> shaderBuffer;
@@ -40,13 +40,13 @@ void GenerateRefractedRaysComputeShader::compileFromFile( std::string path, ID3D
             }
         }
 
-        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "GenerateRefractedRaysComputeShader::compileFromFile - Failed to create shader." );
     }
 
-    this->device = &device;
-    this->compiled = true;
-    this->shaderId = ++compiledShadersCount;
+    this->m_device = &device;
+    this->m_compiled = true;
+    this->m_shaderId = ++compiledShadersCount;
 }
 
 void GenerateRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
@@ -56,7 +56,7 @@ void GenerateRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& dev
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& rayHitRoughnessTexture,
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& refractionTermTexture )
 {
-    if ( !compiled ) throw std::exception( "GenerateRefractedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "GenerateRefractedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
         const unsigned int resourceCount = 5;
@@ -74,7 +74,7 @@ void GenerateRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& dev
 
 void GenerateRefractedRaysComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-    if ( !compiled ) throw std::exception( "GenerateRefractedRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "GenerateRefractedRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 5 ] = { nullptr, nullptr, nullptr, nullptr, nullptr };

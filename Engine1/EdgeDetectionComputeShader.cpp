@@ -15,7 +15,7 @@ EdgeDetectionComputeShader::~EdgeDetectionComputeShader() {}
 
 void EdgeDetectionComputeShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-    if ( compiled ) throw std::exception( "EdgeDetectionComputeShader::compileFromFile - Shader has already been compiled." );
+    if ( m_compiled ) throw std::exception( "EdgeDetectionComputeShader::compileFromFile - Shader has already been compiled." );
 
     HRESULT result;
     ComPtr<ID3D10Blob> shaderBuffer;
@@ -40,7 +40,7 @@ void EdgeDetectionComputeShader::compileFromFile( std::string path, ID3D11Device
             }
         }
 
-        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "EdgeDetectionComputeShader::compileFromFile - Failed to create shader." );
     }
 
@@ -58,16 +58,16 @@ void EdgeDetectionComputeShader::compileFromFile( std::string path, ID3D11Device
         if ( result < 0 ) throw std::exception( "EdgeDetectionComputeShader::compileFromFile - creating constant buffer failed." );*/
     }
 
-    this->device = &device;
-    this->compiled = true;
-    this->shaderId = ++compiledShadersCount;
+    this->m_device = &device;
+    this->m_compiled = true;
+    this->m_shaderId = ++compiledShadersCount;
 }
 
 void EdgeDetectionComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture )
 {
-    if ( !compiled ) throw std::exception( "EdgeDetectionComputeShader::setParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "EdgeDetectionComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
         const unsigned int resourceCount = 2;
@@ -94,7 +94,7 @@ void EdgeDetectionComputeShader::setParameters( ID3D11DeviceContext& deviceConte
 
 void EdgeDetectionComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-    if ( !compiled ) throw std::exception( "EdgeDetectionComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "EdgeDetectionComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 2 ] = { nullptr, nullptr };

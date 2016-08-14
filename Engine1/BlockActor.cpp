@@ -3,8 +3,8 @@
 using namespace Engine1;
 
 BlockActor::BlockActor( std::shared_ptr<BlockModel> model, const float43& pose ) :
-    model( model ),
-    pose( pose )
+    m_model( model ),
+    m_pose( pose )
 {}
 
 
@@ -18,30 +18,30 @@ Actor::Type BlockActor::getType() const
 
 const float43& BlockActor::getPose() const
 {
-    return pose;
+    return m_pose;
 }
 
 float43& BlockActor::getPose( )
 {
-    return pose;
+    return m_pose;
 }
 
 std::shared_ptr<const BlockModel> BlockActor::getModel( ) const
 {
-    return model;
+    return m_model;
 }
 
 std::shared_ptr<BlockModel> BlockActor::getModel( )
 {
-    return model;
+    return m_model;
 }
 
 void BlockActor::setPose( const float43& pose )
 {
-    this->pose = pose;
+    this->m_pose = pose;
 }
 
 void BlockActor::setModel( std::shared_ptr<BlockModel> model )
 {
-    this->model = model;
+    this->m_model = model;
 }

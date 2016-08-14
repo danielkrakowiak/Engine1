@@ -12,20 +12,20 @@ std::shared_ptr<BlockModelFileInfo> BlockModelFileInfo::createFromMemory( std::v
 }
 
 BlockModelFileInfo::BlockModelFileInfo( ) :
-path( "" ),
-format( Format::BLOCKMODEL )
+    m_path( "" ),
+    m_format( Format::BLOCKMODEL )
 {}
 
 BlockModelFileInfo::BlockModelFileInfo( std::string path, Format format, int indexInFile ) :
-path( path ),
-format( format )
+    m_path( path ),
+    m_format( format )
 {
     indexInFile; // Unused.
 }
 
 BlockModelFileInfo::BlockModelFileInfo( const BlockModelFileInfo& obj ) :
-path( obj.path ),
-format( obj.format )
+    m_path( obj.m_path ),
+    m_format( obj.m_format )
 {}
 
 BlockModelFileInfo::~BlockModelFileInfo( )
@@ -43,12 +43,12 @@ void BlockModelFileInfo::saveToMemory( std::vector<char>& data ) const
 
 void BlockModelFileInfo::setPath( std::string path )
 {
-	this->path = path;
+	this->m_path = path;
 }
 
 void BlockModelFileInfo::setFormat( Format format )
 {
-	this->format = format;
+	this->m_format = format;
 }
 
 Asset::Type BlockModelFileInfo::getAssetType( ) const
@@ -68,12 +68,12 @@ bool BlockModelFileInfo::canHaveSubAssets() const
 
 std::string BlockModelFileInfo::getPath( ) const
 {
-	return path;
+	return m_path;
 }
 
 BlockModelFileInfo::Format BlockModelFileInfo::getFormat( ) const
 {
-	return format;
+	return m_format;
 }
 
 int BlockModelFileInfo::getIndexInFile( ) const

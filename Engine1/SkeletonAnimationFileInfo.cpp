@@ -12,16 +12,16 @@ std::shared_ptr<SkeletonAnimationFileInfo> SkeletonAnimationFileInfo::createFrom
 }
 
 SkeletonAnimationFileInfo::SkeletonAnimationFileInfo() :
-path( "" ),
-format( Format::XAF ),
-invertZCoordinate( false )
+    m_path( "" ),
+    m_format( Format::XAF ),
+    m_invertZCoordinate( false )
 {}
 
 SkeletonAnimationFileInfo::SkeletonAnimationFileInfo( std::string path, Format format, const SkeletonMeshFileInfo meshFileInfo, bool invertZCoordinate ) :
-path( path ),
-format( format ),
-meshFileInfo( meshFileInfo ),
-invertZCoordinate( invertZCoordinate )
+    m_path( path ),
+    m_format( format ),
+    m_meshFileInfo( meshFileInfo ),
+    m_invertZCoordinate( invertZCoordinate )
 {}
 
 SkeletonAnimationFileInfo::~SkeletonAnimationFileInfo()
@@ -39,22 +39,22 @@ void SkeletonAnimationFileInfo::saveToMemory( std::vector<char>& data ) const
 
 void SkeletonAnimationFileInfo::setPath( std::string path )
 {
-	this->path = path;
+	this->m_path = path;
 }
 
 void SkeletonAnimationFileInfo::setFormat( Format format )
 {
-	this->format = format;
+	this->m_format = format;
 }
 
 void SkeletonAnimationFileInfo::setInvertZCoordinate( bool invertZCoordinate )
 {
-	this->invertZCoordinate = invertZCoordinate;
+	this->m_invertZCoordinate = invertZCoordinate;
 }
 
 void SkeletonAnimationFileInfo::setMeshFileInfo( const SkeletonMeshFileInfo meshFileInfo )
 {
-	this->meshFileInfo = meshFileInfo;
+	this->m_meshFileInfo = meshFileInfo;
 }
 
 Asset::Type SkeletonAnimationFileInfo::getAssetType() const
@@ -74,12 +74,12 @@ bool SkeletonAnimationFileInfo::canHaveSubAssets() const
 
 std::string SkeletonAnimationFileInfo::getPath() const
 {
-	return path;
+	return m_path;
 }
 
 SkeletonAnimationFileInfo::Format SkeletonAnimationFileInfo::getFormat() const
 {
-	return format;
+	return m_format;
 }
 
 int SkeletonAnimationFileInfo::getIndexInFile() const
@@ -89,10 +89,10 @@ int SkeletonAnimationFileInfo::getIndexInFile() const
 
 bool SkeletonAnimationFileInfo::getInvertZCoordinate() const
 {
-	return invertZCoordinate;
+	return m_invertZCoordinate;
 }
 
 SkeletonMeshFileInfo SkeletonAnimationFileInfo::getMeshFileInfo( ) const
 {
-	return meshFileInfo;
+	return m_meshFileInfo;
 }

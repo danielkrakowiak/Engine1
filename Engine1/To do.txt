@@ -286,8 +286,3 @@ Idea:
 	  START HERE: !!!!!!!!!!
 
 	  - IMPORTANT: Look like normal mapping doesn't work in reflections/refractions! Or lighting is flat for some other reason. Yep, normals are flat in reflections/refractions.
-
-	  - IMPORTANT: Even when creating texture without any initial data - there should be an option to tell that this texture should have mipmaps (or not). Because we cannot assume anything on our own.
-	  Giving this option and setting it to true for albedo buffer and some other buffers will fix the problem with dithering on final image after refraction.
-	  WARNING: Be carefull to od it for all the required textures which are also sampled through mipmaps. Otherwise some hard to find bugs will be created.
-	  And submit it to Git before other hcanges. Plus missing shader file.

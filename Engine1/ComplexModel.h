@@ -21,8 +21,8 @@ namespace Engine1
 
         private:
 
-        std::vector<BlockModelLOD> modelLODs;
-        std::vector<BlockMeshLOD> shadowMeshLODs;
+        std::vector<BlockModelLOD> m_modelLODs;
+        std::vector<BlockMeshLOD> m_shadowMeshLODs;
 
         // Copying is not allowed.
         ComplexModel& operator=(const ComplexModel&) = delete;

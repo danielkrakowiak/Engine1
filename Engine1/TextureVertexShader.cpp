@@ -15,7 +15,7 @@ TextureVertexShader::~TextureVertexShader() {}
 
 void TextureVertexShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-	if ( compiled ) throw std::exception( "TextureVertexShader::compileFromFile - Shader has already been compiled" );
+	if ( m_compiled ) throw std::exception( "TextureVertexShader::compileFromFile - Shader has already been compiled" );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -40,7 +40,7 @@ void TextureVertexShader::compileFromFile( std::string path, ID3D11Device& devic
 			}
 		}
 
-		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextureVertexShader::compileFromFile - Failed to create shader" );
 	}
 
@@ -73,7 +73,7 @@ void TextureVertexShader::compileFromFile( std::string path, ID3D11Device& devic
 
 		// Create the vertex input layout.
 		result = device.CreateInputLayout( desc, inputLayoutCount, shaderBuffer->GetBufferPointer(),
-										   shaderBuffer->GetBufferSize(), inputLayout.ReleaseAndGetAddressOf() );
+										   shaderBuffer->GetBufferSize(), m_inputLayout.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "TextureVertexShader::compileFromFile - creating input layout failed" );
 	}
 
@@ -88,23 +88,23 @@ void TextureVertexShader::compileFromFile( std::string path, ID3D11Device& devic
 		desc.StructureByteStride = 0;
 
 		// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-		result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+		result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMeshVertexShader::compileFromFile - creating constant buffer failed" );
 	}
 
-	this->device = &device;
-	this->compiled = true;
-	this->shaderId = ++compiledShadersCount;
+	this->m_device = &device;
+	this->m_compiled = true;
+	this->m_shaderId = ++compiledShadersCount;
 }
 
 void TextureVertexShader::setParameters( ID3D11DeviceContext& deviceContext, float posX, float posY, float width, float height )
 {
-	if ( !compiled ) throw std::exception( "TextureVertexShader::setParameters - Shader hasn't been compiled yet" );
+	if ( !m_compiled ) throw std::exception( "TextureVertexShader::setParameters - Shader hasn't been compiled yet" );
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ConstantBuffer* dataPtr;
 
-	HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+	HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
 	if ( result < 0 ) throw std::exception( "TextureVertexShader::setParameters - mapping constant buffer to CPU memory failed" );
 
 	dataPtr = (ConstantBuffer*)mappedResource.pData;
@@ -115,14 +115,14 @@ void TextureVertexShader::setParameters( ID3D11DeviceContext& deviceContext, flo
 	dataPtr->width = width;
 	dataPtr->height = height;
 
-	deviceContext.Unmap( constantInputBuffer.Get(), 0 );
+	deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
-	deviceContext.VSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
+	deviceContext.VSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
 ID3D11InputLayout& TextureVertexShader::getInputLauout( ) const
 {
-	if ( !compiled ) throw std::exception( "TextureVertexShader::getInputLauout() - Shader hasn't been compiled yet." );
+	if ( !m_compiled ) throw std::exception( "TextureVertexShader::getInputLauout() - Shader hasn't been compiled yet." );
 
-	return *inputLayout.Get( );
+	return *m_inputLayout.Get( );
 }

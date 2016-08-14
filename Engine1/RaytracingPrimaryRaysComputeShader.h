@@ -59,7 +59,7 @@ namespace Engine1
             float   pad3;
         };
 
-        Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 
         // Copying is not allowed.
         RaytracingPrimaryRaysComputeShader( const RaytracingPrimaryRaysComputeShader& ) = delete;

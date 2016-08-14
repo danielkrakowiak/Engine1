@@ -15,7 +15,7 @@ EdgeDistanceComputeShader::~EdgeDistanceComputeShader() {}
 
 void EdgeDistanceComputeShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-    if ( compiled ) throw std::exception( "EdgeDistanceComputeShader::compileFromFile - Shader has already been compiled." );
+    if ( m_compiled ) throw std::exception( "EdgeDistanceComputeShader::compileFromFile - Shader has already been compiled." );
 
     HRESULT result;
     ComPtr<ID3D10Blob> shaderBuffer;
@@ -40,7 +40,7 @@ void EdgeDistanceComputeShader::compileFromFile( std::string path, ID3D11Device&
             }
         }
 
-        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "EdgeDistanceComputeShader::compileFromFile - Failed to create shader." );
     }
 
@@ -54,20 +54,20 @@ void EdgeDistanceComputeShader::compileFromFile( std::string path, ID3D11Device&
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
-        result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+        result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "EdgeDistanceComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
-    this->device = &device;
-    this->compiled = true;
-    this->shaderId = ++compiledShadersCount;
+    this->m_device = &device;
+    this->m_compiled = true;
+    this->m_shaderId = ++compiledShadersCount;
 }
 
 void EdgeDistanceComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
                                                const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& distToEdgeTexture,
                                                const unsigned char passIndex )
 {
-    if ( !compiled ) throw std::exception( "EdgeDistanceComputeShader::setParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "EdgeDistanceComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input textures.
         const unsigned int resourceCount = 1;
@@ -81,7 +81,7 @@ void EdgeDistanceComputeShader::setParameters( ID3D11DeviceContext& deviceContex
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     ConstantBuffer* dataPtr;
 
-    HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+    HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
     if ( result < 0 ) throw std::exception( "EdgeDistanceComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
@@ -89,14 +89,14 @@ void EdgeDistanceComputeShader::setParameters( ID3D11DeviceContext& deviceContex
     dataPtr->passIndex = passIndex;
     dataPtr->pad1      = float3( 0.0f, 0.0f, 0.0f ); // Padding.
 
-    deviceContext.Unmap( constantInputBuffer.Get(), 0 );
+    deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
-    deviceContext.CSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
+    deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
 void EdgeDistanceComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
-    if ( !compiled ) throw std::exception( "EdgeDistanceComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "EdgeDistanceComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };

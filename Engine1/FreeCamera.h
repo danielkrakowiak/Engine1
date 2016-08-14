@@ -33,19 +33,19 @@ namespace Engine1
         private:
 
         void updateRotationAnglesFromOrientation();
-        float3 rotationAngles;
+        float3 m_rotationAngles;
 
-        bool dampSpeedForward, dampSpeedSide, dampSpeedUp;
-        float forwardSpeed;
-        float sideSpeed;
-        float upSpeed;
-        float speedDamping;
-        float speedAcceleration;
-        float maxSpeed;
+        bool m_dampSpeedForward, m_dampSpeedSide, m_dampSpeedUp;
+        float m_forwardSpeed;
+        float m_sideSpeed;
+        float m_upSpeed;
+        float m_speedDamping;
+        float m_speedAcceleration;
+        float m_maxSpeed;
 
-        static const float defaultSpeedDamping;
-        static const float defaultSpeedAcceleration;
-        static const float defaultMaxSpeed;
+        static const float m_defaultSpeedDamping;
+        static const float m_defaultSpeedAcceleration;
+        static const float m_defaultMaxSpeed;
     };
 }
 

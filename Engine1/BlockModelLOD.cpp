@@ -3,8 +3,8 @@
 using namespace Engine1;
 
 BlockModelLOD::BlockModelLOD( float distance, std::shared_ptr<BlockModel>& model ) {
-	this->distance = distance;
-	this->model = model;
+	this->m_distance = distance;
+	this->m_model = model;
 }
 
 

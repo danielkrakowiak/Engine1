@@ -48,10 +48,10 @@ namespace Engine1
             float  padding3;
         };
 
-        int resourceCount;
+        int m_resourceCount;
 
-        Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStatePointFilter;
-        Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateLinearFilter;
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerStatePointFilter;
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerStateLinearFilter;
 
         // Copying is not allowed.
         CombiningFragmentShader( const CombiningFragmentShader& ) = delete;

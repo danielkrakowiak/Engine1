@@ -40,8 +40,8 @@ namespace Engine1
 
         private:
 
-        std::string path;
-        Format format;
+        std::string m_path;
+        Format m_format;
     };
 }
 

@@ -19,27 +19,27 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 Direct3DFrameRenderer::Direct3DFrameRenderer( Direct3DRendererCore& rendererCore ) :
-rendererCore( rendererCore ),
-initialized(false),
-gpuMemory(0),
-fullscreen(false),
-screenWidth(1024),
-screenHeight(768),
-verticalSync(true),
-textureVertexShader(std::make_shared<TextureVertexShader>()),
-textureFragmentShader(std::make_shared<TextureFragmentShader>()),
-textureAlphaFragmentShader(std::make_shared<TextureFragmentShader>()),
-textVertexShader(std::make_shared<TextVertexShader>()),
-textFragmentShader(std::make_shared<TextFragmentShader>())
+    m_rendererCore( rendererCore ),
+    m_initialized( false ),
+    m_gpuMemory( 0 ),
+    m_fullscreen( false ),
+    m_screenWidth( 1024 ),
+    m_screenHeight( 768 ),
+    m_verticalSync( true ),
+    m_textureVertexShader( std::make_shared<TextureVertexShader>() ),
+    m_textureFragmentShader( std::make_shared<TextureFragmentShader>() ),
+    m_textureAlphaFragmentShader( std::make_shared<TextureFragmentShader>() ),
+    m_textVertexShader( std::make_shared<TextVertexShader>() ),
+    m_textFragmentShader( std::make_shared<TextFragmentShader>() )
 {
 }
 
 Direct3DFrameRenderer::~Direct3DFrameRenderer()
 {
-	if ( initialized ) {
-		if ( swapChain ) {
+	if ( m_initialized ) {
+		if ( m_swapChain ) {
 			// set to windowed mode or when you release the swap chain it will throw an exception.
-			swapChain->SetFullscreenState( false, nullptr );
+			m_swapChain->SetFullscreenState( false, nullptr );
 		}
 	}
 
@@ -48,10 +48,10 @@ Direct3DFrameRenderer::~Direct3DFrameRenderer()
 
 void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int screenHeight, bool fullscreen, bool verticalSync )
 {
-	this->fullscreen   = fullscreen;
-	this->screenWidth  = screenWidth;
-	this->screenHeight = screenHeight;
-	this->verticalSync = verticalSync;
+	this->m_fullscreen   = fullscreen;
+	this->m_screenWidth  = screenWidth;
+	this->m_screenHeight = screenHeight;
+	this->m_verticalSync = verticalSync;
 
 	int refreshRateNumerator = 0, refreshRateDenominator = 1;
 	{
@@ -66,21 +66,21 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 		if ( result < 0 ) throw std::exception( "Direct3DRenderer::initialize - enumarating adapters failed" );
 
 		std::tie( refreshRateNumerator, refreshRateDenominator ) = getRefreshRateNumeratorDenominator( *adapter.Get(), (unsigned int)screenWidth, (unsigned int)screenHeight );
-		gpuMemory = getGpuMemory( *adapter.Get() );
-		gpuDescription = getGpuDescription( *adapter.Get() );
+		m_gpuMemory = getGpuMemory( *adapter.Get() );
+		m_gpuDescription = getGpuDescription( *adapter.Get() );
 	}
 
-	std::tie( swapChain, device, deviceContext ) = createDeviceAndSwapChain( windowHandle, fullscreen, verticalSync, screenWidth, screenHeight, refreshRateNumerator, refreshRateDenominator );
+	std::tie( m_swapChain, m_device, m_deviceContext ) = createDeviceAndSwapChain( windowHandle, fullscreen, verticalSync, screenWidth, screenHeight, refreshRateNumerator, refreshRateDenominator );
 
 	{ // Initialize render target.
-        ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *swapChain.Get() );
+        ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *m_swapChain.Get() );
 
         m_renderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > >
-            ( *device.Get(), backbufferTexture );
+            ( *m_device.Get(), backbufferTexture );
 	}
 
-	rasterizerState = createRasterizerState( *device.Get() );
-	blendState      = createBlendState( *device.Get() );
+	m_rasterizerState = createRasterizerState( *m_device.Get() );
+	m_blendState      = createBlendState( *m_device.Get() );
 
     // TODO: Viewport should be set before rendering - not only once.
 	{ // Initialize viewport.
@@ -92,23 +92,23 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 		viewport.TopLeftX = 0.0f;
 		viewport.TopLeftY = 0.0f;
 
-		deviceContext->RSSetViewports( 1, &viewport );
+		m_deviceContext->RSSetViewports( 1, &viewport );
 	}
 
-	loadAndCompileShaders( *device.Get() );
+	loadAndCompileShaders( *m_device.Get() );
 
 	{ // Load default rectangle mesh to GPU.
-		rectangleMesh.loadCpuToGpu( *device.Get() );
+		rectangleMesh.loadCpuToGpu( *m_device.Get() );
 	}
 
-	initialized = true;
+	m_initialized = true;
 }
 
 void Direct3DFrameRenderer::reportLiveObjects()
 {
 	// Print Direct3D objects which were not released yet.
 	ComPtr<ID3D11Debug> deviceDebug;
-	device.As( &deviceDebug );
+	m_device.As( &deviceDebug );
 	if ( deviceDebug ) {
 		deviceDebug->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL );
 	}
@@ -310,20 +310,20 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendState( ID3D11Device& 
 
 void Direct3DFrameRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-	textureVertexShader->compileFromFile( "Shaders/TextureShader/vs.hlsl", device );
-	textureFragmentShader->compileFromFile( "Shaders/TextureShader/ps.hlsl", device );
-    textureAlphaFragmentShader->compileFromFile( "Shaders/TextureShader/ps2.hlsl", device );
+	m_textureVertexShader->compileFromFile( "Shaders/TextureShader/vs.hlsl", device );
+	m_textureFragmentShader->compileFromFile( "Shaders/TextureShader/ps.hlsl", device );
+    m_textureAlphaFragmentShader->compileFromFile( "Shaders/TextureShader/ps2.hlsl", device );
 
-	textVertexShader->compileFromFile( "Shaders/TextShader/vs.hlsl", device );
-	textFragmentShader->compileFromFile( "Shaders/TextShader/ps.hlsl", device );
+	m_textVertexShader->compileFromFile( "Shaders/TextShader/vs.hlsl", device );
+	m_textFragmentShader->compileFromFile( "Shaders/TextShader/ps.hlsl", device );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY )
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)screenWidth );
-	float height = ( texture.getHeight() / (float)screenHeight );
+	float width = ( texture.getWidth() / (float)m_screenWidth );
+	float height = ( texture.getHeight() / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -333,30 +333,30 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
-		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
-		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
-		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
 
-	rendererCore.enableRasterizerState( *rasterizerState.Get() );
-	rendererCore.enableBlendState( *blendState.Get() );
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
 
-	rendererCore.draw( rectangleMesh );
+	m_rendererCore.draw( rectangleMesh );
 
-	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY )
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)screenWidth );
-	float height = ( texture.getHeight() / (float)screenHeight );
+	float width = ( texture.getWidth() / (float)m_screenWidth );
+	float height = ( texture.getHeight() / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -366,30 +366,30 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
-		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
-		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
-		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
 
-	rendererCore.enableRasterizerState( *rasterizerState.Get() );
-	rendererCore.enableBlendState( *blendState.Get() );
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
 
-	rendererCore.draw( rectangleMesh );
+	m_rendererCore.draw( rectangleMesh );
 
-	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY )
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)screenWidth );
-	float height = ( texture.getHeight() / (float)screenHeight );
+	float width = ( texture.getWidth() / (float)m_screenWidth );
+	float height = ( texture.getHeight() / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -399,30 +399,30 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
-		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
-		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
-		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
 
-	rendererCore.enableRasterizerState( *rasterizerState.Get() );
-	rendererCore.enableBlendState( *blendState.Get() );
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
 
-	rendererCore.draw( rectangleMesh );
+	m_rendererCore.draw( rectangleMesh );
 
-	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY )
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)screenWidth );
-	float height = ( texture.getHeight() / (float)screenHeight );
+	float width = ( texture.getWidth() / (float)m_screenWidth );
+	float height = ( texture.getHeight() / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -432,30 +432,30 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
-		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
-		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
-		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
 
-	rendererCore.enableRasterizerState( *rasterizerState.Get() );
-	rendererCore.enableBlendState( *blendState.Get() );
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
 
-	rendererCore.draw( rectangleMesh );
+	m_rendererCore.draw( rectangleMesh );
 
-	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY )
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)screenWidth );
-	float height = ( texture.getHeight() / (float)screenHeight );
+	float width = ( texture.getWidth() / (float)m_screenWidth );
+	float height = ( texture.getHeight() / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -465,30 +465,30 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
-		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
-		textureFragmentShader->setParameters( *deviceContext.Get(), texture );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
-		rendererCore.enableRenderingShaders( textureVertexShader, textureFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
 
-	rendererCore.enableRasterizerState( *rasterizerState.Get() );
-	rendererCore.enableBlendState( *blendState.Get() );
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
 
-	rendererCore.draw( rectangleMesh );
+	m_rendererCore.draw( rectangleMesh );
 
-	textureFragmentShader->unsetParameters( *deviceContext.Get() );
+	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY )
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)screenWidth );
-	float height = ( texture.getHeight() / (float)screenHeight );
+	float width = ( texture.getWidth() / (float)m_screenWidth );
+	float height = ( texture.getHeight() / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -498,33 +498,33 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind:
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
-		textureVertexShader->setParameters( *deviceContext.Get(), posX, posY, width, height );
-		textureAlphaFragmentShader->setParameters( *deviceContext.Get(), texture );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureAlphaFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
-		rendererCore.enableRenderingShaders( textureVertexShader, textureAlphaFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureAlphaFragmentShader );
 	}
 
-	rendererCore.enableRasterizerState( *rasterizerState.Get() );
-	rendererCore.enableBlendState( *blendState.Get() );
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
 
-	rendererCore.draw( rectangleMesh );
+	m_rendererCore.draw( rectangleMesh );
 
-	textureAlphaFragmentShader->unsetParameters( *deviceContext.Get() );
+	m_textureAlphaFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::displayFrame()
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::displayFrame - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::displayFrame - renderer not initialized." );
 
 	HRESULT result = 0;
-	if ( verticalSync ) {
-		result = swapChain->Present( 1, 0 );
+	if ( m_verticalSync ) {
+		result = m_swapChain->Present( 1, 0 );
 	} else {
-		result = swapChain->Present( 0, 0 );
+		result = m_swapChain->Present( 0, 0 );
 	}
 
 	if ( result < 0 ) throw std::exception( "Direct3DRenderer::displayFrame - swapping frame failed" );
@@ -533,14 +533,14 @@ void Direct3DFrameRenderer::displayFrame()
 
 ComPtr< ID3D11Device > Direct3DFrameRenderer::getDevice()
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::getDevice - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::getDevice - renderer not initialized." );
 
-	return device;
+	return m_device;
 }
 
 ComPtr< ID3D11DeviceContext > Direct3DFrameRenderer::getDeviceContext()
 {
-	if ( !initialized ) throw std::exception( "Direct3DFrameRenderer::getDeviceContext - renderer not initialized." );
+	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::getDeviceContext - renderer not initialized." );
 
-	return deviceContext;
+	return m_deviceContext;
 }

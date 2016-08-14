@@ -11,9 +11,9 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 TextureRescaleRenderer::TextureRescaleRenderer( Direct3DRendererCore& rendererCore ) :
-rendererCore( rendererCore ),
-initialized( false ),
-textureRescaleComputeShader( std::make_shared< TextureRescaleComputeShader >() )
+    m_rendererCore( rendererCore ),
+    m_initialized( false ),
+    m_textureRescaleComputeShader( std::make_shared< TextureRescaleComputeShader >() )
 {}
 
 TextureRescaleRenderer::~TextureRescaleRenderer()
@@ -22,12 +22,12 @@ TextureRescaleRenderer::~TextureRescaleRenderer()
 void TextureRescaleRenderer::initialize( ComPtr< ID3D11Device > device, 
                                          ComPtr< ID3D11DeviceContext > deviceContext )
 {
-    this->device        = device;
-	this->deviceContext = deviceContext;
+    this->m_device        = device;
+	this->m_deviceContext = deviceContext;
 
     loadAndCompileShaders( *device.Get() );
 
-	initialized = true;
+    m_initialized = true;
 }
 
 void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
@@ -35,7 +35,7 @@ void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpe
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture,
                                              const unsigned char destMipmapLevel )
 {
-    rendererCore.disableRenderingPipeline();
+    m_rendererCore.disableRenderingPipeline();
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
@@ -44,23 +44,23 @@ void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpe
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
     
     unorderedAccessTargetsF4.push_back( destTexture );
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, destMipmapLevel );
 
-    textureRescaleComputeShader->setParameters( *deviceContext.Get(), *srcTexture, destTexture->getWidth(), destTexture->getHeight(), srcMipmapLevel );
+    m_textureRescaleComputeShader->setParameters( *m_deviceContext.Get(), *srcTexture, destTexture->getWidth(), destTexture->getHeight(), srcMipmapLevel );
 
-    rendererCore.enableComputeShader( textureRescaleComputeShader );
+    m_rendererCore.enableComputeShader( m_textureRescaleComputeShader );
 
     uint3 groupCount( destTexture->getWidth() / 8, destTexture->getHeight() / 8, 1 );
 
-    rendererCore.compute( groupCount );
+    m_rendererCore.compute( groupCount );
 
-    textureRescaleComputeShader->unsetParameters( *deviceContext.Get() );
+    m_textureRescaleComputeShader->unsetParameters( *m_deviceContext.Get() );
 
-    rendererCore.disableComputePipeline();
+    m_rendererCore.disableComputePipeline();
 }
 
 void TextureRescaleRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    textureRescaleComputeShader->compileFromFile( "Shaders/TextureRescaleShader/cs.hlsl", device );
+    m_textureRescaleComputeShader->compileFromFile( "Shaders/TextureRescaleShader/cs.hlsl", device );
 }

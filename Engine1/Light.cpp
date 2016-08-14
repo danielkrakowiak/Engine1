@@ -3,13 +3,13 @@
 using namespace Engine1;
 
 Light::Light() :
-position( float3::ZERO ),
-color( float3::ZERO )
+    m_position( float3::ZERO ),
+    m_color( float3::ZERO )
 {}
 
 Light::Light( const float3& position, const float3& color ) :
-position( position ),
-color( color )
+    m_position( position ),
+    m_color( color )
 {}
 
 Light::~Light( )
@@ -17,20 +17,20 @@ Light::~Light( )
 
 void Light::setPosition( const float3& position )
 {
-    this->position = position;
+    this->m_position = position;
 }
 
 void Light::setColor( const float3& color )
 {
-    this->color = color;
+    this->m_color = color;
 }
 
 float3 Light::getPosition() const
 {
-    return position;
+    return m_position;
 }
 
 float3 Light::getColor() const
 {
-    return color;
+    return m_color;
 }

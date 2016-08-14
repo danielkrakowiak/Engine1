@@ -23,11 +23,11 @@ namespace Engine1
         float  getFieldOfView() const;
 
         protected:
-        float3 position;
-        float3 direction;
-        float3 up;
+        float3 m_position;
+        float3 m_direction;
+        float3 m_up;
         // In radians.
-        float fieldOfView;
+        float m_fieldOfView;
     };
 }
 

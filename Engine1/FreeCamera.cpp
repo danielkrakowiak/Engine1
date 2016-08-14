@@ -4,21 +4,21 @@
 
 using namespace Engine1;
 
-const float FreeCamera::defaultSpeedDamping = 40.0f; //per second
-const float FreeCamera::defaultSpeedAcceleration = 15.0f; //per second
-const float FreeCamera::defaultMaxSpeed = 100.0f; //per second
+const float FreeCamera::m_defaultSpeedDamping = 40.0f; //per second
+const float FreeCamera::m_defaultSpeedAcceleration = 15.0f; //per second
+const float FreeCamera::m_defaultMaxSpeed = 100.0f; //per second
 
 FreeCamera::FreeCamera( ) : 
-rotationAngles( 0.0f, 0.0f, 0.0f ),
-forwardSpeed( 0.0f ),
-sideSpeed( 0.0f ),
-upSpeed( 0.0f ),
-speedDamping( defaultSpeedDamping ),
-speedAcceleration( defaultSpeedAcceleration ),
-maxSpeed( defaultMaxSpeed ),
-dampSpeedForward( false ),
-dampSpeedSide( false ), 
-dampSpeedUp( false ) {
+m_rotationAngles( 0.0f, 0.0f, 0.0f ),
+m_forwardSpeed( 0.0f ),
+m_sideSpeed( 0.0f ),
+m_upSpeed( 0.0f ),
+m_speedDamping( m_defaultSpeedDamping ),
+m_speedAcceleration( m_defaultSpeedAcceleration ),
+m_maxSpeed( m_defaultMaxSpeed ),
+m_dampSpeedForward( false ),
+m_dampSpeedSide( false ), 
+m_dampSpeedUp( false ) {
 }
 
 
@@ -27,121 +27,121 @@ FreeCamera::~FreeCamera() {}
 //timeLapse in ms
 void FreeCamera::accelerateForward( float timeLapse ) {
 	timeLapse /= 1000.0f;
-	dampSpeedForward = ( forwardSpeed < 0.0f ); //don't damp speed if the camera is moving forward
+	m_dampSpeedForward = ( m_forwardSpeed < 0.0f ); //don't damp speed if the camera is moving forward
 
-	forwardSpeed += speedAcceleration * timeLapse;
-	if ( forwardSpeed > maxSpeed ) forwardSpeed = maxSpeed;
+	m_forwardSpeed += m_speedAcceleration * timeLapse;
+	if ( m_forwardSpeed > m_maxSpeed ) m_forwardSpeed = m_maxSpeed;
 }
 
 //timeLapse in ms
 void FreeCamera::accelerateReverse( float timeLapse ) {
 	timeLapse /= 1000.0f;
-	dampSpeedForward = ( forwardSpeed > 0.0f ); //don't damp speed if the camera is moving backward
+	m_dampSpeedForward = ( m_forwardSpeed > 0.0f ); //don't damp speed if the camera is moving backward
 
-	forwardSpeed -= speedAcceleration * timeLapse;
-	if ( forwardSpeed < -maxSpeed ) forwardSpeed = -maxSpeed;
+	m_forwardSpeed -= m_speedAcceleration * timeLapse;
+	if ( m_forwardSpeed < -m_maxSpeed ) m_forwardSpeed = -m_maxSpeed;
 }
 
 //timeLapse in ms
 void FreeCamera::accelerateRight( float timeLapse ) {
 	timeLapse /= 1000.0f;
-	dampSpeedSide = ( sideSpeed < 0.0f ); //don't damp speed if the camera is moving right
+	m_dampSpeedSide = ( m_sideSpeed < 0.0f ); //don't damp speed if the camera is moving right
 
-	sideSpeed += speedAcceleration * timeLapse;
-	if ( sideSpeed > maxSpeed ) sideSpeed = maxSpeed;
+	m_sideSpeed += m_speedAcceleration * timeLapse;
+	if ( m_sideSpeed > m_maxSpeed ) m_sideSpeed = m_maxSpeed;
 }
 
 //timeLapse in ms
 void FreeCamera::accelerateLeft( float timeLapse ) {
 	timeLapse /= 1000.0f;
-	dampSpeedSide = ( sideSpeed > 0.0f ); //don't damp speed if the camera is moving left
+	m_dampSpeedSide = ( m_sideSpeed > 0.0f ); //don't damp speed if the camera is moving left
 
-	sideSpeed -= speedAcceleration * timeLapse;
-	if ( sideSpeed < -maxSpeed ) sideSpeed = -maxSpeed;
+	m_sideSpeed -= m_speedAcceleration * timeLapse;
+	if ( m_sideSpeed < -m_maxSpeed ) m_sideSpeed = -m_maxSpeed;
 }
 
 //timeLapse in ms
 void FreeCamera::accelerateUp( float timeLapse ) {
 	timeLapse /= 1000.0f;
-	dampSpeedUp = ( upSpeed < 0.0f ); //don't damp speed if the camera is moving up
+	m_dampSpeedUp = ( m_upSpeed < 0.0f ); //don't damp speed if the camera is moving up
 
-	upSpeed += speedAcceleration * timeLapse;
-	if ( upSpeed > maxSpeed ) upSpeed = maxSpeed;
+	m_upSpeed += m_speedAcceleration * timeLapse;
+	if ( m_upSpeed > m_maxSpeed ) m_upSpeed = m_maxSpeed;
 }
 
 //timeLapse in ms
 void FreeCamera::accelerateDown( float timeLapse ) {
 	timeLapse /= 1000.0f;
-	dampSpeedUp = ( upSpeed > 0.0f ); //don't damp speed if the camera is moving down
+	m_dampSpeedUp = ( m_upSpeed > 0.0f ); //don't damp speed if the camera is moving down
 
-	upSpeed -= speedAcceleration * timeLapse;
-	if ( upSpeed < -maxSpeed ) upSpeed = -maxSpeed;
+	m_upSpeed -= m_speedAcceleration * timeLapse;
+	if ( m_upSpeed < -m_maxSpeed ) m_upSpeed = -m_maxSpeed;
 }
 
 //timeLapse in ms
 void FreeCamera::updateState( float timeLapse ) {
 	timeLapse /= 1000.0f;
-	float frameSpeedDamping = speedDamping * timeLapse;
+	float frameSpeedDamping = m_speedDamping * timeLapse;
 
-	if ( dampSpeedForward ) {
-		if ( forwardSpeed >= frameSpeedDamping ) forwardSpeed -= frameSpeedDamping;
-		else if ( forwardSpeed <= -frameSpeedDamping ) forwardSpeed += frameSpeedDamping;
-		else forwardSpeed = 0.0f;
+	if ( m_dampSpeedForward ) {
+		if ( m_forwardSpeed >= frameSpeedDamping ) m_forwardSpeed -= frameSpeedDamping;
+		else if ( m_forwardSpeed <= -frameSpeedDamping ) m_forwardSpeed += frameSpeedDamping;
+		else m_forwardSpeed = 0.0f;
 	}
 
-	if ( dampSpeedSide ) {
-		if ( sideSpeed >= frameSpeedDamping ) sideSpeed -= frameSpeedDamping;
-		else if ( sideSpeed <= -frameSpeedDamping ) sideSpeed += frameSpeedDamping;
-		else sideSpeed = 0.0f;
+	if ( m_dampSpeedSide ) {
+		if ( m_sideSpeed >= frameSpeedDamping ) m_sideSpeed -= frameSpeedDamping;
+		else if ( m_sideSpeed <= -frameSpeedDamping ) m_sideSpeed += frameSpeedDamping;
+		else m_sideSpeed = 0.0f;
 	}
 
-	if ( dampSpeedUp ) {
-		if ( upSpeed >= frameSpeedDamping ) upSpeed -= frameSpeedDamping;
-		else if ( upSpeed <= -frameSpeedDamping ) upSpeed += frameSpeedDamping;
-		else upSpeed = 0.0f;
+	if ( m_dampSpeedUp ) {
+		if ( m_upSpeed >= frameSpeedDamping ) m_upSpeed -= frameSpeedDamping;
+		else if ( m_upSpeed <= -frameSpeedDamping ) m_upSpeed += frameSpeedDamping;
+		else m_upSpeed = 0.0f;
 	}
 
-	move( float3( sideSpeed, upSpeed, forwardSpeed ) * timeLapse );
+	move( float3( m_sideSpeed, m_upSpeed, m_forwardSpeed ) * timeLapse );
 
-	dampSpeedForward = true;
-	dampSpeedSide = true;
-	dampSpeedUp = true;
+	m_dampSpeedForward = true;
+	m_dampSpeedSide = true;
+	m_dampSpeedUp = true;
 }
 
 void FreeCamera::setDirection( float3 direction ) {
-	this->direction = direction;
+	this->m_direction = direction;
 
 	updateRotationAnglesFromOrientation();
 }
 
 void FreeCamera::setUp( float3 up ) {
-	this->up = up;
+	this->m_up = up;
 
 	updateRotationAnglesFromOrientation( );
 }
 
 void FreeCamera::updateRotationAnglesFromOrientation( ) {
 	//try to deduce angles from camera orientation
-	float3 sideDirection = cross( up, direction );
-	rotationAngles = MathUtil::rotationMatrixToAngles( float33( sideDirection, up, direction ) );
+	float3 sideDirection = cross( m_up, m_direction );
+	m_rotationAngles = MathUtil::rotationMatrixToAngles( float33( sideDirection, m_up, m_direction ) );
 }
 
 float3 FreeCamera::getSpeed() {
-	return float3( sideSpeed, upSpeed, forwardSpeed );
+	return float3( m_sideSpeed, m_upSpeed, m_forwardSpeed );
 }
 
 void FreeCamera::move( float3 move ) {
-	float3 sideDirection = cross( up, direction );
-	position += move.x * sideDirection;
-	position += move.y * up;
-	position += move.z * direction;
+	float3 sideDirection = cross( m_up, m_direction );
+	m_position += move.x * sideDirection;
+	m_position += move.y * m_up;
+	m_position += move.z * m_direction;
 }
 
 void FreeCamera::rotate( float3 rotationAnglesChange ) {
-	rotationAngles += rotationAnglesChange;
+	m_rotationAngles += rotationAnglesChange;
 
 	
-	float33 rotationTransformation = MathUtil::anglesToRotationMatrix( rotationAngles );
-	direction = float3( 0.0f, 0.0f, 1.0f ) * rotationTransformation;
-	up = float3( 0.0f, 1.0f, 0.0f ) * rotationTransformation;
+	float33 rotationTransformation = MathUtil::anglesToRotationMatrix( m_rotationAngles );
+	m_direction = float3( 0.0f, 0.0f, 1.0f ) * rotationTransformation;
+	m_up = float3( 0.0f, 1.0f, 0.0f ) * rotationTransformation;
 }

@@ -49,10 +49,10 @@ namespace Engine1
 
         private:
 
-        std::string path;
-        Format format;
-        SkeletonMeshFileInfo meshFileInfo;
-        bool invertZCoordinate;
+        std::string m_path;
+        Format m_format;
+        SkeletonMeshFileInfo m_meshFileInfo;
+        bool m_invertZCoordinate;
 
     };
 }

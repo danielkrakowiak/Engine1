@@ -15,7 +15,7 @@ BlockMeshFragmentShader::BlockMeshFragmentShader() {}
 BlockMeshFragmentShader::~BlockMeshFragmentShader() {}
 
 void BlockMeshFragmentShader::compileFromFile( std::string path, ID3D11Device& device ) {
-	if ( compiled ) throw std::exception( "BlockMeshFragmentShader::compileFromFile - Shader has already been compiled" );
+	if ( m_compiled ) throw std::exception( "BlockMeshFragmentShader::compileFromFile - Shader has already been compiled" );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -40,11 +40,11 @@ void BlockMeshFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 			}
 		}
 
-		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer( ), shaderBuffer->GetBufferSize( ), nullptr, shader.ReleaseAndGetAddressOf() );
+		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer( ), shaderBuffer->GetBufferSize( ), nullptr, m_shader.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMeshFragmentShader::compileFromFile - Failed to create shader" );
 	}
 
-	this->device = &device;
-	this->compiled = true;
-	this->shaderId = ++compiledShadersCount;
+	this->m_device = &device;
+	this->m_compiled = true;
+	this->m_shaderId = ++compiledShadersCount;
 }

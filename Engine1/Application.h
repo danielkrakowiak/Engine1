@@ -30,13 +30,13 @@ public:
 	void show();
 	void run();
 
-	bool isFullscreen() { return fullscreen; }
+	bool isFullscreen() { return m_fullscreen; }
 
-	int getScreenWidth() { return screenWidth; }
-	int getScreenHeight() { return screenHeight; }
-	int getDisplayFrequency() { return displayFrequency; }
-	int getScreenColorDepth() { return screenColorDepth; }
-	int getZBufferDepth() { return zBufferDepth; }
+	int getScreenWidth() { return m_screenWidth; }
+	int getScreenHeight() { return m_screenHeight; }
+	int getDisplayFrequency() { return m_displayFrequency; }
+	int getScreenColorDepth() { return m_screenColorDepth; }
+	int getZBufferDepth() { return m_zBufferDepth; }
 
 private:
 
@@ -44,7 +44,7 @@ private:
 	static FontLibrary fontLibrary;
 
 	// Initialization
-	bool initialized;
+	bool m_initialized;
 	void setupWindow( );
 
 	// Windows message handling.
@@ -71,39 +71,39 @@ private:
     void saveScene( std::string path );
 
 	// Basic application handles.
-	HINSTANCE applicationInstance;
-	HWND      windowHandle;
-	HDC       deviceContext;
+	HINSTANCE m_applicationInstance;
+	HWND      m_windowHandle;
+	HDC       m_deviceContext;
 
     // Window state.
-    int2 windowPosition;
+    int2 m_windowPosition;
 
-	InputManager inputManager;
+	InputManager m_inputManager;
 
-	Direct3DRendererCore      rendererCore;
-    Direct3DFrameRenderer     frameRenderer;
-    Renderer                  renderer;
+	Direct3DRendererCore      m_rendererCore;
+    Direct3DFrameRenderer     m_frameRenderer;
+    Renderer                  m_renderer;
 
-	bool fullscreen;
-	int  screenWidth;
-    int  screenHeight;
-	bool verticalSync;
-	int  displayFrequency;
-	char screenColorDepth;
-	char zBufferDepth;
+	bool m_fullscreen;
+	int  m_screenWidth;
+    int  m_screenHeight;
+	bool m_verticalSync;
+	int  m_displayFrequency;
+	char m_screenColorDepth;
+	char m_zBufferDepth;
 
-	bool windowFocused;
+	bool m_windowFocused;
 
-	FreeCamera camera;
+	FreeCamera m_camera;
 
-    AssetManager assetManager;
+    AssetManager m_assetManager;
 
 	// For creation of new assets.
-    std::shared_ptr< Light >         selectedLight;
-	std::shared_ptr< BlockActor >    selectedBlockActor;
-	std::shared_ptr< SkeletonActor > selectedSkeletonActor;
+    std::shared_ptr< Light >         m_selectedLight;
+	std::shared_ptr< BlockActor >    m_selectedBlockActor;
+	std::shared_ptr< SkeletonActor > m_selectedSkeletonActor;
 
-    bool debugRenderAlpha;
+    bool m_debugRenderAlpha;
 
     // Debug uchar render target.
     void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
@@ -111,8 +111,8 @@ private:
     // Needed to display uchar textures using usual texture shader (unorm view is required - integer as 0-1 float).
     std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > ucharDisplayFrame;
 
-    std::string scenePath;
-    std::shared_ptr<CScene> scene;
+    std::string m_scenePath;
+    std::shared_ptr<CScene> m_scene;
 
 	// Copying is not allowed.
 	Application( const Application& ) = delete;

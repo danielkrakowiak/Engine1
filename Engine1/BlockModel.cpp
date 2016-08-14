@@ -40,13 +40,13 @@ BlockModel::BlockModel( )
 BlockModel::BlockModel( const BlockModel& obj ) :
 fileInfo( obj.fileInfo ),
 mesh( obj.mesh ),
-alphaTextures( obj.alphaTextures ),
-emissionTextures( obj.emissionTextures ),
-albedoTextures( obj.albedoTextures ),
-metalnessTextures( obj.metalnessTextures ),
-roughnessTextures( obj.roughnessTextures ),
-normalTextures( obj.normalTextures ),
-indexOfRefractionTextures( obj.indexOfRefractionTextures )
+m_alphaTextures( obj.m_alphaTextures ),
+m_emissionTextures( obj.m_emissionTextures ),
+m_albedoTextures( obj.m_albedoTextures ),
+m_metalnessTextures( obj.m_metalnessTextures ),
+m_roughnessTextures( obj.m_roughnessTextures ),
+m_normalTextures( obj.m_normalTextures ),
+m_indexOfRefractionTextures( obj.m_indexOfRefractionTextures )
 {}
 
 BlockModel::~BlockModel( ) 
@@ -64,25 +64,25 @@ std::vector< std::shared_ptr< const Asset > > BlockModel::getSubAssets( ) const
 	if ( mesh )
 		subAssets.push_back( mesh );
 
-    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+    for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	return subAssets;
@@ -95,25 +95,25 @@ std::vector< std::shared_ptr< Asset > > BlockModel::getSubAssets()
 	if ( mesh )
 		subAssets.push_back( mesh );
 
-    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+    for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	return subAssets;
@@ -142,7 +142,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
 
     if ( newTextureU1 )
     {
-        for ( ModelTexture2D< unsigned char >& texture : alphaTextures )
+        for ( ModelTexture2D< unsigned char >& texture : m_alphaTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU1 );
@@ -150,7 +150,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
             }
         }
 
-        for ( ModelTexture2D< unsigned char >& texture : metalnessTextures )
+        for ( ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU1 );
@@ -158,7 +158,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
             }
         }
 
-	    for ( ModelTexture2D< unsigned char >& texture : roughnessTextures )
+	    for ( ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU1 );
@@ -166,7 +166,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
             }
         }
 
-        for ( ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+        for ( ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU1 );
@@ -182,7 +182,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
 
     if ( newTextureU4 )
     {
-        for ( ModelTexture2D< uchar4 >& texture : emissionTextures )
+        for ( ModelTexture2D< uchar4 >& texture : m_emissionTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU4 );
@@ -190,7 +190,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
             }
         }
 
-	    for ( ModelTexture2D< uchar4 >& texture : albedoTextures )
+	    for ( ModelTexture2D< uchar4 >& texture : m_albedoTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU4 );
@@ -198,7 +198,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
             }
         }
 
-        for ( ModelTexture2D< uchar4 >& texture : normalTextures ) 
+        for ( ModelTexture2D< uchar4 >& texture : m_normalTextures ) 
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU4 );
@@ -246,31 +246,31 @@ void BlockModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& device
 	if ( mesh )
 		mesh->loadCpuToGpu( device );
 
-    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+    for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
-    for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+    for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
-	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
-	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
-	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
-	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
-	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 }
@@ -295,31 +295,31 @@ void BlockModel::unloadFromCpu()
 	if ( mesh )
 		mesh->unloadFromCpu();
 
-    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+    for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
-    for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+    for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
-	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
-	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
-	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
-	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
-	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 }
@@ -329,31 +329,31 @@ void BlockModel::unloadFromGpu()
 	if ( mesh )
 		mesh->unloadFromGpu();
 
-    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+    for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
-	for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
-	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
-	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
-	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
-	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
-	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 }
@@ -363,31 +363,31 @@ bool BlockModel::isInCpuMemory() const
 	if ( !mesh || !mesh->isInCpuMemory() )
 		return false;
 
-    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+    for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
-    for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+    for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
@@ -399,31 +399,31 @@ bool BlockModel::isInGpuMemory() const
 	if ( !mesh || !mesh->isInGpuMemory() )
 		return false;
 
-    for ( const ModelTexture2D< unsigned char >& texture : alphaTextures )
+    for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
-    for ( const ModelTexture2D< uchar4 >& texture : emissionTextures )
+    for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< uchar4 >& texture : albedoTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< unsigned char >& texture : metalnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< unsigned char >& texture : roughnessTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< uchar4 >& texture : normalTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< unsigned char >& texture : indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
@@ -444,168 +444,168 @@ std::shared_ptr<BlockMesh> BlockModel::getMesh( ) {
 
 void BlockModel::addAlphaTexture( ModelTexture2D< unsigned char >& texture )
 {
-	alphaTextures.push_back( texture );
+	m_alphaTextures.push_back( texture );
 }
 
 void BlockModel::addEmissionTexture( ModelTexture2D< uchar4 >& texture )
 {
-	emissionTextures.push_back( texture );
+	m_emissionTextures.push_back( texture );
 }
 
 void BlockModel::addAlbedoTexture( ModelTexture2D< uchar4 >& texture )
 {
-	albedoTextures.push_back( texture );
+	m_albedoTextures.push_back( texture );
 }
 
 void BlockModel::addMetalnessTexture( ModelTexture2D< unsigned char >& texture )
 {
-    metalnessTextures.push_back( texture );
+    m_metalnessTextures.push_back( texture );
 }
 
 void BlockModel::addRoughnessTexture( ModelTexture2D< unsigned char >& texture )
 {
-	roughnessTextures.push_back( texture );
+	m_roughnessTextures.push_back( texture );
 }
 
 void BlockModel::addNormalTexture( ModelTexture2D< uchar4 >& texture )
 {
-	normalTextures.push_back( texture );
+	m_normalTextures.push_back( texture );
 }
 
 void BlockModel::addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture )
 {
-	indexOfRefractionTextures.push_back( texture );
+	m_indexOfRefractionTextures.push_back( texture );
 }
 
 void BlockModel::removeAllAlphaTextures()
 {
-    alphaTextures.clear();
+    m_alphaTextures.clear();
 }
 
 void BlockModel::removeAllEmissionTextures()
 {
-    emissionTextures.clear();
+    m_emissionTextures.clear();
 }
 
 void BlockModel::removeAllAlbedoTextures()
 {
-    albedoTextures.clear();
+    m_albedoTextures.clear();
 }
 
 void BlockModel::removeAllMetalnessTextures()
 {
-    metalnessTextures.clear();
+    m_metalnessTextures.clear();
 }
 
 void BlockModel::removeAllRoughnessTextures()
 {
-    roughnessTextures.clear();
+    m_roughnessTextures.clear();
 }
 
 void BlockModel::removeAllNormalTextures()
 {
-    normalTextures.clear();
+    m_normalTextures.clear();
 }
 
 void BlockModel::removeAllIndexOfRefractionTextures()
 {
-    indexOfRefractionTextures.clear();
+    m_indexOfRefractionTextures.clear();
 }
 
 int BlockModel::getAlphaTexturesCount( ) const {
-	return (int)alphaTextures.size();
+	return (int)m_alphaTextures.size();
 }
 
 std::vector< ModelTexture2D< unsigned char > > BlockModel::getAlphaTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( alphaTextures.begin( ), alphaTextures.end( ) );
+	return std::vector< ModelTexture2D< unsigned char > >( m_alphaTextures.begin( ), m_alphaTextures.end( ) );
 }
 
 ModelTexture2D< unsigned char > BlockModel::getAlphaTexture( int index ) const {
-	if ( index >= (int)alphaTextures.size() ) throw std::exception( "BlockModel::getAlphaTexture: Trying to access texture at non-existing index" );
+	if ( index >= (int)m_alphaTextures.size() ) throw std::exception( "BlockModel::getAlphaTexture: Trying to access texture at non-existing index" );
 
-	return alphaTextures.at( index );
+	return m_alphaTextures.at( index );
 }
 
 int BlockModel::getEmissionTexturesCount( ) const {
-	return (int)emissionTextures.size();
+	return (int)m_emissionTextures.size();
 }
 
 std::vector< ModelTexture2D< uchar4 > > BlockModel::getEmissionTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( emissionTextures.begin( ), emissionTextures.end( ) );
+	return std::vector< ModelTexture2D< uchar4 > >( m_emissionTextures.begin( ), m_emissionTextures.end( ) );
 }
 
 ModelTexture2D< uchar4 > BlockModel::getEmissionTexture( int index ) const {
-	if ( index >= (int)emissionTextures.size() ) throw std::exception( "BlockModel::getEmissionTexture: Trying to access texture at non-existing index" );
+	if ( index >= (int)m_emissionTextures.size() ) throw std::exception( "BlockModel::getEmissionTexture: Trying to access texture at non-existing index" );
 
-	return emissionTextures.at( index );
+	return m_emissionTextures.at( index );
 }
 
 int BlockModel::getAlbedoTexturesCount( ) const {
-	return (int)albedoTextures.size();
+	return (int)m_albedoTextures.size();
 }
 
 std::vector< ModelTexture2D< uchar4 > > BlockModel::getAlbedoTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( albedoTextures.begin( ), albedoTextures.end( ) );
+	return std::vector< ModelTexture2D< uchar4 > >( m_albedoTextures.begin( ), m_albedoTextures.end( ) );
 }
 
 ModelTexture2D< uchar4 > BlockModel::getAlbedoTexture( int index ) const {
-	if ( index >= (int)albedoTextures.size() ) throw std::exception( "BlockModel::getAlbedoTexture: Trying to access texture at non-existing index" );
+	if ( index >= (int)m_albedoTextures.size() ) throw std::exception( "BlockModel::getAlbedoTexture: Trying to access texture at non-existing index" );
 
-	return albedoTextures.at( index );
+	return m_albedoTextures.at( index );
 }
 
 int BlockModel::getMetalnessTexturesCount( ) const {
-	return (int)metalnessTextures.size();
+	return (int)m_metalnessTextures.size();
 }
 
 std::vector< ModelTexture2D< unsigned char > > BlockModel::getMetalnessTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( metalnessTextures.begin( ), metalnessTextures.end( ) );
+	return std::vector< ModelTexture2D< unsigned char > >( m_metalnessTextures.begin( ), m_metalnessTextures.end( ) );
 }
 
 ModelTexture2D< unsigned char > BlockModel::getMetalnessTexture( int index ) const {
-	if ( index >= (int)metalnessTextures.size() ) throw std::exception( "BlockModel::getMetalnessTexture: Trying to access texture at non-existing index" );
+	if ( index >= (int)m_metalnessTextures.size() ) throw std::exception( "BlockModel::getMetalnessTexture: Trying to access texture at non-existing index" );
 
-	return metalnessTextures.at( index );
+	return m_metalnessTextures.at( index );
 }
 
 int BlockModel::getRoughnessTexturesCount( ) const {
-	return (int)roughnessTextures.size();
+	return (int)m_roughnessTextures.size();
 }
 
 std::vector< ModelTexture2D< unsigned char > > BlockModel::getRoughnessTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( roughnessTextures.begin( ), roughnessTextures.end( ) );
+	return std::vector< ModelTexture2D< unsigned char > >( m_roughnessTextures.begin( ), m_roughnessTextures.end( ) );
 }
 
 ModelTexture2D< unsigned char > BlockModel::getRoughnessTexture( int index ) const {
-	if ( index >= (int)roughnessTextures.size( ) ) throw std::exception( "BlockModel::getRoughnessTexture: Trying to access texture at non-existing index" );
+	if ( index >= (int)m_roughnessTextures.size( ) ) throw std::exception( "BlockModel::getRoughnessTexture: Trying to access texture at non-existing index" );
 
-	return roughnessTextures.at( index );
+	return m_roughnessTextures.at( index );
 }
 
 int BlockModel::getNormalTexturesCount( ) const {
-	return (int)normalTextures.size();
+	return (int)m_normalTextures.size();
 }
 
 std::vector< ModelTexture2D< uchar4 > > BlockModel::getNormalTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( normalTextures.begin( ), normalTextures.end( ) );
+	return std::vector< ModelTexture2D< uchar4 > >( m_normalTextures.begin( ), m_normalTextures.end( ) );
 }
 
 ModelTexture2D< uchar4 > BlockModel::getNormalTexture( int index ) const {
-	if ( index >= (int)normalTextures.size( ) ) throw std::exception( "BlockModel::getNormalTexture: Trying to access texture at non-existing index" );
+	if ( index >= (int)m_normalTextures.size( ) ) throw std::exception( "BlockModel::getNormalTexture: Trying to access texture at non-existing index" );
 
-	return normalTextures.at( index );
+	return m_normalTextures.at( index );
 }
 
 int BlockModel::getIndexOfRefractionTexturesCount( ) const {
-	return (int)indexOfRefractionTextures.size();
+	return (int)m_indexOfRefractionTextures.size();
 }
 
 std::vector< ModelTexture2D< unsigned char > > BlockModel::getIndexOfRefractionTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( indexOfRefractionTextures.begin( ), indexOfRefractionTextures.end( ) );
+	return std::vector< ModelTexture2D< unsigned char > >( m_indexOfRefractionTextures.begin( ), m_indexOfRefractionTextures.end( ) );
 }
 
 ModelTexture2D< unsigned char > BlockModel::getIndexOfRefractionTexture( int index ) const {
-	if ( index >= (int)indexOfRefractionTextures.size( ) ) throw std::exception( "BlockModel::getIndexOfRefractionTexture: Trying to access texture at non-existing index" );
+	if ( index >= (int)m_indexOfRefractionTextures.size( ) ) throw std::exception( "BlockModel::getIndexOfRefractionTexture: Trying to access texture at non-existing index" );
 
-	return indexOfRefractionTextures.at( index );
+	return m_indexOfRefractionTextures.at( index );
 }

@@ -113,50 +113,50 @@ namespace Engine1
 
         void traceSecondaryRays( int level, const std::vector< std::shared_ptr< const BlockActor > >& actors );
 
-        Direct3DRendererCore& rendererCore;
+        Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr<ID3D11Device>        device;
-        Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
+        Microsoft::WRL::ComPtr<ID3D11Device>        m_device;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
-        bool initialized;
+        bool m_initialized;
 
         // Render targets.
-        int imageWidth, imageHeight;
+        int m_imageWidth, m_imageHeight;
 
         static const int maxRenderTargetCount;
 
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        rayOriginsTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        rayDirectionsTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        rayHitPositionTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > > >         rayHitDistanceTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >        rayHitEmissiveTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >        rayHitAlbedoTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > rayHitMetalnessTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > rayHitRoughnessTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        rayHitNormalTexture;
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > rayHitIndexOfRefractionTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        m_rayOriginsTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        m_rayDirectionsTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        m_rayHitPositionTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > > >         m_rayHitDistanceTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >        m_rayHitEmissiveTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >        m_rayHitAlbedoTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > m_rayHitMetalnessTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > m_rayHitRoughnessTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        m_rayHitNormalTexture;
+        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > m_rayHitIndexOfRefractionTexture;
 
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
-        std::shared_ptr< GenerateRaysComputeShader >               generateRaysComputeShader;
-        std::shared_ptr< GenerateFirstReflectedRaysComputeShader > generateFirstReflectedRaysComputeShader;
-        std::shared_ptr< GenerateFirstRefractedRaysComputeShader > generateFirstRefractedRaysComputeShader;
-        std::shared_ptr< GenerateReflectedRaysComputeShader >      generateReflectedRaysComputeShader;
-        std::shared_ptr< GenerateRefractedRaysComputeShader >      generateRefractedRaysComputeShader;
-        std::shared_ptr< RaytracingPrimaryRaysComputeShader >      raytracingPrimaryRaysComputeShader;
-        std::shared_ptr< RaytracingSecondaryRaysComputeShader >    raytracingSecondaryRaysComputeShader;
+        std::shared_ptr< GenerateRaysComputeShader >               m_generateRaysComputeShader;
+        std::shared_ptr< GenerateFirstReflectedRaysComputeShader > m_generateFirstReflectedRaysComputeShader;
+        std::shared_ptr< GenerateFirstRefractedRaysComputeShader > m_generateFirstRefractedRaysComputeShader;
+        std::shared_ptr< GenerateReflectedRaysComputeShader >      m_generateReflectedRaysComputeShader;
+        std::shared_ptr< GenerateRefractedRaysComputeShader >      m_generateRefractedRaysComputeShader;
+        std::shared_ptr< RaytracingPrimaryRaysComputeShader >      m_raytracingPrimaryRaysComputeShader;
+        std::shared_ptr< RaytracingSecondaryRaysComputeShader >    m_raytracingSecondaryRaysComputeShader;
 
         void loadAndCompileShaders( ID3D11Device& device );
 
         // Default textures.
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultAlphaTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultMetalnessTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultRoughnessTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > defaultIndexOfRefractionTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultEmissiveTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultAlbedoTexture;
-        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        defaultNormalTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultAlphaTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultMetalnessTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultRoughnessTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultIndexOfRefractionTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultEmissiveTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultAlbedoTexture;
+        std::shared_ptr< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultNormalTexture;
 
         void createDefaultTextures( ID3D11Device& device );
 

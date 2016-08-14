@@ -98,8 +98,8 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vect
 }
 
 BlockMesh::BlockMesh() :
-boundingBoxMin( float3::ZERO ),
-boundingBoxMax( float3::ZERO )
+m_boundingBoxMin( float3::ZERO ),
+m_boundingBoxMax( float3::ZERO )
 {}
 
 BlockMesh::~BlockMesh()
@@ -127,17 +127,17 @@ void BlockMesh::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<A
 
 void BlockMesh::setFileInfo( const BlockMeshFileInfo& fileInfo )
 {
-	this->fileInfo = fileInfo;
+	this->m_fileInfo = fileInfo;
 }
 
 const BlockMeshFileInfo& BlockMesh::getFileInfo() const
 {
-	return fileInfo;
+	return m_fileInfo;
 }
 
 BlockMeshFileInfo& BlockMesh::getFileInfo( )
 {
-	return fileInfo;
+	return m_fileInfo;
 }
 
 void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
@@ -147,21 +147,21 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
     if ( reload )
         throw std::exception( "BlockMesh::loadCpuToGpu - reload not yet implemented." );
 
-	if ( vertices.size() > 0 && !vertexBuffer ) {
+	if ( m_vertices.size() > 0 && !m_vertexBuffer ) {
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth           = sizeof(float3)* (unsigned int)vertices.size();
+		vertexBufferDesc.ByteWidth           = sizeof(float3)* (unsigned int)m_vertices.size();
 		vertexBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
 		vertexBufferDesc.CPUAccessFlags      = 0;
 		vertexBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 		vertexBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA vertexDataPtr;
-		vertexDataPtr.pSysMem          = vertices.data();
+		vertexDataPtr.pSysMem          = m_vertices.data();
 		vertexDataPtr.SysMemPitch      = 0;
 		vertexDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &vertexBufferDesc, &vertexDataPtr, vertexBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &vertexBufferDesc, &vertexDataPtr, m_vertexBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh vertices failed" );
 
         D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
@@ -169,32 +169,32 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
         resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
         resourceDesc.BufferEx.FirstElement = 0;
-        resourceDesc.BufferEx.NumElements  = (unsigned int)vertices.size() * 3;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)m_vertices.size() * 3;
 
-        result = device.CreateShaderResourceView( vertexBuffer.Get(), &resourceDesc, vertexBufferResource.ReleaseAndGetAddressOf() );
+        result = device.CreateShaderResourceView( m_vertexBuffer.Get(), &resourceDesc, m_vertexBufferResource.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating vertex buffer shader resource on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::vertexBuffer" );
-		Direct3DUtil::setResourceName( *vertexBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_vertexBuffer.Get(), resourceName );
 #endif
 	}
 
-	if ( normals.size() > 0 && !normalBuffer ) {
+	if ( m_normals.size() > 0 && !m_normalBuffer ) {
 		D3D11_BUFFER_DESC normalBufferDesc;
 		normalBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-		normalBufferDesc.ByteWidth           = sizeof(float3) * (unsigned int)normals.size();
+		normalBufferDesc.ByteWidth           = sizeof(float3) * (unsigned int)m_normals.size();
 		normalBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
 		normalBufferDesc.CPUAccessFlags      = 0;
 		normalBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 		normalBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA normalDataPtr;
-		normalDataPtr.pSysMem = normals.data();
+		normalDataPtr.pSysMem = m_normals.data();
 		normalDataPtr.SysMemPitch = 0;
 		normalDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &normalBufferDesc, &normalDataPtr, normalBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &normalBufferDesc, &normalDataPtr, m_normalBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh normals failed" );
 
         D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
@@ -202,32 +202,32 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
         resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
         resourceDesc.BufferEx.FirstElement = 0;
-        resourceDesc.BufferEx.NumElements  = (unsigned int)normals.size() * 3;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)m_normals.size() * 3;
 
-        result = device.CreateShaderResourceView( normalBuffer.Get(), &resourceDesc, normalBufferResource.ReleaseAndGetAddressOf() );
+        result = device.CreateShaderResourceView( m_normalBuffer.Get(), &resourceDesc, m_normalBufferResource.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating normal buffer shader resource on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::normalBuffer" );
-		Direct3DUtil::setResourceName( *normalBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_normalBuffer.Get(), resourceName );
 #endif
 	}
 
-    if ( tangents.size() > 0 && !tangentBuffer ) {
+    if ( m_tangents.size() > 0 && !m_tangentBuffer ) {
 		D3D11_BUFFER_DESC tangentBufferDesc;
 		tangentBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-		tangentBufferDesc.ByteWidth           = sizeof(float3) * (unsigned int)tangents.size();
+		tangentBufferDesc.ByteWidth           = sizeof(float3) * (unsigned int)m_tangents.size();
 		tangentBufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
 		tangentBufferDesc.CPUAccessFlags      = 0;
 		tangentBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 		tangentBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA tangentDataPtr;
-		tangentDataPtr.pSysMem = tangents.data();
+		tangentDataPtr.pSysMem = m_tangents.data();
 		tangentDataPtr.SysMemPitch = 0;
 		tangentDataPtr.SysMemSlicePitch = 0;
 
-		HRESULT result = device.CreateBuffer( &tangentBufferDesc, &tangentDataPtr, tangentBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device.CreateBuffer( &tangentBufferDesc, &tangentDataPtr, m_tangentBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh tangents failed" );
 
         D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
@@ -235,24 +235,24 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
         resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
         resourceDesc.BufferEx.FirstElement = 0;
-        resourceDesc.BufferEx.NumElements  = (unsigned int)tangents.size() * 3;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)m_tangents.size() * 3;
 
-        result = device.CreateShaderResourceView( tangentBuffer.Get(), &resourceDesc, tangentBufferResource.ReleaseAndGetAddressOf() );
+        result = device.CreateShaderResourceView( m_tangentBuffer.Get(), &resourceDesc, m_tangentBufferResource.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating tangent buffer shader resource on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::tangentBuffer" );
-		Direct3DUtil::setResourceName( *tangentBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_tangentBuffer.Get(), resourceName );
 #endif
 	}
 
-	std::list< std::vector<float2> >::iterator texcoordsIt, texcoordsEnd = texcoords.end();
+	std::list< std::vector<float2> >::iterator texcoordsIt, texcoordsEnd = m_texcoords.end();
     int texcoordsIndex = -1;
 
-	for ( texcoordsIt = texcoords.begin(); texcoordsIt != texcoordsEnd; ++texcoordsIt ) {
+	for ( texcoordsIt = m_texcoords.begin(); texcoordsIt != texcoordsEnd; ++texcoordsIt ) {
         ++texcoordsIndex;
 
-        if ( texcoordsIndex < (int)texcoordBuffers.size() )
+        if ( texcoordsIndex < (int)m_texcoordBuffers.size() )
             continue; // Skip texcoords which are already loaded.
 
 		if ( texcoordsIt->empty() ) throw std::exception( "BlockMesh::loadCpuToGpu - One of mesh's texcoord sets is empty" );
@@ -275,7 +275,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &texcoordBufferDesc, &texcoordDataPtr, buffer.GetAddressOf() );
 		if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - Buffer creation for mesh texcoords failed" );
 
-        texcoordBuffers.push_back( buffer );
+        m_texcoordBuffers.push_back( buffer );
 
         ComPtr<ID3D11ShaderResourceView> bufferResource;
 
@@ -289,31 +289,31 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         result = device.CreateShaderResourceView( buffer.Get(), &resourceDesc, bufferResource.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating texcoord buffer shader resource on GPU failed." );
 
-        texcoordBufferResources.push_back( bufferResource );
+        m_texcoordBufferResources.push_back( bufferResource );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
-		std::string resourceName = std::string( "BlockMesh::texcoordBuffer[" ) + std::to_string( texcoordBuffers.size() - 1 ) + std::string( "]" );
+		std::string resourceName = std::string( "BlockMesh::texcoordBuffer[" ) + std::to_string( m_texcoordBuffers.size() - 1 ) + std::string( "]" );
 		Direct3DUtil::setResourceName( *buffer.Get(), resourceName );
 #endif
 	}
 
-    if ( triangles.empty() ) throw std::exception( "BlockMesh::loadToGpu - Mesh has no triangles" );
+    if ( m_triangles.empty() ) throw std::exception( "BlockMesh::loadToGpu - Mesh has no triangles" );
 
-    if ( !triangleBuffer ) {
+    if ( !m_triangleBuffer ) {
         D3D11_BUFFER_DESC triangleBufferDesc;
         triangleBufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-        triangleBufferDesc.ByteWidth           = sizeof(uint3) * (unsigned int)triangles.size();
+        triangleBufferDesc.ByteWidth           = sizeof(uint3) * (unsigned int)m_triangles.size();
         triangleBufferDesc.BindFlags           = D3D11_BIND_INDEX_BUFFER | D3D11_BIND_SHADER_RESOURCE;
         triangleBufferDesc.CPUAccessFlags      = 0;
         triangleBufferDesc.MiscFlags           = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
         triangleBufferDesc.StructureByteStride = 0;
 
         D3D11_SUBRESOURCE_DATA triangleDataPtr;
-        triangleDataPtr.pSysMem = triangles.data();
+        triangleDataPtr.pSysMem = m_triangles.data();
         triangleDataPtr.SysMemPitch = 0;
         triangleDataPtr.SysMemSlicePitch = 0;
 
-        HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, triangleBuffer.ReleaseAndGetAddressOf() );
+        HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, m_triangleBuffer.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadToGpu - Buffer creation for mesh triangles failed" );
 
         D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
@@ -321,14 +321,14 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         resourceDesc.ViewDimension         = D3D11_SRV_DIMENSION_BUFFEREX;
         resourceDesc.BufferEx.Flags        = D3D11_BUFFEREX_SRV_FLAG_RAW;
         resourceDesc.BufferEx.FirstElement = 0;
-        resourceDesc.BufferEx.NumElements  = (unsigned int)triangles.size() * 3;
+        resourceDesc.BufferEx.NumElements  = (unsigned int)m_triangles.size() * 3;
 
-        result = device.CreateShaderResourceView( triangleBuffer.Get(), &resourceDesc, triangleBufferResource.ReleaseAndGetAddressOf() );
+        result = device.CreateShaderResourceView( m_triangleBuffer.Get(), &resourceDesc, m_triangleBufferResource.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating triangle buffer shader resource on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::triangleBuffer" );
-        Direct3DUtil::setResourceName( *triangleBuffer.Get(), resourceName );
+        Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif
 	}
 }
@@ -341,105 +341,105 @@ void BlockMesh::loadGpuToCpu()
 
 void BlockMesh::unloadFromCpu()
 {
-	vertices.clear();
-	vertices.shrink_to_fit();
-	normals.clear();
-	normals.shrink_to_fit();
-    tangents.clear();
-	tangents.shrink_to_fit();
-	texcoords.clear(); // Calls destructor on each texcoord set.
-	triangles.clear();
-	triangles.shrink_to_fit();
+	m_vertices.clear();
+	m_vertices.shrink_to_fit();
+	m_normals.clear();
+	m_normals.shrink_to_fit();
+    m_tangents.clear();
+	m_tangents.shrink_to_fit();
+	m_texcoords.clear(); // Calls destructor on each texcoord set.
+	m_triangles.clear();
+	m_triangles.shrink_to_fit();
 }
 
 void BlockMesh::unloadFromGpu()
 {
-	vertexBuffer.Reset();
-    vertexBufferResource.Reset();
-	normalBuffer.Reset();
-    normalBufferResource.Reset();
-    tangentBuffer.Reset();
-    tangentBufferResource.Reset();
+	m_vertexBuffer.Reset();
+    m_vertexBufferResource.Reset();
+	m_normalBuffer.Reset();
+    m_normalBufferResource.Reset();
+    m_tangentBuffer.Reset();
+    m_tangentBufferResource.Reset();
 
-	while ( !texcoordBuffers.empty() ) {
-		texcoordBuffers.front( ).Reset();
-		texcoordBuffers.pop_front();
+	while ( !m_texcoordBuffers.empty() ) {
+		m_texcoordBuffers.front( ).Reset();
+		m_texcoordBuffers.pop_front();
 	}
 
-    while ( !texcoordBufferResources.empty() ) {
-        texcoordBufferResources.front().Reset();
-        texcoordBufferResources.pop_front();
+    while ( !m_texcoordBufferResources.empty() ) {
+        m_texcoordBufferResources.front().Reset();
+        m_texcoordBufferResources.pop_front();
     }
 
-	triangleBuffer.Reset();
-    triangleBufferResource.Reset();
+	m_triangleBuffer.Reset();
+    m_triangleBufferResource.Reset();
 }
 
 bool BlockMesh::isInCpuMemory() const
 {
-	return !vertices.empty() && !triangles.empty();
+	return !m_vertices.empty() && !m_triangles.empty();
 }
 
 bool BlockMesh::isInGpuMemory() const
 {
-	return vertexBuffer && vertexBufferResource && triangleBuffer && triangleBufferResource;
+	return m_vertexBuffer && m_vertexBufferResource && m_triangleBuffer && m_triangleBufferResource;
 }
 
 const std::vector<float3>& BlockMesh::getVertices() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getVertices - Mesh not loaded in CPU memory." );
 
-	return vertices;
+	return m_vertices;
 }
 
 std::vector<float3>& BlockMesh::getVertices()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getVertices - Mesh not loaded in CPU memory." );
 
-	return vertices;
+	return m_vertices;
 }
 
 const std::vector<float3>& BlockMesh::getNormals() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getNormals - Mesh not loaded in CPU memory." );
 
-	return normals;
+	return m_normals;
 }
 
 std::vector<float3>& BlockMesh::getNormals()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getNormals - Mesh not loaded in CPU memory." );
 
-	return normals;
+	return m_normals;
 }
 
 const std::vector<float3>& BlockMesh::getTangents() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTangents - Mesh not loaded in CPU memory." );
 
-	return tangents;
+	return m_tangents;
 }
 
 std::vector<float3>& BlockMesh::getTangents()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTangents - Mesh not loaded in CPU memory." );
 
-	return tangents;
+	return m_tangents;
 }
 
 int BlockMesh::getTexcoordsCount() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTexcoordsCount - Mesh not loaded in CPU memory." );
 
-	return (int)texcoords.size();
+	return (int)m_texcoords.size();
 }
 
 const std::vector<float2>& BlockMesh::getTexcoords( int setIndex ) const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTexcoords - Mesh not loaded in CPU memory." );
-	if ( setIndex >= (int)texcoords.size() ) throw std::exception( "BlockMesh::getTexcoords: Trying to access texcoords at non-existing index." );
+	if ( setIndex >= (int)m_texcoords.size() ) throw std::exception( "BlockMesh::getTexcoords: Trying to access texcoords at non-existing index." );
 
-	std::list< std::vector<float2> >::const_iterator it = texcoords.begin();
+	std::list< std::vector<float2> >::const_iterator it = m_texcoords.begin();
 	for ( int i = 0; i < setIndex; ++i ) it++;
 
 	return *it;
@@ -448,9 +448,9 @@ const std::vector<float2>& BlockMesh::getTexcoords( int setIndex ) const
 std::vector<float2>& BlockMesh::getTexcoords( int setIndex )
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTexcoords - Mesh not loaded in CPU memory." );
-	if ( setIndex >= (int)texcoords.size() ) throw std::exception( "BlockMesh::getTexcoords: Trying to access texcoords at non-existing index." );
+	if ( setIndex >= (int)m_texcoords.size() ) throw std::exception( "BlockMesh::getTexcoords: Trying to access texcoords at non-existing index." );
 
-	std::list< std::vector<float2> >::iterator it = texcoords.begin();
+	std::list< std::vector<float2> >::iterator it = m_texcoords.begin();
 	for ( int i = 0; i < setIndex; ++i ) it++;
 
 	return *it;
@@ -460,35 +460,35 @@ const std::vector<uint3>& BlockMesh::getTriangles() const
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTriangles - Mesh not loaded in CPU memory." );
 
-	return triangles;
+	return m_triangles;
 }
 
 std::vector<uint3>& BlockMesh::getTriangles()
 {
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTriangles - Mesh not loaded in CPU memory." );
 
-	return triangles;
+	return m_triangles;
 }
 
 ID3D11Buffer* BlockMesh::getVertexBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getVertexBuffer - Mesh not loaded in GPU memory." );
 
-	return vertexBuffer.Get();
+	return m_vertexBuffer.Get();
 }
 
 ID3D11Buffer* BlockMesh::getNormalBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getNormalBuffer - Mesh not loaded in GPU memory." );
 
-	return normalBuffer.Get();
+	return m_normalBuffer.Get();
 }
 
 ID3D11Buffer* BlockMesh::getTangentBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTangentBuffer - Mesh not loaded in GPU memory." );
 
-	return tangentBuffer.Get();
+	return m_tangentBuffer.Get();
 }
 
 std::list< ID3D11Buffer* > BlockMesh::getTexcoordBuffers() const
@@ -497,7 +497,7 @@ std::list< ID3D11Buffer* > BlockMesh::getTexcoordBuffers() const
 
 	std::list< ID3D11Buffer* > tmpTexcoordBuffers;
 
-	for ( auto it = texcoordBuffers.begin(); it != texcoordBuffers.end(); ++it ) {
+	for ( auto it = m_texcoordBuffers.begin(); it != m_texcoordBuffers.end(); ++it ) {
 		tmpTexcoordBuffers.push_back( it->Get() );
 	}
 
@@ -508,28 +508,28 @@ ID3D11Buffer* BlockMesh::getTriangleBuffer() const
 {
 	if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTriangleBuffer - Mesh not loaded in GPU memory." );
 
-	return triangleBuffer.Get();
+	return m_triangleBuffer.Get();
 }
 
 ID3D11ShaderResourceView* BlockMesh::getVertexBufferResource() const
 {
     if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getVertexBufferResource - Mesh not loaded in GPU memory." );
 
-    return vertexBufferResource.Get();
+    return m_vertexBufferResource.Get();
 }
 
 ID3D11ShaderResourceView* BlockMesh::getNormalBufferResource() const
 {
     if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getNormalBufferResource - Mesh not loaded in GPU memory." );
 
-    return normalBufferResource.Get();
+    return m_normalBufferResource.Get();
 }
 
 ID3D11ShaderResourceView* BlockMesh::getTangentBufferResource() const
 {
     if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTangentBufferResource - Mesh not loaded in GPU memory." );
 
-    return tangentBufferResource.Get();
+    return m_tangentBufferResource.Get();
 }
 
 std::list< ID3D11ShaderResourceView* > BlockMesh::getTexcoordBufferResources() const
@@ -538,7 +538,7 @@ std::list< ID3D11ShaderResourceView* > BlockMesh::getTexcoordBufferResources() c
 
     std::list< ID3D11ShaderResourceView* > tmpTexcoordBufferResources;
 
-    for ( auto it = texcoordBufferResources.begin(); it != texcoordBufferResources.end(); ++it ) {
+    for ( auto it = m_texcoordBufferResources.begin(); it != m_texcoordBufferResources.end(); ++it ) {
         tmpTexcoordBufferResources.push_back( it->Get() );
     }
 
@@ -549,141 +549,141 @@ ID3D11ShaderResourceView* BlockMesh::getTriangleBufferResource() const
 {
     if ( !isInGpuMemory() ) throw std::exception( "BlockMesh::getTriangleBufferResource - Mesh not loaded in GPU memory." );
 
-    return triangleBufferResource.Get();
+    return m_triangleBufferResource.Get();
 }
 
 void BlockMesh::recalculateBoundingBox()
 {
-    std::tie( boundingBoxMin, boundingBoxMax ) = MathUtil::calculateBoundingBox( vertices );
+    std::tie( m_boundingBoxMin, m_boundingBoxMax ) = MathUtil::calculateBoundingBox( m_vertices );
 }
 
 std::tuple<float3, float3> BlockMesh::getBoundingBox() const
 {
-    return std::make_tuple(boundingBoxMin, boundingBoxMax);
+    return std::make_tuple(m_boundingBoxMin, m_boundingBoxMax);
 }
 
 void BlockMesh::buildBvhTree()
 {
-    bvhTree       = std::make_shared< BVHTree >( *this );
-    bvhTreeBuffer = std::make_shared< BVHTreeBuffer >( *bvhTree );
+    m_bvhTree       = std::make_shared< BVHTree >( *this );
+    m_bvhTreeBuffer = std::make_shared< BVHTreeBuffer >( *m_bvhTree );
 }
 
 void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
 {
-    if ( !bvhTreeBufferNodesGpu ) {
+    if ( !m_bvhTreeBufferNodesGpu ) {
         D3D11_BUFFER_DESC desc;
         desc.Usage               = D3D11_USAGE_DEFAULT;
-        desc.ByteWidth           = sizeof( BVHTreeBuffer::Node ) * (unsigned int)bvhTreeBuffer->getNodes().size();
+        desc.ByteWidth           = sizeof( BVHTreeBuffer::Node ) * (unsigned int)m_bvhTreeBuffer->getNodes().size();
         desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags      = 0;
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
         D3D11_SUBRESOURCE_DATA dataPtr;
-        dataPtr.pSysMem          = bvhTreeBuffer->getNodes().data();
+        dataPtr.pSysMem          = m_bvhTreeBuffer->getNodes().data();
         dataPtr.SysMemPitch      = 0;
         dataPtr.SysMemSlicePitch = 0;
 
-        HRESULT result = device.CreateBuffer( &desc, &dataPtr, bvhTreeBufferNodesGpu.ReleaseAndGetAddressOf() );
+        HRESULT result = device.CreateBuffer( &desc, &dataPtr, m_bvhTreeBufferNodesGpu.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadBvhTreeToGpu - Buffer creation for BVH nodes failed." );
 
         D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
         resourceDesc.Format              = DXGI_FORMAT_R32G32_UINT;
         resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
         resourceDesc.Buffer.FirstElement = 0;
-        resourceDesc.Buffer.NumElements  = (unsigned int)bvhTreeBuffer->getNodes().size();
+        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTreeBuffer->getNodes().size();
 
-        result = device.CreateShaderResourceView( bvhTreeBufferNodesGpu.Get(), &resourceDesc, bvhTreeBufferNodesGpuSRV.ReleaseAndGetAddressOf() );
+        result = device.CreateShaderResourceView( m_bvhTreeBufferNodesGpu.Get(), &resourceDesc, m_bvhTreeBufferNodesGpuSRV.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH nodes shader resource view on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhNodes" );
-        Direct3DUtil::setResourceName( *bvhTreeBufferNodesGpu.Get(), resourceName );
+        Direct3DUtil::setResourceName( *m_bvhTreeBufferNodesGpu.Get(), resourceName );
 #endif
 	}
 
-    if ( !bvhTreeBufferNodesExtentsGpu ) {
+    if ( !m_bvhTreeBufferNodesExtentsGpu ) {
         D3D11_BUFFER_DESC desc;
         desc.Usage               = D3D11_USAGE_DEFAULT;
-        desc.ByteWidth           = sizeof( BVHTreeBuffer::NodeExtents ) * (unsigned int)bvhTreeBuffer->getNodesExtents().size();
+        desc.ByteWidth           = sizeof( BVHTreeBuffer::NodeExtents ) * (unsigned int)m_bvhTreeBuffer->getNodesExtents().size();
         desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags      = 0;
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
         D3D11_SUBRESOURCE_DATA dataPtr;
-        dataPtr.pSysMem          = bvhTreeBuffer->getNodesExtents().data();
+        dataPtr.pSysMem          = m_bvhTreeBuffer->getNodesExtents().data();
         dataPtr.SysMemPitch      = 0;
         dataPtr.SysMemSlicePitch = 0;
 
-        HRESULT result = device.CreateBuffer( &desc, &dataPtr, bvhTreeBufferNodesExtentsGpu.ReleaseAndGetAddressOf() );
+        HRESULT result = device.CreateBuffer( &desc, &dataPtr, m_bvhTreeBufferNodesExtentsGpu.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadBvhTreeToGpu - Buffer creation for BVH nodes extents failed." );
 
         D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
         resourceDesc.Format              = DXGI_FORMAT_R32G32B32_FLOAT;
         resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
         resourceDesc.Buffer.FirstElement = 0;
-        resourceDesc.Buffer.NumElements  = (unsigned int)bvhTreeBuffer->getNodesExtents().size() * 2; // Multiplied by 2, because SRV accesses 
+        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTreeBuffer->getNodesExtents().size() * 2; // Multiplied by 2, because SRV accesses 
                                                                                                       // each float3 separately instead of pair <float3, float3> (min, max).
 
-        result = device.CreateShaderResourceView( bvhTreeBufferNodesExtentsGpu.Get(), &resourceDesc, bvhTreeBufferNodesExtentsGpuSRV.ReleaseAndGetAddressOf() );
+        result = device.CreateShaderResourceView( m_bvhTreeBufferNodesExtentsGpu.Get(), &resourceDesc, m_bvhTreeBufferNodesExtentsGpuSRV.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH nodes extents shader resource view on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhNodesExtents" );
-        Direct3DUtil::setResourceName( *bvhTreeBufferNodesExtentsGpu.Get(), resourceName );
+        Direct3DUtil::setResourceName( *m_bvhTreeBufferNodesExtentsGpu.Get(), resourceName );
 #endif
 	}
 
-    if ( !bvhTreeBufferTrianglesGpu ) {
+    if ( !m_bvhTreeBufferTrianglesGpu ) {
         D3D11_BUFFER_DESC desc;
         desc.Usage               = D3D11_USAGE_DEFAULT;
-        desc.ByteWidth           = sizeof( unsigned int ) * (unsigned int)bvhTreeBuffer->getTriangles().size();
+        desc.ByteWidth           = sizeof( unsigned int ) * (unsigned int)m_bvhTreeBuffer->getTriangles().size();
         desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags      = 0;
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
         D3D11_SUBRESOURCE_DATA dataPtr;
-        dataPtr.pSysMem          = bvhTreeBuffer->getTriangles().data();
+        dataPtr.pSysMem          = m_bvhTreeBuffer->getTriangles().data();
         dataPtr.SysMemPitch      = 0;
         dataPtr.SysMemSlicePitch = 0;
 
-        HRESULT result = device.CreateBuffer( &desc, &dataPtr, bvhTreeBufferTrianglesGpu.ReleaseAndGetAddressOf() );
+        HRESULT result = device.CreateBuffer( &desc, &dataPtr, m_bvhTreeBufferTrianglesGpu.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadBvhTreeToGpu - Buffer creation for BVH triangles failed." );
 
         D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc;
         resourceDesc.Format              = DXGI_FORMAT_R32_UINT;
         resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
         resourceDesc.Buffer.FirstElement = 0;
-        resourceDesc.Buffer.NumElements  = (unsigned int)bvhTreeBuffer->getTriangles().size();
+        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTreeBuffer->getTriangles().size();
 
-        result = device.CreateShaderResourceView( bvhTreeBufferTrianglesGpu.Get(), &resourceDesc, bvhTreeBufferTrianglesGpuSRV.ReleaseAndGetAddressOf() );
+        result = device.CreateShaderResourceView( m_bvhTreeBufferTrianglesGpu.Get(), &resourceDesc, m_bvhTreeBufferTrianglesGpuSRV.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH triangles shader resource view on GPU failed." );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhTriangles" );
-        Direct3DUtil::setResourceName( *bvhTreeBufferTrianglesGpu.Get(), resourceName );
+        Direct3DUtil::setResourceName( *m_bvhTreeBufferTrianglesGpu.Get(), resourceName );
 #endif
 	}
 }
 
 std::shared_ptr< const BVHTree > BlockMesh::getBvhTree() const
 {
-    return bvhTree;
+    return m_bvhTree;
 }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> BlockMesh::getBvhTreeBufferNodesShaderResourceView() const
 {
-    return bvhTreeBufferNodesGpuSRV;
+    return m_bvhTreeBufferNodesGpuSRV;
 }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> BlockMesh::getBvhTreeBufferNodesExtentsShaderResourceView() const
 {
-    return bvhTreeBufferNodesExtentsGpuSRV;
+    return m_bvhTreeBufferNodesExtentsGpuSRV;
 }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> BlockMesh::getBvhTreeBufferTrianglesShaderResourceView() const
 {
-    return bvhTreeBufferTrianglesGpuSRV;
+    return m_bvhTreeBufferTrianglesGpuSRV;
 }

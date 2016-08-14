@@ -12,7 +12,7 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 CombiningFragmentShader::CombiningFragmentShader() :
-resourceCount( 0 )
+m_resourceCount( 0 )
 {}
 
 CombiningFragmentShader::~CombiningFragmentShader()
@@ -21,7 +21,7 @@ CombiningFragmentShader::~CombiningFragmentShader()
 
 void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-	if ( compiled ) throw std::exception( "CombiningFragmentShader::compileFromFile - Shader has already been compiled." );
+	if ( m_compiled ) throw std::exception( "CombiningFragmentShader::compileFromFile - Shader has already been compiled." );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -46,7 +46,7 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 			}
 		}
 
-		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "CombiningFragmentShader::compileFromFile - Failed to create shader." );
 	}
 
@@ -67,7 +67,7 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 		samplerConfiguration.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &samplerConfiguration, samplerStatePointFilter.ReleaseAndGetAddressOf() );
+		result = device.CreateSamplerState( &samplerConfiguration, m_samplerStatePointFilter.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "CombiningFragmentShader::compileFromFile - Failed to create texture sampler state." );
 	}
 
@@ -88,7 +88,7 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 		samplerConfiguration.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &samplerConfiguration, samplerStateLinearFilter.ReleaseAndGetAddressOf() );
+		result = device.CreateSamplerState( &samplerConfiguration, m_samplerStateLinearFilter.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "CombiningFragmentShader::compileFromFile - Failed to create texture sampler state." );
 	}
 
@@ -102,13 +102,13 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
-        result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+        result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "EdgeDistanceComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
-	this->device = &device;
-	this->compiled = true;
-	this->shaderId = ++compiledShadersCount;
+	this->m_device = &device;
+	this->m_compiled = true;
+	this->m_shaderId = ++compiledShadersCount;
 }
 
 void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
@@ -123,9 +123,9 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
                                              const float3 cameraPosition )
 {
     { // Set input textures.
-        resourceCount = 6;
+        m_resourceCount = 6;
         std::vector< ID3D11ShaderResourceView* > resources;
-        resources.reserve( resourceCount );
+        resources.reserve( m_resourceCount );
 
         resources.push_back( srcTexture->getShaderResourceView() );
         resources.push_back( contributionTermTexture->getShaderResourceView() );
@@ -140,7 +140,7 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     ConstantBuffer* dataPtr;
 
-    HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+    HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
     if ( result < 0 ) throw std::exception( "CombiningFragmentShader::setParameters - mapping constant buffer to CPU memory failed." );
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
@@ -149,19 +149,19 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
     dataPtr->positionThresholdSquare = positionThreshold * positionThreshold;
     dataPtr->cameraPosition          = cameraPosition;
 
-    deviceContext.Unmap( constantInputBuffer.Get(), 0 );
+    deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
-    deviceContext.PSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
+    deviceContext.PSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 
-    ID3D11SamplerState* samplerStates[] = { samplerStatePointFilter.Get(), samplerStateLinearFilter.Get() };
+    ID3D11SamplerState* samplerStates[] = { m_samplerStatePointFilter.Get(), m_samplerStateLinearFilter.Get() };
 	deviceContext.PSSetSamplers( 0, 2, samplerStates );
 }
 
 void CombiningFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
     std::vector< ID3D11ShaderResourceView* > nullResources;
-    nullResources.resize( resourceCount );
-    for ( int i = 0; i < resourceCount; ++i )
+    nullResources.resize( m_resourceCount );
+    for ( int i = 0; i < m_resourceCount; ++i )
         nullResources[ i ] = nullptr;
 
     deviceContext.PSSetShaderResources( 0, (unsigned int)nullResources.size(), nullResources.data() );

@@ -13,12 +13,12 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 ShadingRenderer::ShadingRenderer( Direct3DRendererCore& rendererCore ) :
-rendererCore( rendererCore ),
-initialized( false ),
-imageWidth( 0 ),
-imageHeight( 0 ),
-shadingComputeShader( std::make_shared< ShadingComputeShader >() ),
-shadingComputeShader2( std::make_shared< ShadingComputeShader2 >() )
+    m_rendererCore( rendererCore ),
+    m_initialized( false ),
+    m_imageWidth( 0 ),
+    m_imageHeight( 0 ),
+    m_shadingComputeShader( std::make_shared< ShadingComputeShader >() ),
+    m_shadingComputeShader2( std::make_shared< ShadingComputeShader2 >() )
 {}
 
 ShadingRenderer::~ShadingRenderer()
@@ -27,17 +27,17 @@ ShadingRenderer::~ShadingRenderer()
 void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, 
                                           ComPtr< ID3D11DeviceContext > deviceContext )
 {
-    this->device        = device;
-	this->deviceContext = deviceContext;
+    this->m_device        = device;
+	this->m_deviceContext = deviceContext;
 
-	this->imageWidth  = imageWidth;
-	this->imageHeight = imageHeight;
+	this->m_imageWidth  = imageWidth;
+	this->m_imageHeight = imageHeight;
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 
     loadAndCompileShaders( *device.Get() );
 
-	initialized = true;
+	m_initialized = true;
 }
 
 void ShadingRenderer::performShading( const Camera& camera,
@@ -50,24 +50,24 @@ void ShadingRenderer::performShading( const Camera& camera,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > indexOfRefractionTexture,
                                       const std::vector< std::shared_ptr< Light > >& lights )
 {
-    rendererCore.disableRenderingPipeline();
+    m_rendererCore.disableRenderingPipeline();
 
-    shadingComputeShader->setParameters( *deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, indexOfRefractionTexture, lights );
+    m_shadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, indexOfRefractionTexture, lights );
 
-    rendererCore.enableComputeShader( shadingComputeShader );
+    m_rendererCore.enableComputeShader( m_shadingComputeShader );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( colorRenderTarget );
+    unorderedAccessTargets.push_back( m_colorRenderTarget );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
 
-    rendererCore.compute( groupCount );
+    m_rendererCore.compute( groupCount );
 
-    shadingComputeShader->unsetParameters( *deviceContext.Get() );
+    m_shadingComputeShader->unsetParameters( *m_deviceContext.Get() );
 
-    rendererCore.disableComputePipeline();
+    m_rendererCore.disableComputePipeline();
 }
 
 void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
@@ -80,40 +80,40 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitIndexOfRefractionTexture,
                                       const std::vector< std::shared_ptr< Light > >& lights )
 {
-    rendererCore.disableRenderingPipeline();
+    m_rendererCore.disableRenderingPipeline();
 
-    shadingComputeShader2->setParameters( *deviceContext.Get(), rayOriginTexture, rayHitPositionTexture, rayHitEmissiveTexture, rayHitAlbedoTexture,
+    m_shadingComputeShader2->setParameters( *m_deviceContext.Get(), rayOriginTexture, rayHitPositionTexture, rayHitEmissiveTexture, rayHitAlbedoTexture,
                                          rayHitMetalnessTexture, rayHitRoughnessTexture, rayHitNormalTexture, rayHitIndexOfRefractionTexture, lights );
 
-    rendererCore.enableComputeShader( shadingComputeShader2 );
+    m_rendererCore.enableComputeShader( m_shadingComputeShader2 );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( colorRenderTarget );
+    unorderedAccessTargets.push_back( m_colorRenderTarget );
 
-    rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
 
-    rendererCore.compute( groupCount );
+    m_rendererCore.compute( groupCount );
 
-    shadingComputeShader2->unsetParameters( *deviceContext.Get() );
+    m_shadingComputeShader2->unsetParameters( *m_deviceContext.Get() );
 
-    rendererCore.disableComputePipeline();
+    m_rendererCore.disableComputePipeline();
 }
 
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > ShadingRenderer::getColorRenderTarget()
 {
-    return colorRenderTarget;
+    return m_colorRenderTarget;
 }
 
 void ShadingRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    colorRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
+    m_colorRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
 void ShadingRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
-    shadingComputeShader->compileFromFile( "Shaders/ShadingShader/cs.hlsl", device );
-    shadingComputeShader2->compileFromFile( "Shaders/ShadingShader/cs2.hlsl", device );
+    m_shadingComputeShader->compileFromFile( "Shaders/ShadingShader/cs.hlsl", device );
+    m_shadingComputeShader2->compileFromFile( "Shaders/ShadingShader/cs2.hlsl", device );
 }

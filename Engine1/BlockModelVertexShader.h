@@ -25,7 +25,7 @@ namespace Engine1
 
         private:
 
-        Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+        Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
         __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
         struct ConstantBuffer

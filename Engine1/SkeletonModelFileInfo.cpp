@@ -12,20 +12,20 @@ std::shared_ptr<SkeletonModelFileInfo> SkeletonModelFileInfo::createFromMemory( 
 }
 
 SkeletonModelFileInfo::SkeletonModelFileInfo( ) :
-path( "" ),
-format( Format::SKELETONMODEL )
+    m_path( "" ),
+    m_format( Format::SKELETONMODEL )
 {}
 
 SkeletonModelFileInfo::SkeletonModelFileInfo( std::string path, Format format, int indexInFile ) :
-path( path ),
-format( format )
+    m_path( path ),
+    m_format( format )
 {
     indexInFile; // Unused.
 }
 
 SkeletonModelFileInfo::SkeletonModelFileInfo( const SkeletonModelFileInfo& obj ) :
-path( obj.path ),
-format( obj.format )
+    m_path( obj.m_path ),
+    m_format( obj.m_format )
 {}
 
 SkeletonModelFileInfo::~SkeletonModelFileInfo( )
@@ -43,12 +43,12 @@ void SkeletonModelFileInfo::saveToMemory( std::vector<char>& data ) const
 
 void SkeletonModelFileInfo::setPath( std::string path )
 {
-	this->path = path;
+	this->m_path = path;
 }
 
 void SkeletonModelFileInfo::setFormat( Format format )
 {
-	this->format = format;
+	this->m_format = format;
 }
 
 Asset::Type SkeletonModelFileInfo::getAssetType( ) const
@@ -68,12 +68,12 @@ bool SkeletonModelFileInfo::canHaveSubAssets() const
 
 std::string SkeletonModelFileInfo::getPath( ) const
 {
-	return path;
+	return m_path;
 }
 
 SkeletonModelFileInfo::Format SkeletonModelFileInfo::getFormat( ) const
 {
-	return format;
+	return m_format;
 }
 
 int SkeletonModelFileInfo::getIndexInFile( ) const

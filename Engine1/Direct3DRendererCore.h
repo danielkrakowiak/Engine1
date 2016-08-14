@@ -105,29 +105,29 @@ namespace Engine1
 
         private:
 
-        ID3D11DeviceContext* deviceContext;
+        ID3D11DeviceContext* m_deviceContext;
 
-        bool vertexOrFragmentShaderEnabled;
-        bool computeShaderEnabled;
+        bool m_graphicsShaderEnabled;
+        bool m_computeShaderEnabled;
 
-        std::weak_ptr< const VertexShader >   currentVertexShader;
-        std::weak_ptr< const FragmentShader > currentFragmentShader;
-        std::weak_ptr< const ComputeShader >  currentComputeShader;
+        std::weak_ptr< const VertexShader >   m_currentVertexShader;
+        std::weak_ptr< const FragmentShader > m_currentFragmentShader;
+        std::weak_ptr< const ComputeShader >  m_currentComputeShader;
 
-        std::vector< ID3D11RenderTargetView* >    currentRenderTargetViews;
-        ID3D11DepthStencilView*                   currentDepthRenderTargetView;
-        std::vector< ID3D11UnorderedAccessView* > currentUnorderedAccessTargetViews;
+        std::vector< ID3D11RenderTargetView* >    m_currentRenderTargetViews;
+        ID3D11DepthStencilView*                   m_currentDepthRenderTargetView;
+        std::vector< ID3D11UnorderedAccessView* > m_currentUnorderedAccessTargetViews;
 
-        ID3D11RasterizerState*   currentRasterizerState;
-        ID3D11DepthStencilState* currentDepthStencilState;
-        ID3D11BlendState*        currentBlendState;
+        ID3D11RasterizerState*   m_currentRasterizerState;
+        ID3D11DepthStencilState* m_currentDepthStencilState;
+        ID3D11BlendState*        m_currentBlendState;
 
         void createNullShaderInputs();
 
-        std::vector<ID3D11Buffer*>             nullVertexBuffers;
-        std::vector<unsigned int>              nullVertexBuffersStrideOffset;
-        std::vector<ID3D11ShaderResourceView*> nullResources;
-        std::vector<ID3D11SamplerState*>       nullSamplers;
+        std::vector<ID3D11Buffer*>             m_nullVertexBuffers;
+        std::vector<unsigned int>              m_nullVertexBuffersStrideOffset;
+        std::vector<ID3D11ShaderResourceView*> m_nullResources;
+        std::vector<ID3D11SamplerState*>       m_nullSamplers;
 
         // Copying is not allowed.
         Direct3DRendererCore( const Direct3DRendererCore& ) = delete;

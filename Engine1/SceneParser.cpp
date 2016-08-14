@@ -93,7 +93,7 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
         int unsavableActorsCount = 0;
 
         // Collect all unique file infos for each model in the scene.
-        for ( const std::shared_ptr<Actor>& actor : scene.actors ) {
+        for ( const std::shared_ptr<Actor>& actor : scene.m_actors ) {
             if ( actor->getType() == Actor::Type::BlockActor ) {
                 const std::shared_ptr<BlockActor>& blockActor = std::static_pointer_cast<BlockActor>(actor);
                 if ( blockActor->getModel() && !blockActor->getModel()->getFileInfo().getPath().empty() ) {
@@ -128,10 +128,10 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
         }
 
         // Save number of actors.
-        BinaryFile::writeInt( data, (int)scene.actors.size() - unsavableActorsCount );
+        BinaryFile::writeInt( data, (int)scene.m_actors.size() - unsavableActorsCount );
 
         // Save all actors (pose and file info id).
-        for ( const std::shared_ptr<Actor>& actor : scene.actors ) {
+        for ( const std::shared_ptr<Actor>& actor : scene.m_actors ) {
             if ( actor->getType() == Actor::Type::BlockActor ) {
                 const std::shared_ptr<BlockActor>& blockActor = std::static_pointer_cast<BlockActor>(actor);
                 if ( blockActor->getModel() && !blockActor->getModel()->getFileInfo().getPath().empty() ) {
@@ -158,10 +158,10 @@ void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
 
     { // Save lights.
         // Save number of lights.
-        BinaryFile::writeInt( data, (int)scene.lights.size() );
+        BinaryFile::writeInt( data, (int)scene.m_lights.size() );
 
         // Save lights.
-        for ( const std::shared_ptr<Light>& light : scene.lights ) {
+        for ( const std::shared_ptr<Light>& light : scene.m_lights ) {
             if ( light->getType() == Light::Type::PointLight ) {
                 const std::shared_ptr<PointLight>& pointLight = std::static_pointer_cast<PointLight>( light );
                 pointLight->saveToMemory( data );

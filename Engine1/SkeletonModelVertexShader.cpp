@@ -18,14 +18,14 @@ using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
 SkeletonModelVertexShader::SkeletonModelVertexShader( ) :
-bonesPerVertexCurrentConfig( BonesPerVertexCount::Type::ZERO )
+m_bonesPerVertexCurrentConfig( BonesPerVertexCount::Type::ZERO )
 {}
 
 SkeletonModelVertexShader::~SkeletonModelVertexShader( ) {}
 
 void SkeletonModelVertexShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-	if ( compiled ) throw std::exception( "SkeletonModelVertexShader::compileFromFile - Shader has already been compiled" );
+	if ( m_compiled ) throw std::exception( "SkeletonModelVertexShader::compileFromFile - Shader has already been compiled" );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -50,7 +50,7 @@ void SkeletonModelVertexShader::compileFromFile( std::string path, ID3D11Device&
 			}
 		}
 
-		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.GetAddressOf() );
+		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.GetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonModelVertexShader::compileFromFile - Failed to create shader" );
 	}
 
@@ -142,23 +142,23 @@ void SkeletonModelVertexShader::compileFromFile( std::string path, ID3D11Device&
 		desc.MiscFlags           = 0;
 		desc.StructureByteStride = 0;
 
-		result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+		result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonModelVertexShader::compileFromFile - creating constant input buffer failed" );
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonModelVertexShader::constantInputBuffer" );
-		Direct3DUtil::setResourceName( *constantInputBuffer.Get(), resourceName );
+		Direct3DUtil::setResourceName( *m_constantInputBuffer.Get(), resourceName );
 #endif
 	}
 
-	this->device = &device;
-	this->compiled = true;
-	this->shaderId = ++compiledShadersCount;
+	this->m_device = &device;
+	this->m_compiled = true;
+	this->m_shaderId = ++compiledShadersCount;
 }
 
 void SkeletonModelVertexShader::setParameters( ID3D11DeviceContext& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix, const SkeletonMesh& skeletonMesh, const SkeletonPose& bonesPoseInSkeletonSpace )
 {
-	if ( !compiled ) throw std::exception( "SkeletonModelVertexShader::setParameters - Shader hasn't been compiled yet." );
+	if ( !m_compiled ) throw std::exception( "SkeletonModelVertexShader::setParameters - Shader hasn't been compiled yet." );
 	if ( skeletonMesh.getBoneCount( ) != bonesPoseInSkeletonSpace.getBonesCount( ) ) throw std::exception( "SkeletonModelVertexShader::setParameters - there is different number of bones in bind pose and current pose." );
 	if ( skeletonMesh.getBoneCount( ) > maxBoneCount ) throw std::exception( "SkeletonModelVertexShader::setParameters - the number of bones in the mesh exceeds the shader limit." );
 	if ( skeletonMesh.getBonesPerVertexCount( ) == BonesPerVertexCount::Type::ZERO ) throw std::exception( "SkeletonModelVertexShader::setParameters - mesh's number-of-bones-per-vertex is ZERO. Should be one of the supported positive values." );
@@ -166,7 +166,7 @@ void SkeletonModelVertexShader::setParameters( ID3D11DeviceContext& deviceContex
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ConstantBuffer* dataPtr;
 
-	HRESULT result = deviceContext.Map( constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+	HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
 	if ( result < 0 ) throw std::exception( "SkeletonModelVertexShader::setParameters - mapping shader's constant input buffer to RAM memory failed" );
 
 	dataPtr = (ConstantBuffer*)mappedResource.pData;
@@ -193,22 +193,22 @@ void SkeletonModelVertexShader::setParameters( ID3D11DeviceContext& deviceContex
 		dataPtr->bonesPerVertex = static_cast<unsigned char>( skeletonMesh.getBonesPerVertexCount() );
 	}
 
-	deviceContext.Unmap( constantInputBuffer.Get(), 0 );
+	deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
-	deviceContext.VSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );
+	deviceContext.VSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 
 	// Save currently configured bones-per-vertex-count.
-	bonesPerVertexCurrentConfig = skeletonMesh.getBonesPerVertexCount();
+	m_bonesPerVertexCurrentConfig = skeletonMesh.getBonesPerVertexCount();
 }
 
 ID3D11InputLayout& SkeletonModelVertexShader::getInputLauout( ) const
 {
-	if ( !compiled ) throw std::exception( "SkeletonModelVertexShader::getInputLauout() - Shader hasn't been compiled yet." );
-	if ( bonesPerVertexCurrentConfig == BonesPerVertexCount::Type::ZERO ) throw std::exception( "SkeletonModelVertexShader::getInputLauout() - Shader isn't configured properly. Currently set number-of-bones-per-vertex is ZERO. Should be one of the supported positive values." );
+	if ( !m_compiled ) throw std::exception( "SkeletonModelVertexShader::getInputLauout() - Shader hasn't been compiled yet." );
+	if ( m_bonesPerVertexCurrentConfig == BonesPerVertexCount::Type::ZERO ) throw std::exception( "SkeletonModelVertexShader::getInputLauout() - Shader isn't configured properly. Currently set number-of-bones-per-vertex is ZERO. Should be one of the supported positive values." );
 
 	std::map< BonesPerVertexCount::Type, ComPtr<ID3D11InputLayout> >::const_iterator inputLayoutIt;
 
-	inputLayoutIt = inputLayouts.find( bonesPerVertexCurrentConfig );
+	inputLayoutIt = inputLayouts.find( m_bonesPerVertexCurrentConfig );
 
 	if ( inputLayoutIt != inputLayouts.end() )
 		return *inputLayoutIt->second.Get();

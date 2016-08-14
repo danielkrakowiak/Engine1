@@ -92,37 +92,37 @@ namespace Engine1
 
         private:
 
-        BlockMeshFileInfo fileInfo;
+        BlockMeshFileInfo m_fileInfo;
 
-        std::vector<float3> vertices;
-        std::vector<float3> normals;
-        std::vector<float3> tangents;
-        std::list< std::vector<float2> > texcoords;
-        std::vector<uint3> triangles;
+        std::vector<float3> m_vertices;
+        std::vector<float3> m_normals;
+        std::vector<float3> m_tangents;
+        std::list< std::vector<float2> > m_texcoords;
+        std::vector<uint3> m_triangles;
 
-        Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer> normalBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer> tangentBuffer;
-        std::list< Microsoft::WRL::ComPtr<ID3D11Buffer> > texcoordBuffers;
-        Microsoft::WRL::ComPtr<ID3D11Buffer> triangleBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_normalBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_tangentBuffer;
+        std::list< Microsoft::WRL::ComPtr<ID3D11Buffer> > m_texcoordBuffers;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_triangleBuffer;
 
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> vertexBufferResource;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalBufferResource;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tangentBufferResource;
-        std::list< Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> > texcoordBufferResources;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> triangleBufferResource;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_vertexBufferResource;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalBufferResource;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_tangentBufferResource;
+        std::list< Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> > m_texcoordBufferResources;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_triangleBufferResource;
 
-        float3 boundingBoxMin;
-        float3 boundingBoxMax;
+        float3 m_boundingBoxMin;
+        float3 m_boundingBoxMax;
 
-        std::shared_ptr< BVHTree >                       bvhTree;
-        std::shared_ptr< BVHTreeBuffer >                 bvhTreeBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Buffer>             bvhTreeBufferNodesGpu;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bvhTreeBufferNodesGpuSRV;
-        Microsoft::WRL::ComPtr<ID3D11Buffer>             bvhTreeBufferNodesExtentsGpu;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bvhTreeBufferNodesExtentsGpuSRV;
-        Microsoft::WRL::ComPtr<ID3D11Buffer>             bvhTreeBufferTrianglesGpu;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bvhTreeBufferTrianglesGpuSRV;
+        std::shared_ptr< BVHTree >                       m_bvhTree;
+        std::shared_ptr< BVHTreeBuffer >                 m_bvhTreeBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>             m_bvhTreeBufferNodesGpu;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_bvhTreeBufferNodesGpuSRV;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>             m_bvhTreeBufferNodesExtentsGpu;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_bvhTreeBufferNodesExtentsGpuSRV;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>             m_bvhTreeBufferTrianglesGpu;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_bvhTreeBufferTrianglesGpuSRV;
 
         // Copying meshes in not allowed.
         BlockMesh( const BlockMesh& ) = delete;

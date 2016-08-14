@@ -14,17 +14,17 @@ namespace Engine1
 
         float getDistance() const
         {
-            return distance;
+            return m_distance;
         }
 
         std::shared_ptr<BlockModel>& getModel()
         {
-            return model;
+            return m_model;
         }
 
         private:
-        float distance;
-        std::shared_ptr<BlockModel> model;
+        float m_distance;
+        std::shared_ptr<BlockModel> m_model;
 
         // Copying is not allowed.
         BlockModelLOD( const BlockModelLOD& ) = delete;

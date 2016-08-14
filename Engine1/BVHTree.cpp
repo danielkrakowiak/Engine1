@@ -56,8 +56,8 @@ std::unique_ptr< BVHNode > BVHTree::build( const BlockMesh& mesh )
 
     std::unique_ptr< BVHNode > rootNode = recursiveBuild( triangleBoundingBoxes );
     
-    rootNode->min = meshMin;
-    rootNode->max = meshMax;
+    rootNode->m_min = meshMin;
+    rootNode->m_max = meshMax;
 
     return rootNode;
 }
@@ -72,7 +72,7 @@ std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundin
 		std::unique_ptr< BVHLeafNode > leafNode = std::make_unique< BVHLeafNode >();
 
 		for ( TriangleBoundingBox& triangle : triangles)
-            leafNode->triangles.push_back( triangle.triangleIndex );
+            leafNode->m_triangles.push_back( triangle.triangleIndex );
 
         return std::move( leafNode );
 	}
@@ -177,7 +177,7 @@ std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundin
 		std::unique_ptr< BVHLeafNode > leafNode = std::make_unique< BVHLeafNode >();
 
 		for ( TriangleBoundingBox& triangle : triangles)
-            leafNode->triangles.push_back( triangle.triangleIndex );
+            leafNode->m_triangles.push_back( triangle.triangleIndex );
 
         return std::move( leafNode );
 	}
@@ -215,14 +215,14 @@ std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundin
 	std::unique_ptr< BVHInnerNode > innerNode = std::make_unique< BVHInnerNode >();
 
 	// Recursively build the left child.
-	innerNode->leftChild = recursiveBuild( leftTriangles, depth + 1);
-	innerNode->leftChild->min = leftMin;
-	innerNode->leftChild->max = leftMax;
+	innerNode->m_leftChild = recursiveBuild( leftTriangles, depth + 1);
+	innerNode->m_leftChild->m_min = leftMin;
+	innerNode->m_leftChild->m_max = leftMax;
 
 	// Recursively build the right child.
-	innerNode->rightChild = recursiveBuild( rightTriangles, depth + 1);
-	innerNode->rightChild->min = rightMin;
-	innerNode->rightChild->max = rightMax;
+	innerNode->m_rightChild = recursiveBuild( rightTriangles, depth + 1);
+	innerNode->m_rightChild->m_min = rightMin;
+	innerNode->m_rightChild->m_max = rightMax;
 
 	return std::move( innerNode );
 }

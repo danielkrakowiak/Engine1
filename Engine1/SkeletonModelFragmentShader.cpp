@@ -11,14 +11,14 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-SkeletonModelFragmentShader::SkeletonModelFragmentShader( ) : samplerState( nullptr ) {}
+SkeletonModelFragmentShader::SkeletonModelFragmentShader( ) : m_samplerState( nullptr ) {}
 
 SkeletonModelFragmentShader::~SkeletonModelFragmentShader( )
 {}
 
 void SkeletonModelFragmentShader::compileFromFile( std::string path, ID3D11Device& device )
 {
-	if ( compiled ) throw std::exception( "SkeletonModelFragmentShader::compileFromFile - Shader has already been compiled" );
+	if ( m_compiled ) throw std::exception( "SkeletonModelFragmentShader::compileFromFile - Shader has already been compiled" );
 
 	HRESULT result;
 	ComPtr<ID3D10Blob> shaderBuffer;
@@ -43,7 +43,7 @@ void SkeletonModelFragmentShader::compileFromFile( std::string path, ID3D11Devic
 			}
 		}
 
-		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, shader.ReleaseAndGetAddressOf() );
+		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonModelFragmentShader::compileFromFile - Failed to create shader" );
 	}
 
@@ -64,13 +64,13 @@ void SkeletonModelFragmentShader::compileFromFile( std::string path, ID3D11Devic
 		desc.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &desc, samplerState.ReleaseAndGetAddressOf() );
+		result = device.CreateSamplerState( &desc, m_samplerState.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonModelFragmentShader::compileFromFile - Failed to create texture sampler state" );
 	}
 
-	this->device = &device;
-	this->compiled = true;
-	this->shaderId = ++compiledShadersCount;
+	this->m_device = &device;
+	this->m_compiled = true;
+	this->m_shaderId = ++compiledShadersCount;
 }
 
 void SkeletonModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
@@ -95,7 +95,7 @@ void SkeletonModelFragmentShader::setParameters( ID3D11DeviceContext& deviceCont
     };
 
 	deviceContext.PSSetShaderResources( 0, resourceCount, textureResource );
-	deviceContext.PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
+	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
 void SkeletonModelFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )

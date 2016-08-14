@@ -98,13 +98,13 @@ namespace Engine1
 
         std::shared_ptr<BlockMesh> mesh;
 
-        std::vector< ModelTexture2D< unsigned char > > alphaTextures;
-        std::vector< ModelTexture2D< uchar4 > >        emissionTextures;
-        std::vector< ModelTexture2D< uchar4 > >        albedoTextures;
-        std::vector< ModelTexture2D< unsigned char > > metalnessTextures;
-        std::vector< ModelTexture2D< unsigned char > > roughnessTextures;
-        std::vector< ModelTexture2D< uchar4 > >        normalTextures;
-        std::vector< ModelTexture2D< unsigned char > > indexOfRefractionTextures;
+        std::vector< ModelTexture2D< unsigned char > > m_alphaTextures;
+        std::vector< ModelTexture2D< uchar4 > >        m_emissionTextures;
+        std::vector< ModelTexture2D< uchar4 > >        m_albedoTextures;
+        std::vector< ModelTexture2D< unsigned char > > m_metalnessTextures;
+        std::vector< ModelTexture2D< unsigned char > > m_roughnessTextures;
+        std::vector< ModelTexture2D< uchar4 > >        m_normalTextures;
+        std::vector< ModelTexture2D< unsigned char > > m_indexOfRefractionTextures;
 
         BlockModel& operator=(const BlockModel&) = delete;
     };

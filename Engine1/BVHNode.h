@@ -11,13 +11,13 @@ namespace Engine1
     {
         friend class BVHTree;
 
-	    float3 min;
-	    float3 max;
+	    float3 m_min;
+	    float3 m_max;
 
         public:
 
-        const float3& getMin() const { return min; }
-        const float3& getMax() const { return max; }
+        const float3& getMin() const { return m_min; }
+        const float3& getMax() const { return m_max; }
 	    virtual bool  isLeaf() const = 0;
     };
 
@@ -25,13 +25,13 @@ namespace Engine1
     {
         friend class BVHTree;
 
-	    std::unique_ptr< BVHNode > leftChild;
-	    std::unique_ptr< BVHNode > rightChild;
+	    std::unique_ptr< BVHNode > m_leftChild;
+	    std::unique_ptr< BVHNode > m_rightChild;
 
         public: 
 
-        const BVHNode&  getLeftChild()  const { return *leftChild; }
-        const BVHNode&  getRightChild() const { return *rightChild; }
+        const BVHNode&  getLeftChild()  const { return *m_leftChild; }
+        const BVHNode&  getRightChild() const { return *m_rightChild; }
         virtual bool    isLeaf()        const { return false; }
     };
 
@@ -39,11 +39,11 @@ namespace Engine1
     {
         friend class BVHTree;
 
-	    std::vector< unsigned int > triangles;
+	    std::vector< unsigned int > m_triangles;
 
         public:
 
-        const std::vector< unsigned int >& getTriangles() const { return triangles; }
+        const std::vector< unsigned int >& getTriangles() const { return m_triangles; }
         virtual bool                       isLeaf()       const { return true; }
     };
 };

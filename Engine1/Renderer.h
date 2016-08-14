@@ -102,29 +102,29 @@ namespace Engine1
 
         private:
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
 
-        View              activeViewType;
-        std::vector<bool> activeViewLevel; // Empty - main image. true - reflection, false - refraction.
-        int               maxLevelCount;
+        View              m_activeViewType;
+        std::vector<bool> m_activeViewLevel; // Empty - main image. true - reflection, false - refraction.
+        int               m_maxLevelCount;
 
-        Direct3DRendererCore&     rendererCore;
-        Direct3DDeferredRenderer  deferredRenderer;
-        RaytraceRenderer          raytraceRenderer;
-        ShadingRenderer           shadingRenderer;
-        ReflectionRefractionShadingRenderer reflectionRefractionShadingRenderer;
-        EdgeDetectionRenderer     edgeDetectionRenderer;
-        CombiningRenderer         combiningRenderer;
-        TextureRescaleRenderer    textureRescaleRenderer;
+        Direct3DRendererCore&     m_rendererCore;
+        Direct3DDeferredRenderer  m_deferredRenderer;
+        RaytraceRenderer          m_raytraceRenderer;
+        ShadingRenderer           m_shadingRenderer;
+        ReflectionRefractionShadingRenderer m_reflectionRefractionShadingRenderer;
+        EdgeDetectionRenderer     m_edgeDetectionRenderer;
+        CombiningRenderer         m_combiningRenderer;
+        TextureRescaleRenderer    m_textureRescaleRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > finalRenderTarget;
+        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTarget;
 
-        std::shared_ptr<const BlockMesh>  axisMesh;
-        std::shared_ptr<const BlockModel> lightModel;
+        std::shared_ptr<const BlockMesh>  m_axisMesh;
+        std::shared_ptr<const BlockModel> m_lightModel;
 
         // Copying is not allowed.
         Renderer( const Renderer& ) = delete;

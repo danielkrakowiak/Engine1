@@ -61,7 +61,7 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& rendererCore;
+        Direct3DRendererCore& m_rendererCore;
 
         // Initalization.
         std::tuple<int, int>    getRefreshRateNumeratorDenominator( IDXGIAdapter& adapter, unsigned int screenWidth, unsigned int screenHeight );
@@ -75,20 +75,20 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11RasterizerState> createRasterizerState( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendState( ID3D11Device& device );
 
-        bool initialized;
+        bool m_initialized;
 
-        bool fullscreen;
-        int screenWidth, screenHeight;
-        bool verticalSync;
+        bool m_fullscreen;
+        int m_screenWidth, m_screenHeight;
+        bool m_verticalSync;
 
-        size_t gpuMemory;
-        std::string gpuDescription;
+        size_t m_gpuMemory;
+        std::string m_gpuDescription;
 
-        Microsoft::WRL::ComPtr<ID3D11Device>          device;
-        Microsoft::WRL::ComPtr<ID3D11DeviceContext>   deviceContext;
-        Microsoft::WRL::ComPtr<IDXGISwapChain>        swapChain;
-        Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
-        Microsoft::WRL::ComPtr<ID3D11BlendState>      blendState;
+        Microsoft::WRL::ComPtr<ID3D11Device>          m_device;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext>   m_deviceContext;
+        Microsoft::WRL::ComPtr<IDXGISwapChain>        m_swapChain;
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      m_blendState;
 
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > > m_renderTarget;
 
@@ -98,11 +98,11 @@ namespace Engine1
         // Shaders.
         void loadAndCompileShaders( ID3D11Device& device );
 
-        std::shared_ptr<TextureVertexShader>   textureVertexShader;
-        std::shared_ptr<TextureFragmentShader> textureFragmentShader;
-        std::shared_ptr<TextureFragmentShader> textureAlphaFragmentShader;
-        std::shared_ptr<TextVertexShader>      textVertexShader;
-        std::shared_ptr<TextFragmentShader>    textFragmentShader;
+        std::shared_ptr<TextureVertexShader>   m_textureVertexShader;
+        std::shared_ptr<TextureFragmentShader> m_textureFragmentShader;
+        std::shared_ptr<TextureFragmentShader> m_textureAlphaFragmentShader;
+        std::shared_ptr<TextVertexShader>      m_textVertexShader;
+        std::shared_ptr<TextFragmentShader>    m_textFragmentShader;
 
         // Copying is not allowed.
         Direct3DFrameRenderer( const Direct3DFrameRenderer& ) = delete;

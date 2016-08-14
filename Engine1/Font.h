@@ -27,38 +27,38 @@ namespace Engine1
         static ID3D11Buffer* getDefaultTriangleBuffer() { return defaultTriangleBuffer.Get(); }
 
         FontCharacter( unsigned long charcode, int2 pos, int2 advance, uint2 size ) :
-            charcode( charcode ),
-            pos( pos ),
-            advance( advance ),
-            size( size ),
-            vertexBuffer( nullptr ),
-            texture( nullptr ),
-            textureResource( nullptr )
+            m_charcode( charcode ),
+            m_pos( pos ),
+            m_advance( advance ),
+            m_size( size ),
+            m_vertexBuffer( nullptr ),
+            m_texture( nullptr ),
+            m_textureResource( nullptr )
         {}
 
         FontCharacter( const FontCharacter& obj ) :
-            charcode( obj.charcode ),
-            pos( obj.pos ),
-            advance( obj.advance ),
-            size( obj.size ),
-            vertexBuffer( obj.vertexBuffer ),
-            texture( obj.texture ),
-            textureResource( obj.textureResource )
+            m_charcode( obj.m_charcode ),
+            m_pos( obj.m_pos ),
+            m_advance( obj.m_advance ),
+            m_size( obj.m_size ),
+            m_vertexBuffer( obj.m_vertexBuffer ),
+            m_texture( obj.m_texture ),
+            m_textureResource( obj.m_textureResource )
         {}
 
         ~FontCharacter()
         {}
 
-        bool operator() ( const FontCharacter& lhs, const FontCharacter& rhs ) const { return lhs.charcode < rhs.charcode; }
+        bool operator() ( const FontCharacter& lhs, const FontCharacter& rhs ) const { return lhs.m_charcode < rhs.m_charcode; }
 
-        unsigned long getCharcode() const { return charcode; }
-        int2          getPos()      const { return pos; }
-        int2          getAdvance()  const { return advance; }
-        uint2         getSize()     const { return size; }
+        unsigned long getCharcode() const { return m_charcode; }
+        int2          getPos()      const { return m_pos; }
+        int2          getAdvance()  const { return m_advance; }
+        uint2         getSize()     const { return m_size; }
 
-        ID3D11Buffer*             getVertexBuffer() const { return vertexBuffer.Get(); }
-        ID3D11Texture2D*          getTexture() const { return texture.Get(); };
-        ID3D11ShaderResourceView* getTextureResource() const { return textureResource.Get(); };
+        ID3D11Buffer*             getVertexBuffer() const { return m_vertexBuffer.Get(); }
+        ID3D11Texture2D*          getTexture() const { return m_texture.Get(); };
+        ID3D11ShaderResourceView* getTextureResource() const { return m_textureResource.Get(); };
 
         private:
         static void setDefaultTexcoordsBuffer( ID3D11Buffer& texcoordsBuffer ) { defaultTexcoordsBuffer = &texcoordsBuffer; }
@@ -68,17 +68,17 @@ namespace Engine1
         static Microsoft::WRL::ComPtr<ID3D11Buffer> defaultTriangleBuffer;
 
 
-        void setVertexBuffer( ID3D11Buffer& vertexBuffer ) { this->vertexBuffer = &vertexBuffer; }
-        void setTexture( ID3D11Texture2D& texture, ID3D11ShaderResourceView& textureResource ) { this->texture = &texture; this->textureResource = &textureResource; };
+        void setVertexBuffer( ID3D11Buffer& vertexBuffer ) { this->m_vertexBuffer = &vertexBuffer; }
+        void setTexture( ID3D11Texture2D& texture, ID3D11ShaderResourceView& textureResource ) { this->m_texture = &texture; this->m_textureResource = &textureResource; };
 
-        unsigned long charcode;
-        int2          pos;
-        int2          advance;
-        uint2         size;
+        unsigned long m_charcode;
+        int2          m_pos;
+        int2          m_advance;
+        uint2         m_size;
 
-        Microsoft::WRL::ComPtr<ID3D11Buffer>             vertexBuffer;
-        Microsoft::WRL::ComPtr<ID3D11Texture2D>          texture;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureResource;
+        Microsoft::WRL::ComPtr<ID3D11Buffer>             m_vertexBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Texture2D>          m_texture;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureResource;
 
         // Copying is not allowed.
         FontCharacter& operator=(const FontCharacter&) = delete;
@@ -87,13 +87,19 @@ namespace Engine1
     class Font
     {
         public:
-        Font( uint2 targetScreenSize ) : targetScreenSize( targetScreenSize ), face( nullptr ), loaded( false ), path( "" ), size( 0 ) {}
+        Font( uint2 targetScreenSize ) : 
+            m_targetScreenSize( targetScreenSize ), 
+            m_face( nullptr ), 
+            m_loaded( false ), 
+            m_path( "" ), 
+            m_size( 0 ) {}
+
         Font( uint2 targetScreenSize, std::string path, unsigned int size ) :
-            targetScreenSize( targetScreenSize ),
-            face( nullptr ),
-            loaded( false ),
-            path( "" ),
-            size( 0 )
+            m_targetScreenSize( targetScreenSize ),
+            m_face( nullptr ),
+            m_loaded( false ),
+            m_path( "" ),
+            m_size( 0 )
         {
             loadFromFile( path, size );
         }
@@ -104,14 +110,14 @@ namespace Engine1
 
         private:
 
-        bool  loaded;
-        uint2 targetScreenSize;
+        bool  m_loaded;
+        uint2 m_targetScreenSize;
 
-        FT_Face      face;
-        std::string  path;
-        unsigned int size;
+        FT_Face      m_face;
+        std::string  m_path;
+        unsigned int m_size;
 
-        std::map<unsigned long, FontCharacter> characters;
+        std::map<unsigned long, FontCharacter> m_characters;
 
         // Copying is not allowed.
         Font( const Font& ) = delete;

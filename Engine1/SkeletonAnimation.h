@@ -48,9 +48,9 @@ namespace Engine1
 
         private:
 
-        SkeletonAnimationFileInfo fileInfo;
+        SkeletonAnimationFileInfo m_fileInfo;
 
-        std::vector< SkeletonPose > skeletonPoses;
+        std::vector< SkeletonPose > m_skeletonPoses;
 
         // Copying animation in not allowed.
         SkeletonAnimation( const SkeletonAnimation& ) = delete;

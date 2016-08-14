@@ -37,8 +37,8 @@ namespace Engine1
 
         private:
 
-        std::unordered_set< std::shared_ptr<Actor> > actors;
-        std::unordered_set< std::shared_ptr<Light> > lights;
+        std::unordered_set< std::shared_ptr<Actor> > m_actors;
+        std::unordered_set< std::shared_ptr<Light> > m_lights;
     };
 }
 

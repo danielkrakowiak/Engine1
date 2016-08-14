@@ -19,7 +19,7 @@ namespace Engine1
 
         private:
 
-        Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 
         // Copying is not allowed.
         TextFragmentShader( const TextFragmentShader& ) = delete;

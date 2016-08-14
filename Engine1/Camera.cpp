@@ -5,10 +5,10 @@
 using namespace Engine1;
 
 Camera::Camera() :
-position( float3::ZERO ),
-direction( 0.0f, 0.0f, 1.0f ),
-up( 0.0f, 1.0f, 0.0f ),
-fieldOfView( MathUtil::piHalf )
+m_position( float3::ZERO ),
+m_direction( 0.0f, 0.0f, 1.0f ),
+m_up( 0.0f, 1.0f, 0.0f ),
+m_fieldOfView( MathUtil::piHalf )
 {}
 
 Camera::~Camera()
@@ -16,51 +16,51 @@ Camera::~Camera()
 
 void Camera::setPosition( float3 position )
 {
-    this->position = position;
+    this->m_position = position;
 }
 void Camera::setDirection( float3 direction )
 {
-    this->direction = direction;
+    this->m_direction = direction;
 }
 
 void Camera::setUp( float3 up ) 
 {
-    this->up = up; 
+    this->m_up = up; 
 }
 
 void Camera::setFieldOfView( float fieldOfView ) 
 { 
-    this->fieldOfView = fieldOfView; 
+    this->m_fieldOfView = fieldOfView; 
 }
 
 float3 Camera::getPosition() const 
 { 
-    return position; 
+    return m_position; 
 }
 
 float3 Camera::getDirection() const 
 { 
-    return direction; 
+    return m_direction; 
 }
 
 float3 Camera::getUp() const 
 { 
-    return up; 
+    return m_up; 
 }
 
 float3 Camera::getRight() const
 {
-    return cross(up, direction);
+    return cross(m_up, m_direction);
 }
 
 float3 Camera::getLookAtPoint() const 
 { 
-    return position + direction; 
+    return m_position + m_direction; 
 }
 
 float Camera::getFieldOfView() const 
 { 
-    return fieldOfView; 
+    return m_fieldOfView; 
 }
 
 

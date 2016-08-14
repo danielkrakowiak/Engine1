@@ -9,8 +9,8 @@ using namespace Engine1;
 unsigned int ComputeShader::compiledShadersCount = 0;
 
 ComputeShader::ComputeShader() :
-compiled( false ),
-shaderId( 0 )
+m_compiled( false ),
+m_shaderId( 0 )
 {}
 
 ComputeShader::~ComputeShader()
@@ -18,20 +18,20 @@ ComputeShader::~ComputeShader()
 
 bool ComputeShader::isSame( const ComputeShader& shader ) const
 {
-    if ( !compiled || !shader.compiled ) throw std::exception( "ComputeShader::isSame - One of the compared shaders hasn't been compiled yet." );
+    if ( !m_compiled || !shader.m_compiled ) throw std::exception( "ComputeShader::isSame - One of the compared shaders hasn't been compiled yet." );
 
-    return shaderId == shader.shaderId;
+    return m_shaderId == shader.m_shaderId;
 }
 
 ID3D11ComputeShader& ComputeShader::getShader() const
 {
-    if ( !compiled ) throw std::exception( "ComputeShader::getShader() - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) throw std::exception( "ComputeShader::getShader() - Shader hasn't been compiled yet." );
 
-    return *shader.Get();
+    return *m_shader.Get();
 }
 
 bool ComputeShader::isCompiled() const
 {
-    return compiled;
+    return m_compiled;
 }
 

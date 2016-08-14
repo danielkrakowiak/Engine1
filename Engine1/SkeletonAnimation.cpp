@@ -41,8 +41,8 @@ std::shared_ptr<SkeletonAnimation> SkeletonAnimation::calculateAnimationInSkelet
 {
 	std::shared_ptr<SkeletonAnimation> animationInSkeletonSpace = std::make_shared<SkeletonAnimation>( );
 
-	for ( const SkeletonPose& poseInParentSpace : animationInParentSpace.skeletonPoses )
-		animationInSkeletonSpace->skeletonPoses.push_back( SkeletonPose::calculatePoseInSkeletonSpace( poseInParentSpace, skeletonMesh ) );
+	for ( const SkeletonPose& poseInParentSpace : animationInParentSpace.m_skeletonPoses )
+		animationInSkeletonSpace->m_skeletonPoses.push_back( SkeletonPose::calculatePoseInSkeletonSpace( poseInParentSpace, skeletonMesh ) );
 
 	return animationInSkeletonSpace;
 }
@@ -51,8 +51,8 @@ std::shared_ptr<SkeletonAnimation> SkeletonAnimation::calculateAnimationInParent
 {
 	std::shared_ptr<SkeletonAnimation> animationInParentSpace = std::make_shared<SkeletonAnimation>( );
 
-	for ( const SkeletonPose& poseInSkeletonSpace : animationInSkeletonSpace.skeletonPoses )  
-		animationInParentSpace->skeletonPoses.push_back( SkeletonPose::calculatePoseInParentSpace( poseInSkeletonSpace, skeletonMesh ) );
+	for ( const SkeletonPose& poseInSkeletonSpace : animationInSkeletonSpace.m_skeletonPoses )  
+		animationInParentSpace->m_skeletonPoses.push_back( SkeletonPose::calculatePoseInParentSpace( poseInSkeletonSpace, skeletonMesh ) );
 
 	return animationInParentSpace;
 }
@@ -63,7 +63,7 @@ SkeletonAnimation::SkeletonAnimation()
 SkeletonAnimation::SkeletonAnimation( SkeletonAnimation&& other )
 {
 	// TODO: should be tested.
-	skeletonPoses = std::move( other.skeletonPoses );
+	m_skeletonPoses = std::move( other.m_skeletonPoses );
 }
 
 SkeletonAnimation::~SkeletonAnimation() 
@@ -91,53 +91,53 @@ void SkeletonAnimation::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shar
 
 void SkeletonAnimation::setFileInfo( const SkeletonAnimationFileInfo& fileInfo )
 {
-	this->fileInfo = fileInfo;
+	this->m_fileInfo = fileInfo;
 }
 
 const SkeletonAnimationFileInfo& SkeletonAnimation::getFileInfo( ) const
 {
-	return fileInfo;
+	return m_fileInfo;
 }
 
 SkeletonAnimationFileInfo& SkeletonAnimation::getFileInfo( )
 {
-	return fileInfo;
+	return m_fileInfo;
 }
 
 void SkeletonAnimation::addPose( SkeletonPose& pose ) 
 {
-	skeletonPoses.push_back( pose );
+	m_skeletonPoses.push_back( pose );
 }
 
 SkeletonPose SkeletonAnimation::getInterpolatedPose( float progress )
 {
-	const float frame               = progress * (float)( skeletonPoses.size() - 1 );
+	const float frame               = progress * (float)( m_skeletonPoses.size() - 1 );
 	const unsigned int prevKeyframe = std::max( 0u, (unsigned int)frame );
-    const unsigned int nextKeyframe = std::min( (unsigned int)skeletonPoses.size( ) - 1, (unsigned int)frame + 1 );
+    const unsigned int nextKeyframe = std::min( (unsigned int)m_skeletonPoses.size( ) - 1, (unsigned int)frame + 1 );
 	const float fraction            = frame - (float)prevKeyframe;
 
 	if ( prevKeyframe == nextKeyframe )
-		return skeletonPoses.at( prevKeyframe );
+		return m_skeletonPoses.at( prevKeyframe );
 	else
-		return SkeletonPose::blendPoses( skeletonPoses.at( prevKeyframe ), skeletonPoses.at( nextKeyframe ), fraction );
+		return SkeletonPose::blendPoses( m_skeletonPoses.at( prevKeyframe ), m_skeletonPoses.at( nextKeyframe ), fraction );
 }
 
 SkeletonPose& SkeletonAnimation::getPose( unsigned int keyframe )
 {
-	if ( keyframe >= skeletonPoses.size() ) throw std::exception( "SkeletonAnimation::getPose() - keyframe is out of range." );
+	if ( keyframe >= m_skeletonPoses.size() ) throw std::exception( "SkeletonAnimation::getPose() - keyframe is out of range." );
 
-	return skeletonPoses.at( keyframe );
+	return m_skeletonPoses.at( keyframe );
 }
 
 SkeletonPose& SkeletonAnimation::getOrAddPose( unsigned int keyframe )
 {
-	while ( skeletonPoses.size( ) <= keyframe )
-		skeletonPoses.push_back( SkeletonPose() );
+	while ( m_skeletonPoses.size( ) <= keyframe )
+		m_skeletonPoses.push_back( SkeletonPose() );
 
-	return skeletonPoses.at( keyframe );
+	return m_skeletonPoses.at( keyframe );
 }
 
 unsigned int SkeletonAnimation::getKeyframeCount()
 {
-	return (unsigned int)skeletonPoses.size();
+	return (unsigned int)m_skeletonPoses.size();
 }

@@ -45,31 +45,31 @@ std::vector< std::shared_ptr<BlockMesh> > MeshFileParser::parseBlockMeshFile( Bl
 		
 		aiMesh& aimesh = *aiscene->mMeshes[ meshIndex ];
 
-		mesh.vertices.reserve( aimesh.mNumVertices );
-		for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.vertices.push_back( *(float3*)&aimesh.mVertices[ i ] );
+		mesh.m_vertices.reserve( aimesh.mNumVertices );
+		for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.m_vertices.push_back( *(float3*)&aimesh.mVertices[ i ] );
 
 		if ( aimesh.HasNormals() ) {
-			mesh.normals.reserve( aimesh.mNumVertices );
-			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.normals.push_back( *(float3*)&aimesh.mNormals[ i ] );
+			mesh.m_normals.reserve( aimesh.mNumVertices );
+			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.m_normals.push_back( *(float3*)&aimesh.mNormals[ i ] );
 		}
 
         if ( aimesh.HasTangentsAndBitangents() ) {
-			mesh.tangents.reserve( aimesh.mNumVertices );
-			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.tangents.push_back( *(float3*)&aimesh.mTangents[ i ] );
+			mesh.m_tangents.reserve( aimesh.mNumVertices );
+			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.m_tangents.push_back( *(float3*)&aimesh.mTangents[ i ] );
 		}
 
 		if ( aimesh.HasTextureCoords( 0 ) ) { 
-			mesh.texcoords.push_back( std::vector<float2>() );
-			std::vector<float2>& texcoords = mesh.texcoords.front();
+			mesh.m_texcoords.push_back( std::vector<float2>() );
+			std::vector<float2>& texcoords = mesh.m_texcoords.front();
 
 			texcoords.reserve( aimesh.mNumVertices );
 			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) 
 				texcoords.push_back( float2( aimesh.mTextureCoords[ 0 ][ i ].x, aimesh.mTextureCoords[ 0 ][ i ].y ) );
 		}
 
-		mesh.triangles.reserve( aimesh.mNumFaces );
+		mesh.m_triangles.reserve( aimesh.mNumFaces );
 		for ( unsigned int i = 0; i < aimesh.mNumFaces; ++i ) {
-			mesh.triangles.push_back( *reinterpret_cast<uint3*>( aimesh.mFaces[ i ].mIndices ) );
+			mesh.m_triangles.push_back( *reinterpret_cast<uint3*>( aimesh.mFaces[ i ].mIndices ) );
 		}
 	}
 
@@ -102,31 +102,31 @@ std::vector< std::shared_ptr<SkeletonMesh> > MeshFileParser::parseSkeletonMeshFi
 
 		aiMesh& aimesh = *aiscene->mMeshes[ meshIndex ];
 
-		mesh.vertices.reserve( aimesh.mNumVertices );
-		for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.vertices.push_back( *(float3*)&aimesh.mVertices[ i ] );
+		mesh.m_vertices.reserve( aimesh.mNumVertices );
+		for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.m_vertices.push_back( *(float3*)&aimesh.mVertices[ i ] );
 
 		if ( aimesh.HasNormals( ) ) {
-			mesh.normals.reserve( aimesh.mNumVertices );
-			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.normals.push_back( *(float3*)&aimesh.mNormals[ i ] );
+			mesh.m_normals.reserve( aimesh.mNumVertices );
+			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.m_normals.push_back( *(float3*)&aimesh.mNormals[ i ] );
 		}
 
         if ( aimesh.HasTangentsAndBitangents() ) {
-			mesh.tangents.reserve( aimesh.mNumVertices );
-			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.tangents.push_back( *(float3*)&aimesh.mTangents[ i ] );
+			mesh.m_tangents.reserve( aimesh.mNumVertices );
+			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i ) mesh.m_tangents.push_back( *(float3*)&aimesh.mTangents[ i ] );
 		}
 
 		if ( aimesh.HasTextureCoords( 0 ) ) {
-			mesh.texcoords.push_back( std::vector<float2>() );
-			std::vector<float2>& texcoords = mesh.texcoords.front();
+			mesh.m_texcoords.push_back( std::vector<float2>() );
+			std::vector<float2>& texcoords = mesh.m_texcoords.front();
 
 			texcoords.reserve( aimesh.mNumVertices );
 			for ( unsigned int i = 0; i < aimesh.mNumVertices; ++i )
 				texcoords.push_back( float2( aimesh.mTextureCoords[ 0 ][ i ].x, aimesh.mTextureCoords[ 0 ][ i ].y ) );
 		}
 
-		mesh.triangles.reserve( aimesh.mNumFaces );
+		mesh.m_triangles.reserve( aimesh.mNumFaces );
 		for ( unsigned int i = 0; i < aimesh.mNumFaces; ++i ) {
-			mesh.triangles.push_back( *reinterpret_cast<uint3*>( aimesh.mFaces[ i ].mIndices ) );
+			mesh.m_triangles.push_back( *reinterpret_cast<uint3*>( aimesh.mFaces[ i ].mIndices ) );
 		}
 
 		mesh.bonesPerVertexCount = BonesPerVertexCount::Type::FOUR;  //TODO: should be deduced from the file.
@@ -163,12 +163,12 @@ std::vector< std::shared_ptr<SkeletonMesh> > MeshFileParser::parseSkeletonMeshFi
 		}
 
 		{ // Allocate memory for bones' weights and indices, zero the memory.
-			const int count = (int)mesh.vertices.size( ) * static_cast<int>( mesh.bonesPerVertexCount );
-			mesh.vertexBones.reserve( count );
-			mesh.vertexWeights.reserve( count );
+			const int count = (int)mesh.m_vertices.size( ) * static_cast<int>( mesh.bonesPerVertexCount );
+			mesh.m_vertexBones.reserve( count );
+			mesh.m_vertexWeights.reserve( count );
 			for ( int i = 0; i < count; ++i ) {
-				mesh.vertexBones.push_back( 0 );
-				mesh.vertexWeights.push_back( 0.0f );
+				mesh.m_vertexBones.push_back( 0 );
+				mesh.m_vertexWeights.push_back( 0.0f );
 			}
 		}
 

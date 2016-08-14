@@ -12,39 +12,39 @@ ComPtr<ID3D11Buffer> FontCharacter::defaultTexcoordsBuffer = nullptr;
 ComPtr<ID3D11Buffer> FontCharacter::defaultTriangleBuffer  = nullptr;
 
 void Font::loadFromFile( std::string path, unsigned int size ) {
-	if ( FT_New_Face( FontLibrary::get(), path.c_str(), 0, &face ) ) throw std::exception( "Font::loadFromFile - loading font failed" );
+	if ( FT_New_Face( FontLibrary::get(), path.c_str(), 0, &m_face ) ) throw std::exception( "Font::loadFromFile - loading font failed" );
 
 	//TODO: fixed device resoulution? Probably shouldn't be left like that?
 	FT_Set_Char_Size(
-		face,    /* handle to face object           */
+        m_face,    /* handle to face object           */
 		0,       /* char_width in 1/64th of points  */
 		size * 64,   /* char_height in 1/64th of points */
 		72,     /* horizontal device resolution    */ 
 		72   /* vertical device resolution      */
 		);
 
-	this->path = path;
-	this->size = size;
+	this->m_path = path;
+	this->m_size = size;
 
-	loaded = true;
+    m_loaded = true;
 }
 
 FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device ) {
-	if ( !loaded ) return 0;
+	if ( !m_loaded ) return 0;
 
 	std::map<unsigned long, FontCharacter>::iterator charactersIt;
 
-	charactersIt = characters.find( charcode );
-	if ( charactersIt != characters.end() ) {
+	charactersIt = m_characters.find( charcode );
+	if ( charactersIt != m_characters.end() ) {
 		//character was found
 		return &( *charactersIt ).second;
 	} else {
 		//character wasn't found
-		if ( !FT_Load_Char( face, charcode, FT_LOAD_RENDER ) ) {
+		if ( !FT_Load_Char( m_face, charcode, FT_LOAD_RENDER ) ) {
 			//character with given charcode is available in the font
-			FontCharacter character( charcode, int2( face->glyph->bitmap_left, face->glyph->bitmap_top ),
-									 int2( face->glyph->advance.x / 64, face->glyph->advance.y / 64 ),
-									 uint2( face->glyph->bitmap.width, face->glyph->bitmap.rows )
+			FontCharacter character( charcode, int2( m_face->glyph->bitmap_left, m_face->glyph->bitmap_top ),
+									 int2( m_face->glyph->advance.x / 64, m_face->glyph->advance.y / 64 ),
+									 uint2( m_face->glyph->bitmap.width, m_face->glyph->bitmap.rows )
 									 ); //advance is in 1/64 pixel units
 
 			{ //create geometry for the character
@@ -163,7 +163,7 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device 
 			}
 
 			{ //create texture for the character
-				if ( face->glyph->bitmap.buffer ) { //if character has bitmap (ex: space doesn't have)
+				if ( m_face->glyph->bitmap.buffer ) { //if character has bitmap (ex: space doesn't have)
 					D3D11_TEXTURE2D_DESC desc;
 					ZeroMemory( &desc, sizeof( desc ) );
 
@@ -181,7 +181,7 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device 
 					D3D11_SUBRESOURCE_DATA textureDataPtr;
 					ZeroMemory( &textureDataPtr, sizeof( textureDataPtr ) );
 
-					textureDataPtr.pSysMem = face->glyph->bitmap.buffer;
+					textureDataPtr.pSysMem = m_face->glyph->bitmap.buffer;
 					textureDataPtr.SysMemPitch = character.getSize().x; //distance between any two adjacent pixels on different lines
 					textureDataPtr.SysMemSlicePitch = character.getSize().x * character.getSize().y; //size of the entire 2D surface in bytes
 
@@ -198,12 +198,12 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device 
 				}
 			}
 
-			characters.insert( std::pair<unsigned int, FontCharacter>( charcode, character ) );
+            m_characters.insert( std::pair<unsigned int, FontCharacter>( charcode, character ) );
 		} else {
 			//character with given charcode is not available in the font
 			return nullptr;
 		}
 
-		return &( *( characters.find( charcode ) ) ).second;
+		return &( *(m_characters.find( charcode ) ) ).second;
 	}
 }
