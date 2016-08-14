@@ -658,3 +658,19 @@ void Direct3DRendererCore::copyTexture( std::shared_ptr< TTexture2D< TexUsage::D
 
     deviceContext->CopyResource( destTexture->getTextureResource().Get(), srcTexture->getTextureResource().Get() );
 }
+
+void Direct3DRendererCore::copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, const int destMipmap,
+                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, const int srcMipmap )
+{
+    if ( !deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+
+    D3D11_BOX sourceRregion;
+    sourceRregion.left   = 0;
+    sourceRregion.right  = srcTexture->getWidth();
+    sourceRregion.top    = 0;
+    sourceRregion.bottom = srcTexture->getHeight();
+    sourceRregion.front  = 0;
+    sourceRregion.back   = 1;
+
+    deviceContext->CopySubresourceRegion( destTexture->getTextureResource().Get(), (UINT)destMipmap, 0, 0, 0, srcTexture->getTextureResource().Get(), srcMipmap, &sourceRregion );
+}

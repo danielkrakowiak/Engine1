@@ -89,13 +89,13 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageWithoutInitialData( const int width, const int height, const bool storeOnCpu, const bool storeOnGpu )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > createTexturesDynamicUsageWithoutInitialData( const int width, const int height, const bool storeOnCpu, const bool storeOnGpu, const bool hasMipmaps )
         {
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > textures;
 
             textures.push_back(
                 std::make_shared< TTexture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
-                    ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
+                    ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
                 );
 
             return textures;
@@ -141,36 +141,36 @@ namespace UnitTests
         }
 
         template< typename PixelType >
-        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageWithoutInitialData( const int width, const int height, const bool storeOnCpu, const bool storeOnGpu )
+        std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > createTexturesDefaultUsageWithoutInitialData( const int width, const int height, const bool storeOnCpu, const bool storeOnGpu, const bool hasMipmaps )
         {
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -324,15 +324,15 @@ namespace UnitTests
             const int  expectedBytesPerPixel = sizeof( PixelType );
             const int  excpectedLineSize     = width * sizeof( PixelType );
             const int  excpectedSize         = width * height * sizeof( PixelType );
-            const bool generateMipmaps       = false;
+            const bool hasMipmaps            = false;
 
             try
             {
                 std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > > > texturesDynamicUsage          
-                    = createTexturesDynamicUsageWithoutInitialData< PixelType >( width, height, storeOnCpu, storeOnGpu );
+                    = createTexturesDynamicUsageWithoutInitialData< PixelType >( width, height, storeOnCpu, storeOnGpu, hasMipmaps );
 
                 std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > texturesDefaultUsage          
-                    = createTexturesDefaultUsageWithoutInitialData< PixelType >( width, height, storeOnCpu, storeOnGpu );
+                    = createTexturesDefaultUsageWithoutInitialData< PixelType >( width, height, storeOnCpu, storeOnGpu, hasMipmaps );
 
                 std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > > textures;
                 textures.insert( textures.begin(), texturesDynamicUsage.begin(), texturesDynamicUsage.end() );

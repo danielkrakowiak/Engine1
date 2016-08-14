@@ -123,9 +123,6 @@ namespace Engine1
 
         std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > finalRenderTarget;
 
-        // Half size, temporary render targets (to store upscaled reflection/refraction mipmaps).
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > > halfSizeTempRenderTargets;
-
         std::shared_ptr<const BlockMesh>  axisMesh;
         std::shared_ptr<const BlockModel> lightModel;
 

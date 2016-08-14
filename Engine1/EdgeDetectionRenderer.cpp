@@ -113,10 +113,10 @@ void EdgeDetectionRenderer::swapSrcDestRenderTargets()
 void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
     valueRenderTargetDest = valueRenderTarget0 = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 
     valueRenderTargetSrc = valueRenderTarget1 = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 }
 
 void EdgeDetectionRenderer::loadAndCompileShaders( ID3D11Device& device )

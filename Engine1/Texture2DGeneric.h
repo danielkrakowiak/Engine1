@@ -79,7 +79,7 @@ namespace Engine1
                     DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2 = DXGI_FORMAT_UNKNOWN, DXGI_FORMAT viewFormat3 = DXGI_FORMAT_UNKNOWN );
 
         Texture2DGeneric( ID3D11Device& device, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu,
-                    TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat, 
+                    const bool hasMipmaps, TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat, 
                     DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2 = DXGI_FORMAT_UNKNOWN, DXGI_FORMAT viewFormat3 = DXGI_FORMAT_UNKNOWN );
 
         Texture2DGeneric( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, 
@@ -101,7 +101,7 @@ namespace Engine1
                     DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 );
 
         void initialize( ID3D11Device& device, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu,
-                    TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 );
+                         const bool hasMipmaps, TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 );
 
         void initialize( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, 
                     const bool storeOnCpu, const bool storeOnGpu,const bool generateMipmaps, 
@@ -208,10 +208,10 @@ namespace Engine1
     template< typename PixelType >
     Texture2DGeneric< PixelType >
         ::Texture2DGeneric( ID3D11Device& device, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu,
-                            TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat, 
+                            const bool hasMipmaps, TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat,
                             DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 ) : Texture2DGeneric()
     {
-        initialize( device, width, height, storeOnCpu, storeOnGpu, usage, binding, textureFormat, viewFormat1, viewFormat2, viewFormat3 );
+        initialize( device, width, height, storeOnCpu, storeOnGpu, hasMipmaps, usage, binding, textureFormat, viewFormat1, viewFormat2, viewFormat3 );
     }
 
     template< typename PixelType >
@@ -311,7 +311,7 @@ namespace Engine1
     template< typename PixelType >
     void Texture2DGeneric< PixelType >
         ::initialize( ID3D11Device& device, const int width, const int height, const bool storeOnCpu, const bool storeOnGpu,
-                      TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat,
+                      const bool hasMipmaps, TexUsage usage, TexBind binding, DXGI_FORMAT textureFormat,
                       DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 )
     {
         if ( !isUsageBindingSupported( usage, binding ) )
@@ -332,13 +332,13 @@ namespace Engine1
             createTextureOnCpu( width, height );
 
         if ( storeOnGpu ) {
-            createTextureOnGpu( device, width, height, false, textureFormat );
-            createTextureViewsOnGpu( device, width, height, false, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
+            createTextureOnGpu( device, width, height, hasMipmaps, textureFormat );
+            createTextureViewsOnGpu( device, width, height, hasMipmaps, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
         m_width           = width;
         m_height          = height;
-        m_hasMipmapsOnGpu = false;
+        m_hasMipmapsOnGpu = hasMipmaps;
     }
 
     template< typename PixelType >

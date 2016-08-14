@@ -248,3 +248,5 @@ Mon 08.08.2016 - 1h - Trying to fix refraction being too bright and being black 
 Tue 09.08.2016 - 1h - Added debug rendering of texture alpha.
 Wed 10.08.2016 - 2h - Fixed problem with incorrect refraction - caused by inverting normal for front facing rays, instead of for back facing rays. Removed unnecessary inputs from combining shader.
 Thu 11.08.2016 - 2h - Started using accumulated roughness in combining shader (the one calculated during reflection/refraction shading). Fixed problem with overbright objects after refractions - fixed by using alpha to decrease shaded color. Fixed incorrect default alpha in raytracer.
+Sat 13.08.2016 - 4h - Switching to VS 2015, Windows SDK 10 - to fix directx debug layer and graphics debugger. Recompiled freetype library. Found a bug in texture class regarding creating/not creating mipmaps. Refactoring member variables to use m_ prefix.
+Sun 14.08.2016 - 2h - Added an option to Texture class to create/not create mipmaps when creating texture with no initial data (previously mipmaps were always created).

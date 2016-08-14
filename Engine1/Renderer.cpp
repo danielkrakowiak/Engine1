@@ -185,7 +185,7 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
                                     deferredRenderer.getIndexOfRefractionRenderTarget(), lightsVector );
 
     // Copy main shaded image to final render target.
-    rendererCore.copyTexture( finalRenderTarget, shadingRenderer.getColorRenderTarget() );
+    rendererCore.copyTexture( finalRenderTarget, 0, shadingRenderer.getColorRenderTarget(), 0 );
 
     if ( activeViewLevel.empty() )
     {
@@ -522,18 +522,5 @@ int Renderer::getMaxLevelCount() const
 void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
     finalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
-        ( device, imageWidth, imageHeight, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
-
-    // Create one temp render target for each screen image mipmap smaller than half of the screen size.
-    const int tempRenderTargetCount = (int)floor( log2( std::max( imageWidth / 2, imageHeight / 2 ) ) ); 
-
-    //#TODO: Could probably use only RGB instead of RGBA. Could also ignore 1x1, 2x2 mipmaps to save memory.
-    for ( int i = 0; i < tempRenderTargetCount; ++i )
-    {
-        halfSizeTempRenderTargets.push_back(
-            std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
-            ( device, imageWidth / 2, imageHeight / 2, false, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT )
-        );
-    }
-
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
