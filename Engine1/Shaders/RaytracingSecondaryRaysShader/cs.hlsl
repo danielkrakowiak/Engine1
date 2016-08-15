@@ -15,19 +15,20 @@ Texture2D<float4> g_rayOrigins      : register( t0 );
 Texture2D<float4> g_rayDirections   : register( t1 );
 ByteAddressBuffer g_meshVertices    : register( t2 );
 ByteAddressBuffer g_meshNormals     : register( t3 );
-ByteAddressBuffer g_meshTexcoords   : register( t4 );
-ByteAddressBuffer g_meshTriangles   : register( t5 );
-Buffer<uint2>     g_bvhNodes        : register( t6 );
-Buffer<float3>    g_bvhNodesExtents : register( t7 ); // min, max, min, max interleaved.
-Buffer<uint>      g_bvhTriangles    : register( t8 );
+ByteAddressBuffer g_meshTangents    : register( t4 );
+ByteAddressBuffer g_meshTexcoords   : register( t5 );
+ByteAddressBuffer g_meshTriangles   : register( t6 );
+Buffer<uint2>     g_bvhNodes        : register( t7 );
+Buffer<float3>    g_bvhNodesExtents : register( t8 ); // min, max, min, max interleaved.
+Buffer<uint>      g_bvhTriangles    : register( t9 );
 
-Texture2D         g_alphaTexture             : register( t9 );
-Texture2D         g_emissiveTexture          : register( t10 );
-Texture2D         g_albedoTexture            : register( t11 );
-Texture2D         g_normalTexture            : register( t12 );
-Texture2D         g_metalnessTexture         : register( t13 );
-Texture2D         g_roughnessTexture         : register( t14 );
-Texture2D         g_indexOfRefractionTexture : register( t15 );
+Texture2D         g_alphaTexture             : register( t10 );
+Texture2D         g_emissiveTexture          : register( t11 );
+Texture2D         g_albedoTexture            : register( t12 );
+Texture2D         g_normalTexture            : register( t13 );
+Texture2D         g_metalnessTexture         : register( t14 );
+Texture2D         g_roughnessTexture         : register( t15 );
+Texture2D         g_indexOfRefractionTexture : register( t16 );
 SamplerState      g_samplerState;
 
 // Input / Output.
@@ -45,11 +46,12 @@ bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const flo
 uint3    readTriangle( const uint index );
 float3x3 readVerticesPos( const uint3 vertices_index );
 float3x3 readVerticesNormals( const uint3 vertices_index );
+float3x3 readVerticesTangents(const uint3 vertices_index);
 float2x3 readVerticesTexCoords( const uint3 vertices_index );
 bool     rayTriangleIntersect( const float3 rayOrigin, const float3 rayDir, const float3x3 vertices );
 float    calcDistToTriangle( const float3 rayOrigin, const float3 rayDir, const float3x3 vertices );
 float3   calcBarycentricCoordsInTriangle( const float3 p, const float3x3 vertices);
-float3   calcInterpolatedNormal( const float3 barycentricCoords, const float3x3 verticesNormals );
+float3   calcInterpolatedVector(const float3 barycentricCoords, const float3x3 vectors);
 float2   calcInterpolatedTexCoords( const float3 barycentricCoords, const float2x3 verticesTexCoords );
 
 static const float minHitDist = 0.01f;
@@ -64,7 +66,7 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float3 rayDir    = g_rayDirections[ dispatchThreadId.xy ].xyz;
+    const float3 rayDir = g_rayDirections[ dispatchThreadId.xy ].xyz;
 
     // Stop tracing the ray if it is inactive (dir is zero).
     if ( !any( rayDir ) )
@@ -72,12 +74,9 @@ void main( uint3 groupId : SV_GroupID,
 
     const float3 rayOrigin = g_rayOrigins[ dispatchThreadId.xy ].xyz;
     
-
     // Transform the ray from world to local space.
 	const float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
 	const float4 rayDirLocal    = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
-
-    //float4 output = float4( 0.2f, 0.2f, 0.2f, 1.0f );
 
     // Test the ray against the bounding box
     if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, boundingBoxMin, boundingBoxMax ) ) 
@@ -86,9 +85,6 @@ void main( uint3 groupId : SV_GroupID,
 
 	    int      hitTriangle           = -1;
 	    float    hitDist               = 20000.0f;
-        float3   hitBarycentricCoords;
-        float2   hitTexCoords; 
-        float3   hitNormal;        
 
         // TODO: Size of the stack could be passed as argument in constant buffer?
         const uint BVH_STACK_SIZE = 32; 
@@ -147,19 +143,6 @@ void main( uint3 groupId : SV_GroupID,
                         {
                             hitDist     = dist;
                             hitTriangle = triangleIdx;
-
-                            const float3 hitPos = rayOriginLocal.xyz + rayDirLocal.xyz * dist;
-                            hitBarycentricCoords = calcBarycentricCoordsInTriangle( hitPos, verticesPos );
-
-                            const float3x3 verticesNormals = readVerticesNormals( trianglee );
-                            hitNormal = calcInterpolatedNormal( hitBarycentricCoords, verticesNormals );
-
-                            // Transform normal from local to world space.
-                            hitNormal = mul( float4( hitNormal, 0.0f ), localToWorldMatrix ).xyz;
-
-                            const float2x3 verticesTexCoords = readVerticesTexCoords( trianglee );
-                            hitTexCoords = calcInterpolatedTexCoords( hitBarycentricCoords, verticesTexCoords );
-
                         }
 
                         //break;
@@ -168,11 +151,42 @@ void main( uint3 groupId : SV_GroupID,
             }
         }
 
+        // Write to output only if found hit is closer than the existing one at that pixel.
         if ( hitTriangle != -1 )
         {
-            // Write to output only if found hit is closer than the existing one at that pixel.
             if ( hitDist < g_hitDistance[ dispatchThreadId.xy ] ) 
             {
+                // Read triangle data.
+                const uint3    trianglee   = readTriangle( hitTriangle );
+                const float3x3 verticesPos = readVerticesPos( trianglee );
+
+                const float3 hitPos = rayOriginLocal.xyz + rayDirLocal.xyz * hitDist;
+                const float3 hitBarycentricCoords = calcBarycentricCoordsInTriangle( hitPos, verticesPos );
+
+                const float3x3 verticesNormals = readVerticesNormals( trianglee );
+                float3         hitNormal       = calcInterpolatedVector( hitBarycentricCoords, verticesNormals );
+
+                const float3x3 verticesTangents = readVerticesTangents( trianglee );
+                float3         hitTangent       = calcInterpolatedVector( hitBarycentricCoords, verticesTangents );
+
+                // Transform normal and tangent from local to world space.
+                hitNormal  = mul( float4( hitNormal, 0.0f ), localToWorldMatrix ).xyz;
+                hitTangent = mul( float4( hitTangent, 0.0f ), localToWorldMatrix ).xyz;
+
+                const float3 hitBitangent = cross(hitTangent, hitNormal);
+
+                const float2x3 verticesTexCoords = readVerticesTexCoords(trianglee);
+                const float2   hitTexCoords      = calcInterpolatedTexCoords(hitBarycentricCoords, verticesTexCoords);
+
+                float3x3 tangentToWorldMatrix = float3x3(
+                    normalize( hitTangent ),
+                    normalize( hitBitangent ),
+                    normalize( hitNormal )
+                );
+			
+                const float3 normalFromMap = ( g_normalTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).rgb - 0.5f ) * 2.0f;
+                hitNormal = normalize( mul( normalFromMap, tangentToWorldMatrix ) );
+
                 g_hitPosition[ dispatchThreadId.xy ]          = float4( rayOrigin + rayDir * hitDist, 0.0f );
                 g_hitDistance[ dispatchThreadId.xy ]          = hitDist;
                 g_hitNormal[ dispatchThreadId.xy ]            = float4( hitNormal, 0.0f );
@@ -255,6 +269,26 @@ float3x3 readVerticesNormals( const uint3 vertices_index )
     );
 }
 
+float3x3 readVerticesTangents(const uint3 vertices_index)
+{
+    const uint3 address = vertices_index * 12; // 12 = 3 components * 4 bytes.
+
+    return float3x3(
+        // Vertex 1.
+        asfloat(g_meshTangents.Load(address.x)),
+        asfloat(g_meshTangents.Load(address.x + 4)),
+        asfloat(g_meshTangents.Load(address.x + 8)),
+        // Vertex 2.
+        asfloat(g_meshTangents.Load(address.y)),
+        asfloat(g_meshTangents.Load(address.y + 4)),
+        asfloat(g_meshTangents.Load(address.y + 8)),
+        // Vertex 3.
+        asfloat(g_meshTangents.Load(address.z)),
+        asfloat(g_meshTangents.Load(address.z + 4)),
+        asfloat(g_meshTangents.Load(address.z + 8))
+    );
+}
+
 float2x3 readVerticesTexCoords( const uint3 vertices_index )
 {
     const uint3 address = vertices_index * 8; // 8 = 2 components * 4 bytes.
@@ -318,12 +352,12 @@ float3 calcBarycentricCoordsInTriangle( const float3 p, const float3x3 vertices 
     return barycentricCoords;
 }
 
-float3 calcInterpolatedNormal( const float3 barycentricCoords, const float3x3 verticesNormals )
+float3 calcInterpolatedVector( const float3 barycentricCoords, const float3x3 vectors )
 {
     return float3(
-        barycentricCoords.x * verticesNormals[0] +
-        barycentricCoords.y * verticesNormals[1] +
-        barycentricCoords.z * verticesNormals[2]
+        barycentricCoords.x * vectors[0] +
+        barycentricCoords.y * vectors[1] +
+        barycentricCoords.z * vectors[2]
     );
 }
 

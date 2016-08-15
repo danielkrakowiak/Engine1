@@ -285,4 +285,10 @@ Idea:
 
 	  START HERE: !!!!!!!!!!
 
+	  - maybe doo normalmapping in local space and then transform to world space?
+
+	  - IMPORTANT: is normalmapping working correctly? Why tangent vector is not multiplied by world matrix in vertex shader?
+
+	  - IMPORTANT: Can I optimize raytracing, by waiting with reading triangle normals ,texcoords etc until I decide which triangle is the closest? (instead of reading them for every temporary closest triangle).
+
 	  - IMPORTANT: Look like normal mapping doesn't work in reflections/refractions! Or lighting is flat for some other reason. Yep, normals are flat in reflections/refractions.

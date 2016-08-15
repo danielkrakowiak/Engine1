@@ -106,12 +106,13 @@ void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& d
     if ( !m_compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 16;
+        const unsigned int resourceCount = 17;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             rayOriginsTexture.getShaderResourceView(),
             rayDirectionsTexture.getShaderResourceView(), 
             mesh.getVertexBufferResource(), 
             mesh.getNormalBufferResource(), 
+            mesh.getTangentBufferResource(),
             !mesh.getTexcoordBufferResources().empty() ? mesh.getTexcoordBufferResources().front() : nullptr,
             mesh.getTriangleBufferResource(),
             mesh.getBvhTreeBufferNodesShaderResourceView().Get(),
@@ -162,8 +163,8 @@ void RaytracingSecondaryRaysComputeShader::unsetParameters( ID3D11DeviceContext&
     if ( !m_compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 16 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 16, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 17 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 17, nullResources );
     
     // Unset samplers.
     ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };

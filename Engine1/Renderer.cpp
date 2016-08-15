@@ -106,7 +106,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
 
-    OutputDebugStringW( StringUtil::widen( "------------------- \n\n\n" ).c_str() );
+    //OutputDebugStringW( StringUtil::widen( "------------------- \n\n\n" ).c_str() );
 
     std::vector< bool > renderedViewType;
 
@@ -243,7 +243,7 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
 
     if ( reflectionFirst ) 
     {
-        OutputDebugStringW( StringUtil::widen( "Reflection - " + std::to_string( level ) + "\n" ).c_str() );
+        //OutputDebugStringW( StringUtil::widen( "Reflection - " + std::to_string( level ) + "\n" ).c_str() );
 
         if ( level == 1 )
             renderFirstReflections( camera, blockActors, lightsVector );
@@ -252,7 +252,7 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
     }
     else 
     {
-        OutputDebugStringW( StringUtil::widen( "Refraction - " + std::to_string( level ) + "\n" ).c_str() );
+        //OutputDebugStringW( StringUtil::widen( "Refraction - " + std::to_string( level ) + "\n" ).c_str() );
 
         if ( level == 1 )
             renderFirstRefractions( camera, blockActors, lightsVector );
@@ -299,7 +299,7 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
     if ( frameReceived )
         return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
 
-    OutputDebugStringW( StringUtil::widen( "\n" ).c_str() );
+    //OutputDebugStringW( StringUtil::widen( "\n" ).c_str() );
 
     renderedViewLevel.pop_back();
 

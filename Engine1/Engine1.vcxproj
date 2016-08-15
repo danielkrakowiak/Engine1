@@ -96,17 +96,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</IncludePath>
-    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib32;F:\Biblioteki\freetype-2.6\objs\vc2010\Win32;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
+    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib32;F:\Biblioteki\freetype-2.6\builds\windows\vc2015\Debug;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</IncludePath>
-    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib64;F:\Biblioteki\freetype-2.6\objs\vc2010\x64;F:\Biblioteki\boost_1_53_0_64bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
+    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib64;F:\Biblioteki\freetype-2.6\builds\windows\vc2015\x64\Debug;F:\Biblioteki\boost_1_53_0_64bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</IncludePath>
-    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib32;F:\Biblioteki\freetype-2.6\objs\vc2010\Win32;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
+    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib32;F:\Biblioteki\freetype-2.6\builds\windows\vc2015\Debug;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -116,12 +116,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</IncludePath>
-    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib32;F:\Biblioteki\freetype-2.6\objs\vc2010\Win32;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
+    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib32;F:\Biblioteki\freetype-2.6\builds\windows\vc2015\Debug;F:\Biblioteki\boost_1_53_0_32bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x86;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x32;F:\Biblioteki\FreeImage\Dist\x32</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>F:\Biblioteki\freetype-2.6\include;F:\Biblioteki\assimp-3.1.1\include\assimp;F:\Biblioteki\assimp-3.1.1\code;F:\Biblioteki\assimp-3.1.1\contrib\zlib;F:\Biblioteki\assimp-3.1.1;F:\Biblioteki\assimp-3.1.1\contrib;F:\Biblioteki\boost_1_53_0_32bit;$(IncludePath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Include;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</IncludePath>
-    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib64;F:\Biblioteki\freetype-2.6\objs\vc2010\x64;F:\Biblioteki\boost_1_53_0_64bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
+    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib64;F:\Biblioteki\freetype-2.6\builds\windows\vc2015\x64\Release;F:\Biblioteki\boost_1_53_0_64bit\libs;$(LibraryPath);F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Biblioteki\FreeImage\Dist\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -44,8 +44,9 @@ PixelInputType main( VertexInputType input ) {
 	output.normal = mul( input.normal, worldMatrix ).xyz;
 
     // For normal mapping.
-	output.tangent   = input.tangent.xyz;
-	output.bitangent = cross( output.normal, output.tangent ); // TODO: Normalize needed?
+    input.tangent.w = 0.0f;
+    output.tangent = mul( input.tangent, worldMatrix ).xyz;
+    output.bitangent = cross(output.tangent, output.normal);
 
 	// Texcoord
 	output.texCoord = input.texCoord;
