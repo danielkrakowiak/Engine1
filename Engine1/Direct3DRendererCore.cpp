@@ -8,9 +8,6 @@
 #include "FragmentShader.h"
 #include "ComputeShader.h"
 #include "SkeletonMeshVertexShader.h"
-//#include "RenderTargetTexture2D.h"
-//#include "RenderTargetDepthTexture2D.h"
-//#include "ComputeTargetTexture2D.h"
 
 #include <d3d11.h>
 
@@ -224,7 +221,10 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
 		//if ( unorderedAccessTargets.size() == currentUnorderedAccessTargetViews.size() ) {
 			for ( unsigned int i = 0; i < unorderedAccessTargetsF1.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= i || unorderedAccessTargetsF1.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( i ) ) {
+				if ( m_currentUnorderedAccessTargetViews.size() <= i 
+                     || ( ( unorderedAccessTargetsF1.at( i ) == nullptr ) != ( m_currentUnorderedAccessTargetViews.at( i ) == nullptr) ) 
+                     || unorderedAccessTargetsF1.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( i ) ) 
+                {
 					sameAsCurrent = false;
 					break;
 				}
@@ -233,7 +233,10 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             const unsigned int first = (unsigned int)unorderedAccessTargetsF1.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsF2.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (first + i) || unorderedAccessTargetsF2.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( first + i ) ) {
+				if ( m_currentUnorderedAccessTargetViews.size() <= (first + i) 
+                     || ((unorderedAccessTargetsF2.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( first + i ) == nullptr))
+                     || unorderedAccessTargetsF2.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( first + i ) ) 
+                {
 					sameAsCurrent = false;
 					break;
 				}
@@ -242,7 +245,10 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             const unsigned int second = first + (unsigned int)unorderedAccessTargetsF2.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsF4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (second + i) || unorderedAccessTargetsF4.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( second + i ) ) {
+				if ( m_currentUnorderedAccessTargetViews.size() <= (second + i) 
+                     || ((unorderedAccessTargetsF2.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( second + i ) == nullptr))
+                     || unorderedAccessTargetsF4.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( second + i ) ) 
+                {
 					sameAsCurrent = false;
 					break;
 				}
@@ -251,7 +257,10 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             const unsigned int third = second + (unsigned int)unorderedAccessTargetsF4.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsU1.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU1.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( third + i ) ) {
+				if ( m_currentUnorderedAccessTargetViews.size() <= (third + i) 
+                     || ((unorderedAccessTargetsF2.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( third + i ) == nullptr))
+                     || unorderedAccessTargetsU1.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( third + i ) ) 
+                {
 					sameAsCurrent = false;
 					break;
 				}
@@ -260,7 +269,9 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             const unsigned int fourth = third + (unsigned int)unorderedAccessTargetsU1.size();
             for ( unsigned int i = 0; i < unorderedAccessTargetsU4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (third + i) || unorderedAccessTargetsU4.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( fourth + i ) ) {
+				if ( m_currentUnorderedAccessTargetViews.size() <= (third + i) 
+                     || ((unorderedAccessTargetsF2.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( fourth + i ) == nullptr))
+                     || unorderedAccessTargetsU4.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( fourth + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
@@ -278,19 +289,19 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
 	// Collect and save UAV target views from passed UAV targets.
     m_currentUnorderedAccessTargetViews.clear();
 	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >& unorderedAccessTarget : unorderedAccessTargetsF1 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
+		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > >& unorderedAccessTarget : unorderedAccessTargetsF2 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
+		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > >& unorderedAccessTarget : unorderedAccessTargetsF4 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
+		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > >& unorderedAccessTarget : unorderedAccessTargetsU1 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
+		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
     for ( const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > >& unorderedAccessTarget : unorderedAccessTargetsU4 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) );
+		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
 	// Enable UAV targets.
     m_deviceContext->CSSetUnorderedAccessViews( 0, (unsigned int)m_currentUnorderedAccessTargetViews.size(), m_currentUnorderedAccessTargetViews.data(), nullptr );

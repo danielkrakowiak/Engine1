@@ -190,12 +190,6 @@
     <Filter Include="Source Files\Light\Parsers">
       <UniqueIdentifier>{a7a968b4-a1b3-49c3-b05a-a7110031a107}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Texture2">
-      <UniqueIdentifier>{6ab99cf2-5059-428c-ba9f-2a3c3bff82e7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Texture2">
-      <UniqueIdentifier>{072eb9f6-204f-4a2b-8d97-d42125a36fd0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Tools">
       <UniqueIdentifier>{a2e6d0fe-fcfd-4329-9c3d-8df1a5008aaf}</UniqueIdentifier>
     </Filter>
@@ -360,9 +354,6 @@
     <ClInclude Include="BlockModel.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2D.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="ComplexModel.h">
       <Filter>Header Files\ComplexModel</Filter>
     </ClInclude>
@@ -471,9 +462,6 @@
     <ClInclude Include="SkeletonMeshFragmentShader.h">
       <Filter>Header Files\Shader\SkeletonMesh</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTargetDepthTexture2D.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="Direct3DRendererCore.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -482,12 +470,6 @@
     </ClInclude>
     <ClInclude Include="RectangleMesh.h">
       <Filter>Header Files\Mesh\RectangleMesh</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderTarget2D.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderTargetDepth2D.h">
-      <Filter>Header Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="TextureVertexShader.h">
       <Filter>Header Files\Shader\Texture</Filter>
@@ -606,26 +588,8 @@
     <ClInclude Include="GenerateRaysComputeShader.h">
       <Filter>Header Files\Shader\GenerateRays</Filter>
     </ClInclude>
-    <ClInclude Include="ComputeTargetTexture2D.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="uchar4.h">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="TTexture2D.h">
-      <Filter>Header Files\Texture2</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2DGeneric.h">
-      <Filter>Header Files\Texture2</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2DEnums.h">
-      <Filter>Header Files\Texture2</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2DSpecBind.h">
-      <Filter>Header Files\Texture2</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2DSpecUsage.h">
-      <Filter>Header Files\Texture2</Filter>
     </ClInclude>
     <ClInclude Include="BoundingBox.h">
       <Filter>Header Files\Tools</Filter>
@@ -720,6 +684,24 @@
     <ClInclude Include="RefractionShadingComputeShader2.h">
       <Filter>Header Files\Shader\RefractionShading</Filter>
     </ClInclude>
+    <ClInclude Include="Texture2DEnums.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DGeneric.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DSpecBind.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DSpecUsage.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="TTexture2D.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="StagingTexture2D.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -745,9 +727,6 @@
     </ClCompile>
     <ClCompile Include="BlockModel.cpp">
       <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
-      <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="ComplexModel.cpp">
       <Filter>Source Files\ComplexModel</Filter>
@@ -851,12 +830,6 @@
     <ClCompile Include="SkeletonMeshFragmentShader.cpp">
       <Filter>Source Files\Shader\SkeletonMesh</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTargetTexture2D.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTargetDepthTexture2D.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="Direct3DRendererCore.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -865,12 +838,6 @@
     </ClCompile>
     <ClCompile Include="RectangleMesh.cpp">
       <Filter>Source Files\Mesh\RectangleMesh</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTarget2D.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTargetDepth2D.cpp">
-      <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="TextureVertexShader.cpp">
       <Filter>Source Files\Shader\Texture</Filter>
@@ -986,14 +953,8 @@
     <ClCompile Include="GenerateRaysComputeShader.cpp">
       <Filter>Source Files\Shader\GenerateRays</Filter>
     </ClCompile>
-    <ClCompile Include="ComputeTargetTexture2D.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="uchar4.cpp">
       <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="TTexture2D.cpp">
-      <Filter>Source Files\Texture2</Filter>
     </ClCompile>
     <ClCompile Include="BoundingBox.cpp">
       <Filter>Source Files\Tools</Filter>
@@ -1087,6 +1048,9 @@
     </ClCompile>
     <ClCompile Include="RefractionShadingComputeShader2.cpp">
       <Filter>Source Files\Shader\RefractionShading</Filter>
+    </ClCompile>
+    <ClCompile Include="TTexture2D.cpp">
+      <Filter>Source Files\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

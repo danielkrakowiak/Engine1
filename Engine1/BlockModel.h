@@ -94,9 +94,9 @@ namespace Engine1
 
         private:
 
-        BlockModelFileInfo fileInfo;
+        BlockModelFileInfo m_fileInfo;
 
-        std::shared_ptr<BlockMesh> mesh;
+        std::shared_ptr<BlockMesh> m_mesh;
 
         std::vector< ModelTexture2D< unsigned char > > m_alphaTextures;
         std::vector< ModelTexture2D< uchar4 > >        m_emissionTextures;

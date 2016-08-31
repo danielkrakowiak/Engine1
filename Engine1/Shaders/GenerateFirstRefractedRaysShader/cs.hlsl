@@ -15,19 +15,22 @@ cbuffer ConstantBuffer
 };
 
 // Input.
-Texture2D<float4> g_surfacePosition  : register( t0 );
-Texture2D<float4> g_surfaceNormal    : register( t1 );
-Texture2D<float>  g_surfaceRoughness : register( t2 ); // Used to decide whether to generate reflected/refracted ray. If roughness > 0.999, ray is not generated.
-Texture2D<float4> g_contributionTerm   : register( t3 ); // How much of the ray color is visible by the camera. Used to avoid generating useless rays.
+Texture2D<float4> g_surfacePosition                           : register( t0 );
+Texture2D<float4> g_surfaceNormal                             : register( t1 );
+Texture2D<float>  g_surfaceRoughness                          : register( t2 ); // Used to decide whether to generate reflected/refracted ray. If roughness > 0.999, ray is not generated.
+Texture2D<float>  g_surfaceRefractiveIndex                    : register( t3 );
+Texture2D<float4> g_contributionTerm                          : register( t4 ); // How much of the ray color is visible by the camera. Used to avoid generating useless rays.
 
 // Output.
-RWTexture2D<float4> g_rayOrigin    : register( u0 );
-RWTexture2D<float4> g_rayDirection : register( u1 );
+RWTexture2D<float4> g_rayOrigin           : register( u0 );
+RWTexture2D<float4> g_rayDirection        : register( u1 );
+RWTexture2D<float>  g_nextRefractiveIndex : register( u2 ); // Refractive index of the generated rays.
 
 static const float zNear = 0.1f;
 static const float zFar  = 1000.0f;
 
 static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
+static const float refractiveIndexMul = 2.0f;
 
 float3 getPrimaryRayDirection( float2 pixelPos );
 float3 calcRefractedRay( float3 incidentRay, float3 surfaceNormal, float refractiveIndex );
@@ -45,9 +48,11 @@ void main( uint3 groupId : SV_GroupID,
 {
     const float2 pixelPos = (float2)dispatchThreadId.xy;
 
-    const float3 surfacePosition  = g_surfacePosition[ dispatchThreadId.xy ].xyz;
-    const float  surfaceRoughness = g_surfaceRoughness[ dispatchThreadId.xy ];
-    const float3 contributionTerm   = g_contributionTerm[ dispatchThreadId.xy ].xyz;
+    const float3 surfacePosition            = g_surfacePosition[ dispatchThreadId.xy ].xyz;
+    const float  surfaceRoughness           = g_surfaceRoughness[ dispatchThreadId.xy ];
+    const float  surfaceRefractiveIndexNorm = g_surfaceRefractiveIndex[dispatchThreadId.xy];
+    const float  surfaceRefractiveIndex     = 1.0f + surfaceRefractiveIndexNorm * refractiveIndexMul;
+    const float3 contributionTerm           = g_contributionTerm[ dispatchThreadId.xy ].xyz;
 
     // TODO: Could be otpimized to check only roughness (not position). Roughness buffer needs to be filled with maximal value at the beginning of each frame.
     if ( !any( surfacePosition ) || dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm || surfaceRoughness > 0.999f ) { // If all position components are zeros or roughness is maximal - there is no reflected ray.
@@ -60,10 +65,20 @@ void main( uint3 groupId : SV_GroupID,
 
     float3 surfaceNormal = g_surfaceNormal[ dispatchThreadId.xy ].xyz;
 
-    if ( dot(primaryRayDir, surfaceNormal) > 0.0f )
-        surfaceNormal = -surfaceNormal;
+    const bool frontHit = dot( primaryRayDir, surfaceNormal ) < 0.0f;
 
-    const float3 secondaryRayDir    = calcRefractedRay( primaryRayDir, surfaceNormal, 0.8f );
+    const float prevRefractiveIndex = 1.0f; // Temporary. Should be passed in constant buffer.
+    const float prevRefractiveIndexNorm = 0.0f;
+
+    if ( frontHit ) {
+        g_nextRefractiveIndex[ dispatchThreadId.xy ] = surfaceRefractiveIndexNorm;
+    } else {
+        g_nextRefractiveIndex[ dispatchThreadId.xy ] = prevRefractiveIndexNorm; // Temporary. From lack of better idea.
+        
+        surfaceNormal = -surfaceNormal;
+    }
+
+    const float3 secondaryRayDir    = calcRefractedRay( primaryRayDir, surfaceNormal, prevRefractiveIndex / surfaceRefractiveIndex );
     const float3 secondaryRayOrigin = surfacePosition + secondaryRayDir * 0.01f; // Modify ray origin to avoid self-collisions.
 
     g_rayOrigin[ dispatchThreadId.xy ]    = float4( secondaryRayOrigin, 0.0f );

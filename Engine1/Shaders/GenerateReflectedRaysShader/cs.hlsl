@@ -43,7 +43,13 @@ void main( uint3 groupId : SV_GroupID,
 
     const float3 rayDir = g_raysDirection[ dispatchThreadId.xy ].xyz;
 
-    const float3 surfaceNormal = g_surfaceNormal[ dispatchThreadId.xy ].xyz;
+    float3 surfaceNormal = g_surfaceNormal[ dispatchThreadId.xy ].xyz;
+
+    const bool frontHit = dot( rayDir, surfaceNormal ) < 0.0f;
+
+    if ( !frontHit ) {
+        surfaceNormal = -surfaceNormal;
+    }
 
     const float3 secondaryRayDir    = calcReflectedRay( rayDir, surfaceNormal );
     const float3 secondaryRayOrigin = surfacePosition + secondaryRayDir * 0.01f; // Modify ray origin to avoid self-collisions.

@@ -34,12 +34,12 @@ std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::con
 }
 
 BlockModel::BlockModel( ) 
-: mesh( nullptr ) 
+: m_mesh( nullptr ) 
 {}
 
 BlockModel::BlockModel( const BlockModel& obj ) :
-fileInfo( obj.fileInfo ),
-mesh( obj.mesh ),
+m_fileInfo( obj.m_fileInfo ),
+m_mesh( obj.m_mesh ),
 m_alphaTextures( obj.m_alphaTextures ),
 m_emissionTextures( obj.m_emissionTextures ),
 m_albedoTextures( obj.m_albedoTextures ),
@@ -61,8 +61,8 @@ std::vector< std::shared_ptr< const Asset > > BlockModel::getSubAssets( ) const
 {
 	std::vector< std::shared_ptr< const Asset > > subAssets;
 
-	if ( mesh )
-		subAssets.push_back( mesh );
+	if ( m_mesh )
+		subAssets.push_back( m_mesh );
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
@@ -92,8 +92,8 @@ std::vector< std::shared_ptr< Asset > > BlockModel::getSubAssets()
 {
 	std::vector< std::shared_ptr<Asset> > subAssets;
 
-	if ( mesh )
-		subAssets.push_back( mesh );
+	if ( m_mesh )
+		subAssets.push_back( m_mesh );
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
@@ -128,9 +128,9 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
 
     if ( newMesh )
     {
-	    if ( mesh == oldAsset ) 
+	    if ( m_mesh == oldAsset ) 
         {
-		    mesh = newMesh;
+		    m_mesh = newMesh;
 		    return;
         }
 
@@ -214,17 +214,17 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
 
 void BlockModel::setFileInfo( const BlockModelFileInfo& fileInfo )
 {
-	this->fileInfo = fileInfo;
+	this->m_fileInfo = fileInfo;
 }
 
 const BlockModelFileInfo& BlockModel::getFileInfo() const
 {
-	return fileInfo;
+	return m_fileInfo;
 }
 
 BlockModelFileInfo& BlockModel::getFileInfo()
 {
-	return fileInfo;
+	return m_fileInfo;
 }
 
 void BlockModel::saveToFile( const std::string& path ) const
@@ -243,8 +243,8 @@ void BlockModel::saveToMemory( std::vector<char>& data ) const
 
 void BlockModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext )
 {
-	if ( mesh )
-		mesh->loadCpuToGpu( device );
+	if ( m_mesh )
+		m_mesh->loadCpuToGpu( device );
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) 
@@ -292,8 +292,8 @@ void BlockModel::loadGpuToCpu()
 
 void BlockModel::unloadFromCpu()
 {
-	if ( mesh )
-		mesh->unloadFromCpu();
+	if ( m_mesh )
+		m_mesh->unloadFromCpu();
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) 
@@ -326,8 +326,8 @@ void BlockModel::unloadFromCpu()
 
 void BlockModel::unloadFromGpu()
 {
-	if ( mesh )
-		mesh->unloadFromGpu();
+	if ( m_mesh )
+		m_mesh->unloadFromGpu();
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) 
@@ -360,7 +360,7 @@ void BlockModel::unloadFromGpu()
 
 bool BlockModel::isInCpuMemory() const
 {
-	if ( !mesh || !mesh->isInCpuMemory() )
+	if ( !m_mesh || !m_mesh->isInCpuMemory() )
 		return false;
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
@@ -396,7 +396,7 @@ bool BlockModel::isInCpuMemory() const
 
 bool BlockModel::isInGpuMemory() const
 {
-	if ( !mesh || !mesh->isInGpuMemory() )
+	if ( !m_mesh || !m_mesh->isInGpuMemory() )
 		return false;
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
@@ -431,15 +431,15 @@ bool BlockModel::isInGpuMemory() const
 }
 
 void BlockModel::setMesh( std::shared_ptr<BlockMesh> mesh ) {
-	this->mesh = mesh;
+	this->m_mesh = mesh;
 }
 
 std::shared_ptr<const BlockMesh> BlockModel::getMesh() const {
-	return std::static_pointer_cast<const BlockMesh>( mesh );
+	return std::static_pointer_cast<const BlockMesh>( m_mesh );
 }
 
 std::shared_ptr<BlockMesh> BlockModel::getMesh( ) {
-	return mesh;
+	return m_mesh;
 }
 
 void BlockModel::addAlphaTexture( ModelTexture2D< unsigned char >& texture )

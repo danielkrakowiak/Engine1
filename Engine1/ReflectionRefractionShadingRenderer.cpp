@@ -159,7 +159,7 @@ void ReflectionRefractionShadingRenderer::performRefractionShading( const int le
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > ReflectionRefractionShadingRenderer::getContributionTermRoughnessTarget( int level )
 {
     if ( level < 0 || level >= m_contributionTermRoughnessRenderTargets.size() )
-        throw std::exception( "ReflectionRefractionShadingRenderer::getReflectionTermTarget - level out of bounds or negative." );
+        throw std::exception( "ReflectionRefractionShadingRenderer::getContributionTermTarget - level out of bounds or negative." );
 
     return m_contributionTermRoughnessRenderTargets.at( level );
 }

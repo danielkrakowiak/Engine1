@@ -47,12 +47,11 @@ void ShadingRenderer::performShading( const Camera& camera,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > indexOfRefractionTexture,
                                       const std::vector< std::shared_ptr< Light > >& lights )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    m_shadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, indexOfRefractionTexture, lights );
+    m_shadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, lights );
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader );
 
@@ -77,13 +76,12 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitIndexOfRefractionTexture,
                                       const std::vector< std::shared_ptr< Light > >& lights )
 {
     m_rendererCore.disableRenderingPipeline();
 
     m_shadingComputeShader2->setParameters( *m_deviceContext.Get(), rayOriginTexture, rayHitPositionTexture, rayHitEmissiveTexture, rayHitAlbedoTexture,
-                                         rayHitMetalnessTexture, rayHitRoughnessTexture, rayHitNormalTexture, rayHitIndexOfRefractionTexture, lights );
+                                         rayHitMetalnessTexture, rayHitRoughnessTexture, rayHitNormalTexture, lights );
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader2 );
 

@@ -9,7 +9,9 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-GenerateFirstRefractedRaysComputeShader::GenerateFirstRefractedRaysComputeShader() {}
+GenerateFirstRefractedRaysComputeShader::GenerateFirstRefractedRaysComputeShader() :
+    m_resourceCount( 0 )
+{}
 
 GenerateFirstRefractedRaysComputeShader::~GenerateFirstRefractedRaysComputeShader() {}
 
@@ -22,7 +24,7 @@ void GenerateFirstRefractedRaysComputeShader::compileFromFile( std::string path,
     { // Compile the shader.
         ComPtr<ID3D10Blob> errorMessage;
 
-        UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
+        UINT flags = D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_SKIP_OPTIMIZATION; // #TODO: Why HLSL compiler crashes without "skip optimization" flag?
 
 #if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
         flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3D10_SHADER_PREFER_FLOW_CONTROL;
@@ -64,24 +66,31 @@ void GenerateFirstRefractedRaysComputeShader::compileFromFile( std::string path,
 }
 
 void GenerateFirstRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
-                                                                 const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& reflectionTermTexture )
+                                                             const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
+                                                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
+                                                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
+                                                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
+                                                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& refractiveIndexTexture,
+                                                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture
+                                                             /*const std::vector< std::shared_ptr< TTexture2D<  TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > refractiveIndexTextures*/ )
 {
     if ( !m_compiled ) throw std::exception( "GenerateFirstRefractedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 4;
-        ID3D11ShaderResourceView* resources[ resourceCount ] = { 
-            positionTexture.getShaderResourceView(), 
-            normalTexture.getShaderResourceView(),
-            roughnessTexture.getShaderResourceView(),
-            reflectionTermTexture.getShaderResourceView()
-        };
+        m_resourceCount = 5 /*+ (int)refractiveIndexTextures.size()*/;
+        std::vector< ID3D11ShaderResourceView* > resources;
+        resources.reserve( m_resourceCount );
 
-        deviceContext.CSSetShaderResources( 0, resourceCount, resources );
+        resources.push_back( positionTexture.getShaderResourceView() );
+        resources.push_back( normalTexture.getShaderResourceView() );
+        resources.push_back( roughnessTexture.getShaderResourceView() );
+        resources.push_back( refractiveIndexTexture.getShaderResourceView() );
+        resources.push_back( contributionTermTexture.getShaderResourceView() );
+
+        /*for ( int i = 0; i < refractiveIndexTextures .size(); ++i )
+            resources.push_back( refractiveIndexTextures[ i ]->getShaderResourceView() );*/
+
+        deviceContext.CSSetShaderResources( 0, m_resourceCount, resources.data() );
     }
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -115,6 +124,10 @@ void GenerateFirstRefractedRaysComputeShader::unsetParameters( ID3D11DeviceConte
     if ( !m_compiled ) throw std::exception( "GenerateFirstRefractedRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 4 ] = { nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 4, nullResources );
+    std::vector< ID3D11ShaderResourceView* > nullResources;
+    nullResources.resize( m_resourceCount );
+    for ( int i = 0; i < m_resourceCount; ++i )
+        nullResources[ i ] = nullptr;
+
+    deviceContext.CSSetShaderResources( 0, (int)nullResources.size(), nullResources.data() );
 }

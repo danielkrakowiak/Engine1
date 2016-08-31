@@ -11,6 +11,8 @@
 
 #include "AssetManager.h"
 
+#include "StagingTexture2D.h"
+
 using namespace Engine1;
 
 namespace Engine1
@@ -37,6 +39,8 @@ public:
 	int getDisplayFrequency() { return m_displayFrequency; }
 	int getScreenColorDepth() { return m_screenColorDepth; }
 	int getZBufferDepth() { return m_zBufferDepth; }
+
+    void setWindowTitle( const std::string& title );
 
 private:
 
@@ -69,6 +73,12 @@ private:
 
     void loadScene( std::string path );
     void saveScene( std::string path );
+
+    void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y );
+    void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y );
+    void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y );
+    void debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int x, const int y );
+    void debugDisplayTexturesValue( const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y );
 
 	// Basic application handles.
 	HINSTANCE m_applicationInstance;
@@ -104,6 +114,13 @@ private:
 	std::shared_ptr< SkeletonActor > m_selectedSkeletonActor;
 
     bool m_debugRenderAlpha;
+
+    std::shared_ptr< StagingTexture2D< unsigned char > > m_debugFrameU1;
+    std::shared_ptr< StagingTexture2D< uchar4 > >        m_debugFrameU4;
+    std::shared_ptr< StagingTexture2D< float > >         m_debugFrameF1;
+    std::shared_ptr< StagingTexture2D< float4 > >        m_debugFrameF4;
+
+    void createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
 
     // Debug uchar render target.
     void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );

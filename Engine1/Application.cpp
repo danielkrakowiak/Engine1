@@ -73,6 +73,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	m_rendererCore.initialize( *m_frameRenderer.getDeviceContext( ).Get() );
     m_assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) * 2 : 1, m_frameRenderer.getDevice() );
 
+    createDebugFrames( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice() );
     createUcharDisplayFrame( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice() );
 
     // Load 'axises' model.
@@ -90,6 +91,21 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     m_renderer.initialize( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
 
 	m_initialized = true;
+}
+
+void Application::createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device )
+{
+    m_debugFrameU1 = std::make_shared< StagingTexture2D< unsigned char > >
+        ( *device.Get(), imageWidth, imageHeight, DXGI_FORMAT_R8_UINT );
+
+    m_debugFrameU4 = std::make_shared< StagingTexture2D< uchar4 > >
+        ( *device.Get(), imageWidth, imageHeight, DXGI_FORMAT_R8G8B8A8_UINT );
+
+    m_debugFrameF1 = std::make_shared< StagingTexture2D< float > >
+        ( *device.Get(), imageWidth, imageHeight, DXGI_FORMAT_R32_FLOAT );
+
+    m_debugFrameF4 = std::make_shared< StagingTexture2D< float4 > >
+        ( *device.Get(), imageWidth, imageHeight, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
 void Application::createUcharDisplayFrame( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device )
@@ -180,7 +196,7 @@ void Application::run() {
 
     // Setup the camera.
 	m_camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
-	m_camera.setPosition( float3( 0.0f, 4.0f, -53.0f ) );
+	m_camera.setPosition( float3( 30.0f, 4.0f, -53.0f ) );
     m_camera.rotate( float3( 0.0f, MathUtil::piHalf, 0.0f ) );
      
 	Font font( uint2(m_screenWidth, m_screenHeight) );
@@ -189,7 +205,9 @@ void Application::run() {
     Font font2( uint2(m_screenWidth, m_screenHeight) );
     font2.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 15 );
 
-	double frameTimeMs = 0.0;
+    double frameTimeMs = 0.0;
+
+    //StagingTexture2D< unsigned char > debugTextureU1( *m_frameRenderer.getDevice().Get(), m_screenWidth, m_screenHeight, DXGI_FORMAT_R8_UINT );
 
 	while ( run ) {
 		Timer frameStartTime;
@@ -339,26 +357,120 @@ void Application::run() {
         // TODO: Should  be refactored somehow. Such method should not be called here.
         //deferredRenderer.disableRenderTargets();
 
-        if ( frameUchar ) {
+        const int2 mousePos = m_inputManager.getMousePos();
+
+        if ( frameUchar ) 
+        {
             m_rendererCore.copyTexture( ucharDisplayFrame, frameUchar );
 		    m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f );
-        } else if ( frameUchar4 ) {
+
+            if ( m_inputManager.isMouseButtonPressed(0) ) 
+                debugDisplayTextureValue( *frameUchar, mousePos.x, mousePos.y );
+        } 
+        else if ( frameUchar4 )
+        {
             if ( m_debugRenderAlpha )
 		        m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f );
             else
                 m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f );
-        } else if ( frameFloat4 )
+
+            if ( m_inputManager.isMouseButtonPressed( 0 ) )
+                debugDisplayTextureValue( *frameUchar4, mousePos.x, mousePos.y );
+        } 
+        else if ( frameFloat4 )
+        {
             m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f );
+
+            if ( m_inputManager.isMouseButtonPressed( 0 ) )
+                debugDisplayTextureValue( *frameFloat4, mousePos.x, mousePos.y );
+        }
         else if ( frameFloat2 )
+        {
             m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f );
-        else if ( frameFloat )
+        }
+        else if ( frameFloat ) 
+        {
             m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f );
+
+            if ( m_inputManager.isMouseButtonPressed( 0 ) )
+                debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
+        }
+
+        if ( m_inputManager.isMouseButtonPressed( 0 ) && m_renderer.getActiveViewType() == Renderer::View::CurrentRefractiveIndex )
+        {
+            debugDisplayTexturesValue( m_renderer.debugGetCurrentRefractiveIndexTextures(), mousePos.x, mousePos.y );
+        }
 
 		m_frameRenderer.displayFrame();
 
 		Timer frameEndTime;
 		frameTimeMs = Timer::lapse( frameEndTime, frameStartTime );
 	}
+}
+
+void Application::debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y )
+{
+    m_rendererCore.copyTexture( *m_debugFrameU1, texture, x, y, 1, 1 );
+    m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+
+    const unsigned char pixelColor = m_debugFrameU1->getPixel( x, y );
+
+    const float floatVal = (float)pixelColor / 255.0f;
+    setWindowTitle( "uchar: " + std::to_string( pixelColor ) + ", float: " + std::to_string( floatVal ) + ", ior: " + std::to_string( 1.0f + floatVal * 2.0f ) );
+}
+
+void Application::debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y )
+{
+    m_rendererCore.copyTexture( *m_debugFrameU4, texture, x, y, 1, 1 );
+    m_debugFrameU4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+
+    const uchar4 pixelColor = m_debugFrameU4->getPixel( x, y );
+
+    const float4 floatVal = float4( (float4)pixelColor / 255.0f );
+    setWindowTitle( "uchar: (" + std::to_string( pixelColor.x ) + ", " + std::to_string( pixelColor.y ) + ", " + std::to_string( pixelColor.z ) + ", " + std::to_string( pixelColor.w ) + ")"
+                    + ", float: (" + std::to_string( floatVal.x ) + ", " + std::to_string( floatVal.y ) + ", " + std::to_string( floatVal.z ) + ", " + std::to_string( floatVal.w ) + ")" );
+}
+
+void Application::debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y )
+{
+    m_rendererCore.copyTexture( *m_debugFrameF1, texture, x, y, 1, 1 );
+    m_debugFrameF1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+
+    const float pixelColor = m_debugFrameF1->getPixel( x, y );
+
+    setWindowTitle( "float: " + std::to_string( pixelColor ) );
+}
+
+void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int x, const int y )
+{
+    m_rendererCore.copyTexture( *m_debugFrameF4, texture, x, y, 1, 1 );
+    m_debugFrameF4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+
+    const float4 pixelColor = m_debugFrameF4->getPixel( x, y );
+
+    setWindowTitle( "float: (" + std::to_string( pixelColor.x ) + ", " + std::to_string( pixelColor.y ) + ", " + std::to_string( pixelColor.z ) + ", " + std::to_string( pixelColor.w ) + ")" );
+}
+
+void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y )
+{
+    std::string debugString = "ior: ";
+
+    for ( auto& texture : textures ) {
+        m_rendererCore.copyTexture( *m_debugFrameU1, *texture, x, y, 1, 1 );
+        m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+
+        const unsigned char pixelColor = m_debugFrameU1->getPixel( x, y );
+        const float floatVal = (float)pixelColor / 255.0f;
+
+        debugString += std::to_string( 1.0f + floatVal * 2.0f ) + " -> ";
+    }
+    
+    setWindowTitle( debugString );
+}
+
+void Application::setWindowTitle( const std::string& title )
+{
+    SetWindowText( m_windowHandle, StringUtil::widen( title ).c_str() );
 }
 
 LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
@@ -603,8 +715,10 @@ void Application::onKeyPress( int key )
         m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
     else if ( key == InputManager::Keys::zero )
         m_renderer.setActiveViewType( Renderer::View::RayDirections );
-    else if ( key == InputManager::Keys::back )
-        m_renderer.setActiveViewType( Renderer::View::Test );
+    else if ( key == InputManager::Keys::f1 )
+        m_renderer.setActiveViewType( Renderer::View::Contribution );
+    else if ( key == InputManager::Keys::f2 )
+        m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
 
     if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
         m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );
@@ -612,7 +726,7 @@ void Application::onKeyPress( int key )
         m_renderer.setMaxLevelCount( std::max( 0, m_renderer.getMaxLevelCount() - 1 ) );
     else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
         m_renderer.activateNextViewLevel( true );
-    else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::t ) )
+    else if ( key == InputManager::Keys::plus /*&& m_inputManager.isKeyPressed( InputManager::Keys::t )*/  )
         m_renderer.activateNextViewLevel( false );
     else if ( key == InputManager::Keys::minus )
         m_renderer.activatePrevViewLevel();

@@ -250,4 +250,10 @@ Wed 10.08.2016 - 2h - Fixed problem with incorrect refraction - caused by invert
 Thu 11.08.2016 - 2h - Started using accumulated roughness in combining shader (the one calculated during reflection/refraction shading). Fixed problem with overbright objects after refractions - fixed by using alpha to decrease shaded color. Fixed incorrect default alpha in raytracer.
 Sat 13.08.2016 - 4h - Switching to VS 2015, Windows SDK 10 - to fix directx debug layer and graphics debugger. Recompiled freetype library. Found a bug in texture class regarding creating/not creating mipmaps. Refactoring member variables to use m_ prefix.
 Sun 14.08.2016 - 4h - Added an option to Texture class to create/not create mipmaps when creating texture with no initial data (previously mipmaps were always created). Prefixed all member variables with "m_".
-Mon 15.08.2016 - 2h - Added normal mapping to raytracing. Fixed normal mapping in deferred renderer.
+Mon 15.08.2016 - 4h - Added normal mapping to raytracing. Fixed normal mapping in deferred renderer. Optimized raytracing shader for cases where single rays intersects many triangles. Thinking how to implement storage of current/previous refraction indices when light transmits through several objects.
+Fri 19.08.2016 - 3h - Implementing storage of current refractive index.
+Sat 20.08.2016 - 4h - Implementing new refractive index storage and modyfing refracted ray generation shaders. 
+Sun 21.08.2016 - 5h - Fixed a bug with wrong default normal texture in raytrace renderer. Implementing new refractive index storage and modyfing refracted ray generation shaders. 
+Sat 27.08.2016 - 1h - Added staging texture class.
+Mon 29.08.2016 - 1h - Added debug display of screen pixel color at the cursor position.
+Wed 31.08.2016 - 4h - Added debug display of texture pixel color of various types (float, float4, uchar4 etc) and debug display of refraction index of the whole set of textures. Fixed incorrect refractive index values when generating refracted rays.

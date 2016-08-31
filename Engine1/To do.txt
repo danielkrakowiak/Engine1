@@ -49,6 +49,11 @@
 	- [Texture - Refactor] Can I remove initialize methods from Texture2DGeneric? Move that code to constuctors...
 	- [Includes Cleanup] Some headers include <d3d11.h> although they only contain references and pointers to DX types. Replace with forward declarations.
 	- [Test Texture] I should test whether constructor options like generateMipMaps (ex. for RenderTarget) really work for all the bindings and remove them if they are not supported.
+21.08.2016
+	- [Texture - new] How to handle texture arrays (also with mipmaps). Should it be a separate class. How to handle all that complexity? How to use the existing texture class?
+	- [Shader params] Add support for setting empty SRVs, UAVs etc among non-empty ones.
+31.08.2016
+	- [ Texture copy ] When copying texture GPU - GPU we should check if their dimensions are the same - otherwise throw exception.
 
 For later ######################################################################################################################
 
@@ -263,7 +268,7 @@ Idea:
 	  http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
 
 	  - add exceptions and check if wrong level is passed to reflectionrefraction renderer.
-	  - remove unnecessary 'level' and 'prev contribution term' from firstreflectionshading and firstrefractionshading.
+	  - remove unnecessary 'level' and 'prev contribution term' from firstreflectionshadindg and firstrefractionshading.
 	  
 	  -----------------------------
 
@@ -278,17 +283,37 @@ Idea:
 	  - should alpha impact the surface color used for shading? Yes. Should it also impact shading reflections?
 
 	  - NEXT: dealing with varying refraction index.
+	  - when we enter a surface, we read refractionIndex from screen buffer.
+	  - when we leave a surface, we read refractionIndex from our last refraction index (stored in the buffer?)
+		- maybe use texture array with refraction indices (like a stack) and the other texture as a counter of where we are on that stack for each ray.
+		- when entering a surface - push to stack, when leaving - pop from stack (by decreasing the counter).
+		- what format to use for refraction index
+		- only need to access these textures when generating secondary rays.
+		- store these textures in raytracer like other textures.
+		- where to pass/store initial refractive index? Common for all primary rays.
 
-	  - why mipmaps are not generated on gpu in TTexture? There is already a method for that in TTExtureSpecBind. Should we wait for CPU implemantation of generating mipmaps?
+	  - why mipmaps are not generated on gpu in TTexture? Because that would require them to be RenderTargets... There is already a method for that in TTExtureSpecBind. Should we wait for CPU implemantation of generating mipmaps?
 
 	  - IMPORTANT / REFACTOR: Should move all the compiled libraries and headers to one folder inside the project and add that project to repository. 
 
-	  START HERE: !!!!!!!!!!
+	  - IMPORTANT:  In generate refracted rays shaders - Why HLSL compiler crashes without "skip optimization" flag?
 
-	  - maybe doo normalmapping in local space and then transform to world space?
+	  - as I'm storing all of these temporary buffers... Can I render from back to front now? Or actually only the combining part backwards...
 
-	  - IMPORTANT: is normalmapping working correctly? Why tangent vector is not multiplied by world matrix in vertex shader?
+	  - PROBLEM: If we don't enter an object, we don't know what's the refractive index outside of that object... So if we start inside of a glass ball, we don't know which IOR to use when leaving the ball.
 
-	  - IMPORTANT: Can I optimize raytracing, by waiting with reading triangle normals ,texcoords etc until I decide which triangle is the closest? (instead of reading them for every temporary closest triangle).
+	  - IMPORTANT: Investigate whether we need to invert normals during normal shading (for backfacing trangles).
 
-	  - IMPORTANT: Look like normal mapping doesn't work in reflections/refractions! Or lighting is flat for some other reason. Yep, normals are flat in reflections/refractions.
+	  - IMPORTANT: Pass refraction index for current and prev object when shading refractions (in refraction shading shader).
+
+	  - PERFORMANCE: Maybe it's faster and still correct to invert normals (when ray hits from backface) in raytracing shader rather than in each other shader separately.
+
+	  NOW:
+
+	  - check clearing of current refractive index textures and rayHitRefractiveIndex textures. They seem to be not cleared when they are supposed to.
+
+	  IMPORTANT:
+
+	  - we assume that refractions are always computed through shaders/classes with "fisrt" in their name. But that may not be true. And the name is misleading. 
+	  Because it only happens like that if refraction occurs first, and then reflection/refraction. But if reflection is fisrt, then these shaders/classes are not used at all. What kind of bugs can result from this.
+	  Rename shader and classes and replace word "first" with something else.

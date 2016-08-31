@@ -68,7 +68,7 @@ void GenerateFirstReflectedRaysComputeShader::setParameters( ID3D11DeviceContext
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
                                                                  const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                                                                 const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& reflectionTermTexture )
+                                                                 const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture )
 {
     if ( !m_compiled ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
@@ -78,7 +78,7 @@ void GenerateFirstReflectedRaysComputeShader::setParameters( ID3D11DeviceContext
             positionTexture.getShaderResourceView(), 
             normalTexture.getShaderResourceView(),
             roughnessTexture.getShaderResourceView(),
-            reflectionTermTexture.getShaderResourceView()
+            contributionTermTexture.getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );

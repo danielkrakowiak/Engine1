@@ -18,7 +18,6 @@ Texture2D<float4> g_albedoTexture            : register( t3 );
 Texture2D<float>  g_metalnessTexture         : register( t4 );
 Texture2D<float>  g_roughnessTexture         : register( t5 );
 Texture2D<float4> g_normalTexture            : register( t6 ); 
-Texture2D<float>  g_indexOfRefractionTexture : register( t7 );
 
 // Output.
 RWTexture2D<float4> g_colorTexture : register( u0 );
@@ -48,7 +47,6 @@ void main( uint3 groupId : SV_GroupID,
     const float  surfaceMetalness         = g_metalnessTexture[ dispatchThreadId.xy ];
     const float  surfaceRoughness         = g_roughnessTexture[ dispatchThreadId.xy ];
     const float3 surfaceNormal            = g_normalTexture[ dispatchThreadId.xy ].xyz;
-    const float  surfaceIndexOfRefraction = g_indexOfRefractionTexture[ dispatchThreadId.xy ];
     
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );

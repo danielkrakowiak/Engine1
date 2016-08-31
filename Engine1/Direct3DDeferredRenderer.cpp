@@ -569,12 +569,12 @@ void Direct3DDeferredRenderer::loadAndCompileShaders( ID3D11Device& device )
 void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )
 {
     std::vector< unsigned char > dataAlpha             = { 255 };
-    std::vector< unsigned char > dataMetalness         = { 180 };
-    std::vector< unsigned char > dataRoughness         = { 150 };
-    std::vector< unsigned char > dataIndexOfRefraction = { 120 };
+    std::vector< unsigned char > dataMetalness         = { 0 };
+    std::vector< unsigned char > dataRoughness         = { 0 };
+    std::vector< unsigned char > dataIndexOfRefraction = { 0 };
     std::vector< uchar4 >        dataEmissive          = { uchar4( 0, 0, 0, 255 ) };
     std::vector< uchar4 >        dataAlbedo            = { uchar4( 0, 0, 0, 255 ) };
-    std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 0 ) };
+    std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 255 ) };
 
     m_defaultAlphaTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
         ( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );

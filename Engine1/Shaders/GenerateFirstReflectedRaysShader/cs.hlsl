@@ -62,7 +62,7 @@ void main( uint3 groupId : SV_GroupID,
 
     const float3 surfacePosition  = g_surfacePosition[ dispatchThreadId.xy ].xyz;
     const float  surfaceRoughness = g_surfaceRoughness[ dispatchThreadId.xy ];
-    const float3 contributionTerm   = g_contributionTerm[ dispatchThreadId.xy ].xyz;
+    const float3 contributionTerm = g_contributionTerm[ dispatchThreadId.xy ].xyz;
 
     // TODO: Could be otpimized to check only roughness (not position). Roughness buffer needs to be filled with maximal value at the beginning of each frame.
     if ( !any( surfacePosition ) || dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm || surfaceRoughness > 0.999f ) { // If all position components are zeros or roughness is maximal - there is no reflected ray.
@@ -73,7 +73,13 @@ void main( uint3 groupId : SV_GroupID,
 
     const float3 primaryRayDir = getPrimaryRayDirection( pixelPos );
 
-    const float3 surfaceNormal = g_surfaceNormal[ dispatchThreadId.xy ].xyz;
+    float3 surfaceNormal = g_surfaceNormal[ dispatchThreadId.xy ].xyz;
+
+    const bool frontHit = dot( primaryRayDir, surfaceNormal ) < 0.0f;
+
+    if ( !frontHit ) {
+        surfaceNormal = -surfaceNormal;
+    }
 
     const float3 secondaryRayDir    = calcReflectedRay( primaryRayDir, surfaceNormal );
     const float3 secondaryRayOrigin = surfacePosition + secondaryRayDir * 0.01f; // Modify ray origin to avoid self-collisions.

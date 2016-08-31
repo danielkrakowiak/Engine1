@@ -3,7 +3,6 @@
 #include <d3d11.h>
 
 #include "Direct3DRendererCore.h"
-#include "ComputeTargetTexture2D.h"
 #include "GenerateRaysComputeShader.h"
 #include "GenerateFirstReflectedRaysComputeShader.h"
 #include "GenerateFirstRefractedRaysComputeShader.h"
@@ -94,13 +93,17 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
                                           ( device, imageWidth, imageHeight, false, true, false,
                                             DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM ) );
 
+        m_rayHitRefractiveIndexTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+                                            ( device, imageWidth, imageHeight, false, true, false,
+                                              DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM ) );
+
         m_rayHitNormalTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
                                        ( device, imageWidth, imageHeight, false, true, false,
                                          DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
-        m_rayHitIndexOfRefractionTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+        m_currentRefractiveIndexTextures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
                                                   ( device, imageWidth, imageHeight, false, true, false,
-                                                    DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM ) );
+                                                    DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM ) );
     }
 }
 
@@ -144,13 +147,13 @@ void RaytraceRenderer::generateAndTraceFirstReflectedRays( const Camera& camera,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture, 
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture,
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
                                                            const std::vector< std::shared_ptr< const BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
     //generatePrimaryRays( camera );
-    generateFirstReflectedRays( camera, positionTexture, normalTexture, roughnessTexture, reflectionTermTexture );
+    generateFirstReflectedRays( camera, positionTexture, normalTexture, roughnessTexture, contributionTermTexture );
     traceSecondaryRays( 0, actors );
 
     m_rendererCore.disableComputePipeline();
@@ -160,24 +163,21 @@ void RaytraceRenderer::generateAndTraceFirstRefractedRays( const Camera& camera,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture, 
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > refractionTermTexture,
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
+                                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
                                                            const std::vector< std::shared_ptr< const BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
     //generatePrimaryRays( camera );
-    generateFirstRefractedRays( camera, positionTexture, normalTexture, roughnessTexture, refractionTermTexture );
+    generateFirstRefractedRays( camera, positionTexture, normalTexture, roughnessTexture, refractiveIndexTexture, contributionTermTexture );
     traceSecondaryRays( 0, actors );
 
     m_rendererCore.disableComputePipeline();
 }
 
 void RaytraceRenderer::generateAndTraceReflectedRays( const int level,
-                                                      /*const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,*/
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
                                                       const std::vector< std::shared_ptr< const BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
@@ -187,29 +187,26 @@ void RaytraceRenderer::generateAndTraceReflectedRays( const int level,
                            getRayHitPositionTexture( level - 1 ), 
                            getRayHitNormalTexture( level - 1 ), 
                            getRayHitRoughnessTexture( level - 1 ), 
-                           reflectionTermTexture );
+                           contributionTermTexture );
 
     traceSecondaryRays( level, actors );
 
     m_rendererCore.disableComputePipeline();
 }
 
-void RaytraceRenderer::generateAndTraceRefractedRays( const int level,
-                                                      /*const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,*/
-                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > refractionTermTexture,
+void RaytraceRenderer::generateAndTraceRefractedRays( const int level, const int refractionLevel,
+                                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
                                                       const std::vector< std::shared_ptr< const BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    generateRefractedRays( level, 
+    generateRefractedRays( level, refractionLevel,
                            getRayDirectionsTexture( level - 1 ), 
                            getRayHitPositionTexture( level - 1 ), 
                            getRayHitNormalTexture( level - 1 ), 
                            getRayHitRoughnessTexture( level - 1 ), 
-                           refractionTermTexture );
+                           getRayHitRefractiveIndexTexture( level - 1 ),
+                           contributionTermTexture );
 
     traceSecondaryRays( level, actors );
 
@@ -220,7 +217,7 @@ void RaytraceRenderer::generateFirstReflectedRays( const Camera& camera,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture )
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture )
 {
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
     const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
@@ -229,7 +226,7 @@ void RaytraceRenderer::generateFirstReflectedRays( const Camera& camera,
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
 
-    m_generateFirstReflectedRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, *positionTexture, *normalTexture, *roughnessTexture, *reflectionTermTexture );
+    m_generateFirstReflectedRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, *positionTexture, *normalTexture, *roughnessTexture, *contributionTermTexture );
 
     m_rendererCore.enableComputeShader( m_generateFirstReflectedRaysComputeShader );
 
@@ -248,10 +245,11 @@ void RaytraceRenderer::generateFirstReflectedRays( const Camera& camera,
 }
 
 void RaytraceRenderer::generateFirstRefractedRays( const Camera& camera, 
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > refractionTermTexture )
+                                                   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                                   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                                                   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                                                   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
+                                                   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture )
 {
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
     const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
@@ -260,15 +258,21 @@ void RaytraceRenderer::generateFirstRefractedRays( const Camera& camera,
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
 
-    m_generateFirstRefractedRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, *positionTexture, *normalTexture, *roughnessTexture, *refractionTermTexture );
+    m_generateFirstRefractedRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, 
+                                                              *positionTexture, *normalTexture, *roughnessTexture, *refractiveIndexTexture, *contributionTermTexture/*, getCurrentRefractiveIndexTextures()*/ );
 
     m_rendererCore.enableComputeShader( m_generateFirstRefractedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( m_rayOriginsTexture.at( 0 ) );
-    unorderedAccessTargets.push_back( m_rayDirectionsTexture.at( 0 ) );
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    unorderedAccessTargetsF4.push_back( m_rayOriginsTexture.at( 0 ) );
+    unorderedAccessTargetsF4.push_back( m_rayDirectionsTexture.at( 0 ) );
+    unorderedAccessTargetsU1.push_back( m_currentRefractiveIndexTextures.at( 0 ) );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
     uint3 groupCount( m_imageWidth / 32, m_imageHeight / 32, 1 );
 
@@ -283,9 +287,9 @@ void RaytraceRenderer::generateReflectedRays( int level,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > reflectionTermTexture )
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture )
 {
-    m_generateReflectedRaysComputeShader->setParameters( *m_deviceContext.Get(), *rayDirectionTexture, *rayHitPositionTexture, *rayHitNormalTexture, *rayHitRoughnessTexture, *reflectionTermTexture );
+    m_generateReflectedRaysComputeShader->setParameters( *m_deviceContext.Get(), *rayDirectionTexture, *rayHitPositionTexture, *rayHitNormalTexture, *rayHitRoughnessTexture, *contributionTermTexture );
 
     m_rendererCore.enableComputeShader( m_generateReflectedRaysComputeShader );
 
@@ -303,22 +307,46 @@ void RaytraceRenderer::generateReflectedRays( int level,
     m_rendererCore.disableUnorderedAccessViews();
 }
 
-void RaytraceRenderer::generateRefractedRays( int level,
+void RaytraceRenderer::generateRefractedRays( int level, const int refractionLevel,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > refractionTermTexture )
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRefractiveIndexTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture )
 {
-    m_generateRefractedRaysComputeShader->setParameters( *m_deviceContext.Get(), *rayDirectionTexture, *rayHitPositionTexture, *rayHitNormalTexture, *rayHitRoughnessTexture, *refractionTermTexture );
+    // Optional clearing - for better debug. Clearing probably not needed, because it gets overwritten in the shader anyways.
+    #if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
+    m_rayHitRefractiveIndexTexture.at( level )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    m_currentRefractiveIndexTextures.at( refractionLevel )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    #endif
+
+    m_generateRefractedRaysComputeShader->setParameters( *m_deviceContext.Get(), 
+                                                         refractionLevel, 
+                                                         *rayDirectionTexture, 
+                                                         *rayHitPositionTexture, 
+                                                         *rayHitNormalTexture, 
+                                                         *rayHitRoughnessTexture,
+                                                         *rayHitRefractiveIndexTexture, 
+                                                         *contributionTermTexture,
+                                                         refractionLevel >= 2 ? m_currentRefractiveIndexTextures.at( refractionLevel - 2 ) : nullptr,
+                                                         refractionLevel >= 1 ? m_currentRefractiveIndexTextures.at( refractionLevel - 1 ) : nullptr
+                                                         );
+
+    assert( refractionLevel < m_currentRefractiveIndexTextures.size() );
 
     m_rendererCore.enableComputeShader( m_generateRefractedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( m_rayOriginsTexture.at( level ) );
-    unorderedAccessTargets.push_back( m_rayDirectionsTexture.at( level ) );
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    unorderedAccessTargetsF4.push_back( m_rayOriginsTexture.at( level ) );
+    unorderedAccessTargetsF4.push_back( m_rayDirectionsTexture.at( level ) );
+    unorderedAccessTargetsU1.push_back( m_currentRefractiveIndexTextures.at( refractionLevel ) );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
     uint3 groupCount( m_imageWidth / 32, m_imageHeight / 32, 1 );
 
@@ -341,7 +369,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
     m_rayHitMetalnessTexture.at( 0 )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     m_rayHitRoughnessTexture.at( 0 )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     m_rayHitNormalTexture.at( 0 )->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
-    m_rayHitIndexOfRefractionTexture.at( 0 )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    m_rayHitRefractiveIndexTexture.at( 0 )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
@@ -354,7 +382,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
     unorderedAccessTargetsF4.push_back( m_rayHitNormalTexture.at( 0 ) );
     unorderedAccessTargetsU1.push_back( m_rayHitMetalnessTexture.at( 0 ) );
     unorderedAccessTargetsU1.push_back( m_rayHitRoughnessTexture.at( 0 ) );
-    unorderedAccessTargetsU1.push_back( m_rayHitIndexOfRefractionTexture.at( 0 ) );
+    unorderedAccessTargetsU1.push_back( m_rayHitRefractiveIndexTexture.at( 0 ) );
     unorderedAccessTargetsU4.push_back( m_rayHitEmissiveTexture.at( 0 ) );
     unorderedAccessTargetsU4.push_back( m_rayHitAlbedoTexture.at( 0 ) );
 
@@ -411,7 +439,7 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
     m_rayHitMetalnessTexture.at( level )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     m_rayHitRoughnessTexture.at( level )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     m_rayHitNormalTexture.at( level )->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
-    m_rayHitIndexOfRefractionTexture.at( level )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    m_rayHitRefractiveIndexTexture.at( level )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
@@ -424,7 +452,7 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
     unorderedAccessTargetsF4.push_back( m_rayHitNormalTexture.at( level ) );
     unorderedAccessTargetsU1.push_back( m_rayHitMetalnessTexture.at( level ) );
     unorderedAccessTargetsU1.push_back( m_rayHitRoughnessTexture.at( level ) );
-    unorderedAccessTargetsU1.push_back( m_rayHitIndexOfRefractionTexture.at( level ) );
+    unorderedAccessTargetsU1.push_back( m_rayHitRefractiveIndexTexture.at( level ) );
     unorderedAccessTargetsU4.push_back( m_rayHitEmissiveTexture.at( level ) );
     unorderedAccessTargetsU4.push_back( m_rayHitAlbedoTexture.at( level ) );
 
@@ -519,16 +547,22 @@ RaytraceRenderer::getRayHitRoughnessTexture( int level )
     return m_rayHitRoughnessTexture.at( level );
 }
 
+std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+RaytraceRenderer::getRayHitRefractiveIndexTexture( int level )
+{
+    return m_rayHitRefractiveIndexTexture.at( level );
+}
+
 std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
 RaytraceRenderer::getRayHitNormalTexture( int level )
 {
     return m_rayHitNormalTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > 
-RaytraceRenderer::getRayHitIndexOfRefractionTexture( int level )
+const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& 
+RaytraceRenderer::getCurrentRefractiveIndexTextures()
 {
-    return m_rayHitIndexOfRefractionTexture.at( level );
+    return m_currentRefractiveIndexTextures;
 }
 
 void RaytraceRenderer::loadAndCompileShaders( ID3D11Device& device )
@@ -550,7 +584,7 @@ void RaytraceRenderer::createDefaultTextures( ID3D11Device& device )
     std::vector< unsigned char > dataIndexOfRefraction = { 0 };
     std::vector< uchar4 >        dataEmissive          = { uchar4( 0, 0, 0, 255 ) };
     std::vector< uchar4 >        dataAlbedo            = { uchar4( 0, 0, 0, 255 ) };
-    std::vector< uchar4 >        dataNormal            = { uchar4( 0, 0, 255, 0 ) };
+    std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 255 ) };
 
     m_defaultAlphaTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
         ( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );

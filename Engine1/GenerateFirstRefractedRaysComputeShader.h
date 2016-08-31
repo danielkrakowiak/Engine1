@@ -28,10 +28,14 @@ namespace Engine1
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& reflectionTermTexture );
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& refractiveIndexTexture,
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture
+                            /*const std::vector< std::shared_ptr< TTexture2D<  TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > refractiveIndexTextures*/ );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
+
+        int m_resourceCount;
 
         __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
         struct ConstantBuffer

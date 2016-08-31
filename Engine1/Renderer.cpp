@@ -18,8 +18,8 @@
 #include "SkeletonActor.h"
 #include "SkeletonModel.h"
 #include "Light.h"
-//#include "RenderTargetTexture2D.h"
-//#include "ComputeTargetTexture2D.h"
+
+#include "StagingTexture2D.h"
 
 #include "StringUtil.h"
 
@@ -110,14 +110,14 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
 
     std::vector< bool > renderedViewType;
 
-    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( true, 1, m_maxLevelCount, camera, blockActors, lightsVector, renderedViewType, m_activeViewLevel, m_activeViewType );
-    
+    /*std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
+        = renderReflectionsRefractions( true, 1, 0, m_maxLevelCount, camera, blockActors, lightsVector, renderedViewType, m_activeViewLevel, m_activeViewType );
+
     if ( frameReceived )
-        return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
+        return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );*/
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( false, 1, m_maxLevelCount, camera, blockActors, lightsVector, renderedViewType, m_activeViewLevel, m_activeViewType );
+        = renderReflectionsRefractions( false, 1, 0, m_maxLevelCount, camera, blockActors, lightsVector, renderedViewType, m_activeViewLevel, m_activeViewType );
 
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -181,8 +181,7 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
     // Perform shading on the main image.
     m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getEmissiveRenderTarget(), 
                                     m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(), 
-                                    m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), 
-                                    m_deferredRenderer.getIndexOfRefractionRenderTarget(), lightsVector );
+                                    m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), lightsVector );
 
     // Copy main shaded image to final render target.
     m_rendererCore.copyTexture( m_finalRenderTarget, 0, m_shadingRenderer.getColorRenderTarget(), 0 );
@@ -222,7 +221,7 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int level, const int maxLevelCount, const Camera& camera, 
+Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
                                         const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
                                         const std::vector< std::shared_ptr< Light > >& lightsVector,
                                         std::vector< bool >& renderedViewLevel,
@@ -257,7 +256,7 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
         if ( level == 1 )
             renderFirstRefractions( camera, blockActors, lightsVector );
         else
-            renderRefractions( level, camera, blockActors, lightsVector );
+            renderRefractions( level, refractionLevel, camera, blockActors, lightsVector );
     }
 
     if ( renderedViewLevel == activeViewLevel )
@@ -279,22 +278,24 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
             case View::Roughness:
                 return std::make_tuple( true, m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ), nullptr, nullptr, nullptr, nullptr );
             case View::IndexOfRefraction:
-                return std::make_tuple( true, m_raytraceRenderer.getRayHitIndexOfRefractionTexture( level - 1 ), nullptr, nullptr, nullptr, nullptr );
+                return std::make_tuple( true, m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 ), nullptr, nullptr, nullptr, nullptr );
             case View::RayDirections: 
                 return std::make_tuple( true, nullptr, nullptr, m_raytraceRenderer.getRayDirectionsTexture( level - 1 ), nullptr, nullptr );
-            case View::Test: 
+            case View::Contribution: 
                 return std::make_tuple( true, nullptr, m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), nullptr, nullptr, nullptr );
+            case View::CurrentRefractiveIndex:
+                return std::make_tuple( true, m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 ), nullptr, nullptr, nullptr, nullptr );
         }
     }
 
-    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( true, level + 1, maxLevelCount, camera, blockActors, lightsVector, renderedViewLevel, activeViewLevel, activeViewType );
+    /*std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
+        = renderReflectionsRefractions( true, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsVector, renderedViewLevel, activeViewLevel, activeViewType );
 
     if ( frameReceived )
-        return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
+        return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );*/
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( false, level + 1, maxLevelCount, camera, blockActors, lightsVector, renderedViewLevel, activeViewLevel, activeViewType );
+        = renderReflectionsRefractions( false, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsVector, renderedViewLevel, activeViewLevel, activeViewType );
 
     if ( frameReceived )
         return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -329,7 +330,6 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
                                     m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
                                     m_raytraceRenderer.getRayHitRoughnessTexture( 0 ), 
                                     m_raytraceRenderer.getRayHitNormalTexture( 0 ),
-                                    m_raytraceRenderer.getRayHitIndexOfRefractionTexture( 0 ), 
                                     lightsVector );
 
     // Generate mipmaps for the shaded, reflected image.
@@ -361,6 +361,7 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                                          m_deferredRenderer.getPositionRenderTarget(), 
                                                          m_deferredRenderer.getNormalRenderTarget(),
                                                          m_deferredRenderer.getRoughnessRenderTarget(), 
+                                                         m_deferredRenderer.getIndexOfRefractionRenderTarget(),
                                                          m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
                                                          blockActors );
 
@@ -377,7 +378,6 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                     m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
                                     m_raytraceRenderer.getRayHitRoughnessTexture( 0 ), 
                                     m_raytraceRenderer.getRayHitNormalTexture( 0 ),
-                                    m_raytraceRenderer.getRayHitIndexOfRefractionTexture( 0 ), 
                                     lightsVector );
 
     // Generate mipmaps for the shaded, reflected image.
@@ -421,7 +421,6 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
                                     m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
                                     m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ), 
                                     m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-                                    m_raytraceRenderer.getRayHitIndexOfRefractionTexture( level - 1 ), 
                                     lightsVector );
 
     // Generate mipmaps for the shaded, reflected image.
@@ -433,11 +432,11 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
                                m_raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
                                m_raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
                                m_deferredRenderer.getDepthRenderTarget(), 
-                               m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ), // ARRRRREEEEEEEEE YOU SUUUUREEEEEEEEEEEE???????
+                               m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ),
                                camera.getPosition() );
 }
 
-void Renderer::renderRefractions( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
+void Renderer::renderRefractions( const int level, const int refractionLevel, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
 {
     m_reflectionRefractionShadingRenderer.performRefractionShading( level - 1, 
                                                                   m_raytraceRenderer.getRayOriginsTexture( level - 2 ), 
@@ -447,7 +446,7 @@ void Renderer::renderRefractions( const int level, const Camera& camera, const s
                                                                   m_raytraceRenderer.getRayHitMetalnessTexture( level - 2 ), 
                                                                   m_raytraceRenderer.getRayHitRoughnessTexture( level - 2 ) );
 
-    m_raytraceRenderer.generateAndTraceRefractedRays( level - 1,
+    m_raytraceRenderer.generateAndTraceRefractedRays( level - 1, refractionLevel,
                                                     /*raytraceRenderer.getRayDirectionsTexture( level - 2 ), 
                                                     raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
                                                     raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
@@ -463,7 +462,6 @@ void Renderer::renderRefractions( const int level, const Camera& camera, const s
                                     m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
                                     m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ), 
                                     m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-                                    m_raytraceRenderer.getRayHitIndexOfRefractionTexture( level - 1 ), 
                                     lightsVector );
 
     // Generate mipmaps for the shaded, reflected image.
@@ -523,4 +521,9 @@ void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Devic
 {
     m_finalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+}
+
+const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& Renderer::debugGetCurrentRefractiveIndexTextures()
+{
+    return m_raytraceRenderer.getCurrentRefractiveIndexTextures();
 }

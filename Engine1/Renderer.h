@@ -42,7 +42,8 @@ namespace Engine1
             Roughness,
             IndexOfRefraction,
             RayDirections,
-            Test
+            Contribution,
+            CurrentRefractiveIndex
         };
 
         Renderer( Direct3DRendererCore& rendererCore );
@@ -79,7 +80,7 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-        renderReflectionsRefractions( const bool reflectionFirst, const int level, const int maxLevelCount, const Camera& camera, 
+        renderReflectionsRefractions( const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
                                       const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
                                       const std::vector< std::shared_ptr< Light > >& lightsVector,
                                       std::vector< bool >& renderedViewLevel,
@@ -90,7 +91,7 @@ namespace Engine1
         void renderFirstRefractions( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
 
         void renderReflections( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
-        void renderRefractions( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
+        void renderRefractions( const int level, const int refractionLevel, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
 
         void                       setActiveViewType( const View view );
         View                       getActiveViewType() const;
@@ -99,6 +100,9 @@ namespace Engine1
         const std::vector< bool >& getActiveViewLevel() const;
         void                       setMaxLevelCount( const int levelCount );
         int                        getMaxLevelCount() const;
+
+        // Temporary - for debug.
+        const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& debugGetCurrentRefractiveIndexTextures();
 
         private:
 

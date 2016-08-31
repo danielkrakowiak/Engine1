@@ -28,7 +28,7 @@ namespace Engine1
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& reflectionTermTexture );
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:

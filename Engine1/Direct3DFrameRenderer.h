@@ -7,8 +7,6 @@
 #include <Windows.h>
 #include <wrl.h>
 
-#include "RenderTarget2D.h"
-
 #include "RectangleMesh.h"
 
 #include "TextureVertexShader.h"

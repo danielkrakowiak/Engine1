@@ -1,5 +1,7 @@
 #pragma once
 
+#include "float3.h"
+
 namespace Engine1
 {
     class uint3
@@ -36,6 +38,15 @@ namespace Engine1
         bool operator != (const uint3& vec) const
         {
             return x != vec.x || y != vec.y || z != vec.z;
+        }
+
+        explicit operator float3() const
+        {
+            return float3(
+                (float)x,
+                (float)y,
+                (float)z
+                );
         }
     };
 }

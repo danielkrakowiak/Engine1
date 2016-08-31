@@ -1,5 +1,7 @@
 #pragma once
 
+#include "float2.h"
+
 namespace Engine1
 {
     class uchar2
@@ -35,6 +37,14 @@ namespace Engine1
         bool operator != (const uchar2& vec) const
         {
             return x != vec.x || y != vec.y;
+        }
+
+        explicit operator float2() const
+        {
+            return float2(
+                (float)x,
+                (float)y
+                );
         }
     };
 }

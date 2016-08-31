@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include "float4.h"
+
 namespace Engine1
 {
     class uchar4
@@ -139,6 +141,16 @@ namespace Engine1
             z -= value.z;
             w -= value.w;
             return *this;
+        }
+
+        explicit operator float4() const
+        {
+            return float4(
+                (float)x,
+                (float)y,
+                (float)z,
+                (float)w
+            );
         }
 
     };
