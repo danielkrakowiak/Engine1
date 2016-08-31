@@ -110,11 +110,11 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
 
     std::vector< bool > renderedViewType;
 
-    /*std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
+    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
         = renderReflectionsRefractions( true, 1, 0, m_maxLevelCount, camera, blockActors, lightsVector, renderedViewType, m_activeViewLevel, m_activeViewType );
 
     if ( frameReceived )
-        return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );*/
+        return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
         = renderReflectionsRefractions( false, 1, 0, m_maxLevelCount, camera, blockActors, lightsVector, renderedViewType, m_activeViewLevel, m_activeViewType );
@@ -288,11 +288,11 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
         }
     }
 
-    /*std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
+    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
         = renderReflectionsRefractions( true, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsVector, renderedViewLevel, activeViewLevel, activeViewType );
 
     if ( frameReceived )
-        return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );*/
+        return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
         = renderReflectionsRefractions( false, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsVector, renderedViewLevel, activeViewLevel, activeViewType );
@@ -316,12 +316,6 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
     // Perform ray tracing.
     m_raytraceRenderer.generateAndTraceFirstReflectedRays( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(),
                                                             m_deferredRenderer.getRoughnessRenderTarget(), m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), blockActors );
-
-    // Perform shading on the reflected image.
-    /*shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitEmissiveTexture(), 
-                                    raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitMetalnessTexture(),
-                                    raytraceRenderer.getRayHitRoughnessTexture(), raytraceRenderer.getRayHitNormalTexture(),
-                                    raytraceRenderer.getRayHitIndexOfRefractionTexture(), lightsVector );*/
 
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayOriginsTexture( 0 ), 
                                     m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
@@ -365,12 +359,6 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                                          m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
                                                          blockActors );
 
-    // Perform shading on the refraction image.
-    /*shadingRenderer.performShading( camera, raytraceRenderer.getRayHitPositionTexture(), raytraceRenderer.getRayHitEmissiveTexture(), 
-                                    raytraceRenderer.getRayHitAlbedoTexture(), raytraceRenderer.getRayHitMetalnessTexture(),
-                                    raytraceRenderer.getRayHitRoughnessTexture(), raytraceRenderer.getRayHitNormalTexture(),
-                                    raytraceRenderer.getRayHitIndexOfRefractionTexture(), lightsVector );*/
-
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayOriginsTexture( 0 ), 
                                     m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
                                     m_raytraceRenderer.getRayHitEmissiveTexture( 0 ), 
@@ -406,12 +394,8 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
                                                                   m_raytraceRenderer.getRayHitRoughnessTexture( level - 2 ) );
 
     m_raytraceRenderer.generateAndTraceReflectedRays( level - 1,
-                                                    /*raytraceRenderer.getRayDirectionsTexture( level - 2 ), 
-                                                    raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
-                                                    raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
-                                                    raytraceRenderer.getRayHitRoughnessTexture( level - 2 ), */
-                                                    m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
-                                                    blockActors );
+                                                      m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
+                                                      blockActors );
 
     // Perform shading on the reflected image.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayOriginsTexture( level - 1 ), 
@@ -447,12 +431,8 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
                                                                   m_raytraceRenderer.getRayHitRoughnessTexture( level - 2 ) );
 
     m_raytraceRenderer.generateAndTraceRefractedRays( level - 1, refractionLevel,
-                                                    /*raytraceRenderer.getRayDirectionsTexture( level - 2 ), 
-                                                    raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
-                                                    raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
-                                                    raytraceRenderer.getRayHitRoughnessTexture( level - 2 ), */
-                                                    m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
-                                                    blockActors );
+                                                      m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
+                                                      blockActors );
 
     // Perform shading on the reflected image.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayOriginsTexture( level - 1 ), 
