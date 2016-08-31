@@ -46,6 +46,8 @@ namespace Engine1
             float3 padding2;
             float3 cameraPosition;
             float  padding3;
+            float2 imageSize;
+            float2 padding4;
         };
 
         int m_resourceCount;

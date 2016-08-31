@@ -148,6 +148,7 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
     dataPtr->normalThreshold         = normalThreshold;
     dataPtr->positionThresholdSquare = positionThreshold * positionThreshold;
     dataPtr->cameraPosition          = cameraPosition;
+    dataPtr->imageSize               = float2( (float)srcTexture->getWidth(), (float)srcTexture->getHeight() );
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

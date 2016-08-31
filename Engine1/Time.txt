@@ -256,4 +256,4 @@ Sat 20.08.2016 - 4h - Implementing new refractive index storage and modyfing ref
 Sun 21.08.2016 - 5h - Fixed a bug with wrong default normal texture in raytrace renderer. Implementing new refractive index storage and modyfing refracted ray generation shaders. 
 Sat 27.08.2016 - 1h - Added staging texture class.
 Mon 29.08.2016 - 1h - Added debug display of screen pixel color at the cursor position.
-Wed 31.08.2016 - 4h - Added debug display of texture pixel color of various types (float, float4, uchar4 etc) and debug display of refraction index of the whole set of textures. Fixed incorrect refractive index values when generating refracted rays.
+Wed 31.08.2016 - 5h - Added debug display of texture pixel color of various types (float, float4, uchar4 etc) and debug display of refraction index of the whole set of textures. Fixed incorrect refractive index values when generating refracted rays. Added support for variable resolution.

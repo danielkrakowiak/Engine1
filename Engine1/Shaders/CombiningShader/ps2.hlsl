@@ -15,6 +15,8 @@ cbuffer ConstantBuffer
     float3 pad1;
     float  positionThresholdSquare;
     float3 pad2;
+    float2 imageSize;
+    float2 pad3;
 };
 
 struct PixelInputType
@@ -24,7 +26,6 @@ struct PixelInputType
 	float2 texCoord : TEXCOORD1;
 };
 
-static const float2 g_imageSize = float2( 1024.0f, 768.0f );
 
 // Position threshold needs to be larger when we sample with larger radius (oversampling ratio). Same for normal threshold.
 // Some object id buffer would be useful to reject samples from different objects. It's impossible now to tell whether we hit the same object when sampling radius is big.
@@ -96,7 +97,7 @@ float4 main(PixelInputType input) : SV_Target
 
     float maxNeighborHitDistance = 0.0f;
 
-    float2 pixelSize5 = float2( 1.0f / 1024.0f, 1.0f / 768.0f ) * 3.0f;
+    float2 pixelSize5 = ( 1.0f / imageSize ) * 3.0f;
     for ( float x = -6.0f; x <= 6.0f; x += 1.0f )
     {
         for ( float y = -6.0f; y <= 6.0f; y += 1.0f )
@@ -148,7 +149,7 @@ float4 main(PixelInputType input) : SV_Target
     
     float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 
-    const int2 texCoordsInt = (int2)( g_imageSize * input.texCoord );
+    const int2 texCoordsInt = (int2)( imageSize * input.texCoord );
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -192,7 +193,7 @@ float4 main(PixelInputType input) : SV_Target
         //const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
         //const float3 centerPosition = g_positionTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
 
-        float2 pixelSize0 = float2( 1.0f / 1024.0f, 1.0f / 768.0f );
+        float2 pixelSize0 = ( 1.0f / imageSize );
         float2 pixelSize = pixelSize0 * (float)pow( 2, samplingMipmapLevel );
 
         // Always use highest resolution center pixel sample to avoid black pixels.

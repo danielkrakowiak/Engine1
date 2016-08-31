@@ -308,12 +308,10 @@ Idea:
 
 	  - PERFORMANCE: Maybe it's faster and still correct to invert normals (when ray hits from backface) in raytracing shader rather than in each other shader separately.
 
-	  NOW:
-
-	  - check clearing of current refractive index textures and rayHitRefractiveIndex textures. They seem to be not cleared when they are supposed to.
-
 	  IMPORTANT:
 
 	  - we assume that refractions are always computed through shaders/classes with "fisrt" in their name. But that may not be true. And the name is misleading. 
 	  Because it only happens like that if refraction occurs first, and then reflection/refraction. But if reflection is fisrt, then these shaders/classes are not used at all. What kind of bugs can result from this.
 	  Rename shader and classes and replace word "first" with something else.
+
+	  - support for any resolution.

@@ -44,6 +44,8 @@ namespace Engine1
             float3 padding1;
             float  positionThresholdSquare;
             float3 padding2;
+            float2 imageSize;
+            float2 padding4;
         };
 
         int m_resourceCount;

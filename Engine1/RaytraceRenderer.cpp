@@ -121,7 +121,7 @@ void RaytraceRenderer::generatePrimaryRays( const Camera& camera )
 {
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
     const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
-    const float2 viewportSize    = float2( 1024.0f, 768.0f );
+    const float2 viewportSize    = float2( m_imageWidth, m_imageHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
@@ -221,7 +221,7 @@ void RaytraceRenderer::generateFirstReflectedRays( const Camera& camera,
 {
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
     const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
-    const float2 viewportSize    = float2( 1024.0f, 768.0f );
+    const float2 viewportSize    = float2( m_imageWidth, m_imageHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
@@ -253,7 +253,7 @@ void RaytraceRenderer::generateFirstRefractedRays( const Camera& camera,
 {
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
     const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
-    const float2 viewportSize    = float2( 1024.0f, 768.0f );
+    const float2 viewportSize    = float2( m_imageWidth, m_imageHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
