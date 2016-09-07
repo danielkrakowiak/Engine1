@@ -106,7 +106,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(SolutionDir)\Engine1;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib64;F:\Biblioteki\freetype-2.6\objs\vc2010\x64;F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Dist\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Projekty\Engine1\Engine1\x64\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Engine1\x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -116,7 +116,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(SolutionDir)\Engine1;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Biblioteki\assimp-3.1.1\lib64;F:\Biblioteki\freetype-2.6\objs\vc2010\x64;F:\Biblioteki\Microsoft DirectX SDK %28June 2010%29\Lib\x64;F:\Biblioteki\FreeImage\Dist\x64;F:\Biblioteki\FreeImage\Wrapper\FreeImagePlus\dist\x64;F:\Projekty\Engine1\Engine1\x64\DebugDirect3D;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Engine1\x64\DebugDirect3D;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
