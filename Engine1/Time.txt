@@ -78,7 +78,7 @@ Sun 19.04.2015 - 2h - Refactoring. Removing loading assets methods from asset cl
 --- April 2015 - 2h
 Fri 01.05.2015 - 4h - Installed VisualAssist and Cppcheck. Refactoring Texture2D class.
 Sat 02.05.2015 - 1h - Refactoring Texture2D class.
-Sat 09.05.2015 - 8h - Added RenderTargetTexture2D and RenderTargetDepthTexture2D. Refactored tests for Texture2D.
+Sat 09.05.2015 - 8h - Added RenderTargeTexture2D and RenderTargetDepthTexture2D. Refactored tests for Texture2D.
 Sun 10.05.2015 - 3h - Refactoring Texture2D tests, planning on refactoring of Direct3DRenderer into 3 renderers. 
 Mon 11.05.2015 - 2h - Added Direct3DRendererCore.
 Wed 13.05.2015 - 2h - Added Direct3DDeferredRenderer.
@@ -147,7 +147,7 @@ Tue 08.12.2015 - 5h - Added Light, PointLight classes. Prepared light bulb mesh 
 Wed 09.12.2015 - 1h - Unified all parsers to use iterators as params. Removed 'file type identifier' checks from parsers.
 Thu 10.12.2015 - 6h - Fixed problem with UnitTests project having different current path than Engine1 project. Added loading a scene on drag&drop, saving on Ctrl + S. Separated main rendering code into Renderer class.
 Sun 27.12.2015 - 4h - Added RaytraceRenderer, ComputeShader classes. Fixed remembering of currently bound shader in RendererCore class. Compiled some trivial compute shader. Read code samples for writing to texture from compute shader.
-Mod 28.12.2015 - 3h - Added ComputeTargetTexture2D class. Fixed remembering of currently bound render targets. Added unbinding shaders, render targets, buffers etc.
+Mod 28.12.2015 - 3h - Added ComputeTargeTexture2D class. Fixed remembering of currently bound render targets. Added unbinding shaders, render targets, buffers etc.
 Tue 29.12.2015 - 3h - Successfully run a compute shader. Some testing and learning on compute shader thread ids. Added a method to generate primary rays in compute shader.
 Wed 30.12.2015 - 4h - Passed camera state to the compute shader and generated the primary rays. Added an ability to switch views on keyboard button (albedo, normal, reflection etc). Started creating raytracing shader.
 Thu 31.12.2015 - 6h - Managed to read texture in CS and write to uav in one shader. Raytraced first bounding box in CS. Discovering ways to pass vertex buffer to the compute shader (as vertex buffer can't be used as a shader reasource).
@@ -174,7 +174,7 @@ Sat 27.02.2016 - 2h - Creating new texture class - writing tests. Adding static 
 Mon 29.02.2016 - 2h - Creating new texture class - writing tests.
 --- February 2016 - 35h
 Tue 01.03.2016 - 2h - Creating new texture class - trying to write a cast operator from texture with specific binding to a texture with no bindings.
-Sun 13.03.2016 - 2h - Creating new texture class - Modified TTexture2DInternal class to not use TexUsage and TexBind as template arguments, but take them as arguments in 'initialize' method. This allowed creating derived class which takes only TexUsage as template argument (to be used in containers etc).
+Sun 13.03.2016 - 2h - Creating new texture class - Modified Texture2DInternal class to not use TexUsage and TexBind as template arguments, but take them as arguments in 'initialize' method. This allowed creating derived class which takes only TexUsage as template argument (to be used in containers etc).
 Mon 14.03.2016 - 2h - Creating new texture class - Renamed texture classes. Added new tests and improved existing tests.
 Tue 15.03.2016 - 3h - Creating new texture class - started swapping old texture with the new one. Separated staging textures from normal textures.
 Wed 23.03.2016 - 1h - Creating new texture class - found a way to implement the texture class - use constructor generation from base class (new feature in C++11).
@@ -257,3 +257,6 @@ Sun 21.08.2016 - 5h - Fixed a bug with wrong default normal texture in raytrace 
 Sat 27.08.2016 - 1h - Added staging texture class.
 Mon 29.08.2016 - 1h - Added debug display of screen pixel color at the cursor position.
 Wed 31.08.2016 - 5h - Added debug display of texture pixel color of various types (float, float4, uchar4 etc) and debug display of refraction index of the whole set of textures. Fixed incorrect refractive index values when generating refracted rays. Added support for variable resolution.
+Thu 01.08.2016 - 2h - Adding support for variable resolution depanding on reflection/refraction level.
+Tue 06.08.2016 - 3h - Reorganizing libraries - moving libraries and includes inside the project folder. Removing DirectX SDK - using Windows SDK instead.
+Wed 07.08.2016 - 1h - Fixed pojects setup.

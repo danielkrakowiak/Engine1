@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -50,7 +50,7 @@ namespace Engine1
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
                              const std::vector< std::shared_ptr< Light > >& lights );
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > getColorRenderTarget();
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > getColorRenderTarget();
 
         private:
 
@@ -64,7 +64,7 @@ namespace Engine1
         // Render targets.
         int m_imageWidth, m_imageHeight;
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_colorRenderTarget;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_colorRenderTarget;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -32,7 +32,7 @@ namespace Engine1
         void performEdgeDetection( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture );
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > getValueRenderTarget();
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > getValueRenderTarget();
 
         private:
 
@@ -46,13 +46,13 @@ namespace Engine1
         // Render targets.
         int m_imageWidth, m_imageHeight;
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTarget0;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTarget1;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTarget0;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTarget1;
 
         void swapSrcDestRenderTargets();
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTargetSrc;
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTargetDest;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTargetSrc;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTargetDest;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

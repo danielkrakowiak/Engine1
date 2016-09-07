@@ -2,7 +2,7 @@
 
 #include "FragmentShader.h"
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -31,7 +31,9 @@ namespace Engine1
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture,
                             const float normalThreshold,
-                            const float positionThreshold );
+                            const float positionThreshold,
+                            const int contributionTextureFilledWidth, const int contributionTextureFilledHeight,
+                            const int srcTextureFilledWidth, const int srcTextureFilledHeight );
 
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
@@ -45,7 +47,9 @@ namespace Engine1
             float  positionThresholdSquare;
             float3 padding2;
             float2 imageSize;
-            float2 padding4;
+            float2 contributionTextureFillSize;
+            float2 srcTextureFillSize;
+            float2 padding3;
         };
 
         int m_resourceCount;

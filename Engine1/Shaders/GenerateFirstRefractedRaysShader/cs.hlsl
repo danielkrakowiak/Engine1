@@ -1,5 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+SamplerState g_linearSamplerState : register( s0 );
+
 cbuffer ConstantBuffer
 {
     float3 cameraPos;
@@ -12,6 +14,8 @@ cbuffer ConstantBuffer
     float  pad4;
     float2 viewportSizeHalf;
     float2 pad5;
+    float2 outputTextureSize;
+    float2 pad6;
 };
 
 // Input.
@@ -46,13 +50,15 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
+    const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
+
     const float2 pixelPos = (float2)dispatchThreadId.xy;
 
-    const float3 surfacePosition            = g_surfacePosition[ dispatchThreadId.xy ].xyz;
-    const float  surfaceRoughness           = g_surfaceRoughness[ dispatchThreadId.xy ];
-    const float  surfaceRefractiveIndexNorm = g_surfaceRefractiveIndex[dispatchThreadId.xy];
+    const float3 surfacePosition            = g_surfacePosition.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
+    const float  surfaceRoughness           = g_surfaceRoughness.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
+    const float  surfaceRefractiveIndexNorm = g_surfaceRefractiveIndex.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
     const float  surfaceRefractiveIndex     = 1.0f + surfaceRefractiveIndexNorm * refractiveIndexMul;
-    const float3 contributionTerm           = g_contributionTerm[ dispatchThreadId.xy ].xyz;
+    const float3 contributionTerm           = g_contributionTerm.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
     // TODO: Could be otpimized to check only roughness (not position). Roughness buffer needs to be filled with maximal value at the beginning of each frame.
     if ( !any( surfacePosition ) || dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm || surfaceRoughness > 0.999f ) { // If all position components are zeros or roughness is maximal - there is no reflected ray.
@@ -63,7 +69,7 @@ void main( uint3 groupId : SV_GroupID,
 
     const float3 primaryRayDir = getPrimaryRayDirection( pixelPos );
 
-    float3 surfaceNormal = g_surfaceNormal[ dispatchThreadId.xy ].xyz;
+    float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
     const bool frontHit = dot( primaryRayDir, surfaceNormal ) < 0.0f;
 

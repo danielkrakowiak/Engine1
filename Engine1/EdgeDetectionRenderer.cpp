@@ -98,7 +98,7 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
     m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > EdgeDetectionRenderer::getValueRenderTarget()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > EdgeDetectionRenderer::getValueRenderTarget()
 {
     return m_valueRenderTargetDest;
 }
@@ -112,10 +112,10 @@ void EdgeDetectionRenderer::swapSrcDestRenderTargets()
 
 void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    m_valueRenderTargetDest = m_valueRenderTarget0 = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+    m_valueRenderTargetDest = m_valueRenderTarget0 = std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 
-    m_valueRenderTargetSrc = m_valueRenderTarget1 = std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+    m_valueRenderTargetSrc = m_valueRenderTarget1 = std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 }
 

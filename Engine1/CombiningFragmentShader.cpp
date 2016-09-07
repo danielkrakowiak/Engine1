@@ -3,7 +3,7 @@
 #include "StringUtil.h"
 
 #include <d3d11.h>
-#include <d3dx11async.h>
+#include <d3dcompiler.h>
 
 #include "uchar4.h"
 
@@ -34,8 +34,8 @@ void CombiningFragmentShader::compileFromFile( std::string path, ID3D11Device& d
 		flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
 		#endif
 
-		result = D3DX11CompileFromFile( StringUtil::widen( path ).c_str( ), nullptr, nullptr, "main", "ps_5_0", flags, 0, nullptr,
-										shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf(), nullptr );
+		result = D3DCompileFromFile( StringUtil::widen( path ).c_str( ), nullptr, nullptr, "main", "ps_5_0", flags, 0,
+										shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
 		if ( result < 0 ) {
 			if ( errorMessage ) {
 				std::string compileMessage( (char*)( errorMessage->GetBufferPointer() ) );
@@ -120,7 +120,9 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
                                              const float normalThreshold,
                                              const float positionThreshold,
-                                             const float3 cameraPosition )
+                                             const float3 cameraPosition,
+                                             const int contributionTextureFilledWidth, const int contributionTextureFilledHeight,
+                                             const int srcTextureFilledWidth, const int srcTextureFilledHeight )
 {
     { // Set input textures.
         m_resourceCount = 6;
@@ -145,10 +147,12 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-    dataPtr->normalThreshold         = normalThreshold;
-    dataPtr->positionThresholdSquare = positionThreshold * positionThreshold;
-    dataPtr->cameraPosition          = cameraPosition;
-    dataPtr->imageSize               = float2( (float)srcTexture->getWidth(), (float)srcTexture->getHeight() );
+    dataPtr->normalThreshold             = normalThreshold;
+    dataPtr->positionThresholdSquare     = positionThreshold * positionThreshold;
+    dataPtr->cameraPosition              = cameraPosition;
+    dataPtr->imageSize                   = float2( (float)srcTexture->getWidth(), (float)srcTexture->getHeight() );
+    dataPtr->contributionTextureFillSize = float2( (float)contributionTextureFilledWidth, (float)contributionTextureFilledHeight );
+    dataPtr->srcTextureFillSize          = float2( (float)srcTextureFilledWidth, (float)srcTextureFilledHeight );
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

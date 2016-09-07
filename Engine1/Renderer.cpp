@@ -329,15 +329,23 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
     // Generate mipmaps for the shaded, reflected image.
     m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
+    const int contributionTextureFillWidth  = m_deferredRenderer.getPositionRenderTarget()->getWidth();
+    const int contributionTextureFillHeight = m_deferredRenderer.getPositionRenderTarget()->getHeight();
+
+    const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
+    const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
+
     // Combine main image with reflections.
     m_combiningRenderer.combine( m_finalRenderTarget, 
-                               m_shadingRenderer.getColorRenderTarget(), 
-                               m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-                               m_deferredRenderer.getNormalRenderTarget(), 
-                                m_deferredRenderer.getPositionRenderTarget(), 
-                                m_deferredRenderer.getDepthRenderTarget(), 
-                                m_raytraceRenderer.getRayHitDistanceTexture( 0 ),
-                                camera.getPosition() );
+                                 m_shadingRenderer.getColorRenderTarget(), 
+                                 m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
+                                 m_deferredRenderer.getNormalRenderTarget(), 
+                                 m_deferredRenderer.getPositionRenderTarget(), 
+                                 m_deferredRenderer.getDepthRenderTarget(), 
+                                 m_raytraceRenderer.getRayHitDistanceTexture( 0 ),
+                                 camera.getPosition(),
+                                 contributionTextureFillWidth, contributionTextureFillHeight,
+                                 colorTextureFillWidth, colorTextureFillHeight );
 }
 
 void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
@@ -371,6 +379,12 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
     // Generate mipmaps for the shaded, reflected image.
     m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
+    const int contributionTextureFillWidth  = m_deferredRenderer.getPositionRenderTarget()->getWidth();
+    const int contributionTextureFillHeight = m_deferredRenderer.getPositionRenderTarget()->getHeight();
+
+    const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
+    const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
+
     // Combine main image with refractions.
     m_combiningRenderer.combine( m_finalRenderTarget, 
                                m_shadingRenderer.getColorRenderTarget(), 
@@ -379,7 +393,9 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                m_deferredRenderer.getPositionRenderTarget(), 
                                m_deferredRenderer.getDepthRenderTarget(), 
                                m_raytraceRenderer.getRayHitDistanceTexture( 0 ),
-                               camera.getPosition() );
+                               camera.getPosition(),
+                               contributionTextureFillWidth, contributionTextureFillHeight,
+                               colorTextureFillWidth, colorTextureFillHeight );
 }
 
 void Renderer::renderReflections( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
@@ -410,6 +426,12 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
     // Generate mipmaps for the shaded, reflected image.
     m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
+    const int contributionTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getWidth();
+    const int contributionTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getHeight();
+
+    const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
+    const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
+
     m_combiningRenderer.combine( m_finalRenderTarget, 
                                m_shadingRenderer.getColorRenderTarget(), 
                                m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
@@ -417,7 +439,9 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
                                m_raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
                                m_deferredRenderer.getDepthRenderTarget(), 
                                m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ),
-                               camera.getPosition() );
+                               camera.getPosition(),
+                               contributionTextureFillWidth, contributionTextureFillHeight,
+                               colorTextureFillWidth, colorTextureFillHeight );
 }
 
 void Renderer::renderRefractions( const int level, const int refractionLevel, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
@@ -447,6 +471,12 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
     // Generate mipmaps for the shaded, reflected image.
     m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
+    const int contributionTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getWidth();
+    const int contributionTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getHeight();
+
+    const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
+    const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
+
     m_combiningRenderer.combine( m_finalRenderTarget, 
                                m_shadingRenderer.getColorRenderTarget(), 
                                m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
@@ -454,7 +484,9 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
                                m_raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
                                m_deferredRenderer.getDepthRenderTarget(), 
                                m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ),
-                               camera.getPosition() );
+                               camera.getPosition(),
+                               contributionTextureFillWidth, contributionTextureFillHeight,
+                               colorTextureFillWidth, colorTextureFillHeight );
 }
 
 void Renderer::setActiveViewType( const View view )
@@ -499,11 +531,11 @@ int Renderer::getMaxLevelCount() const
 
 void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    m_finalRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
+    m_finalRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
-const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& Renderer::debugGetCurrentRefractiveIndexTextures()
+const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& Renderer::debugGetCurrentRefractiveIndexTextures()
 {
     return m_raytraceRenderer.getCurrentRefractiveIndexTextures();
 }

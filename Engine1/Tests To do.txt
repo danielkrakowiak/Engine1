@@ -18,7 +18,7 @@
 	- tests for all copyable classes to check whether copying is correct
 	- parsing skeleton animation files
 10.05.2015
-	- tests for Texture2D, RenderTargetTexture2D, RenderTargetDepthTexture2D
+	- tests for Texture2D, RenderTargeTexture2D, RenderTargetDepthTexture2D
 06.11.2015
 	- tests for loading/saving Texture2D file info, BlockMesh, SkeletonMesh file info, BlockModel, SkeletonModel from binary.
 11.11.2015

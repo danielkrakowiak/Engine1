@@ -60,7 +60,10 @@ void ShadingRenderer::performShading( const Camera& camera,
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    const int imageWidth  = positionTexture->getWidth();
+    const int imageHeight = positionTexture->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -90,7 +93,10 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    const int imageWidth  = rayOriginTexture->getWidth();
+    const int imageHeight = rayOriginTexture->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -99,14 +105,14 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
     m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > ShadingRenderer::getColorRenderTarget()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > ShadingRenderer::getColorRenderTarget()
 {
     return m_colorRenderTarget;
 }
 
 void ShadingRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    m_colorRenderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
+    m_colorRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 

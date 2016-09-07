@@ -289,9 +289,6 @@
     <Filter Include="Header Files\Shader\TextureRescale">
       <UniqueIdentifier>{22885fb1-8f59-456f-ae79-3faf97e19e85}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Shader\GenerateFirstReflectedRefractedRays">
-      <UniqueIdentifier>{868a2301-3bb6-4cb7-93f3-dce774de2875}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Shader\GenerateReflectedRefractedRays">
       <UniqueIdentifier>{9105f580-caf7-4b31-b0fa-2cb1253cd105}</UniqueIdentifier>
     </Filter>
@@ -324,6 +321,9 @@
     </Filter>
     <Filter Include="Source Files\Shader\GenerateFirstReflectedRays">
       <UniqueIdentifier>{bf5a5b0f-8e03-4525-ad9b-0ef3a2be9beb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\GenerateFirstReflectedRays">
+      <UniqueIdentifier>{868a2301-3bb6-4cb7-93f3-dce774de2875}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -664,7 +664,7 @@
       <Filter>Header Files\Shader\GenerateReflectedRefractedRays</Filter>
     </ClInclude>
     <ClInclude Include="GenerateFirstReflectedRaysComputeShader.h">
-      <Filter>Header Files\Shader\GenerateFirstReflectedRefractedRays</Filter>
+      <Filter>Header Files\Shader\GenerateFirstReflectedRays</Filter>
     </ClInclude>
     <ClInclude Include="GenerateFirstRefractedRaysComputeShader.h">
       <Filter>Header Files\Shader\GenerateFirstRefractedRays</Filter>
@@ -696,10 +696,10 @@
     <ClInclude Include="Texture2DSpecUsage.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="TTexture2D.h">
+    <ClInclude Include="StagingTexture2D.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="StagingTexture2D.h">
+    <ClInclude Include="Texture2D.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1049,7 +1049,7 @@
     <ClCompile Include="RefractionShadingComputeShader2.cpp">
       <Filter>Source Files\Shader\RefractionShading</Filter>
     </ClCompile>
-    <ClCompile Include="TTexture2D.cpp">
+    <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
   </ItemGroup>

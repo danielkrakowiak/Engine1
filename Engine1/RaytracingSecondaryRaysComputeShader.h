@@ -10,7 +10,7 @@
 #include "float4.h"
 #include "float44.h"
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -42,7 +42,8 @@ namespace Engine1
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture );
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture,
+                            const int outputTextureWidth, const int outputTextureHeight );
 
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
@@ -57,6 +58,8 @@ namespace Engine1
             float   pad1;
             float3  boundingBoxMax;
             float   pad2;
+            float2  outputTextureSize;
+            float2  pad3;
         };
 
         Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;

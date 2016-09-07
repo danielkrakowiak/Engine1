@@ -4,7 +4,7 @@
 #include "BlockMesh.h"
 
 #include <d3d11.h>
-#include <d3dx11async.h>
+#include <d3dcompiler.h>
 
 using namespace Engine1;
 
@@ -32,8 +32,8 @@ void RaytracingSecondaryRaysComputeShader::compileFromFile( std::string path, ID
         // TODO: Find out why and modify shader code with optimization attributes (such as [branch] etc).
         flags |= D3D10_SHADER_SKIP_OPTIMIZATION;
 
-        result = D3DX11CompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "cs_5_0", flags, 0, nullptr,
-                                        shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf(), nullptr );
+        result = D3DCompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "cs_5_0", flags, 0,
+                                        shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
         if ( result < 0 ) {
             if ( errorMessage ) {
                 std::string compileMessage( (char*)(errorMessage->GetBufferPointer()) );
@@ -101,7 +101,8 @@ void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& d
                                                           const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
                                                           const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
                                                           const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                                                          const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture )
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture,
+                                                          const int outputTextureWidth, const int outputTextureHeight )
 {
     if ( !m_compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
@@ -141,8 +142,9 @@ void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& d
 
         dataPtr->localToWorldMatrix = float44( worldMatrix ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
         dataPtr->worldToLocalMatrix = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
-        dataPtr->boundingBoxMin = boundingBoxMin;
-        dataPtr->boundingBoxMax = boundingBoxMax;
+        dataPtr->boundingBoxMin     = boundingBoxMin;
+        dataPtr->boundingBoxMax     = boundingBoxMax;
+        dataPtr->outputTextureSize  = float2( (float)outputTextureWidth, (float)outputTextureHeight );
 
         // Padding.
         dataPtr->pad1 = 0.0f;

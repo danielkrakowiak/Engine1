@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -64,7 +64,7 @@ namespace Engine1
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture );
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > getContributionTermRoughnessTarget( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > getContributionTermRoughnessTarget( int level );
 
         private:
 
@@ -80,7 +80,7 @@ namespace Engine1
         // Render targets.
         int m_imageWidth, m_imageHeight;
         
-        std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > > m_contributionTermRoughnessRenderTargets;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > > m_contributionTermRoughnessRenderTargets;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

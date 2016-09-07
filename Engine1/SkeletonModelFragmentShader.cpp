@@ -3,7 +3,7 @@
 #include "StringUtil.h"
 
 #include <d3d11.h>
-#include <d3dx11async.h>
+#include <d3dcompiler.h>
 
 #include "uchar4.h"
 
@@ -31,8 +31,8 @@ void SkeletonModelFragmentShader::compileFromFile( std::string path, ID3D11Devic
 		flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
 #endif
 
-		result = D3DX11CompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "ps_5_0", flags, 0, nullptr,
-										shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf(), nullptr );
+		result = D3DCompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "ps_5_0", flags, 0,
+										shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
 		if ( result < 0 ) {
 			if ( errorMessage ) {
 				std::string compileMessage( (char*)( errorMessage->GetBufferPointer() ) );

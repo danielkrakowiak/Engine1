@@ -44,13 +44,13 @@ namespace Engine1
 
         void reportLiveObjects();
 
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char >&  texture, float posX, float posY );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >&         texture, float posX, float posY );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4 >&         texture, float posX, float posY );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float2  >&        texture, float posX, float posY );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float  >&         texture, float posX, float posY );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char >&  texture, float posX, float posY, float width, float height );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >&         texture, float posX, float posY, float width, float height );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4 >&         texture, float posX, float posY, float width, float height );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float2  >&        texture, float posX, float posY, float width, float height );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float  >&         texture, float posX, float posY, float width, float height );
 
-        void renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >& texture, float posX, float posY );
+        void renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >& texture, float posX, float posY, float width, float height );
 
         void displayFrame();
 
@@ -88,7 +88,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
         Microsoft::WRL::ComPtr<ID3D11BlendState>      m_blendState;
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > > m_renderTarget;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > > m_renderTarget;
 
         // Default mesh.
         RectangleMesh rectangleMesh;

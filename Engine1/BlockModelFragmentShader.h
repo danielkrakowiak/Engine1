@@ -2,7 +2,7 @@
 
 #include "FragmentShader.h"
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 struct ID3D11SamplerState;
 

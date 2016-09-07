@@ -184,7 +184,7 @@ Next2:
 	- Change naming convention: use m_ in class members.
 	- use ComPtr wherever possible instead of raw pointers.
 	- use short "Idx" for "index" in the whole code + shaders.
-	- rename TTexture2D to Texture2D
+	- rename Texture2D to Texture2D
 
 	- add uint type, which would be just a typedef for unsigned int - could be in math in separate header file.
 	- rename "ReflectedRefracted..." shader names to "SecondaryRays...".
@@ -314,4 +314,18 @@ Idea:
 	  Because it only happens like that if refraction occurs first, and then reflection/refraction. But if reflection is fisrt, then these shaders/classes are not used at all. What kind of bugs can result from this.
 	  Rename shader and classes and replace word "first" with something else.
 
-	  - support for any resolution.
+	  - support for any resolution. - almost done. Something wrong with higher level reflections/refractions. Maybe the contribution term fill size etc? And there is no refractions...
+	  - reflection/refraction shading renderers also have some buffers which should have lower resolution. Account for that and downsize them to the same size as raytracer's buffers.
+	  - should reflection/refraction shading use integer texcoords? As it's input the same size as output always?
+
+	  - suport for any resolution - part 2 - lower resolution should be accounted for correctly in combining shader to avoid increasing roughness globally (as it happens right now).
+
+	  - 
+
+
+	  LATER:
+
+	  - mipmapping
+	  - loading meshes split by material
+	  - own mesh format
+	  - combining meshes

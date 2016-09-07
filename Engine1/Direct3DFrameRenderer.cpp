@@ -12,7 +12,6 @@
 #include <dxgi.h>
 #include <d3dcommon.h>
 #include <d3d11.h>
-#include <d3dx10math.h>
 
 using namespace Engine1;
 
@@ -59,7 +58,7 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 		ComPtr<IDXGIAdapter> adapter;
 		HRESULT result;
 
-		result = CreateDXGIFactory( __uuidof( IDXGIFactory ), (void**)factory.ReleaseAndGetAddressOf() );
+		result = CreateDXGIFactory1( __uuidof( IDXGIFactory ), (void**)factory.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "Direct3DRenderer::initialize - creation of DXGIFactory failed" );
 
 		result = factory->EnumAdapters( 0, adapter.ReleaseAndGetAddressOf() );
@@ -75,7 +74,7 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 	{ // Initialize render target.
         ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *m_swapChain.Get() );
 
-        m_renderTarget = std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > >
+        m_renderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > >
             ( *m_device.Get(), backbufferTexture );
 	}
 
@@ -318,12 +317,12 @@ void Direct3DFrameRenderer::loadAndCompileShaders( ID3D11Device& device )
 	m_textFragmentShader->compileFromFile( "Shaders/TextShader/ps.hlsl", device );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY, float width, float height )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)m_screenWidth );
-	float height = ( texture.getHeight() / (float)m_screenHeight );
+	float relativeWidth  = ( width / (float)m_screenWidth );
+	float relativeHeight = ( height / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -337,7 +336,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	}
 
 	{ // Configure and enable shaders.
-		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
 		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
@@ -351,12 +350,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)m_screenWidth );
-	float height = ( texture.getHeight() / (float)m_screenHeight );
+    float relativeWidth  = ( width / (float)m_screenWidth );
+    float relativeHeight = ( height / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -370,7 +369,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	}
 
 	{ // Configure and enable shaders.
-		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
 		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
@@ -384,12 +383,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY, float width, float height )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)m_screenWidth );
-	float height = ( texture.getHeight() / (float)m_screenHeight );
+    float relativeWidth  = ( width / (float)m_screenWidth );
+    float relativeHeight = ( height / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -403,7 +402,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	}
 
 	{ // Configure and enable shaders.
-		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
 		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
@@ -417,12 +416,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY, float width, float height )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)m_screenWidth );
-	float height = ( texture.getHeight() / (float)m_screenHeight );
+    float relativeWidth  = ( width / (float)m_screenWidth );
+    float relativeHeight = ( height / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -436,7 +435,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	}
 
 	{ // Configure and enable shaders.
-		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
 		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
@@ -450,12 +449,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY, float width, float height )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)m_screenWidth );
-	float height = ( texture.getHeight() / (float)m_screenHeight );
+    float relativeWidth  = ( width / (float)m_screenWidth );
+    float relativeHeight = ( height / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -469,7 +468,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	}
 
 	{ // Configure and enable shaders.
-		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
 		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
@@ -483,12 +482,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY )
+void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
-	float width = ( texture.getWidth() / (float)m_screenWidth );
-	float height = ( texture.getHeight() / (float)m_screenHeight );
+    float relativeWidth  = ( width / (float)m_screenWidth );
+    float relativeHeight = ( height / (float)m_screenHeight );
 
 
 	{ // Enable render targets.
@@ -502,7 +501,7 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind:
 	}
 
 	{ // Configure and enable shaders.
-		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, width, height );
+		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
 		m_textureAlphaFragmentShader->setParameters( *m_deviceContext.Get(), texture );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureAlphaFragmentShader );

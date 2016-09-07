@@ -4,7 +4,7 @@
 
 #include "float4.h"
 #include "uchar4.h"
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 namespace Engine1
 {

@@ -10,7 +10,7 @@
 #include "float4.h"
 #include "float44.h"
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;

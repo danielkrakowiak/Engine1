@@ -1,8 +1,7 @@
 #include "ComputeShader.h"
 
 #include <d3d11.h>
-#include <d3dx10math.h>
-#include <d3dx11async.h>
+#include <d3dcompiler.h>
 
 using namespace Engine1;
 

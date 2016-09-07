@@ -64,7 +64,10 @@ void ReflectionRefractionShadingRenderer::performFirstReflectionShading( const C
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    const int imageWidth  = positionTexture->getWidth();
+    const int imageHeight = positionTexture->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -92,7 +95,10 @@ void ReflectionRefractionShadingRenderer::performReflectionShading( const int le
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    const int imageWidth  = positionTexture->getWidth();
+    const int imageHeight = positionTexture->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -119,7 +125,10 @@ void ReflectionRefractionShadingRenderer::performFirstRefractionShading( const C
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    const int imageWidth  = positionTexture->getWidth();
+    const int imageHeight = positionTexture->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -147,7 +156,10 @@ void ReflectionRefractionShadingRenderer::performRefractionShading( const int le
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    const int imageWidth  = positionTexture->getWidth();
+    const int imageHeight = positionTexture->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -156,7 +168,7 @@ void ReflectionRefractionShadingRenderer::performRefractionShading( const int le
     m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > ReflectionRefractionShadingRenderer::getContributionTermRoughnessTarget( int level )
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > ReflectionRefractionShadingRenderer::getContributionTermRoughnessTarget( int level )
 {
     if ( level < 0 || level >= m_contributionTermRoughnessRenderTargets.size() )
         throw std::exception( "ReflectionRefractionShadingRenderer::getContributionTermTarget - level out of bounds or negative." );
@@ -170,7 +182,7 @@ void ReflectionRefractionShadingRenderer::createRenderTargets( int imageWidth, i
 
     for ( int i = 0; i < maxRenderTargetCount; ++i )
     {
-        m_contributionTermRoughnessRenderTargets.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
+        m_contributionTermRoughnessRenderTargets.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM ) );
     }
     

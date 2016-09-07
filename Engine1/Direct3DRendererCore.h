@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 #include "StagingTexture2D.h"
 
 #include "uint3.h"
@@ -89,16 +89,16 @@ namespace Engine1
 
         void disableShaderInputs();
 
-        void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
+        void copyTexture( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture );
 
-        void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > destTexture,
+        void copyTexture( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > destTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > srcTexture );
 
-        void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > destTexture,
+        void copyTexture( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > destTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > srcTexture );
 
-        void copyTexture( std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, const int destMipmap,
+        void copyTexture( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, const int destMipmap,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, const int srcMipmap );
 
         template< typename T >

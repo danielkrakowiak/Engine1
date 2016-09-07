@@ -110,7 +110,7 @@ void Application::createDebugFrames( int imageWidth, int imageHeight, Microsoft:
 
 void Application::createUcharDisplayFrame( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device )
 {
-    ucharDisplayFrame = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
+    ucharDisplayFrame = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
         ( *device.Get(), imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM );
 }
 
@@ -274,7 +274,7 @@ void Application::run() {
         if ( m_windowFocused && !movingObjects && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
             const float cameraRotationSensitivity = 0.0001f;
 
-            const float acceleration = 2.0f;
+            const float acceleration = 5.0f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) ) m_camera.accelerateForward( (float)frameTimeMs * acceleration );
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_camera.accelerateReverse( (float)frameTimeMs * acceleration );
@@ -359,10 +359,12 @@ void Application::run() {
 
         const int2 mousePos = m_inputManager.getMousePos();
 
+        try 
+        {
         if ( frameUchar ) 
         {
             m_rendererCore.copyTexture( ucharDisplayFrame, frameUchar );
-		    m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f );
+		    m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
 
             if ( m_inputManager.isMouseButtonPressed(0) ) 
                 debugDisplayTextureValue( *frameUchar, mousePos.x, mousePos.y );
@@ -370,27 +372,27 @@ void Application::run() {
         else if ( frameUchar4 )
         {
             if ( m_debugRenderAlpha )
-		        m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f );
+		        m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
             else
-                m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f );
+                m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
 
             if ( m_inputManager.isMouseButtonPressed( 0 ) )
                 debugDisplayTextureValue( *frameUchar4, mousePos.x, mousePos.y );
         } 
         else if ( frameFloat4 )
         {
-            m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f );
+            m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
 
             if ( m_inputManager.isMouseButtonPressed( 0 ) )
                 debugDisplayTextureValue( *frameFloat4, mousePos.x, mousePos.y );
         }
         else if ( frameFloat2 )
         {
-            m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f );
+            m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
         }
         else if ( frameFloat ) 
         {
-            m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f );
+            m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
 
             if ( m_inputManager.isMouseButtonPressed( 0 ) )
                 debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
@@ -400,6 +402,9 @@ void Application::run() {
         {
             debugDisplayTexturesValue( m_renderer.debugGetCurrentRefractiveIndexTextures(), mousePos.x, mousePos.y );
         }
+        }
+        catch( ... )
+        {}
 
 		m_frameRenderer.displayFrame();
 
@@ -451,7 +456,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& te
     setWindowTitle( "float: (" + std::to_string( pixelColor.x ) + ", " + std::to_string( pixelColor.y ) + ", " + std::to_string( pixelColor.z ) + ", " + std::to_string( pixelColor.w ) + ")" );
 }
 
-void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y )
+void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y )
 {
     std::string debugString = "ior: ";
 
@@ -724,7 +729,7 @@ void Application::onKeyPress( int key )
         m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );
     else if ( key == InputManager::Keys::minus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
         m_renderer.setMaxLevelCount( std::max( 0, m_renderer.getMaxLevelCount() - 1 ) );
-    else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
+    else if ( key == InputManager::Keys::plus /*&& m_inputManager.isKeyPressed( InputManager::Keys::r )*/ )
         m_renderer.activateNextViewLevel( true );
     else if ( key == InputManager::Keys::plus /*&& m_inputManager.isKeyPressed( InputManager::Keys::t )*/  )
         m_renderer.activateNextViewLevel( false );
@@ -1012,7 +1017,7 @@ void Application::onDragAndDropFile( std::string filePath )
 
 		if ( filePath.find( "_A." ) != std::string::npos ) 
         {
-            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
+            auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
             if ( m_selectedBlockActor ) {  
@@ -1031,7 +1036,7 @@ void Application::onDragAndDropFile( std::string filePath )
         } 
         else if ( filePath.find( "_AL." ) != std::string::npos ) 
         {
-            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
+            auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
             if ( m_selectedBlockActor ) {    
@@ -1050,7 +1055,7 @@ void Application::onDragAndDropFile( std::string filePath )
 		} 
         else if ( filePath.find( "_M." ) != std::string::npos ) 
         {
-            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
+            auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
             if ( m_selectedBlockActor ) {    
@@ -1069,7 +1074,7 @@ void Application::onDragAndDropFile( std::string filePath )
 		} 
         else if ( filePath.find( "_N." ) != std::string::npos ) 
         {
-            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
+            auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
             if ( m_selectedBlockActor ) {  
@@ -1088,7 +1093,7 @@ void Application::onDragAndDropFile( std::string filePath )
 		} 
         else if ( filePath.find( "_R." ) != std::string::npos ) 
         {
-            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
+            auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
             if ( m_selectedBlockActor ) {   
@@ -1107,7 +1112,7 @@ void Application::onDragAndDropFile( std::string filePath )
 		} 
         else if ( filePath.find( "_E." ) != std::string::npos ) 
         {
-            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
+            auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
             if ( m_selectedBlockActor ) {    
@@ -1126,7 +1131,7 @@ void Application::onDragAndDropFile( std::string filePath )
         } 
         else if ( filePath.find( "_I." ) != std::string::npos ) 
         {
-            auto texture = std::dynamic_pointer_cast< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
+            auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
             if ( m_selectedBlockActor ) {   

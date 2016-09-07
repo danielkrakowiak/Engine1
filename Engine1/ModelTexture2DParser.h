@@ -32,10 +32,10 @@ namespace Engine1
         {
             const DXGI_FORMAT defaultFormat = ModelTexture2DParser< PixelType >::getDefaultFormat();
 
-	        texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
+	        texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
                 ( device, fileInfo, true, true, true, defaultFormat, defaultFormat );
         } else {
-            texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >();
+            texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >();
             texture->setFileInfo( fileInfo );
         }
 

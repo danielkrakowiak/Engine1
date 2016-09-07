@@ -8,6 +8,8 @@ cbuffer ConstantBuffer : register( b0 )
     float    pad1;
     float3   boundingBoxMax; // In local space.
     float    pad2;
+    float2   outputTextureSize;
+    float2   pad3;
 };
 
 // Input.
@@ -66,13 +68,15 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float3 rayDir = g_rayDirections[ dispatchThreadId.xy ].xyz;
+    const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
+
+    const float3 rayDir = g_rayDirections.SampleLevel( g_samplerState, texcoords, 0.0f ).xyz;
 
     // Stop tracing the ray if it is inactive (dir is zero).
     if ( !any( rayDir ) )
         return;
 
-    const float3 rayOrigin = g_rayOrigins[ dispatchThreadId.xy ].xyz;
+    const float3 rayOrigin = g_rayOrigins.SampleLevel( g_samplerState, texcoords, 0.0f ).xyz;
     
     // Transform the ray from world to local space.
 	const float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.

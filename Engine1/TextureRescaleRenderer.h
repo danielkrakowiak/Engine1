@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 #include "uchar4.h"
 #include "float2.h"

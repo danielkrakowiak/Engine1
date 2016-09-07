@@ -1,5 +1,13 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+SamplerState g_linearSamplerState : register( s0 );
+
+cbuffer ConstantBuffer
+{
+    float2 outputTextureSize;
+    float2 pad1;
+};
+
 // Input.
 Texture2D<float4> g_raysDirection    : register( t0 );
 Texture2D<float4> g_surfacePosition  : register( t1 );
@@ -28,11 +36,13 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
+    const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
+
     const float2 pixelPos = (float2)dispatchThreadId.xy;
 
-    const float3 surfacePosition  = g_surfacePosition[ dispatchThreadId.xy ].xyz;
-    const float  surfaceRoughness = g_surfaceRoughness[ dispatchThreadId.xy ];
-    const float3 contributionTerm = g_contributionTerm[ dispatchThreadId.xy ].xyz;
+    const float3 surfacePosition  = g_surfacePosition.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
+    const float  surfaceRoughness = g_surfaceRoughness.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
+    const float3 contributionTerm = g_contributionTerm.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
     // TODO: Could be otpimized to check only roughness (not position). Roughness buffer needs to be filled with maximal value at the beginning of each frame.
     if ( !any( surfacePosition ) || dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm || g_surfaceRoughness[ dispatchThreadId.xy ] > 0.999f ) { // If all position components are zeros or roughness is maximal - there is no reflected ray.
@@ -41,9 +51,9 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    const float3 rayDir = g_raysDirection[ dispatchThreadId.xy ].xyz;
+    const float3 rayDir = g_raysDirection.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
-    float3 surfaceNormal = g_surfaceNormal[ dispatchThreadId.xy ].xyz;
+    float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
     const bool frontHit = dot( rayDir, surfaceNormal ) < 0.0f;
 

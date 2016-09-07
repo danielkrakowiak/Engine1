@@ -17,6 +17,8 @@ cbuffer ConstantBuffer
     float3 cameraPosition;
     float  pad3;
     float2 imageSize;
+    float2 contributionTextureFillSize;
+    float2 srcTextureFillSize;
     float2 pad4;
 };
 
@@ -83,6 +85,18 @@ float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal );
 
 float4 main(PixelInputType input) : SV_Target
 {
+ //   const float3 contributionTermyyyyyyyy = float3( 0.5f, 0.5f, 0.5f ); //g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).rgb;
+    
+ //   float4 reflectionColoryyyyyy = float4( 0.0f, 0.0f, 0.0f, 1.0f );
+
+ //   reflectionColoryyyyyy.rgb += g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord * srcTextureFillSize / imageSize, 0.0f ).rgb;
+ //   float3 outputColoryyyyy = contributionTermyyyyyyyy * reflectionColoryyyyyy.rgb;
+	//return float4( outputColoryyyyy, 1.0f );
+
+
+    //////////////////////////////////
+
+
     const float depth = linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ) ); // Have to account for fov tanges?
 
     if ( depth > maxDepth )
@@ -127,7 +141,7 @@ float4 main(PixelInputType input) : SV_Target
     //    return float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
     const float roughnessMult = 75.0f;
-    const float roughness = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
+    const float roughness = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
     float blurRadius = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( depth + 1.0f ) );// * tan( roughness * PiHalf );
 
     //const float alpha = 1.0f - min( 1.0f,  max( 0.0f, blurRadius - blurRadiusFadeMin ) / ( blurRadiusFadeMax - blurRadiusFadeMin ) );
@@ -142,7 +156,7 @@ float4 main(PixelInputType input) : SV_Target
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
     const float3 centerPosition = g_positionTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
 
-    const float3 contributionTerm = g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).rgb;
+    const float3 contributionTerm = g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).rgb;
     
     float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 
@@ -179,7 +193,7 @@ float4 main(PixelInputType input) : SV_Target
 
     if ( /*samplingLevel2 <= 0.0001f*/ samplingRadius <= 0.0001f )
     {
-        reflectionColor.rgb = g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).rgb;
+        reflectionColor.rgb = g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord * srcTextureFillSize / imageSize, 0.0f ).rgb;
     }
     else
     {
@@ -233,7 +247,7 @@ float4 main(PixelInputType input) : SV_Target
                     // For test.
                     //const float neighborWeight = max( 0.0f, samplingRadius - sqrt(x*x + y*y) );
 
-                    reflectionColor.rgb += /*neighborWeight **/ g_colorTexture.SampleLevel( g_linearSamplerState, centerTexCoords + texCoordShift * 0.5f, samplingMipmapLevel /*samplingLevel2*/ ).rgb;
+                    reflectionColor.rgb += /*neighborWeight **/ g_colorTexture.SampleLevel( g_linearSamplerState, (centerTexCoords + texCoordShift * 0.5f)  * srcTextureFillSize / imageSize, samplingMipmapLevel /*samplingLevel2*/ ).rgb;
                     
                     sampleCount += /*neighborWeight;*/ 1.0f;
                 //}
@@ -244,7 +258,7 @@ float4 main(PixelInputType input) : SV_Target
             // Divide summed color by the number of samples.
             reflectionColor.rgb /= sampleCount;
         } else {
-            reflectionColor.rgb += g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).rgb;
+            reflectionColor.rgb += g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord * srcTextureFillSize / imageSize, 0.0f ).rgb;
         }
     }
 

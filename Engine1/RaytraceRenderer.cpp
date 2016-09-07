@@ -61,47 +61,47 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
 {
     for ( int i = 0; i < maxRenderTargetCount; ++i )
     {
-        m_rayOriginsTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
+        m_rayOriginsTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
                                      ( device, imageWidth, imageHeight, false, true, false,
                                        DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
-        m_rayDirectionsTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
+        m_rayDirectionsTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
                                         ( device, imageWidth, imageHeight, false, true, false,
                                           DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
-        m_rayHitPositionTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
+        m_rayHitPositionTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
                                          ( device, imageWidth, imageHeight, false, true, false,
                                            DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
-        m_rayHitDistanceTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >
+        m_rayHitDistanceTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >
                                          ( device, imageWidth, imageHeight, false, true, false,
                                            DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT ) );
 
-        m_rayHitEmissiveTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >
+        m_rayHitEmissiveTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >
                                          ( device, imageWidth, imageHeight, false, true, false,
                                            DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM ) );
 
-        m_rayHitAlbedoTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >
+        m_rayHitAlbedoTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >
                                        ( device, imageWidth, imageHeight, false, true, false,
                                          DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM ) );
 
-        m_rayHitMetalnessTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+        m_rayHitMetalnessTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
                                           ( device, imageWidth, imageHeight, false, true, false,
                                             DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM ) );
 
-        m_rayHitRoughnessTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+        m_rayHitRoughnessTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
                                           ( device, imageWidth, imageHeight, false, true, false,
                                             DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM ) );
 
-        m_rayHitRefractiveIndexTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+        m_rayHitRefractiveIndexTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
                                             ( device, imageWidth, imageHeight, false, true, false,
                                               DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM ) );
 
-        m_rayHitNormalTexture.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
+        m_rayHitNormalTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
                                        ( device, imageWidth, imageHeight, false, true, false,
                                          DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
-        m_currentRefractiveIndexTextures.push_back( std::make_shared< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+        m_currentRefractiveIndexTextures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
                                                   ( device, imageWidth, imageHeight, false, true, false,
                                                     DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM ) );
     }
@@ -121,7 +121,7 @@ void RaytraceRenderer::generatePrimaryRays( const Camera& camera )
 {
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
     const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
-    const float2 viewportSize    = float2( m_imageWidth, m_imageHeight );
+    const float2 viewportSize    = float2( (float)m_imageWidth, (float)m_imageHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
@@ -219,14 +219,20 @@ void RaytraceRenderer::generateFirstReflectedRays( const Camera& camera,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture )
 {
+    const int outputTextureWidth = m_rayOriginsTexture.at( 0 )->getWidth();
+    const int outputTextureHeight = m_rayOriginsTexture.at( 0 )->getHeight();
+
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
-    const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
-    const float2 viewportSize    = float2( m_imageWidth, m_imageHeight );
+    const float screenAspect     = (float)outputTextureWidth / (float)outputTextureHeight;
+    const float2 viewportSize    = float2( (float)outputTextureWidth, (float)outputTextureHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
 
-    m_generateFirstReflectedRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, *positionTexture, *normalTexture, *roughnessTexture, *contributionTermTexture );
+    m_generateFirstReflectedRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), 
+                                                              viewportCenter, viewportUp, viewportRight, viewportSize, 
+                                                              *positionTexture, *normalTexture, *roughnessTexture, *contributionTermTexture,
+                                                              outputTextureWidth, outputTextureHeight );
 
     m_rendererCore.enableComputeShader( m_generateFirstReflectedRaysComputeShader );
 
@@ -236,7 +242,7 @@ void RaytraceRenderer::generateFirstReflectedRays( const Camera& camera,
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( m_imageWidth / 32, m_imageHeight / 32, 1 );
+    uint3 groupCount( outputTextureWidth / 32, outputTextureHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -251,15 +257,20 @@ void RaytraceRenderer::generateFirstRefractedRays( const Camera& camera,
                                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
                                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture )
 {
+    const int outputTextureWidth = m_rayOriginsTexture.at( 0 )->getWidth();
+    const int outputTextureHeight = m_rayOriginsTexture.at( 0 )->getHeight();
+
     const float fieldOfView      = (float)MathUtil::pi / 4.0f;
-    const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
-    const float2 viewportSize    = float2( m_imageWidth, m_imageHeight );
+    const float screenAspect     = (float)outputTextureWidth / (float)outputTextureHeight;
+    const float2 viewportSize    = float2( (float)outputTextureWidth, (float)outputTextureHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
     const float3 viewportRight   = camera.getRight() * screenAspect * viewportUp.length();
     const float3 viewportCenter  = camera.getPosition() + camera.getDirection();
 
-    m_generateFirstRefractedRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), viewportCenter, viewportUp, viewportRight, viewportSize, 
-                                                              *positionTexture, *normalTexture, *roughnessTexture, *refractiveIndexTexture, *contributionTermTexture/*, getCurrentRefractiveIndexTextures()*/ );
+    m_generateFirstRefractedRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), 
+                                                              viewportCenter, viewportUp, viewportRight, viewportSize, 
+                                                              *positionTexture, *normalTexture, *roughnessTexture, *refractiveIndexTexture, *contributionTermTexture,
+                                                              outputTextureWidth, outputTextureHeight );
 
     m_rendererCore.enableComputeShader( m_generateFirstRefractedRaysComputeShader );
 
@@ -274,7 +285,7 @@ void RaytraceRenderer::generateFirstRefractedRays( const Camera& camera,
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-    uint3 groupCount( m_imageWidth / 32, m_imageHeight / 32, 1 );
+    uint3 groupCount( outputTextureWidth / 32, outputTextureHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -289,7 +300,12 @@ void RaytraceRenderer::generateReflectedRays( int level,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture )
 {
-    m_generateReflectedRaysComputeShader->setParameters( *m_deviceContext.Get(), *rayDirectionTexture, *rayHitPositionTexture, *rayHitNormalTexture, *rayHitRoughnessTexture, *contributionTermTexture );
+    const int outputTextureWidth  = m_rayOriginsTexture.at( level )->getWidth();
+    const int outputTextureHeight = m_rayOriginsTexture.at( level )->getHeight();
+
+    m_generateReflectedRaysComputeShader->setParameters( *m_deviceContext.Get(), *rayDirectionTexture, *rayHitPositionTexture,
+                                                         *rayHitNormalTexture, *rayHitRoughnessTexture, *contributionTermTexture,
+                                                         outputTextureWidth, outputTextureHeight );
 
     m_rendererCore.enableComputeShader( m_generateReflectedRaysComputeShader );
 
@@ -299,7 +315,7 @@ void RaytraceRenderer::generateReflectedRays( int level,
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
-    uint3 groupCount( m_imageWidth / 32, m_imageHeight / 32, 1 );
+    uint3 groupCount( outputTextureWidth / 32, outputTextureHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -321,6 +337,9 @@ void RaytraceRenderer::generateRefractedRays( int level, const int refractionLev
     m_currentRefractiveIndexTextures.at( refractionLevel )->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     #endif
 
+    const int outputTextureWidth  = m_rayOriginsTexture.at( level )->getWidth();
+    const int outputTextureHeight = m_rayOriginsTexture.at( level )->getHeight();
+
     m_generateRefractedRaysComputeShader->setParameters( *m_deviceContext.Get(), 
                                                          refractionLevel, 
                                                          *rayDirectionTexture, 
@@ -330,7 +349,8 @@ void RaytraceRenderer::generateRefractedRays( int level, const int refractionLev
                                                          *rayHitRefractiveIndexTexture, 
                                                          *contributionTermTexture,
                                                          refractionLevel >= 2 ? m_currentRefractiveIndexTextures.at( refractionLevel - 2 ) : nullptr,
-                                                         refractionLevel >= 1 ? m_currentRefractiveIndexTextures.at( refractionLevel - 1 ) : nullptr
+                                                         refractionLevel >= 1 ? m_currentRefractiveIndexTextures.at( refractionLevel - 1 ) : nullptr,
+                                                         outputTextureWidth, outputTextureHeight
                                                          );
 
     assert( refractionLevel < m_currentRefractiveIndexTextures.size() );
@@ -348,7 +368,7 @@ void RaytraceRenderer::generateRefractedRays( int level, const int refractionLev
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-    uint3 groupCount( m_imageWidth / 32, m_imageHeight / 32, 1 );
+    uint3 groupCount( outputTextureWidth / 32, outputTextureHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
@@ -388,7 +408,10 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    const int imageWidth  = m_rayHitPositionTexture.at( 0 )->getWidth();
+    const int imageHeight = m_rayHitPositionTexture.at( 0 )->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     for ( const std::shared_ptr< const BlockActor >& actor : actors )
     {
@@ -458,7 +481,10 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    const int imageWidth  = m_rayHitPositionTexture.at( level )->getWidth();
+    const int imageHeight = m_rayHitPositionTexture.at( level )->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     for ( const std::shared_ptr< const BlockActor >& actor : actors )
     {
@@ -489,7 +515,8 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
             = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
         m_raytracingSecondaryRaysComputeShader->setParameters( *m_deviceContext.Get(), *m_rayOriginsTexture.at( level ), *m_rayDirectionsTexture.at( level ), *actor->getModel()->getMesh(), actor->getPose(), 
-                                                             bbMin, bbMax, alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
+                                                               bbMin, bbMax, alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture,
+                                                               imageWidth, imageHeight );
 
         m_rendererCore.compute( groupCount );
     }
@@ -499,67 +526,67 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
     m_raytracingSecondaryRaysComputeShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
 RaytraceRenderer::getRayOriginsTexture( int level )
 {
     return m_rayOriginsTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
 RaytraceRenderer::getRayDirectionsTexture( int level )
 {
     return m_rayDirectionsTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
 RaytraceRenderer::getRayHitPositionTexture( int level )
 {
     return m_rayHitPositionTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > > 
 RaytraceRenderer::getRayHitDistanceTexture( int level )
 {
     return m_rayHitDistanceTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > 
 RaytraceRenderer::getRayHitEmissiveTexture( int level )
 {
     return m_rayHitEmissiveTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > 
 RaytraceRenderer::getRayHitAlbedoTexture( int level )
 {
     return m_rayHitAlbedoTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > 
 RaytraceRenderer::getRayHitMetalnessTexture( int level )
 {
     return m_rayHitMetalnessTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > 
 RaytraceRenderer::getRayHitRoughnessTexture( int level )
 {
     return m_rayHitRoughnessTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
 RaytraceRenderer::getRayHitRefractiveIndexTexture( int level )
 {
     return m_rayHitRefractiveIndexTexture.at( level );
 }
 
-std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
 RaytraceRenderer::getRayHitNormalTexture( int level )
 {
     return m_rayHitNormalTexture.at( level );
 }
 
-const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& 
+const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& 
 RaytraceRenderer::getCurrentRefractiveIndexTextures()
 {
     return m_currentRefractiveIndexTextures;
@@ -586,25 +613,25 @@ void RaytraceRenderer::createDefaultTextures( ID3D11Device& device )
     std::vector< uchar4 >        dataAlbedo            = { uchar4( 0, 0, 0, 255 ) };
     std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 255 ) };
 
-    m_defaultAlphaTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+    m_defaultAlphaTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
         ( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
-    m_defaultMetalnessTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+    m_defaultMetalnessTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
         ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
-    m_defaultRoughnessTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+    m_defaultRoughnessTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
         ( device, dataRoughness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
-    m_defaultIndexOfRefractionTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
+    m_defaultIndexOfRefractionTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
         ( device, dataIndexOfRefraction, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
-    m_defaultEmissiveTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
+    m_defaultEmissiveTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
         ( device, dataEmissive, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 
-    m_defaultAlbedoTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
+    m_defaultAlbedoTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
         ( device, dataAlbedo, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 
-    m_defaultNormalTexture = std::make_shared< TTexture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
+    m_defaultNormalTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
         ( device, dataNormal, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 }
 

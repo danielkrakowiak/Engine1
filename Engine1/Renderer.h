@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <wrl.h>
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
@@ -102,7 +102,7 @@ namespace Engine1
         int                        getMaxLevelCount() const;
 
         // Temporary - for debug.
-        const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& debugGetCurrentRefractiveIndexTextures();
+        const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& debugGetCurrentRefractiveIndexTextures();
 
         private:
 
@@ -125,7 +125,7 @@ namespace Engine1
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
-        std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTarget;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTarget;
 
         std::shared_ptr<const BlockMesh>  m_axisMesh;
         std::shared_ptr<const BlockModel> m_lightModel;

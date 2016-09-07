@@ -7,7 +7,7 @@
 #include "float3.h"
 #include "float4.h"
 
-#include "TTexture2D.h"
+#include "Texture2D.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -29,8 +29,8 @@ namespace Engine1
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& refractiveIndexTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture
-                            /*const std::vector< std::shared_ptr< TTexture2D<  TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > refractiveIndexTextures*/ );
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,
+                            const int outputTextureWidth, const int outputTextureHeight );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
@@ -50,7 +50,11 @@ namespace Engine1
             float  pad4;
             float2 viewportSizeHalf;
             float2 pad5;
+            float2 outputTextureSize;
+            float2 pad6;
         };
+
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerStateLinearFilter;
 
         // Copying is not allowed.
         GenerateFirstRefractedRaysComputeShader( const GenerateFirstRefractedRaysComputeShader& ) = delete;

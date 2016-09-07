@@ -373,12 +373,12 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
             const Texture2DFileInfo& textureFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
             if ( textureFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR4 )
             {
-			    return std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
+			    return std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
                     ( *m_device.Get(), textureFileInfo, true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
             }
             else if ( textureFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR )
             {
-                return std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
+                return std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
                     ( *m_device.Get(), textureFileInfo, true, true, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
             }
         }
@@ -453,7 +453,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 
             if ( texFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR4 )
             {
-                auto texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
+                auto texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >
                     ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
                 texture->setFileInfo( texFileInfo );
 
@@ -461,7 +461,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
             }
             else if ( texFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR )
             {
-                auto texture = std::make_shared< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
+                auto texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
                     ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
                 texture->setFileInfo( texFileInfo );
 

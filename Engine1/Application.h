@@ -78,7 +78,7 @@ private:
     void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y );
     void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y );
     void debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int x, const int y );
-    void debugDisplayTexturesValue( const std::vector< std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y );
+    void debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y );
 
 	// Basic application handles.
 	HINSTANCE m_applicationInstance;
@@ -126,7 +126,7 @@ private:
     void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
 
     // Needed to display uchar textures using usual texture shader (unorm view is required - integer as 0-1 float).
-    std::shared_ptr< TTexture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > ucharDisplayFrame;
+    std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > ucharDisplayFrame;
 
     std::string m_scenePath;
     std::shared_ptr<CScene> m_scene;
