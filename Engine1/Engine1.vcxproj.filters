@@ -1049,9 +1049,6 @@
     <ClCompile Include="RefractionShadingComputeShader2.cpp">
       <Filter>Source Files\Shader\RefractionShading</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">

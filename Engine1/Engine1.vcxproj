@@ -470,7 +470,6 @@
     <ClCompile Include="TextFragmentShader.cpp" />
     <ClCompile Include="TextureRescaleComputeShader.cpp" />
     <ClCompile Include="TextureRescaleRenderer.cpp" />
-    <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Texture2DFileInfo.cpp" />
     <ClCompile Include="Texture2DFileInfoParser.cpp" />
     <ClCompile Include="TextureFragmentShader.cpp" />
