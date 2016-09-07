@@ -101,7 +101,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Projekty\Engine1\Libraries\Freetype;F:\Projekty\Engine1\Libraries\FreeImage;F:\Projekty\Engine1\Libraries\D3DCompiler;F:\Projekty\Engine1\Libraries\Assimp;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -111,7 +111,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Projekty\Engine1\Libraries\Freetype;F:\Projekty\Engine1\Libraries\FreeImage;F:\Projekty\Engine1\Libraries\D3DCompiler;F:\Projekty\Engine1\Libraries\Assimp;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -121,7 +121,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Projekty\Engine1\Libraries\Freetype;F:\Projekty\Engine1\Libraries\FreeImage;F:\Projekty\Engine1\Libraries\D3DCompiler;F:\Projekty\Engine1\Libraries\Assimp;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
