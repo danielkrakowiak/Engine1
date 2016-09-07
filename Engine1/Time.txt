@@ -259,4 +259,4 @@ Mon 29.08.2016 - 1h - Added debug display of screen pixel color at the cursor po
 Wed 31.08.2016 - 5h - Added debug display of texture pixel color of various types (float, float4, uchar4 etc) and debug display of refraction index of the whole set of textures. Fixed incorrect refractive index values when generating refracted rays. Added support for variable resolution.
 Thu 01.08.2016 - 2h - Adding support for variable resolution depanding on reflection/refraction level.
 Tue 06.08.2016 - 3h - Reorganizing libraries - moving libraries and includes inside the project folder. Removing DirectX SDK - using Windows SDK instead.
-Wed 07.08.2016 - 1h - Fixed pojects setup.
+Wed 07.08.2016 - 2h - Fixed pojects setup.
