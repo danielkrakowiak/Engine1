@@ -325,6 +325,12 @@
     <Filter Include="Header Files\Shader\GenerateFirstReflectedRays">
       <UniqueIdentifier>{868a2301-3bb6-4cb7-93f3-dce774de2875}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\RaytracingShadows">
+      <UniqueIdentifier>{535a43b8-3955-4e1f-a723-d65730d958a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\RaytracingShadows">
+      <UniqueIdentifier>{4fdd38d7-70e1-4349-9e86-bb65d75ad41c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -702,6 +708,12 @@
     <ClInclude Include="Texture2D.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
+    <ClInclude Include="RaytraceShadowRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytracingShadowsComputeShader.h">
+      <Filter>Header Files\Shader\RaytracingShadows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1049,6 +1061,12 @@
     <ClCompile Include="RefractionShadingComputeShader2.cpp">
       <Filter>Source Files\Shader\RefractionShading</Filter>
     </ClCompile>
+    <ClCompile Include="RaytraceShadowRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RaytracingShadowsComputeShader.cpp">
+      <Filter>Source Files\Shader\RaytracingShadows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1172,6 +1190,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\TextureShader\ps2.hlsl">
       <Filter>Source Files\Shader\Texture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RaytracingShadowsShader\cs.hlsl">
+      <Filter>Source Files\Shader\RaytracingShadows</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

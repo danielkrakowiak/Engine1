@@ -84,9 +84,14 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     //axisMesh->loadBvhTreeToGpu( *frameRenderer.getDevice().Get() );
 
     //// Load 'light source' model.
-    BlockModelFileInfo lightModelFileInfo( "Assets/Models/light_bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0 );
-    std::shared_ptr<BlockModel> lightModel = std::static_pointer_cast<BlockModel>(m_assetManager.getOrLoad( lightModelFileInfo ));
-    lightModel->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext().Get() );
+	std::shared_ptr<BlockModel> lightModel;
+	/*try
+	{
+		BlockModelFileInfo lightModelFileInfo("Assets/Models/light_bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0);
+		lightModel = std::static_pointer_cast<BlockModel>(m_assetManager.getOrLoad(lightModelFileInfo));
+		lightModel->loadCpuToGpu(*m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext().Get());
+	}
+	catch (...) {}*/
 
     m_renderer.initialize( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
 
@@ -479,108 +484,111 @@ void Application::setWindowTitle( const std::string& title )
 }
 
 LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
-	switch ( msg ) {
-		case WM_CREATE:
-			SetTimer( hWnd, inputTimerId, inputTimerInterval, 0 );
+	switch (msg) {
+	case WM_CREATE:
+		SetTimer(hWnd, inputTimerId, inputTimerInterval, 0);
 
-			if ( windowsMessageReceiver ) windowsMessageReceiver->onStart();
-			//ShowCursor( true );
-			break;
+		if (windowsMessageReceiver) windowsMessageReceiver->onStart();
+		//ShowCursor( true );
+		break;
 
-		case WM_DESTROY:
-			KillTimer( hWnd, inputTimerId );
+	case WM_DESTROY:
+		KillTimer(hWnd, inputTimerId);
 
-			if ( windowsMessageReceiver ) windowsMessageReceiver->onExit();
+		if (windowsMessageReceiver) windowsMessageReceiver->onExit();
 
-			PostQuitMessage( 0 );
-			break;
-		case WM_SIZE:
-			if ( windowsMessageReceiver ) {
-				int newWidth = LOWORD( lParam );
-				int newHeight = HIWORD( lParam );
-				windowsMessageReceiver->onResize( newWidth, newHeight );
-			}
-			break;
-        case WM_MOVE:
-			if ( windowsMessageReceiver ) {
-				int posX = LOWORD( lParam );
-				int posY = HIWORD( lParam );
-				windowsMessageReceiver->onMove( posX, posY );
-			}
-			break;
-		case WM_SETFOCUS:
-			if ( windowsMessageReceiver ) windowsMessageReceiver->onFocusChange( true );
-			break;
-		case WM_KILLFOCUS:
-			if ( windowsMessageReceiver ) windowsMessageReceiver->onFocusChange( false );
-			break;
-		case WM_KEYDOWN:
-			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->m_inputManager.onKeyboardButton( (int)wParam, true );
-                windowsMessageReceiver->onKeyPress( (int)wParam );
-			}
-			break;
-		case WM_KEYUP:
-			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->m_inputManager.onKeyboardButton( (int)wParam, false );
-			}
-			break;
-		case WM_MOUSEMOVE:
-			//if ( windowsMessageReceiver ) {
-			//}
-			break;
-		case WM_LBUTTONDOWN:
-			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->m_inputManager.onMouseButton( 0, true );
-                windowsMessageReceiver->onMouseButtonPress( 0 );
-			}
-			break;
-		case WM_LBUTTONUP:
-			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->m_inputManager.onMouseButton( 0, false );
-			}
-			break;
-		case WM_MBUTTONDOWN:
-			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->m_inputManager.onMouseButton( 1, true );
-                windowsMessageReceiver->onMouseButtonPress( 1 );
-			}
-			break;
-		case WM_MBUTTONUP:
-			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->m_inputManager.onMouseButton( 1, false );
-			}
-			break;
-		case WM_RBUTTONDOWN:
-			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->m_inputManager.onMouseButton( 2, true );
-                windowsMessageReceiver->onMouseButtonPress( 2 );
-			}
-			break;
-		case WM_RBUTTONUP:
-			if ( windowsMessageReceiver ) {
-				windowsMessageReceiver->m_inputManager.onMouseButton( 2, false );
-			}
-			break;
-		case WM_TIMER:
-			//if ( inputTimerId == wParam ) {
-			//	if ( windowsMessageReceiver ) {
-			//		windowsMessageReceiver->inputManager.updateMouseState();
-			//	}
-			//}
-			break;
-		case WM_DROPFILES:
-			HDROP dropInfo = (HDROP)wParam;
-			const DWORD charCount = DragQueryFileW( dropInfo, 0, nullptr, 0 ) + 1;
-			std::vector<wchar_t> pathBufferW;
-			pathBufferW.resize( charCount );
+		PostQuitMessage(0);
+		break;
+	case WM_SIZE:
+		if (windowsMessageReceiver) {
+			int newWidth = LOWORD(lParam);
+			int newHeight = HIWORD(lParam);
+			windowsMessageReceiver->onResize(newWidth, newHeight);
+		}
+		break;
+	case WM_MOVE:
+		if (windowsMessageReceiver) {
+			int posX = LOWORD(lParam);
+			int posY = HIWORD(lParam);
+			windowsMessageReceiver->onMove(posX, posY);
+		}
+		break;
+	case WM_SETFOCUS:
+		if (windowsMessageReceiver) windowsMessageReceiver->onFocusChange(true);
+		break;
+	case WM_KILLFOCUS:
+		if (windowsMessageReceiver) windowsMessageReceiver->onFocusChange(false);
+		break;
+	case WM_KEYDOWN:
+		if (windowsMessageReceiver) {
+			windowsMessageReceiver->m_inputManager.onKeyboardButton((int)wParam, true);
+			windowsMessageReceiver->onKeyPress((int)wParam);
+		}
+		break;
+	case WM_KEYUP:
+		if (windowsMessageReceiver) {
+			windowsMessageReceiver->m_inputManager.onKeyboardButton((int)wParam, false);
+		}
+		break;
+	case WM_MOUSEMOVE:
+		//if ( windowsMessageReceiver ) {
+		//}
+		break;
+	case WM_LBUTTONDOWN:
+		if (windowsMessageReceiver) {
+			windowsMessageReceiver->m_inputManager.onMouseButton(0, true);
+			windowsMessageReceiver->onMouseButtonPress(0);
+		}
+		break;
+	case WM_LBUTTONUP:
+		if (windowsMessageReceiver) {
+			windowsMessageReceiver->m_inputManager.onMouseButton(0, false);
+		}
+		break;
+	case WM_MBUTTONDOWN:
+		if (windowsMessageReceiver) {
+			windowsMessageReceiver->m_inputManager.onMouseButton(1, true);
+			windowsMessageReceiver->onMouseButtonPress(1);
+		}
+		break;
+	case WM_MBUTTONUP:
+		if (windowsMessageReceiver) {
+			windowsMessageReceiver->m_inputManager.onMouseButton(1, false);
+		}
+		break;
+	case WM_RBUTTONDOWN:
+		if (windowsMessageReceiver) {
+			windowsMessageReceiver->m_inputManager.onMouseButton(2, true);
+			windowsMessageReceiver->onMouseButtonPress(2);
+		}
+		break;
+	case WM_RBUTTONUP:
+		if (windowsMessageReceiver) {
+			windowsMessageReceiver->m_inputManager.onMouseButton(2, false);
+		}
+		break;
+	case WM_TIMER:
+		//if ( inputTimerId == wParam ) {
+		//	if ( windowsMessageReceiver ) {
+		//		windowsMessageReceiver->inputManager.updateMouseState();
+		//	}
+		//}
+		break;
+	case WM_DROPFILES:
+		HDROP dropInfo = (HDROP)wParam;
+		const DWORD charCount = DragQueryFileW(dropInfo, 0, nullptr, 0) + 1;
+		std::vector<wchar_t> pathBufferW;
+		pathBufferW.resize(charCount);
 
-			DragQueryFileW( dropInfo, 0, (LPWSTR)pathBufferW.data( ), charCount );
-			std::wstring pathW( pathBufferW.data( ), charCount - 1 );
-			std::string path = StringUtil::narrow( pathW );
+		DragQueryFileW(dropInfo, 0, (LPWSTR)pathBufferW.data(), charCount);
+		std::wstring pathW(pathBufferW.data(), charCount - 1);
+		std::string path = StringUtil::narrow(pathW);
 
-			windowsMessageReceiver->onDragAndDropFile( path );
-			break;
+		try	{
+			windowsMessageReceiver->onDragAndDropFile(path);
+		} catch (...) {}
+			
+		break;
 	}
 
 	return DefWindowProc( hWnd, msg, wParam, lParam );
@@ -724,6 +732,9 @@ void Application::onKeyPress( int key )
         m_renderer.setActiveViewType( Renderer::View::Contribution );
     else if ( key == InputManager::Keys::f2 )
         m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
+	else if ( key == InputManager::Keys::f12 )
+		m_renderer.setActiveViewType( Renderer::View::Test );
+
 
     if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
         m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );

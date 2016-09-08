@@ -36,6 +36,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore ) :
     m_edgeDetectionRenderer( rendererCore ),
     m_combiningRenderer( rendererCore ),
     m_textureRescaleRenderer( rendererCore ),
+	m_raytraceShadowRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_maxLevelCount( 3 )
 {}
@@ -59,6 +60,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_edgeDetectionRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_combiningRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
+	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
@@ -174,14 +176,33 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
         }
     }
 
+	// Gather block actors.
+	std::vector< std::shared_ptr< const BlockActor > > blockActors;
+	blockActors.reserve( actors.size() );
+	for ( const std::shared_ptr< Actor > actor : actors )
+	{
+		if ( actor->getType() == Actor::Type::BlockActor )
+			blockActors.push_back( std::static_pointer_cast<BlockActor>(actor) );
+	}
+
     // Generate mipmaps for normal and position g-buffers.
     m_deferredRenderer.getNormalRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
     m_deferredRenderer.getPositionRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-    // Perform shading on the main image.
-    m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getEmissiveRenderTarget(), 
-                                    m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(), 
-                                    m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), lightsVector );
+	if ( !lightsVector.empty() )
+	{
+		std::vector< std::shared_ptr< Light > > tempLightsVector;
+		tempLightsVector.push_back( lightsVector[ 0 ] );
+
+		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsVector[ 0 ], m_deferredRenderer.getPositionRenderTarget(), nullptr, blockActors );
+
+		// Perform shading on the main image.
+		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getEmissiveRenderTarget(),
+			m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
+			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), tempLightsVector );
+	}
+
+    
 
     // Copy main shaded image to final render target.
     m_rendererCore.copyTexture( m_finalRenderTarget, 0, m_shadingRenderer.getColorRenderTarget(), 0 );
@@ -208,6 +229,8 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
                 return std::make_tuple( true, m_deferredRenderer.getRoughnessRenderTarget(), nullptr, nullptr, nullptr, nullptr );
             case View::IndexOfRefraction:
                 return std::make_tuple( true, m_deferredRenderer.getIndexOfRefractionRenderTarget(), nullptr, nullptr, nullptr, nullptr );
+			case View::Test:
+				return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
         }
     }
 

@@ -11,6 +11,7 @@
 #include "EdgeDetectionRenderer.h"
 #include "CombiningRenderer.h"
 #include "TextureRescaleRenderer.h"
+#include "RaytraceShadowRenderer.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -43,7 +44,8 @@ namespace Engine1
             IndexOfRefraction,
             RayDirections,
             Contribution,
-            CurrentRefractiveIndex
+            CurrentRefractiveIndex,
+			Test
         };
 
         Renderer( Direct3DRendererCore& rendererCore );
@@ -121,6 +123,7 @@ namespace Engine1
         EdgeDetectionRenderer     m_edgeDetectionRenderer;
         CombiningRenderer         m_combiningRenderer;
         TextureRescaleRenderer    m_textureRescaleRenderer;
+		RaytraceShadowRenderer    m_raytraceShadowRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

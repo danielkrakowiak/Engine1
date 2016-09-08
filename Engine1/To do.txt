@@ -322,9 +322,11 @@ Idea:
 
 	  - 
 
+	  - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
 
 	  LATER:
 
+	  - all paths in models/scene should be relative to main folder or asset folder
 	  - mipmapping
 	  - loading meshes split by material
 	  - own mesh format

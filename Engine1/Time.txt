@@ -260,3 +260,4 @@ Wed 31.08.2016 - 5h - Added debug display of texture pixel color of various type
 Thu 01.08.2016 - 2h - Adding support for variable resolution depanding on reflection/refraction level.
 Tue 06.08.2016 - 3h - Reorganizing libraries - moving libraries and includes inside the project folder. Removing DirectX SDK - using Windows SDK instead.
 Wed 07.08.2016 - 2h - Fixed pojects setup.
+Thu 08.08.2016 - 6h - Adding raytraced shadows.

@@ -277,6 +277,8 @@
     <ClInclude Include="GenerateFirstRefractedRaysComputeShader.h" />
     <ClInclude Include="GenerateReflectedRaysComputeShader.h" />
     <ClInclude Include="GenerateRefractedRaysComputeShader.h" />
+    <ClInclude Include="RaytraceShadowRenderer.h" />
+    <ClInclude Include="RaytracingShadowsComputeShader.h" />
     <ClInclude Include="ReflectionShadingComputeShader.h" />
     <ClInclude Include="ReflectionRefractionShadingRenderer.h" />
     <ClInclude Include="ReflectionShadingComputeShader2.h" />
@@ -404,6 +406,8 @@
     <ClCompile Include="GenerateFirstRefractedRaysComputeShader.cpp" />
     <ClCompile Include="GenerateReflectedRaysComputeShader.cpp" />
     <ClCompile Include="GenerateRefractedRaysComputeShader.cpp" />
+    <ClCompile Include="RaytraceShadowRenderer.cpp" />
+    <ClCompile Include="RaytracingShadowsComputeShader.cpp" />
     <ClCompile Include="ReflectionShadingComputeShader.cpp" />
     <ClCompile Include="ReflectionRefractionShadingRenderer.cpp" />
     <ClCompile Include="ReflectionShadingComputeShader2.cpp" />
@@ -786,6 +790,14 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">/Gfp /Fc "..\x64\DebugDirect3D\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Fc "..\x64\Release\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/Fc "..\Release\Shaders\Assembly\RaytracingSecondaryRays_cs_asm.txt"</AdditionalOptions>
+    </FxCompile>
+    <FxCompile Include="Shaders\RaytracingShadowsShader\cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\ReflectionShadingShader\cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

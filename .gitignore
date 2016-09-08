@@ -162,3 +162,8 @@ $RECYCLE.BIN/
 # Had to add it in VS 2015, because Git Tool was failing to open them (as they were used by VS 2015) and it caused Git Tool to not see any changes to other files.
 /Engine1.VC.opendb
 /Engine1.VC.db
+/Assets
+/Engine1/Assets/Models
+/Engine1/error.txt
+/Engine1.VC.VC.opendb
+/Engine1/begin.txt
