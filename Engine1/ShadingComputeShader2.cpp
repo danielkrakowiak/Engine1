@@ -73,12 +73,13 @@ void ShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture, 
                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture, 
                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                                           const std::vector< std::shared_ptr< Light > >& lights )
+										   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
+										   const Light& light )
 {
     if ( !m_compiled ) throw std::exception( "ShadingComputeShader2::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 7;
+        const unsigned int resourceCount = 8;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             rayOriginTexture->getShaderResourceView(),
             rayHitPositionTexture->getShaderResourceView(),
@@ -87,12 +88,11 @@ void ShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
             rayHitMetalnessTexture->getShaderResourceView(),
             rayHitRoughnessTexture->getShaderResourceView(),
             rayHitNormalTexture->getShaderResourceView(),
+			illuminationTexture->getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
     }
-
-    lights; // Unused.
 
     { // Set constant buffer.
         D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -103,22 +103,9 @@ void ShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
 
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-        const unsigned int pointLightCount = std::min( maxPointLightCount, (unsigned int)lights.size() );
+        dataPtr->lightPosition = float4( light.getPosition(), 0.0f );
+        dataPtr->lightColor    = float4( light.getColor(), 0.0f );
 
-        dataPtr->pointLightCount = std::min( maxPointLightCount, (unsigned int)lights.size() );
-        dataPtr->pad1 = float3( 0.0f, 0.0f, 0.0f );
-
-        for ( unsigned int i = 0; i < pointLightCount; ++i )
-            dataPtr->pointLightPositions[ i ] = float4( lights[ i ]->getPosition(), 0.0f );
-
-        for ( unsigned int i = pointLightCount; i < maxPointLightCount; ++i )
-            dataPtr->pointLightPositions[ i ] = float4::ZERO;
-
-        for ( unsigned int i = 0; i < pointLightCount; ++i )
-            dataPtr->pointLightColors[ i ] = float4( lights[ i ]->getColor(), 0.0f );
-
-        for ( unsigned int i = pointLightCount; i < maxPointLightCount; ++i )
-            dataPtr->pointLightColors[ i ] = float4::ZERO;
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
@@ -131,6 +118,6 @@ void ShadingComputeShader2::unsetParameters( ID3D11DeviceContext& deviceContext 
     if ( !m_compiled ) throw std::exception( "ShadingComputeShader2::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 7 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 7, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 8 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 8, nullResources );
 }

@@ -27,7 +27,7 @@ Buffer<uint>      g_bvhTriangles     : register( t6 );
 Texture2D         g_alphaTexture     : register( t7 );
 SamplerState      g_samplerState;
 
-// Input / Output.
+// Output.
 RWTexture2D<uint>  g_illumination    : register( u0 );
 
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
@@ -44,6 +44,12 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minHitDist = 0.01f;
 
+static const float lightSampleCount = 64;
+static const float lightSampleCountPerSide = sqrt( lightSampleCount );
+static const float lightSizeHalf = 0.25f;
+static const float lightSizeStep = lightSizeHalf * 2.0f / lightSampleCountPerSide;
+static const float lightAmountPerSample = (1.0f / lightSampleCount);
+
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
@@ -56,97 +62,119 @@ void main( uint3 groupId : SV_GroupID,
 {
     const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
 
-	const float3 rayOrigin        = g_rayOrigins.SampleLevel( g_samplerState, texcoords, 0.0f ).xyz;
+	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_samplerState, texcoords, 0.0f ).xyz;
 	//const float3 contributionTerm = g_contributionTerm.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
+
+	// #TODO: Discard ray with zero contribution.
 
 	// If all position components are zeros - ignore.
     if ( !any( rayOrigin ) /*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) { 
         return;
     }
 
-    const float3 rayDir = normalize( lightPosition - rayOrigin );
+	float illumination = 1.0f;
 
-	// #TODO: Discard ray with zero contribution.
-    
-    // Transform the ray from world to local space.
+	const float  rayMaxLength = length( lightPosition - rayOrigin );
+
+	//const float3 lightDir  = normalize( lightPosition - rayOrigin );
+	//const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
+	//const float3 lightUp   = cross( lightDir, lightSide );
+
+	// Transform the ray from world to local space.
 	const float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
-	const float4 rayDirLocal    = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
 
-    // Test the ray against the bounding box
-    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, boundingBoxMin, boundingBoxMax ) ) 
-    {
-        //output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
+	//for ( float x = -lightSizeHalf; x <= lightSizeHalf; x += lightSizeStep )
+	//{
+		//for ( float y = -lightSizeHalf; y <= lightSizeHalf; y += lightSizeStep )
+		//{
+
+			/////////////////////////////////////////////////////
+
+	const float3 rayDir       = normalize( lightPosition /*+ x * lightSide + y * lightUp*/ - rayOrigin );
+	const float4 rayDirLocal  = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
+
+	// Test the ray against the bounding box
+	if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, boundingBoxMin, boundingBoxMax ) ) 
+	{
+		//output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
 		bool hit = false;
 
-        // TODO: Size of the stack could be passed as argument in constant buffer?
-        const uint BVH_STACK_SIZE = 32; 
+		// TODO: Size of the stack could be passed as argument in constant buffer?
+		const uint BVH_STACK_SIZE = 32; 
 
-	    // Stack of BVH nodes (as indices) which were visited or will be visited.
-	    uint bvhStack[ BVH_STACK_SIZE ];
-	    uint bvhStackIndex = 0;
+		// Stack of BVH nodes (as indices) which were visited or will be visited.
+		uint bvhStack[ BVH_STACK_SIZE ];
+		uint bvhStackIndex = 0;
 
-        // Push root node on the stack.
-	    bvhStack[ bvhStackIndex++ ] = 0; 
+		// Push root node on the stack.
+		bvhStack[ bvhStackIndex++ ] = 0; 
 
-        // While the stack is not empty.
-	    while ( bvhStackIndex > 0 ) {
+		// While the stack is not empty.
+		while ( bvhStackIndex > 0 ) {
 		
-		    // Pop a node from the stack.
-		    int bvhNodeIndex = bvhStack[ --bvhStackIndex ];
+			// Pop a node from the stack.
+			int bvhNodeIndex = bvhStack[ --bvhStackIndex ];
 
-            uint2 bvhNodeData = g_bvhNodes[ bvhNodeIndex ];
+			uint2 bvhNodeData = g_bvhNodes[ bvhNodeIndex ];
 
-		    // Determine if BVH node is an inner node or a leaf node by checking the highest bit.
-		    // Inner node if highest bit is 0, leaf node if 1.
-		    if ( !(bvhNodeData.x & 0x80000000) ) 
-            { // Inner node.
-		        // If ray intersects inner node, push indices of left and right child nodes on the stack.
-			    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, g_bvhNodesExtents[ bvhNodeIndex * 2 ], g_bvhNodesExtents[ bvhNodeIndex * 2 + 1 ] )) {
+			// Determine if BVH node is an inner node or a leaf node by checking the highest bit.
+			// Inner node if highest bit is 0, leaf node if 1.
+			if ( !(bvhNodeData.x & 0x80000000) ) 
+			{ // Inner node.
+				// If ray intersects inner node, push indices of left and right child nodes on the stack.
+				if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, g_bvhNodesExtents[ bvhNodeIndex * 2 ], g_bvhNodesExtents[ bvhNodeIndex * 2 + 1 ] )) {
 				
-				    bvhStack[ bvhStackIndex++ ] = bvhNodeData.x; // Left child node index.
-				    bvhStack[ bvhStackIndex++ ] = bvhNodeData.y; // Right child node index.
+					bvhStack[ bvhStackIndex++ ] = bvhNodeData.x; // Left child node index.
+					bvhStack[ bvhStackIndex++ ] = bvhNodeData.y; // Right child node index.
 				
-				    // Return if stack size is exceeded. 
-                    //TODO: Maybe we can remove that check and check it before running the shader.
-				    if ( bvhStackIndex > BVH_STACK_SIZE )
-					    return; 
-			    }
-            }
-            else
-            { // Leaf node.
+					// Return if stack size is exceeded. 
+					//TODO: Maybe we can remove that check and check it before running the shader.
+					if ( bvhStackIndex > BVH_STACK_SIZE )
+						return; 
+				}
+			}
+			else
+			{ // Leaf node.
 
-                // Loop over every triangle in the leaf node.
-			    // bvhNodeData.x - triangle count (and top-bit set to 1 to indicate leaf node).
-			    // bvhNodeData.y - first triangles index.
-                const uint triangleCount      = bvhNodeData.x & 0x7fffffff;
-                const uint firstTriangleIndex = bvhNodeData.y;
-                const uint lastTriangleIndex  = firstTriangleIndex + triangleCount;
-			    for ( uint i = firstTriangleIndex; i < lastTriangleIndex; ++i ) 
-                {
-                    const uint     triangleIdx = g_bvhTriangles[ i ];
-				    const uint3    trianglee   = readTriangle( triangleIdx );
-                    const float3x3 verticesPos = readVerticesPos( trianglee );
+				// Loop over every triangle in the leaf node.
+				// bvhNodeData.x - triangle count (and top-bit set to 1 to indicate leaf node).
+				// bvhNodeData.y - first triangles index.
+				const uint triangleCount      = bvhNodeData.x & 0x7fffffff;
+				const uint firstTriangleIndex = bvhNodeData.y;
+				const uint lastTriangleIndex  = firstTriangleIndex + triangleCount;
+				for ( uint i = firstTriangleIndex; i < lastTriangleIndex; ++i ) 
+				{
+					const uint     triangleIdx = g_bvhTriangles[ i ];
+					const uint3    trianglee   = readTriangle( triangleIdx );
+					const float3x3 verticesPos = readVerticesPos( trianglee );
 
-                    if ( rayTriangleIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos ) )
-                    {
-                        const float dist = calcDistToTriangle( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos );
+					if ( rayTriangleIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos ) )
+					{
+						const float dist = calcDistToTriangle( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos );
 
 						//#TODO: Maybe could ignore calculating distance - it's only to avoid self-collision.
-						if ( dist > minHitDist )
+						if ( dist > minHitDist && dist < rayMaxLength )
 						{
 							//#TODO: Could sample alpha texture here...
 							//const float2x3 verticesTexCoords = readVerticesTexCoords(trianglee);
 							//const float2   hitTexCoords      = calcInterpolatedTexCoords(hitBarycentricCoords, verticesTexCoords);
 
-							g_illumination[ dispatchThreadId.xy ] = 50;
+							illumination = 0.0f;// lightAmountPerSample;
 						}
 
-                        break;
-                    }
-                }
-            }
-        }
-    }
+						break;
+					}
+				}
+			}
+		}
+	}
+
+			/////////////////////////////////////////////////////
+
+		//}
+	//}
+
+    g_illumination[ dispatchThreadId.xy ] = (uint)( illumination * 255.0f );
 }
 
 bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax )

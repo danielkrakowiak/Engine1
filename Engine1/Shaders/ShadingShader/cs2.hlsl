@@ -1,13 +1,9 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
-#define MAX_POINT_LIGHT_COUNT 50
-
 cbuffer ConstantBuffer : register( b0 )
 {
-    uint   pointLightCount;
-    float3 pad1;
-    float4 pointLightPositions[ MAX_POINT_LIGHT_COUNT ];
-    float4 pointLightColors[ MAX_POINT_LIGHT_COUNT ];
+    float4 lightPosition;
+    float4 lightColor;
 };
 
 // Input.
@@ -18,8 +14,9 @@ Texture2D<float4> g_albedoTexture            : register( t3 );
 Texture2D<float>  g_metalnessTexture         : register( t4 );
 Texture2D<float>  g_roughnessTexture         : register( t5 );
 Texture2D<float4> g_normalTexture            : register( t6 ); 
+Texture2D<float>  g_illuminationTexture      : register( t7 );
 
-// Output.
+// Input / Output.
 RWTexture2D<float4> g_colorTexture : register( u0 );
 
 float3 calculateDiffuseOutputColor( float3 surfaceDiffuseColor, float3 surfaceNormal, float3 lightColor, float3 dirToLight );
@@ -51,19 +48,15 @@ void main( uint3 groupId : SV_GroupID,
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
 
-    float4 outputColor = float4( surfaceEmissive, 1.0f );
+    float4 outputColor = float4( 0.0f, 0.0f, 0.0f, 0.0f ); //float4( surfaceEmissive, 1.0f );
 
     const float3 dirToCamera = normalize( rayOrigin - surfacePosition );
+    const float3 dirToLight  = normalize( lightPosition.xyz - surfacePosition );
 
-    for ( uint i = 0; i < pointLightCount; ++i )
-    {
-        const float3 dirToLight  = normalize( pointLightPositions[ i ].xyz - surfacePosition );
+    outputColor.rgb += calculateDiffuseOutputColor( surfaceDiffuseColor, surfaceNormal, lightColor.rgb, dirToLight );
+    outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, lightColor.rgb, dirToLight, dirToCamera );
 
-        outputColor.rgb += calculateDiffuseOutputColor( surfaceDiffuseColor, surfaceNormal, pointLightColors[ i ].rgb, dirToLight );
-        outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, pointLightColors[ i ].rgb, dirToLight, dirToCamera );
-    }
-
-    g_colorTexture[ dispatchThreadId.xy ] = outputColor;
+    g_colorTexture[ dispatchThreadId.xy ] += outputColor;
 }
 
 float3 calculateDiffuseOutputColor( float3 surfaceDiffuseColor, float3 surfaceNormal, float3 lightColor, float3 dirToLight )

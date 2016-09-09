@@ -11,7 +11,7 @@
 
 #include <dxgi.h>
 #include <d3dcommon.h>
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -183,11 +183,11 @@ size_t Direct3DFrameRenderer::getGpuMemory( IDXGIAdapter& adapter )
 	return adapterDesc.DedicatedVideoMemory;
 }
 
-std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext> >  Direct3DFrameRenderer::createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator )
+std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device3>, ComPtr<ID3D11DeviceContext3> >  Direct3DFrameRenderer::createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator )
 {
 	ComPtr<IDXGISwapChain> swapChain;
-	ComPtr<ID3D11Device> device;
-	ComPtr<ID3D11DeviceContext> deviceContext;
+	ComPtr<ID3D11Device> basicDevice;
+	ComPtr<ID3D11DeviceContext> basicDeviceContext;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 
 	// Initialize the swap chain description.
@@ -240,8 +240,17 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceCon
 	// Create the swap chain, Direct3D device, and Direct3D device context.
 	HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, &featureLevel, 1,
 													D3D11_SDK_VERSION, &swapChainDesc, swapChain.ReleaseAndGetAddressOf(),
-													device.ReleaseAndGetAddressOf(), nullptr, deviceContext.ReleaseAndGetAddressOf() );
+													basicDevice.ReleaseAndGetAddressOf(), nullptr, basicDeviceContext.ReleaseAndGetAddressOf() );
 	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of device or swap chain failed" );
+
+	ComPtr<ID3D11Device3> device;
+	ComPtr<ID3D11DeviceContext3> deviceContext;
+
+	result = basicDevice.As( &device );
+
+	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of DirectX 11.3 device failed" );
+
+	(void)basicDeviceContext.As( &deviceContext );
 
 	return std::make_tuple( swapChain, device, deviceContext );
 }

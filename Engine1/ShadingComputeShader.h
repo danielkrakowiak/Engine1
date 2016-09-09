@@ -35,7 +35,8 @@ namespace Engine1
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture, 
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                            const std::vector< std::shared_ptr< Light > >& lights );
+							const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
+							const Light& light );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
@@ -47,10 +48,8 @@ namespace Engine1
         {
             float3       cameraPos;
             float        pad1;
-            unsigned int pointLightCount;
-            float3       pad2;
-            float4       pointLightPositions[ maxPointLightCount ];
-            float4       pointLightColors[ maxPointLightCount ];
+            float4       lightPosition;
+            float4       lightColor;
         };
 
         // Copying is not allowed.

@@ -47,11 +47,12 @@ void ShadingRenderer::performShading( const Camera& camera,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                      const std::vector< std::shared_ptr< Light > >& lights )
+	                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
+	                                  const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    m_shadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, lights );
+    m_shadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, emissiveTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, illuminationTexture, light );
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader );
 
@@ -79,12 +80,13 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                                      const std::vector< std::shared_ptr< Light > >& lights )
+									  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
+	                                  const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
     m_shadingComputeShader2->setParameters( *m_deviceContext.Get(), rayOriginTexture, rayHitPositionTexture, rayHitEmissiveTexture, rayHitAlbedoTexture,
-                                         rayHitMetalnessTexture, rayHitRoughnessTexture, rayHitNormalTexture, lights );
+                                         rayHitMetalnessTexture, rayHitRoughnessTexture, rayHitNormalTexture, illuminationTexture, light );
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader2 );
 
@@ -103,6 +105,11 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
     m_shadingComputeShader2->unsetParameters( *m_deviceContext.Get() );
 
     m_rendererCore.disableComputePipeline();
+}
+
+void ShadingRenderer::clearColorRenderTarget()
+{
+	m_colorRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 1.0f ) );
 }
 
 std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > ShadingRenderer::getColorRenderTarget()

@@ -85,13 +85,13 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
     //// Load 'light source' model.
 	std::shared_ptr<BlockModel> lightModel;
-	/*try
+	try
 	{
 		BlockModelFileInfo lightModelFileInfo("Assets/Models/light_bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0);
 		lightModel = std::static_pointer_cast<BlockModel>(m_assetManager.getOrLoad(lightModelFileInfo));
 		lightModel->loadCpuToGpu(*m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext().Get());
 	}
-	catch (...) {}*/
+	catch (...) {}
 
     m_renderer.initialize( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
 

@@ -19,8 +19,8 @@
 
 #include "Font.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 struct IDXGIAdapter;
 struct IDXGISwapChain;
 struct ID3D11RenderTargetView;
@@ -66,7 +66,7 @@ namespace Engine1
         std::string             getGpuDescription( IDXGIAdapter& adapter );
         size_t                  getGpuMemory( IDXGIAdapter& adapter );
 
-        std::tuple< Microsoft::WRL::ComPtr<IDXGISwapChain>, Microsoft::WRL::ComPtr<ID3D11Device>, Microsoft::WRL::ComPtr<ID3D11DeviceContext> >
+        std::tuple< Microsoft::WRL::ComPtr<IDXGISwapChain>, Microsoft::WRL::ComPtr<ID3D11Device3>, Microsoft::WRL::ComPtr<ID3D11DeviceContext3> >
             createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator );
 
         Microsoft::WRL::ComPtr<ID3D11Texture2D>       getBackbufferTexture( IDXGISwapChain& swapChain );

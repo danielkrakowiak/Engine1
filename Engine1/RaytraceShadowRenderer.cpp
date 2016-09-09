@@ -108,7 +108,7 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderRe
 void RaytraceShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
 	m_illuminationTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
-		( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+		( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 }
 
 void RaytraceShadowRenderer::loadAndCompileShaders( ID3D11Device& device )
