@@ -60,7 +60,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_edgeDetectionRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_combiningRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
-	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
+	m_raytraceShadowRenderer.initialize( imageWidth / 4, imageHeight / 4, device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }

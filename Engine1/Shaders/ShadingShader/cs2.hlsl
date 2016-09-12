@@ -4,7 +4,11 @@ cbuffer ConstantBuffer : register( b0 )
 {
     float4 lightPosition;
     float4 lightColor;
+    float2 outputTextureSize;
+    float2 pad1;
 };
+
+SamplerState g_linearSamplerState;
 
 // Input.
 Texture2D<float4> g_rayOriginTexture         : register( t0 );
@@ -56,7 +60,7 @@ void main( uint3 groupId : SV_GroupID,
     outputColor.rgb += calculateDiffuseOutputColor( surfaceDiffuseColor, surfaceNormal, lightColor.rgb, dirToLight );
     outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, lightColor.rgb, dirToLight, dirToCamera );
 
-    g_colorTexture[ dispatchThreadId.xy ] += outputColor;
+    g_colorTexture[ dispatchThreadId.xy ] = outputColor;
 }
 
 float3 calculateDiffuseOutputColor( float3 surfaceDiffuseColor, float3 surfaceNormal, float3 lightColor, float3 dirToLight )

@@ -12,6 +12,8 @@ cbuffer ConstantBuffer : register( b0 )
     float2   pad3;
 };
 
+SamplerState g_samplerState;
+
 // Input.
 Texture2D<float4> g_rayOrigins      : register( t0 );
 Texture2D<float4> g_rayDirections   : register( t1 );
@@ -31,7 +33,6 @@ Texture2D         g_normalTexture            : register( t13 );
 Texture2D         g_metalnessTexture         : register( t14 );
 Texture2D         g_roughnessTexture         : register( t15 );
 Texture2D         g_indexOfRefractionTexture : register( t16 );
-SamplerState      g_samplerState;
 
 // Input / Output.
 RWTexture2D<float>  g_hitDistance  : register( u0 );

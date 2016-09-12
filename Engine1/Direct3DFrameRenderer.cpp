@@ -183,7 +183,7 @@ size_t Direct3DFrameRenderer::getGpuMemory( IDXGIAdapter& adapter )
 	return adapterDesc.DedicatedVideoMemory;
 }
 
-std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device3>, ComPtr<ID3D11DeviceContext3> >  Direct3DFrameRenderer::createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator )
+std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext> >  Direct3DFrameRenderer::createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator )
 {
 	ComPtr<IDXGISwapChain> swapChain;
 	ComPtr<ID3D11Device> basicDevice;
@@ -246,13 +246,39 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device3>, ComPtr<ID3D11DeviceCo
 	ComPtr<ID3D11Device3> device;
 	ComPtr<ID3D11DeviceContext3> deviceContext;
 
-	result = basicDevice.As( &device );
+    /*result = basicDevice.As( &device );
 
-	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of DirectX 11.3 device failed" );
+    if ( result < 0 ) throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of DirectX 11.3 device failed" );
 
-	(void)basicDeviceContext.As( &deviceContext );
+    (void)basicDeviceContext.As( &deviceContext );
 
-	return std::make_tuple( swapChain, device, deviceContext );
+    return std::make_tuple( swapChain, device, deviceContext );*/
+
+    //////////////////////////////////////////////////////////////
+    // Check features support
+    //////////////////////////////////////////////////////////////
+
+    //D3D11_FEATURE_DATA_D3D11_OPTIONS2 featureData;
+    //ZeroMemory( &featureData, sizeof( featureData ) );
+    //HRESULT hr = basicDevice->CheckFeatureSupport( D3D11_FEATURE_D3D11_OPTIONS2, &featureData, sizeof( featureData ) );
+    //if ( SUCCEEDED( hr ) ) {
+    //    // TypedUAVLoadAdditionalFormats contains a Boolean that tells you whether the feature is supported or not
+    //    if ( featureData.TypedUAVLoadAdditionalFormats ) {
+    //        // Can assume “all-or-nothing” subset is supported (e.g. R32G32B32A32_FLOAT)
+    //        // Can not assume other formats are supported, so we check:
+    //        D3D11_FEATURE_DATA_FORMAT_SUPPORT2 FormatSupport;
+    //        ZeroMemory( &FormatSupport, sizeof( FormatSupport ) );
+    //        FormatSupport.InFormat = DXGI_FORMAT_R32G32_FLOAT;
+    //        hr = basicDevice->CheckFeatureSupport( D3D11_FEATURE_FORMAT_SUPPORT2, &FormatSupport, sizeof( FormatSupport ) );
+    //        if ( SUCCEEDED( hr ) && ( FormatSupport.OutFormatSupport2 & D3D11_FORMAT_SUPPORT2_UAV_TYPED_LOAD ) != 0 ) {
+    //            // DXGI_FORMAT_R32G32_FLOAT supports UAV Typed Load!
+    //        }
+    //    }
+    //}
+
+    /////////////////////////////////////////////////////////////
+
+    return std::make_tuple( swapChain, basicDevice, basicDeviceContext );
 }
 
 ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwapChain& swapChain )

@@ -27,7 +27,7 @@ Buffer<uint>      g_bvhTriangles     : register( t6 );
 Texture2D         g_alphaTexture     : register( t7 );
 SamplerState      g_samplerState;
 
-// Output.
+// Input / Output.
 RWTexture2D<uint>  g_illumination    : register( u0 );
 
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
@@ -44,9 +44,9 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minHitDist = 0.01f;
 
-static const float lightSampleCount = 64;
+static const float lightSampleCount = 25;
 static const float lightSampleCountPerSide = sqrt( lightSampleCount );
-static const float lightSizeHalf = 0.25f;
+static const float lightSizeHalf = 1.0f;
 static const float lightSizeStep = lightSizeHalf * 2.0f / lightSampleCountPerSide;
 static const float lightAmountPerSample = (1.0f / lightSampleCount);
 
@@ -72,25 +72,26 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-	float illumination = 1.0f;
+    // #TODO: Reading unsigned char from UAV is supported only on DirectX 11.3. 
+	float illumination = 1.0f; //(float)g_illumination[ dispatchThreadId.xy ] / 255.0f;
 
 	const float  rayMaxLength = length( lightPosition - rayOrigin );
 
-	//const float3 lightDir  = normalize( lightPosition - rayOrigin );
-	//const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
-	//const float3 lightUp   = cross( lightDir, lightSide );
+	const float3 lightDir  = normalize( lightPosition - rayOrigin );
+	const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
+	const float3 lightUp   = cross( lightDir, lightSide );
 
 	// Transform the ray from world to local space.
 	const float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
 
-	//for ( float x = -lightSizeHalf; x <= lightSizeHalf; x += lightSizeStep )
-	//{
-		//for ( float y = -lightSizeHalf; y <= lightSizeHalf; y += lightSizeStep )
-		//{
+	for ( float x = -lightSizeHalf; x <= lightSizeHalf; x += lightSizeStep )
+	{
+		for ( float y = -lightSizeHalf; y <= lightSizeHalf; y += lightSizeStep )
+		{
 
 			/////////////////////////////////////////////////////
 
-	const float3 rayDir       = normalize( lightPosition /*+ x * lightSide + y * lightUp*/ - rayOrigin );
+	const float3 rayDir       = normalize( lightPosition + x * lightSide + y * lightUp - rayOrigin );
 	const float4 rayDirLocal  = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
 
 	// Test the ray against the bounding box
@@ -159,10 +160,10 @@ void main( uint3 groupId : SV_GroupID,
 							//const float2x3 verticesTexCoords = readVerticesTexCoords(trianglee);
 							//const float2   hitTexCoords      = calcInterpolatedTexCoords(hitBarycentricCoords, verticesTexCoords);
 
-							illumination = 0.0f;// lightAmountPerSample;
-						}
+							illumination -= lightAmountPerSample;
 
-						break;
+                            break;
+						}
 					}
 				}
 			}
@@ -171,10 +172,10 @@ void main( uint3 groupId : SV_GroupID,
 
 			/////////////////////////////////////////////////////
 
-		//}
-	//}
+		}
+	}
 
-    g_illumination[ dispatchThreadId.xy ] = (uint)( illumination * 255.0f );
+    g_illumination[ dispatchThreadId.xy ] = (uint)( max( 0.0f, illumination ) * 255.0f );
 }
 
 bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax )

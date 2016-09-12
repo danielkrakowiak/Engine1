@@ -42,13 +42,15 @@ namespace Engine1
 
         private:
 
-        static const unsigned int maxPointLightCount = 50;
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> m_linearSamplerState;
 
         __declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
         struct ConstantBuffer
         {
             float4 lightPosition;
             float4 lightColor;
+            float2 outputTextureSize;
+            float2 pad1;
         };
 
         // Copying is not allowed.

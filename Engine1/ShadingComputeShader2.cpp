@@ -60,6 +60,27 @@ void ShadingComputeShader2::compileFromFile( std::string path, ID3D11Device& dev
         if ( result < 0 ) throw std::exception( "ShadingComputeShader2::compileFromFile - creating constant buffer failed." );
     }
 
+    { // Create sampler configuration.
+        D3D11_SAMPLER_DESC desc;
+        desc.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        desc.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.MipLODBias       = 0.0f;
+        desc.MaxAnisotropy    = 1;
+        desc.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
+        desc.BorderColor[ 0 ] = 0;
+        desc.BorderColor[ 1 ] = 0;
+        desc.BorderColor[ 2 ] = 0;
+        desc.BorderColor[ 3 ] = 0;
+        desc.MinLOD           = 0;
+        desc.MaxLOD           = D3D11_FLOAT32_MAX;
+
+        // Create the texture sampler state.
+        result = device.CreateSamplerState( &desc, m_linearSamplerState.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "RaytracingSecondaryRaysComputeShader::compileFromFile - Failed to create texture sampler state." );
+    }
+
     this->m_device = &device;
     this->m_compiled = true;
     this->m_shaderId = ++compiledShadersCount;
@@ -103,13 +124,17 @@ void ShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
 
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-        dataPtr->lightPosition = float4( light.getPosition(), 0.0f );
-        dataPtr->lightColor    = float4( light.getColor(), 0.0f );
-
+        dataPtr->lightPosition     = float4( light.getPosition(), 0.0f );
+        dataPtr->lightColor        = float4( light.getColor(), 0.0f );
+        dataPtr->outputTextureSize = float2( (float)rayOriginTexture->getWidth(), (float)rayOriginTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
         deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
+    }
+
+    { // Set texture sampler.
+        deviceContext.CSSetSamplers( 0, 1, m_linearSamplerState.GetAddressOf() );
     }
 }
 
@@ -120,4 +145,8 @@ void ShadingComputeShader2::unsetParameters( ID3D11DeviceContext& deviceContext 
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 8 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
     deviceContext.CSSetShaderResources( 0, 8, nullResources );
+
+    // Unset samplers.
+    ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };
+    deviceContext.CSSetSamplers( 0, 1, nullSamplers );
 }

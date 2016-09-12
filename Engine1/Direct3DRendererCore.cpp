@@ -18,6 +18,7 @@ using Microsoft::WRL::ComPtr;
 Direct3DRendererCore::Direct3DRendererCore() :
 m_deviceContext( nullptr ),
 m_currentRenderTargetViews(),
+m_currentDepthRenderTargetView( nullptr ),
 m_graphicsShaderEnabled( false ),
 m_computeShaderEnabled( false ),
 m_currentRasterizerState( nullptr ),
