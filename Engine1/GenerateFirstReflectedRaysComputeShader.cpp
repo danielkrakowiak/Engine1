@@ -133,7 +133,7 @@ void GenerateFirstReflectedRaysComputeShader::setParameters( ID3D11DeviceContext
     deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 
     ID3D11SamplerState* samplerStates[] = { m_samplerStateLinearFilter.Get() };
-    deviceContext.PSSetSamplers( 0, 1, samplerStates );
+    deviceContext.CSSetSamplers( 0, 1, samplerStates );
 }
 
 void GenerateFirstReflectedRaysComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
@@ -145,5 +145,5 @@ void GenerateFirstReflectedRaysComputeShader::unsetParameters( ID3D11DeviceConte
     deviceContext.CSSetShaderResources( 0, 4, nullResources );
 
     ID3D11SamplerState* nullSampler[ 1 ] = { nullptr };
-    deviceContext.PSSetSamplers( 0, 1, nullSampler );
+    deviceContext.CSSetSamplers( 0, 1, nullSampler );
 }

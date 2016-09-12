@@ -101,6 +101,11 @@ namespace Engine1
         void copyTexture( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, const int destMipmap,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, const int srcMipmap );
 
+		template< typename T >
+		void copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
+					      const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
+						  const int x, const int y, const int width, const int height );
+
         template< typename T >
         void copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture );
 
@@ -138,6 +143,27 @@ namespace Engine1
         Direct3DRendererCore( const Direct3DRendererCore& ) = delete;
         Direct3DRendererCore& operator=(const Direct3DRendererCore&) = delete;
     };
+
+	template< typename T >
+	void Direct3DRendererCore::copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
+											const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
+											const int x, const int y, const int width, const int height )
+	{
+		if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+
+		if ( x < 0 || y < 0 || width < 0 || height < 0 || x + width > srcTexture.getWidth() || y + height > srcTexture.getHeight() )
+			throw std::exception( "Direct3DRendererCore::copyTexture - given fragment exceeds boundaries of the source/destination texture." );
+
+		D3D11_BOX sourceRregion;
+		sourceRregion.left   = x;
+		sourceRregion.right  = x + width;
+		sourceRregion.top    = y;
+		sourceRregion.bottom = y + height;
+		sourceRregion.front  = 0;
+		sourceRregion.back   = 1;
+
+		m_deviceContext->CopySubresourceRegion( destTexture.getTextureResource().Get(), 0, x, y, 0, srcTexture.getTextureResource().Get(), 0, &sourceRregion );
+	}
 
     template< typename T >
     void Direct3DRendererCore::copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture )

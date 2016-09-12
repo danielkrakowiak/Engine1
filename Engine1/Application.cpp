@@ -368,7 +368,7 @@ void Application::run() {
         {
         if ( frameUchar ) 
         {
-            m_rendererCore.copyTexture( ucharDisplayFrame, frameUchar );
+            m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, 0, 0, frameUchar->getWidth(), frameUchar->getHeight() );
 		    m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
 
             if ( m_inputManager.isMouseButtonPressed(0) ) 
@@ -740,9 +740,9 @@ void Application::onKeyPress( int key )
         m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );
     else if ( key == InputManager::Keys::minus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
         m_renderer.setMaxLevelCount( std::max( 0, m_renderer.getMaxLevelCount() - 1 ) );
-    else if ( key == InputManager::Keys::plus /*&& m_inputManager.isKeyPressed( InputManager::Keys::r )*/ )
+    else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
         m_renderer.activateNextViewLevel( true );
-    else if ( key == InputManager::Keys::plus /*&& m_inputManager.isKeyPressed( InputManager::Keys::t )*/  )
+    else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::t )  )
         m_renderer.activateNextViewLevel( false );
     else if ( key == InputManager::Keys::minus )
         m_renderer.activatePrevViewLevel();

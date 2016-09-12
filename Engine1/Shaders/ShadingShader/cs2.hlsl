@@ -40,6 +40,9 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
+	const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
+    const float2 pixelSizeTexcoords = 2.0f / outputTextureSize; // Should be illumination texture size?
+
     const float3 rayOrigin                = g_rayOriginTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfacePosition          = g_positionTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfaceEmissive          = g_emissiveTexture[ dispatchThreadId.xy ].xyz;
@@ -48,6 +51,12 @@ void main( uint3 groupId : SV_GroupID,
     const float  surfaceMetalness         = g_metalnessTexture[ dispatchThreadId.xy ];
     const float  surfaceRoughness         = g_roughnessTexture[ dispatchThreadId.xy ];
     const float3 surfaceNormal            = g_normalTexture[ dispatchThreadId.xy ].xyz;
+
+	const float surfaceIllumination = (
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -pixelSizeTexcoords.x, -pixelSizeTexcoords.y ), 0.0f ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  pixelSizeTexcoords.x, -pixelSizeTexcoords.y ), 0.0f ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  pixelSizeTexcoords.x,  pixelSizeTexcoords.y ), 0.0f ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -pixelSizeTexcoords.x,  pixelSizeTexcoords.y ), 0.0f ) ) / 4.0f;
     
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
@@ -57,8 +66,8 @@ void main( uint3 groupId : SV_GroupID,
     const float3 dirToCamera = normalize( rayOrigin - surfacePosition );
     const float3 dirToLight  = normalize( lightPosition.xyz - surfacePosition );
 
-    outputColor.rgb += calculateDiffuseOutputColor( surfaceDiffuseColor, surfaceNormal, lightColor.rgb, dirToLight );
-    outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, lightColor.rgb, dirToLight, dirToCamera );
+    outputColor.rgb += calculateDiffuseOutputColor( surfaceDiffuseColor, surfaceNormal, lightColor.rgb * surfaceIllumination, dirToLight );
+    outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, lightColor.rgb * surfaceIllumination, dirToLight, dirToCamera );
 
     g_colorTexture[ dispatchThreadId.xy ] = outputColor;
 }

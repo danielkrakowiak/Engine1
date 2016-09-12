@@ -77,21 +77,21 @@ void main( uint3 groupId : SV_GroupID,
 
 	const float  rayMaxLength = length( lightPosition - rayOrigin );
 
-	const float3 lightDir  = normalize( lightPosition - rayOrigin );
-	const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
-	const float3 lightUp   = cross( lightDir, lightSide );
+	//const float3 lightDir  = normalize( lightPosition - rayOrigin );
+	//const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
+	//const float3 lightUp   = cross( lightDir, lightSide );
 
 	// Transform the ray from world to local space.
 	const float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
 
-	for ( float x = -lightSizeHalf; x <= lightSizeHalf; x += lightSizeStep )
-	{
-		for ( float y = -lightSizeHalf; y <= lightSizeHalf; y += lightSizeStep )
-		{
+	//for ( float x = -lightSizeHalf; x <= lightSizeHalf; x += lightSizeStep )
+	//{
+		//for ( float y = -lightSizeHalf; y <= lightSizeHalf; y += lightSizeStep )
+		//{
 
 			/////////////////////////////////////////////////////
 
-	const float3 rayDir       = normalize( lightPosition + x * lightSide + y * lightUp - rayOrigin );
+	const float3 rayDir       = normalize( lightPosition + /*x * lightSide + y * lightUp -*/ rayOrigin );
 	const float4 rayDirLocal  = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
 
 	// Test the ray against the bounding box
@@ -160,7 +160,8 @@ void main( uint3 groupId : SV_GroupID,
 							//const float2x3 verticesTexCoords = readVerticesTexCoords(trianglee);
 							//const float2   hitTexCoords      = calcInterpolatedTexCoords(hitBarycentricCoords, verticesTexCoords);
 
-							illumination -= lightAmountPerSample;
+							illumination = 0.0f;
+							//illumination -= lightAmountPerSample;
 
                             break;
 						}
@@ -172,8 +173,8 @@ void main( uint3 groupId : SV_GroupID,
 
 			/////////////////////////////////////////////////////
 
-		}
-	}
+		//}
+	//}
 
     g_illumination[ dispatchThreadId.xy ] = (uint)( max( 0.0f, illumination ) * 255.0f );
 }
