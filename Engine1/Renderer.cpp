@@ -193,7 +193,7 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
 	{
 		const Light& light = *lightsVector[ 0 ];
 
-		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsVector[ 0 ], m_deferredRenderer.getPositionRenderTarget(), nullptr, blockActors );
+		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsVector[ 0 ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
 
 		m_shadingRenderer.clearColorRenderTarget();
 
@@ -350,6 +350,7 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
 		m_raytraceShadowRenderer.generateAndTraceShadowRays( 
 			lightsVector[ 0 ], 
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
+			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
 			blockActors 
 		);
@@ -418,6 +419,7 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
 		m_raytraceShadowRenderer.generateAndTraceShadowRays(
 			lightsVector[ 0 ],
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
 			blockActors
 		);
@@ -482,6 +484,7 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
 		m_raytraceShadowRenderer.generateAndTraceShadowRays(
 			lightsVector[ 0 ],
 			m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+			m_raytraceRenderer.getRayHitNormalTexture( level - 1 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
 			blockActors
 		);
@@ -544,6 +547,7 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
 		m_raytraceShadowRenderer.generateAndTraceShadowRays(
 			lightsVector[ 0 ],
 			m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+			m_raytraceRenderer.getRayHitNormalTexture( level - 1 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
 			blockActors
 		);

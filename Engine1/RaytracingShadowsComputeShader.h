@@ -34,6 +34,7 @@ namespace Engine1
 			ID3D11DeviceContext& deviceContext,
 			const Light& light,
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
+			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
 			/*const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,*/
 			const BlockMesh& mesh,
 			const float43& worldMatrix,

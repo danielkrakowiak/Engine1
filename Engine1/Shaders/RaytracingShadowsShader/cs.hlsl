@@ -16,15 +16,16 @@ cbuffer ConstantBuffer : register( b0 )
 
 // Input.
 Texture2D<float4> g_rayOrigins       : register( t0 );
+Texture2D<float4> g_surfaceNormal    : register( t1 );
 //Texture2D<float4> g_contributionTerm : register( t1 ); // How much of the ray color is visible by the camera. Used to avoid checking shadows for useless rays.
-ByteAddressBuffer g_meshVertices     : register( t1 );
-ByteAddressBuffer g_meshTexcoords    : register( t2 );
-ByteAddressBuffer g_meshTriangles    : register( t3 );
-Buffer<uint2>     g_bvhNodes         : register( t4 );
-Buffer<float3>    g_bvhNodesExtents  : register( t5 ); // min, max, min, max interleaved.
-Buffer<uint>      g_bvhTriangles     : register( t6 );
+ByteAddressBuffer g_meshVertices     : register( t2 );
+ByteAddressBuffer g_meshTexcoords    : register( t3 );
+ByteAddressBuffer g_meshTriangles    : register( t4 );
+Buffer<uint2>     g_bvhNodes         : register( t5 );
+Buffer<float3>    g_bvhNodesExtents  : register( t6 ); // min, max, min, max interleaved.
+Buffer<uint>      g_bvhTriangles     : register( t7 );
 
-Texture2D         g_alphaTexture     : register( t7 );
+Texture2D         g_alphaTexture     : register( t8 );
 SamplerState      g_samplerState;
 
 // Input / Output.
@@ -44,9 +45,9 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minHitDist = 0.01f;
 
-static const float lightSampleCount = 25;
+static const float lightSampleCount = 64;
 static const float lightSampleCountPerSide = sqrt( lightSampleCount );
-static const float lightSizeHalf = 1.0f;
+static const float lightSizeHalf = 2.0f;
 static const float lightSizeStep = lightSizeHalf * 2.0f / lightSampleCountPerSide;
 static const float lightAmountPerSample = (1.0f / lightSampleCount);
 
@@ -65,10 +66,13 @@ void main( uint3 groupId : SV_GroupID,
 	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_samplerState, texcoords, 0.0f ).xyz;
 	//const float3 contributionTerm = g_contributionTerm.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
+	const float3 rayDirBase    = normalize( lightPosition /*+ x * lightSide + y * lightUp*/ - rayOrigin );
+	const float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_samplerState, texcoords, 0.0f ).xyz;
+
 	// #TODO: Discard ray with zero contribution.
 
-	// If all position components are zeros - ignore.
-    if ( !any( rayOrigin ) /*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) { 
+	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case).
+    if ( !any( rayOrigin ) || dot( surfaceNormal, rayDirBase ) < 0.0f/*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) { 
         return;
     }
 
@@ -91,7 +95,7 @@ void main( uint3 groupId : SV_GroupID,
 
 			/////////////////////////////////////////////////////
 
-	const float3 rayDir       = normalize( lightPosition + /*x * lightSide + y * lightUp -*/ rayOrigin );
+	const float3 rayDir       = normalize( lightPosition /*+ x * lightSide + y * lightUp*/ - rayOrigin );
 	const float4 rayDirLocal  = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
 
 	// Test the ray against the bounding box

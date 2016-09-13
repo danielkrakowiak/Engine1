@@ -93,6 +93,7 @@ void RaytracingShadowsComputeShader::setParameters(
 	ID3D11DeviceContext& deviceContext,
 	const Light& light,
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
+	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
 	/*const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,*/
 	const BlockMesh& mesh,
 	const float43& worldMatrix,
@@ -104,9 +105,10 @@ void RaytracingShadowsComputeShader::setParameters(
 	if ( !m_compiled ) throw std::exception( "RaytracingShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
 	{ // Set input buffers and textures.
-		const unsigned int resourceCount = 8;
+		const unsigned int resourceCount = 9;
 		ID3D11ShaderResourceView* resources[ resourceCount ] = {
 			rayOriginTexture.getShaderResourceView(),
+			surfaceNormalTexture.getShaderResourceView(),
 			/*contributionTermTexture.getShaderResourceView(),*/
 			mesh.getVertexBufferResource(),
 			!mesh.getTexcoordBufferResources().empty() ? mesh.getTexcoordBufferResources().front() : nullptr,
@@ -151,8 +153,8 @@ void RaytracingShadowsComputeShader::unsetParameters( ID3D11DeviceContext& devic
 	if ( !m_compiled ) throw std::exception( "RaytracingShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
 	// Unset buffers and textures.
-	ID3D11ShaderResourceView* nullResources[ 8 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-	deviceContext.CSSetShaderResources( 0, 8, nullResources );
+	ID3D11ShaderResourceView* nullResources[ 9 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	deviceContext.CSSetShaderResources( 0, 9, nullResources );
 
 	// Unset samplers.
 	ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };

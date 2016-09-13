@@ -37,6 +37,7 @@ namespace Engine1
 		void generateAndTraceShadowRays(
 			const std::shared_ptr< Light > light,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
+			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
 			const std::vector< std::shared_ptr< const BlockActor > >& actors
 		);

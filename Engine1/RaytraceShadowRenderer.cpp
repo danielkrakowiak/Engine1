@@ -48,6 +48,7 @@ void RaytraceShadowRenderer::initialize(
 void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	const std::shared_ptr< Light > light,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
+	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
 	const std::vector< std::shared_ptr< const BlockActor > >& actors
 )
@@ -85,7 +86,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 			= model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
 
 		m_raytracingShadowsComputeShader->setParameters( 
-			*m_deviceContext.Get(), *light, *rayOriginTexture, *actor->getModel()->getMesh(), actor->getPose(),
+			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, *actor->getModel()->getMesh(), actor->getPose(),
 			bbMin, bbMax, alphaTexture,	imageWidth, imageHeight 
 		);
 
