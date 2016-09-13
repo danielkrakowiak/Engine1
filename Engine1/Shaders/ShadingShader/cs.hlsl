@@ -42,7 +42,7 @@ void main( uint3 groupId : SV_GroupID,
            uint  groupIndex : SV_GroupIndex )
 {
     const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
-    const float2 pixelSizeTexcoords = 2.0f / outputTextureSize; // Should be illumination texture size?
+    const float2 outputTextureHalfPixelSize = 1.0f / outputTextureSize; // Should be illumination texture size?
 
     const float3 surfacePosition     = g_positionTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfaceEmissive     = g_emissiveTexture[ dispatchThreadId.xy ].xyz;
@@ -52,11 +52,13 @@ void main( uint3 groupId : SV_GroupID,
     const float  surfaceRoughness    = g_roughnessTexture[ dispatchThreadId.xy ];
     const float3 surfaceNormal       = g_normalTexture[ dispatchThreadId.xy ].xyz;
 
+	//const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
+
 	const float surfaceIllumination = (
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -pixelSizeTexcoords.x, -pixelSizeTexcoords.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  pixelSizeTexcoords.x, -pixelSizeTexcoords.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  pixelSizeTexcoords.x,  pixelSizeTexcoords.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -pixelSizeTexcoords.x,  pixelSizeTexcoords.y ), 0.0f ) ) / 4.0f;
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) ) / 4.0f;
 
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
