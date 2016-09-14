@@ -714,6 +714,9 @@
     <ClInclude Include="RaytracingShadowsComputeShader.h">
       <Filter>Header Files\Shader\RaytracingShadows</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMapRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1066,6 +1069,9 @@
     </ClCompile>
     <ClCompile Include="RaytracingShadowsComputeShader.cpp">
       <Filter>Source Files\Shader\RaytracingShadows</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMapRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

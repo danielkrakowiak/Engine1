@@ -56,7 +56,7 @@ void Direct3DRendererCore::disableComputePipeline()
 void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader )
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableRenderingShaders - renderer not initialized." );
-    if ( !vertexShader || !fragmentShader ) throw std::exception( "Direct3DRendererCore::enableRenderingShaders - passed shaders are nullptrs." );
+    if ( !vertexShader ) throw std::exception( "Direct3DRendererCore::enableRenderingShaders - passed vertex shader is nullptr." );
 
     disableComputeShaders();
 
@@ -70,7 +70,13 @@ void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexS
 	}
 
 	// Check if currently set fragment shader is the same as the one to be enabled - do nothing then. 
-	if ( m_currentFragmentShader.expired() || !m_currentFragmentShader.lock()->isSame( *fragmentShader ) ) 
+	if ( !m_currentFragmentShader.expired() && !fragmentShader )
+	{
+		m_deviceContext->PSSetShader( nullptr, nullptr, 0 );
+
+		m_currentFragmentShader.reset();
+	}
+	else if ( m_currentFragmentShader.expired() || !m_currentFragmentShader.lock()->isSame( *fragmentShader ) ) 
 	{
 		m_deviceContext->PSSetShader( &fragmentShader->getShader(), nullptr, 0 );
 
@@ -119,6 +125,18 @@ void Direct3DRendererCore::disableComputeShaders()
 
         m_computeShaderEnabled = false;
     }
+}
+
+void Direct3DRendererCore::enableRenderTargets( const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget, const int mipmapLevel )
+{
+	m_currentRenderTargetViews.clear();
+
+	if ( depthRenderTarget )
+		m_currentDepthRenderTargetView = depthRenderTarget->getDepthStencilView( mipmapLevel );
+
+	// Enable render targets.
+	m_deviceContext->OMSetRenderTargets( 0, 0, m_currentDepthRenderTargetView );
+
 }
 
 void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,

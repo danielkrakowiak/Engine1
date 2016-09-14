@@ -12,6 +12,7 @@
 #include "CombiningRenderer.h"
 #include "TextureRescaleRenderer.h"
 #include "RaytraceShadowRenderer.h"
+#include "ShadowMapRenderer.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -56,6 +57,8 @@ namespace Engine1
 
         // Should be called at the beginning of each frame, before calling renderScene(). 
         void prepare();
+
+		void renderShadowMaps( const CScene& scene );
 
         std::tuple< 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
@@ -124,6 +127,7 @@ namespace Engine1
         CombiningRenderer         m_combiningRenderer;
         TextureRescaleRenderer    m_textureRescaleRenderer;
 		RaytraceShadowRenderer    m_raytraceShadowRenderer;
+		ShadowMapRenderer         m_shadowMapRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

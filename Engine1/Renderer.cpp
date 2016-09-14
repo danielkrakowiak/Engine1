@@ -37,6 +37,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore ) :
     m_combiningRenderer( rendererCore ),
     m_textureRescaleRenderer( rendererCore ),
 	m_raytraceShadowRenderer( rendererCore ),
+	m_shadowMapRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_maxLevelCount( 3 )
 {}
@@ -61,6 +62,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_combiningRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
 	m_raytraceShadowRenderer.initialize( imageWidth / 2, imageHeight / 2, device, deviceContext );
+	m_shadowMapRenderer.initialize( 256, 256, device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
@@ -71,6 +73,11 @@ void Renderer::prepare()
     // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
     // Be careful when changing!
     m_deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 1.0f ), 1.0f ); 
+}
+
+void Renderer::renderShadowMaps( const CScene& scene )
+{
+	// TODO: render shadow maps for each light.
 }
 
 std::tuple< 
