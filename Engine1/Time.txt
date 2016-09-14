@@ -265,3 +265,5 @@ Thu 08.08.2016 - 6h - Adding raytraced shadows.
 Fri 09.08.2016 - 6h - Adding raytraced shadows. Test with soft shadows. Using illumination texture in shading. Adding support for multiple lights with shadows. 
 Sat 10.09.2016 - 2h - Generating shadows at lower resolution and sampling them smoothly in shading.
 Mon 12.09.2016 - 3h - Added shadows in reflections/refractions.
+Tue 13.09.2016 - 3h - Playing with sampling raytraced shadows to improve antialiasing. Optimized raytraced shadows to not trace rays for surfaces which are backfacing a light source.
+Wed 14.09.2016 - 3h - Added ShadowMapRenderer.
