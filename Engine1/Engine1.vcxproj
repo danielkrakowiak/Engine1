@@ -284,6 +284,7 @@
     <ClInclude Include="ReflectionShadingComputeShader2.h" />
     <ClInclude Include="RefractionShadingComputeShader.h" />
     <ClInclude Include="RefractionShadingComputeShader2.h" />
+    <ClInclude Include="ShadingComputeShader0.h" />
     <ClInclude Include="ShadingComputeShader2.h" />
     <ClInclude Include="ShadingRenderer.h" />
     <ClInclude Include="Direct3DUtil.h" />
@@ -414,6 +415,7 @@
     <ClCompile Include="ReflectionShadingComputeShader2.cpp" />
     <ClCompile Include="RefractionShadingComputeShader.cpp" />
     <ClCompile Include="RefractionShadingComputeShader2.cpp" />
+    <ClCompile Include="ShadingComputeShader0.cpp" />
     <ClCompile Include="ShadingComputeShader2.cpp" />
     <ClCompile Include="ShadingRenderer.cpp" />
     <ClCompile Include="Direct3DUtil.cpp" />
@@ -876,6 +878,14 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">/Gfp /Fc "..\x64\DebugDirect3D\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Fc "..\x64\Release\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /Fc "..\Release\Shaders\Assembly\Shading_cs_asm.txt"</AdditionalOptions>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadingShader\cs0.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\ShadingShader\cs2.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

@@ -196,21 +196,18 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
     m_deferredRenderer.getNormalRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
     m_deferredRenderer.getPositionRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-	if ( !lightsVector.empty() )
+    // Initialize shading output with emissive color.
+    m_shadingRenderer.performShading( m_deferredRenderer.getEmissiveRenderTarget() );
+
+	for (const std::shared_ptr< Light >& light : lightsVector )
 	{
-		const Light& light = *lightsVector[ 0 ];
-
-		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsVector[ 0 ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
-
-		m_shadingRenderer.clearColorRenderTarget();
+		m_raytraceShadowRenderer.generateAndTraceShadowRays( light, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
 
 		// Perform shading on the main image.
-		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getEmissiveRenderTarget(),
+		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(),
 			m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
-			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture(), light );
+			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture(), *light );
 	}
-
-    
 
     // Copy main shaded image to final render target.
     m_rendererCore.copyTexture( m_finalRenderTarget, 0, m_shadingRenderer.getColorRenderTarget(), 0 );
@@ -350,31 +347,29 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
     m_raytraceRenderer.generateAndTraceFirstReflectedRays( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(),
                                                             m_deferredRenderer.getRoughnessRenderTarget(), m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), blockActors );
 
-	if ( !lightsVector.empty() )
-	{
-		const Light& light = *lightsVector[ 0 ];
+    // Initialize shading output with emissive color.
+    m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
+	for (const std::shared_ptr< Light >& light : lightsVector )
+	{
 		m_raytraceShadowRenderer.generateAndTraceShadowRays( 
-			lightsVector[ 0 ], 
+			light, 
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
 			blockActors 
 		);
 
-		m_shadingRenderer.clearColorRenderTarget();
-
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( 
 			m_raytraceRenderer.getRayOriginsTexture( 0 ),
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-			m_raytraceRenderer.getRayHitEmissiveTexture( 0 ),
 			m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
 			m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
 			m_raytraceShadowRenderer.getIlluminationTexture(),
-			light 
+			*light 
 		);
 	}
 
@@ -419,31 +414,29 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                                          m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
                                                          blockActors );
 
-	if ( !lightsVector.empty() )
-	{
-		const Light& light = *lightsVector[ 0 ];
+    // Initialize shading output with emissive color.
+    m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
+	for (const std::shared_ptr< Light >& light : lightsVector )
+	{
 		m_raytraceShadowRenderer.generateAndTraceShadowRays(
-			lightsVector[ 0 ],
+			light,
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
 			blockActors
 		);
 
-		m_shadingRenderer.clearColorRenderTarget();
-
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading(
 			m_raytraceRenderer.getRayOriginsTexture( 0 ),
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-			m_raytraceRenderer.getRayHitEmissiveTexture( 0 ),
 			m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
 			m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
 			m_raytraceShadowRenderer.getIlluminationTexture(),
-			light
+			*light
 		);
 	}
 
@@ -484,33 +477,30 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
                                                       m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
                                                       blockActors );
 
-	if ( !lightsVector.empty() )
-	{
-		const Light& light = *lightsVector[ 0 ];
+    // Initialize shading output with emissive color.
+    m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
-		m_raytraceShadowRenderer.generateAndTraceShadowRays(
-			lightsVector[ 0 ],
-			m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitNormalTexture( level - 1 ), 
-			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
-			blockActors
-		);
+    for ( const std::shared_ptr< Light >& light : lightsVector ) {
+        m_raytraceShadowRenderer.generateAndTraceShadowRays(
+            light,
+            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
+            blockActors
+            );
 
-		m_shadingRenderer.clearColorRenderTarget();
-
-		// Perform shading on the main image.
-		m_shadingRenderer.performShading( 
-			m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-			m_raytraceShadowRenderer.getIlluminationTexture(),
-			light 
-		);
-	}
+        // Perform shading on the main image.
+        m_shadingRenderer.performShading(
+            m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+            m_raytraceShadowRenderer.getIlluminationTexture(),
+            *light
+            );
+    }
 
     // Generate mipmaps for the shaded, reflected image.
     m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
@@ -547,33 +537,30 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
                                                       m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
                                                       blockActors );
 
-	if ( !lightsVector.empty() )
-	{
-		const Light& light = *lightsVector[ 0 ];
+    // Initialize shading output with emissive color.
+    m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
-		m_raytraceShadowRenderer.generateAndTraceShadowRays(
-			lightsVector[ 0 ],
-			m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitNormalTexture( level - 1 ), 
-			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
-			blockActors
-		);
+    for ( const std::shared_ptr< Light >& light : lightsVector ) {
+        m_raytraceShadowRenderer.generateAndTraceShadowRays(
+            light,
+            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
+            blockActors
+            );
 
-		m_shadingRenderer.clearColorRenderTarget();
-
-		// Perform shading on the main image.
-		m_shadingRenderer.performShading(
-			m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
-			m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-			m_raytraceShadowRenderer.getIlluminationTexture(),
-			light
-		);
-	}
+        // Perform shading on the main image.
+        m_shadingRenderer.performShading(
+            m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+            m_raytraceShadowRenderer.getIlluminationTexture(),
+            *light
+            );
+    }
 
     // Generate mipmaps for the shaded, reflected image.
     m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );

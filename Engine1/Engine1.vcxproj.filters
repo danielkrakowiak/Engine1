@@ -717,6 +717,9 @@
     <ClInclude Include="ShadowMapRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="ShadingComputeShader0.h">
+      <Filter>Header Files\Shader\Shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1073,6 +1076,9 @@
     <ClCompile Include="ShadowMapRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="ShadingComputeShader0.cpp">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1199,6 +1205,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\RaytracingShadowsShader\cs.hlsl">
       <Filter>Source Files\Shader\RaytracingShadows</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadingShader\cs0.hlsl">
+      <Filter>Source Files\Shader\Shading</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

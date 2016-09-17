@@ -45,9 +45,9 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minHitDist = 0.01f;
 
-static const float lightSampleCount = 64;
+static const float lightSampleCount = 25;
 static const float lightSampleCountPerSide = sqrt( lightSampleCount );
-static const float lightSizeHalf = 2.0f;
+static const float lightSizeHalf = 3.0f;
 static const float lightSizeStep = lightSizeHalf * 2.0f / lightSampleCountPerSide;
 static const float lightAmountPerSample = (1.0f / lightSampleCount);
 
@@ -77,7 +77,7 @@ void main( uint3 groupId : SV_GroupID,
     }
 
     // #TODO: Reading unsigned char from UAV is supported only on DirectX 11.3. 
-	float illumination = 1.0f; //(float)g_illumination[ dispatchThreadId.xy ] / 255.0f;
+	float illumination = (float)g_illumination[ dispatchThreadId.xy ] / 255.0f;
 
 	const float  rayMaxLength = length( lightPosition - rayOrigin );
 

@@ -88,7 +88,6 @@ void ShadingComputeShader::compileFromFile( std::string path, ID3D11Device& devi
 
 void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture,
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture, 
@@ -99,10 +98,9 @@ void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, co
     if ( !m_compiled ) throw std::exception( "ShadingComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 7;
+        const unsigned int resourceCount = 6;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             positionTexture->getShaderResourceView(),
-            emissiveTexture->getShaderResourceView(),
             albedoTexture->getShaderResourceView(),
             metalnessTexture->getShaderResourceView(),
             roughnessTexture->getShaderResourceView(),
@@ -143,8 +141,8 @@ void ShadingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
     if ( !m_compiled ) throw std::exception( "ShadingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 7 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 7, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 6 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 6, nullResources );
 
     // Unset samplers.
     ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };
