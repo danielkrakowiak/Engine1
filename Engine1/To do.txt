@@ -324,12 +324,18 @@ Idea:
 
 	  - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
 
-	  - how to make skybox not cast or receive shadow? To improve performance...
+	  - how to make skybox not receive shadow? To improve performance...
 	  - make commit
 
-	  - why emissive term is dimmed or removed when looking through glass?
+	  - saving/loading camera position and orientation.
+
+	  - account for alpha when tracing shadows (maybe two separate shaders? with and without alpha sampling)
 
 	  LATER:
+
+	  - OPTIMIZATION: Trace 4 or 8 rays in a single shader. Could give amazing boost, because we construct triangle only once and do a few intersection tests with it. Could be tested in normal raytracing or shadow ray tracing (even soft shadows).
+
+	  - should add Model class as a base for BlockModel and SkeletonModel. All texture methods could be shared. Plus flags such as "cast shadows" etc.
 
 	  - all paths in models/scene should be relative to main folder or asset folder
 	  - mipmapping

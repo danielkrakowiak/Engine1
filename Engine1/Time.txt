@@ -268,3 +268,4 @@ Mon 12.09.2016 - 3h - Added shadows in reflections/refractions.
 Tue 13.09.2016 - 3h - Playing with sampling raytraced shadows to improve antialiasing. Optimized raytraced shadows to not trace rays for surfaces which are backfacing a light source.
 Wed 14.09.2016 - 3h - Added ShadowMapRenderer.
 Thu 15.09.2016 - 2h - Adding support for multiple lights/objects casting shadows + re-enabling emissive term.
+Mon 19.09.2016 - 1h - Fixed emmisive term in reflections/refractions. Added enabling/disabling casting shadows per actor. Optimized raytraced shadows shader to not trace rays for completaly shadowed areas.

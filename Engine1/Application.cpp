@@ -706,6 +706,17 @@ void Application::onKeyPress( int key )
             combiningRenderer.setPositionThreshold( combiningRenderer.getPositionThreshold() - positionThresholdChange );
     }*/
 
+    // Enable/disable casting shadow for an actor.
+    if ( key == InputManager::Keys::h && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) {
+        if ( m_scene ) {
+            if ( m_selectedBlockActor ) {
+                m_selectedBlockActor->setCastingShadows( !m_selectedBlockActor->isCastingShadows() );
+            } else if ( m_selectedSkeletonActor ) {
+                m_selectedSkeletonActor->setCastingShadows( !m_selectedSkeletonActor->isCastingShadows() );
+            }
+        }
+    }
+
     if ( key == InputManager::Keys::tilde )
         m_renderer.setActiveViewType( Renderer::View::Final );
     else if ( key == InputManager::Keys::one )

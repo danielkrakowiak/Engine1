@@ -20,6 +20,15 @@ namespace Engine1
         virtual       float43& getPose()       = 0;
 
         virtual void setPose( const float43& pose ) = 0;
+
+        void setCastingShadows( bool castShadows );
+        bool isCastingShadows() const;
+
+        protected:
+
+        Actor();
+
+        bool m_castsShadow;
     };
 }
 

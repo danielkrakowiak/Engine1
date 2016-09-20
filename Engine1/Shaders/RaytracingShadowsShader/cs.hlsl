@@ -71,13 +71,15 @@ void main( uint3 groupId : SV_GroupID,
 
 	// #TODO: Discard ray with zero contribution.
 
-	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case).
-    if ( !any( rayOrigin ) || dot( surfaceNormal, rayDirBase ) < 0.0f/*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) { 
+    const uint illuminationUint = g_illumination[ dispatchThreadId.xy ];
+
+	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
+    if ( !any( rayOrigin ) || dot( surfaceNormal, rayDirBase ) < 0.0f || illuminationUint == 0/*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) { 
         return;
     }
 
     // #TODO: Reading unsigned char from UAV is supported only on DirectX 11.3. 
-	float illumination = (float)g_illumination[ dispatchThreadId.xy ] / 255.0f;
+	float illumination = (float)illuminationUint / 255.0f;
 
 	const float  rayMaxLength = length( lightPosition - rayOrigin );
 

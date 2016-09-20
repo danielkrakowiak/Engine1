@@ -77,6 +77,9 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 	for ( const std::shared_ptr< const BlockActor >& actor : actors )
 	{
+        if ( !actor->isCastingShadows() )
+            continue;
+
 		const BlockModel& model = *actor->getModel();
 
 		float3 bbMin, bbMax;
