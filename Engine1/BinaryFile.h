@@ -19,6 +19,7 @@ namespace Engine1
         static char        readChar( std::vector<char>::const_iterator& dataIt );
         static int         readInt( std::vector<char>::const_iterator& dataIt );
         static bool        readBool( std::vector<char>::const_iterator& dataIt );
+        static float       readFloat( std::vector<char>::const_iterator& dataIt );
         static float3      readFloat3( std::vector<char>::const_iterator& dataIt );
         static float4      readFloat4( std::vector<char>::const_iterator& dataIt );
         static float43     readFloat43( std::vector<char>::const_iterator& dataIt );
@@ -27,6 +28,7 @@ namespace Engine1
         static void writeChar( std::vector<char>& data, const char value );
         static void writeInt( std::vector<char>& data, const int value );
         static void writeBool( std::vector<char>& data, const bool value );
+        static void writeFloat( std::vector<char>& data, const float value );
         static void writeFloat3( std::vector<char>& data, const float3& value );
         static void writeFloat4( std::vector<char>& data, const float4& value );
 

@@ -269,3 +269,5 @@ Tue 13.09.2016 - 3h - Playing with sampling raytraced shadows to improve antiali
 Wed 14.09.2016 - 3h - Added ShadowMapRenderer.
 Thu 15.09.2016 - 2h - Adding support for multiple lights/objects casting shadows + re-enabling emissive term.
 Mon 19.09.2016 - 1h - Fixed emmisive term in reflections/refractions. Added enabling/disabling casting shadows per actor. Optimized raytraced shadows shader to not trace rays for completaly shadowed areas.
+Tue 20.09.2016 - 2h - Loading/saving camera state to file.
+Wed 21.09.2016 - 1h - Fixed saving/loading camera.

@@ -331,6 +331,12 @@
     <Filter Include="Header Files\Shader\RaytracingShadows">
       <UniqueIdentifier>{4fdd38d7-70e1-4349-9e86-bb65d75ad41c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Camera\Parsers">
+      <UniqueIdentifier>{ca7018a8-25e6-46c0-97e9-f96f043fa597}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Camera\Parsers">
+      <UniqueIdentifier>{54ee76b8-6d4a-43d2-8335-ddb2cad06d54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -720,6 +726,9 @@
     <ClInclude Include="ShadingComputeShader0.h">
       <Filter>Header Files\Shader\Shading</Filter>
     </ClInclude>
+    <ClInclude Include="FreeCameraParser.h">
+      <Filter>Header Files\Camera\Parsers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1078,6 +1087,9 @@
     </ClCompile>
     <ClCompile Include="ShadingComputeShader0.cpp">
       <Filter>Source Files\Shader\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeCameraParser.cpp">
+      <Filter>Source Files\Camera\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

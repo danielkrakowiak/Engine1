@@ -5,10 +5,17 @@
 using namespace Engine1;
 
 Camera::Camera() :
-m_position( float3::ZERO ),
-m_direction( 0.0f, 0.0f, 1.0f ),
-m_up( 0.0f, 1.0f, 0.0f ),
-m_fieldOfView( MathUtil::piHalf )
+    m_position( float3::ZERO ),
+    m_direction( 0.0f, 0.0f, 1.0f ),
+    m_up( 0.0f, 1.0f, 0.0f ),
+    m_fieldOfView( MathUtil::piHalf )
+{}
+
+Camera::Camera( float3 position, float3 direction, float3 up, float fieldOfView ) :
+    m_position( position ),
+    m_direction( direction ),
+    m_up( up ),
+    m_fieldOfView( fieldOfView )
 {}
 
 Camera::~Camera()

@@ -54,6 +54,8 @@
 	- [Shader params] Add support for setting empty SRVs, UAVs etc among non-empty ones.
 31.08.2016
 	- [ Texture copy ] When copying texture GPU - GPU we should check if their dimensions are the same - otherwise throw exception.
+20.09.2016
+	- [ BinaryFile ] Reading/Writing could a template method - able to read any type from file - such as int/float/float3 - it works as a copy anyways...
 
 For later ######################################################################################################################
 
@@ -330,6 +332,9 @@ Idea:
 	  - saving/loading camera position and orientation.
 
 	  - account for alpha when tracing shadows (maybe two separate shaders? with and without alpha sampling)
+
+	  START HERE:
+	  - print camera state (rotation angles) and then save/load camera and compare it's state before and after.
 
 	  LATER:
 

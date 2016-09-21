@@ -8,6 +8,7 @@ namespace Engine1
     {
         public:
         Camera();
+        Camera( float3 position, float3 direction, float3 up, float fieldOfView );
         ~Camera();
 
         void setPosition( float3 position );

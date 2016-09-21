@@ -2,13 +2,27 @@
 
 #include "Camera.h"
 
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace Engine1
 {
     class FreeCamera : public Camera
     {
+        friend class FreeCameraParser;
+
         public:
+
+        static std::shared_ptr< FreeCamera > createFromFile( const std::string& path );
+        static std::shared_ptr< FreeCamera > createFromMemory( std::vector< char >::const_iterator dataIt, std::vector< char >::const_iterator dataEndIt );
+
         FreeCamera();
+        FreeCamera( float3 position, float3 rotationAngles, float fieldOfView );
         ~FreeCamera();
+
+        void saveToMemory( std::vector< char >& data );
+        void saveToFile( const std::string& path );
 
         void setDirection( float3 direction );
         void setUp( float3 up );
@@ -33,6 +47,8 @@ namespace Engine1
         private:
 
         void updateRotationAnglesFromOrientation();
+        void updateOrientationFromRotationAngles();
+
         float3 m_rotationAngles;
 
         bool m_dampSpeedForward, m_dampSpeedSide, m_dampSpeedUp;

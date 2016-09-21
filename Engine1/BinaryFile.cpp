@@ -111,6 +111,16 @@ bool BinaryFile::readBool( std::vector<char>::const_iterator& dataIt )
 	return value;
 }
 
+float BinaryFile::readFloat( std::vector<char>::const_iterator& dataIt )
+{
+    float value = 0;
+    std::memcpy( &value, &( *dataIt ), sizeof( float ) );
+
+    dataIt += sizeof( float ) / sizeof( char );
+
+    return value;
+}
+
 float3 BinaryFile::readFloat3( std::vector<char>::const_iterator& dataIt )
 {
     float3 value( 0.0f, 0.0f, 0.0f );
@@ -178,6 +188,17 @@ void BinaryFile::writeBool( std::vector<char>& file, const bool value )
 	file.resize( size + sizeIncrease );
 
 	std::memcpy( &file[ size ], &value, sizeof( bool ) );
+}
+
+void BinaryFile::writeFloat( std::vector<char>& file, const float value )
+{
+    const size_t size = file.size();
+
+    const size_t sizeIncrease = sizeof( float ) / sizeof( char );
+
+    file.resize( size + sizeIncrease );
+
+    std::memcpy( &file[ size ], &value, sizeof( float ) );
 }
 
 void BinaryFile::writeFloat3( std::vector<char>& file, const float3& value )

@@ -56,6 +56,7 @@ Application::Application() :
 	m_windowFocused( false ),
     m_debugRenderAlpha( false ),
     m_scenePath( "Assets/Scenes/new.scene" ),
+    m_cameraPath( "Assets/Scenes/new.camera" ),
     m_scene( std::make_shared<CScene>() ),
     m_assetManager()
 {
@@ -637,6 +638,10 @@ void Application::onKeyPress( int key )
         if ( m_scene && !m_scenePath.empty() && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::s ) ) {
             saveScene( m_scenePath );
         }
+
+        if ( !m_cameraPath.empty() && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::s ) ) {
+            saveCamera( m_cameraPath );
+        }
     }
 
     if ( key == InputManager::Keys::delete_ ) 
@@ -906,6 +911,7 @@ void Application::onDragAndDropFile( std::string filePath )
     std::array< const std::string, 1 > skeletonModelExtensions = { "skeletonmodel" };
     std::array< const std::string, 1 > animationExtensions     = { "xaf" };
     std::array< const std::string, 1 > sceneExtensions         = { "scene" };
+    std::array< const std::string, 1 > cameraExtensions        = { "camera" };
 
 	bool isBlockMesh     = false;
 	bool isSkeletonMesh  = false;
@@ -914,6 +920,7 @@ void Application::onDragAndDropFile( std::string filePath )
     bool isSkeletonModel = false;
     bool isAnimation     = false;
     bool isScene         = false;
+    bool isCamera        = false;
 
 	for ( const std::string& blockMeshExtension : blockMeshExtensions ) {
 		if ( extension.compare( blockMeshExtension ) == 0 )
@@ -948,6 +955,11 @@ void Application::onDragAndDropFile( std::string filePath )
     for ( const std::string& sceneExtension : sceneExtensions ) {
         if ( extension.compare( sceneExtension ) == 0 )
             isScene = true;
+    }
+
+    for ( const std::string& cameraExtension : cameraExtensions ) {
+        if ( extension.compare( cameraExtension ) == 0 )
+            isCamera = true;
     }
 
     const bool replaceAsset = m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
@@ -1227,6 +1239,21 @@ void Application::onDragAndDropFile( std::string filePath )
         loadScene( filePath );
         m_scenePath = filePath;
     }
+
+    if ( isCamera ) {
+        loadCamera( filePath );
+        m_cameraPath = filePath;
+    }
+}
+
+void Application::loadCamera( std::string path )
+{
+    m_camera = *FreeCamera::createFromFile( path );
+}
+
+void Application::saveCamera( std::string path )
+{
+    m_camera.saveToFile( path );
 }
 
 void Application::loadScene( std::string path )

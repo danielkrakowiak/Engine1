@@ -71,6 +71,9 @@ private:
         pickActorOrLight( const CScene& scene, const Camera& camera, const float2& targetPixel,
                           const float screenWidth, const float screenHeight, const float fieldOfView );
 
+    void loadCamera( std::string path );
+    void saveCamera( std::string path );
+
     void loadScene( std::string path );
     void saveScene( std::string path );
 
@@ -104,6 +107,7 @@ private:
 
 	bool m_windowFocused;
 
+    std::string m_cameraPath;
 	FreeCamera m_camera;
 
     AssetManager m_assetManager;
