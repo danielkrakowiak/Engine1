@@ -50,16 +50,18 @@ namespace Engine1
 		__declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
 			struct ConstantBuffer
 		{
-			float44 localToWorldMatrix;
-			float44 worldToLocalMatrix;
-			float3  boundingBoxMin;
-			float   pad1;
-			float3  boundingBoxMax;
-			float   pad2;
-			float2  outputTextureSize;
-			float2  pad3;
-			float3  lightPosition;
-			float   pad4;
+			float44      localToWorldMatrix;
+			float44      worldToLocalMatrix;
+			float3       boundingBoxMin;
+			float        pad1;
+			float3       boundingBoxMax;
+			float        pad2;
+			float2       outputTextureSize;
+			float2       pad3;
+			float3       lightPosition;
+			float        pad4;
+            unsigned int isOpaque;
+            float3       pad5;
 		};
 
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;

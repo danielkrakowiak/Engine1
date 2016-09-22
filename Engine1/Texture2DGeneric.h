@@ -66,6 +66,8 @@ namespace Engine1
         int getSize( unsigned int mipMapLevel = 0 ) const;
         int getLineSize( unsigned int mipMapLevel = 0 ) const;
 
+        const std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 ) const;
+
         protected:
 
         Texture2DGeneric();
@@ -947,6 +949,18 @@ namespace Engine1
 		    throw std::exception( "Texture2DGeneric::getLineSize - Incorrect level requested. There is no mipmap with such level." );
 
 	    return getWidth( mipMapLevel ) * getBytesPerPixel();
+    }
+
+    template< typename PixelType >
+    const std::vector< PixelType >& Texture2DGeneric< PixelType >
+        ::getData( unsigned int mipMapLevel = 0 ) const
+    {
+        if ( !isInCpuMemory() )
+            throw std::exception( "Texture2DGeneric::getData - texture is not in CPU memory." );
+        else if ( (int)mipMapLevel >= getMipMapCountOnCpu() )
+            throw std::exception( "Texture2DGeneric::getData - Incorrect level requested. There is no mipmap with such level." );
+
+        return m_dataMipmaps.at( mipMapLevel );
     }
 
     template< typename PixelType >

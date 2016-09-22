@@ -12,6 +12,9 @@ cbuffer ConstantBuffer : register( b0 )
     float2   pad3;
 	float3   lightPosition;
 	float    pad4;
+    uint     isOpaque; // 1 - fully opaque, 0 - semi transparent.
+    float3   pad5;
+
 };
 
 // Input.
@@ -162,14 +165,29 @@ void main( uint3 groupId : SV_GroupID,
 						//#TODO: Maybe could ignore calculating distance - it's only to avoid self-collision.
 						if ( dist > minHitDist && dist < rayMaxLength )
 						{
-							//#TODO: Could sample alpha texture here...
-							//const float2x3 verticesTexCoords = readVerticesTexCoords(trianglee);
-							//const float2   hitTexCoords      = calcInterpolatedTexCoords(hitBarycentricCoords, verticesTexCoords);
+                            if ( !isOpaque )
+                            {
+                                const float3 hitPos               = rayOriginLocal.xyz + rayDirLocal.xyz * dist;
+                                const float3 hitBarycentricCoords = calcBarycentricCoordsInTriangle( hitPos, verticesPos );
 
-							illumination = 0.0f;
-							//illumination -= lightAmountPerSample;
+							    const float2x3 verticesTexCoords = readVerticesTexCoords( trianglee );
+							    const float2   hitTexCoords      = calcInterpolatedTexCoords( hitBarycentricCoords, verticesTexCoords );
 
-                            break;
+                                const float alpha = g_alphaTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r;
+
+                                illumination -= alpha;
+
+                                // Stop tracing shadow rays if the pixel is already fully shadowed.
+                                if ( illumination < 0.001f )
+                                    break;
+                            }
+                            else
+                            {
+                                illumination = 0.0f;
+							    //illumination -= lightAmountPerSample;
+
+                                break;
+                            }
 						}
 					}
 				}

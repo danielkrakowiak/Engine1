@@ -125,6 +125,6 @@ void RaytraceShadowRenderer::createDefaultTextures( ID3D11Device& device )
 	std::vector< unsigned char > dataAlpha = { 255 };
 
 	m_defaultAlphaTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-		( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+		( device, dataAlpha, 1, 1, true, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 }
 

@@ -123,6 +123,8 @@ void RaytracingShadowsComputeShader::setParameters(
 	}
 
 	{ // Set constant buffer.
+        const bool isOpaque = alphaTexture.getWidth() * alphaTexture.getHeight() == 1 && alphaTexture.isInCpuMemory() && alphaTexture.getData()[ 0 ] == 255; 
+
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ConstantBuffer* dataPtr;
 
@@ -137,6 +139,7 @@ void RaytracingShadowsComputeShader::setParameters(
 		dataPtr->boundingBoxMax     = boundingBoxMax;
 		dataPtr->outputTextureSize  = float2( (float)outputTextureWidth, (float)outputTextureHeight );
 		dataPtr->lightPosition      = light.getPosition();
+        dataPtr->isOpaque           = isOpaque ? 1 : 0;
 
 		deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
