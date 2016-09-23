@@ -86,6 +86,12 @@ namespace Engine1
         void                             loadBvhTreeToGpu( ID3D11Device& device );
         std::shared_ptr< const BVHTree > getBvhTree() const;
 
+        // Reorganizes triangle order to match the BVH tree (for better ray tracing performance).
+        // It means that triangle indices in BVH nodes point directly to mesh triangles
+        // and there is no need to use BVH's triangles vector to map node's triangles onto mesh's triangles.
+        // Note: Triangles need to be re-uploaded to GPU after that operation.
+        void reorganizeTrianglesToMatchBvhTree();
+
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferNodesShaderResourceView()        const;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferNodesExtentsShaderResourceView() const;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferTrianglesShaderResourceView()    const;

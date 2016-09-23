@@ -673,6 +673,28 @@ std::shared_ptr< const BVHTree > BlockMesh::getBvhTree() const
     return m_bvhTree;
 }
 
+void BlockMesh::reorganizeTrianglesToMatchBvhTree()
+{
+    if ( !m_bvhTreeBuffer )
+        throw std::exception( "BlockMesh::reorganizeTrianglesToMatchBvhTree - BVH Tree Buffer needs to be built first." );
+
+    const std::vector<uint3> trianglesCopy( m_triangles );
+
+    const std::vector< unsigned int >& bvhTriangles = m_bvhTreeBuffer->getTriangles();
+
+    // Note: BVH tree may have a bit more triangles, because some of them are duplicated (single triangle contained in multiple nodes).
+    const int bvhTriangleCount = (int)bvhTriangles.size();
+
+    // Resize triangles vector.
+    m_triangles.clear(); // NOTE: Clear to avoid copying old content during vector resize.
+    m_triangles.reserve( bvhTriangleCount ); 
+    m_triangles.resize( bvhTriangleCount );
+
+    // Copy triangles in the same order as in BVH.
+    for ( int i = 0; i < bvhTriangleCount; ++i )
+        m_triangles[ i ] = trianglesCopy[ bvhTriangles[ i ] ];
+}
+
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> BlockMesh::getBvhTreeBufferNodesShaderResourceView() const
 {
     return m_bvhTreeBufferNodesGpuSRV;

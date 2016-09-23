@@ -26,9 +26,8 @@ ByteAddressBuffer g_meshTexcoords    : register( t3 );
 ByteAddressBuffer g_meshTriangles    : register( t4 );
 Buffer<uint2>     g_bvhNodes         : register( t5 );
 Buffer<float3>    g_bvhNodesExtents  : register( t6 ); // min, max, min, max interleaved.
-Buffer<uint>      g_bvhTriangles     : register( t7 );
 
-Texture2D         g_alphaTexture     : register( t8 );
+Texture2D         g_alphaTexture     : register( t7 );
 SamplerState      g_samplerState;
 
 // Input / Output.
@@ -152,9 +151,8 @@ void main( uint3 groupId : SV_GroupID,
 				const uint triangleCount      = bvhNodeData.x & 0x7fffffff;
 				const uint firstTriangleIndex = bvhNodeData.y;
 				const uint lastTriangleIndex  = firstTriangleIndex + triangleCount;
-				for ( uint i = firstTriangleIndex; i < lastTriangleIndex; ++i ) 
+				for ( uint triangleIdx = firstTriangleIndex; triangleIdx < lastTriangleIndex; ++triangleIdx ) 
 				{
-					const uint     triangleIdx = g_bvhTriangles[ i ];
 					const uint3    trianglee   = readTriangle( triangleIdx );
 					const float3x3 verticesPos = readVerticesPos( trianglee );
 

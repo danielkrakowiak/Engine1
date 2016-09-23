@@ -980,6 +980,8 @@ void Application::onDragAndDropFile( std::string filePath )
         if ( !mesh->getBvhTree() )
             mesh->buildBvhTree();
 
+        mesh->reorganizeTrianglesToMatchBvhTree();
+
         if ( !mesh->isInGpuMemory( ) ) {
             mesh->loadCpuToGpu( *m_frameRenderer.getDevice().Get() );
             mesh->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
@@ -1192,6 +1194,7 @@ void Application::onDragAndDropFile( std::string filePath )
         if ( model->getMesh() && !model->getMesh()->getBvhTree() )
         {
             model->getMesh()->buildBvhTree();
+            model->getMesh()->reorganizeTrianglesToMatchBvhTree();
             model->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice( ).Get() );
         }
 
@@ -1288,6 +1291,7 @@ void Application::loadScene( std::string path )
                     // Build BVH tree and load it to GPU.
                     if ( blockModel->getMesh() ) {
                         blockModel->getMesh()->buildBvhTree();
+                        blockModel->getMesh()->reorganizeTrianglesToMatchBvhTree();
                         blockModel->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
                     }
 

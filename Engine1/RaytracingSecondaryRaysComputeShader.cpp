@@ -107,7 +107,7 @@ void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& d
     if ( !m_compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 17;
+        const unsigned int resourceCount = 16;
         ID3D11ShaderResourceView* resources[ resourceCount ] = { 
             rayOriginsTexture.getShaderResourceView(),
             rayDirectionsTexture.getShaderResourceView(), 
@@ -118,7 +118,7 @@ void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& d
             mesh.getTriangleBufferResource(),
             mesh.getBvhTreeBufferNodesShaderResourceView().Get(),
             mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get(),
-            mesh.getBvhTreeBufferTrianglesShaderResourceView().Get(),
+            //mesh.getBvhTreeBufferTrianglesShaderResourceView().Get(),
             alphaTexture.getShaderResourceView(),
             emissiveTexture.getShaderResourceView(),
             albedoTexture.getShaderResourceView(),
@@ -165,8 +165,8 @@ void RaytracingSecondaryRaysComputeShader::unsetParameters( ID3D11DeviceContext&
     if ( !m_compiled ) throw std::exception( "RaytracingSecondaryRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 17 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    deviceContext.CSSetShaderResources( 0, 17, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 16 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    deviceContext.CSSetShaderResources( 0, 16, nullResources );
     
     // Unset samplers.
     ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };

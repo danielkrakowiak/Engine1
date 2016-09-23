@@ -271,4 +271,4 @@ Thu 15.09.2016 - 2h - Adding support for multiple lights/objects casting shadows
 Mon 19.09.2016 - 1h - Fixed emmisive term in reflections/refractions. Added enabling/disabling casting shadows per actor. Optimized raytraced shadows shader to not trace rays for completaly shadowed areas.
 Tue 20.09.2016 - 2h - Loading/saving camera state to file.
 Wed 21.09.2016 - 1h - Fixed saving/loading camera.
-Thu 22.09.2016 - 2h - Added partial shadowing for objects with alpha texture.
+Thu 22.09.2016 - 4h - Added partial shadowing for objects with alpha texture. Added reordering of mesh triangles to match BVH tree nodes - optimized raytracing and removed the need for a mapping array between BVH node's triangles and mesh triangles.
