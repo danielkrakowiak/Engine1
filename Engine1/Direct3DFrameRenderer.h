@@ -44,13 +44,13 @@ namespace Engine1
 
         void reportLiveObjects();
 
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char >&  texture, float posX, float posY, float width, float height );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >&         texture, float posX, float posY, float width, float height );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4 >&         texture, float posX, float posY, float width, float height );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float2  >&        texture, float posX, float posY, float width, float height );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float  >&         texture, float posX, float posY, float width, float height );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char >&  texture, float posX, float posY, float width, float height, bool blend );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >&         texture, float posX, float posY, float width, float height, bool blend );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4 >&         texture, float posX, float posY, float width, float height, bool blend );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float2  >&        texture, float posX, float posY, float width, float height, bool blend );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float  >&         texture, float posX, float posY, float width, float height, bool blend );
 
-        void renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >& texture, float posX, float posY, float width, float height );
+        void renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >& texture, float posX, float posY, float width, float height, bool blend );
 
         void displayFrame();
 
@@ -71,7 +71,8 @@ namespace Engine1
 
         Microsoft::WRL::ComPtr<ID3D11Texture2D>       getBackbufferTexture( IDXGISwapChain& swapChain );
         Microsoft::WRL::ComPtr<ID3D11RasterizerState> createRasterizerState( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendState( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendStateNoBlending( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendStateWithBlending( ID3D11Device& device );
 
         bool m_initialized;
 
@@ -86,7 +87,8 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11DeviceContext>   m_deviceContext;
         Microsoft::WRL::ComPtr<IDXGISwapChain>        m_swapChain;
         Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
-        Microsoft::WRL::ComPtr<ID3D11BlendState>      m_blendState;
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      m_blendStateNoBlending;
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      m_blendStateWithBlending;
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > > m_renderTarget;
 

@@ -78,8 +78,9 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
             ( *m_device.Get(), backbufferTexture );
 	}
 
-	m_rasterizerState = createRasterizerState( *m_device.Get() );
-	m_blendState      = createBlendState( *m_device.Get() );
+	m_rasterizerState        = createRasterizerState( *m_device.Get() );
+    m_blendStateNoBlending   = createBlendStateNoBlending( *m_device.Get() );
+	m_blendStateWithBlending = createBlendStateWithBlending( *m_device.Get() );
 
     // TODO: Viewport should be set before rendering - not only once.
 	{ // Initialize viewport.
@@ -316,7 +317,7 @@ ComPtr<ID3D11RasterizerState> Direct3DFrameRenderer::createRasterizerState( ID3D
 	return rasterizerState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendState( ID3D11Device& device )
+ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateNoBlending( ID3D11Device& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -337,9 +338,35 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendState( ID3D11Device& 
 	blendDesc.RenderTarget[ 0 ].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE; // Don't write alpha.
 
 	HRESULT result = device.CreateBlendState( &blendDesc, blendState.ReleaseAndGetAddressOf() );
-	if ( result < 0 ) throw std::exception( "Direct3DFrameRenderer::createBlendState - creation of blend state failed." );
+	if ( result < 0 ) throw std::exception( "Direct3DFrameRenderer::createBlendStateNoBlending - creation of blend state failed." );
 
 	return blendState;
+}
+
+ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateWithBlending( ID3D11Device& device )
+{
+    ComPtr<ID3D11BlendState> blendState;
+    D3D11_BLEND_DESC         blendDesc;
+
+    ZeroMemory( &blendDesc, sizeof( blendDesc ) );
+
+    blendDesc.AlphaToCoverageEnable = false;
+    blendDesc.IndependentBlendEnable = false;
+
+    // Enable blending.
+    blendDesc.RenderTarget[ 0 ].BlendEnable = true;//false;
+    blendDesc.RenderTarget[ 0 ].SrcBlend = D3D11_BLEND_SRC_ALPHA;//D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[ 0 ].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;//D3D11_BLEND_ZERO;
+    blendDesc.RenderTarget[ 0 ].BlendOp = D3D11_BLEND_OP_ADD;//D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[ 0 ].SrcBlendAlpha = D3D11_BLEND_ONE;//D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[ 0 ].DestBlendAlpha = D3D11_BLEND_ZERO;//D3D11_BLEND_ZERO;
+    blendDesc.RenderTarget[ 0 ].BlendOpAlpha = D3D11_BLEND_OP_ADD;//D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[ 0 ].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE; // Don't write alpha.
+
+    HRESULT result = device.CreateBlendState( &blendDesc, blendState.ReleaseAndGetAddressOf() );
+    if ( result < 0 ) throw std::exception( "Direct3DFrameRenderer::createBlendStateWithBlending - creation of blend state failed." );
+
+    return blendState;
 }
 
 void Direct3DFrameRenderer::loadAndCompileShaders( ID3D11Device& device )
@@ -352,7 +379,7 @@ void Direct3DFrameRenderer::loadAndCompileShaders( ID3D11Device& device )
 	m_textFragmentShader->compileFromFile( "Shaders/TextShader/ps.hlsl", device );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY, float width, float height )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY, float width, float height, bool blend )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -378,14 +405,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	}
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
-	m_rendererCore.enableBlendState( *m_blendState.Get() );
+	m_rendererCore.enableBlendState( blend ? *m_blendStateWithBlending.Get() : *m_blendStateNoBlending.Get() );
 
 	m_rendererCore.draw( rectangleMesh );
 
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -411,14 +438,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	}
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
-	m_rendererCore.enableBlendState( *m_blendState.Get() );
+	m_rendererCore.enableBlendState( blend ? *m_blendStateWithBlending.Get() : *m_blendStateNoBlending.Get() );
 
 	m_rendererCore.draw( rectangleMesh );
 
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY, float width, float height )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY, float width, float height, bool blend )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -444,14 +471,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	}
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
-	m_rendererCore.enableBlendState( *m_blendState.Get() );
+	m_rendererCore.enableBlendState( blend ? *m_blendStateWithBlending.Get() : *m_blendStateNoBlending.Get() );
 
 	m_rendererCore.draw( rectangleMesh );
 
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY, float width, float height )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY, float width, float height, bool blend )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -477,14 +504,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	}
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
-	m_rendererCore.enableBlendState( *m_blendState.Get() );
+	m_rendererCore.enableBlendState( blend ? *m_blendStateWithBlending.Get() : *m_blendStateNoBlending.Get() );
 
 	m_rendererCore.draw( rectangleMesh );
 
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY, float width, float height )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY, float width, float height, bool blend )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -510,14 +537,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	}
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
-	m_rendererCore.enableBlendState( *m_blendState.Get() );
+	m_rendererCore.enableBlendState( blend ? *m_blendStateWithBlending.Get() : *m_blendStateNoBlending.Get() );
 
 	m_rendererCore.draw( rectangleMesh );
 
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height )
+void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -543,7 +570,7 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind:
 	}
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
-	m_rendererCore.enableBlendState( *m_blendState.Get() );
+	m_rendererCore.enableBlendState( blend ? *m_blendStateWithBlending.Get() : *m_blendStateNoBlending.Get() );
 
 	m_rendererCore.draw( rectangleMesh );
 

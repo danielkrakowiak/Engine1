@@ -56,7 +56,9 @@ namespace Engine1
                          std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
 
         // Should be called at the beginning of each frame, before calling renderScene(). 
-        void prepare();
+        void clear();
+
+        void clear2();
 
 		void renderShadowMaps( const CScene& scene );
 
@@ -67,6 +69,22 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > >
         renderScene( const CScene& scene, const Camera& camera );
+
+        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >
+        renderText( const std::string& text, Font& font, float2 position, float4 color );
+
+        void                       setActiveViewType( const View view );
+        View                       getActiveViewType() const;
+        void                       activateNextViewLevel( const bool reflection );
+        void                       activatePrevViewLevel();
+        const std::vector< bool >& getActiveViewLevel() const;
+        void                       setMaxLevelCount( const int levelCount );
+        int                        getMaxLevelCount() const;
+
+        // Temporary - for debug.
+        const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& debugGetCurrentRefractiveIndexTextures();
+
+        private:
 
         std::tuple< 
         bool,
@@ -97,17 +115,6 @@ namespace Engine1
 
         void renderReflections( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
         void renderRefractions( const int level, const int refractionLevel, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
-
-        void                       setActiveViewType( const View view );
-        View                       getActiveViewType() const;
-        void                       activateNextViewLevel( const bool reflection );
-        void                       activatePrevViewLevel();
-        const std::vector< bool >& getActiveViewLevel() const;
-        void                       setMaxLevelCount( const int levelCount );
-        int                        getMaxLevelCount() const;
-
-        // Temporary - for debug.
-        const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& debugGetCurrentRefractiveIndexTextures();
 
         private:
 

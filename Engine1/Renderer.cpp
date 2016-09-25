@@ -68,11 +68,16 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
 }
 
 // Should be called at the beginning of each frame, before calling renderScene(). 
-void Renderer::prepare()
+void Renderer::clear()
 {
     // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
     // Be careful when changing!
     m_deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 1.0f ), 1.0f ); 
+}
+
+void Renderer::clear2()
+{
+    m_deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 0.0f ), 1.0f ); 
 }
 
 void Renderer::renderShadowMaps( const CScene& scene )
@@ -132,6 +137,14 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
 
     return std::make_tuple( nullptr, nullptr, m_finalRenderTarget, nullptr, nullptr );
+}
+
+std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >
+Renderer::renderText( const std::string& text, Font& font, float2 position, float4 color )
+{
+    m_deferredRenderer.render( text, font, position, color );
+
+    return m_deferredRenderer.getAlbedoRenderTarget();
 }
 
 std::tuple< 

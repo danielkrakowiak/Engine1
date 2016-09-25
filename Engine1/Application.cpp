@@ -213,8 +213,6 @@ void Application::run() {
 
     double frameTimeMs = 0.0;
 
-    //StagingTexture2D< unsigned char > debugTextureU1( *m_frameRenderer.getDevice().Get(), m_screenWidth, m_screenHeight, DXGI_FORMAT_R8_UINT );
-
 	while ( run ) {
 		Timer frameStartTime;
 
@@ -318,50 +316,10 @@ void Application::run() {
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > >        frameFloat2;
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
 
-        m_renderer.prepare();
+        m_renderer.clear();
 
         if ( m_scene )
             std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) = m_renderer.renderScene( *m_scene, m_camera );
-
-		{ // Render FPS.
-			//std::stringstream ss;
-			//ss << "FPS: " << (int)(1000.0 / frameTimeMs) << " / " << frameTimeMs << "ms";
-			//deferredRenderer.render( ss.str( ), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-		}
-
-		{ // Render camera state.
-			//std::stringstream ss;
-			//ss << "Cam pos: " << camera.getPosition( ).x << ", " << camera.getPosition( ).y << ", " << camera.getPosition( ).z;
-			//deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-		}
-
-		{ // Render keyboard state.
-			//std::stringstream ss;
-			//ss << "";
-			//if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) ss << "W";
-			//if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) ss << "S";
-			//if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) ss << "A";
-			//if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) ss << "D";
-				
-			//direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-		}
-
-        { // Render mouse state.
-			//std::stringstream ss;
-			//ss << "Mouse pos: " << inputManager.getMousePos().x << ", " << inputManager.getMousePos().y << ", ";
-			//deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 100.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-		}
-
-        { // Render combining renderer position/normal thresholds.
-			//std::stringstream ss;
-			//ss << "Combining renderer normal threshold:   " << combiningRenderer.getNormalThreshold() << std::endl;
-            //ss << "Combining renderer position threshold: " << combiningRenderer.getPositionThreshold() << std::endl;
-			//deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-		}
-
-        // Required to be able to display depth-stencil buffer.
-        // TODO: Should  be refactored somehow. Such method should not be called here.
-        //deferredRenderer.disableRenderTargets();
 
         const int2 mousePos = m_inputManager.getMousePos();
 
@@ -370,7 +328,7 @@ void Application::run() {
         if ( frameUchar ) 
         {
             m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, 0, 0, frameUchar->getWidth(), frameUchar->getHeight() );
-		    m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
+		    m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
 
             if ( m_inputManager.isMouseButtonPressed(0) ) 
                 debugDisplayTextureValue( *frameUchar, mousePos.x, mousePos.y );
@@ -378,27 +336,27 @@ void Application::run() {
         else if ( frameUchar4 )
         {
             if ( m_debugRenderAlpha )
-		        m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
+		        m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
             else
-                m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
+                m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
 
             if ( m_inputManager.isMouseButtonPressed( 0 ) )
                 debugDisplayTextureValue( *frameUchar4, mousePos.x, mousePos.y );
         } 
         else if ( frameFloat4 )
         {
-            m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
+            m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
 
             if ( m_inputManager.isMouseButtonPressed( 0 ) )
                 debugDisplayTextureValue( *frameFloat4, mousePos.x, mousePos.y );
         }
         else if ( frameFloat2 )
         {
-            m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
+            m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
         }
         else if ( frameFloat ) 
         {
-            m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight );
+            m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
 
             if ( m_inputManager.isMouseButtonPressed( 0 ) )
                 debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
@@ -411,6 +369,50 @@ void Application::run() {
         }
         catch( ... )
         {}
+
+        m_renderer.clear2();
+
+        { // Render FPS.
+            std::stringstream ss;
+            ss << "FPS: " << (int)( 1000.0 / frameTimeMs ) << " / " << frameTimeMs << "ms";
+            frameUchar4 = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        }
+
+        { // Render camera state.
+            //std::stringstream ss;
+            //ss << "Cam pos: " << camera.getPosition( ).x << ", " << camera.getPosition( ).y << ", " << camera.getPosition( ).z;
+            //deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        }
+
+        { // Render keyboard state.
+            //std::stringstream ss;
+            //ss << "";
+            //if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) ss << "W";
+            //if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) ss << "S";
+            //if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) ss << "A";
+            //if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) ss << "D";
+
+            //direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        }
+
+        { // Render mouse state.
+            //std::stringstream ss;
+            //ss << "Mouse pos: " << inputManager.getMousePos().x << ", " << inputManager.getMousePos().y << ", ";
+            //deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 100.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        }
+
+        { // Render combining renderer position/normal thresholds.
+            //std::stringstream ss;
+            //ss << "Combining renderer normal threshold:   " << combiningRenderer.getNormalThreshold() << std::endl;
+            //ss << "Combining renderer position threshold: " << combiningRenderer.getPositionThreshold() << std::endl;
+            //deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        }
+
+        // Required to be able to display depth-stencil buffer.
+        // TODO: Should  be refactored somehow. Such method should not be called here.
+        //deferredRenderer.disableRenderTargets();
+
+        m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, true );
 
 		m_frameRenderer.displayFrame();
 
