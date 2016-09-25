@@ -105,7 +105,7 @@ void RaytracingShadowsComputeShader::setParameters(
 	if ( !m_compiled ) throw std::exception( "RaytracingShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
 	{ // Set input buffers and textures.
-		const unsigned int resourceCount = 9;
+		const unsigned int resourceCount = 8;
 		ID3D11ShaderResourceView* resources[ resourceCount ] = {
 			rayOriginTexture.getShaderResourceView(),
 			surfaceNormalTexture.getShaderResourceView(),
@@ -115,7 +115,6 @@ void RaytracingShadowsComputeShader::setParameters(
 			mesh.getTriangleBufferResource(),
 			mesh.getBvhTreeBufferNodesShaderResourceView().Get(),
 			mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get(),
-			mesh.getBvhTreeBufferTrianglesShaderResourceView().Get(),
 			alphaTexture.getShaderResourceView(),
 		};
 
@@ -156,10 +155,10 @@ void RaytracingShadowsComputeShader::unsetParameters( ID3D11DeviceContext& devic
 	if ( !m_compiled ) throw std::exception( "RaytracingShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
 	// Unset buffers and textures.
-	ID3D11ShaderResourceView* nullResources[ 9 ] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-	deviceContext.CSSetShaderResources( 0, 9, nullResources );
+	ID3D11ShaderResourceView* nullResources[ 8 ] = {};
+	deviceContext.CSSetShaderResources( 0, 8, nullResources );
 
 	// Unset samplers.
-	ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };
+	ID3D11SamplerState* nullSamplers[ 1 ] = {};
 	deviceContext.CSSetSamplers( 0, 1, nullSamplers );
 }

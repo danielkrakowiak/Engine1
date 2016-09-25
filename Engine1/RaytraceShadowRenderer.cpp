@@ -58,7 +58,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	m_rendererCore.enableComputeShader( m_raytracingShadowsComputeShader );
 
 	// Clear unordered access targets.
-	m_illuminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 128, 128, 128, 128 ) );
+	m_illuminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
 
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
