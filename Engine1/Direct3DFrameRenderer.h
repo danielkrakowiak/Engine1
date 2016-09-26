@@ -31,13 +31,14 @@ namespace Engine1
 {
     class Direct3DRendererCore;
     class RenderTarget2D;
+    class Profiler;
 
     class Direct3DFrameRenderer
     {
 
         public:
 
-        Direct3DFrameRenderer( Direct3DRendererCore& rendererCore );
+        Direct3DFrameRenderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
         ~Direct3DFrameRenderer();
 
         void initialize( HWND windowHandle, int screenWidth, int screenHeight, bool fullscreen, bool verticalSync );
@@ -60,6 +61,7 @@ namespace Engine1
         private:
 
         Direct3DRendererCore& m_rendererCore;
+        Profiler&             m_profiler;
 
         // Initalization.
         std::tuple<int, int>    getRefreshRateNumeratorDenominator( IDXGIAdapter& adapter, unsigned int screenWidth, unsigned int screenHeight );

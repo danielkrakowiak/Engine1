@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Direct3DRendererCore.h"
+#include "Profiler.h"
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
@@ -27,8 +28,9 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-Renderer::Renderer( Direct3DRendererCore& rendererCore ) :
+Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_rendererCore( rendererCore ),
+    m_profiler( profiler ),
     m_deferredRenderer( rendererCore ),
     m_raytraceRenderer( rendererCore ),
     m_shadingRenderer( rendererCore ),
@@ -212,14 +214,23 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_deferredRenderer.getEmissiveRenderTarget() );
 
-	for (const std::shared_ptr< Light >& light : lightsVector )
+    int i = 0;
+	for ( const std::shared_ptr< Light >& light : lightsVector )
 	{
+        if ( i < Profiler::mainShadowsLightCount )
+            m_profiler.beginEvent( (Profiler::EventType)((int)Profiler::EventType::Main_Shadows_Light0 + i) );
+
 		m_raytraceShadowRenderer.generateAndTraceShadowRays( light, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
+
+        if ( i < Profiler::mainShadowsLightCount )
+            m_profiler.endEvent( ( Profiler::EventType )( (int)Profiler::EventType::Main_Shadows_Light0 + i ) );
 
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(),
 			m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
 			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture(), *light );
+
+        ++i;
 	}
 
     // Copy main shaded image to final render target.

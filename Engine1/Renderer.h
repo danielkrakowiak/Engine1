@@ -21,6 +21,7 @@
 namespace Engine1 
 {
     class Direct3DRendererCore;
+    class Profiler;
     class CScene;
     class Camera;
     class BlockMesh;
@@ -49,7 +50,7 @@ namespace Engine1
 			Test
         };
 
-        Renderer( Direct3DRendererCore& rendererCore );
+        Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
         ~Renderer();
 
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
@@ -126,6 +127,8 @@ namespace Engine1
         int               m_maxLevelCount;
 
         Direct3DRendererCore&     m_rendererCore;
+        Profiler&                 m_profiler;
+
         Direct3DDeferredRenderer  m_deferredRenderer;
         RaytraceRenderer          m_raytraceRenderer;
         ShadingRenderer           m_shadingRenderer;

@@ -17,8 +17,9 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-Direct3DFrameRenderer::Direct3DFrameRenderer( Direct3DRendererCore& rendererCore ) :
+Direct3DFrameRenderer::Direct3DFrameRenderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_rendererCore( rendererCore ),
+    m_profiler( profiler ),
     m_initialized( false ),
     m_gpuMemory( 0 ),
     m_fullscreen( false ),

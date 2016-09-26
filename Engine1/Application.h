@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "Direct3DFrameRenderer.h"
 #include "FreeCamera.h"
+#include "Profiler.h"
 
 #include "ImageLibrary.h"
 #include "FontLibrary.h"
@@ -96,6 +97,7 @@ private:
 	Direct3DRendererCore      m_rendererCore;
     Direct3DFrameRenderer     m_frameRenderer;
     Renderer                  m_renderer;
+    Profiler                  m_profiler;
 
 	bool m_fullscreen;
 	int  m_screenWidth;

@@ -337,6 +337,12 @@
     <Filter Include="Header Files\Camera\Parsers">
       <UniqueIdentifier>{54ee76b8-6d4a-43d2-8335-ddb2cad06d54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Profiler">
+      <UniqueIdentifier>{127d685e-2dc9-4126-80a0-9ffcbc61ea8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Profiler">
+      <UniqueIdentifier>{c24c4259-dc1f-498c-8c40-e1a28cb11d6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -729,6 +735,9 @@
     <ClInclude Include="FreeCameraParser.h">
       <Filter>Header Files\Camera\Parsers</Filter>
     </ClInclude>
+    <ClInclude Include="Profiler.h">
+      <Filter>Header Files\Profiler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1090,6 +1099,9 @@
     </ClCompile>
     <ClCompile Include="FreeCameraParser.cpp">
       <Filter>Source Files\Camera\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiler.cpp">
+      <Filter>Source Files\Profiler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

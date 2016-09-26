@@ -278,6 +278,7 @@
     <ClInclude Include="GenerateFirstRefractedRaysComputeShader.h" />
     <ClInclude Include="GenerateReflectedRaysComputeShader.h" />
     <ClInclude Include="GenerateRefractedRaysComputeShader.h" />
+    <ClInclude Include="Profiler.h" />
     <ClInclude Include="RaytraceShadowRenderer.h" />
     <ClInclude Include="RaytracingShadowsComputeShader.h" />
     <ClInclude Include="ReflectionShadingComputeShader.h" />
@@ -410,6 +411,7 @@
     <ClCompile Include="GenerateFirstRefractedRaysComputeShader.cpp" />
     <ClCompile Include="GenerateReflectedRaysComputeShader.cpp" />
     <ClCompile Include="GenerateRefractedRaysComputeShader.cpp" />
+    <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="RaytraceShadowRenderer.cpp" />
     <ClCompile Include="RaytracingShadowsComputeShader.cpp" />
     <ClCompile Include="ReflectionShadingComputeShader.cpp" />

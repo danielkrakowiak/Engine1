@@ -324,14 +324,22 @@ Idea:
 
 	  - 
 
+	  - fix rendering of text - maybe clear deffered renderer and render text then?
+
 	  - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
 
 	  - how to make skybox not receive shadow? To improve performance...
 	  - make commit
 
-	  - finish removing BVH triangles buffer from shaders. Add some comments where appropriate that triangles need to be reordered to match BVH for shaders to work correctly.
+	  - pass 4 meshes at once to shadow raytracing shader.
+
+	  - where is specular shading?!?!!
+
+	  - place GPU timers everywhere - in renderers. How to do it nicely in code? Use rendererCore somehow? http://www.reedbeta.com/blog/2011/10/12/gpu-profiling-101/
 
 	  LATER:
+
+	  - OPTIMIZATION: Replace float4 with float3 wherever possible in framebuffers/shaders.
 
 	  - OPTIMIZATION: Trace 4 or 8 rays in a single shader. Could give amazing boost, because we construct triangle only once and do a few intersection tests with it. Could be tested in normal raytracing or shadow ray tracing (even soft shadows).
 

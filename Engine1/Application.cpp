@@ -39,8 +39,8 @@ using Microsoft::WRL::ComPtr;
 
 Application::Application() :
 	m_rendererCore(),
-	m_frameRenderer( m_rendererCore ),
-    m_renderer( m_rendererCore ),
+	m_frameRenderer( m_rendererCore, m_profiler ),
+    m_renderer( m_rendererCore, m_profiler ),
 	m_initialized( false ),
 	m_applicationInstance( nullptr ),
 	m_windowHandle( nullptr ),
@@ -73,6 +73,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	m_frameRenderer.initialize( m_windowHandle, m_screenWidth, m_screenHeight, m_fullscreen, m_verticalSync );
 	m_rendererCore.initialize( *m_frameRenderer.getDeviceContext( ).Get() );
     m_assetManager.initialize( std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) * 2 : 1, m_frameRenderer.getDevice() );
+    m_profiler.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
 
     createDebugFrames( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice() );
     createUcharDisplayFrame( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice() );
@@ -209,12 +210,15 @@ void Application::run() {
 	font.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 35 );
 
     Font font2( uint2(m_screenWidth, m_screenHeight) );
-    font2.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 15 );
+    font2.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 20 );
 
     double frameTimeMs = 0.0;
 
 	while ( run ) {
 		Timer frameStartTime;
+
+        m_profiler.beginFrameProfiling();
+        m_profiler.beginEvent( Profiler::EventType::Frame );
 
         // Disable locking when connecting through Team Viewer.
         bool lockCursor = false;
@@ -378,6 +382,17 @@ void Application::run() {
             frameUchar4 = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
+        { // Render profiling results.
+            const float totalFrameTime = m_profiler.getEventDuration( Profiler::EventType::Frame );
+            const float mainShadowsLight0Time = m_profiler.getEventDuration( Profiler::EventType::Main_Shadows_Light0 );
+
+            std::stringstream ss;
+            ss << "Profiling: \n";
+            ss << "Total: " << totalFrameTime << " ms \n";
+            ss << "Main/Shadows/Light0: " << mainShadowsLight0Time << " ms, " << ( mainShadowsLight0Time / totalFrameTime ) * 100.0f << "% \n";
+            frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        }
+
         { // Render camera state.
             //std::stringstream ss;
             //ss << "Cam pos: " << camera.getPosition( ).x << ", " << camera.getPosition( ).y << ", " << camera.getPosition( ).z;
@@ -415,6 +430,9 @@ void Application::run() {
         m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, true );
 
 		m_frameRenderer.displayFrame();
+
+        m_profiler.endEvent( Profiler::EventType::Frame );
+        m_profiler.endFrameProfiling();
 
 		Timer frameEndTime;
 		frameTimeMs = Timer::lapse( frameEndTime, frameStartTime );
