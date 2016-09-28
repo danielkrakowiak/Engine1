@@ -161,6 +161,8 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
 {
     float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
 
+    m_profiler.beginEvent( Profiler::GlobalEventType::DeferredRendering );
+
     // Render 'axises' model.
     if ( m_axisMesh )
         m_deferredRenderer.render( *m_axisMesh, float43::IDENTITY, viewMatrix );
@@ -198,6 +200,8 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
         }
     }
 
+    m_profiler.endEvent( Profiler::GlobalEventType::DeferredRendering );
+
 	// Gather block actors.
 	std::vector< std::shared_ptr< const BlockActor > > blockActors;
 	blockActors.reserve( actors.size() );
@@ -207,30 +211,38 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
 			blockActors.push_back( std::static_pointer_cast<BlockActor>(actor) );
 	}
 
+    m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
+
     // Generate mipmaps for normal and position g-buffers.
     m_deferredRenderer.getNormalRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
     m_deferredRenderer.getPositionRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
+    m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
+
+    m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
+
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_deferredRenderer.getEmissiveRenderTarget() );
 
-    int i = 0;
-	for ( const std::shared_ptr< Light >& light : lightsVector )
+    m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
+
+    const int lightCount = (int)lightsVector.size();
+	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
-        if ( i < Profiler::mainShadowsLightCount )
-            m_profiler.beginEvent( (Profiler::EventType)((int)Profiler::EventType::Main_Shadows_Light0 + i) );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
-		m_raytraceShadowRenderer.generateAndTraceShadowRays( light, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
+		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsVector[ lightIdx ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
 
-        if ( i < Profiler::mainShadowsLightCount )
-            m_profiler.endEvent( ( Profiler::EventType )( (int)Profiler::EventType::Main_Shadows_Light0 + i ) );
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(),
 			m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
-			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture(), *light );
+			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture(), *lightsVector[ lightIdx ] );
 
-        ++i;
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
 
     // Copy main shaded image to final render target.

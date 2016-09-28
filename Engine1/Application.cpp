@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <exception>
+#include <iomanip>
 
 #include <Windows.h>
 
@@ -218,7 +219,7 @@ void Application::run() {
 		Timer frameStartTime;
 
         m_profiler.beginFrameProfiling();
-        m_profiler.beginEvent( Profiler::EventType::Frame );
+        m_profiler.beginEvent( Profiler::GlobalEventType::Frame );
 
         // Disable locking when connecting through Team Viewer.
         bool lockCursor = false;
@@ -383,13 +384,42 @@ void Application::run() {
         }
 
         { // Render profiling results.
-            const float totalFrameTime = m_profiler.getEventDuration( Profiler::EventType::Frame );
-            const float mainShadowsLight0Time = m_profiler.getEventDuration( Profiler::EventType::Main_Shadows_Light0 );
+            const float totalFrameTime = m_profiler.getEventDuration( Profiler::GlobalEventType::Frame );
+            const float deferredRenderingTime = m_profiler.getEventDuration( Profiler::GlobalEventType::DeferredRendering );
+
+            const float mainMipmapGenerationForPositionAndNormalsTime = m_profiler.getEventDuration( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
+
+            const float mainShadowsLight0Time = m_profiler.getEventDuration( Profiler::StageType::Main, 0, Profiler::EventTypePerStagePerLight::Shadows );
+            const float mainShadowsLight1Time = m_profiler.getEventDuration( Profiler::StageType::Main, 1, Profiler::EventTypePerStagePerLight::Shadows );
+            const float mainShadowsLight2Time = m_profiler.getEventDuration( Profiler::StageType::Main, 2, Profiler::EventTypePerStagePerLight::Shadows );
+            const float mainShadowsLight3Time = m_profiler.getEventDuration( Profiler::StageType::Main, 3, Profiler::EventTypePerStagePerLight::Shadows );
+            const float mainShadowsTime = fmax( 0.0f, mainShadowsLight0Time ) + fmax( 0.0f, mainShadowsLight1Time ) + fmax( 0.0f, mainShadowsLight2Time ) + fmax( 0.0f, mainShadowsLight3Time );
+
+            const float mainEmissiveShadingTime = m_profiler.getEventDuration( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
+            const float mainShadingLight0Time = m_profiler.getEventDuration( Profiler::StageType::Main, 0, Profiler::EventTypePerStagePerLight::Shading );
+            const float mainShadingLight1Time = m_profiler.getEventDuration( Profiler::StageType::Main, 1, Profiler::EventTypePerStagePerLight::Shading );
+            const float mainShadingLight2Time = m_profiler.getEventDuration( Profiler::StageType::Main, 2, Profiler::EventTypePerStagePerLight::Shading );
+            const float mainShadingLight3Time = m_profiler.getEventDuration( Profiler::StageType::Main, 3, Profiler::EventTypePerStagePerLight::Shading );
+            const float mainShadingTime = fmax( 0.0f, mainShadingLight0Time ) + fmax( 0.0f, mainShadingLight1Time ) + fmax( 0.0f, mainShadingLight2Time ) + fmax( 0.0f, mainShadingLight3Time );
 
             std::stringstream ss;
+            ss << std::fixed << std::setprecision(3);
             ss << "Profiling: \n";
             ss << "Total: " << totalFrameTime << " ms \n";
-            ss << "Main/Shadows/Light0: " << mainShadowsLight0Time << " ms, " << ( mainShadowsLight0Time / totalFrameTime ) * 100.0f << "% \n";
+            ss << "Main/DeferredRendering: " << deferredRenderingTime << " ms, " << ( deferredRenderingTime / totalFrameTime ) * 100.0f << "% \n";
+            ss << "Main/MipmapGenerationForPositionAndNormals: " << mainMipmapGenerationForPositionAndNormalsTime << " ms, " << ( mainMipmapGenerationForPositionAndNormalsTime / totalFrameTime ) * 100.0f << "% \n";
+            ss << "Main/Shadows: " << mainShadowsTime << " ms, " << ( mainShadowsTime / totalFrameTime ) * 100.0f << "% \n";
+            if ( mainShadowsLight0Time > 0.0f ) ss << "    Light0: " << mainShadowsLight0Time << " ms, " << ( mainShadowsLight0Time / totalFrameTime ) * 100.0f << "% \n";
+            if ( mainShadowsLight1Time > 0.0f ) ss << "    Light1: " << mainShadowsLight1Time << " ms, " << ( mainShadowsLight1Time / totalFrameTime ) * 100.0f << "% \n";
+            if ( mainShadowsLight2Time > 0.0f ) ss << "    Light2: " << mainShadowsLight2Time << " ms, " << ( mainShadowsLight2Time / totalFrameTime ) * 100.0f << "% \n";
+            if ( mainShadowsLight3Time > 0.0f ) ss << "    Light3: " << mainShadowsLight3Time << " ms, " << ( mainShadowsLight3Time / totalFrameTime ) * 100.0f << "% \n";
+            ss << "Main/EmissiveShading: " << mainEmissiveShadingTime << " ms, " << ( mainEmissiveShadingTime / totalFrameTime ) * 100.0f << "% \n";
+            ss << "Main/Shading: " << mainShadingTime << " ms, " << ( mainShadingTime / totalFrameTime ) * 100.0f << "% \n";
+            if ( mainShadingLight0Time > 0.0f ) ss << "    Light0: " << mainShadingLight0Time << " ms, " << ( mainShadingLight0Time / totalFrameTime ) * 100.0f << "% \n";
+            if ( mainShadingLight1Time > 0.0f ) ss << "    Light1: " << mainShadingLight1Time << " ms, " << ( mainShadingLight1Time / totalFrameTime ) * 100.0f << "% \n";
+            if ( mainShadingLight2Time > 0.0f ) ss << "    Light2: " << mainShadingLight2Time << " ms, " << ( mainShadingLight2Time / totalFrameTime ) * 100.0f << "% \n";
+            if ( mainShadingLight3Time > 0.0f ) ss << "    Light3: " << mainShadingLight3Time << " ms, " << ( mainShadingLight3Time / totalFrameTime ) * 100.0f << "% \n";
+
             frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
@@ -431,7 +461,7 @@ void Application::run() {
 
 		m_frameRenderer.displayFrame();
 
-        m_profiler.endEvent( Profiler::EventType::Frame );
+        m_profiler.endEvent( Profiler::GlobalEventType::Frame );
         m_profiler.endFrameProfiling();
 
 		Timer frameEndTime;
