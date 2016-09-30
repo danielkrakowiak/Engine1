@@ -13,7 +13,7 @@ double Timer::getTimerFrequencyInKHz( ) {
 	return frequencyInKHz;
 }
 
-double Timer::lapse( const Timer& timerLater, const Timer& timerEarlier ) {
+double Timer::getElapsedTime( const Timer& timerLater, const Timer& timerEarlier ) {
 	return ( timerLater.m_time.QuadPart - timerEarlier.m_time.QuadPart ) / timerFrequencyInKHz;
 }
 

@@ -328,10 +328,10 @@ Idea:
 
 	  - how to make skybox not receive shadow? To improve performance...
 
-	  - where is specular shading?!?!!
-
 	  - place profiling events everywhere and some accumulating measurements.
 	  - maybe add some averaging of results or something to make them more readible. Also 2,3 digit precision when printing.
+
+	  - COMMIT
 
 	  LATER:
 

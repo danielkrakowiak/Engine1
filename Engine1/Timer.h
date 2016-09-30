@@ -7,7 +7,8 @@ namespace Engine1
     class Timer
     {
         public:
-        static double lapse( const Timer& timerLater, const Timer& timerEarlier );
+        // In milliseconds.
+        static double getElapsedTime( const Timer& timerLater, const Timer& timerEarlier );
 
         Timer();
         ~Timer();

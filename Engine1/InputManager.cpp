@@ -41,7 +41,7 @@ InputManager::~InputManager() {}
 
 void InputManager::updateMouseState( ) {
 	Timer currTime;
-	if ( Timer::lapse( currTime, m_awaitMouseMoveLastTick ) >= m_awaitMouseMoveInterval ) {
+	if ( Timer::getElapsedTime( currTime, m_awaitMouseMoveLastTick ) >= m_awaitMouseMoveInterval ) {
 		POINT cursorPos;
 		GetCursorPos( &cursorPos );
 

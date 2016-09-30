@@ -277,3 +277,4 @@ Sun 25.09.2016 - 2h - Added an option to blend frames drawn in FrameRenderer - t
 Mon 26.09.2016 - 4h - Added Profiler class to measure GPU performance.
 Tue 27.09.2016 - 2h - Modifying Profiler to support "per stage" and "per stage, per light" events aside from global events.
 Wed 28.09.2016 - 4h - Finished modifying and fixing Profiler. Added some events to profiling.
+Fri 30.09.2016 - 1h - Improved display of profiling info - it's not refreshed every frame for better readibility.
