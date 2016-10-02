@@ -1044,29 +1044,45 @@ void Application::onDragAndDropFile( std::string filePath )
 		else if ( extension.compare( "dae" ) == 0 ) format = BlockMeshFileInfo::Format::DAE;
         else if ( extension.compare( "fbx" ) == 0 ) format = BlockMeshFileInfo::Format::FBX;
 
-        BlockMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
-        std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( m_assetManager.getOrLoad( fileInfo ) );
+        // Note: Bad support for multiple meshes in a single file. Because of how AssetManager works, they have to be parsed one by one from the same file.
+        // So the file has to be re-parsed for each mesh it contains. Not a big problem normally, because only one mesh should be in a single file.
 
-        if ( !mesh->getBvhTree() )
-            mesh->buildBvhTree();
+        // We try to parse meshes with increasing index in file until it fails.
+        for (int indexInFile = 0; true; ++indexInFile)
+        {
+            try 
+            {
+                BlockMeshFileInfo fileInfo( filePath, format, indexInFile, false, false, false );
+                std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( m_assetManager.getOrLoad( fileInfo ) );
 
-        mesh->reorganizeTrianglesToMatchBvhTree();
+                if ( !mesh->getBvhTree() )
+                    mesh->buildBvhTree();
 
-        if ( !mesh->isInGpuMemory( ) ) {
-            mesh->loadCpuToGpu( *m_frameRenderer.getDevice().Get() );
-            mesh->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
-        }
+                mesh->reorganizeTrianglesToMatchBvhTree();
 
-        if ( replaceAsset ) {
-            // Replace a mesh of an existing model.
-            if ( m_selectedBlockActor && m_selectedBlockActor->getModel() ) {
-                m_selectedBlockActor->getModel( )->setMesh( mesh );
+                if ( !mesh->isInGpuMemory( ) ) {
+                    mesh->loadCpuToGpu( *m_frameRenderer.getDevice().Get() );
+                    mesh->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
+                }
+
+                if ( replaceAsset ) {
+                    // Replace a mesh of an existing model.
+                    if ( m_selectedBlockActor && m_selectedBlockActor->getModel() ) {
+                        m_selectedBlockActor->getModel( )->setMesh( mesh );
+                        
+                        break; // If replacing a mesh - read only the one with index 0 in file.
+                    }
+                } else {
+                    // Add new actor to the scene.
+                    m_selectedBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
+                    m_selectedBlockActor->getModel( )->setMesh( mesh );
+                    m_scene->addActor( m_selectedBlockActor );
+                }
             }
-        } else {
-            // Add new actor to the scene.
-            m_selectedBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
-            m_selectedBlockActor->getModel( )->setMesh( mesh );
-            m_scene->addActor( m_selectedBlockActor );
+            catch ( ... )
+            {
+                break;
+            }
         }
 	}
 
@@ -1075,17 +1091,27 @@ void Application::onDragAndDropFile( std::string filePath )
 
 		if ( extension.compare( "dae" ) == 0 ) format = SkeletonMeshFileInfo::Format::DAE;
 
-        SkeletonMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
-        std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>(m_assetManager.getOrLoad( fileInfo ));  
-        if ( !mesh->isInGpuMemory( ) )
-            mesh->loadCpuToGpu( *m_frameRenderer.getDevice( ).Get() );
+        // Note: Bad support for multiple meshes in a single file. Because of how AssetManager works, they have to be parsed one by one from the same file.
+        // So the file has to be re-parsed for each mesh it contains. Not a big problem normally, because only one mesh should be in a single file.
 
-        // #TODO: add replacing mesh? How to deal with non-matching animation?
-        // Add new actor to the scene.
-        m_selectedSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
-        m_selectedSkeletonActor->getModel( )->setMesh( mesh );
-        m_selectedSkeletonActor->resetSkeletonPose();
-        m_scene->addActor( m_selectedSkeletonActor );
+        // We try to parse meshes with increasing index in file until it fails.
+        for ( int indexInFile = 0; true; ++indexInFile ) {
+            try {
+                SkeletonMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
+                std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>(m_assetManager.getOrLoad( fileInfo ));  
+                if ( !mesh->isInGpuMemory( ) )
+                    mesh->loadCpuToGpu( *m_frameRenderer.getDevice( ).Get() );
+
+                // #TODO: add replacing mesh? How to deal with non-matching animation?
+                // Add new actor to the scene.
+                m_selectedSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
+                m_selectedSkeletonActor->getModel( )->setMesh( mesh );
+                m_selectedSkeletonActor->resetSkeletonPose();
+                m_scene->addActor( m_selectedSkeletonActor );
+            } catch ( ... ) {
+                break;
+            }
+        }
 	}
 
 	if ( isTexture ) {

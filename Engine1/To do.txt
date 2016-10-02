@@ -329,11 +329,10 @@ Idea:
 	  - how to make skybox not receive shadow? To improve performance...
 
 	  - place profiling events everywhere and some accumulating measurements.
-	  - maybe add some averaging of results or something to make them more readible. Also 2,3 digit precision when printing.
-
-	  - COMMIT
 
 	  LATER:
+
+	  - support for variable resolution per reflection/refraction depth
 
 	  - OPTIMIZATION: Replace float4 with float3 wherever possible in framebuffers/shaders.
 
@@ -343,11 +342,13 @@ Idea:
 
 	  - should add Model class as a base for BlockModel and SkeletonModel. All texture methods could be shared. Plus flags such as "cast shadows" etc.
 
+	  - shadow mapping
 	  - all paths in models/scene should be relative to main folder or asset folder
 	  - mipmapping
 	  - loading meshes split by material
 	  - own mesh format
 	  - combining meshes
+	  - cubemap texture class - to use for skybox
 
 
 
