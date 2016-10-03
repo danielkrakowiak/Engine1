@@ -27,6 +27,9 @@ namespace Engine1
     class BlockMesh;
     class BlockModel;
     class BlockActor;
+    class SkeletonMesh;
+    class SkeletonModel;
+    class SkeletonActor;
     class Light;
 
     class Renderer
@@ -69,7 +72,10 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > >
-        renderScene( const CScene& scene, const Camera& camera );
+        renderScene( const CScene& scene, const Camera& camera,
+                     const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
+                     const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
+                     const std::vector< std::shared_ptr< Light > >& selectedLights );
 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >
         renderText( const std::string& text, Font& font, float2 position, float4 color );
@@ -95,7 +101,10 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
         renderMainImage( const CScene& scene, const Camera& camera, const std::vector< std::shared_ptr< Light > >& lightsVector,
-                         const std::vector< bool >& activeViewLevel, const View activeViewType );
+                         const std::vector< bool >& activeViewLevel, const View activeViewType,
+                         const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
+                         const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
+                         const std::vector< std::shared_ptr< Light > >& selectedLights );
 
         std::tuple<
         bool,

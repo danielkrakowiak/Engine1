@@ -93,7 +93,10 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-Renderer::renderScene( const CScene& scene, const Camera& camera )
+Renderer::renderScene( const CScene& scene, const Camera& camera,
+                       const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
+                       const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
+                       const std::vector< std::shared_ptr< Light > >& selectedLights )
 {
     bool frameReceived = false;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
@@ -117,7 +120,8 @@ Renderer::renderScene( const CScene& scene, const Camera& camera )
     }
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) 
-        = renderMainImage( scene, camera, lightsVector, m_activeViewLevel, m_activeViewType );
+        = renderMainImage( scene, camera, lightsVector, m_activeViewLevel, m_activeViewType,
+                           selectedBlockActors, selectedSkeletonActors, selectedLights );
     
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -157,7 +161,10 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
 Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std::vector< std::shared_ptr< Light > >& lightsVector,
-                           const std::vector< bool >& activeViewLevel, const View activeViewType )
+                           const std::vector< bool >& activeViewLevel, const View activeViewType, 
+                           const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
+                           const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
+                           const std::vector< std::shared_ptr< Light > >& selectedLights )
 {
     float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
 
@@ -167,6 +174,8 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
     if ( m_axisMesh )
         m_deferredRenderer.render( *m_axisMesh, float43::IDENTITY, viewMatrix );
 
+    float4 actorSelectionEmissiveColor( 0.5f, 0.5f, 0.0f, 1.0f );
+
     // Render actors in the scene.
     const std::unordered_set< std::shared_ptr<Actor> >& actors = scene.getActors();
     for ( const std::shared_ptr<Actor> actor : actors ) 
@@ -175,8 +184,10 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
             const std::shared_ptr<BlockActor> blockActor = std::static_pointer_cast<BlockActor>(actor);
             const std::shared_ptr<BlockModel> blockModel = blockActor->getModel();
 
+            const bool isSelected = std::find( selectedBlockActors.begin(), selectedBlockActors.end(), blockActor ) != selectedBlockActors.end();
+
             if ( blockModel->isInGpuMemory() )
-                m_deferredRenderer.render( *blockModel, blockActor->getPose(), viewMatrix );
+                m_deferredRenderer.render( *blockModel, blockActor->getPose(), viewMatrix, isSelected ? actorSelectionEmissiveColor : float4::ZERO );
             else if ( blockModel->getMesh() && blockModel->getMesh()->isInGpuMemory() )
                 m_deferredRenderer.render( *blockModel->getMesh(), blockActor->getPose(), viewMatrix );
 
@@ -184,19 +195,27 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
             const std::shared_ptr<SkeletonActor> skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
             const std::shared_ptr<SkeletonModel> skeletonModel = skeletonActor->getModel();
 
+            const bool isSelected = std::find( selectedSkeletonActors.begin(), selectedSkeletonActors.end(), skeletonActor ) != selectedSkeletonActors.end();
+
             if ( skeletonModel->isInGpuMemory() )
-                m_deferredRenderer.render( *skeletonModel, skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose() );
+                m_deferredRenderer.render( *skeletonModel, skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose(), isSelected ? actorSelectionEmissiveColor : float4::ZERO );
             else if ( skeletonModel->getMesh() && skeletonModel->getMesh()->isInGpuMemory() )
                 m_deferredRenderer.render( *skeletonModel->getMesh(), skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose() );
         }
     }
 
+    float4 lightSelectionEmissiveColor( 0.0f, 0.0f, 1.0f, 1.0f );
+
     // Render light sources in the scene.
-    if ( m_lightModel ) {
+    if ( m_lightModel ) 
+    {
         float43 lightPose( float43::IDENTITY );
-        for ( const std::shared_ptr<Light> light : lightsVector ) {
+        for ( const std::shared_ptr<Light> light : lightsVector ) 
+        {
+            const bool isSelected = std::find( selectedLights.begin(), selectedLights.end(), light ) != selectedLights.end();
+
             lightPose.setTranslation( light->getPosition() );
-            m_deferredRenderer.render( *m_lightModel, lightPose, viewMatrix );
+            m_deferredRenderer.render( *m_lightModel, lightPose, viewMatrix, isSelected ? lightSelectionEmissiveColor : float4::ZERO );
         }
     }
 

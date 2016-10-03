@@ -8,6 +8,11 @@ Texture2D indexOfRefractionTexture;
 
 SamplerState samplerState;
 
+cbuffer ConstantBuffer
+{
+	float4 extraEmissive;
+};
+
 struct PixelInputType
 {
     float4 position      : SV_POSITION;
@@ -34,7 +39,7 @@ PixelOutputType main( PixelInputType input )
 	PixelOutputType output;
 
     output.position    = float4( input.positionWorld, 0.0f );
-    output.emissive    = emissiveTexture.Sample( samplerState, input.texCoord );
+    output.emissive    = emissiveTexture.Sample( samplerState, input.texCoord ) + extraEmissive;
 	output.albedoAlpha = float4( albedoTexture.Sample( samplerState, input.texCoord ).rgb, alphaTexture.Sample( samplerState, input.texCoord ).r );
 
     float3x3 tangentToWorldMatrix = float3x3( 

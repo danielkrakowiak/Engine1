@@ -49,8 +49,8 @@ namespace Engine1
 
         void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix );
         void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace );
-        void render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix );
-        void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace );
+        void render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive = float4::ZERO );
+        void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive = float4::ZERO );
         void render( const std::string& text, Font& font, float2 position, float4 color );
 
         std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > >        getPositionRenderTarget();

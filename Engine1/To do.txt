@@ -330,8 +330,6 @@ Idea:
 
 	  - place profiling events everywhere and some accumulating measurements.
 
-	  - fix saving lights in the scene - all lights are probably saved with the position of the first light
-
 	  - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
 
 	  FOR FUN: Get some mesh texture for cool alpha!!!!
@@ -347,6 +345,8 @@ Idea:
 	  - FAILED OPTIMIZATION: - pass 4 meshes at once to shadow raytracing shader.
 
 	  - should add Model class as a base for BlockModel and SkeletonModel. All texture methods could be shared. Plus flags such as "cast shadows" etc.
+
+	  OPTIMIZATION: Mapping/Unmapping constant buffer each time we setParameters to shaders has to be very costly. How can I avoid that?
 
 	  - shadow mapping
 	  - all paths in models/scene should be relative to main folder or asset folder

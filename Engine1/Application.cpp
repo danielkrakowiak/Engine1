@@ -344,7 +344,10 @@ void Application::run() {
         m_renderer.clear();
 
         if ( m_scene )
-            std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) = m_renderer.renderScene( *m_scene, m_camera );
+        {
+            std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) 
+                = m_renderer.renderScene( *m_scene, m_camera, m_selectedBlockActors, m_selectedSkeletonActors, m_selectedLights );
+        }
 
         const int2 mousePos = m_inputManager.getMousePos();
 
@@ -928,11 +931,13 @@ void Application::onMouseButtonPress( int button )
             {
                 if ( it == m_selectedSkeletonActors.end() )
                     m_selectedSkeletonActors.push_back( std::static_pointer_cast< SkeletonActor >( pickedActor ) );
-            } else if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) // Remove picked actor from selection.
+            } 
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) // Remove picked actor from selection.
             {
                 if ( it != m_selectedSkeletonActors.end() )
                     m_selectedSkeletonActors.erase( it );
-            } else // Clear selection and select the picked actor.
+            } 
+            else // Clear selection and select the picked actor.
             {
                 m_selectedBlockActors.clear();
                 m_selectedSkeletonActors.clear();
@@ -943,11 +948,26 @@ void Application::onMouseButtonPress( int button )
         } 
         else if ( pickedLight ) 
         {
-            m_selectedBlockActors.clear();
-            m_selectedSkeletonActors.clear();
-            m_selectedLights.clear();
-            
-            m_selectedLights.push_back( pickedLight );
+            const auto it = std::find( m_selectedLights.begin(), m_selectedLights.end(), pickedLight );
+
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) // Add picked light to selection (if not selected already).
+            {
+                if ( it == m_selectedLights.end() )
+                    m_selectedLights.push_back( pickedLight );
+            } 
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) // Remove picked actor from selection.
+            {
+                if ( it != m_selectedLights.end() )
+                    m_selectedLights.erase( it );
+            }
+            else // Clear selection and select the picked light.
+            {
+                m_selectedBlockActors.clear();
+                m_selectedSkeletonActors.clear();
+                m_selectedLights.clear();
+
+                m_selectedLights.push_back( pickedLight );
+            }
         }
     }
 }

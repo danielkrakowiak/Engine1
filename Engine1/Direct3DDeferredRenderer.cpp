@@ -148,7 +148,7 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
 	m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix )
+void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
@@ -192,7 +192,7 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
             = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
 		m_blockModelVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix );
-		m_blockModelFragmentShader->setParameters( *m_deviceContext.Get( ), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
+		m_blockModelFragmentShader->setParameters( *m_deviceContext.Get( ), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );
 
 		m_rendererCore.enableRenderingShaders( m_blockModelVertexShader, m_blockModelFragmentShader );
 	}
@@ -205,7 +205,7 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 	m_rendererCore.draw( *model.getMesh().get() );
 }
 
-void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace )
+void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 	if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
@@ -250,7 +250,7 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
             = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
 		m_skeletonModelVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
-		m_skeletonModelFragmentShader->setParameters( *m_deviceContext.Get(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
+		m_skeletonModelFragmentShader->setParameters( *m_deviceContext.Get(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );
 
 		m_rendererCore.enableRenderingShaders( m_skeletonModelVertexShader, m_skeletonModelFragmentShader );
 	}
