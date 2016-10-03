@@ -10,8 +10,8 @@ std::shared_ptr<PointLight> PointLightParser::parseBinary( std::vector<char>::co
 {
     std::shared_ptr<PointLight> light = std::make_shared<PointLight>();
 
-    light->setPosition(      BinaryFile::readFloat3( dataIt ) );
-    light->setColor(  BinaryFile::readFloat3( dataIt ) );
+    light->setPosition( BinaryFile::readFloat3( dataIt ) );
+    light->setColor( BinaryFile::readFloat3( dataIt ) );
 
     return light;
 }
