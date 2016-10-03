@@ -115,9 +115,9 @@ private:
     AssetManager m_assetManager;
 
 	// For creation of new assets.
-    std::shared_ptr< Light >         m_selectedLight;
-	std::shared_ptr< BlockActor >    m_selectedBlockActor;
-	std::shared_ptr< SkeletonActor > m_selectedSkeletonActor;
+    std::vector< std::shared_ptr< Light > >         m_selectedLights;
+	std::vector< std::shared_ptr< BlockActor > >    m_selectedBlockActors;
+	std::vector< std::shared_ptr< SkeletonActor > > m_selectedSkeletonActors;
 
     bool m_debugRenderAlpha;
 

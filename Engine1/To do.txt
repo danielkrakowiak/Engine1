@@ -330,6 +330,12 @@ Idea:
 
 	  - place profiling events everywhere and some accumulating measurements.
 
+	  - fix saving lights in the scene - all lights are probably saved with the position of the first light
+
+	  - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
+
+	  FOR FUN: Get some mesh texture for cool alpha!!!!
+
 	  LATER:
 
 	  - support for variable resolution per reflection/refraction depth

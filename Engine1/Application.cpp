@@ -3,6 +3,7 @@
 #include <sstream>
 #include <exception>
 #include <iomanip>
+#include <algorithm>
 
 #include <Windows.h>
 
@@ -241,19 +242,12 @@ void Application::run() {
 			if ( WM_QUIT == msg.message ) run = false;
 		}
 
-        // Translate / rotate the selected actor.
+        // Translate / rotate the selected actors.
         bool movingObjects = false;
-        if ( m_windowFocused && ( m_selectedBlockActor || m_selectedSkeletonActor ) ) 
+        if ( m_windowFocused && ( !m_selectedBlockActors.empty() || !m_selectedSkeletonActors.empty() ) ) 
         {
-            std::shared_ptr< Actor > actor;
-            if ( m_selectedBlockActor )
-                actor = m_selectedBlockActor;
-            else
-                actor = m_selectedSkeletonActor;
-
             const float   translationSensitivity = 0.002f;//0.002f;
             const float   rotationSensitivity    = 0.0002f;
-            const float43 currentPose            = actor->getPose();
             const int2    mouseMove              = m_inputManager.getMouseMove();
 
             const float3 sensitivity(
@@ -262,17 +256,30 @@ void Application::run() {
                 m_inputManager.isKeyPressed( InputManager::Keys::z ) ? 1.0f : 0.0f
                 );
 
-            if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) ) {
-                actor->getPose().rotate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * rotationSensitivity );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) ) 
+            {
+                for ( auto& actor : m_selectedBlockActors )
+                    actor->getPose().rotate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * rotationSensitivity );
+
+                for ( auto& actor : m_selectedSkeletonActors )
+                    actor->getPose().rotate( (float)( mouseMove.x - mouseMove.y ) * (float)frameTimeMs * sensitivity * rotationSensitivity );
+                
                 movingObjects = true;
-            } else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) {
-                actor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity );
+            } 
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) 
+            {
+                for ( auto& actor : m_selectedBlockActors )
+                    actor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity );
+
+                for ( auto& actor : m_selectedSkeletonActors )
+                    actor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity );
+
                 movingObjects = true;
             }
         }
 
         // Translate the selected light.
-        if ( m_windowFocused && m_selectedLight ) 
+        if ( m_windowFocused && !m_selectedLights.empty() ) 
         {
             const float   translationSensitivity = 0.002f;//0.002f;
             const int2    mouseMove              = m_inputManager.getMouseMove();
@@ -283,8 +290,11 @@ void Application::run() {
                 m_inputManager.isKeyPressed( InputManager::Keys::z ) ? 1.0f : 0.0f
                 );
 
-            if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) {
-                m_selectedLight->setPosition( m_selectedLight->getPosition() + ((float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity ) );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) 
+            {
+                for ( auto& light : m_selectedLights )
+                    light->setPosition( light->getPosition() + ((float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity ) );
+                
                 movingObjects = true;
             }
         }
@@ -340,47 +350,47 @@ void Application::run() {
 
         try 
         {
-        if ( frameUchar ) 
-        {
-            m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, 0, 0, frameUchar->getWidth(), frameUchar->getHeight() );
-		    m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+            if ( frameUchar ) 
+            {
+                m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, 0, 0, frameUchar->getWidth(), frameUchar->getHeight() );
+		        m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
 
-            if ( m_inputManager.isMouseButtonPressed(0) ) 
-                debugDisplayTextureValue( *frameUchar, mousePos.x, mousePos.y );
-        } 
-        else if ( frameUchar4 )
-        {
-            if ( m_debugRenderAlpha )
-		        m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
-            else
-                m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+                if ( m_inputManager.isMouseButtonPressed(0) ) 
+                    debugDisplayTextureValue( *frameUchar, mousePos.x, mousePos.y );
+            } 
+            else if ( frameUchar4 )
+            {
+                if ( m_debugRenderAlpha )
+		            m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+                else
+                    m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
 
-            if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                debugDisplayTextureValue( *frameUchar4, mousePos.x, mousePos.y );
-        } 
-        else if ( frameFloat4 )
-        {
-            m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+                if ( m_inputManager.isMouseButtonPressed( 0 ) )
+                    debugDisplayTextureValue( *frameUchar4, mousePos.x, mousePos.y );
+            } 
+            else if ( frameFloat4 )
+            {
+                m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
 
-            if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                debugDisplayTextureValue( *frameFloat4, mousePos.x, mousePos.y );
-        }
-        else if ( frameFloat2 )
-        {
-            m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
-        }
-        else if ( frameFloat ) 
-        {
-            m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+                if ( m_inputManager.isMouseButtonPressed( 0 ) )
+                    debugDisplayTextureValue( *frameFloat4, mousePos.x, mousePos.y );
+            }
+            else if ( frameFloat2 )
+            {
+                m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+            }
+            else if ( frameFloat ) 
+            {
+                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
 
-            if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
-        }
+                if ( m_inputManager.isMouseButtonPressed( 0 ) )
+                    debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
+            }
 
-        if ( m_inputManager.isMouseButtonPressed( 0 ) && m_renderer.getActiveViewType() == Renderer::View::CurrentRefractiveIndex )
-        {
-            debugDisplayTexturesValue( m_renderer.debugGetCurrentRefractiveIndexTextures(), mousePos.x, mousePos.y );
-        }
+            if ( m_inputManager.isMouseButtonPressed( 0 ) && m_renderer.getActiveViewType() == Renderer::View::CurrentRefractiveIndex )
+            {
+                debugDisplayTexturesValue( m_renderer.debugGetCurrentRefractiveIndexTextures(), mousePos.x, mousePos.y );
+            }
         }
         catch( ... )
         {}
@@ -700,7 +710,8 @@ void Application::onKeyPress( int key )
             light->setColor( float3( 1.0f, 1.0f, 1.0f ) );
             m_scene->addLight( light );
 
-            m_selectedLight = light;
+            m_selectedLights.clear();
+            m_selectedLights.push_back( light );
         }
     } 
     else if ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) 
@@ -718,47 +729,73 @@ void Application::onKeyPress( int key )
     {
         if ( m_scene ) 
         {
-            if ( m_selectedBlockActor ) {
-                m_scene->removeActor( m_selectedBlockActor );
-                m_selectedBlockActor.reset();
-            } else if ( m_selectedSkeletonActor ) {
-                m_scene->removeActor( m_selectedSkeletonActor );
-                m_selectedSkeletonActor.reset();
-            } else if ( m_selectedLight ) {
-                m_scene->removeLight( m_selectedLight );
-                m_selectedLight.reset();
+            for ( auto& actor : m_selectedBlockActors )
+                m_scene->removeActor( actor );
+
+            for ( auto& actor : m_selectedSkeletonActors )
+                m_scene->removeActor( actor );
+
+            for ( auto& light : m_selectedLights )
+            {
+                m_scene->removeLight( light );
             }
+
+            m_selectedBlockActors.clear();
+            m_selectedSkeletonActors.clear();
+            m_selectedLights.clear();
         }
     }
 
-    // Clone the actor, but share the model with the original actor.
+    // Clone the actors, but share their models with the original actors.
     if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) 
     {
         if ( m_scene ) 
         {
-            if ( m_selectedBlockActor ) {
-                m_selectedBlockActor = std::make_shared< BlockActor >( *m_selectedBlockActor ); // Clone the actor.
-                m_scene->addActor( m_selectedBlockActor );
-            } else if ( m_selectedSkeletonActor ) {
-                m_selectedSkeletonActor = std::make_shared< SkeletonActor >( *m_selectedSkeletonActor ); // Clone the actor.
-                m_scene->addActor( m_selectedSkeletonActor );
+            std::vector< std::shared_ptr< BlockActor > >    newBlockActors;
+            std::vector< std::shared_ptr< SkeletonActor > > newSkeletonActors;
+            newBlockActors.reserve( m_selectedBlockActors.size() );
+            newSkeletonActors.reserve( m_selectedSkeletonActors.size() );
+
+            for ( auto& actor : m_selectedBlockActors )
+            {
+                newBlockActors.push_back( std::make_shared< BlockActor >( *actor ) ); // Clone the actor.
+                m_scene->addActor( newBlockActors.back() );
             }
+            
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
+                newSkeletonActors.push_back( std::make_shared< SkeletonActor >( *actor ) ); // Clone the actor.
+                m_scene->addActor( newSkeletonActors.back() );
+            }
+
+            // Select new actors.
+            m_selectedBlockActors    = std::move( newBlockActors );
+            m_selectedSkeletonActors = std::move( newSkeletonActors );
         }
     }
 
-    // Clone the actor and clone the model.
+    // Clone the actors and clone their models.
     if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
     {
         if ( m_scene ) 
         {
-            if ( m_selectedBlockActor ) {
-                m_selectedBlockActor = std::make_shared< BlockActor >( *m_selectedBlockActor ); // Clone the actor.
-                m_selectedBlockActor->setModel( std::make_shared< BlockModel >( *m_selectedBlockActor->getModel() ) ); // Clone it's model.
-                m_scene->addActor( m_selectedBlockActor );
-            } else if ( m_selectedSkeletonActor ) {
-                m_selectedSkeletonActor = std::make_shared< SkeletonActor >( *m_selectedSkeletonActor ); // Clone the actor.
-                m_selectedSkeletonActor->setModel( std::make_shared< SkeletonModel >( *m_selectedSkeletonActor->getModel() ) ); // Clone it's model.
-                m_scene->addActor( m_selectedSkeletonActor );
+            std::vector< std::shared_ptr< BlockActor > >    newBlockActors;
+            std::vector< std::shared_ptr< SkeletonActor > > newSkeletonActors;
+            newBlockActors.reserve( m_selectedBlockActors.size() );
+            newSkeletonActors.reserve( m_selectedSkeletonActors.size() );
+
+            for ( auto& actor : m_selectedBlockActors ) 
+            {
+                newBlockActors.push_back( std::make_shared< BlockActor >( *actor ) ); // Clone the actor.
+                newBlockActors.back()->setModel( std::make_shared< BlockModel >( *actor->getModel() ) ); // Clone it's model.
+                m_scene->addActor( newBlockActors.back() );
+            }
+
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
+                newSkeletonActors.push_back( std::make_shared< SkeletonActor >( *actor ) ); // Clone the actor.
+                newSkeletonActors.back()->setModel( std::make_shared< SkeletonModel >( *actor->getModel() ) ); // Clone it's model.
+                m_scene->addActor( newSkeletonActors.back() );
             }
         }
     }
@@ -783,12 +820,19 @@ void Application::onKeyPress( int key )
 
     // Enable/disable casting shadow for an actor.
     if ( key == InputManager::Keys::h && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) {
-        if ( m_scene ) {
-            if ( m_selectedBlockActor ) {
-                m_selectedBlockActor->setCastingShadows( !m_selectedBlockActor->isCastingShadows() );
-            } else if ( m_selectedSkeletonActor ) {
-                m_selectedSkeletonActor->setCastingShadows( !m_selectedSkeletonActor->isCastingShadows() );
-            }
+        if ( m_scene ) 
+        {
+            bool castShadows = true;
+            if ( !m_selectedBlockActors.empty() )
+                castShadows = !m_selectedBlockActors.front()->isCastingShadows();
+            else if ( !m_selectedSkeletonActors.empty() ) 
+                castShadows = !m_selectedSkeletonActors.front()->isCastingShadows();
+
+            for ( auto& actor : m_selectedBlockActors )
+                actor->setCastingShadows( castShadows );
+
+            for ( auto& actor : m_selectedSkeletonActors )
+                actor->setCastingShadows( castShadows );
         }
     }
 
@@ -852,18 +896,58 @@ void Application::onMouseButtonPress( int button )
         std::shared_ptr< Light > pickedLight;
         std::tie( pickedActor, pickedLight ) = pickActorOrLight( *m_scene, m_camera, float2( (float)mousePos.x, (float)mousePos.y ), (float)m_screenWidth, (float)m_screenHeight, fieldOfView );
 
-        if ( pickedActor && pickedActor->getType() == Actor::Type::BlockActor ) {
-            m_selectedBlockActor    = std::static_pointer_cast< BlockActor >( pickedActor );
-            m_selectedSkeletonActor = nullptr;
-            m_selectedLight         = nullptr;
-        } else if ( pickedActor && pickedActor->getType() == Actor::Type::SkeletonActor ) {
-            m_selectedBlockActor    = nullptr;
-            m_selectedSkeletonActor = std::static_pointer_cast< SkeletonActor >( pickedActor );
-            m_selectedLight         = nullptr;
-        } else if ( pickedLight ) {
-            m_selectedBlockActor    = nullptr;
-            m_selectedSkeletonActor = nullptr;
-            m_selectedLight         = pickedLight;
+        if ( pickedActor && pickedActor->getType() == Actor::Type::BlockActor ) 
+        {
+            const auto it = std::find( m_selectedBlockActors.begin(), m_selectedBlockActors.end(), pickedActor );
+            
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) // Add picked actor to selection (if not selected already).
+            {
+                if ( it == m_selectedBlockActors.end() )
+                    m_selectedBlockActors.push_back( std::static_pointer_cast< BlockActor >( pickedActor ) );
+            }
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) // Remove picked actor from selection.
+            {
+                if ( it != m_selectedBlockActors.end() )
+                    m_selectedBlockActors.erase( it );
+            }
+            else // Clear selection and select the picked actor.
+            {
+                m_selectedBlockActors.clear();
+                m_selectedSkeletonActors.clear();
+                m_selectedLights.clear();
+
+                m_selectedBlockActors.push_back( std::static_pointer_cast< BlockActor >( pickedActor ) );
+            }
+            
+        } 
+        else if ( pickedActor && pickedActor->getType() == Actor::Type::SkeletonActor ) 
+        {
+            const auto it = std::find( m_selectedSkeletonActors.begin(), m_selectedSkeletonActors.end(), pickedActor );
+
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) // Add picked actor to selection (if not selected already).
+            {
+                if ( it == m_selectedSkeletonActors.end() )
+                    m_selectedSkeletonActors.push_back( std::static_pointer_cast< SkeletonActor >( pickedActor ) );
+            } else if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) // Remove picked actor from selection.
+            {
+                if ( it != m_selectedSkeletonActors.end() )
+                    m_selectedSkeletonActors.erase( it );
+            } else // Clear selection and select the picked actor.
+            {
+                m_selectedBlockActors.clear();
+                m_selectedSkeletonActors.clear();
+                m_selectedLights.clear();
+
+                m_selectedSkeletonActors.push_back( std::static_pointer_cast< SkeletonActor >( pickedActor ) );
+            }
+        } 
+        else if ( pickedLight ) 
+        {
+            m_selectedBlockActors.clear();
+            m_selectedSkeletonActors.clear();
+            m_selectedLights.clear();
+            
+            m_selectedLights.push_back( pickedLight );
         }
     }
 }
@@ -1053,7 +1137,7 @@ void Application::onDragAndDropFile( std::string filePath )
             try 
             {
                 BlockMeshFileInfo fileInfo( filePath, format, indexInFile, false, false, false );
-                std::shared_ptr<BlockMesh> mesh = std::static_pointer_cast<BlockMesh>( m_assetManager.getOrLoad( fileInfo ) );
+                std::shared_ptr< BlockMesh > mesh = std::static_pointer_cast< BlockMesh >( m_assetManager.getOrLoad( fileInfo ) );
 
                 if ( !mesh->getBvhTree() )
                     mesh->buildBvhTree();
@@ -1067,16 +1151,17 @@ void Application::onDragAndDropFile( std::string filePath )
 
                 if ( replaceAsset ) {
                     // Replace a mesh of an existing model.
-                    if ( m_selectedBlockActor && m_selectedBlockActor->getModel() ) {
-                        m_selectedBlockActor->getModel( )->setMesh( mesh );
+                    if ( m_selectedBlockActors.size() == 1 && m_selectedBlockActors[ 0 ]->getModel() ) {
+                        m_selectedBlockActors[ 0 ]->getModel( )->setMesh( mesh );
                         
                         break; // If replacing a mesh - read only the one with index 0 in file.
                     }
                 } else {
                     // Add new actor to the scene.
-                    m_selectedBlockActor = std::make_shared<BlockActor>( std::make_shared<BlockModel>(), pose );
-                    m_selectedBlockActor->getModel( )->setMesh( mesh );
-                    m_scene->addActor( m_selectedBlockActor );
+                    m_selectedBlockActors.clear();
+                    m_selectedBlockActors.push_back( std::make_shared< BlockActor >( std::make_shared< BlockModel >(), pose ) );
+                    m_selectedBlockActors[ 0 ]->getModel( )->setMesh( mesh );
+                    m_scene->addActor( m_selectedBlockActors[ 0 ] );
                 }
             }
             catch ( ... )
@@ -1104,10 +1189,11 @@ void Application::onDragAndDropFile( std::string filePath )
 
                 // #TODO: add replacing mesh? How to deal with non-matching animation?
                 // Add new actor to the scene.
-                m_selectedSkeletonActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose );
-                m_selectedSkeletonActor->getModel( )->setMesh( mesh );
-                m_selectedSkeletonActor->resetSkeletonPose();
-                m_scene->addActor( m_selectedSkeletonActor );
+                m_selectedSkeletonActors.clear();
+                m_selectedSkeletonActors.push_back( std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>( ), pose ) );
+                m_selectedSkeletonActors[ 0 ]->getModel( )->setMesh( mesh );
+                m_selectedSkeletonActors[ 0 ]->resetSkeletonPose();
+                m_scene->addActor( m_selectedSkeletonActors[ 0 ] );
             } catch ( ... ) {
                 break;
             }
@@ -1152,18 +1238,20 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( m_selectedBlockActor ) {  
+            for ( auto& actor : m_selectedBlockActors ) 
+            {  
                 if ( replaceAsset )
-                    m_selectedBlockActor->getModel( )->removeAllAlbedoTextures();
+                    actor->getModel( )->removeAllAlbedoTextures();
 
-                m_selectedBlockActor->getModel( )->addAlbedoTexture( modelTexture );
+                actor->getModel( )->addAlbedoTexture( modelTexture );
             }
 
-            if ( m_selectedSkeletonActor ) {
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
                 if ( replaceAsset )
-                    m_selectedSkeletonActor->getModel( )->removeAllAlbedoTextures();
+                    actor->getModel( )->removeAllAlbedoTextures();
 
-                m_selectedSkeletonActor->getModel( )->addAlbedoTexture( modelTexture );
+                actor->getModel( )->addAlbedoTexture( modelTexture );
             }
         } 
         else if ( filePath.find( "_AL." ) != std::string::npos ) 
@@ -1171,18 +1259,20 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( m_selectedBlockActor ) {    
+            for ( auto& actor : m_selectedBlockActors ) 
+            {
                 if ( replaceAsset )
-                    m_selectedBlockActor->getModel( )->removeAllAlphaTextures();
+                    actor->getModel( )->removeAllAlphaTextures();
 
-                m_selectedBlockActor->getModel( )->addAlphaTexture( modelTexture );
+                actor->getModel( )->addAlphaTexture( modelTexture );
             }
 
-            if ( m_selectedSkeletonActor ) {
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
                 if ( replaceAsset )
-                    m_selectedSkeletonActor->getModel( )->removeAllAlphaTextures();
+                    actor->getModel( )->removeAllAlphaTextures();
 
-                m_selectedSkeletonActor->getModel( )->addAlphaTexture( modelTexture );
+                actor->getModel( )->addAlphaTexture( modelTexture );
             }
 		} 
         else if ( filePath.find( "_M." ) != std::string::npos ) 
@@ -1190,18 +1280,20 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( m_selectedBlockActor ) {    
+            for ( auto& actor : m_selectedBlockActors ) 
+            {    
                 if ( replaceAsset )
-                    m_selectedBlockActor->getModel( )->removeAllMetalnessTextures();
+                    actor->getModel( )->removeAllMetalnessTextures();
 
-                m_selectedBlockActor->getModel( )->addMetalnessTexture( modelTexture );
+                actor->getModel( )->addMetalnessTexture( modelTexture );
             }
 
-            if ( m_selectedSkeletonActor ) {
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
                 if ( replaceAsset )
-                    m_selectedSkeletonActor->getModel( )->removeAllMetalnessTextures();
+                    actor->getModel( )->removeAllMetalnessTextures();
 
-                m_selectedSkeletonActor->getModel( )->addMetalnessTexture( modelTexture );
+                actor->getModel( )->addMetalnessTexture( modelTexture );
             }
 		} 
         else if ( filePath.find( "_N." ) != std::string::npos ) 
@@ -1209,18 +1301,20 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( m_selectedBlockActor ) {  
+            for ( auto& actor : m_selectedBlockActors ) 
+            {  
                 if ( replaceAsset )
-                    m_selectedBlockActor->getModel( )->removeAllNormalTextures();
+                    actor->getModel( )->removeAllNormalTextures();
 
-                m_selectedBlockActor->getModel( )->addNormalTexture( modelTexture );
+                actor->getModel( )->addNormalTexture( modelTexture );
             }
 
-            if ( m_selectedSkeletonActor ) {
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
                 if ( replaceAsset )
-                    m_selectedSkeletonActor->getModel( )->removeAllNormalTextures();
+                    actor->getModel( )->removeAllNormalTextures();
 
-                m_selectedSkeletonActor->getModel( )->addNormalTexture( modelTexture );
+                actor->getModel( )->addNormalTexture( modelTexture );
             }
 		} 
         else if ( filePath.find( "_R." ) != std::string::npos ) 
@@ -1228,18 +1322,20 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( m_selectedBlockActor ) {   
+            for ( auto& actor : m_selectedBlockActors ) 
+            {   
                 if ( replaceAsset )
-                    m_selectedBlockActor->getModel( )->removeAllRoughnessTextures();
+                    actor->getModel( )->removeAllRoughnessTextures();
 
-                m_selectedBlockActor->getModel( )->addRoughnessTexture( modelTexture );
+                actor->getModel( )->addRoughnessTexture( modelTexture );
             }
 
-            if ( m_selectedSkeletonActor ) {
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
                 if ( replaceAsset )
-                    m_selectedSkeletonActor->getModel( )->removeAllRoughnessTextures();
+                    actor->getModel( )->removeAllRoughnessTextures();
 
-                m_selectedSkeletonActor->getModel( )->addRoughnessTexture( modelTexture );
+                actor->getModel( )->addRoughnessTexture( modelTexture );
             }
 		} 
         else if ( filePath.find( "_E." ) != std::string::npos ) 
@@ -1247,18 +1343,20 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            if ( m_selectedBlockActor ) {    
+           for ( auto& actor : m_selectedBlockActors ) 
+           {    
                 if ( replaceAsset )
-                    m_selectedBlockActor->getModel( )->removeAllEmissionTextures();
+                    actor->getModel( )->removeAllEmissionTextures();
 
-                m_selectedBlockActor->getModel( )->addEmissionTexture( modelTexture );
+                actor->getModel( )->addEmissionTexture( modelTexture );
             }
 
-            if ( m_selectedSkeletonActor ) {
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
                 if ( replaceAsset )
-                    m_selectedSkeletonActor->getModel( )->removeAllEmissionTextures();
+                    actor->getModel( )->removeAllEmissionTextures();
 
-                m_selectedSkeletonActor->getModel( )->addEmissionTexture( modelTexture );
+                actor->getModel( )->addEmissionTexture( modelTexture );
             }
         } 
         else if ( filePath.find( "_I." ) != std::string::npos ) 
@@ -1266,18 +1364,20 @@ void Application::onDragAndDropFile( std::string filePath )
             auto texture = std::dynamic_pointer_cast< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            if ( m_selectedBlockActor ) {   
+            for ( auto& actor : m_selectedBlockActors ) 
+            {   
                 if ( replaceAsset )
-                    m_selectedBlockActor->getModel( )->removeAllIndexOfRefractionTextures();
+                    actor->getModel( )->removeAllIndexOfRefractionTextures();
 
-                m_selectedBlockActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+                actor->getModel( )->addIndexOfRefractionTexture( modelTexture );
             }
 
-            if ( m_selectedSkeletonActor ) {
+            for ( auto& actor : m_selectedSkeletonActors ) 
+            {
                 if ( replaceAsset )
-                    m_selectedSkeletonActor->getModel( )->removeAllIndexOfRefractionTextures();
+                    actor->getModel( )->removeAllIndexOfRefractionTextures();
 
-                m_selectedSkeletonActor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+                actor->getModel( )->addIndexOfRefractionTexture( modelTexture );
             }
 		}
 	}
@@ -1298,41 +1398,45 @@ void Application::onDragAndDropFile( std::string filePath )
             model->loadCpuToGpu( *m_frameRenderer.getDevice( ).Get(), *m_frameRenderer.getDeviceContext( ).Get() );
 
         // Add new actor to the scene.
-        m_selectedBlockActor = std::make_shared<BlockActor>( model, pose );
-        m_scene->addActor( m_selectedBlockActor );
+        m_selectedBlockActors.clear();
+        m_selectedBlockActors.push_back( std::make_shared<BlockActor>( model, pose ) );
+        m_scene->addActor( m_selectedBlockActors[ 0 ] );
     }
 
-    if ( isSkeletonModel ) {
-
+    if ( isSkeletonModel ) 
+    {
         SkeletonModelFileInfo fileInfo( filePath, SkeletonModelFileInfo::Format::SKELETONMODEL, 0 );
         std::shared_ptr<SkeletonModel> model = std::static_pointer_cast<SkeletonModel>(m_assetManager.getOrLoad( fileInfo ));
         if ( !model->isInGpuMemory( ) )
             model->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext( ).Get() );
 
         // Add new actor to the scene.
-        m_selectedSkeletonActor = std::make_shared<SkeletonActor>( model, pose );
-        m_scene->addActor( m_selectedSkeletonActor );
+        m_selectedSkeletonActors.clear();
+        m_selectedSkeletonActors.push_back( std::make_shared<SkeletonActor>( model, pose ) );
+        m_scene->addActor( m_selectedSkeletonActors[ 0 ] );
     }
 
-    if ( isAnimation && m_selectedSkeletonActor ) {
-        if ( m_selectedSkeletonActor->getModel() && m_selectedSkeletonActor->getModel()->getMesh() )
+    if ( isAnimation ) 
+    {
+        for ( auto& actor : m_selectedSkeletonActors )
         {
-            SkeletonMeshFileInfo&     referenceMeshFileInfo = m_selectedSkeletonActor->getModel()->getMesh()->getFileInfo();
-            SkeletonAnimationFileInfo fileInfo( filePath, SkeletonAnimationFileInfo::Format::XAF, referenceMeshFileInfo, false );
+            if ( actor->getModel() && actor->getModel()->getMesh() ) {
+                SkeletonMeshFileInfo&     referenceMeshFileInfo = actor->getModel()->getMesh()->getFileInfo();
+                SkeletonAnimationFileInfo fileInfo( filePath, SkeletonAnimationFileInfo::Format::XAF, referenceMeshFileInfo, false );
 
-            std::shared_ptr< SkeletonAnimation > animation = std::static_pointer_cast< SkeletonAnimation >( m_assetManager.getOrLoad( fileInfo ) );
+                std::shared_ptr< SkeletonAnimation > animation = std::static_pointer_cast<SkeletonAnimation>( m_assetManager.getOrLoad( fileInfo ) );
 
-            if ( animation )
-                m_selectedSkeletonActor->startAnimation( animation );
+                if ( animation )
+                    actor->startAnimation( animation );
+            }
         }
     }
 
+    if ( (isBlockMesh || isTexture) && m_selectedBlockActors.size() == 1 && m_selectedBlockActors[ 0 ]->getModel( ) && m_selectedBlockActors[ 0 ]->getModel( )->isInCpuMemory( ) )
+        m_selectedBlockActors[ 0 ]->getModel()->saveToFile( "Assets/Models/new.blockmodel" );
 
-    if ( (isBlockMesh || isTexture) && m_selectedBlockActor && m_selectedBlockActor->getModel( ) && m_selectedBlockActor->getModel( )->isInCpuMemory( ) )
-        m_selectedBlockActor->getModel()->saveToFile( "Assets/Models/new.blockmodel" );
-
-    if ( (isSkeletonMesh || isTexture) && m_selectedSkeletonActor && m_selectedSkeletonActor->getModel( ) && m_selectedSkeletonActor->getModel( )->isInCpuMemory( ) )
-        m_selectedSkeletonActor->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
+    if ( (isSkeletonMesh || isTexture) && m_selectedSkeletonActors.size() == 1 && m_selectedSkeletonActors[ 0 ]->getModel( ) && m_selectedSkeletonActors[ 0 ]->getModel( )->isInCpuMemory( ) )
+        m_selectedSkeletonActors[ 0 ]->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
 
     if ( isScene ) {
         loadScene( filePath );
