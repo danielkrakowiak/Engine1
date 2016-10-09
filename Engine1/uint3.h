@@ -40,6 +40,16 @@ namespace Engine1
             return x != vec.x || y != vec.y || z != vec.z;
         }
 
+        uint3 operator + ( const uint3& vec ) const
+        {
+            return uint3( x + vec.x, y + vec.y, z + vec.z );
+        }
+
+        uint3 operator - ( const uint3& vec ) const
+        {
+            return uint3( x - vec.x, y - vec.y, z - vec.z );
+        }
+
         explicit operator float3() const
         {
             return float3(

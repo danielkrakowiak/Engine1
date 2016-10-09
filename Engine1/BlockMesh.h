@@ -35,7 +35,10 @@ namespace Engine1
         static std::vector< std::shared_ptr<BlockMesh> > createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const BlockMeshFileInfo::Format format, const bool invertZCoordinate = false, const bool invertVertexWindingOrder = false, const bool flipUVs = false );
 
         BlockMesh();
+        BlockMesh( const int vertexCount, const bool hasNormalsTangents, const int texcoordsSetCount, const int triangleCount );
         ~BlockMesh();
+
+        void saveToFile( const std::string& path, const BlockMeshFileInfo::Format format );
 
         Asset::Type                                 getType() const;
         std::vector< std::shared_ptr<const Asset> > getSubAssets() const;

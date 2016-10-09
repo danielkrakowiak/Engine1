@@ -332,9 +332,17 @@ Idea:
 
 	  - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
 
+	  - add combining meshes/models together - and exporting them to obj + textures.
+
+-> -> - NOW: saving mesh to file
+
+	  - why skybox has reflections? Why roughness == 1.0f doesn't cancel raytracing? Bad skybox texture?
+
 	  FOR FUN: Get some mesh texture for cool alpha!!!!
 
 	  LATER:
+
+	  - own mesh format + format for storing BVH trees.
 
 	  - support for variable resolution per reflection/refraction depth
 
@@ -346,7 +354,7 @@ Idea:
 
 	  - should add Model class as a base for BlockModel and SkeletonModel. All texture methods could be shared. Plus flags such as "cast shadows" etc.
 
-	  OPTIMIZATION: Mapping/Unmapping constant buffer each time we setParameters to shaders has to be very costly. How can I avoid that?
+	  - OPTIMIZATION: Mapping/Unmapping constant buffer each time we setParameters to shaders has to be very costly. How can I avoid that?
 
 	  - shadow mapping
 	  - all paths in models/scene should be relative to main folder or asset folder

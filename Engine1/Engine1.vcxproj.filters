@@ -738,6 +738,12 @@
     <ClInclude Include="Profiler.h">
       <Filter>Header Files\Profiler</Filter>
     </ClInclude>
+    <ClInclude Include="TextureUtil.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1102,6 +1108,12 @@
     </ClCompile>
     <ClCompile Include="Profiler.cpp">
       <Filter>Source Files\Profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureUtil.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshUtil.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

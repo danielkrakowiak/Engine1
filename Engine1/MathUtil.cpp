@@ -237,3 +237,8 @@ std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& r
     else
         return std::make_tuple( false, 0.0f );
 }
+
+bool MathUtil::isPowerOfTwo( unsigned int number )
+{
+    return number != 0 && !( number & ( number - 1 ) );
+}

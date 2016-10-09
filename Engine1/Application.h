@@ -137,6 +137,9 @@ private:
     std::string m_scenePath;
     std::shared_ptr<CScene> m_scene;
 
+    std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > > m_texturesToMerge;
+    std::vector< std::shared_ptr< BlockMesh > >                         m_meshesToMerge;
+
 	// Copying is not allowed.
 	Application( const Application& ) = delete;
 	Application& operator=( const Application& ) = delete;

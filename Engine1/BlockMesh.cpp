@@ -102,8 +102,31 @@ m_boundingBoxMin( float3::ZERO ),
 m_boundingBoxMax( float3::ZERO )
 {}
 
+BlockMesh::BlockMesh( const int vertexCount, const bool hasNormalsTangents, const int texcoordsSetCount, const int triangleCount )
+{
+    m_vertices.resize( vertexCount );
+    
+    if ( hasNormalsTangents ) {
+        m_normals.resize( vertexCount );
+        m_tangents.resize( vertexCount );
+    }
+
+    m_texcoords.resize( texcoordsSetCount );
+    for ( auto& texcoords : m_texcoords ) {
+        texcoords.resize( vertexCount );
+    }
+
+    m_triangles.resize( triangleCount );
+}
+
 BlockMesh::~BlockMesh()
 {}
+
+void BlockMesh::saveToFile( const std::string& path, const BlockMeshFileInfo::Format format )
+{
+    std::vector< char > empty;
+    MeshFileParser::writeBlockMeshFile( empty, *this );
+}
 
 Asset::Type BlockMesh::getType( ) const
 {

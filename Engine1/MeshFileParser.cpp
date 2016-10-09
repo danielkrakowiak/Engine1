@@ -6,6 +6,7 @@
 #include "SkeletonMesh.h"
 
 #include "Importer.hpp"
+#include "Exporter.hpp"
 #include "scene.h" 
 #include "postprocess.h"
 
@@ -192,4 +193,81 @@ std::vector< std::shared_ptr<SkeletonMesh> > MeshFileParser::parseSkeletonMeshFi
         mesh->recalculateBoundingBox();
 
 	return meshes;
+}
+
+void MeshFileParser::writeBlockMeshFile( std::vector< char >& data, const BlockMesh& mesh )
+{
+    aiScene aiscene       = {};
+    aiNode  airootNode    = {};
+    aiMesh  aimesh        = {};
+    aiMesh* aimeshes[ 1 ] = { &aimesh };
+    aiMaterial aimaterial = {};
+    aiMaterial* aimaterials[ 1 ] = { &aimaterial };
+
+    unsigned int airootNodeMeshes[ 1 ] = { 0 };
+
+    airootNode.mNumMeshes = 1;
+    airootNode.mMeshes    = airootNodeMeshes;
+
+    aiscene.mRootNode     = &airootNode;
+    aiscene.mNumMeshes    = 1;
+    aiscene.mMeshes       = aimeshes;
+    aiscene.mNumMaterials = 1;
+    aiscene.mMaterials    = aimaterials;
+
+    { // Assign vertices and normals.
+        aimesh.mNumVertices = (unsigned int)mesh.getVertices().size();
+        // Note: Casting away const to avoid copying data - because we know that Assimp won't modify the data.
+        aimesh.mVertices = reinterpret_cast< aiVector3D* >( const_cast< float3* >( mesh.getVertices().data() ) );
+        aimesh.mNormals  = !mesh.getNormals().empty() ? reinterpret_cast< aiVector3D* >( const_cast< float3* >( mesh.getNormals().data() ) ) : nullptr;
+        aimesh.mTangents = !mesh.getTangents().empty() ? reinterpret_cast< aiVector3D* >( const_cast< float3* >( mesh.getTangents().data() ) ) : nullptr;
+    }
+
+    std::vector< std::vector< aiVector3D > > aitexcoordSets;
+    { // Copy texcoords.
+        int aitexcoordSetCount = std::min( mesh.getTexcoordsCount(), AI_MAX_NUMBER_OF_TEXTURECOORDS);
+        aitexcoordSets.resize( aitexcoordSetCount );
+
+        for ( int texcoordSetIndex = 0; texcoordSetIndex < aitexcoordSetCount; ++texcoordSetIndex )
+        {
+            const std::vector< float2 >& meshTexcoordSet = mesh.getTexcoords( texcoordSetIndex );
+            std::vector< aiVector3D >&   aitexcoordSet   = aitexcoordSets[ texcoordSetIndex ];
+        
+            // Copy texcoords from mesh to Assimp mesh.
+            aitexcoordSet.resize( mesh.getTexcoords( texcoordSetIndex ).size() );
+            for ( unsigned int vertexIndex = 0; vertexIndex < aimesh.mNumVertices; ++vertexIndex )
+                aitexcoordSet[ vertexIndex ] = aiVector3D( meshTexcoordSet[ vertexIndex ].x, meshTexcoordSet[ vertexIndex ].y, 0.0f );
+        
+            aimesh.mTextureCoords[ texcoordSetIndex ]   = aitexcoordSet.data();
+            aimesh.mNumUVComponents[ texcoordSetIndex ] = 2; // Two components - U and V.
+        }
+    }
+    
+    std::vector< aiFace > aifaces;
+    { // Copy triangles.
+        aimesh.mNumFaces = (unsigned int)mesh.getTriangles().size();
+        aifaces.resize( aimesh.mNumFaces );
+
+        // Note: Casting away const to avoid copying data - because we know that Assimp won't modify the data.
+        std::vector< uint3 >& meshTriangles = const_cast< std::vector< uint3 >& >( mesh.getTriangles() );
+
+        aimesh.mFaces = aifaces.data();
+        for ( unsigned int faceIndex = 0; faceIndex < aimesh.mNumFaces; ++faceIndex )
+        {
+            aifaces[ faceIndex ].mNumIndices = 3;
+            aifaces[ faceIndex ].mIndices = reinterpret_cast< unsigned int* >( &meshTriangles[ faceIndex ] );
+        }
+    }
+
+    Assimp::Exporter exporter;
+    exporter.Export( &aiscene, "obj", "Assets/Meshes/merged.obj", 0 );
+
+    { // Nullify Assimp mesh pointers to avoid deleting the original mesh data or deleting temporary data twice.
+        for ( unsigned int faceIndex = 0; faceIndex < aimesh.mNumFaces; ++faceIndex )
+            aifaces[ faceIndex ].mIndices = nullptr;
+
+        std::memset( &aimesh, 0, sizeof( aimesh ) );
+        std::memset( &aiscene, 0, sizeof( aiscene ) );
+        std::memset( &airootNode, 0, sizeof( airootNode ) );
+    }
 }

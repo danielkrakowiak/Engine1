@@ -11,6 +11,8 @@
 
 #include "MathUtil.h"
 #include "StringUtil.h"
+#include "TextureUtil.h"
+#include "MeshUtil.h"
 
 #include "BlockMesh.h"
 #include "BlockModel.h"

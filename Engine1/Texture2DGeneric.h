@@ -67,6 +67,9 @@ namespace Engine1
         int getLineSize( unsigned int mipMapLevel = 0 ) const;
 
         const std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 ) const;
+        std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 );
+
+        void saveToFile( const std::string path, const Texture2DFileInfo::Format format ) const;
 
         protected:
 
@@ -140,6 +143,8 @@ namespace Engine1
         UINT        getTextureBindFlags();
         D3D11_MAP   getMapForWriteFlag();
         UINT        getTextureMiscFlags();
+
+        int formatToFreeImagePlusSaveFlag( Texture2DFileInfo::Format format ) const;
 
         Texture2DFileInfo m_fileInfo;
 
@@ -394,6 +399,58 @@ namespace Engine1
         m_hasMipmapsOnGpu  = false;
 
         createTextureViewsOnGpu( device, 0, 0, false, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN );
+    }
+
+    template< typename PixelType >
+    void Texture2DGeneric< PixelType >
+        ::saveToFile( const std::string path, const Texture2DFileInfo::Format format ) const
+    {
+        if ( path.empty() )
+            throw std::exception( "Texture2DGeneric::saveToFile - path cannot be empty." );
+
+        if ( !isInCpuMemory() )
+            throw std::exception( "Texture2DGeneric::saveToFile - texture not in CPU memory." );
+
+        // #TODO: Could be improved significantly by avoiding copying memory to FreeImage image. Is it possible?
+
+        fipImage image( FIT_BITMAP, getWidth(), getHeight(), sizeof( PixelType ) * 8 );
+
+        const bool isPadded = image.getWidth() * sizeof( PixelType ) != image.getScanWidth();
+
+        if ( !isPadded ) 
+        {
+            // Copy entire image.
+            std::memcpy( image.accessPixels(), getData().data(), getWidth() * getHeight() * sizeof( PixelType ) );
+        } 
+        else 
+        {
+            // Copy image - line by line to account for padding at the end of each line.
+            for ( int y = 0; y < getHeight(); ++y )
+                std::memcpy( image.getScanLine( y ), getData().data() + y * getWidth(), getWidth() * sizeof( PixelType ) );
+        }
+
+        if ( !image.save( path.c_str(), formatToFreeImagePlusSaveFlag( format ) ) )
+            throw std::exception( "Texture2DGeneric::saveToFile - saving texture failed." );
+    }
+
+    template< typename PixelType >
+    int Texture2DGeneric< PixelType >
+        ::formatToFreeImagePlusSaveFlag( const Texture2DFileInfo::Format format ) const
+    {
+        //#TODO: How about quality of the output file? Compression etc?
+
+        if ( format == Texture2DFileInfo::Format::BMP )
+            return BMP_DEFAULT;
+        else if ( format == Texture2DFileInfo::Format::JPEG )
+            return JPEG_QUALITYNORMAL;
+        else if ( format == Texture2DFileInfo::Format::PNG )
+            return PNG_Z_DEFAULT_COMPRESSION;
+        else if ( format == Texture2DFileInfo::Format::TIFF )
+            return TIFF_DEFAULT;
+        else {
+            assert( false );
+            return 0;
+        }
     }
 
     template< typename PixelType >
@@ -954,6 +1011,18 @@ namespace Engine1
     template< typename PixelType >
     const std::vector< PixelType >& Texture2DGeneric< PixelType >
         ::getData( unsigned int mipMapLevel = 0 ) const
+    {
+        if ( !isInCpuMemory() )
+            throw std::exception( "Texture2DGeneric::getData - texture is not in CPU memory." );
+        else if ( (int)mipMapLevel >= getMipMapCountOnCpu() )
+            throw std::exception( "Texture2DGeneric::getData - Incorrect level requested. There is no mipmap with such level." );
+
+        return m_dataMipmaps.at( mipMapLevel );
+    }
+
+    template< typename PixelType >
+    std::vector< PixelType >& Texture2DGeneric< PixelType >
+        ::getData( unsigned int mipMapLevel = 0 )
     {
         if ( !isInCpuMemory() )
             throw std::exception( "Texture2DGeneric::getData - texture is not in CPU memory." );
