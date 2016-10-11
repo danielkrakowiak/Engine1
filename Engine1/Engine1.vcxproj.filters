@@ -742,7 +742,10 @@
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="MeshUtil.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelUtil.h">
+      <Filter>Header Files\Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1113,7 +1116,10 @@
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="MeshUtil.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelUtil.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

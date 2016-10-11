@@ -421,7 +421,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
         std::tie( bbMin, bbMax ) = model.getMesh()->getBoundingBox();
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = model.getEmissionTexturesCount() > 0 ? *model.getEmissionTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
+            = model.getEmissiveTexturesCount() > 0 ? *model.getEmissiveTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
             = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *m_defaultAlbedoTexture;
@@ -436,7 +436,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
             = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *m_defaultRoughnessTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
+            = model.getRefractiveIndexTexturesCount() > 0 ? *model.getRefractiveIndexTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
         m_raytracingPrimaryRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), *getRayDirectionsTexture( 0 ), *actor->getModel()->getMesh(), actor->getPose(),
                                                            bbMin, bbMax, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
@@ -497,7 +497,7 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
             = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = model.getEmissionTexturesCount() > 0 ? *model.getEmissionTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
+            = model.getEmissiveTexturesCount() > 0 ? *model.getEmissiveTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
             = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *m_defaultAlbedoTexture;
@@ -512,7 +512,7 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
             = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *m_defaultRoughnessTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
+            = model.getRefractiveIndexTexturesCount() > 0 ? *model.getRefractiveIndexTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
         m_raytracingSecondaryRaysComputeShader->setParameters( *m_deviceContext.Get(), *m_rayOriginsTexture.at( level ), *m_rayDirectionsTexture.at( level ), *actor->getModel()->getMesh(), actor->getPose(), 
                                                                bbMin, bbMax, alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture,

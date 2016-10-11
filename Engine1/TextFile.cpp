@@ -47,3 +47,27 @@ std::shared_ptr< std::vector<char> > TextFile::load( const std::string& path ) {
 		throw std::exception( "TextFile::loadText - Error occured." );
 	}
 }
+
+void TextFile::save( const std::string& path, std::vector< char >& data )
+{
+    std::ofstream file;
+
+    // Open the file.
+    file.open( path.c_str(), std::ofstream::out );
+
+    // Check if open succeeded.
+    if ( !file.is_open() )	
+        throw std::exception( "TextFile::save - Failed to open file." );
+
+    try {
+        file.write( data.data(), data.size() );
+
+        // Close the file.
+        file.close();
+    } catch ( ... ) {
+        // In case of errors - close the file.
+        file.close();
+
+        throw std::exception( "TextFile::save - Error occured." );
+    }
+}

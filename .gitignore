@@ -167,3 +167,9 @@ $RECYCLE.BIN/
 /Engine1/error.txt
 /Engine1.VC.VC.opendb
 /Engine1/begin.txt
+/UnitTests/Debug
+/Debug
+/Engine1/DebugDirect3D/Engine1.tlog
+/Engine1
+/Release
+/UnitTests/Release

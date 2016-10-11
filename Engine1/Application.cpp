@@ -13,6 +13,7 @@
 #include "StringUtil.h"
 #include "TextureUtil.h"
 #include "MeshUtil.h"
+#include "ModelUtil.h"
 
 #include "BlockMesh.h"
 #include "BlockModel.h"
@@ -805,6 +806,12 @@ void Application::onKeyPress( int key )
         }
     }
 
+    // Merge selected actors/models/meshes etc.
+    if ( key == InputManager::Keys::m && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    {
+        mergeSelectedActors();
+    }
+
     /*static float normalThresholdChange = 0.01f;
     if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::n ) )
     {
@@ -1368,17 +1375,17 @@ void Application::onDragAndDropFile( std::string filePath )
            for ( auto& actor : m_selectedBlockActors ) 
            {    
                 if ( replaceAsset )
-                    actor->getModel( )->removeAllEmissionTextures();
+                    actor->getModel( )->removeAllEmissiveTextures();
 
-                actor->getModel( )->addEmissionTexture( modelTexture );
+                actor->getModel( )->addEmissiveTexture( modelTexture );
             }
 
             for ( auto& actor : m_selectedSkeletonActors ) 
             {
                 if ( replaceAsset )
-                    actor->getModel( )->removeAllEmissionTextures();
+                    actor->getModel( )->removeAllEmissiveTextures();
 
-                actor->getModel( )->addEmissionTexture( modelTexture );
+                actor->getModel( )->addEmissiveTexture( modelTexture );
             }
         } 
         else if ( filePath.find( "_I." ) != std::string::npos ) 
@@ -1389,17 +1396,17 @@ void Application::onDragAndDropFile( std::string filePath )
             for ( auto& actor : m_selectedBlockActors ) 
             {   
                 if ( replaceAsset )
-                    actor->getModel( )->removeAllIndexOfRefractionTextures();
+                    actor->getModel( )->removeAllRefractiveIndexTextures();
 
-                actor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+                actor->getModel( )->addRefractiveIndexTexture( modelTexture );
             }
 
             for ( auto& actor : m_selectedSkeletonActors ) 
             {
                 if ( replaceAsset )
-                    actor->getModel( )->removeAllIndexOfRefractionTextures();
+                    actor->getModel( )->removeAllRefractiveIndexTextures();
 
-                actor->getModel( )->addIndexOfRefractionTexture( modelTexture );
+                actor->getModel( )->addRefractiveIndexTexture( modelTexture );
             }
 		}
 	}
@@ -1549,4 +1556,123 @@ void Application::loadScene( std::string path )
 void Application::saveScene( std::string path )
 {
     m_scene->saveToFile( path );
+}
+
+void Application::mergeSelectedActors()
+{
+    std::vector< std::shared_ptr< BlockModel > > models;
+    models.reserve( m_selectedBlockActors.size() );
+
+    for ( auto& actor : m_selectedBlockActors )
+        models.push_back( actor->getModel() );
+
+    std::shared_ptr< BlockModel > mergedModel = ModelUtil::mergeModels( models, *m_frameRenderer.getDevice().Get() );
+
+    if ( mergedModel->getMesh() )
+    {
+        mergedModel->getMesh()->recalculateBoundingBox();
+
+        if (!mergedModel->getMesh()->getBvhTree() ) 
+        {
+            mergedModel->getMesh()->buildBvhTree();
+            mergedModel->getMesh()->reorganizeTrianglesToMatchBvhTree();
+            mergedModel->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
+        }
+    }
+
+    if ( !mergedModel->isInGpuMemory() )
+        mergedModel->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext().Get() );
+
+    { // Save merged model, mesh and textures to files.
+        std::string meshPath = "Assets/Meshes/merged.obj";
+        std::string texturePath = "Assets/Textures/merged";
+
+        if ( mergedModel->getMesh() ) {
+            mergedModel->getMesh()->saveToFile( meshPath, BlockMeshFileInfo::Format::OBJ );
+            
+            mergedModel->getMesh()->getFileInfo().setPath( meshPath );
+            mergedModel->getMesh()->getFileInfo().setFormat( BlockMeshFileInfo::Format::OBJ );
+            mergedModel->getMesh()->getFileInfo().setIndexInFile( 0 );
+        }
+
+        int textureIndex = 0;
+        for ( auto& texture : mergedModel->getAlphaTextures() ) {
+            std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_AL.tiff";
+            texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
+            
+            texture.getTexture()->getFileInfo().setPath( path );
+            texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
+            texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
+        }
+
+        textureIndex = 0;
+        for ( auto& texture : mergedModel->getEmissiveTextures() ) {
+            std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_E.png";
+            texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::PNG );
+
+            texture.getTexture()->getFileInfo().setPath( path );
+            texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::PNG );
+            texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR4 );
+        }
+
+        textureIndex = 0;
+        for ( auto& texture : mergedModel->getAlbedoTextures() ) {
+            std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_A.png";
+            texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::PNG );
+
+            texture.getTexture()->getFileInfo().setPath( path );
+            texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::PNG );
+            texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR4 );
+        }
+
+        textureIndex = 0;
+        for ( auto& texture : mergedModel->getMetalnessTextures() ) {
+            std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_M.tiff";
+            texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
+
+            texture.getTexture()->getFileInfo().setPath( path );
+            texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
+            texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
+        }
+
+        textureIndex = 0;
+        for ( auto& texture : mergedModel->getRoughnessTextures() ) {
+            std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_R.tiff";
+            texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
+
+            texture.getTexture()->getFileInfo().setPath( path );
+            texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
+            texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
+        }
+
+        textureIndex = 0;
+        for ( auto& texture : mergedModel->getNormalTextures() ) {
+            std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_N.png";
+            texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::PNG );
+
+            texture.getTexture()->getFileInfo().setPath( path );
+            texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::PNG );
+            texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR4 );
+        }
+
+        textureIndex = 0;
+        for ( auto& texture : mergedModel->getRefractiveIndexTextures() ) {
+            std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_I.tiff";
+            texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
+
+            texture.getTexture()->getFileInfo().setPath( path );
+            texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
+            texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
+        }
+        
+        mergedModel->saveToFile( "Assets/Models/merged.blockmodel" );
+    }
+
+    float43 pose( float43::IDENTITY );
+    pose.setTranslation( m_camera.getPosition() );
+
+    // Add new actor to the scene.
+    m_selectedBlockActors.clear();
+    m_selectedBlockActors.push_back( std::make_shared< BlockActor >( mergedModel, pose ) );
+    m_scene->addActor( m_selectedBlockActors[ 0 ] );
 }

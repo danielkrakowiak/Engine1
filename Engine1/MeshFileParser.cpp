@@ -27,13 +27,7 @@ std::vector< std::shared_ptr<BlockMesh> > MeshFileParser::parseBlockMeshFile( Bl
 	if ( flipUVs )                  flags |= aiProcess_FlipUVs; 
 
     // #TODO: refactor - use something like toString(format);
-    std::string formatHint;
-    if ( format == BlockMeshFileInfo::Format::OBJ )
-        formatHint = "obj";
-    else if ( format == BlockMeshFileInfo::Format::DAE )
-        formatHint = "dae";
-    else if ( format == BlockMeshFileInfo::Format::FBX )
-        formatHint = "fbx";
+    const std::string formatHint = BlockMeshFileInfo::formatToString( format );
 
     const int      dataSize = (int)(dataEndIt - dataIt) / sizeof(char);
     const aiScene* aiscene = importer.ReadFileFromMemory( &(*dataIt), dataSize, flags, formatHint.c_str() );
@@ -195,7 +189,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > MeshFileParser::parseSkeletonMeshFi
 	return meshes;
 }
 
-void MeshFileParser::writeBlockMeshFile( std::vector< char >& data, const BlockMesh& mesh )
+void MeshFileParser::writeBlockMeshFile( std::vector< char >& data, const BlockMeshFileInfo::Format format, const BlockMesh& mesh )
 {
     aiScene aiscene       = {};
     aiNode  airootNode    = {};
@@ -259,8 +253,17 @@ void MeshFileParser::writeBlockMeshFile( std::vector< char >& data, const BlockM
         }
     }
 
-    Assimp::Exporter exporter;
-    exporter.Export( &aiscene, "obj", "Assets/Meshes/merged.obj", 0 );
+    { // Export mesh to file (in memory).
+        const std::string formatString = BlockMeshFileInfo::formatToString( format );
+
+        Assimp::Exporter exporter;
+        const aiExportDataBlob* aidata = exporter.ExportToBlob( &aiscene, formatString, 0 );
+    
+        // Copy mesh file to the data vector.
+        data.clear();
+        data.resize( aidata->size );
+        std::memcpy( data.data(), aidata->data, aidata->size );
+    }
 
     { // Nullify Assimp mesh pointers to avoid deleting the original mesh data or deleting temporary data twice.
         for ( unsigned int faceIndex = 0; faceIndex < aimesh.mNumFaces; ++faceIndex )

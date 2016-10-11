@@ -57,7 +57,8 @@ void BinaryFile::save( const std::string& path, std::vector<char>& data )
 	file.open( path.c_str(), std::ofstream::out | std::ofstream::binary );
 
 	// Check if open succeeded.
-	if ( !file.is_open() )	throw std::exception( "BinaryFile::save - Failed to open file." );
+	if ( !file.is_open() )	
+        throw std::exception( "BinaryFile::save - Failed to open file." );
 
 	try {
 		file.write( data.data( ), data.size( ) );

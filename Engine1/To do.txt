@@ -334,11 +334,18 @@ Idea:
 
 	  - add combining meshes/models together - and exporting them to obj + textures.
 
--> -> - NOW: saving mesh to file
+-> -> - NOW: test if merging models works for the simplest cases: generator.
+		Test if it works for models where one set of textures is twice smaller than albedo. Downsize generator roughness or metalness...
+		Fix saving meshes to file with correct path. Writing data to data vector etc.
 
 	  - why skybox has reflections? Why roughness == 1.0f doesn't cancel raytracing? Bad skybox texture?
 
 	  FOR FUN: Get some mesh texture for cool alpha!!!!
+
+	  - BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But rougness textures or emissive may have completely different dimensions and be placed differently in the atlas.
+	  So we somehow have to enforce layout withing the atlas based on the first created atlas. How to deal with big textures?
+
+	  - Support for multiple UV sets when merging models? Some textures use one UV set, others use a different one.
 
 	  LATER:
 

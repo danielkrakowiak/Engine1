@@ -39,12 +39,12 @@ SkeletonModel::SkeletonModel( const SkeletonModel& obj ) :
 m_fileInfo( obj.m_fileInfo ),
 m_mesh( obj.m_mesh ),
 m_alphaTextures( obj.m_alphaTextures ),
-m_emissionTextures( obj.m_emissionTextures ),
+m_emissiveTextures( obj.m_emissiveTextures ),
 m_albedoTextures( obj.m_albedoTextures ),
 m_metalnessTextures( obj.m_metalnessTextures ),
 m_roughnessTextures( obj.m_roughnessTextures ),
 m_normalTextures( obj.m_normalTextures ),
-m_indexOfRefractionTextures( obj.m_indexOfRefractionTextures )
+m_refractiveIndexTextures( obj.m_refractiveIndexTextures )
 {}
 
 SkeletonModel::~SkeletonModel( ) {}
@@ -64,7 +64,7 @@ std::vector< std::shared_ptr<const Asset> > SkeletonModel::getSubAssets( ) const
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
@@ -79,7 +79,7 @@ std::vector< std::shared_ptr<const Asset> > SkeletonModel::getSubAssets( ) const
 	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	return subAssets;
@@ -95,7 +95,7 @@ std::vector< std::shared_ptr<Asset> > SkeletonModel::getSubAssets( )
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
@@ -110,7 +110,7 @@ std::vector< std::shared_ptr<Asset> > SkeletonModel::getSubAssets( )
 	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
-	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
 		if ( texture.getTexture() ) subAssets.push_back( texture.getTexture() );
 
 	return subAssets;
@@ -163,7 +163,7 @@ void SkeletonModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_p
             }
         }
 
-        for ( ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
+        for ( ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU1 );
@@ -179,7 +179,7 @@ void SkeletonModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_p
 
     if ( newTextureU4 )
     {
-        for ( ModelTexture2D< uchar4 >& texture : m_emissionTextures )
+        for ( ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
         {
 		    if ( texture.getTexture() == oldAsset ) {
                 texture.setTexture( newTextureU4 );
@@ -251,7 +251,7 @@ void SkeletonModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& dev
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
-	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
@@ -271,7 +271,7 @@ void SkeletonModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& dev
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 
-	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext );
 }
@@ -300,7 +300,7 @@ void SkeletonModel::unloadFromCpu( )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
-	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
@@ -320,7 +320,7 @@ void SkeletonModel::unloadFromCpu( )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 
-	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromCpu();
 }
@@ -334,7 +334,7 @@ void SkeletonModel::unloadFromGpu( )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
-	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
@@ -354,7 +354,7 @@ void SkeletonModel::unloadFromGpu( )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 
-	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
 		if ( texture.getTexture() ) 
             texture.getTexture()->unloadFromGpu();
 }
@@ -368,7 +368,7 @@ bool SkeletonModel::isInCpuMemory( ) const
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
@@ -388,7 +388,7 @@ bool SkeletonModel::isInCpuMemory( ) const
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
             return false;
 
@@ -404,7 +404,7 @@ bool SkeletonModel::isInGpuMemory( ) const
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< uchar4 >& texture : m_emissionTextures )
+	for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
@@ -424,7 +424,7 @@ bool SkeletonModel::isInGpuMemory( ) const
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
-	for ( const ModelTexture2D< unsigned char >& texture : m_indexOfRefractionTextures )
+	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
 		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
             return false;
 
@@ -444,9 +444,9 @@ void SkeletonModel::addAlphaTexture( ModelTexture2D< unsigned char >& texture )
 	m_alphaTextures.push_back( texture );
 }
 
-void SkeletonModel::addEmissionTexture( ModelTexture2D< uchar4 >& texture )
+void SkeletonModel::addEmissiveTexture( ModelTexture2D< uchar4 >& texture )
 {
-	m_emissionTextures.push_back( texture );
+	m_emissiveTextures.push_back( texture );
 }
 
 void SkeletonModel::addAlbedoTexture( ModelTexture2D< uchar4 >& texture )
@@ -469,9 +469,9 @@ void SkeletonModel::addNormalTexture( ModelTexture2D< uchar4 >& texture )
 	m_normalTextures.push_back( texture );
 }
 
-void SkeletonModel::addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture )
+void SkeletonModel::addRefractiveIndexTexture( ModelTexture2D< unsigned char >& texture )
 {
-	m_indexOfRefractionTextures.push_back( texture );
+	m_refractiveIndexTextures.push_back( texture );
 }
 
 void SkeletonModel::removeAllAlphaTextures()
@@ -479,9 +479,9 @@ void SkeletonModel::removeAllAlphaTextures()
     m_alphaTextures.clear();
 }
 
-void SkeletonModel::removeAllEmissionTextures()
+void SkeletonModel::removeAllEmissiveTextures()
 {
-    m_emissionTextures.clear();
+    m_emissiveTextures.clear();
 }
 
 void SkeletonModel::removeAllAlbedoTextures()
@@ -504,9 +504,9 @@ void SkeletonModel::removeAllNormalTextures()
     m_normalTextures.clear();
 }
 
-void SkeletonModel::removeAllIndexOfRefractionTextures()
+void SkeletonModel::removeAllRefractiveIndexTextures()
 {
-    m_indexOfRefractionTextures.clear();
+    m_refractiveIndexTextures.clear();
 }
 
 int SkeletonModel::getAlphaTexturesCount( ) const {
@@ -523,18 +523,18 @@ ModelTexture2D< unsigned char > SkeletonModel::getAlphaTexture( int index ) cons
 	return m_alphaTextures.at( index );
 }
 
-int SkeletonModel::getEmissionTexturesCount( ) const {
-	return (int)m_emissionTextures.size();
+int SkeletonModel::getEmissiveTexturesCount( ) const {
+	return (int)m_emissiveTextures.size();
 }
 
-std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getEmissionTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( m_emissionTextures.begin( ), m_emissionTextures.end( ) );
+std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getEmissiveTextures( ) const {
+	return std::vector< ModelTexture2D< uchar4 > >( m_emissiveTextures.begin( ), m_emissiveTextures.end( ) );
 }
 
-ModelTexture2D< uchar4 > SkeletonModel::getEmissionTexture( int index ) const {
-	if ( index >= (int)m_emissionTextures.size( ) ) throw std::exception( "SkeletonModel::getEmissionTexture: Trying to access texture at non-existing index" );
+ModelTexture2D< uchar4 > SkeletonModel::getEmissiveTexture( int index ) const {
+	if ( index >= (int)m_emissiveTextures.size( ) ) throw std::exception( "SkeletonModel::getEmissionTexture: Trying to access texture at non-existing index" );
 
-	return m_emissionTextures.at( index );
+	return m_emissiveTextures.at( index );
 }
 
 int SkeletonModel::getAlbedoTexturesCount( ) const {
@@ -593,16 +593,16 @@ ModelTexture2D< uchar4 > SkeletonModel::getNormalTexture( int index ) const {
 	return m_normalTextures.at( index );
 }
 
-int SkeletonModel::getIndexOfRefractionTexturesCount( ) const {
-	return (int)m_indexOfRefractionTextures.size();
+int SkeletonModel::getRefractiveIndexTexturesCount( ) const {
+	return (int)m_refractiveIndexTextures.size();
 }
 
-std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getIndexOfRefractionTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_indexOfRefractionTextures.begin( ), m_indexOfRefractionTextures.end( ) );
+std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getRefractiveIndexTextures( ) const {
+	return std::vector< ModelTexture2D< unsigned char > >( m_refractiveIndexTextures.begin( ), m_refractiveIndexTextures.end( ) );
 }
 
-ModelTexture2D< unsigned char > SkeletonModel::getIndexOfRefractionTexture( int index ) const {
-	if ( index >= (int)m_indexOfRefractionTextures.size( ) ) throw std::exception( "SkeletonModel::getIndexOfRefractionTexture: Trying to access texture at non-existing index" );
+ModelTexture2D< unsigned char > SkeletonModel::getRefractiveIndexTexture( int index ) const {
+	if ( index >= (int)m_refractiveIndexTextures.size( ) ) throw std::exception( "SkeletonModel::getIndexOfRefractionTexture: Trying to access texture at non-existing index" );
 
-	return m_indexOfRefractionTextures.at( index );
+	return m_refractiveIndexTextures.at( index );
 }

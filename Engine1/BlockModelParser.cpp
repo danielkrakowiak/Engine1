@@ -42,7 +42,7 @@ std::shared_ptr<BlockModel> BlockModelParser::parseBinary( std::vector<char>::co
 	const int emissiveTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < emissiveTexturesCount; ++i )  {
 		ModelTexture2D< uchar4 > modelTexture = *ModelTexture2DParser< uchar4 >::parseBinary( dataIt, loadRecurrently, device );
-		model->addEmissionTexture( modelTexture );
+		model->addEmissiveTexture( modelTexture );
 	}
 	
 	const int albedoTexturesCount = BinaryFile::readInt( dataIt );
@@ -72,7 +72,7 @@ std::shared_ptr<BlockModel> BlockModelParser::parseBinary( std::vector<char>::co
     const int indexOfRefractionTexturesCount = BinaryFile::readInt( dataIt );
 	for ( int i = 0; i < indexOfRefractionTexturesCount; ++i ) {
 		ModelTexture2D< unsigned char > modelTexture = *ModelTexture2DParser< unsigned char >::parseBinary( dataIt, loadRecurrently, device );
-		model->addIndexOfRefractionTexture( modelTexture );
+		model->addRefractiveIndexTexture( modelTexture );
 	}
 
 	return model;
@@ -98,7 +98,7 @@ void BlockModelParser::writeBinary( std::vector<char>& data, const BlockModel& m
 	for ( const ModelTexture2D< unsigned char >& modelTexture : texturesU1 )
 		ModelTexture2DParser< unsigned char >::writeBinary( data, modelTexture );
 
-	texturesU4 = model.getEmissionTextures();
+	texturesU4 = model.getEmissiveTextures();
 	BinaryFile::writeInt( data, (int)texturesU4.size( ) );
 	for ( const ModelTexture2D< uchar4 >& modelTexture : texturesU4 )
 		ModelTexture2DParser< uchar4 >::writeBinary( data, modelTexture );
@@ -123,7 +123,7 @@ void BlockModelParser::writeBinary( std::vector<char>& data, const BlockModel& m
 	for ( const ModelTexture2D< uchar4 >& modelTexture : texturesU4 )
 		ModelTexture2DParser< uchar4 >::writeBinary( data, modelTexture );
 
-    texturesU1 = model.getIndexOfRefractionTextures();
+    texturesU1 = model.getRefractiveIndexTextures();
 	BinaryFile::writeInt( data, (int)texturesU1.size() );
 	for ( const ModelTexture2D< unsigned char >& modelTexture : texturesU1 )
 		ModelTexture2DParser< unsigned char >::writeBinary( data, modelTexture );

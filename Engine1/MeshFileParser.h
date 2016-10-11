@@ -20,7 +20,7 @@ namespace Engine1
         static std::vector< std::shared_ptr<BlockMesh> >    parseBlockMeshFile( BlockMeshFileInfo::Format format, std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
         static std::vector< std::shared_ptr<SkeletonMesh> > parseSkeletonMeshFile( std::vector<char>::const_iterator& dataIt, std::vector<char>::const_iterator& dataEndIt, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs );
 
-        static void writeBlockMeshFile( std::vector< char >& data, const BlockMesh& mesh );
+        static void writeBlockMeshFile( std::vector< char >& data, const BlockMeshFileInfo::Format format, const BlockMesh& mesh );
     };
 }
 

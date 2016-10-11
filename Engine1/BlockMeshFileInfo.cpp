@@ -3,12 +3,37 @@
 #include "BlockMeshFileInfoParser.h"
 
 #include <memory>
+#include <assert.h>
 
 using namespace Engine1;
 
 std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfo::createFromMemory( std::vector<char>::const_iterator& dataIt )
 {
 	return BlockMeshFileInfoParser::parseBinary( dataIt );
+}
+
+BlockMeshFileInfo::FileType BlockMeshFileInfo::getFileTypeFromFormat( const BlockMeshFileInfo::Format format )
+{
+    if ( format == BlockMeshFileInfo::Format::OBJ || format == BlockMeshFileInfo::Format::DAE )
+        return FileInfo::FileType::Textual;
+    else
+        return FileInfo::FileType::Binary;
+}
+
+std::string BlockMeshFileInfo::formatToString( const Format format )
+{
+    switch ( format )
+    {
+        case Format::OBJ:
+            return "obj";
+        case Format::DAE:
+            return "dae";
+        case Format::FBX:
+            return "fbx";
+    }
+
+    assert( false );
+    return "";
 }
 
 BlockMeshFileInfo::BlockMeshFileInfo() : 
@@ -79,10 +104,7 @@ Asset::Type BlockMeshFileInfo::getAssetType( ) const
 
 FileInfo::FileType BlockMeshFileInfo::getFileType() const
 {
-    if ( m_format == BlockMeshFileInfo::Format::OBJ || m_format == BlockMeshFileInfo::Format::DAE )
-	    return FileInfo::FileType::Textual;
-    else
-        return FileInfo::FileType::Binary;
+    return getFileTypeFromFormat( m_format );
 }
 
 bool BlockMeshFileInfo::canHaveSubAssets() const

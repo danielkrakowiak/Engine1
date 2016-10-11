@@ -21,6 +21,9 @@ namespace Engine1
 
         static std::shared_ptr<BlockMeshFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );
 
+        static FileType    getFileTypeFromFormat( const Format format );
+        static std::string formatToString( const Format format );
+
         BlockMeshFileInfo();
         BlockMeshFileInfo( std::string path, Format format, int indexInFile = 0, bool invertZCoordinate = false, bool invertVertexWindingOrder = false, bool flipUVs = false );
         ~BlockMeshFileInfo();

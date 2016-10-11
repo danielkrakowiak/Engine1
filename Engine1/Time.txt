@@ -278,6 +278,7 @@ Mon 26.09.2016 - 4h - Added Profiler class to measure GPU performance.
 Tue 27.09.2016 - 2h - Modifying Profiler to support "per stage" and "per stage, per light" events aside from global events.
 Wed 28.09.2016 - 4h - Finished modifying and fixing Profiler. Added some events to profiling.
 Fri 30.09.2016 - 1h - Improved display of profiling info - it's not refreshed every frame for better readibility.
+--- September 2016 - 55h
 Sun 02.10.2016 - 1h - Added support for Drag&Drop loading multiple meshes from a single file.
 Mon 03.10.2016 - 4h - Added support for selecting multiple actors and lights at the same time. Added marking selected actors and lights using additional emissive color.
 Tue 04.10.2016 - 5h - Added TextureUtil class. Adding support for merging a couple of textures together into a single texture.
@@ -285,3 +286,6 @@ Wed 05.10.2016 - 2h - Merging textures, saving result to a file.
 Thu 06.10.2016 - 2h - Merging textures, saving result to a file, testing.
 Fri 07.10.2016 - 2h - Added saving texture to file in Texture2DGeneric class. Added MeshUtil class. Added merging meshes.
 Sat 08.10.2016 - 3h - Saving BlockMesh to file using Assimp.
+Sun 09.10.2016 - 2h - Saving BlockMesh to file using Assimp. Added ModelUtil class. Merging block models.
+Mon 10.10.2016 - 6h - Merging block models.
+Tue 11.10.2016 - 2h - Merging selected models and saving them to file along with the mesh and textures.

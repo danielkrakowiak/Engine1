@@ -124,8 +124,15 @@ BlockMesh::~BlockMesh()
 
 void BlockMesh::saveToFile( const std::string& path, const BlockMeshFileInfo::Format format )
 {
-    std::vector< char > empty;
-    MeshFileParser::writeBlockMeshFile( empty, *this );
+    std::vector< char > data;
+
+    MeshFileParser::writeBlockMeshFile( data, format, *this );
+
+    BlockMeshFileInfo::FileType fileType = BlockMeshFileInfo::getFileTypeFromFormat( format );
+    if ( fileType == BlockMeshFileInfo::FileType::Binary )
+        BinaryFile::save( path, data );
+    else if ( fileType == BlockMeshFileInfo::FileType::Textual )
+        TextFile::save( path, data );
 }
 
 Asset::Type BlockMesh::getType( ) const

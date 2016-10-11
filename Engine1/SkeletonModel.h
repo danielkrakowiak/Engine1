@@ -49,28 +49,28 @@ namespace Engine1
         std::shared_ptr<SkeletonMesh> getMesh();
 
         void addAlphaTexture( ModelTexture2D< unsigned char >& texture );
-        void addEmissionTexture( ModelTexture2D< uchar4 >& texture );
+        void addEmissiveTexture( ModelTexture2D< uchar4 >& texture );
         void addAlbedoTexture( ModelTexture2D< uchar4 >& texture );
         void addMetalnessTexture( ModelTexture2D< unsigned char >& texture );
         void addRoughnessTexture( ModelTexture2D< unsigned char >& texture );
         void addNormalTexture( ModelTexture2D< uchar4 >& texture );
-        void addIndexOfRefractionTexture( ModelTexture2D< unsigned char >& texture );
+        void addRefractiveIndexTexture( ModelTexture2D< unsigned char >& texture );
 
         void removeAllAlphaTextures();
-        void removeAllEmissionTextures();
+        void removeAllEmissiveTextures();
         void removeAllAlbedoTextures();
         void removeAllMetalnessTextures();
         void removeAllRoughnessTextures();
         void removeAllNormalTextures();
-        void removeAllIndexOfRefractionTextures();
+        void removeAllRefractiveIndexTextures();
 
         int                                             getAlphaTexturesCount() const;
         std::vector< ModelTexture2D< unsigned char > >  getAlphaTextures() const;
         ModelTexture2D< unsigned char >                 getAlphaTexture( int index = 0 ) const;
 
-        int                                             getEmissionTexturesCount() const;
-        std::vector< ModelTexture2D< uchar4 > >         getEmissionTextures() const;
-        ModelTexture2D< uchar4 >                        getEmissionTexture( int index = 0 ) const;
+        int                                             getEmissiveTexturesCount() const;
+        std::vector< ModelTexture2D< uchar4 > >         getEmissiveTextures() const;
+        ModelTexture2D< uchar4 >                        getEmissiveTexture( int index = 0 ) const;
 
         int                                             getAlbedoTexturesCount() const;
         std::vector< ModelTexture2D< uchar4 > >	        getAlbedoTextures() const;
@@ -88,9 +88,9 @@ namespace Engine1
         std::vector< ModelTexture2D< uchar4 > >	        getNormalTextures() const;
         ModelTexture2D< uchar4 >				        getNormalTexture( int index = 0 ) const;
 
-        int                                             getIndexOfRefractionTexturesCount() const;
-        std::vector< ModelTexture2D< unsigned char > >	getIndexOfRefractionTextures() const;
-        ModelTexture2D< unsigned char >                 getIndexOfRefractionTexture( int index = 0 ) const;
+        int                                             getRefractiveIndexTexturesCount() const;
+        std::vector< ModelTexture2D< unsigned char > >	getRefractiveIndexTextures() const;
+        ModelTexture2D< unsigned char >                 getRefractiveIndexTexture( int index = 0 ) const;
 
         private:
 
@@ -99,12 +99,12 @@ namespace Engine1
         std::shared_ptr<SkeletonMesh> m_mesh;
 
         std::vector< ModelTexture2D< unsigned char > > m_alphaTextures;
-        std::vector< ModelTexture2D< uchar4 > >        m_emissionTextures;
+        std::vector< ModelTexture2D< uchar4 > >        m_emissiveTextures;
         std::vector< ModelTexture2D< uchar4 > >        m_albedoTextures;
         std::vector< ModelTexture2D< unsigned char > > m_metalnessTextures;
         std::vector< ModelTexture2D< unsigned char > > m_roughnessTextures;
         std::vector< ModelTexture2D< uchar4 > >        m_normalTextures;
-        std::vector< ModelTexture2D< unsigned char > > m_indexOfRefractionTextures;
+        std::vector< ModelTexture2D< unsigned char > > m_refractiveIndexTextures;
 
         SkeletonModel& operator=(const SkeletonModel&) = delete;
     };

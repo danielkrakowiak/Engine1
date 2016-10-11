@@ -4,9 +4,12 @@
 #include <vector>
 #include <algorithm>
 
-#include "Texture2DGeneric.h"
+#include "Texture2D.h"
+
+#include "MathUtil.h"
 
 #include "int2.h"
+#include "float2.h"
 
 namespace Engine1
 {
@@ -154,6 +157,50 @@ namespace Engine1
 
         public:
 
+        // Describes where a texture is placed within a merged texture.
+        class TexturePlacement
+        {
+            public:
+
+            static bool areTexcoordsEqual( const TexturePlacement& placement1, const TexturePlacement& placement2 )
+            {
+                return MathUtil::areEqual( placement1.getTopLeftTexcoords(), placement2.getTopLeftTexcoords(), 0.0f, 0.0001f )
+                    && MathUtil::areEqual( placement1.getBottomRightTexcoords(), placement2.getBottomRightTexcoords(), 0.0f, 0.0001f );
+            }
+
+            TexturePlacement( const int2& position, const float2& topLeftTexcoords, const float2& bottomRightTexcoords ) :
+                m_position( position ),
+                m_topLeftTexcoords( topLeftTexcoords ),
+                m_bottomRightTexcoords( bottomRightTexcoords )
+            {}
+
+            int2 getTopLeftPosition() const // In pixels.
+            {
+                return m_position;
+            }
+
+            float2 getTopLeftTexcoords() const
+            {
+                return m_topLeftTexcoords;
+            }
+
+            float2 getBottomRightTexcoords() const
+            {
+                return m_bottomRightTexcoords;
+            }
+
+            float2 getDimensionsInTexcoords() const
+            {
+                return m_bottomRightTexcoords - m_topLeftTexcoords;
+            }
+
+            private:
+
+            int2 m_position;
+            float2 m_topLeftTexcoords;
+            float2 m_bottomRightTexcoords;
+        };
+
         template< typename PixelType >
         static void copyTexture( Texture2DGeneric< PixelType >& destTexture, Texture2DGeneric< PixelType >& srcTexture, int2 destTopLeft, int2 srcTopLeft, int2 dimensions )
         {
@@ -190,11 +237,10 @@ namespace Engine1
         // Order of vector of positions is the same as order of input textures. 
         template< typename PixelType >
         static std::tuple< 
-            std::shared_ptr< Texture2DGeneric< PixelType > >,
-            std::vector< int2 >
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >,
+            std::vector< TexturePlacement >
         > mergeTextures( const std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > >& inputTextures,
-                         ID3D11Device& device, DXGI_FORMAT textureFormat,
-                         DXGI_FORMAT viewFormat1, DXGI_FORMAT viewFormat2, DXGI_FORMAT viewFormat3 )
+                         ID3D11Device& device, DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat )
         {
             if ( inputTextures.empty() )
                 throw std::exception( "TextureUtil::mergeTextures - no input textures were passed." );
@@ -253,11 +299,11 @@ namespace Engine1
             }
 
             // Create new texture.
-            auto mergedTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType > >
-                ( device, rootBin->getWidth(), rootBin->getHeight(), true, false, false, textureFormat, viewFormat1, viewFormat2, viewFormat3 );
+            auto mergedTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
+                ( device, rootBin->getWidth(), rootBin->getHeight(), true, false, false, textureFormat, viewFormat );
 
-            std::vector< int2 > texturePositions;
-            texturePositions.reserve( inputTextures.size() );
+            std::vector< TexturePlacement > texturePlacements;
+            texturePlacements.reserve( inputTextures.size() );
 
             // Copy data from source textures to the merged texture.
             // Collect texture positions withing the merged texture.
@@ -273,12 +319,18 @@ namespace Engine1
                     int2( inputTexture->getWidth(), inputTexture->getHeight() ) 
                 );
 
-                texturePositions.push_back( texturePosition );
+                texturePlacements.push_back( 
+                    TexturePlacement( 
+                        texturePosition, 
+                        float2( (float)texturePosition.x / mergedTexture->getWidth(), (float)texturePosition.y / mergedTexture->getHeight() ),
+                        float2( (float)(texturePosition.x + inputTexture->getWidth()) / mergedTexture->getWidth(), (float)(texturePosition.y + inputTexture->getHeight()) / mergedTexture->getHeight() )
+                     ) 
+                 );
             }
 
             //mergedTexture.saveToFile( "Assets/Textures/merged.png", Texture2DFileInfo::Format::PNG );
 
-            return std::make_tuple( mergedTexture, texturePositions );
+            return std::make_tuple( mergedTexture, texturePlacements );
         }
     };
 };

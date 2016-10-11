@@ -174,7 +174,7 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
             = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = model.getEmissionTexturesCount() > 0 ? *model.getEmissionTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
+            = model.getEmissiveTexturesCount() > 0 ? *model.getEmissiveTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
 
 	    const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
             = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *m_defaultAlbedoTexture;
@@ -189,7 +189,7 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
             = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *m_defaultRoughnessTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
+            = model.getRefractiveIndexTexturesCount() > 0 ? *model.getRefractiveIndexTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
 		m_blockModelVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix );
 		m_blockModelFragmentShader->setParameters( *m_deviceContext.Get( ), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );
@@ -232,7 +232,7 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
             = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = model.getEmissionTexturesCount() > 0 ? *model.getEmissionTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
+            = model.getEmissiveTexturesCount() > 0 ? *model.getEmissiveTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
             = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *m_defaultAlbedoTexture;
@@ -247,7 +247,7 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
             = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *m_defaultRoughnessTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = model.getIndexOfRefractionTexturesCount() > 0 ? *model.getIndexOfRefractionTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
+            = model.getRefractiveIndexTexturesCount() > 0 ? *model.getRefractiveIndexTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
 		m_skeletonModelVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
 		m_skeletonModelFragmentShader->setParameters( *m_deviceContext.Get(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );
