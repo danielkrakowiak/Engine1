@@ -15,13 +15,15 @@ void Font::loadFromFile( std::string path, unsigned int size ) {
 	if ( FT_New_Face( FontLibrary::get(), path.c_str(), 0, &m_face ) ) throw std::exception( "Font::loadFromFile - loading font failed" );
 
 	//TODO: fixed device resoulution? Probably shouldn't be left like that?
-	FT_Set_Char_Size(
-        m_face,    /* handle to face object           */
-		0,       /* char_width in 1/64th of points  */
-		size * 64,   /* char_height in 1/64th of points */
-		72,     /* horizontal device resolution    */ 
-		72   /* vertical device resolution      */
-		);
+	//FT_Set_Char_Size(
+ //       m_face,    /* handle to face object           */
+	//	0,       /* char_width in 1/64th of points  */
+	//	size * 64,   /* char_height in 1/64th of points */
+	//	96,     /* horizontal device resolution    */ 
+	//	96   /* vertical device resolution      */
+	//	);
+
+    FT_Set_Pixel_Sizes( m_face, 0, size );
 
 	this->m_path = path;
 	this->m_size = size;
@@ -181,9 +183,9 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device 
 					D3D11_SUBRESOURCE_DATA textureDataPtr;
 					ZeroMemory( &textureDataPtr, sizeof( textureDataPtr ) );
 
-					textureDataPtr.pSysMem = m_face->glyph->bitmap.buffer;
-					textureDataPtr.SysMemPitch = character.getSize().x; //distance between any two adjacent pixels on different lines
-					textureDataPtr.SysMemSlicePitch = character.getSize().x * character.getSize().y; //size of the entire 2D surface in bytes
+					textureDataPtr.pSysMem          = m_face->glyph->bitmap.buffer;
+					textureDataPtr.SysMemPitch      = m_face->glyph->bitmap.pitch; //distance between any two adjacent pixels on different lines
+					textureDataPtr.SysMemSlicePitch = m_face->glyph->bitmap.pitch * character.getSize().y; //size of the entire 2D surface in bytes
 
 					ComPtr<ID3D11Texture2D>          texture;
 					ComPtr<ID3D11ShaderResourceView> textureResource;
@@ -206,4 +208,9 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device 
 
 		return &( *(m_characters.find( charcode ) ) ).second;
 	}
+}
+
+int Font::getLineHeight() const
+{
+    return m_face->size->metrics.height;
 }

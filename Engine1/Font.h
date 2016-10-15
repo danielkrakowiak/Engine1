@@ -107,6 +107,7 @@ namespace Engine1
 
         void loadFromFile( std::string path, unsigned int size );
         FontCharacter* getCharacter( unsigned long charcode, ID3D11Device& device );
+        int getLineHeight() const;
 
         private:
 

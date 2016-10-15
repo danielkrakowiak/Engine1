@@ -19,7 +19,7 @@ PixelOutputType main( PixelInputType input )
 	float4 textureColor = characterTexture.Sample( samplerState, input.texCoord );
 
 	output.normal = float2( 0.0f, 0.0f );
-    output.albedo = float4( 1.0f, 1.0f, 1.0f, textureColor.r );
+    output.albedo = float4( textureColor.r, textureColor.r, textureColor.r, textureColor.r );
 
 	return output;
 }

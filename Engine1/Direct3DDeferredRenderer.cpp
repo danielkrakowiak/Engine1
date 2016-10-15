@@ -300,7 +300,7 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
 
 		if ( character ) {
 			if ( character->getCharcode() == '\n' ) {
-				pos.y -= character->getSize().y;
+				pos.y -= ( font.getLineHeight() / 64 );
 				pos.x = position.x;
 			} else {
 				worldMatrix.setTranslation( float3( pos.x + character->getPos().x, pos.y + character->getPos().y, 0.0f ) );
