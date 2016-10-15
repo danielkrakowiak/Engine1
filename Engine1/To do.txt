@@ -1,5 +1,3 @@
-27.02.2014
-	- Add unit tests for mesh loading (loading meshes with several triangles and resued vertices, with and without normals, texcoords)
 19.03.2014
 	- when creating fipImage in Texture2D - FREE_IMAGE_TYPE is set to FIT_BITMAP by default. However, it is not always the appropriate file type for image. Ex.: 16 bit grayscale heighmaps have different file type. Maybe it should depend on special file formats defined in AssetFileFormat such as RAW_16BIT?
 28.03.2014
@@ -7,16 +5,8 @@
 11.04.2014
 	- Write = operator for every class with copy constructor (otherwise default copy constructor will be used)
 12.04.2014
-	- check if DirectX SDK can be removed and if only Windows 7 SDK is enough
 	- check whether all DirectX headers point to the right SDK (by pointing the cursor over an include)\
-	- add texture loading to AssetManager
 	- add loading to Gpu to asset manager (read about async resource loading before - probably one loading thread is enough)
-15.04.2014
-	- Add test case for mesh loading where mesh has some faces with texcoord indexes or normals and some without them (should throw exception if not handled correctly) - audi.obj is an example
-22.09.2014
-	- should loading assets asynchronously be done statically in BasicAsset class or in a separate AssetLoader class? Loading and managing assets seem to be different tasks... 
-13.10.2014
-	- implement loading RiggedMesh from .obj file
 08.11.2014
 	- add more methods for manipulation float44 and float43 - ex. getRotation rename to getRotation, get4x3 rename to getRotationTranslation, add setRotationRow1 etc
 	- change bone pose format from float44 to float43 - beacuse last column is useless anyway
@@ -31,10 +21,6 @@
 28.12.2014
 	- Const methods ( ex. const Mesh & getMesh() const ) should always return const-object or const-reference. Non-const versions of the same methods can be created to allow modification of the object. 
 	- add const and non-const version of some methods (getters mostly) to all classes. Use const method in non-const method. Use const_cast<type> to convert types from const to non-const.
-16.05.2014
-	- Add tests for: RenderTarget2D, RenderTargetDepth2D.
-21.06.2015
-	- Add support for text rendering in Direct3DRendererCore. Add support for text rendering in Direct3DDeffreredRenderer (for in-game flowing label, debug texts, UI etc)
 13.07.2015
 	- Go through all "throw std::exception" and make sure that throwing method has parenthesis "()" in the error message.
 	- Add tests for SkeletonMeshVertexShader checking if it throws for incorrect bones-per-vertex-values.
@@ -267,7 +253,7 @@ Idea:
 
 	  - experiment with increasing minimal contribtuion for the ray to be generated and traced. How high can we go for higher levels?
 
-	  http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
+	  
 
 	  - add exceptions and check if wrong level is passed to reflectionrefraction renderer.
 	  - remove unnecessary 'level' and 'prev contribution term' from firstreflectionshadindg and firstrefractionshading.
@@ -296,11 +282,7 @@ Idea:
 
 	  - why mipmaps are not generated on gpu in TTexture? Because that would require them to be RenderTargets... There is already a method for that in TTExtureSpecBind. Should we wait for CPU implemantation of generating mipmaps?
 
-	  - IMPORTANT / REFACTOR: Should move all the compiled libraries and headers to one folder inside the project and add that project to repository. 
-
 	  - IMPORTANT:  In generate refracted rays shaders - Why HLSL compiler crashes without "skip optimization" flag?
-
-	  - as I'm storing all of these temporary buffers... Can I render from back to front now? Or actually only the combining part backwards...
 
 	  - PROBLEM: If we don't enter an object, we don't know what's the refractive index outside of that object... So if we start inside of a glass ball, we don't know which IOR to use when leaving the ball.
 
@@ -322,32 +304,28 @@ Idea:
 
 	  - suport for any resolution - part 2 - lower resolution should be accounted for correctly in combining shader to avoid increasing roughness globally (as it happens right now).
 
-	  - 
-
 	  - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
 
 	  - how to make skybox not receive shadow? To improve performance...
 
-	  - place profiling events everywhere and some accumulating measurements.
+	  NOW:
 
-	  - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
+	  - render large text and compare with some other program!!!! <_------------------------------------------------------------------------------------
 
-	  - add combining meshes/models together - and exporting them to obj + textures.
 
--> -> - NOW: test if merging models works for the simplest cases: generator.
-		Test if it works for models where one set of textures is twice smaller than albedo. Downsize generator roughness or metalness...
-		Fix saving meshes to file with correct path. Writing data to data vector etc.
+	  - place profiling events everywhere - need to know how much time is spent on higher reflection levels...
+
+	  - create example kitchen scene
 
 	  - why skybox has reflections? Why roughness == 1.0f doesn't cancel raytracing? Bad skybox texture?
 
-	  FOR FUN: Get some mesh texture for cool alpha!!!!
+	  - do I really want to do shadow mapping?
 
-	  - BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But rougness textures or emissive may have completely different dimensions and be placed differently in the atlas.
-	  So we somehow have to enforce layout withing the atlas based on the first created atlas. How to deal with big textures?
-
-	  - Support for multiple UV sets when merging models? Some textures use one UV set, others use a different one.
+	  - mipmapping (someone will probably ask about that) ?
 
 	  LATER:
+
+	  - do I have to account for window frame height, borders etc when creating window? Is my image streched down?
 
 	  - own mesh format + format for storing BVH trees.
 
@@ -363,16 +341,26 @@ Idea:
 
 	  - OPTIMIZATION: Mapping/Unmapping constant buffer each time we setParameters to shaders has to be very costly. How can I avoid that?
 
+	  - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
+
 	  - shadow mapping
-	  - all paths in models/scene should be relative to main folder or asset folder
+
+	  - all paths in models/scene should be relative to main folder or asset folder (could be useful if someone else was trying to test my application)
+	  
 	  - mipmapping
-	  - loading meshes split by material
 	  - own mesh format
-	  - combining meshes
 	  - cubemap texture class - to use for skybox
 
+	  MUCH LATER:
+
+	  - BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But rougness textures or emissive may have completely different dimensions and be placed differently in the atlas.
+	  So we somehow have to enforce layout withing the atlas based on the first created atlas. How to deal with big textures?
+
+	  - Support for multiple UV sets when merging models? Some textures use one UV set, others use a different one.
 
 
 	  Sources: 
 
 	  - profiling, GPU queries: http://www.reedbeta.com/blog/2011/10/12/gpu-profiling-101/
+
+	  - calculating reflected ray direction: http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf

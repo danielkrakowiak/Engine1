@@ -17,7 +17,7 @@ namespace Engine1
         // Note: Main - main image, R - reflection, T - transmission (refraction).
         enum class StageType : int
         {
-            Main = 0,
+            Main = 1,
             R = 0b10,
             T = 0b11,
             // Level 2
@@ -58,14 +58,19 @@ namespace Engine1
         {
             Frame = 0,
             DeferredRendering,
+            CopyFrameToFinalRenderTarget,
             MAX_VALUE
         };
 
         enum class EventTypePerStage : int
         {
-            Raytracing = 0,
-            MipmapGenerationForPositionAndNormals,
+            MipmapGenerationForPositionAndNormals = 0,
             EmissiveShading,
+            ReflectionTransmissionShading,
+            Raytracing,
+            Shading,
+            MipmapGenerationForShadedImage,
+            CombiningWithMainImage,
             MAX_VALUE
         };
 
@@ -75,6 +80,11 @@ namespace Engine1
             Shading,
             MAX_VALUE
         };
+
+        static std::string stageTypeToString( const StageType stageType );
+        static std::string eventTypeToString( const GlobalEventType eventType );
+        static std::string eventTypeToString( const EventTypePerStage eventType );
+        static std::string eventTypeToString( const EventTypePerStagePerLight eventType, const int lightIdx = -1 );
 
         static const int s_maxLightCount = 4;
 

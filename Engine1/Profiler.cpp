@@ -3,10 +3,90 @@
 #include <d3d11.h>
 
 #include <exception>
+#include <string>
 
 using Microsoft::WRL::ComPtr;
 
 using namespace Engine1;
+
+std::string Profiler::stageTypeToString( const StageType stageType )
+{
+    switch (stageType)
+    {
+        case StageType::Main: return "Main";
+        case StageType::R:    return "R";
+        case StageType::T:    return "T";
+        case StageType::RR:    return "RR";
+        case StageType::RT:    return "RT";
+        case StageType::TR:    return "TR";
+        case StageType::TT:    return "TT";
+        case StageType::RRR:    return "RRR";
+        case StageType::RRT:    return "RRT";
+        case StageType::RTR:    return "RTR";
+        case StageType::RTT:    return "RTT";
+        case StageType::TRR:    return "TRR";
+        case StageType::TRT:    return "TRT";
+        case StageType::TTR:    return "TTR";
+        case StageType::TTT:    return "TTT";
+        case StageType::RRRR:    return "RRRR";
+        case StageType::RRRT:    return "RRRT";
+        case StageType::RRTR:    return "RRTR";
+        case StageType::RRTT:    return "RRTT";
+        case StageType::RTRR:    return "RTRR";
+        case StageType::RTRT:    return "RTRT";
+        case StageType::RTTR:    return "RTTR";
+        case StageType::RTTT:    return "RTTT";
+        case StageType::TRRR:    return "TRRR";
+        case StageType::TRRT:    return "TRRT";
+        case StageType::TRTR:    return "TRTR";
+        case StageType::TRTT:    return "TRTT";
+        case StageType::TTRR:    return "TTRR";
+        case StageType::TTRT:    return "TTRT";
+        case StageType::TTTR:    return "TTTR";
+        case StageType::TTTT:    return "TTTT";
+    }
+
+    return "";
+}
+
+std::string Profiler::eventTypeToString( const GlobalEventType eventType )
+{
+    switch (eventType)
+    {
+        case GlobalEventType::Frame:                        return "Frame";
+        case GlobalEventType::DeferredRendering:            return "DeferredRendering";
+        case GlobalEventType::CopyFrameToFinalRenderTarget: return "CopyFrameToFinalRenderTarget";
+    }
+
+    return "";
+}
+
+std::string Profiler::eventTypeToString( const EventTypePerStage eventType )
+{
+    switch ( eventType ) 
+    {
+        case EventTypePerStage::MipmapGenerationForPositionAndNormals: return "MipmapGenerationForPositionAndNormals";
+        case EventTypePerStage::EmissiveShading:                       return "EmissiveShading";
+        case EventTypePerStage::ReflectionTransmissionShading:         return "ReflectionTransmissionShading";
+        case EventTypePerStage::Raytracing:                            return "Raytracing";
+        case EventTypePerStage::Shading:                               return "Shading";
+        case EventTypePerStage::MipmapGenerationForShadedImage:        return "MipmapGenerationForShadedImage";
+        case EventTypePerStage::CombiningWithMainImage:                return "CombiningWithMainImage";
+    }
+
+    return "";
+}
+
+std::string Profiler::eventTypeToString( const EventTypePerStagePerLight eventType, const int lightIdx )
+{
+    switch ( eventType ) 
+    {
+        case EventTypePerStagePerLight::Shadows: return "Shadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::Shading: return "Shading" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+    }
+
+    return "";
+}
 
 Profiler::Profiler() :
     m_currentSubmitQueryFrameIndex( -1 ),

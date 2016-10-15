@@ -264,8 +264,12 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
 
+    m_profiler.beginEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
+
     // Copy main shaded image to final render target.
     m_rendererCore.copyTexture( m_finalRenderTarget, 0, m_shadingRenderer.getColorRenderTarget(), 0 );
+
+    m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
 
     if ( activeViewLevel.empty() )
     {
@@ -394,26 +398,42 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
 
 void Renderer::renderFirstReflections( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
 {
+    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+
     // Perform reflection shading.
     m_reflectionRefractionShadingRenderer.performFirstReflectionShading( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_deferredRenderer.getAlbedoRenderTarget(),
                                                                   m_deferredRenderer.getMetalnessRenderTarget(), m_deferredRenderer.getRoughnessRenderTarget() );
+
+    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::Raytracing );
 
     // Perform ray tracing.
     m_raytraceRenderer.generateAndTraceFirstReflectedRays( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(),
                                                             m_deferredRenderer.getRoughnessRenderTarget(), m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), blockActors );
 
+    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::Raytracing );
+    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
+
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
-	for (const std::shared_ptr< Light >& light : lightsVector )
+    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
+
+    const int lightCount = (int)lightsVector.size();
+    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
+        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+
 		m_raytraceShadowRenderer.generateAndTraceShadowRays( 
-			light, 
+			lightsVector[ lightIdx ], 
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
 			blockActors 
 		);
+
+        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( 
@@ -424,18 +444,26 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
 			m_raytraceShadowRenderer.getIlluminationTexture(),
-			*light 
+			*lightsVector[ lightIdx ] 
 		);
+
+        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
+
+    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
     // Generate mipmaps for the shaded, reflected image.
     m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
     const int contributionTextureFillWidth  = m_deferredRenderer.getPositionRenderTarget()->getWidth();
     const int contributionTextureFillHeight = m_deferredRenderer.getPositionRenderTarget()->getHeight();
 
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
+
+    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::CombiningWithMainImage );
 
     // Combine main image with reflections.
     m_combiningRenderer.combine( m_finalRenderTarget, 
@@ -448,10 +476,14 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
                                  camera.getPosition(),
                                  contributionTextureFillWidth, contributionTextureFillHeight,
                                  colorTextureFillWidth, colorTextureFillHeight );
+
+    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::CombiningWithMainImage );
 }
 
 void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
 {
+    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+
     // Perform refraction shading.
     m_reflectionRefractionShadingRenderer.performFirstRefractionShading( camera, 
                                                                        m_deferredRenderer.getPositionRenderTarget(), 
@@ -459,6 +491,9 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                                                        m_deferredRenderer.getAlbedoRenderTarget(),
                                                                        m_deferredRenderer.getMetalnessRenderTarget(), 
                                                                        m_deferredRenderer.getRoughnessRenderTarget() );
+
+    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::Raytracing );
 
     // Perform ray tracing.
     m_raytraceRenderer.generateAndTraceFirstRefractedRays( camera, 
@@ -469,18 +504,29 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                                          m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
                                                          blockActors );
 
+    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::Raytracing );
+    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
+
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
-	for (const std::shared_ptr< Light >& light : lightsVector )
+    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
+
+    const int lightCount = (int)lightsVector.size();
+    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+
 		m_raytraceShadowRenderer.generateAndTraceShadowRays(
-			light,
+			lightsVector[ lightIdx ],
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
 			blockActors
 		);
+
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading(
@@ -491,18 +537,26 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
 			m_raytraceShadowRenderer.getIlluminationTexture(),
-			*light
+			*lightsVector[ lightIdx ]
 		);
+
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
+
+    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
     // Generate mipmaps for the shaded, reflected image.
     m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
     const int contributionTextureFillWidth  = m_deferredRenderer.getPositionRenderTarget()->getWidth();
     const int contributionTextureFillHeight = m_deferredRenderer.getPositionRenderTarget()->getHeight();
 
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
+
+    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
 
     // Combine main image with refractions.
     m_combiningRenderer.combine( m_finalRenderTarget, 
@@ -515,6 +569,8 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
                                camera.getPosition(),
                                contributionTextureFillWidth, contributionTextureFillHeight,
                                colorTextureFillWidth, colorTextureFillHeight );
+
+    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
 }
 
 void Renderer::renderReflections( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )

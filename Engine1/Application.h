@@ -145,5 +145,15 @@ private:
 	// Copying is not allowed.
 	Application( const Application& ) = delete;
 	Application& operator=( const Application& ) = delete;
+
+    struct StageProfilingInfo
+    {
+        // Time in milliseconds.
+        std::array< float, (int)Profiler::EventTypePerStage::MAX_VALUE > event;
+        std::array< float, Profiler::s_maxLightCount > shadowsPerLight;
+        std::array< float, Profiler::s_maxLightCount > shadingPerLight;
+        float shadowsTotal;
+        float shadingTotal;
+    };
 };
 

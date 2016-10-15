@@ -289,3 +289,5 @@ Sat 08.10.2016 - 3h - Saving BlockMesh to file using Assimp.
 Sun 09.10.2016 - 2h - Saving BlockMesh to file using Assimp. Added ModelUtil class. Merging block models.
 Mon 10.10.2016 - 6h - Merging block models.
 Tue 11.10.2016 - 2h - Merging selected models and saving them to file along with the mesh and textures.
+Wed 12.10.2016 - 2h - Adding new profiling events and improving display of profiling info.
+Fri 14.10.2016 - 3h - Fixed window size to account for frame and borders. Trying ot fix blurry text display, line gaps etc.

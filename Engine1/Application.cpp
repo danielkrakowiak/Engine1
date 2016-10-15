@@ -167,7 +167,24 @@ void Application::setupWindow() {
 
 	DWORD exStyle = WS_EX_ACCEPTFILES; // Allow drag&drop files.
 
-	m_windowHandle = CreateWindowEx( exStyle, className, wndCaption, style, 0, 0, m_screenWidth, m_screenHeight, NULL, NULL, m_applicationInstance, NULL );
+    int windowWidth = m_screenWidth;
+    int windowHeight = m_screenHeight;
+    if ( !m_fullscreen )
+    {
+        RECT windowArea;
+        windowArea.left   = 0;
+        windowArea.top    = 0;
+        windowArea.right  = m_screenWidth;
+        windowArea.bottom = m_screenHeight;
+
+        // Calculate the required window dimensions to accommodate the desried client area.
+        AdjustWindowRect( &windowArea, style, false );
+
+        windowWidth  = windowArea.right - windowArea.left;
+        windowHeight = windowArea.bottom - windowArea.top;
+    }
+
+	m_windowHandle = CreateWindowEx( exStyle, className, wndCaption, style, 0, 0, windowWidth, windowHeight, NULL, NULL, m_applicationInstance, NULL );
 
 	m_deviceContext = GetDC( m_windowHandle );
 
@@ -212,10 +229,10 @@ void Application::run() {
     m_camera.rotate( float3( 0.0f, MathUtil::piHalf, 0.0f ) );
      
 	Font font( uint2(m_screenWidth, m_screenHeight) );
-	font.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 35 );
+	font.loadFromFile( "Assets/Fonts/consola.ttf", 35 );
 
     Font font2( uint2(m_screenWidth, m_screenHeight) );
-    font2.loadFromFile( "Assets/Fonts/DoulosSILR.ttf", 20 );
+    font2.loadFromFile( "Assets/Fonts/consola.ttf", 10 );
 
     // Profiling.
     const float profilingDisplayRefreshDelayMs = 200.0f;
@@ -223,9 +240,7 @@ void Application::run() {
     float totalFrameTimeGPU = 0.0f, totalFrameTimeCPU = 0.0f;
     float deferredRenderingTime = 0.0f;
     float mainMipmapGenerationForPositionAndNormalsTime = 0.0f;
-    float mainShadowsLight0Time = 0.0f, mainShadowsLight1Time = 0.0f, mainShadowsLight2Time = 0.0f, mainShadowsLight3Time = 0.0f;
-    float mainEmissiveShadingTime = 0.0f, mainShadingLight0Time = 0.0f, mainShadingLight1Time = 0.0f, mainShadingLight2Time = 0.0f, mainShadingLight3Time = 0.0f;
-    float mainShadowsTime = 0.0f, mainShadingTime = 0.0f;
+    std::array< StageProfilingInfo, (int)Profiler::StageType::MAX_VALUE > stageProfilingInfo;
 
     Timer profilingLastRefreshTime;
 
@@ -409,24 +424,33 @@ void Application::run() {
             profilingLastRefreshTime.reset();
 
             { // Render profiling results.
-                totalFrameTimeCPU = (float)frameTimeMs;
-                totalFrameTimeGPU = m_profiler.getEventDuration( Profiler::GlobalEventType::Frame );
-                deferredRenderingTime = m_profiler.getEventDuration( Profiler::GlobalEventType::DeferredRendering );
-
+                totalFrameTimeCPU                             = (float)frameTimeMs;
+                totalFrameTimeGPU                             = m_profiler.getEventDuration( Profiler::GlobalEventType::Frame );
+                deferredRenderingTime                         = m_profiler.getEventDuration( Profiler::GlobalEventType::DeferredRendering );
                 mainMipmapGenerationForPositionAndNormalsTime = m_profiler.getEventDuration( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
 
-                mainShadowsLight0Time = m_profiler.getEventDuration( Profiler::StageType::Main, 0, Profiler::EventTypePerStagePerLight::Shadows );
-                mainShadowsLight1Time = m_profiler.getEventDuration( Profiler::StageType::Main, 1, Profiler::EventTypePerStagePerLight::Shadows );
-                mainShadowsLight2Time = m_profiler.getEventDuration( Profiler::StageType::Main, 2, Profiler::EventTypePerStagePerLight::Shadows );
-                mainShadowsLight3Time = m_profiler.getEventDuration( Profiler::StageType::Main, 3, Profiler::EventTypePerStagePerLight::Shadows );
-                mainShadowsTime = fmax( 0.0f, mainShadowsLight0Time ) + fmax( 0.0f, mainShadowsLight1Time ) + fmax( 0.0f, mainShadowsLight2Time ) + fmax( 0.0f, mainShadowsLight3Time );
+                for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, (int)m_renderer.getMaxLevelCount() + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
+                {
+                    for ( int eventType = (int)Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals; eventType < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventType )
+                    {
+                        stageProfilingInfo[ stage ].event[ eventType ] = m_profiler.getEventDuration( (Profiler::StageType)stage, (Profiler::EventTypePerStage)eventType );
+                    }
 
-                mainEmissiveShadingTime = m_profiler.getEventDuration( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
-                mainShadingLight0Time = m_profiler.getEventDuration( Profiler::StageType::Main, 0, Profiler::EventTypePerStagePerLight::Shading );
-                mainShadingLight1Time = m_profiler.getEventDuration( Profiler::StageType::Main, 1, Profiler::EventTypePerStagePerLight::Shading );
-                mainShadingLight2Time = m_profiler.getEventDuration( Profiler::StageType::Main, 2, Profiler::EventTypePerStagePerLight::Shading );
-                mainShadingLight3Time = m_profiler.getEventDuration( Profiler::StageType::Main, 3, Profiler::EventTypePerStagePerLight::Shading );
-                mainShadingTime = fmax( 0.0f, mainShadingLight0Time ) + fmax( 0.0f, mainShadingLight1Time ) + fmax( 0.0f, mainShadingLight2Time ) + fmax( 0.0f, mainShadingLight3Time );
+                    stageProfilingInfo[ stage ].shadowsTotal = 0.0f;
+                    stageProfilingInfo[ stage ].shadingTotal = 0.0f;
+
+                    for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
+                    {
+                        stageProfilingInfo[ stage ].shadowsPerLight[ lightIdx ] = m_profiler.getEventDuration( (Profiler::StageType)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+                        if ( stageProfilingInfo[ stage ].shadowsPerLight[ lightIdx ] >= 0.0f )
+                            stageProfilingInfo[ stage ].shadowsTotal += stageProfilingInfo[ stage ].shadowsPerLight[ lightIdx ];
+                        
+                        stageProfilingInfo[ stage ].shadingPerLight[ lightIdx ] = m_profiler.getEventDuration( (Profiler::StageType)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
+                        
+                        if ( stageProfilingInfo[ stage ].shadingPerLight[ lightIdx ] >= 0.0f )
+                            stageProfilingInfo[ stage ].shadingTotal += stageProfilingInfo[ stage ].shadingPerLight[ lightIdx ];
+                    }
+                }
             }
 
         }
@@ -442,19 +466,48 @@ void Application::run() {
             ss << std::fixed << std::setprecision( 2 );
             ss << "Profiling: \n";
             ss << "Total: " << totalFrameTimeGPU << " ms \n";
-            ss << "Main/DeferredRendering: " << deferredRenderingTime << " ms, " << ( deferredRenderingTime / totalFrameTimeGPU ) * 100.0f << "% \n";
-            ss << "Main/MipmapGenerationForPositionAndNormals: " << mainMipmapGenerationForPositionAndNormalsTime << " ms, " << ( mainMipmapGenerationForPositionAndNormalsTime / totalFrameTimeGPU ) * 100.0f << "% \n";
-            ss << "Main/Shadows: " << mainShadowsTime << " ms, " << ( mainShadowsTime / totalFrameTimeGPU ) * 100.0f << "% \n";
-            if ( mainShadowsLight0Time > 0.0f ) ss << "    Light0: " << mainShadowsLight0Time << " ms, " << ( mainShadowsLight0Time / totalFrameTimeGPU ) * 100.0f << "% \n";
-            if ( mainShadowsLight1Time > 0.0f ) ss << "    Light1: " << mainShadowsLight1Time << " ms, " << ( mainShadowsLight1Time / totalFrameTimeGPU ) * 100.0f << "% \n";
-            if ( mainShadowsLight2Time > 0.0f ) ss << "    Light2: " << mainShadowsLight2Time << " ms, " << ( mainShadowsLight2Time / totalFrameTimeGPU ) * 100.0f << "% \n";
-            if ( mainShadowsLight3Time > 0.0f ) ss << "    Light3: " << mainShadowsLight3Time << " ms, " << ( mainShadowsLight3Time / totalFrameTimeGPU ) * 100.0f << "% \n";
-            ss << "Main/EmissiveShading: " << mainEmissiveShadingTime << " ms, " << ( mainEmissiveShadingTime / totalFrameTimeGPU ) * 100.0f << "% \n";
-            ss << "Main/Shading: " << mainShadingTime << " ms, " << ( mainShadingTime / totalFrameTimeGPU ) * 100.0f << "% \n";
-            if ( mainShadingLight0Time > 0.0f ) ss << "    Light0: " << mainShadingLight0Time << " ms, " << ( mainShadingLight0Time / totalFrameTimeGPU ) * 100.0f << "% \n";
-            if ( mainShadingLight1Time > 0.0f ) ss << "    Light1: " << mainShadingLight1Time << " ms, " << ( mainShadingLight1Time / totalFrameTimeGPU ) * 100.0f << "% \n";
-            if ( mainShadingLight2Time > 0.0f ) ss << "    Light2: " << mainShadingLight2Time << " ms, " << ( mainShadingLight2Time / totalFrameTimeGPU ) * 100.0f << "% \n";
-            if ( mainShadingLight3Time > 0.0f ) ss << "    Light3: " << mainShadingLight3Time << " ms, " << ( mainShadingLight3Time / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+            // Print global events duration.
+            ss << "DeferredRendering: " << deferredRenderingTime << "ms " << ( deferredRenderingTime / totalFrameTimeGPU ) * 100.0f << "% \n";
+            ss << "CopyFrameToFinalRenderTarget: " << mainMipmapGenerationForPositionAndNormalsTime << "ms " << ( mainMipmapGenerationForPositionAndNormalsTime / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+            for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, (int)m_renderer.getMaxLevelCount() + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
+            {
+                // Print stage name.
+                ss << Profiler::stageTypeToString( (Profiler::StageType)stage ) << "\n";
+
+                // Print duration of events occurring at each stage.
+                for ( int eventType = (int)Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals; eventType < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventType )
+                {
+                    const float eventDuration = stageProfilingInfo[ stage ].event[ eventType ];
+                    if ( eventDuration >= 0.0f )
+                        ss << "    " << Profiler::eventTypeToString( (Profiler::EventTypePerStage)eventType ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+                }
+
+                // Print duration of shadow calculations (total + for each light).
+                const float totalShadowsDuration = stageProfilingInfo[ stage ].shadowsTotal;
+                if ( totalShadowsDuration > 0.0f )
+                    ss << "    Shadows: " << totalShadowsDuration << "ms " << ( totalShadowsDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+                for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx )
+                {
+                    const float eventDuration = stageProfilingInfo[ stage ].shadowsPerLight[ lightIdx ];
+                    if ( eventDuration > 0.0f )
+                        ss << "        " << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::Shadows, lightIdx ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+                }
+
+                // Print duration of shading calculations (total + for each light).
+                const float totalShadingDuration = stageProfilingInfo[ stage ].shadingTotal;
+                if ( totalShadingDuration > 0.0f )
+                    ss << "    Shading: " << totalShadingDuration << "ms " << ( totalShadingDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+                for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
+                {
+                    const float eventDuration = stageProfilingInfo[ stage ].shadingPerLight[ lightIdx ];
+                    if ( eventDuration > 0.0f )
+                        ss << "        " << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::Shading, lightIdx ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+                }
+            }
 
             frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
