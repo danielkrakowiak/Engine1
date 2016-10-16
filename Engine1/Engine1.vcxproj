@@ -262,6 +262,7 @@
     <ClInclude Include="BVHNode.h" />
     <ClInclude Include="BVHTree.h" />
     <ClInclude Include="BVHTreeBuffer.h" />
+    <ClInclude Include="BVHTreeBufferParser.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="FreeCameraParser.h" />
     <ClInclude Include="CombiningFragmentShader.h" />
@@ -398,6 +399,7 @@
     <ClCompile Include="BVHNode.cpp" />
     <ClCompile Include="BVHTree.cpp" />
     <ClCompile Include="BVHTreeBuffer.cpp" />
+    <ClCompile Include="BVHTreeBufferParser.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FreeCameraParser.cpp" />
     <ClCompile Include="CombiningFragmentShader.cpp" />

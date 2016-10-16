@@ -343,6 +343,12 @@
     <Filter Include="Header Files\Profiler">
       <UniqueIdentifier>{c24c4259-dc1f-498c-8c40-e1a28cb11d6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Tools\BVH\Parsers">
+      <UniqueIdentifier>{ad29f01f-7599-4a98-9e34-0391186d1da1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tools\BVH\Parsers">
+      <UniqueIdentifier>{0e0446c6-b0d2-498f-b8dc-1499dc830fca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -747,6 +753,9 @@
     <ClInclude Include="ModelUtil.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
+    <ClInclude Include="BVHTreeBufferParser.h">
+      <Filter>Header Files\Tools\BVH\Parsers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1120,6 +1129,9 @@
     </ClCompile>
     <ClCompile Include="ModelUtil.cpp">
       <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="BVHTreeBufferParser.cpp">
+      <Filter>Source Files\Tools\BVH\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

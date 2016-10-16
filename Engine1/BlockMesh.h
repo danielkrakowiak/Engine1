@@ -85,9 +85,10 @@ namespace Engine1
         // Returns <min, max> of the bounding box.
         std::tuple<float3, float3> getBoundingBox() const;
 
-        void                             buildBvhTree();
-        void                             loadBvhTreeToGpu( ID3D11Device& device );
-        std::shared_ptr< const BVHTree > getBvhTree() const;
+        void                                   buildBvhTree();
+        void                                   loadBvhTreeToGpu( ID3D11Device& device );
+        std::shared_ptr< const BVHTreeBuffer > getBvhTree() const;
+        void                                   setBvhTree( std::shared_ptr< BVHTreeBuffer > bvhTree );
 
         // Reorganizes triangle order to match the BVH tree (for better ray tracing performance).
         // It means that triangle indices in BVH nodes point directly to mesh triangles
@@ -124,8 +125,7 @@ namespace Engine1
         float3 m_boundingBoxMin;
         float3 m_boundingBoxMax;
 
-        std::shared_ptr< BVHTree >                       m_bvhTree;
-        std::shared_ptr< BVHTreeBuffer >                 m_bvhTreeBuffer;
+        std::shared_ptr< BVHTreeBuffer >                 m_bvhTree;
         Microsoft::WRL::ComPtr<ID3D11Buffer>             m_bvhTreeBufferNodesGpu;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_bvhTreeBufferNodesGpuSRV;
         Microsoft::WRL::ComPtr<ID3D11Buffer>             m_bvhTreeBufferNodesExtentsGpu;

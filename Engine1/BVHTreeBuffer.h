@@ -13,6 +13,8 @@ namespace Engine1
     // Can be sent to GPU and used for ray traversal or can be also used by the CPU.
     class BVHTreeBuffer
     {
+        friend class BVHTreeBufferParser;
+
         public:
 
         // Bounding box.
@@ -40,11 +42,16 @@ namespace Engine1
         };
 
         BVHTreeBuffer( BVHTree& tree );
+        BVHTreeBuffer();
         ~BVHTreeBuffer();
 
         const std::vector< unsigned int >&               getTriangles()    const;
         const std::vector< BVHTreeBuffer::Node >&        getNodes()        const;
         const std::vector< BVHTreeBuffer::NodeExtents >& getNodesExtents() const;
+        
+        // Should be called once mesh's triangles have been reordered to match the BVH tree 
+        // - it doesn't match the mesh anymore and is useless after reordering.
+        void clearTriangles();
 
         private:
 
@@ -63,7 +70,9 @@ namespace Engine1
         // Recursively count depth.
         void countDepth( const BVHNode& node, int depth, int& maxDepth );
 
+        // Triangle indices - can be used to reorder mesh triangles to match the BVH tree.
         std::vector< unsigned int >               m_triangles;
+
         std::vector< BVHTreeBuffer::Node >        m_bvhNodes;
         std::vector< BVHTreeBuffer::NodeExtents > m_bvhNodesExtents;
     };

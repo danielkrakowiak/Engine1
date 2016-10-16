@@ -16,7 +16,8 @@ namespace Engine1
         {
             OBJ = 0,
             DAE = 1,
-            FBX = 2
+            FBX = 2,
+            BLOCKMESH = 3
         };
 
         static std::shared_ptr<BlockMeshFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );

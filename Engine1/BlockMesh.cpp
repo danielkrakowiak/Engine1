@@ -33,7 +33,7 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromFile( const std::string& path, c
     std::shared_ptr< std::vector<char> > fileData;
     if ( BlockMeshFileInfo::Format::OBJ == format || BlockMeshFileInfo::Format::DAE == format ) 
 	    fileData = TextFile::load( path );
-    else if ( BlockMeshFileInfo::Format::FBX == format )
+    else if ( BlockMeshFileInfo::Format::FBX == format || BlockMeshFileInfo::Format::BLOCKMESH == format )
         fileData = BinaryFile::load( path );
 
     std::shared_ptr<BlockMesh> mesh = createFromMemory( fileData->cbegin( ), fileData->cend( ), format, indexInFile, invertZCoordinate, invertVertexWindingOrder, flipUVs );
@@ -89,12 +89,7 @@ std::shared_ptr<BlockMesh> BlockMesh::createFromMemory( std::vector<char>::const
 
 std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt, const BlockMeshFileInfo::Format format, const bool invertZCoordinate, const bool invertVertexWindingOrder, const bool flipUVs )
 {
-	if ( BlockMeshFileInfo::Format::OBJ == format || BlockMeshFileInfo::Format::DAE == format || BlockMeshFileInfo::Format::FBX == format ) 
-    {
-        return MeshFileParser::parseBlockMeshFile( format, dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
-	}
-
-	throw std::exception( "BlockMesh::createFromMemory() - incorrect 'format' argument." );
+    return MeshFileParser::parseBlockMeshFile( format, dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 }
 
 BlockMesh::BlockMesh() :
@@ -469,6 +464,7 @@ const std::vector<float2>& BlockMesh::getTexcoords( int setIndex ) const
 	if ( !isInCpuMemory() ) throw std::exception( "BlockMesh::getTexcoords - Mesh not loaded in CPU memory." );
 	if ( setIndex >= (int)m_texcoords.size() ) throw std::exception( "BlockMesh::getTexcoords: Trying to access texcoords at non-existing index." );
 
+    //#TODO: use std::advance() ?
 	std::list< std::vector<float2> >::const_iterator it = m_texcoords.begin();
 	for ( int i = 0; i < setIndex; ++i ) it++;
 
@@ -594,8 +590,12 @@ std::tuple<float3, float3> BlockMesh::getBoundingBox() const
 
 void BlockMesh::buildBvhTree()
 {
-    m_bvhTree       = std::make_shared< BVHTree >( *this );
-    m_bvhTreeBuffer = std::make_shared< BVHTreeBuffer >( *m_bvhTree );
+    std::shared_ptr< BVHTree > bvhTree = std::make_shared< BVHTree >( *this );
+    m_bvhTree                    = std::make_shared< BVHTreeBuffer >( *bvhTree );
+
+    reorganizeTrianglesToMatchBvhTree();
+
+    m_bvhTree->clearTriangles();
 }
 
 void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
@@ -603,14 +603,14 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
     if ( !m_bvhTreeBufferNodesGpu ) {
         D3D11_BUFFER_DESC desc;
         desc.Usage               = D3D11_USAGE_DEFAULT;
-        desc.ByteWidth           = sizeof( BVHTreeBuffer::Node ) * (unsigned int)m_bvhTreeBuffer->getNodes().size();
+        desc.ByteWidth           = sizeof( BVHTreeBuffer::Node ) * (unsigned int)m_bvhTree->getNodes().size();
         desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags      = 0;
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
         D3D11_SUBRESOURCE_DATA dataPtr;
-        dataPtr.pSysMem          = m_bvhTreeBuffer->getNodes().data();
+        dataPtr.pSysMem          = m_bvhTree->getNodes().data();
         dataPtr.SysMemPitch      = 0;
         dataPtr.SysMemSlicePitch = 0;
 
@@ -621,7 +621,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
         resourceDesc.Format              = DXGI_FORMAT_R32G32_UINT;
         resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
         resourceDesc.Buffer.FirstElement = 0;
-        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTreeBuffer->getNodes().size();
+        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTree->getNodes().size();
 
         result = device.CreateShaderResourceView( m_bvhTreeBufferNodesGpu.Get(), &resourceDesc, m_bvhTreeBufferNodesGpuSRV.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH nodes shader resource view on GPU failed." );
@@ -635,14 +635,14 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
     if ( !m_bvhTreeBufferNodesExtentsGpu ) {
         D3D11_BUFFER_DESC desc;
         desc.Usage               = D3D11_USAGE_DEFAULT;
-        desc.ByteWidth           = sizeof( BVHTreeBuffer::NodeExtents ) * (unsigned int)m_bvhTreeBuffer->getNodesExtents().size();
+        desc.ByteWidth           = sizeof( BVHTreeBuffer::NodeExtents ) * (unsigned int)m_bvhTree->getNodesExtents().size();
         desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags      = 0;
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
         D3D11_SUBRESOURCE_DATA dataPtr;
-        dataPtr.pSysMem          = m_bvhTreeBuffer->getNodesExtents().data();
+        dataPtr.pSysMem          = m_bvhTree->getNodesExtents().data();
         dataPtr.SysMemPitch      = 0;
         dataPtr.SysMemSlicePitch = 0;
 
@@ -653,7 +653,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
         resourceDesc.Format              = DXGI_FORMAT_R32G32B32_FLOAT;
         resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
         resourceDesc.Buffer.FirstElement = 0;
-        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTreeBuffer->getNodesExtents().size() * 2; // Multiplied by 2, because SRV accesses 
+        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTree->getNodesExtents().size() * 2; // Multiplied by 2, because SRV accesses 
                                                                                                       // each float3 separately instead of pair <float3, float3> (min, max).
 
         result = device.CreateShaderResourceView( m_bvhTreeBufferNodesExtentsGpu.Get(), &resourceDesc, m_bvhTreeBufferNodesExtentsGpuSRV.ReleaseAndGetAddressOf() );
@@ -665,17 +665,17 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
 #endif
 	}
 
-    if ( !m_bvhTreeBufferTrianglesGpu ) {
+    if ( !m_bvhTreeBufferTrianglesGpu && !m_bvhTree->getTriangles().empty() ) {
         D3D11_BUFFER_DESC desc;
         desc.Usage               = D3D11_USAGE_DEFAULT;
-        desc.ByteWidth           = sizeof( unsigned int ) * (unsigned int)m_bvhTreeBuffer->getTriangles().size();
+        desc.ByteWidth           = sizeof( unsigned int ) * (unsigned int)m_bvhTree->getTriangles().size();
         desc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags      = 0;
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
         D3D11_SUBRESOURCE_DATA dataPtr;
-        dataPtr.pSysMem          = m_bvhTreeBuffer->getTriangles().data();
+        dataPtr.pSysMem          = m_bvhTree->getTriangles().data();
         dataPtr.SysMemPitch      = 0;
         dataPtr.SysMemSlicePitch = 0;
 
@@ -686,7 +686,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
         resourceDesc.Format              = DXGI_FORMAT_R32_UINT;
         resourceDesc.ViewDimension       = D3D11_SRV_DIMENSION_BUFFER;
         resourceDesc.Buffer.FirstElement = 0;
-        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTreeBuffer->getTriangles().size();
+        resourceDesc.Buffer.NumElements  = (unsigned int)m_bvhTree->getTriangles().size();
 
         result = device.CreateShaderResourceView( m_bvhTreeBufferTrianglesGpu.Get(), &resourceDesc, m_bvhTreeBufferTrianglesGpuSRV.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH triangles shader resource view on GPU failed." );
@@ -698,19 +698,26 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
 	}
 }
 
-std::shared_ptr< const BVHTree > BlockMesh::getBvhTree() const
+std::shared_ptr< const BVHTreeBuffer > BlockMesh::getBvhTree() const
 {
     return m_bvhTree;
 }
 
+void BlockMesh::setBvhTree( std::shared_ptr< BVHTreeBuffer > bvhTree )
+{
+    m_bvhTree = bvhTree;
+}
+
 void BlockMesh::reorganizeTrianglesToMatchBvhTree()
 {
-    if ( !m_bvhTreeBuffer )
+    if ( !m_bvhTree )
         throw std::exception( "BlockMesh::reorganizeTrianglesToMatchBvhTree - BVH Tree Buffer needs to be built first." );
 
-    const std::vector<uint3> trianglesCopy( m_triangles );
+    const std::vector<uint3> trianglesCopy( m_triangles ); //#TOD: Optimization: Use std::move() here?
 
-    const std::vector< unsigned int >& bvhTriangles = m_bvhTreeBuffer->getTriangles();
+    const std::vector< unsigned int >& bvhTriangles = m_bvhTree->getTriangles();
+
+    assert( !bvhTriangles.empty() );
 
     // Note: BVH tree may have a bit more triangles, because some of them are duplicated (single triangle contained in multiple nodes).
     const int bvhTriangleCount = (int)bvhTriangles.size();

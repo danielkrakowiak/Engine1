@@ -13,6 +13,9 @@ BVHTreeBuffer::BVHTreeBuffer( BVHTree& tree )
     build( tree );
 }
 
+BVHTreeBuffer::BVHTreeBuffer()
+{}
+
 BVHTreeBuffer::~BVHTreeBuffer()
 {}
 
@@ -29,6 +32,12 @@ const std::vector< BVHTreeBuffer::Node >& BVHTreeBuffer::getNodes() const
 const std::vector< BVHTreeBuffer::NodeExtents >& BVHTreeBuffer::getNodesExtents() const
 {
     return m_bvhNodesExtents;
+}
+
+void BVHTreeBuffer::clearTriangles()
+{
+    m_triangles.clear();
+    m_triangles.shrink_to_fit();
 }
 
 void BVHTreeBuffer::build( BVHTree& tree )

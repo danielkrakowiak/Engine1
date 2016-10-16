@@ -310,7 +310,9 @@ Idea:
 
 	  NOW:
 
-	  - render large text and compare with some other program!!!! <_------------------------------------------------------------------------------------
+	  - saving selected actors (many at once!) on Ctrl + S - automatic name creation.
+	  - selecting many actors by holding LMB and Shift? How to do that?
+	  - improve picking objects by doing raytracing per triangle
 
 
 	  - place profiling events everywhere - need to know how much time is spent on higher reflection levels...
@@ -324,6 +326,11 @@ Idea:
 	  - mipmapping (someone will probably ask about that) ?
 
 	  LATER:
+
+	  - all file parsers should:
+		- append data to given buffer when writing (not clearing it as it is now!)
+		- read data while checking not to cross the given end iterator - should also check for negative sizes etc.
+		- how to elegantly avoid resizing data vectors during write (ex: mesh + bvh). - probably the same way as in BVHTreeParser
 
 	  - do I have to account for window frame height, borders etc when creating window? Is my image streched down?
 

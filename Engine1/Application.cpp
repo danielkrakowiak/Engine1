@@ -264,8 +264,8 @@ void Application::run() {
         bool movingObjects = false;
         if ( m_windowFocused && ( !m_selectedBlockActors.empty() || !m_selectedSkeletonActors.empty() ) ) 
         {
-            const float   translationSensitivity = 0.002f;//0.002f;
-            const float   rotationSensitivity    = 0.0002f;
+            const float   translationSensitivity = 0.001f;//0.002f;
+            const float   rotationSensitivity    = 0.0001f;
             const int2    mouseMove              = m_inputManager.getMouseMove();
 
             const float3 sensitivity(
@@ -299,7 +299,7 @@ void Application::run() {
         // Translate the selected light.
         if ( m_windowFocused && !m_selectedLights.empty() ) 
         {
-            const float   translationSensitivity = 0.002f;//0.002f;
+            const float   translationSensitivity = 0.001f;//0.002f;
             const int2    mouseMove              = m_inputManager.getMouseMove();
 
             const float3 sensitivity(
@@ -321,7 +321,7 @@ void Application::run() {
         if ( m_windowFocused && !movingObjects && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
             const float cameraRotationSensitivity = 0.0001f;
 
-            const float acceleration = 5.0f;
+            const float acceleration = 1.0f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) ) m_camera.accelerateForward( (float)frameTimeMs * acceleration );
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_camera.accelerateReverse( (float)frameTimeMs * acceleration );
@@ -716,17 +716,22 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 		break;
 	case WM_DROPFILES:
 		HDROP dropInfo = (HDROP)wParam;
-		const DWORD charCount = DragQueryFileW(dropInfo, 0, nullptr, 0) + 1;
-		std::vector<wchar_t> pathBufferW;
-		pathBufferW.resize(charCount);
+        const int fileCount = (int)DragQueryFileW(dropInfo, (UINT)-1, nullptr, 0);
 
-		DragQueryFileW(dropInfo, 0, (LPWSTR)pathBufferW.data(), charCount);
-		std::wstring pathW(pathBufferW.data(), charCount - 1);
-		std::string path = StringUtil::narrow(pathW);
+        for ( int fileIdx = 0; fileIdx < fileCount; ++fileIdx )
+        {
+            const DWORD charCount = DragQueryFileW( dropInfo, fileIdx, nullptr, 0 ) + 1;
+            std::vector<wchar_t> pathBufferW;
+            pathBufferW.resize( charCount );
 
-		try	{
-			windowsMessageReceiver->onDragAndDropFile(path);
-		} catch (...) {}
+            DragQueryFileW( dropInfo, fileIdx, (LPWSTR)pathBufferW.data(), charCount );
+            std::wstring pathW( pathBufferW.data(), charCount - 1 );
+            std::string path = StringUtil::narrow( pathW );
+
+            try {
+                windowsMessageReceiver->onDragAndDropFile( path );
+            } catch ( ... ) {}
+        }
 			
 		break;
 	}
@@ -1138,9 +1143,10 @@ void Application::onDragAndDropFile( std::string filePath )
 	if ( dotIndex == std::string::npos )
 		return;
 
-	std::string extension = StringUtil::toLowercase( filePath.substr( dotIndex + 1 ) );
+    std::string filePathWithoutExtension = StringUtil::toLowercase( filePath.substr( 0, dotIndex ) );
+	std::string extension                = StringUtil::toLowercase( filePath.substr( dotIndex + 1 ) );
 
-	std::array< const std::string, 3 > blockMeshExtensions     = { "obj", "dae", "fbx" };
+	std::array< const std::string, 4 > blockMeshExtensions     = { "obj", "dae", "fbx", "blockmesh" };
 	std::array< const std::string, 1 > skeletonkMeshExtensions = { "dae" };
 	std::array< const std::string, 9 > textureExtensions       = { "bmp", "dds", "jpg", "jpeg", "png", "raw", "tga", "tiff", "tif" };
     std::array< const std::string, 1 > blockModelExtensions    = { "blockmodel" };
@@ -1206,9 +1212,10 @@ void Application::onDragAndDropFile( std::string filePath )
 	if ( isBlockMesh ) {
 		BlockMeshFileInfo::Format format = BlockMeshFileInfo::Format::OBJ;
 
-		if (      extension.compare( "obj" ) == 0 ) format = BlockMeshFileInfo::Format::OBJ;
-		else if ( extension.compare( "dae" ) == 0 ) format = BlockMeshFileInfo::Format::DAE;
-        else if ( extension.compare( "fbx" ) == 0 ) format = BlockMeshFileInfo::Format::FBX;
+		if (      extension.compare( "obj" ) == 0 )       format = BlockMeshFileInfo::Format::OBJ;
+		else if ( extension.compare( "dae" ) == 0 )       format = BlockMeshFileInfo::Format::DAE;
+        else if ( extension.compare( "fbx" ) == 0 )       format = BlockMeshFileInfo::Format::FBX;
+        else if ( extension.compare( "blockmesh" ) == 0 ) format = BlockMeshFileInfo::Format::BLOCKMESH;
 
         // Note: Bad support for multiple meshes in a single file. Because of how AssetManager works, they have to be parsed one by one from the same file.
         // So the file has to be re-parsed for each mesh it contains. Not a big problem normally, because only one mesh should be in a single file.
@@ -1223,8 +1230,6 @@ void Application::onDragAndDropFile( std::string filePath )
 
                 if ( !mesh->getBvhTree() )
                     mesh->buildBvhTree();
-
-                mesh->reorganizeTrianglesToMatchBvhTree();
 
                 if ( !mesh->isInGpuMemory( ) ) {
                     mesh->loadCpuToGpu( *m_frameRenderer.getDevice().Get() );
@@ -1245,6 +1250,10 @@ void Application::onDragAndDropFile( std::string filePath )
                     m_selectedBlockActors[ 0 ]->getModel( )->setMesh( mesh );
                     m_scene->addActor( m_selectedBlockActors[ 0 ] );
                 }
+
+                // Save mesh to .blockmesh format for future use.
+                if ( format != BlockMeshFileInfo::Format::BLOCKMESH )
+                    mesh->saveToFile( filePathWithoutExtension + (indexInFile != 0 ? "_" + std::to_string( indexInFile ) : "") + ".blockmesh", BlockMeshFileInfo::Format::BLOCKMESH );
             }
             catch ( ... )
             {
@@ -1472,7 +1481,6 @@ void Application::onDragAndDropFile( std::string filePath )
         if ( model->getMesh() && !model->getMesh()->getBvhTree() )
         {
             model->getMesh()->buildBvhTree();
-            model->getMesh()->reorganizeTrianglesToMatchBvhTree();
             model->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice( ).Get() );
         }
 
@@ -1573,7 +1581,6 @@ void Application::loadScene( std::string path )
                     // Build BVH tree and load it to GPU.
                     if ( blockModel->getMesh() ) {
                         blockModel->getMesh()->buildBvhTree();
-                        blockModel->getMesh()->reorganizeTrianglesToMatchBvhTree();
                         blockModel->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
                     }
 
@@ -1628,7 +1635,6 @@ void Application::mergeSelectedActors()
         if (!mergedModel->getMesh()->getBvhTree() ) 
         {
             mergedModel->getMesh()->buildBvhTree();
-            mergedModel->getMesh()->reorganizeTrianglesToMatchBvhTree();
             mergedModel->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
         }
     }

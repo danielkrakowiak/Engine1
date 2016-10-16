@@ -573,7 +573,7 @@ void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )
     std::vector< unsigned char > dataRoughness         = { 0 };
     std::vector< unsigned char > dataIndexOfRefraction = { 0 };
     std::vector< uchar4 >        dataEmissive          = { uchar4( 0, 0, 0, 255 ) };
-    std::vector< uchar4 >        dataAlbedo            = { uchar4( 0, 0, 0, 255 ) };
+    std::vector< uchar4 >        dataAlbedo            = { uchar4( 128, 128, 128, 255 ) };
     std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 255 ) };
 
     m_defaultAlphaTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >

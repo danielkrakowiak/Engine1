@@ -30,6 +30,8 @@ std::string BlockMeshFileInfo::formatToString( const Format format )
             return "dae";
         case Format::FBX:
             return "fbx";
+        case Format::BLOCKMESH:
+            return "blockmesh";
     }
 
     assert( false );
