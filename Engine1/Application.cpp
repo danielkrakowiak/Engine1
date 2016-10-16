@@ -778,14 +778,47 @@ void Application::onKeyPress( int key )
             m_selectedLights.push_back( light );
         }
     } 
-    else if ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) 
+    
+    if ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) 
     {
-        if ( m_scene && !m_scenePath.empty() && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::s ) ) {
-            saveScene( m_scenePath );
-        }
+        if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::s ) )
+        {
+            if ( m_selectedBlockActors.empty() && m_selectedSkeletonActors.empty() )
+            {
+                if ( m_scene && !m_scenePath.empty() ) {
+                    saveScene( m_scenePath );
+                }
 
-        if ( !m_cameraPath.empty() && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::s ) ) {
-            saveCamera( m_cameraPath );
+                if ( !m_cameraPath.empty() ) {
+                    saveCamera( m_cameraPath );
+                }
+            }
+            else
+            {
+                saveSelectedModels();
+            }
+        }
+    }
+
+    // Ctrl + A - Select all actors and lights.
+    if ( key == InputManager::Keys::ctrl || key == InputManager::Keys::a ) 
+    {
+        if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::a ) ) 
+        {
+            m_selectedBlockActors.clear();
+            m_selectedSkeletonActors.clear();
+            m_selectedLights.clear();
+
+            for ( auto& actor : m_scene->getActors() )
+            {
+                if ( actor->getType() == Actor::Type::BlockActor )
+                    m_selectedBlockActors.push_back( std::dynamic_pointer_cast< BlockActor >( actor ) );
+                else if ( actor->getType() == Actor::Type::SkeletonActor )
+                    m_selectedSkeletonActors.push_back( std::dynamic_pointer_cast< SkeletonActor >( actor ) );
+            }
+
+            for ( auto& light : m_scene->getLights() )
+                m_selectedLights.push_back( light );
         }
     }
 
@@ -1579,8 +1612,11 @@ void Application::loadScene( std::string path )
                 if ( blockModel ) 
                 {
                     // Build BVH tree and load it to GPU.
-                    if ( blockModel->getMesh() ) {
-                        blockModel->getMesh()->buildBvhTree();
+                    if ( blockModel->getMesh() ) 
+                    {
+                        if ( !blockModel->getMesh()->getBvhTree() )
+                            blockModel->getMesh()->buildBvhTree();
+
                         blockModel->getMesh()->loadBvhTreeToGpu( *m_frameRenderer.getDevice().Get() );
                     }
 
@@ -1734,4 +1770,28 @@ void Application::mergeSelectedActors()
     m_selectedBlockActors.clear();
     m_selectedBlockActors.push_back( std::make_shared< BlockActor >( mergedModel, pose ) );
     m_scene->addActor( m_selectedBlockActors[ 0 ] );
+}
+
+void Application::saveSelectedModels()
+{
+    for ( auto& actor : m_selectedBlockActors )
+    {
+        const std::shared_ptr< BlockModel > model = actor->getModel();
+        if ( model )
+        {
+            std::string path = model->getFileInfo().getPath();
+
+            // If there is no existing path for model - use mesh's path.
+            if ( path.empty() && model->getMesh() )
+            {
+                path = model->getMesh()->getFileInfo().getPath();
+                const int dotPos = (int)path.rfind(".");
+                if ( dotPos != std::string::npos )
+                    path = path.replace( path.begin() + dotPos, path.end(), ".blockmodel" );
+            }
+
+            if ( !path.empty() )
+                model->saveToFile( path );
+        }
+    }
 }

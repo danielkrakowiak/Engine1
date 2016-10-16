@@ -313,6 +313,7 @@ Idea:
 	  - saving selected actors (many at once!) on Ctrl + S - automatic name creation.
 	  - selecting many actors by holding LMB and Shift? How to do that?
 	  - improve picking objects by doing raytracing per triangle
+	  - avoid loading models several times - once for each index in file. Especially avoid loading .blockmesh file twice.
 
 
 	  - place profiling events everywhere - need to know how much time is spent on higher reflection levels...

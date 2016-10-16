@@ -79,6 +79,7 @@ private:
     void saveScene( std::string path );
 
     void mergeSelectedActors();
+    void saveSelectedModels();
 
     void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y );
     void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y );
