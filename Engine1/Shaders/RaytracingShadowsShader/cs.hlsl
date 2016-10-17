@@ -77,6 +77,7 @@ void main( uint3 groupId : SV_GroupID,
 
 	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
     if ( !any( rayOrigin ) || dot( surfaceNormal, rayDirBase ) < 0.0f || illuminationUint == 0/*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) { 
+        g_illumination[ dispatchThreadId.xy ] = 0;
         return;
     }
 
