@@ -310,11 +310,9 @@ Idea:
 
 	  NOW:
 
-	  - saving selected actors (many at once!) on Ctrl + S - automatic name creation.
-	  - selecting many actors by holding LMB and Shift? How to do that?
-	  - improve picking objects by doing raytracing per triangle
-	  - avoid loading models several times - once for each index in file. Especially avoid loading .blockmesh file twice.
+	  - improve picking objects by doing raytracing per triangle - very important!!! can be slow now - iterate over triangles?
 
+	  - selecting many actors by holding LMB and Shift? How to do that?
 
 	  - place profiling events everywhere - need to know how much time is spent on higher reflection levels...
 
@@ -327,6 +325,8 @@ Idea:
 	  - mipmapping (someone will probably ask about that) ?
 
 	  LATER:
+
+	  - avoid loading models several times - once for each index in file. Especially avoid loading .blockmesh file twice.
 
 	  - all file parsers should:
 		- append data to given buffer when writing (not clearing it as it is now!)

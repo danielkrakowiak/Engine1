@@ -1069,6 +1069,13 @@ void Application::onMouseButtonPress( int button )
                 m_selectedLights.push_back( pickedLight );
             }
         }
+        else
+        {
+            // Nothing is selected.
+            m_selectedBlockActors.clear();
+            m_selectedSkeletonActors.clear();
+            m_selectedLights.clear();
+        }
     }
 }
 
@@ -1118,10 +1125,7 @@ std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > >
             if ( !blockActor->getModel() || !blockActor->getModel()->getMesh() )
                 continue;
 
-            float3 boxMinLocal, boxMaxLocal;
-            std::tie( boxMinLocal, boxMaxLocal ) = blockActor->getModel()->getMesh()->getBoundingBox();
-        
-            std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, blockActor->getPose(), boxMinLocal, boxMaxLocal );
+            std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBlockActor( rayOriginWorld, rayDirWorld, *blockActor, minHitDistance );
 
             if ( hitOccurred && hitDistance < minHitDistance ) {
                 minHitDistance = hitDistance;

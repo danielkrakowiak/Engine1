@@ -4,6 +4,9 @@
 
 #include <algorithm>
 
+#include "BlockActor.h"
+#include "BlockModel.h"
+
 using namespace Engine1;
 
 float MathUtil::radiansToDegrees( float radians ) {
@@ -236,6 +239,78 @@ std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& r
         return std::make_tuple( true, tmin );
     else
         return std::make_tuple( false, 0.0f );
+}
+
+std::tuple< bool, float > MathUtil::intersectRayWithBlockActor( const float3& rayOriginWorld, const float3& rayDirWorld, const BlockActor& actor, const float maxDist )
+{
+    if ( !actor.getModel() || !actor.getModel()->getMesh() )
+        return std::make_tuple( false, 0.0f );
+
+    const float43&   worldToLocalMatrix = actor.getPose().getScaleOrientationTranslationInverse();
+    const BlockMesh& mesh               = *actor.getModel()->getMesh();
+
+    const float3 rayOriginLocal = rayOriginWorld * worldToLocalMatrix;
+    const float3 rayDirLocal    = ((rayOriginWorld + rayDirWorld) * worldToLocalMatrix) - rayOriginLocal;
+
+    float3 bbMin, bbMax;
+    std::tie( bbMin, bbMax ) = mesh.getBoundingBox();
+    
+    bool  bbHit         = false;
+    float bbHitDistance = FLT_MAX;;
+    std::tie( bbHit, bbHitDistance ) = intersectRayWithBoundingBox( rayOriginLocal, rayDirLocal, bbMin, bbMax );
+
+    if ( !bbHit || bbHitDistance > maxDist )
+        return std::make_tuple( false, 0.0f );
+
+    bool  hit         = false;
+    float hitDistance = FLT_MAX;
+
+    for ( const uint3& triangle : mesh.getTriangles() )
+    {
+        const float3& vertexPos1 = mesh.getVertices()[ triangle.x ];
+        const float3& vertexPos2 = mesh.getVertices()[ triangle.y ];
+        const float3& vertexPos3 = mesh.getVertices()[ triangle.z ];
+
+        if ( rayTriangleIntersect( rayOriginLocal, rayDirLocal, vertexPos1, vertexPos2, vertexPos3 ) )
+        {
+            const float dist = calcDistToTriangle( rayOriginLocal, rayDirLocal, vertexPos1, vertexPos2, vertexPos3 );
+            if ( dist > 0.0f )
+            {
+                hit         = true;
+                hitDistance = std::min( hitDistance, dist );
+            }
+        }
+    }
+
+    return std::make_tuple( hit, hitDistance );
+}
+
+bool MathUtil::rayTriangleIntersect( const float3& rayOrigin, const float3& rayDir, 
+                                     const float3& vertexPos1, const float3& vertexPos2, const float3& vertexPos3 )
+{
+    const float dot1 = dot( rayDir, cross( vertexPos1 - rayOrigin, vertexPos2 - rayOrigin ) );
+    const float dot2 = dot( rayDir, cross( vertexPos2 - rayOrigin, vertexPos3 - rayOrigin ) );
+    const float dot3 = dot( rayDir, cross( vertexPos3 - rayOrigin, vertexPos1 - rayOrigin ) );
+
+    // Without backface culling:
+    //return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );
+
+    // With backface culling:
+    return (dot1 < 0 && dot2 < 0 && dot3 < 0);
+}
+
+float MathUtil::calcDistToTriangle( const float3& rayOrigin, const float3& rayDir, 
+                                    const float3& vertexPos1, const float3& vertexPos2, const float3& vertexPos3 )
+{
+    float3 trianglePlaneNormal = ( cross( vertexPos2 - vertexPos1, vertexPos3 - vertexPos1 ) );
+    trianglePlaneNormal.normalize();
+
+    const float  trianglePlaneDistance = -dot( vertexPos1, trianglePlaneNormal );
+
+    const float rayTriangleDot = dot( rayDir, trianglePlaneNormal );
+    const float distFromRayOrigin = -( dot( trianglePlaneNormal, rayOrigin ) + trianglePlaneDistance ) / rayTriangleDot;
+
+    return distFromRayOrigin;
 }
 
 bool MathUtil::isPowerOfTwo( unsigned int number )

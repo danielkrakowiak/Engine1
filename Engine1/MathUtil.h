@@ -16,6 +16,8 @@
 
 namespace Engine1
 {
+    class BlockActor;
+
     namespace MathUtil
     {
         const float pi = 3.1415926535897932384626433832795f;
@@ -65,6 +67,11 @@ namespace Engine1
         // Returns false if there is no intersection.
         std::tuple< bool, float > intersectRayWithBoundingBox( const float3& rayOriginWorld, const float3& rayDirWorld, const float43& boxPose, const float3& boxMinLocal, const float3& boxMaxLocal );
         std::tuple< bool, float > intersectRayWithBoundingBox( const float3& rayOriginInBoxSpace, const float3& rayDirInBoxSpace, const float3& boxMinLocal, const float3& boxMaxLocal );
+
+        std::tuple< bool, float > intersectRayWithBlockActor( const float3& rayOriginWorld, const float3& rayDirWorld, const BlockActor& actor, const float maxDist = FLT_MAX );
+
+        bool rayTriangleIntersect( const float3& rayOrigin, const float3& rayDir, const float3& vertexPos1, const float3& vertexPos2, const float3& vertexPos3 );
+        float calcDistToTriangle( const float3& rayOrigin, const float3& rayDir, const float3& vertexPos1, const float3& vertexPos2, const float3& vertexPos3 );
 
         bool isPowerOfTwo( unsigned int number );
     }
