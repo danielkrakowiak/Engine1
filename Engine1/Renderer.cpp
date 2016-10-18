@@ -63,7 +63,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_edgeDetectionRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_combiningRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
-	m_raytraceShadowRenderer.initialize( imageWidth / 2, imageHeight / 2, device, deviceContext );
+	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_shadowMapRenderer.initialize( 256, 256, device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
@@ -205,6 +205,7 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
     }
 
     float4 lightSelectionEmissiveColor( 0.0f, 0.0f, 1.0f, 1.0f );
+    float4 lightDisabledEmissiveColor( 0.0f, 1.0f, 0.0f, 1.0f );
 
     // Render light sources in the scene.
     if ( m_lightModel ) 
@@ -215,7 +216,8 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
             const bool isSelected = std::find( selectedLights.begin(), selectedLights.end(), light ) != selectedLights.end();
 
             lightPose.setTranslation( light->getPosition() );
-            m_deferredRenderer.render( *m_lightModel, lightPose, viewMatrix, isSelected ? lightSelectionEmissiveColor : float4::ZERO );
+            float4 extraEmissive = isSelected ? lightSelectionEmissiveColor : ( light->isEnabled() ? float4::ZERO : lightDisabledEmissiveColor );
+            m_deferredRenderer.render( *m_lightModel, lightPose, viewMatrix, extraEmissive );
         }
     }
 
@@ -248,6 +250,9 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
     const int lightCount = (int)lightsVector.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
+        if ( !lightsVector[ lightIdx ]->isEnabled() )
+            continue;
+
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
 		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsVector[ lightIdx ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
@@ -422,6 +427,9 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
     const int lightCount = (int)lightsVector.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
+        if ( !lightsVector[ lightIdx ]->isEnabled() )
+            continue;
+
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
 		m_raytraceShadowRenderer.generateAndTraceShadowRays( 
@@ -515,6 +523,9 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
     const int lightCount = (int)lightsVector.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
+        if ( !lightsVector[ lightIdx ]->isEnabled() )
+            continue;
+
         m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
 		m_raytraceShadowRenderer.generateAndTraceShadowRays(
@@ -591,7 +602,11 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
 
-    for ( const std::shared_ptr< Light >& light : lightsVector ) {
+    for ( const std::shared_ptr< Light >& light : lightsVector ) 
+    {
+        if ( !light->isEnabled() )
+            continue;
+
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
             light,
             m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
@@ -651,7 +666,11 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
 
-    for ( const std::shared_ptr< Light >& light : lightsVector ) {
+    for ( const std::shared_ptr< Light >& light : lightsVector ) 
+    {
+        if ( !light->isEnabled() )
+            continue;
+
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
             light,
             m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),

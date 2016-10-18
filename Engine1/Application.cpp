@@ -321,7 +321,7 @@ void Application::run() {
         if ( m_windowFocused && !movingObjects && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
             const float cameraRotationSensitivity = 0.0001f;
 
-            const float acceleration = 1.0f;
+            const float acceleration = 5.0f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) ) m_camera.accelerateForward( (float)frameTimeMs * acceleration );
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_camera.accelerateReverse( (float)frameTimeMs * acceleration );
@@ -840,6 +840,16 @@ void Application::onKeyPress( int key )
             m_selectedBlockActors.clear();
             m_selectedSkeletonActors.clear();
             m_selectedLights.clear();
+        }
+    }
+
+    if ( key == InputManager::Keys::enter ) {
+        if ( m_scene && !m_selectedLights.empty() ) 
+        {
+            const bool enable = !m_selectedLights[ 0 ]->isEnabled();
+
+            for ( auto& light : m_selectedLights )
+                light->setEnabled( enable );
         }
     }
 

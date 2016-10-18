@@ -293,3 +293,4 @@ Wed 12.10.2016 - 2h - Adding new profiling events and improving display of profi
 Fri 14.10.2016 - 3h - Fixed window size to account for frame and borders. Trying ot fix blurry text display, line gaps etc.
 Sat 15.10.2016 - 5h - Saving/loading meshes and BVH tree to own binary format.
 Sun 16.10.2016 - 2h - Saving/loading meshes and BVH tree to own binary format.
+Mon 17.10.2016 - 6h - Improved picking actors by raytracing against their triangle meshes instead of bounding boxes. Assigned textures to most models in the Kitchen Scene. Fixed problem with bright outlines on objects - related to optimization in shadows calculation (details in the commit).

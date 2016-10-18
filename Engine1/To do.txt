@@ -310,7 +310,9 @@ Idea:
 
 	  NOW:
 
-	  - improve picking objects by doing raytracing per triangle - very important!!! can be slow now - iterate over triangles?
+	  - turning off light sources
+
+	  - shadow mapping? use it instead of raytracing for a while?
 
 	  - selecting many actors by holding LMB and Shift? How to do that?
 
