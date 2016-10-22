@@ -107,8 +107,20 @@ Renderer::renderScene( const CScene& scene, const Camera& camera,
 
     const std::unordered_set< std::shared_ptr< Actor > >& actors = scene.getActors();
 
-    const std::unordered_set< std::shared_ptr<Light> >& lights = scene.getLights();
-    const std::vector< std::shared_ptr< Light > > lightsVector( lights.begin(), lights.end() );
+    const std::unordered_set< std::shared_ptr<Light> >& sceneLights = scene.getLights();
+    const std::vector< std::shared_ptr< Light > >       lights( sceneLights.begin(), sceneLights.end() );
+    
+    std::vector< std::shared_ptr< Light > > lightsCastingShadows;
+    std::vector< std::shared_ptr< Light > > lightsNotCastingShadows;
+    lightsCastingShadows.reserve( lights.size() );
+    lightsNotCastingShadows.reserve( lights.size() );
+
+    for ( auto& light : lights ) {
+        if ( light->isEnabled() && !light->isCastingShadows() )
+            lightsNotCastingShadows.push_back( light );
+        else if ( light->isEnabled() && light->isCastingShadows() )
+            lightsCastingShadows.push_back( light );
+    }
 
     // Gather block actors.
     std::vector< std::shared_ptr< const BlockActor > > blockActors;
@@ -120,7 +132,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera,
     }
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) 
-        = renderMainImage( scene, camera, lightsVector, m_activeViewLevel, m_activeViewType,
+        = renderMainImage( scene, camera, lightsCastingShadows, lightsNotCastingShadows, m_activeViewLevel, m_activeViewType,
                            selectedBlockActors, selectedSkeletonActors, selectedLights );
     
     if ( frameReceived )
@@ -131,13 +143,15 @@ Renderer::renderScene( const CScene& scene, const Camera& camera,
     std::vector< bool > renderedViewType;
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( true, 1, 0, m_maxLevelCount, camera, blockActors, lightsVector, renderedViewType, m_activeViewLevel, m_activeViewType );
+        = renderReflectionsRefractions( true, 1, 0, m_maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
+                                        renderedViewType, m_activeViewLevel, m_activeViewType );
 
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( false, 1, 0, m_maxLevelCount, camera, blockActors, lightsVector, renderedViewType, m_activeViewLevel, m_activeViewType );
+        = renderReflectionsRefractions( false, 1, 0, m_maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
+                                        renderedViewType, m_activeViewLevel, m_activeViewType );
 
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -160,7 +174,9 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std::vector< std::shared_ptr< Light > >& lightsVector,
+Renderer::renderMainImage( const CScene& scene, const Camera& camera, 
+                           const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                           const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
                            const std::vector< bool >& activeViewLevel, const View activeViewType, 
                            const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                            const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
@@ -211,7 +227,7 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
     if ( m_lightModel ) 
     {
         float43 lightPose( float43::IDENTITY );
-        for ( const std::shared_ptr<Light> light : lightsVector ) 
+        for ( const auto& light : scene.getLights() ) 
         {
             const bool isSelected = std::find( selectedLights.begin(), selectedLights.end(), light ) != selectedLights.end();
 
@@ -247,15 +263,20 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
 
-    const int lightCount = (int)lightsVector.size();
+    m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
+
+    m_shadingRenderer.performShadingNoShadows( camera, m_deferredRenderer.getPositionRenderTarget(),
+                                               m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
+                                               m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), lightsNotCastingShadows );
+
+    m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
+
+    const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
-        if ( !lightsVector[ lightIdx ]->isEnabled() )
-            continue;
-
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
-		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsVector[ lightIdx ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
+		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsCastingShadows[ lightIdx ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
@@ -264,7 +285,7 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera, const std:
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(),
 			m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
-			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture(), *lightsVector[ lightIdx ] );
+			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture(), *lightsCastingShadows[ lightIdx ] );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
@@ -315,7 +336,8 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
 Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
                                         const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
-                                        const std::vector< std::shared_ptr< Light > >& lightsVector,
+                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                        const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
                                         std::vector< bool >& renderedViewLevel,
                                         const std::vector< bool >& activeViewLevel,
                                         const View activeViewType )
@@ -337,18 +359,18 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
         //OutputDebugStringW( StringUtil::widen( "Reflection - " + std::to_string( level ) + "\n" ).c_str() );
 
         if ( level == 1 )
-            renderFirstReflections( camera, blockActors, lightsVector );
+            renderFirstReflections( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
         else
-            renderReflections( level, camera, blockActors, lightsVector );
+            renderReflections( level, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
     }
     else 
     {
         //OutputDebugStringW( StringUtil::widen( "Refraction - " + std::to_string( level ) + "\n" ).c_str() );
 
         if ( level == 1 )
-            renderFirstRefractions( camera, blockActors, lightsVector );
+            renderFirstRefractions( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
         else
-            renderRefractions( level, refractionLevel, camera, blockActors, lightsVector );
+            renderRefractions( level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
     }
 
     if ( renderedViewLevel == activeViewLevel )
@@ -383,13 +405,13 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
     }
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( true, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsVector, renderedViewLevel, activeViewLevel, activeViewType );
+        = renderReflectionsRefractions( true, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, renderedViewLevel, activeViewLevel, activeViewType );
 
     if ( frameReceived )
         return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( false, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsVector, renderedViewLevel, activeViewLevel, activeViewType );
+        = renderReflectionsRefractions( false, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, renderedViewLevel, activeViewLevel, activeViewType );
 
     if ( frameReceived )
         return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -401,7 +423,10 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
     return std::make_tuple( false, nullptr, nullptr, nullptr, nullptr, nullptr );
 }
 
-void Renderer::renderFirstReflections( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
+void Renderer::renderFirstReflections( const Camera& camera, 
+                                       const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                       const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
@@ -424,16 +449,26 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
 
-    const int lightCount = (int)lightsVector.size();
+    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ShadingNoShadows );
+
+    m_shadingRenderer.performShadingNoShadows( m_raytraceRenderer.getRayOriginsTexture( 0 ), 
+                                               m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
+                                               lightsNotCastingShadows );
+
+    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ShadingNoShadows );
+
+    const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
-        if ( !lightsVector[ lightIdx ]->isEnabled() )
-            continue;
 
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
 		m_raytraceShadowRenderer.generateAndTraceShadowRays( 
-			lightsVector[ lightIdx ], 
+			lightsCastingShadows[ lightIdx ], 
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
@@ -452,7 +487,7 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
 			m_raytraceShadowRenderer.getIlluminationTexture(),
-			*lightsVector[ lightIdx ] 
+			*lightsCastingShadows[ lightIdx ] 
 		);
 
         m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
@@ -488,7 +523,10 @@ void Renderer::renderFirstReflections( const Camera& camera, const std::vector< 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::CombiningWithMainImage );
 }
 
-void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
+void Renderer::renderFirstRefractions( const Camera& camera, 
+                                       const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                       const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
@@ -520,16 +558,25 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
 
-    const int lightCount = (int)lightsVector.size();
+    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ShadingNoShadows );
+
+    m_shadingRenderer.performShadingNoShadows( m_raytraceRenderer.getRayOriginsTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
+                                               m_raytraceRenderer.getRayHitNormalTexture( 0 ),
+                                               lightsNotCastingShadows );
+
+    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ShadingNoShadows );
+
+    const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
-        if ( !lightsVector[ lightIdx ]->isEnabled() )
-            continue;
-
         m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
 		m_raytraceShadowRenderer.generateAndTraceShadowRays(
-			lightsVector[ lightIdx ],
+			lightsCastingShadows[ lightIdx ],
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
@@ -548,7 +595,7 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
 			m_raytraceShadowRenderer.getIlluminationTexture(),
-			*lightsVector[ lightIdx ]
+			*lightsCastingShadows[ lightIdx ]
 		);
 
         m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
@@ -584,7 +631,10 @@ void Renderer::renderFirstRefractions( const Camera& camera, const std::vector< 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
 }
 
-void Renderer::renderReflections( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
+void Renderer::renderReflections( const int level, const Camera& camera, 
+                                  const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                  const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                  const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
 
     m_reflectionRefractionShadingRenderer.performReflectionShading( level - 1, 
@@ -602,11 +652,16 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
 
-    for ( const std::shared_ptr< Light >& light : lightsVector ) 
-    {
-        if ( !light->isEnabled() )
-            continue;
+    m_shadingRenderer.performShadingNoShadows( m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+                                               lightsNotCastingShadows );
 
+    for ( const std::shared_ptr< Light >& light : lightsCastingShadows ) 
+    {
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
             light,
             m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
@@ -649,7 +704,10 @@ void Renderer::renderReflections( const int level, const Camera& camera, const s
                                colorTextureFillWidth, colorTextureFillHeight );
 }
 
-void Renderer::renderRefractions( const int level, const int refractionLevel, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector )
+void Renderer::renderRefractions( const int level, const int refractionLevel, const Camera& camera, 
+                                  const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                  const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                  const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
     m_reflectionRefractionShadingRenderer.performRefractionShading( level - 1, 
                                                                   m_raytraceRenderer.getRayOriginsTexture( level - 2 ), 
@@ -666,11 +724,16 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
 
-    for ( const std::shared_ptr< Light >& light : lightsVector ) 
-    {
-        if ( !light->isEnabled() )
-            continue;
+    m_shadingRenderer.performShadingNoShadows( m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
+                                               m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+                                               lightsNotCastingShadows );
 
+    for ( const std::shared_ptr< Light >& light : lightsCastingShadows ) 
+    {
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
             light,
             m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),

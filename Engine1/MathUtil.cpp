@@ -243,6 +243,7 @@ std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& r
 
 std::tuple< bool, float > MathUtil::intersectRayWithBlockActor( const float3& rayOriginWorld, const float3& rayDirWorld, const BlockActor& actor, const float maxDist )
 {
+
     if ( !actor.getModel() || !actor.getModel()->getMesh() )
         return std::make_tuple( false, 0.0f );
 

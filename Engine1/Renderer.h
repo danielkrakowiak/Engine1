@@ -100,7 +100,9 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-        renderMainImage( const CScene& scene, const Camera& camera, const std::vector< std::shared_ptr< Light > >& lightsVector,
+        renderMainImage( const CScene& scene, const Camera& camera, 
+                         const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                         const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
                          const std::vector< bool >& activeViewLevel, const View activeViewType,
                          const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                          const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
@@ -115,16 +117,31 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
         renderReflectionsRefractions( const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
                                       const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
-                                      const std::vector< std::shared_ptr< Light > >& lightsVector,
+                                      const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                      const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
                                       std::vector< bool >& renderedViewLevel,
                                       const std::vector< bool >& activeViewLevel,
                                       const View activeViewType );
 
-        void renderFirstReflections( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
-        void renderFirstRefractions( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
+        void renderFirstReflections( const Camera& camera, 
+                                     const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
 
-        void renderReflections( const int level, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
-        void renderRefractions( const int level, const int refractionLevel, const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& blockActors, const std::vector< std::shared_ptr< Light > >& lightsVector );
+        void renderFirstRefractions( const Camera& camera, 
+                                     const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
+
+        void renderReflections( const int level, const Camera& camera, 
+                                const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
+        
+        void renderRefractions( const int level, const int refractionLevel, const Camera& camera, 
+                                const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+                                const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
 
         private:
 

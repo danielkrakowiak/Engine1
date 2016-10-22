@@ -310,9 +310,12 @@ Idea:
 
 	  NOW:
 
-	  - turning off light sources
 
 	  - shadow mapping? use it instead of raytracing for a while?
+
+	  - setting light intensity + how to set light color?
+
+	  - check which shaders are running with "skip optimization" flag? Maybe we slow down because of that... Is raytracing shader still faster with that flag?
 
 	  - selecting many actors by holding LMB and Shift? How to do that?
 

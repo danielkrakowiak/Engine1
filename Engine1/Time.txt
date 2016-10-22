@@ -294,3 +294,5 @@ Fri 14.10.2016 - 3h - Fixed window size to account for frame and borders. Trying
 Sat 15.10.2016 - 5h - Saving/loading meshes and BVH tree to own binary format.
 Sun 16.10.2016 - 2h - Saving/loading meshes and BVH tree to own binary format.
 Mon 17.10.2016 - 6h - Improved picking actors by raytracing against their triangle meshes instead of bounding boxes. Assigned textures to most models in the Kitchen Scene. Fixed problem with bright outlines on objects - related to optimization in shadows calculation (details in the commit).
+Tue 18.10.2016 - 1h - Added ability to enable/disable light sources.
+Wed 19.10.2016 - 4h - Adding ability to enable/disable casting shadows for light sources. Added new shading shaders (without shadows).

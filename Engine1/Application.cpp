@@ -321,7 +321,7 @@ void Application::run() {
         if ( m_windowFocused && !movingObjects && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
             const float cameraRotationSensitivity = 0.0001f;
 
-            const float acceleration = 5.0f;
+            const float acceleration = 0.25f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) ) m_camera.accelerateForward( (float)frameTimeMs * acceleration );
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_camera.accelerateReverse( (float)frameTimeMs * acceleration );
@@ -330,7 +330,7 @@ void Application::run() {
             if ( m_inputManager.isKeyPressed( InputManager::Keys::e ) ) m_camera.accelerateUp( (float)frameTimeMs * acceleration );
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::q ) ) m_camera.accelerateDown( (float)frameTimeMs * acceleration );
 
-			int2 mouseMove = m_inputManager.getMouseMove( );
+			int2 mouseMove = m_inputManager.getMouseMove();
 			m_camera.rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTimeMs * cameraRotationSensitivity );
 		}
 
@@ -843,13 +843,38 @@ void Application::onKeyPress( int key )
         }
     }
 
-    if ( key == InputManager::Keys::enter ) {
+    // Enable/disable light sources.
+    if ( key == InputManager::Keys::enter && !m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) {
         if ( m_scene && !m_selectedLights.empty() ) 
         {
             const bool enable = !m_selectedLights[ 0 ]->isEnabled();
 
             for ( auto& light : m_selectedLights )
                 light->setEnabled( enable );
+        }
+    }
+
+    // Enable/disable casting shadows for lights and actors.
+    if ( key == InputManager::Keys::enter && m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) {
+        if ( m_scene ) 
+        {
+            bool castShadows = true;
+            if ( !m_selectedBlockActors.empty() )
+                castShadows = !m_selectedBlockActors[ 0 ]->isCastingShadows();
+            else if ( !m_selectedSkeletonActors.empty() )
+                castShadows = !m_selectedSkeletonActors[ 0 ]->isCastingShadows();
+            else if ( !m_selectedLights.empty() )
+                castShadows = !m_selectedLights[ 0 ]->isCastingShadows();
+
+            for ( auto& actor : m_selectedBlockActors )
+                actor->setCastingShadows( castShadows );
+
+            for ( auto& actor : m_selectedSkeletonActors )
+                actor->setCastingShadows( castShadows );
+
+            for ( auto& light : m_selectedLights ) {
+                light->setCastingShadows( castShadows );
+            }
         }
     }
 

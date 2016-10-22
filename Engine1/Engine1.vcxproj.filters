@@ -756,6 +756,12 @@
     <ClInclude Include="BVHTreeBufferParser.h">
       <Filter>Header Files\Tools\BVH\Parsers</Filter>
     </ClInclude>
+    <ClInclude Include="ShadingNoShadowsComputeShader.h">
+      <Filter>Header Files\Shader\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadingNoShadowsComputeShader2.h">
+      <Filter>Header Files\Shader\Shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1133,6 +1139,12 @@
     <ClCompile Include="BVHTreeBufferParser.cpp">
       <Filter>Source Files\Tools\BVH\Parsers</Filter>
     </ClCompile>
+    <ClCompile Include="ShadingNoShadowsComputeShader.cpp">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadingNoShadowsComputeShader2.cpp">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1261,6 +1273,12 @@
       <Filter>Source Files\Shader\RaytracingShadows</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\ShadingShader\cs0.hlsl">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadingNoShadowsShader\cs.hlsl">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadingNoShadowsShader\cs2.hlsl">
       <Filter>Source Files\Shader\Shading</Filter>
     </FxCompile>
   </ItemGroup>

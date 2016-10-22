@@ -68,6 +68,7 @@ namespace Engine1
             EmissiveShading,
             ReflectionTransmissionShading,
             Raytracing,
+            ShadingNoShadows,
             Shading,
             MipmapGenerationForShadedImage,
             CombiningWithMainImage,

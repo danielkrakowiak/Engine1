@@ -20,6 +20,8 @@ namespace Engine1
     class ShadingComputeShader0;
     class ShadingComputeShader;
     class ShadingComputeShader2;
+    class ShadingNoShadowsComputeShader;
+    class ShadingNoShadowsComputeShader2;
     class Light;
     class Camera;
 
@@ -35,6 +37,7 @@ namespace Engine1
 
         void performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture );
 
+        // With shadows.
         void performShading( const Camera& camera,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
@@ -44,6 +47,16 @@ namespace Engine1
 							 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
                              const Light& light );
 
+        // Without shadows.
+        void performShadingNoShadows( const Camera& camera,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                                      const std::vector< std::shared_ptr< Light > > lights );
+
+        // With shadows.
         void performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture, 
@@ -52,6 +65,15 @@ namespace Engine1
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
 							 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
 							 const Light& light );
+
+        // Without shadows.
+        void performShadingNoShadows( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+                                      const std::vector< std::shared_ptr< Light > > lights );
 
 		void clearColorRenderTarget();
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > getColorRenderTarget();
@@ -76,6 +98,8 @@ namespace Engine1
         std::shared_ptr< ShadingComputeShader0 > m_shadingComputeShader0;
         std::shared_ptr< ShadingComputeShader >  m_shadingComputeShader;
         std::shared_ptr< ShadingComputeShader2 > m_shadingComputeShader2;
+        std::shared_ptr< ShadingNoShadowsComputeShader > m_shadingNoShadowsComputeShader;
+        std::shared_ptr< ShadingNoShadowsComputeShader2 > m_shadingNoShadowsComputeShader2;
 
         void loadAndCompileShaders( ID3D11Device& device );
 
