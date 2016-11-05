@@ -17,7 +17,7 @@
 
 namespace Engine1
 {
-    class CScene;
+    class Scene;
     class Actor;
     class BlockActor;
     class SkeletonActor;

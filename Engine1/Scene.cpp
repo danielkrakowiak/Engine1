@@ -1,4 +1,4 @@
-#include "CScene.h"
+#include "Scene.h"
 
 #include "SceneParser.h"
 #include "BinaryFile.h"
@@ -7,21 +7,21 @@
 
 using namespace Engine1;
 
-std::tuple< std::shared_ptr<CScene>, std::shared_ptr<std::vector< std::shared_ptr<FileInfo> > > > CScene::createFromFile( std::string path )
+std::tuple< std::shared_ptr<Scene>, std::shared_ptr<std::vector< std::shared_ptr<FileInfo> > > > Scene::createFromFile( std::string path )
 {
     std::shared_ptr<std::vector<char>> data = BinaryFile::load( path );
 
     return SceneParser::parseBinary( *data );
 }
 
-CScene::CScene()
+Scene::Scene()
 {}
 
 
-CScene::~CScene()
+Scene::~Scene()
 {}
 
-void CScene::addActor( std::shared_ptr<Actor> actor )
+void Scene::addActor( std::shared_ptr<Actor> actor )
 {
     if ( !actor )
         throw std::exception( "Scene::addActor - nullptr passed." );
@@ -29,7 +29,7 @@ void CScene::addActor( std::shared_ptr<Actor> actor )
     m_actors.insert( actor );
 }
 
-void CScene::removeActor( std::shared_ptr<Actor> actor )
+void Scene::removeActor( std::shared_ptr<Actor> actor )
 {
     if ( !actor )
         throw std::exception( "Scene::removeActor - nullptr passed." );
@@ -37,12 +37,12 @@ void CScene::removeActor( std::shared_ptr<Actor> actor )
     m_actors.erase( actor );
 }
 
-void CScene::removeAllActors()
+void Scene::removeAllActors()
 {
     m_actors.clear();
 }
 
-void CScene::addLight( std::shared_ptr<Light> light )
+void Scene::addLight( std::shared_ptr<Light> light )
 {
     if ( !light )
         throw std::exception( "Scene::addLight - nullptr passed." );
@@ -50,7 +50,7 @@ void CScene::addLight( std::shared_ptr<Light> light )
     m_lights.insert( light );
 }
 
-void CScene::removeLight( std::shared_ptr<Light> light )
+void Scene::removeLight( std::shared_ptr<Light> light )
 {
     if ( !light )
         throw std::exception( "Scene::removeLight - nullptr passed." );
@@ -58,12 +58,12 @@ void CScene::removeLight( std::shared_ptr<Light> light )
     m_lights.erase( light );
 }
 
-void CScene::removeAllLights()
+void Scene::removeAllLights()
 {
     m_lights.clear();
 }
 
-void CScene::saveToFile( const std::string& path ) const
+void Scene::saveToFile( const std::string& path ) const
 {
     std::vector<char> data;
 
@@ -72,12 +72,12 @@ void CScene::saveToFile( const std::string& path ) const
     BinaryFile::save( path, data );
 }
 
-const std::unordered_set< std::shared_ptr<Actor> >& CScene::getActors( ) const
+const std::unordered_set< std::shared_ptr<Actor> >& Scene::getActors( ) const
 {
     return m_actors;
 }
 
-const std::unordered_set< std::shared_ptr<Light> >& CScene::getLights() const
+const std::unordered_set< std::shared_ptr<Light> >& Scene::getLights() const
 {
     return m_lights;
 }

@@ -11,7 +11,7 @@
 #include "EdgeDetectionRenderer.h"
 #include "CombiningRenderer.h"
 #include "TextureRescaleRenderer.h"
-#include "CScene.h"
+#include "Scene.h"
 #include "Camera.h"
 #include "MathUtil.h"
 #include "BlockActor.h"
@@ -82,7 +82,7 @@ void Renderer::clear2()
     m_deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 0.0f ), 1.0f ); 
 }
 
-void Renderer::renderShadowMaps( const CScene& scene )
+void Renderer::renderShadowMaps( const Scene& scene )
 {
 	// TODO: render shadow maps for each light.
 }
@@ -93,7 +93,7 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-Renderer::renderScene( const CScene& scene, const Camera& camera,
+Renderer::renderScene( const Scene& scene, const Camera& camera,
                        const bool wireframeMode,
                        const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                        const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
@@ -175,7 +175,7 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-Renderer::renderMainImage( const CScene& scene, const Camera& camera, 
+Renderer::renderMainImage( const Scene& scene, const Camera& camera, 
                            const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
                            const std::vector< bool >& activeViewLevel, const View activeViewType, 

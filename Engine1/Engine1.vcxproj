@@ -302,7 +302,7 @@
     <ClInclude Include="GenerateFirstReflectedRaysComputeShader.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="ModelTexture2DParser.h" />
-    <ClInclude Include="CScene.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="PointLightParser.h" />
     <ClInclude Include="RaytraceRenderer.h" />
@@ -442,7 +442,7 @@
     <ClCompile Include="GenerateFirstReflectedRaysComputeShader.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="ModelTexture2DParser.cpp" />
-    <ClCompile Include="CScene.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="PointLightParser.cpp" />
     <ClCompile Include="RaytraceRenderer.cpp" />

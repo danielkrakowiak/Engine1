@@ -22,7 +22,7 @@ namespace Engine1
 {
     class Direct3DRendererCore;
     class Profiler;
-    class CScene;
+    class Scene;
     class Camera;
     class BlockMesh;
     class BlockModel;
@@ -64,7 +64,7 @@ namespace Engine1
 
         void clear2();
 
-		void renderShadowMaps( const CScene& scene );
+		void renderShadowMaps( const Scene& scene );
 
         std::tuple< 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
@@ -72,7 +72,7 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > >
-        renderScene( const CScene& scene, const Camera& camera,
+        renderScene( const Scene& scene, const Camera& camera,
                      const bool wireframeMode,
                      const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                      const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
@@ -101,7 +101,7 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-        renderMainImage( const CScene& scene, const Camera& camera, 
+        renderMainImage( const Scene& scene, const Camera& camera, 
                          const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                          const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
                          const std::vector< bool >& activeViewLevel, const View activeViewType,

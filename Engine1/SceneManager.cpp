@@ -4,7 +4,7 @@
 
 #include "AssetManager.h"
 
-#include "CScene.h"
+#include "Scene.h"
 #include "BlockActor.h"
 #include "SkeletonActor.h"
 #include "BlockModel.h"
@@ -30,7 +30,7 @@ SceneManager::SceneManager( AssetManager& assetManager ) :
     m_assetManager( assetManager ),
     m_scenePath( "Assets/Scenes/new.scene" ),
     m_cameraPath( "Assets/Scenes/new.camera" ),
-    m_scene( std::make_shared< CScene >() )
+    m_scene( std::make_shared< Scene >() )
 {
     // Setup the camera.
     m_camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
@@ -49,7 +49,7 @@ FreeCamera& SceneManager::getCamera()
     return m_camera;
 }
 
-CScene& SceneManager::getScene()
+Scene& SceneManager::getScene()
 {
     return *m_scene;
 }
@@ -83,7 +83,7 @@ void SceneManager::loadScene( std::string path )
 {
     std::shared_ptr< std::vector < std::shared_ptr< FileInfo > > > fileInfos;
 
-    std::tie( m_scene, fileInfos ) = CScene::createFromFile( path );
+    std::tie( m_scene, fileInfos ) = Scene::createFromFile( path );
 
     // Load all assets.
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos )

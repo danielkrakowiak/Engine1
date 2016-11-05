@@ -585,9 +585,6 @@
     <ClInclude Include="Actor.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
-    <ClInclude Include="CScene.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="SceneParser.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
@@ -773,6 +770,9 @@
     </ClInclude>
     <ClInclude Include="SceneManager.h">
       <Filter>Header Files\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -992,9 +992,6 @@
     <ClCompile Include="Asset.cpp">
       <Filter>Source Files\Asset</Filter>
     </ClCompile>
-    <ClCompile Include="CScene.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="SceneParser.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
@@ -1162,6 +1159,9 @@
     </ClCompile>
     <ClCompile Include="SceneManager.cpp">
       <Filter>Source Files\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -25,7 +25,7 @@
 
 #include "PointLight.h"
 
-#include "CScene.h"
+#include "Scene.h"
 
 #include "Timer.h"
 

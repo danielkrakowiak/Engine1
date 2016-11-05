@@ -18,7 +18,7 @@ namespace Engine1
     class BlockActor;
     class SkeletonActor;
     class AssetManager;
-    class CScene;
+    class Scene;
     class Actor;
     class BlockMesh;
 
@@ -31,7 +31,7 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
         FreeCamera& getCamera();
-        CScene&     getScene();
+        Scene&     getScene();
 
         std::vector< std::shared_ptr< Light > >&         getSelectedLights();
         std::vector< std::shared_ptr< BlockActor > >&    getSelectedBlockActors();
@@ -89,7 +89,7 @@ namespace Engine1
         FreeCamera m_camera;
 
         std::string m_scenePath;
-        std::shared_ptr< CScene > m_scene;
+        std::shared_ptr< Scene > m_scene;
 
         std::vector< std::shared_ptr< Light > >         m_selectedLights;
         std::vector< std::shared_ptr< BlockActor > >    m_selectedBlockActors;

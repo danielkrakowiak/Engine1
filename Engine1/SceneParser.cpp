@@ -2,7 +2,7 @@
 
 #include "BinaryFile.h"
 #include "FileInfo.h"
-#include "CScene.h"
+#include "Scene.h"
 #include "Actor.h"
 #include "BlockActor.h"
 #include "BlockModel.h"
@@ -17,9 +17,9 @@
 
 using namespace Engine1;
 
-std::tuple< std::shared_ptr<CScene>, std::shared_ptr<std::vector< std::shared_ptr<FileInfo> > > > SceneParser::parseBinary( const std::vector<char>& data )
+std::tuple< std::shared_ptr<Scene>, std::shared_ptr<std::vector< std::shared_ptr<FileInfo> > > > SceneParser::parseBinary( const std::vector<char>& data )
 {
-    std::shared_ptr<CScene> scene = std::make_shared<CScene>();
+    std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
     std::vector<char>::const_iterator dataIt = data.begin();
 
@@ -84,7 +84,7 @@ std::tuple< std::shared_ptr<CScene>, std::shared_ptr<std::vector< std::shared_pt
     return std::make_pair( scene, fileInfos );
 }
 
-void SceneParser::writeBinary( std::vector<char>& data, const CScene& scene )
+void SceneParser::writeBinary( std::vector<char>& data, const Scene& scene )
 {
     { // Save actors.
         // Assigns each unique FileInfo an unique temporary id.
