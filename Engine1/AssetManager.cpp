@@ -28,18 +28,21 @@ AssetManager::~AssetManager()
 {
 	m_executeThreads = false;
 	m_assetsToReadFromDiskNotEmpty.notify_all();
-	m_assetsToParseNotEmpty.notify_all();
+	m_basicAssetsToParseNotEmpty.notify_all();
+    m_complexAssetsToParseNotEmpty.notify_all();
 
 	m_readingFromDiskThread.join();
 
-	for ( std::vector<std::thread>::iterator thread = m_parsingThreads.begin(); thread != m_parsingThreads.end(); ++thread ) {
-		( *thread ).join();
-	}
+	for ( auto& thread : m_parsingBasicAssetsThreads )
+		thread.join();
+
+    for ( auto& thread : m_parsingComplexAssetsThreads )
+        thread.join();
 }
 
-void AssetManager::initialize( int loadingThreadCount, ComPtr< ID3D11Device > device )
+void AssetManager::initialize( int parsingBasicAssetsThreadCount, int parsingComplexAssetsThreadCount, ComPtr< ID3D11Device > device )
 {
-    if ( loadingThreadCount <= 0 ) 
+    if ( parsingBasicAssetsThreadCount <= 0 ) 
         throw std::exception( "AssetManager::AssetManager - Number of loading threads has to be greater than 0." );
 
     m_device = device;
@@ -47,12 +50,17 @@ void AssetManager::initialize( int loadingThreadCount, ComPtr< ID3D11Device > de
 	m_executeThreads = true;
 
 	// Create thread to load assets from disk.
-	m_readingFromDiskThread = std::thread( &AssetManager::loadAssetsFromDisk, this );
+	m_readingFromDiskThread = std::thread( &AssetManager::readAssetsFromDisk, this );
 
-	// Create threads to load assets.
-	for ( int i = 0; i < loadingThreadCount; ++i ) {
-		m_parsingThreads.push_back( std::thread( &AssetManager::loadAssets, this ) );
+	// Create threads to parse basic assets.
+	for ( int i = 0; i < parsingBasicAssetsThreadCount; ++i ) {
+		m_parsingBasicAssetsThreads.push_back( std::thread( &AssetManager::parseBasicAssets, this ) );
 	}
+
+    // Create threads to parse complex assets.
+    for ( int i = 0; i < parsingComplexAssetsThreadCount; ++i ) {
+        m_parsingComplexAssetsThreads.push_back( std::thread( &AssetManager::parseComplexAssets, this ) );
+    }
 }
 
 void AssetManager::load( const FileInfo& fileInfo )
@@ -94,7 +102,7 @@ void AssetManager::load( const FileInfo& fileInfo )
 	}
 }
 
-void AssetManager::loadAsync( const FileInfo& fileInfo )
+void AssetManager::loadAsync( const FileInfo& fileInfo, const bool highestPriority )
 {
     std::string id = getId( fileInfo.getAssetType(), fileInfo.getPath(), fileInfo.getIndexInFile() );
 
@@ -109,10 +117,20 @@ void AssetManager::loadAsync( const FileInfo& fileInfo )
 	{ // Add the asset to the list of assets to load from disk - lock mutex.
 		std::unique_lock<std::mutex> assetsToLoadFromDiskLock( m_assetsToReadFromDiskMutex );
 
-        if ( fileInfo.canHaveSubAssets() )
-            m_complexAssetsToReadFromDisk.push_back( fileInfo.clone() );
-        else
-		    m_basicAssetsToReadFromDisk.push_back( fileInfo.clone() );
+        if ( fileInfo.canHaveSubAssets() ) 
+        {
+            if ( highestPriority )
+                m_complexAssetsToReadFromDisk.insert( m_complexAssetsToReadFromDisk.begin(), fileInfo.clone() );
+            else
+                m_complexAssetsToReadFromDisk.push_back( fileInfo.clone() );
+        } 
+        else 
+        {
+            if ( highestPriority )
+                m_basicAssetsToReadFromDisk.insert( m_basicAssetsToReadFromDisk.begin(), fileInfo.clone() );
+            else
+		        m_basicAssetsToReadFromDisk.push_back( fileInfo.clone() );
+        }
 	}
 
 	// Resume thread which loads assets from disk.
@@ -175,8 +193,14 @@ std::shared_ptr<Asset> AssetManager::getWhenLoaded( Asset::Type type, std::strin
 		if ( it != m_loadedAssets.end() )
 			return it->second;
 
+        { // Check if that asset failed to load (because it's not loading).
+            std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
+            if ( m_assets.count( id ) == 0 )
+                return nullptr; //#TODO: Should it throw exception?
+        }
+
 		// Wait until some asset finish loading or timeout.
-		std::_Cv_status status = m_assetLoaded.wait_until( loadedAssetsLock, timoutTime );
+		std::_Cv_status status = m_assetLoadedOrError.wait_until( loadedAssetsLock, timoutTime );
 
 		// Exit method on timeout.
 		if ( status == std::cv_status::timeout )
@@ -184,7 +208,7 @@ std::shared_ptr<Asset> AssetManager::getWhenLoaded( Asset::Type type, std::strin
 	}
 }
 
-void AssetManager::loadAssetsFromDisk() {
+void AssetManager::readAssetsFromDisk() {
 	std::shared_ptr< const FileInfo > fileInfo = nullptr;
 	std::shared_ptr< std::vector<char> > fileData = nullptr;
 
@@ -193,10 +217,10 @@ void AssetManager::loadAssetsFromDisk() {
 		fileData = nullptr;
 
 		{ // Check if there is any asset to load and if so, get it - hold lock.
-			std::unique_lock<std::mutex> assetsToLoadFromDiskLock( m_assetsToReadFromDiskMutex );
+			std::unique_lock<std::mutex> assetsToReadFromDiskLock( m_assetsToReadFromDiskMutex );
 
 			// Wait until there are some assets to load from disk.
-			m_assetsToReadFromDiskNotEmpty.wait( assetsToLoadFromDiskLock, [this]() { return ( !m_basicAssetsToReadFromDisk.empty() || !m_complexAssetsToReadFromDisk.empty() ) || !m_executeThreads; } );
+			m_assetsToReadFromDiskNotEmpty.wait( assetsToReadFromDiskLock, [this]() { return ( !m_basicAssetsToReadFromDisk.empty() || !m_complexAssetsToReadFromDisk.empty() ) || !m_executeThreads; } );
 
 			// Terminate thread if requested.
 			if ( !m_executeThreads ) 
@@ -217,7 +241,7 @@ void AssetManager::loadAssetsFromDisk() {
             }
 		}
 
-		OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - loading \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+		OutputDebugStringW( StringUtil::widen( "AssetManager::readAssetsFromDisk - reading \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
 		// Load file from disk.
 		try {
@@ -226,7 +250,7 @@ void AssetManager::loadAssetsFromDisk() {
 			else if ( fileInfo->getFileType() == FileInfo::FileType::Binary )
 				fileData = BinaryFile::load( fileInfo->getPath() );
 
-			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - loaded \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+			OutputDebugStringW( StringUtil::widen( "AssetManager::readAssetsFromDisk - read \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
 		} catch ( .../*std::exception& ex*/ ) {
             std::string id = getId( fileInfo->getAssetType( ), fileInfo->getPath( ), fileInfo->getIndexInFile( ) );
@@ -235,88 +259,77 @@ void AssetManager::loadAssetsFromDisk() {
 			std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
 			m_assets.erase( id );
 
-			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssetsFromDisk - failed to load \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+			OutputDebugStringW( StringUtil::widen( "AssetManager::readAssetsFromDisk - failed to read \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+
+            // Notify 'getWhenLoaded' method that an asset failed to load.
+            m_assetLoadedOrError.notify_all();
 
 			//TODO: handle this error - do some callback for ex.
             continue;
 		}
 
 		{ // Add asset to list of assets to load - hold mutex.
-			std::lock_guard<std::mutex> assetsToLoadLock( m_assetsToParseMutex );
+			
 			// Add asset to list of assets to load.
-            if ( fileInfo->canHaveSubAssets() )
-                m_complexAssetsToParse.push_back( AssetToLoad( fileInfo, fileData ) );
-            else
-			    m_basicAssetsToParse.push_back( AssetToLoad( fileInfo, fileData ) );
-		}
+            if ( fileInfo->canHaveSubAssets() ) 
+            {
+                std::lock_guard<std::mutex> complexAssetsToParseLock( m_complexAssetsToParseMutex );
+                m_complexAssetsToParse.push_back( AssetToParse( fileInfo, fileData ) );
 
-		// Resume one of threads which load assets.
-		m_assetsToParseNotEmpty.notify_one();
+                // Resume one of threads which parses complex assets.
+                m_complexAssetsToParseNotEmpty.notify_one();
+            } 
+            else 
+            {
+                std::lock_guard<std::mutex> basicAssetsToParseLock( m_basicAssetsToParseMutex );
+			    m_basicAssetsToParse.push_back( AssetToParse( fileInfo, fileData ) );
+
+                // Resume one of threads which parses basic assets.
+                m_basicAssetsToParseNotEmpty.notify_one();
+            }
+		}
 	}
 }
 
-void AssetManager::loadAssets() 
+void AssetManager::parseBasicAssets() 
 {
 	for (;;) {
-		AssetToLoad assetToLoad;
+		AssetToParse assetToParse;
 
 		{ // Check if there is any asset to load and if so, get it - hold lock.
-			std::unique_lock<std::mutex> assetsToLoadLock( m_assetsToParseMutex );
+			std::unique_lock<std::mutex> basicAssetsToParseLock( m_basicAssetsToParseMutex );
 
 			// Wait until there are some assets to load.
-			m_assetsToParseNotEmpty.wait( assetsToLoadLock, [this]() { return ( !m_basicAssetsToParse.empty() || !m_complexAssetsToParse.empty() ) || !m_executeThreads; } );
+			m_basicAssetsToParseNotEmpty.wait( basicAssetsToParseLock, [this]() { return !m_basicAssetsToParse.empty() || !m_executeThreads; } );
 
 			// Terminate thread if requested.
 			if ( !m_executeThreads ) return;
 
-			// Get first asset from the list. Basic assets have priority over complex assets
-            // to avoid locking parsing threads which wait for the sub-assets to be loaded.
-            if ( !m_basicAssetsToParse.empty() ) {
-			    assetToLoad = m_basicAssetsToParse.front( );
+			// Get first basic asset from the list.
+			assetToParse = m_basicAssetsToParse.front( );
 
-                // Remove asset from the list.
-			    m_basicAssetsToParse.pop_front();
-            } else {
-                assetToLoad = m_complexAssetsToParse.front( );
-
-                // Remove asset from the list.
-			    m_complexAssetsToParse.pop_front();
-            }
+            // Remove basic asset from the list.
+			m_basicAssetsToParse.pop_front();
 		}
 
-		OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - loading \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+		OutputDebugStringW( StringUtil::widen( "AssetManager::parseBasicAssets - parsing \"" + assetToParse.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 
 		std::shared_ptr<Asset> asset = nullptr;
 
-		// Load asset and sub-assets.
+		// Parse basic asset.
 		try {
-			asset = createFromMemory( *assetToLoad.fileInfo, *assetToLoad.fileData );
+			asset = createFromMemory( *assetToParse.fileInfo, *assetToParse.fileData );
 
-            { // Load sub-assets if needed.
-                std::vector<std::shared_ptr<Asset>> subAssets = asset->getSubAssets();
-                for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
-                    if ( !subAsset->getFileInfo().getPath().empty() )
-                        loadAsync( subAsset->getFileInfo() ); //#TODO: Should load with the highest priority.
-                }
-
-                // Wait for the sub-assets to be loaded and swap empty sub-assets with loaded sub-assets.
-                const float subAssetLoadTimeout = 660.0f;
-                for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
-                    if ( !subAsset->getFileInfo().getPath().empty() ) {
-                        std::shared_ptr<Asset> newSubAsset = getWhenLoaded( subAsset->getFileInfo( ).getAssetType(), subAsset->getFileInfo( ).getPath( ), subAsset->getFileInfo( ).getIndexInFile( ), subAssetLoadTimeout );
-
-                        asset->swapSubAsset( subAsset, newSubAsset );
-                    }
-                }
-            }
-
-			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - loaded \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+			OutputDebugStringW( StringUtil::widen( "AssetManager::parseBasicAssets - parsed \"" + assetToParse.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
 		} catch ( .../*std::exception& ex*/ ) {
 			// Asset failed to load - remove it from assets.
 			std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
-			m_assets.erase( assetToLoad.fileInfo->getPath() );
+			m_assets.erase( assetToParse.fileInfo->getPath() );
 
-			OutputDebugStringW( StringUtil::widen( "AssetManager::loadAssets - failed to load \"" + assetToLoad.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+			OutputDebugStringW( StringUtil::widen( "AssetManager::parseBasicAssets - failed to parse \"" + assetToParse.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+
+            // Notify 'getWhenLoaded' method that an asset failed to load.
+            m_assetLoadedOrError.notify_all();
 
 			//TODO: handle this error - do some callback for ex.
             continue;
@@ -326,14 +339,88 @@ void AssetManager::loadAssets()
 			std::lock_guard<std::mutex> loadedAssetsLock( m_loadedAssetsMutex );
 			// Add asset to a list of assets.
 
-			//#TODO: handle paths for files with multiple meshes inside.
-            std::string id = getId( assetToLoad.fileInfo->getAssetType( ), assetToLoad.fileInfo->getPath( ), assetToLoad.fileInfo->getIndexInFile() );
+            std::string id = getId( assetToParse.fileInfo->getAssetType( ), assetToParse.fileInfo->getPath( ), assetToParse.fileInfo->getIndexInFile() );
 			m_loadedAssets.insert( std::make_pair( id, asset ) );
 		}
 
 		// Notify 'getWhenLoaded' method that an asset has just been loaded.
-		m_assetLoaded.notify_all();
+		m_assetLoadedOrError.notify_all();
 	}
+}
+
+void AssetManager::parseComplexAssets()
+{
+    for ( ;;) {
+        AssetToParse assetToParse;
+
+        { // Check if there is any asset to load and if so, get it - hold lock.
+            std::unique_lock<std::mutex> complexAssetsToParseLock( m_complexAssetsToParseMutex );
+
+            // Wait until there are some assets to load.
+            m_complexAssetsToParseNotEmpty.wait( complexAssetsToParseLock, [ this ]() { return !m_complexAssetsToParse.empty() || !m_executeThreads; } );
+
+            // Terminate thread if requested.
+            if ( !m_executeThreads ) return;
+
+            // Get first complex asset from the list.
+            assetToParse = m_complexAssetsToParse.front();
+
+            // Remove complex asset from the list.
+            m_complexAssetsToParse.pop_front();
+        }
+
+        OutputDebugStringW( StringUtil::widen( "AssetManager::parseComplexAssets - parsing \"" + assetToParse.fileInfo->getPath() + "\"\n" ).c_str() );
+
+        std::shared_ptr<Asset> asset = nullptr;
+
+        // Parse complex asset and its sub-assets (basic assets).
+        try {
+            asset = createFromMemory( *assetToParse.fileInfo, *assetToParse.fileData );
+
+            { // Load sub-assets if needed.
+                std::vector<std::shared_ptr<Asset>> subAssets = asset->getSubAssets();
+                for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
+                    if ( !subAsset->getFileInfo().getPath().empty() )
+                        loadAsync( subAsset->getFileInfo(), true ); // Note: Load sub-assets with the highest priority.
+                }
+
+                // Wait for the sub-assets to be loaded and swap empty sub-assets with loaded sub-assets.
+                const float subAssetLoadTimeout = 660.0f;
+                for ( std::shared_ptr<Asset>& subAsset : subAssets ) {
+                    if ( !subAsset->getFileInfo().getPath().empty() ) {
+                        std::shared_ptr<Asset> newSubAsset = getWhenLoaded( subAsset->getFileInfo().getAssetType(), subAsset->getFileInfo().getPath(), subAsset->getFileInfo().getIndexInFile(), subAssetLoadTimeout );
+
+                        asset->swapSubAsset( subAsset, newSubAsset );
+                    }
+                }
+            }
+
+            OutputDebugStringW( StringUtil::widen( "AssetManager::parseComplexAssets - parsed \"" + assetToParse.fileInfo->getPath() + "\"\n" ).c_str() );
+        } catch ( .../*std::exception& ex*/ ) {
+            // Asset failed to load - remove it from assets.
+            std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
+            m_assets.erase( assetToParse.fileInfo->getPath() );
+
+            OutputDebugStringW( StringUtil::widen( "AssetManager::parseComplexAssets - failed to parse \"" + assetToParse.fileInfo->getPath() + "\"\n" ).c_str() );
+
+            // Notify 'getWhenLoaded' method that an asset failed to load.
+            m_assetLoadedOrError.notify_all();
+
+            //TODO: handle this error - do some callback for ex.
+            continue;
+        }
+
+        { // Add asset to a list of assets - hold lock.
+            std::lock_guard<std::mutex> loadedAssetsLock( m_loadedAssetsMutex );
+            // Add asset to a list of assets.
+
+            std::string id = getId( assetToParse.fileInfo->getAssetType(), assetToParse.fileInfo->getPath(), assetToParse.fileInfo->getIndexInFile() );
+            m_loadedAssets.insert( std::make_pair( id, asset ) );
+        }
+
+        // Notify 'getWhenLoaded' method that an asset has just been loaded.
+        m_assetLoadedOrError.notify_all();
+    }
 }
 
 std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
