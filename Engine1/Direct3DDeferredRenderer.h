@@ -47,10 +47,10 @@ namespace Engine1
         void clearRenderTargets( float4 color, float depth );
         void disableRenderTargets();
 
-        void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix );
-        void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace );
-        void render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive = float4::ZERO );
-        void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive = float4::ZERO );
+        void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode = false );
+        void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const bool wireframeMode = false );
+        void render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive = float4::ZERO, const bool wireframeMode = false );
+        void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive = float4::ZERO, const bool wireframeMode = false );
         void render( const std::string& text, Font& font, float2 position, float4 color );
 
         std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > >        getPositionRenderTarget();
@@ -73,11 +73,13 @@ namespace Engine1
 
         // Rasterizer states.
         Microsoft::WRL::ComPtr<ID3D11RasterizerState>   m_rasterizerState;
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState>   m_wireframeRasterizerState;
         Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
         Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForMeshRendering;
         Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForTextRendering;
 
         Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createRasterizerState( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createWireframeRasterizerState( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11DepthStencilState> createDepthStencilState( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForMeshRendering( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTextRendering( ID3D11Device& device );

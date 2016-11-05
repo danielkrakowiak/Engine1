@@ -60,6 +60,7 @@ Application::Application() :
 	m_zBufferDepth( 32 ),
 	m_windowFocused( false ),
     m_debugRenderAlpha( false ),
+    m_debugWireframeMode( false ),
     m_assetManager(),
     m_sceneManager( m_assetManager )
 {
@@ -359,7 +360,7 @@ void Application::run() {
         m_renderer.clear();
 
         std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-            = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), m_sceneManager.getSelectedBlockActors(),
+            = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), m_debugWireframeMode, m_sceneManager.getSelectedBlockActors(),
                                       m_sceneManager.getSelectedSkeletonActors(), m_sceneManager.getSelectedLights() );
 
         const int2 mousePos = m_inputManager.getMousePos();
@@ -830,6 +831,14 @@ void Application::onKeyPress( int key )
     if ( key == InputManager::Keys::m && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
         m_sceneManager.mergeSelectedActors();
 
+    // [Enter] - Render alpha.
+    if ( key == InputManager::Keys::enter )
+        m_debugRenderAlpha = !m_debugRenderAlpha;
+
+    // [Backspace] - Render in wireframe mode.
+    if ( key == InputManager::Keys::backspace )
+        m_debugWireframeMode = !m_debugWireframeMode;
+
     /*static float normalThresholdChange = 0.01f;
     if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::n ) )
     {
@@ -888,9 +897,6 @@ void Application::onKeyPress( int key )
         m_renderer.activateNextViewLevel( false );
     else if ( key == InputManager::Keys::minus )
         m_renderer.activatePrevViewLevel();
-
-    if ( key == InputManager::Keys::enter ) 
-        m_debugRenderAlpha = !m_debugRenderAlpha;
 }
 
 void Application::onMouseButtonPress( int button )

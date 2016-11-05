@@ -52,7 +52,8 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 	this->m_imageHeight = imageHeight;
 
 	// Initialize rasterizer state.
-	m_rasterizerState = createRasterizerState( *device.Get() );
+	m_rasterizerState          = createRasterizerState( *device.Get() );
+    m_wireframeRasterizerState = createWireframeRasterizerState( *device.Get() );
 	// Initialize depth stencil state.
 	m_depthStencilState = createDepthStencilState( *device.Get() );
 	// Initialize blend states.
@@ -78,7 +79,7 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 	m_initialized = true;
 }
 
-void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix )
+void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
@@ -113,7 +114,7 @@ void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& wor
 	m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace )
+void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const bool wireframeMode )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
@@ -140,15 +141,15 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
 		m_rendererCore.enableRenderingShaders( m_skeletonMeshVertexShader, m_skeletonMeshFragmentShader );
 	}
 
-	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get( ) );
-	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get( ) );
-	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get( ) );
+	m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
+	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
+	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
 	// Draw mesh.
 	m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive )
+void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive, const bool wireframeMode )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
@@ -197,15 +198,15 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 		m_rendererCore.enableRenderingShaders( m_blockModelVertexShader, m_blockModelFragmentShader );
 	}
 
-	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get( ) );
-	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get( ) );
-	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get( ) );
+	m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
+	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
+	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
 	// Draw mesh.
 	m_rendererCore.draw( *model.getMesh().get() );
 }
 
-void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive )
+void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive, const bool wireframeMode )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 	if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
@@ -255,7 +256,7 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
 		m_rendererCore.enableRenderingShaders( m_skeletonModelVertexShader, m_skeletonModelFragmentShader );
 	}
 
-	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
 	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
 	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
@@ -403,6 +404,28 @@ ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( I
 	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createRasterizerState - creation of rasterizer state failed" );
 
 	return rasterizerState;
+}
+
+ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createWireframeRasterizerState( ID3D11Device& device )
+{
+    D3D11_RASTERIZER_DESC         rasterDesc;
+    ComPtr<ID3D11RasterizerState> rasterizerState;
+
+    rasterDesc.AntialiasedLineEnable = false;
+    rasterDesc.CullMode              = D3D11_CULL_NONE;
+    rasterDesc.DepthBias             = 0;
+    rasterDesc.DepthBiasClamp        = 0.0f;
+    rasterDesc.DepthClipEnable       = true;
+    rasterDesc.FillMode              = D3D11_FILL_WIREFRAME;
+    rasterDesc.FrontCounterClockwise = false;
+    rasterDesc.MultisampleEnable     = false;
+    rasterDesc.ScissorEnable         = false;
+    rasterDesc.SlopeScaledDepthBias  = 0.0f;
+
+    HRESULT result = device.CreateRasterizerState( &rasterDesc, rasterizerState.ReleaseAndGetAddressOf() );
+    if ( result < 0 ) throw std::exception( "Direct3DRenderer::createWireframeRasterizerState - creation of rasterizer state failed" );
+
+    return rasterizerState;
 }
 
 ComPtr<ID3D11DepthStencilState> Direct3DDeferredRenderer::createDepthStencilState( ID3D11Device& device )

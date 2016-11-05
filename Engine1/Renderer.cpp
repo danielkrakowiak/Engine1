@@ -94,6 +94,7 @@ std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
 Renderer::renderScene( const CScene& scene, const Camera& camera,
+                       const bool wireframeMode,
                        const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                        const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
                        const std::vector< std::shared_ptr< Light > >& selectedLights )
@@ -132,7 +133,7 @@ Renderer::renderScene( const CScene& scene, const Camera& camera,
     }
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) 
-        = renderMainImage( scene, camera, lightsCastingShadows, lightsNotCastingShadows, m_activeViewLevel, m_activeViewType,
+        = renderMainImage( scene, camera, lightsCastingShadows, lightsNotCastingShadows, m_activeViewLevel, m_activeViewType, wireframeMode,
                            selectedBlockActors, selectedSkeletonActors, selectedLights );
     
     if ( frameReceived )
@@ -178,6 +179,7 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera,
                            const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
                            const std::vector< bool >& activeViewLevel, const View activeViewType, 
+                           const bool wireframeMode,
                            const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                            const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
                            const std::vector< std::shared_ptr< Light > >& selectedLights )
@@ -203,9 +205,9 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera,
             const bool isSelected = std::find( selectedBlockActors.begin(), selectedBlockActors.end(), blockActor ) != selectedBlockActors.end();
 
             if ( blockModel->isInGpuMemory() )
-                m_deferredRenderer.render( *blockModel, blockActor->getPose(), viewMatrix, isSelected ? actorSelectionEmissiveColor : float4::ZERO );
+                m_deferredRenderer.render( *blockModel, blockActor->getPose(), viewMatrix, isSelected ? actorSelectionEmissiveColor : float4::ZERO, wireframeMode );
             else if ( blockModel->getMesh() && blockModel->getMesh()->isInGpuMemory() )
-                m_deferredRenderer.render( *blockModel->getMesh(), blockActor->getPose(), viewMatrix );
+                m_deferredRenderer.render( *blockModel->getMesh(), blockActor->getPose(), viewMatrix, wireframeMode );
 
         } else if ( actor->getType() == Actor::Type::SkeletonActor ) {
             const std::shared_ptr<SkeletonActor> skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
@@ -214,9 +216,9 @@ Renderer::renderMainImage( const CScene& scene, const Camera& camera,
             const bool isSelected = std::find( selectedSkeletonActors.begin(), selectedSkeletonActors.end(), skeletonActor ) != selectedSkeletonActors.end();
 
             if ( skeletonModel->isInGpuMemory() )
-                m_deferredRenderer.render( *skeletonModel, skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose(), isSelected ? actorSelectionEmissiveColor : float4::ZERO );
+                m_deferredRenderer.render( *skeletonModel, skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose(), isSelected ? actorSelectionEmissiveColor : float4::ZERO, wireframeMode );
             else if ( skeletonModel->getMesh() && skeletonModel->getMesh()->isInGpuMemory() )
-                m_deferredRenderer.render( *skeletonModel->getMesh(), skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose() );
+                m_deferredRenderer.render( *skeletonModel->getMesh(), skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose(), wireframeMode );
         }
     }
 

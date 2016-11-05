@@ -30,7 +30,7 @@ namespace Engine1
         {
             public:
 
-            static const unsigned int back     = 8;
+            static const unsigned int backspace     = 8;
             static const unsigned int tab      = 9;
             static const unsigned int enter    = 13;
             static const unsigned int shift    = 16;

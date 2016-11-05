@@ -73,6 +73,7 @@ namespace Engine1
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > >
         renderScene( const CScene& scene, const Camera& camera,
+                     const bool wireframeMode,
                      const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                      const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
                      const std::vector< std::shared_ptr< Light > >& selectedLights );
@@ -104,6 +105,7 @@ namespace Engine1
                          const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                          const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
                          const std::vector< bool >& activeViewLevel, const View activeViewType,
+                         const bool wireframeMode,
                          const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                          const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
                          const std::vector< std::shared_ptr< Light > >& selectedLights );
