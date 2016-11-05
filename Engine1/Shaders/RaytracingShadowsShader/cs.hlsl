@@ -47,9 +47,9 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minHitDist = 0.01f;
 
-static const float lightSampleCount = 25;
+static const float lightSampleCount = 64;
 static const float lightSampleCountPerSide = sqrt( lightSampleCount );
-static const float lightSizeHalf = 3.0f;
+static const float lightSizeHalf = 0.10f;
 static const float lightSizeStep = lightSizeHalf * 2.0f / lightSampleCountPerSide;
 static const float lightAmountPerSample = (1.0f / lightSampleCount);
 
@@ -86,9 +86,9 @@ void main( uint3 groupId : SV_GroupID,
 
 	const float  rayMaxLength = length( lightPosition - rayOrigin );
 
-	//const float3 lightDir  = normalize( lightPosition - rayOrigin );
-	//const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
-	//const float3 lightUp   = cross( lightDir, lightSide );
+	const float3 lightDir  = normalize( lightPosition - rayOrigin );
+	const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
+	const float3 lightUp   = cross( lightDir, lightSide );
 
 	// Transform the ray from world to local space.
 	const float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
