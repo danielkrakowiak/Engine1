@@ -61,6 +61,7 @@ Application::Application() :
 	m_windowFocused( false ),
     m_debugRenderAlpha( false ),
     m_debugWireframeMode( false ),
+    m_slowmotionMode( false ),
     m_assetManager(),
     m_sceneManager( m_assetManager )
 {
@@ -262,8 +263,8 @@ void Application::run() {
         bool movingObjects = false;
         if ( m_windowFocused && ( !m_sceneManager.getSelectedBlockActors().empty() || !m_sceneManager.getSelectedSkeletonActors().empty() ) ) 
         {
-            const float   translationSensitivity = 0.001f;//0.002f;
-            const float   rotationSensitivity    = 0.0001f;
+            const float   translationSensitivity = m_slowmotionMode ? 0.00001f : 0.0002f;
+            const float   rotationSensitivity    = m_slowmotionMode ? 0.00001f : 0.0001f;
             const int2    mouseMove              = m_inputManager.getMouseMove();
 
             const float3 sensitivity(
@@ -297,7 +298,7 @@ void Application::run() {
         // Translate the selected light.
         if ( m_windowFocused && !m_sceneManager.getSelectedLights().empty() ) 
         {
-            const float   translationSensitivity = 0.001f;//0.002f;
+            const float   translationSensitivity = m_slowmotionMode ? 0.00005f : 0.0002f;
             const int2    mouseMove              = m_inputManager.getMouseMove();
 
             const float3 sensitivity(
@@ -316,10 +317,10 @@ void Application::run() {
         }
 
         // Update the camera.
-        if ( m_windowFocused && !movingObjects && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) { 
-            const float cameraRotationSensitivity = 0.0001f;
-
-            const float acceleration = 0.25f;
+        if ( m_windowFocused && !movingObjects && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) 
+        { 
+            const float cameraRotationSensitivity = m_slowmotionMode ? 0.00002f : 0.0001f;
+            const float acceleration              = m_slowmotionMode ? 0.02f : 0.25f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) )      m_sceneManager.getCamera().accelerateForward( (float)frameTimeMs * acceleration );
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_sceneManager.getCamera().accelerateReverse( (float)frameTimeMs * acceleration );
@@ -838,6 +839,10 @@ void Application::onKeyPress( int key )
     // [Backspace] - Render in wireframe mode.
     if ( key == InputManager::Keys::backspace )
         m_debugWireframeMode = !m_debugWireframeMode;
+
+    // [Ctrl] (only) - Enable slowmotion mode.
+    if ( key == InputManager::Keys::capsLock )
+        m_slowmotionMode = !m_slowmotionMode;
 
     /*static float normalThresholdChange = 0.01f;
     if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::n ) )

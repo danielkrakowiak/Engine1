@@ -310,12 +310,6 @@ Idea:
 
 	  NOW:
 
-	  - display number of selected triangles/vertices/meshes
-	  - display number of total triangles/vertices/meshes
-	  Note: important for scene optimizations.
-
-	  - rename CScene to Scene
-
 	  - slow down camera movement and object manipulation when Ctrl is pressed.
 
 	  - volumetric selection - select anything and then press some keys to expand selection volumetrically - as a bounding box. And keep selecting things inside of it...

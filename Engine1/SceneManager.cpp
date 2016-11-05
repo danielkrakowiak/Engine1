@@ -869,13 +869,15 @@ void SceneManager::unselectActor( std::shared_ptr< Actor > actor )
     {
         const auto& it = std::find( m_selectedBlockActors.begin(), m_selectedBlockActors.end(), actor );
 
-        m_selectedBlockActors.erase( it );
+        if ( it != m_selectedBlockActors.end() )
+            m_selectedBlockActors.erase( it );
     }
     else
     {
         const auto& it = std::find( m_selectedSkeletonActors.begin(), m_selectedSkeletonActors.end(), actor );
 
-        m_selectedSkeletonActors.erase( it );
+        if ( it != m_selectedSkeletonActors.end() )
+            m_selectedSkeletonActors.erase( it );
     }
 }
 
@@ -894,7 +896,8 @@ void SceneManager::unselectLight( std::shared_ptr< Light > light )
 {
     const auto& it = std::find( m_selectedLights.begin(), m_selectedLights.end(), light );
 
-    m_selectedLights.erase( it );
+    if ( it != m_selectedLights.end() )
+        m_selectedLights.erase( it );
 }
 
 void SceneManager::deleteSelected()

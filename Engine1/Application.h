@@ -102,6 +102,8 @@ namespace Engine1
         bool m_debugRenderAlpha;
         bool m_debugWireframeMode;
 
+        bool m_slowmotionMode;
+
         std::shared_ptr< StagingTexture2D< unsigned char > > m_debugFrameU1;
         std::shared_ptr< StagingTexture2D< uchar4 > >        m_debugFrameU4;
         std::shared_ptr< StagingTexture2D< float > >         m_debugFrameF1;
