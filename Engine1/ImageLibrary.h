@@ -7,11 +7,12 @@ This class is used to initialize/deinitialize FreeImage library.
 To initialize/deinitialize simply create a static field of that class in the main application class.
 */
 
-class Application;
 enum FREE_IMAGE_FORMAT;
 
 namespace Engine1
 {
+    class Application;
+
     class ImageLibrary
     {
         friend class Application;

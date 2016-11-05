@@ -290,6 +290,7 @@
     <ClInclude Include="ReflectionShadingComputeShader2.h" />
     <ClInclude Include="RefractionShadingComputeShader.h" />
     <ClInclude Include="RefractionShadingComputeShader2.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="ShadingComputeShader0.h" />
     <ClInclude Include="ShadingComputeShader2.h" />
     <ClInclude Include="ShadingNoShadowsComputeShader.h" />
@@ -430,6 +431,7 @@
     <ClCompile Include="ReflectionShadingComputeShader2.cpp" />
     <ClCompile Include="RefractionShadingComputeShader.cpp" />
     <ClCompile Include="RefractionShadingComputeShader2.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="ShadingComputeShader0.cpp" />
     <ClCompile Include="ShadingComputeShader2.cpp" />
     <ClCompile Include="ShadingNoShadowsComputeShader.cpp" />

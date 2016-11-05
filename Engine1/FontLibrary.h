@@ -8,10 +8,10 @@ This class is used to initialize/deinitialize FreeType library.
 To initialize/deinitialize simply create a static field of that class in the main application class.
 */
 
-class Application;
-
 namespace Engine1
 {
+    class Application;
+
     class FontLibrary
     {
         friend class Application;

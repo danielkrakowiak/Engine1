@@ -1,6 +1,7 @@
 #pragma once
 
 #include "InputManager.h"
+#include "SceneManager.h"
 #include "Direct3DRendererCore.h"
 #include "Renderer.h"
 #include "Direct3DFrameRenderer.h"
@@ -14,150 +15,118 @@
 
 #include "StagingTexture2D.h"
 
-using namespace Engine1;
-
 namespace Engine1
 {
     class CScene;
     class Actor;
     class BlockActor;
     class SkeletonActor;
-}
 
-class Application {
-public:
-	Application();
-	~Application();
+    class Application {
+    public:
+	    Application();
+	    ~Application();
 
-	void initialize( HINSTANCE applicationInstance );
-	void show();
-	void run();
+	    void initialize( HINSTANCE applicationInstance );
+	    void show();
+	    void run();
 
-	bool isFullscreen() { return m_fullscreen; }
+	    bool isFullscreen() { return m_fullscreen; }
 
-	int getScreenWidth() { return m_screenWidth; }
-	int getScreenHeight() { return m_screenHeight; }
-	int getDisplayFrequency() { return m_displayFrequency; }
-	int getScreenColorDepth() { return m_screenColorDepth; }
-	int getZBufferDepth() { return m_zBufferDepth; }
+	    int getScreenWidth() { return m_screenWidth; }
+	    int getScreenHeight() { return m_screenHeight; }
+	    int getDisplayFrequency() { return m_displayFrequency; }
+	    int getScreenColorDepth() { return m_screenColorDepth; }
+	    int getZBufferDepth() { return m_zBufferDepth; }
 
-    void setWindowTitle( const std::string& title );
+        void setWindowTitle( const std::string& title );
 
-private:
+    private:
 
-	static ImageLibrary imageLibrary;
-	static FontLibrary fontLibrary;
+	    static ImageLibrary imageLibrary;
+	    static FontLibrary fontLibrary;
 
-	// Initialization
-	bool m_initialized;
-	void setupWindow( );
+	    // Initialization
+	    bool m_initialized;
+	    void setupWindow( );
 
-	// Windows message handling.
-	static const unsigned int inputTimerId = 1;
-	static const unsigned int inputTimerInterval = 5;
-	static Application* windowsMessageReceiver;
+	    // Windows message handling.
+	    static const unsigned int inputTimerId = 1;
+	    static const unsigned int inputTimerInterval = 5;
+	    static Application* windowsMessageReceiver;
 
-	static LRESULT CALLBACK windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+	    static LRESULT CALLBACK windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
-	void onStart( );
-	void onExit( );
-	void onResize( int newWidth, int newHeight );
-    void onMove( int newPosX, int newPosY );
-	void onFocusChange( bool windowFocused );
-    void onKeyPress( int key );
-    void onMouseButtonPress( int button );
-	void onDragAndDropFile( std::string filePath );
+	    void onStart( );
+	    void onExit( );
+	    void onResize( int newWidth, int newHeight );
+        void onMove( int newPosX, int newPosY );
+	    void onFocusChange( bool windowFocused );
+        void onKeyPress( int key );
+        void onMouseButtonPress( int button );
+	    void onDragAndDropFile( std::string filePath );
 
-    std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > > 
-        pickActorOrLight( const CScene& scene, const Camera& camera, const float2& targetPixel,
-                          const float screenWidth, const float screenHeight, const float fieldOfView );
+        void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y );
+        void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y );
+        void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y );
+        void debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int x, const int y );
+        void debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y );
 
-    void loadCamera( std::string path );
-    void saveCamera( std::string path );
+	    // Basic application handles.
+	    HINSTANCE m_applicationInstance;
+	    HWND      m_windowHandle;
+	    HDC       m_deviceContext;
 
-    void loadScene( std::string path );
-    void saveScene( std::string path );
+        // Window state.
+        int2 m_windowPosition;
 
-    void mergeSelectedActors();
-    void saveSelectedModels();
+	    InputManager m_inputManager;
+        AssetManager m_assetManager;
+        SceneManager m_sceneManager;
 
-    std::tuple< int, int > getSelectedActorsVertexAndTriangleCount();
-    std::tuple< int, int > getSceneVertexAndTriangleCount();
+	    Direct3DRendererCore      m_rendererCore;
+        Direct3DFrameRenderer     m_frameRenderer;
+        Renderer                  m_renderer;
+        Profiler                  m_profiler;
 
-    void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y );
-    void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y );
-    void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y );
-    void debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int x, const int y );
-    void debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y );
+	    bool m_fullscreen;
+	    int  m_screenWidth;
+        int  m_screenHeight;
+	    bool m_verticalSync;
+	    int  m_displayFrequency;
+	    char m_screenColorDepth;
+	    char m_zBufferDepth;
 
-	// Basic application handles.
-	HINSTANCE m_applicationInstance;
-	HWND      m_windowHandle;
-	HDC       m_deviceContext;
+	    bool m_windowFocused;
 
-    // Window state.
-    int2 m_windowPosition;
+        bool m_debugRenderAlpha;
 
-	InputManager m_inputManager;
+        std::shared_ptr< StagingTexture2D< unsigned char > > m_debugFrameU1;
+        std::shared_ptr< StagingTexture2D< uchar4 > >        m_debugFrameU4;
+        std::shared_ptr< StagingTexture2D< float > >         m_debugFrameF1;
+        std::shared_ptr< StagingTexture2D< float4 > >        m_debugFrameF4;
 
-	Direct3DRendererCore      m_rendererCore;
-    Direct3DFrameRenderer     m_frameRenderer;
-    Renderer                  m_renderer;
-    Profiler                  m_profiler;
+        void createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
 
-	bool m_fullscreen;
-	int  m_screenWidth;
-    int  m_screenHeight;
-	bool m_verticalSync;
-	int  m_displayFrequency;
-	char m_screenColorDepth;
-	char m_zBufferDepth;
+        // Debug uchar render target.
+        void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
 
-	bool m_windowFocused;
+        // Needed to display uchar textures using usual texture shader (unorm view is required - integer as 0-1 float).
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > ucharDisplayFrame;
 
-    std::string m_cameraPath;
-	FreeCamera m_camera;
+	    // Copying is not allowed.
+	    Application( const Application& ) = delete;
+	    Application& operator=( const Application& ) = delete;
 
-    AssetManager m_assetManager;
-
-	// For creation of new assets.
-    std::vector< std::shared_ptr< Light > >         m_selectedLights;
-	std::vector< std::shared_ptr< BlockActor > >    m_selectedBlockActors;
-	std::vector< std::shared_ptr< SkeletonActor > > m_selectedSkeletonActors;
-
-    bool m_debugRenderAlpha;
-
-    std::shared_ptr< StagingTexture2D< unsigned char > > m_debugFrameU1;
-    std::shared_ptr< StagingTexture2D< uchar4 > >        m_debugFrameU4;
-    std::shared_ptr< StagingTexture2D< float > >         m_debugFrameF1;
-    std::shared_ptr< StagingTexture2D< float4 > >        m_debugFrameF4;
-
-    void createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
-
-    // Debug uchar render target.
-    void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
-
-    // Needed to display uchar textures using usual texture shader (unorm view is required - integer as 0-1 float).
-    std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > ucharDisplayFrame;
-
-    std::string m_scenePath;
-    std::shared_ptr<CScene> m_scene;
-
-    std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > > m_texturesToMerge;
-    std::vector< std::shared_ptr< BlockMesh > >                         m_meshesToMerge;
-
-	// Copying is not allowed.
-	Application( const Application& ) = delete;
-	Application& operator=( const Application& ) = delete;
-
-    struct StageProfilingInfo
-    {
-        // Time in milliseconds.
-        std::array< float, (int)Profiler::EventTypePerStage::MAX_VALUE > event;
-        std::array< float, Profiler::s_maxLightCount > shadowsPerLight;
-        std::array< float, Profiler::s_maxLightCount > shadingPerLight;
-        float shadowsTotal;
-        float shadingTotal;
+        struct StageProfilingInfo
+        {
+            // Time in milliseconds.
+            std::array< float, (int)Profiler::EventTypePerStage::MAX_VALUE > event;
+            std::array< float, Profiler::s_maxLightCount > shadowsPerLight;
+            std::array< float, Profiler::s_maxLightCount > shadingPerLight;
+            float shadowsTotal;
+            float shadingTotal;
+        };
     };
 };
 

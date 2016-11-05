@@ -349,6 +349,12 @@
     <Filter Include="Source Files\Tools\BVH\Parsers">
       <UniqueIdentifier>{0e0446c6-b0d2-498f-b8dc-1499dc830fca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\SceneManager">
+      <UniqueIdentifier>{6e0e2188-fe5d-4d12-b822-a831cf8ae2c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SceneManager">
+      <UniqueIdentifier>{0000023b-b85f-4d1a-8190-4bdf50fed411}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -765,6 +771,9 @@
     <ClInclude Include="Model.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Header Files\SceneManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1150,6 +1159,9 @@
     </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Source Files\SceneManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
