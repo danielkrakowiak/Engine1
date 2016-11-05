@@ -1,5 +1,7 @@
 #pragma once
 
+#include "float2.h"
+
 namespace Engine1
 {
     class int2
@@ -100,6 +102,14 @@ namespace Engine1
             x /= value;
             y /= value;
             return *this;
+        }
+
+        explicit operator float2() const
+        {
+            return float2(
+                (float)x,
+                (float)y
+                );
         }
     };
 }

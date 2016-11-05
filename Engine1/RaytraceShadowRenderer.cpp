@@ -77,7 +77,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 	for ( const std::shared_ptr< const BlockActor >& actor : actors )
 	{
-        if ( !actor->isCastingShadows() )
+        if ( !actor->isCastingShadows() || !actor->getModel() || !actor->getModel()->getMesh() )
             continue;
 
 		const BlockModel& model = *actor->getModel();

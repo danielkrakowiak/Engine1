@@ -488,6 +488,9 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
 
     for ( const std::shared_ptr< const BlockActor >& actor : actors )
     {
+        if ( !actor->getModel() || !actor->getModel()->getMesh() )
+            continue;
+
         const BlockModel& model = *actor->getModel();
 
         float3 bbMin, bbMax;

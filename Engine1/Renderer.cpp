@@ -41,7 +41,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
 	m_raytraceShadowRenderer( rendererCore ),
 	m_shadowMapRenderer( rendererCore ),
     m_activeViewType( View::Final ),
-    m_maxLevelCount( 3 )
+    m_maxLevelCount( 1 )
 {}
 
 Renderer::~Renderer()

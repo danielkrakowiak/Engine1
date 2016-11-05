@@ -9,6 +9,7 @@
 #include <d3d11.h>
 #include <wrl.h>
 
+#include "int2.h"
 #include "Texture2DEnums.h"
 #include "ImageLibrary.h"
 #include "Texture2DFileInfo.h"
@@ -58,13 +59,14 @@ namespace Engine1
         void unloadFromCpu();
         void unloadFromGpu();
 
-        int getMipMapCountOnCpu()  const;
-        int getMipMapCountOnGpu() const;
-        int getBytesPerPixel() const;
-        int getWidth( unsigned int mipMapLevel = 0 ) const;
-        int getHeight( unsigned int mipMapLevel = 0 ) const;
-        int getSize( unsigned int mipMapLevel = 0 ) const;
-        int getLineSize( unsigned int mipMapLevel = 0 ) const;
+        int  getMipMapCountOnCpu()  const;
+        int  getMipMapCountOnGpu() const;
+        int  getBytesPerPixel() const;
+        int  getWidth( unsigned int mipMapLevel = 0 ) const;
+        int  getHeight( unsigned int mipMapLevel = 0 ) const;
+        int2 getDimensions( unsigned int mipMapLevel = 0 ) const;
+        int  getSize( unsigned int mipMapLevel = 0 ) const;
+        int  getLineSize( unsigned int mipMapLevel = 0 ) const;
 
         const std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 ) const;
         std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 );
@@ -986,6 +988,16 @@ namespace Engine1
 		    throw std::exception( "Texture2DGeneric::getHeight - Incorrect level requested. There is no mipmap with such level." );
 
 	    return std::max( 1, m_height / ( 1 + (int)mipMapLevel ) );
+    }
+
+    template< typename PixelType >
+    int2 Texture2DGeneric< PixelType >
+        ::getDimensions( unsigned int mipMapLevel = 0 ) const
+    {
+        if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
+            throw std::exception( "Texture2DGeneric::getDimensions - Incorrect level requested. There is no mipmap with such level." );
+
+        return int2( std::max( 1, m_width / ( 1 + (int)mipMapLevel ) ), std::max( 1, m_height / ( 1 + (int)mipMapLevel ) ) );
     }
 
     template< typename PixelType >
