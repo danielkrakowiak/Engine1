@@ -26,6 +26,9 @@ namespace Engine1
         void onKeyboardButton( int key, bool pressed );
         void onMouseButton( int key, bool pressed );
 
+        int getCountOfPressedKeyboardButtons();
+        int getCountOfPressedMouseButtons();
+
         class Keys
         {
             public:
@@ -119,9 +122,11 @@ namespace Engine1
         private:
         static const unsigned int keyboardKeyCount = 256;
         std::array<bool, keyboardKeyCount> m_keyboardButtonState;
+        int m_keyboardButtonsPressedCount;
 
         static const unsigned int mouseButtonCount = 5;
         std::array<bool, mouseButtonCount> m_mouseButtonState;
+        int m_mouseButtonsPressedCount;
 
         int2 m_mouseMove;
         int2 m_mousePrevPos;

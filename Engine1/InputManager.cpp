@@ -9,9 +9,13 @@ InputManager::InputManager() {
 		m_keyboardButtonState.at( i ) = false;
 	}
 
+    m_keyboardButtonsPressedCount = 0;
+
 	for ( int i = 0; i < mouseButtonCount; ++i ) {
 		m_mouseButtonState.at( i ) = false;
 	}
+
+    m_mouseButtonsPressedCount = 0;
 
 	POINT cursorPos;
 	GetCursorPos( &cursorPos );
@@ -74,14 +78,38 @@ void InputManager::onKeyboardButton( int key, bool pressed ) {
 	if ( key < 0 || key >= keyboardKeyCount ) 
         return;
 
+    const bool wasPressed = m_keyboardButtonState.at( key );
+
 	m_keyboardButtonState.at( key ) = pressed;
+
+    if ( wasPressed && !pressed )
+        --m_keyboardButtonsPressedCount;
+    else if ( !wasPressed && pressed )
+        ++m_keyboardButtonsPressedCount;
 }
 
 void InputManager::onMouseButton( int key, bool pressed ) {
 	if ( key < 0 || key >= mouseButtonCount ) 
         return;
 
+    const bool wasPressed = m_mouseButtonState.at( key );
+
 	m_mouseButtonState.at( key ) = pressed;
+
+    if ( wasPressed && !pressed )
+        --m_mouseButtonsPressedCount;
+    else if ( !wasPressed && pressed )
+        ++m_mouseButtonsPressedCount;
+}
+
+int InputManager::getCountOfPressedKeyboardButtons()
+{
+    return m_keyboardButtonsPressedCount;
+}
+
+int InputManager::getCountOfPressedMouseButtons()
+{
+    return m_mouseButtonsPressedCount;
 }
 
 void InputManager::lockCursor( bool lock ) {
