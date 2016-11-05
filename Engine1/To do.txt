@@ -310,6 +310,41 @@ Idea:
 
 	  NOW:
 
+	  - display number of selected triangles/vertices/meshes
+	  - display number of total triangles/vertices/meshes
+	  Note: important for scene optimizations.
+
+	  - slow down camera movement and object manipulation when Ctrl is pressed.
+
+	  - volumetric selection - select anything and then press some keys to expand selection volumetrically - as a bounding box. And keep selecting things inside of it...
+
+	  - merge all flowers as one mesh.
+
+	  - maybe add wireframe mode?
+
+	  - optimize walls and floor in the text scenes - they have tons of triangles.
+	  - optimize all meshes...
+
+	  - modify floor UVs - and use nice PBR tile texture
+
+	  - display GPU name and optionally also CPU name on the screen
+
+	  ---- HERE: ->> use TextureType in BlockModel and SkeletonModel to ad/set/get textures and texture sets.
+	  - then refactor merging models to operate on the whole texture sets using loops etc instead of seperate code for each type.
+
+	  PROBLEM: Repeated textures are merged correctly, but as they are the same texture their placement is read incorrectly... How to differantiate them? Or how to avoid the problem?
+
+	  IDEA: When there is only one repeated texture - use a given texture placement - avoid merging alltogether... Add a new method to TextureUtil...
+
+	  BETTER IDEA: Start merging using with the type (albedo, roughness) which has the most unqiue textures. Then use that texture placement for other texture types.
+	  If some merging is not possible (using texcoords, not pixel values) then throw exception.
+
+	  Is my sorting stable? Not moving items which are in correct order?
+
+	  - NOW: UVs get recalculated incorrectly after merge? All meshes have the same UVs ? Or maybe even zeros as UVs?
+
+	  - fix merging models when all models share one alpha but have different other texutres.
+
 
 	  - shadow mapping? use it instead of raytracing for a while?
 

@@ -296,3 +296,10 @@ Sun 16.10.2016 - 2h - Saving/loading meshes and BVH tree to own binary format.
 Mon 17.10.2016 - 6h - Improved picking actors by raytracing against their triangle meshes instead of bounding boxes. Assigned textures to most models in the Kitchen Scene. Fixed problem with bright outlines on objects - related to optimization in shadows calculation (details in the commit).
 Tue 18.10.2016 - 1h - Added ability to enable/disable light sources.
 Wed 19.10.2016 - 4h - Adding ability to enable/disable casting shadows for light sources. Added new shading shaders (without shadows).
+Sat 22.10.2016 - 4h - Refactoring BlockModel and SkeletonModel to use TextureType template param for getters and setters of textures.
+Sat 29.10.2016 - 4h - Refactoring ModelUtil::mergeModels method. Setting lights and textures in the kitchen scene.
+--- October 2016 - 60h
+Tue 01.11.2016 - 6h - Trying to fix merging models and textures to work for some special scenarios (repeated textures of one type, unique textures of another type).
+Wed 02.11.2016 - 3h - Fixing merging models and textures.
+Thu 03.11.2016 - 1h - Fixing merging models and textures.
+Fri 04.11.2016 - 4h - Fixed handling failures in AssetManager. AssetManager::getWhenLoaded method correctly checks for errors now and is woken up on errors. Fixed AssetManager deadlock when loading very many assets at once - caused by many complex assets starting loading at the same moment and thus occupying all threads (leaving no threads for loading basic sub-assets). Fixed by having two groups of threads for basic and complex assets. Also added an option to load an asset with highest priority. Fixing corrupted normals in the Bathroom scene, otpimizing meshes. Display of vertex and triangle count for selected actors and the scene.

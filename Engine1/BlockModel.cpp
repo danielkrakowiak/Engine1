@@ -1,6 +1,7 @@
 #include "BlockModel.h"
 
 #include <d3d11.h>
+#include <tuple>
 
 #include "BinaryFile.h"
 #include "BlockModelParser.h"
@@ -39,14 +40,7 @@ BlockModel::BlockModel( )
 
 BlockModel::BlockModel( const BlockModel& obj ) :
 m_fileInfo( obj.m_fileInfo ),
-m_mesh( obj.m_mesh ),
-m_alphaTextures( obj.m_alphaTextures ),
-m_emissiveTextures( obj.m_emissiveTextures ),
-m_albedoTextures( obj.m_albedoTextures ),
-m_metalnessTextures( obj.m_metalnessTextures ),
-m_roughnessTextures( obj.m_roughnessTextures ),
-m_normalTextures( obj.m_normalTextures ),
-m_refractiveIndexTextures( obj.m_refractiveIndexTextures )
+m_mesh( obj.m_mesh )
 {}
 
 BlockModel::~BlockModel( ) 
@@ -440,172 +434,4 @@ std::shared_ptr<const BlockMesh> BlockModel::getMesh() const {
 
 std::shared_ptr<BlockMesh> BlockModel::getMesh( ) {
 	return m_mesh;
-}
-
-void BlockModel::addAlphaTexture( ModelTexture2D< unsigned char >& texture )
-{
-	m_alphaTextures.push_back( texture );
-}
-
-void BlockModel::addEmissiveTexture( ModelTexture2D< uchar4 >& texture )
-{
-	m_emissiveTextures.push_back( texture );
-}
-
-void BlockModel::addAlbedoTexture( ModelTexture2D< uchar4 >& texture )
-{
-	m_albedoTextures.push_back( texture );
-}
-
-void BlockModel::addMetalnessTexture( ModelTexture2D< unsigned char >& texture )
-{
-    m_metalnessTextures.push_back( texture );
-}
-
-void BlockModel::addRoughnessTexture( ModelTexture2D< unsigned char >& texture )
-{
-	m_roughnessTextures.push_back( texture );
-}
-
-void BlockModel::addNormalTexture( ModelTexture2D< uchar4 >& texture )
-{
-	m_normalTextures.push_back( texture );
-}
-
-void BlockModel::addRefractiveIndexTexture( ModelTexture2D< unsigned char >& texture )
-{
-	m_refractiveIndexTextures.push_back( texture );
-}
-
-void BlockModel::removeAllAlphaTextures()
-{
-    m_alphaTextures.clear();
-}
-
-void BlockModel::removeAllEmissiveTextures()
-{
-    m_emissiveTextures.clear();
-}
-
-void BlockModel::removeAllAlbedoTextures()
-{
-    m_albedoTextures.clear();
-}
-
-void BlockModel::removeAllMetalnessTextures()
-{
-    m_metalnessTextures.clear();
-}
-
-void BlockModel::removeAllRoughnessTextures()
-{
-    m_roughnessTextures.clear();
-}
-
-void BlockModel::removeAllNormalTextures()
-{
-    m_normalTextures.clear();
-}
-
-void BlockModel::removeAllRefractiveIndexTextures()
-{
-    m_refractiveIndexTextures.clear();
-}
-
-int BlockModel::getAlphaTexturesCount( ) const {
-	return (int)m_alphaTextures.size();
-}
-
-std::vector< ModelTexture2D< unsigned char > > BlockModel::getAlphaTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_alphaTextures.begin( ), m_alphaTextures.end( ) );
-}
-
-ModelTexture2D< unsigned char > BlockModel::getAlphaTexture( int index ) const {
-	if ( index >= (int)m_alphaTextures.size() ) throw std::exception( "BlockModel::getAlphaTexture: Trying to access texture at non-existing index" );
-
-	return m_alphaTextures.at( index );
-}
-
-int BlockModel::getEmissiveTexturesCount( ) const {
-	return (int)m_emissiveTextures.size();
-}
-
-std::vector< ModelTexture2D< uchar4 > > BlockModel::getEmissiveTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( m_emissiveTextures.begin( ), m_emissiveTextures.end( ) );
-}
-
-ModelTexture2D< uchar4 > BlockModel::getEmissiveTexture( int index ) const {
-	if ( index >= (int)m_emissiveTextures.size() ) throw std::exception( "BlockModel::getEmissionTexture: Trying to access texture at non-existing index" );
-
-	return m_emissiveTextures.at( index );
-}
-
-int BlockModel::getAlbedoTexturesCount( ) const {
-	return (int)m_albedoTextures.size();
-}
-
-std::vector< ModelTexture2D< uchar4 > > BlockModel::getAlbedoTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( m_albedoTextures.begin( ), m_albedoTextures.end( ) );
-}
-
-ModelTexture2D< uchar4 > BlockModel::getAlbedoTexture( int index ) const {
-	if ( index >= (int)m_albedoTextures.size() ) throw std::exception( "BlockModel::getAlbedoTexture: Trying to access texture at non-existing index" );
-
-	return m_albedoTextures.at( index );
-}
-
-int BlockModel::getMetalnessTexturesCount( ) const {
-	return (int)m_metalnessTextures.size();
-}
-
-std::vector< ModelTexture2D< unsigned char > > BlockModel::getMetalnessTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_metalnessTextures.begin( ), m_metalnessTextures.end( ) );
-}
-
-ModelTexture2D< unsigned char > BlockModel::getMetalnessTexture( int index ) const {
-	if ( index >= (int)m_metalnessTextures.size() ) throw std::exception( "BlockModel::getMetalnessTexture: Trying to access texture at non-existing index" );
-
-	return m_metalnessTextures.at( index );
-}
-
-int BlockModel::getRoughnessTexturesCount( ) const {
-	return (int)m_roughnessTextures.size();
-}
-
-std::vector< ModelTexture2D< unsigned char > > BlockModel::getRoughnessTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_roughnessTextures.begin( ), m_roughnessTextures.end( ) );
-}
-
-ModelTexture2D< unsigned char > BlockModel::getRoughnessTexture( int index ) const {
-	if ( index >= (int)m_roughnessTextures.size( ) ) throw std::exception( "BlockModel::getRoughnessTexture: Trying to access texture at non-existing index" );
-
-	return m_roughnessTextures.at( index );
-}
-
-int BlockModel::getNormalTexturesCount( ) const {
-	return (int)m_normalTextures.size();
-}
-
-std::vector< ModelTexture2D< uchar4 > > BlockModel::getNormalTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( m_normalTextures.begin( ), m_normalTextures.end( ) );
-}
-
-ModelTexture2D< uchar4 > BlockModel::getNormalTexture( int index ) const {
-	if ( index >= (int)m_normalTextures.size( ) ) throw std::exception( "BlockModel::getNormalTexture: Trying to access texture at non-existing index" );
-
-	return m_normalTextures.at( index );
-}
-
-int BlockModel::getRefractiveIndexTexturesCount( ) const {
-	return (int)m_refractiveIndexTextures.size();
-}
-
-std::vector< ModelTexture2D< unsigned char > > BlockModel::getRefractiveIndexTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_refractiveIndexTextures.begin( ), m_refractiveIndexTextures.end( ) );
-}
-
-ModelTexture2D< unsigned char > BlockModel::getRefractiveIndexTexture( int index ) const {
-	if ( index >= (int)m_refractiveIndexTextures.size( ) ) throw std::exception( "BlockModel::getIndexOfRefractionTexture: Trying to access texture at non-existing index" );
-
-	return m_refractiveIndexTextures.at( index );
 }

@@ -37,14 +37,7 @@ SkeletonModel::SkeletonModel( )
 
 SkeletonModel::SkeletonModel( const SkeletonModel& obj ) :
 m_fileInfo( obj.m_fileInfo ),
-m_mesh( obj.m_mesh ),
-m_alphaTextures( obj.m_alphaTextures ),
-m_emissiveTextures( obj.m_emissiveTextures ),
-m_albedoTextures( obj.m_albedoTextures ),
-m_metalnessTextures( obj.m_metalnessTextures ),
-m_roughnessTextures( obj.m_roughnessTextures ),
-m_normalTextures( obj.m_normalTextures ),
-m_refractiveIndexTextures( obj.m_refractiveIndexTextures )
+m_mesh( obj.m_mesh )
 {}
 
 SkeletonModel::~SkeletonModel( ) {}
@@ -228,7 +221,7 @@ void SkeletonModel::setMesh( std::shared_ptr<SkeletonMesh> mesh ) {
 	this->m_mesh = mesh;
 }
 
-void SkeletonModel::saveToFile( const std::string& path )
+void SkeletonModel::saveToFile( const std::string& path ) const
 {
 	std::vector<char> data;
 
@@ -437,172 +430,4 @@ std::shared_ptr<const SkeletonMesh> SkeletonModel::getMesh( ) const {
 
 std::shared_ptr<SkeletonMesh> SkeletonModel::getMesh( ) {
 	return m_mesh;
-}
-
-void SkeletonModel::addAlphaTexture( ModelTexture2D< unsigned char >& texture )
-{
-	m_alphaTextures.push_back( texture );
-}
-
-void SkeletonModel::addEmissiveTexture( ModelTexture2D< uchar4 >& texture )
-{
-	m_emissiveTextures.push_back( texture );
-}
-
-void SkeletonModel::addAlbedoTexture( ModelTexture2D< uchar4 >& texture )
-{
-	m_albedoTextures.push_back( texture );
-}
-
-void SkeletonModel::addMetalnessTexture( ModelTexture2D< unsigned char >& texture )
-{
-	m_metalnessTextures.push_back( texture );
-}
-
-void SkeletonModel::addRoughnessTexture( ModelTexture2D< unsigned char >& texture )
-{
-	m_roughnessTextures.push_back( texture );
-}
-
-void SkeletonModel::addNormalTexture( ModelTexture2D< uchar4 >& texture )
-{
-	m_normalTextures.push_back( texture );
-}
-
-void SkeletonModel::addRefractiveIndexTexture( ModelTexture2D< unsigned char >& texture )
-{
-	m_refractiveIndexTextures.push_back( texture );
-}
-
-void SkeletonModel::removeAllAlphaTextures()
-{
-    m_alphaTextures.clear();
-}
-
-void SkeletonModel::removeAllEmissiveTextures()
-{
-    m_emissiveTextures.clear();
-}
-
-void SkeletonModel::removeAllAlbedoTextures()
-{
-    m_albedoTextures.clear();
-}
-
-void SkeletonModel::removeAllMetalnessTextures()
-{
-    m_metalnessTextures.clear();
-}
-
-void SkeletonModel::removeAllRoughnessTextures()
-{
-    m_roughnessTextures.clear();
-}
-
-void SkeletonModel::removeAllNormalTextures()
-{
-    m_normalTextures.clear();
-}
-
-void SkeletonModel::removeAllRefractiveIndexTextures()
-{
-    m_refractiveIndexTextures.clear();
-}
-
-int SkeletonModel::getAlphaTexturesCount( ) const {
-	return (int)m_alphaTextures.size();
-}
-
-std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getAlphaTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_alphaTextures.begin( ), m_alphaTextures.end( ) );
-}
-
-ModelTexture2D< unsigned char > SkeletonModel::getAlphaTexture( int index ) const {
-	if ( index >= (int)m_alphaTextures.size( ) ) throw std::exception( "SkeletonModel::getAlphaTexture: Trying to access texture at non-existing index" );
-
-	return m_alphaTextures.at( index );
-}
-
-int SkeletonModel::getEmissiveTexturesCount( ) const {
-	return (int)m_emissiveTextures.size();
-}
-
-std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getEmissiveTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( m_emissiveTextures.begin( ), m_emissiveTextures.end( ) );
-}
-
-ModelTexture2D< uchar4 > SkeletonModel::getEmissiveTexture( int index ) const {
-	if ( index >= (int)m_emissiveTextures.size( ) ) throw std::exception( "SkeletonModel::getEmissionTexture: Trying to access texture at non-existing index" );
-
-	return m_emissiveTextures.at( index );
-}
-
-int SkeletonModel::getAlbedoTexturesCount( ) const {
-	return (int)m_albedoTextures.size();
-}
-
-std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getAlbedoTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( m_albedoTextures.begin( ), m_albedoTextures.end( ) );
-}
-
-ModelTexture2D< uchar4 > SkeletonModel::getAlbedoTexture( int index ) const {
-	if ( index >= (int)m_albedoTextures.size( ) ) throw std::exception( "SkeletonModel::getAlbedoTexture: Trying to access texture at non-existing index" );
-
-	return m_albedoTextures.at( index );
-}
-
-int SkeletonModel::getMetalnessTexturesCount( ) const {
-	return (int)m_metalnessTextures.size();
-}
-
-std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getMetalnessTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_metalnessTextures.begin( ), m_metalnessTextures.end( ) );
-}
-
-ModelTexture2D< unsigned char > SkeletonModel::getMetalnessTexture( int index ) const {
-	if ( index >= (int)m_metalnessTextures.size( ) ) throw std::exception( "SkeletonModel::getMetalnessTexture: Trying to access texture at non-existing index" );
-
-	return m_metalnessTextures.at( index );
-}
-
-int SkeletonModel::getRoughnessTexturesCount( ) const {
-	return (int)m_roughnessTextures.size();
-}
-
-std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getRoughnessTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_roughnessTextures.begin( ), m_roughnessTextures.end( ) );
-}
-
-ModelTexture2D< unsigned char > SkeletonModel::getRoughnessTexture( int index ) const {
-	if ( index >= (int)m_roughnessTextures.size( ) ) throw std::exception( "SkeletonModel::getRoughnessTexture: Trying to access texture at non-existing index" );
-
-	return m_roughnessTextures.at( index );
-}
-
-int SkeletonModel::getNormalTexturesCount( ) const {
-	return (int)m_normalTextures.size();
-}
-
-std::vector< ModelTexture2D< uchar4 > > SkeletonModel::getNormalTextures( ) const {
-	return std::vector< ModelTexture2D< uchar4 > >( m_normalTextures.begin( ), m_normalTextures.end( ) );
-}
-
-ModelTexture2D< uchar4 > SkeletonModel::getNormalTexture( int index ) const {
-	if ( index >= (int)m_normalTextures.size( ) ) throw std::exception( "SkeletonModel::getNormalTexture: Trying to access texture at non-existing index" );
-
-	return m_normalTextures.at( index );
-}
-
-int SkeletonModel::getRefractiveIndexTexturesCount( ) const {
-	return (int)m_refractiveIndexTextures.size();
-}
-
-std::vector< ModelTexture2D< unsigned char > > SkeletonModel::getRefractiveIndexTextures( ) const {
-	return std::vector< ModelTexture2D< unsigned char > >( m_refractiveIndexTextures.begin( ), m_refractiveIndexTextures.end( ) );
-}
-
-ModelTexture2D< unsigned char > SkeletonModel::getRefractiveIndexTexture( int index ) const {
-	if ( index >= (int)m_refractiveIndexTextures.size( ) ) throw std::exception( "SkeletonModel::getIndexOfRefractionTexture: Trying to access texture at non-existing index" );
-
-	return m_refractiveIndexTextures.at( index );
 }

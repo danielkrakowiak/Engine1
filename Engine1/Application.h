@@ -81,6 +81,9 @@ private:
     void mergeSelectedActors();
     void saveSelectedModels();
 
+    std::tuple< int, int > getSelectedActorsVertexAndTriangleCount();
+    std::tuple< int, int > getSceneVertexAndTriangleCount();
+
     void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y );
     void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y );
     void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y );

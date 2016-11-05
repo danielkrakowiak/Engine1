@@ -762,6 +762,9 @@
     <ClInclude Include="ShadingNoShadowsComputeShader2.h">
       <Filter>Header Files\Shader\Shading</Filter>
     </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1144,6 +1147,9 @@
     </ClCompile>
     <ClCompile Include="ShadingNoShadowsComputeShader2.cpp">
       <Filter>Source Files\Shader\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
