@@ -29,6 +29,7 @@ Direct3DDeferredRenderer::Direct3DDeferredRenderer( Direct3DRendererCore& render
     m_imageHeight( 0 ),
     m_blockMeshVertexShader( std::make_shared<BlockMeshVertexShader>() ),
     m_blockMeshFragmentShader( std::make_shared<BlockMeshFragmentShader>() ),
+    m_blockMeshEmissiveFragmentShader( std::make_shared<BlockMeshFragmentShader>() ),
     m_skeletonMeshVertexShader( std::make_shared<SkeletonMeshVertexShader>() ),
     m_skeletonMeshFragmentShader( std::make_shared<SkeletonMeshFragmentShader>() ),
     m_blockModelVertexShader( std::make_shared<BlockModelVertexShader>() ),
@@ -57,8 +58,9 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 	// Initialize depth stencil state.
 	m_depthStencilState = createDepthStencilState( *device.Get() );
 	// Initialize blend states.
-	m_blendStateForMeshRendering = createBlendStateForMeshRendering( *device.Get() );
-	m_blendStateForTextRendering = createBlendStateForTextRendering( *device.Get() );
+	m_blendStateForMeshRendering            = createBlendStateForMeshRendering( *device.Get() );
+    m_blendStateForTransparentMeshRendering = createBlendStateForTransparentMeshRendering( *device.Get() );
+	m_blendStateForTextRendering            = createBlendStateForTextRendering( *device.Get() );
 
 	createRenderTargets( imageWidth, imageHeight, *device.Get() );
 
@@ -106,12 +108,47 @@ void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& wor
 		m_rendererCore.enableRenderingShaders( m_blockMeshVertexShader, m_blockMeshFragmentShader );
 	}
 
-	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get( ) );
-	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get( ) );
-	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get( ) );
+	m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
+	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
+	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
 	// Draw mesh.
 	m_rendererCore.draw( mesh );
+}
+
+void Direct3DDeferredRenderer::renderEmissive( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode )
+{
+    if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::renderEmissive - renderer not initialized." );
+
+    { // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+
+        renderTargetsF4.push_back( m_normalRenderTarget );
+        renderTargetsF4.push_back( m_positionRenderTarget );
+        renderTargetsU1.push_back( m_metalnessRenderTarget );
+        renderTargetsU1.push_back( m_roughnessRenderTarget );
+        renderTargetsU1.push_back( m_indexOfRefractionRenderTarget );
+        renderTargetsU4.push_back( m_emissiveRenderTarget );
+        renderTargetsU4.push_back( m_albedoRenderTarget );
+
+        m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
+    }
+
+    { // Configure and set shaders.
+        m_blockMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix );
+
+        m_rendererCore.enableRenderingShaders( m_blockMeshVertexShader, m_blockMeshEmissiveFragmentShader );
+    }
+
+    m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
+    m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
+    m_rendererCore.enableBlendState( *m_blendStateForTransparentMeshRendering.Get() );
+
+    // Draw mesh.
+    m_rendererCore.draw( mesh );
 }
 
 void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const bool wireframeMode )
@@ -152,6 +189,7 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
 void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive, const bool wireframeMode )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
+    if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -471,7 +509,8 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForMeshRender
 
 	// Disable blending for all render targets.
 	const int maxRenderTargetCount = 8;
-	for ( int i = 0; i < maxRenderTargetCount; ++i ) {
+	for ( int i = 0; i < maxRenderTargetCount; ++i ) 
+    {
 		blendDesc.RenderTarget[ i ].BlendEnable           = false;
 		blendDesc.RenderTarget[ i ].SrcBlend              = D3D11_BLEND_ONE;
 		blendDesc.RenderTarget[ i ].DestBlend             = D3D11_BLEND_ZERO;
@@ -486,6 +525,36 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForMeshRender
 	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createBlendStateForMeshRendering - creation of blend state failed." );
 
 	return blendState;
+}
+
+ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTransparentMeshRendering( ID3D11Device& device )
+{
+    ComPtr<ID3D11BlendState> blendState;
+    D3D11_BLEND_DESC         blendDesc;
+
+    ZeroMemory( &blendDesc, sizeof( blendDesc ) );
+
+    blendDesc.AlphaToCoverageEnable = false;
+    blendDesc.IndependentBlendEnable = false; // Use same blend settings for each render target (as for render target 0).
+
+    // Enable blending for all render targets.
+    const int maxRenderTargetCount = 8;
+    for ( int i = 0; i < maxRenderTargetCount; ++i ) 
+    {
+        blendDesc.RenderTarget[ i ].BlendEnable           = true;
+        blendDesc.RenderTarget[ i ].SrcBlend              = D3D11_BLEND_SRC_ALPHA;
+        blendDesc.RenderTarget[ i ].DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;
+        blendDesc.RenderTarget[ i ].BlendOp               = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[ i ].SrcBlendAlpha         = D3D11_BLEND_ONE;
+        blendDesc.RenderTarget[ i ].DestBlendAlpha        = D3D11_BLEND_ZERO;
+        blendDesc.RenderTarget[ i ].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[ i ].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    }
+
+    HRESULT result = device.CreateBlendState( &blendDesc, blendState.ReleaseAndGetAddressOf() );
+    if ( result < 0 ) throw std::exception( "Direct3DRenderer::createBlendStateForMeshRendering - creation of blend state failed." );
+
+    return blendState;
 }
 
 ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRendering( ID3D11Device& device )
@@ -575,6 +644,7 @@ void Direct3DDeferredRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
 	m_blockMeshVertexShader->compileFromFile( "Shaders/BlockMeshShader/vs.hlsl", device );
 	m_blockMeshFragmentShader->compileFromFile( "Shaders/BlockMeshShader/ps.hlsl", device );
+    m_blockMeshEmissiveFragmentShader->compileFromFile( "Shaders/BlockMeshShader/ps_emissive.hlsl", device );
 
 	m_skeletonMeshVertexShader->compileFromFile( "Shaders/SkeletonMeshShader/vs.hlsl", device );
 	m_skeletonMeshFragmentShader->compileFromFile( "Shaders/SkeletonMeshShader/ps.hlsl", device );

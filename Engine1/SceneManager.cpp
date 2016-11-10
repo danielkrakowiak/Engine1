@@ -69,6 +69,11 @@ std::vector< std::shared_ptr< SkeletonActor > >& SceneManager::getSelectedSkelet
     return m_selectedSkeletonActors;
 }
 
+std::shared_ptr< BlockMesh > SceneManager::getSelectionVolumeMesh()
+{
+    return m_selectionVolumeMesh;
+}
+
 void SceneManager::loadCamera( std::string path )
 {
     m_camera = *FreeCamera::createFromFile( path );
@@ -527,14 +532,14 @@ SceneManager::pickActorOrLight( const float2& targetPixel, const float screenWid
     bool  hitOccurred = false;
     float hitDistance = FLT_MAX;
 
-    for ( const std::shared_ptr< Light >& light : m_scene->getLights() ) {
-        float3 boxMinLocal( -0.25f, -0.25f, -0.25f );
-        float3 boxMaxLocal( 0.25f, 0.25f, 0.25f );
+    for ( const std::shared_ptr< Light >& light : m_scene->getLights() ) 
+    {
+        BoundingBox bbBoxLocal( float3( -0.25f, -0.25f, -0.25f ), float3( 0.25f, 0.25f, 0.25f ) );
 
         float43 pose = float43::IDENTITY;
         pose.setTranslation( light->getPosition() );
 
-        std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, pose, boxMinLocal, boxMaxLocal );
+        std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, pose, bbBoxLocal );
 
         if ( hitOccurred && hitDistance < minHitDistance ) {
             minHitDistance = hitDistance;
@@ -542,7 +547,8 @@ SceneManager::pickActorOrLight( const float2& targetPixel, const float screenWid
         }
     }
 
-    for ( const std::shared_ptr< Actor >& actor : m_scene->getActors() ) {
+    for ( const std::shared_ptr< Actor >& actor : m_scene->getActors() ) 
+    {
         if ( actor->getType() == Actor::Type::BlockActor ) {
             const std::shared_ptr< BlockActor >& blockActor = std::static_pointer_cast<BlockActor>( actor );
             if ( !blockActor->getModel() || !blockActor->getModel()->getMesh() )
@@ -559,10 +565,9 @@ SceneManager::pickActorOrLight( const float2& targetPixel, const float screenWid
             if ( !skeletonActor->getModel() || !skeletonActor->getModel()->getMesh() )
                 continue;
 
-            float3 boxMinLocal, boxMaxLocal;
-            std::tie( boxMinLocal, boxMaxLocal ) = skeletonActor->getModel()->getMesh()->getBoundingBox();
+            const BoundingBox bbBoxLocal = skeletonActor->getModel()->getMesh()->getBoundingBox();
 
-            std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, skeletonActor->getPose(), boxMinLocal, boxMaxLocal );
+            std::tie( hitOccurred, hitDistance ) = MathUtil::intersectRayWithBoundingBox( rayOriginWorld, rayDirWorld, skeletonActor->getPose(), bbBoxLocal );
 
             if ( hitOccurred && hitDistance < minHitDistance ) {
                 minHitDistance = hitDistance;
@@ -861,6 +866,8 @@ void SceneManager::selectActor( std::shared_ptr< Actor > actor )
         else
             m_selectedSkeletonActors.push_back( std::static_pointer_cast< SkeletonActor >( actor ) );
     }
+
+    recalculateSelectionVolume();
 }
 
 void SceneManager::unselectActor( std::shared_ptr< Actor > actor )
@@ -879,6 +886,8 @@ void SceneManager::unselectActor( std::shared_ptr< Actor > actor )
         if ( it != m_selectedSkeletonActors.end() )
             m_selectedSkeletonActors.erase( it );
     }
+
+    recalculateSelectionVolume();
 }
 
 bool SceneManager::isLightSelected( std::shared_ptr< Light > light )
@@ -898,6 +907,55 @@ void SceneManager::unselectLight( std::shared_ptr< Light > light )
 
     if ( it != m_selectedLights.end() )
         m_selectedLights.erase( it );
+}
+
+void SceneManager::selectNext()
+{
+    std::shared_ptr< Actor > selectedActor;
+    std::shared_ptr< Light > selectedLight;
+
+    if ( m_selectedBlockActors.size() == 1 && m_selectedSkeletonActors.empty() && m_selectedLights.empty() )
+        selectedActor = m_selectedBlockActors[ 0 ];
+    else if ( m_selectedSkeletonActors.size() == 1 && m_selectedBlockActors.empty() && m_selectedLights.empty() )
+        selectedActor = m_selectedSkeletonActors[ 0 ];
+    else if ( m_selectedLights.size() == 1 && m_selectedBlockActors.empty() && m_selectedSkeletonActors.empty() )
+        selectedLight = m_selectedLights[ 0 ];
+
+    if ( selectedActor )
+    {
+        auto& it = m_scene->getActors().find( selectedActor );
+
+        if ( it == m_scene->getActors().end() ) 
+            return;
+
+        if ( ++it == m_scene->getActors().end() )
+            it = m_scene->getActors().begin();
+
+        clearSelection();
+
+        if ( selectedActor->getType() == Actor::Type::BlockActor )
+            m_selectedBlockActors.push_back( std::static_pointer_cast< BlockActor >( *it ) );
+        else if ( selectedActor->getType() == Actor::Type::SkeletonActor )
+            m_selectedSkeletonActors.push_back( std::static_pointer_cast< SkeletonActor >( *it ) );
+    }
+    else if ( selectedLight )
+    {
+        auto& it = m_scene->getLights().find( selectedLight );
+
+        if ( it == m_scene->getLights().end() )
+            return;
+
+        if ( ++it == m_scene->getLights().end() )
+            it = m_scene->getLights().begin();
+
+        clearSelection();
+
+        m_selectedLights.push_back( *it );
+    }
+}
+
+void SceneManager::selectPrev()
+{
 }
 
 void SceneManager::deleteSelected()
@@ -978,5 +1036,129 @@ void SceneManager::cloneSelectedActors()
         newSkeletonActors.push_back( std::make_shared< SkeletonActor >( *actor ) ); // Clone the actor.
         newSkeletonActors.back()->setModel( std::make_shared< SkeletonModel >( *actor->getModel() ) ); // Clone it's model.
         m_scene->addActor( newSkeletonActors.back() );
+    }
+}
+
+void SceneManager::recreateSelectionVolumeMesh()
+{
+    const int  vertexCount      = 8;
+    const int  texcoordSetCount = 1;
+    const int  triangleCount    = 12; 
+    const bool hasNormals       = false;
+
+    auto mesh = std::make_shared< BlockMesh >( vertexCount, hasNormals, texcoordSetCount, triangleCount );
+
+    auto& vertices  = mesh->getVertices();
+    auto& texcoords = mesh->getTexcoords( 0 );
+    texcoords.resize( vertexCount );
+    auto& triangles = mesh->getTriangles();
+
+    const float3& localMin = m_selectionVolume.getMin();
+    const float3& localMax = m_selectionVolume.getMax();
+
+    vertices[ 0 ] = localMin;
+    vertices[ 1 ] = float3( localMax.x, localMin.y, localMin.z );
+    vertices[ 2 ] = float3( localMax.x, localMin.y, localMax.z );
+    vertices[ 3 ] = float3( localMin.x, localMin.y, localMax.z );
+    vertices[ 4 ] = float3( localMin.x, localMax.y, localMin.z );
+    vertices[ 5 ] = float3( localMax.x, localMax.y, localMin.z );
+    vertices[ 6 ] = localMax;
+    vertices[ 7 ] = float3( localMin.x, localMax.y, localMax.z );
+
+    for ( auto& texcoord : texcoords)
+        texcoord = float2( 0.5f, 0.5f );
+
+    triangles[ 0 ]  = uint3( 0, 4, 5 );
+    triangles[ 1 ]  = uint3( 0, 5, 1 );
+    triangles[ 2 ]  = uint3( 3, 7, 4 );
+    triangles[ 3 ]  = uint3( 3, 4, 0 );
+    triangles[ 4 ]  = uint3( 2, 6, 7 );
+    triangles[ 5 ]  = uint3( 2, 7, 3 );
+    triangles[ 6 ]  = uint3( 1, 5, 6 );
+    triangles[ 7 ]  = uint3( 1, 6, 2 );
+    triangles[ 8 ]  = uint3( 4, 7, 6 );
+    triangles[ 9 ]  = uint3( 4, 6, 5 );
+    triangles[ 10 ] = uint3( 3, 0, 1 );
+    triangles[ 11 ] = uint3( 3, 1, 2 );
+
+    mesh->recalculateBoundingBox();
+    mesh->loadCpuToGpu( *m_device.Get() );
+
+    m_selectionVolumeMesh = mesh;
+}
+
+void SceneManager::recalculateSelectionVolume()
+{
+    float3 worldMin( FLT_MAX, FLT_MAX, FLT_MAX );
+    float3 worldMax( -FLT_MAX, -FLT_MAX, -FLT_MAX );
+
+    for ( auto& actor : m_selectedBlockActors ) 
+    {
+        if ( !actor->getModel() || !actor->getModel()->getMesh() )
+            continue;
+
+        const BoundingBox localBoundingBox = actor->getModel()->getMesh()->getBoundingBox();
+        const BoundingBox worldBoundingBox = MathUtil::boundingBoxLocalToWorld( localBoundingBox, actor->getPose() );
+            
+        worldMin = min( worldMin, worldBoundingBox.getMin() );
+        worldMax = max( worldMax, worldBoundingBox.getMax() );
+    }
+
+    m_selectionVolume.set( worldMin, worldMax );
+
+    recreateSelectionVolumeMesh();
+}
+
+void SceneManager::modifySelectionVolume( const float3 minChange, const float3 maxChange )
+{
+}
+
+void SceneManager::selectAllInsideSelectionVolume()
+{
+    clearSelection();
+
+    for ( auto& actor : m_scene->getActors() ) 
+    {
+        if ( actor->getType() == Actor::Type::BlockActor ) 
+        {
+            const auto& blockActor = std::static_pointer_cast< BlockActor >( actor );
+
+            if ( !blockActor->getModel() || !blockActor->getModel()->getMesh() )
+                continue;
+
+            const BoundingBox bbBoxLocal = blockActor->getModel()->getMesh()->getBoundingBox();
+            const BoundingBox bbBoxWorld = MathUtil::boundingBoxLocalToWorld( bbBoxLocal, blockActor->getPose() );
+
+            if ( MathUtil::intersectBoundingBoxes( m_selectionVolume, bbBoxWorld ) )
+                m_selectedBlockActors.push_back( blockActor );
+        }
+        else if ( actor->getType() == Actor::Type::SkeletonActor )
+        {
+            const auto& skeletonActor = std::static_pointer_cast< SkeletonActor >( actor );
+
+            if ( !skeletonActor->getModel() || !skeletonActor->getModel()->getMesh() )
+                continue;
+
+            const BoundingBox bbBoxLocal = skeletonActor->getModel()->getMesh()->getBoundingBox();
+            const BoundingBox bbBoxWorld = MathUtil::boundingBoxLocalToWorld( bbBoxLocal, skeletonActor->getPose() );
+
+            if ( MathUtil::intersectBoundingBoxes( m_selectionVolume, bbBoxWorld ) )
+                m_selectedSkeletonActors.push_back( skeletonActor );
+        }
+    }
+}
+
+void SceneManager::rebuildBoundingBoxAndBVH()
+{
+    for ( auto& actor : m_selectedBlockActors ) 
+    {
+        if ( !actor->getModel() || !actor->getModel()->getMesh() )
+            continue;
+
+        actor->getModel()->getMesh()->recalculateBoundingBox();
+        actor->getModel()->getMesh()->buildBvhTree();
+
+        actor->getModel()->getMesh()->unloadBvhTreeFromGpu();
+        actor->getModel()->getMesh()->loadBvhTreeToGpu( *m_device.Get() );
     }
 }

@@ -3,6 +3,7 @@
 #include "MathUtil.h"
 
 #include <algorithm>
+#include <array>
 
 #include "BlockActor.h"
 #include "BlockModel.h"
@@ -72,6 +73,11 @@ bool MathUtil::areEqual( quat A, quat B, float maxRelDiff, float maxAbsDiff )
 		&& areEqual( A.x, B.x, maxAbsDiff, maxRelDiff )
 		&& areEqual( A.y, B.y, maxAbsDiff, maxRelDiff )
 		&& areEqual( A.z, B.z, maxAbsDiff, maxRelDiff );
+}
+
+float MathUtil::sign( const float x )
+{
+    return (float)((x > 0) - (x < 0));
 }
 
 float44 MathUtil::lookAtTransformation( float3 at, float3 eye, float3 up ) {
@@ -165,12 +171,12 @@ float3 MathUtil::rotationMatrixToAngles( const float33& mat ) {
 	return rot;
 }
 
-std::tuple<float3, float3> MathUtil::calculateBoundingBox( const std::vector<float3>& vertices )
+BoundingBox MathUtil::calculateBoundingBox( const std::vector< float3 >& vertices )
 {
     // Note: Could be optimized if needed.
 
     if ( vertices.empty() )
-        return std::make_tuple( float3::ZERO, float3::ZERO );
+        return BoundingBox();
 
     float3 bbMin(  FLT_MAX,  FLT_MAX,  FLT_MAX );
     float3 bbMax( -FLT_MAX, -FLT_MAX, -FLT_MAX );
@@ -181,7 +187,7 @@ std::tuple<float3, float3> MathUtil::calculateBoundingBox( const std::vector<flo
         bbMax = max( bbMax, vertex );
     }
 
-    return std::make_tuple( bbMin, bbMax );
+    return BoundingBox( bbMin, bbMax );
 }
 
 float3 MathUtil::getRayDirectionAtPixel( const float43& cameraPose, const float2& targetPixel,
@@ -207,7 +213,7 @@ float3 MathUtil::getRayDirectionAtPixel( const float43& cameraPose, const float2
     return rayDir;
 }
 
-std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& rayOriginWorld, const float3& rayDirWorld, const float43& boxPose, const float3& boxMinLocal, const float3& boxMaxLocal )
+std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& rayOriginWorld, const float3& rayDirWorld, const float43& boxPose, const BoundingBox& bbBoxLocal )
 {
     const float43 boxPoseInverse = boxPose.getScaleOrientationTranslationInverse(); 
 
@@ -215,16 +221,16 @@ std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& r
     float3 rayDirLocal    = ( (rayOriginWorld + rayDirWorld) * boxPoseInverse ) - rayOriginLocal;
 
     // Transform ray to box's local space and check for intersection.
-    return intersectRayWithBoundingBox( rayOriginLocal, rayDirLocal, boxMinLocal, boxMaxLocal );
+    return intersectRayWithBoundingBox( rayOriginLocal, rayDirLocal, bbBoxLocal );
 }
 
-std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& rayOriginInBoxSpace, const float3& rayDirInBoxSpace, const float3& boxMinLocal, const float3& boxMaxLocal )
+std::tuple< bool, float > MathUtil::intersectRayWithBoundingBox( const float3& rayOriginInBoxSpace, const float3& rayDirInBoxSpace, const BoundingBox& bbBox )
 {
     float tmin = -FLT_MAX;
 	float tmax =  FLT_MAX;
  
-	const float3 t1 = ( boxMinLocal - rayOriginInBoxSpace ) / rayDirInBoxSpace;
-	const float3 t2 = ( boxMaxLocal - rayOriginInBoxSpace ) / rayDirInBoxSpace;
+	const float3 t1 = ( bbBox.getMin() - rayOriginInBoxSpace ) / rayDirInBoxSpace;
+	const float3 t2 = ( bbBox.getMax() - rayOriginInBoxSpace ) / rayDirInBoxSpace;
  
 	tmin = std::max(tmin, std::min(t1.x, t2.x));
 	tmax = std::min(tmax, std::max(t1.x, t2.x));
@@ -253,12 +259,11 @@ std::tuple< bool, float > MathUtil::intersectRayWithBlockActor( const float3& ra
     const float3 rayOriginLocal = rayOriginWorld * worldToLocalMatrix;
     const float3 rayDirLocal    = ((rayOriginWorld + rayDirWorld) * worldToLocalMatrix) - rayOriginLocal;
 
-    float3 bbMin, bbMax;
-    std::tie( bbMin, bbMax ) = mesh.getBoundingBox();
+    const BoundingBox bbBox = mesh.getBoundingBox();
     
     bool  bbHit         = false;
     float bbHitDistance = FLT_MAX;;
-    std::tie( bbHit, bbHitDistance ) = intersectRayWithBoundingBox( rayOriginLocal, rayDirLocal, bbMin, bbMax );
+    std::tie( bbHit, bbHitDistance ) = intersectRayWithBoundingBox( rayOriginLocal, rayDirLocal, bbBox );
 
     if ( !bbHit || bbHitDistance > maxDist )
         return std::make_tuple( false, 0.0f );
@@ -317,4 +322,49 @@ float MathUtil::calcDistToTriangle( const float3& rayOrigin, const float3& rayDi
 bool MathUtil::isPowerOfTwo( unsigned int number )
 {
     return number != 0 && !( number & ( number - 1 ) );
+}
+
+BoundingBox MathUtil::boundingBoxLocalToWorld( const BoundingBox& bboxInLocalSpace, const float43& bboxPose )
+{
+    const float3 localMin = bboxInLocalSpace.getMin();
+    const float3 localMax = bboxInLocalSpace.getMax();
+
+    float3 worldMin( FLT_MAX, FLT_MAX, FLT_MAX );
+    float3 worldMax( -FLT_MAX, -FLT_MAX, -FLT_MAX );
+
+    std::array< float3, 8 > vertexWorldPositions;
+
+    // Calculate vertex positions in world space for all 8 corners of the bounding box.
+    vertexWorldPositions[ 0 ] = localMin * bboxPose;
+    vertexWorldPositions[ 1 ] = float3( localMax.x, localMin.y, localMin.z ) * bboxPose;
+    vertexWorldPositions[ 2 ] = float3( localMax.x, localMin.y, localMax.z ) * bboxPose;
+    vertexWorldPositions[ 3 ] = float3( localMin.x, localMin.y, localMax.z ) * bboxPose;
+    vertexWorldPositions[ 4 ] = float3( localMin.x, localMax.y, localMin.z ) * bboxPose;
+    vertexWorldPositions[ 5 ] = float3( localMax.x, localMax.y, localMin.z ) * bboxPose;
+    vertexWorldPositions[ 6 ] = localMax * bboxPose;
+    vertexWorldPositions[ 7 ] = float3( localMin.x, localMax.y, localMax.z ) * bboxPose;
+
+    for ( const float3& vertexPosition : vertexWorldPositions ) {
+        worldMin = min( worldMin, vertexPosition );
+        worldMax = max( worldMax, vertexPosition );
+    }
+
+    return BoundingBox( worldMin, worldMax );
+}
+
+bool MathUtil::intersectBoundingBoxes( const BoundingBox& bbBox1, const BoundingBox& bbBox2 )
+{
+    const float3& min1 = bbBox1.getMin();
+    const float3& max1 = bbBox1.getMax();
+    const float3& min2 = bbBox2.getMin();
+    const float3& max2 = bbBox2.getMax();
+
+    if ( max1.x < min2.x ) return false;
+    if ( min1.x > max2.x ) return false;
+    if ( max1.y < min2.y ) return false;
+    if ( min1.y > max2.y ) return false;
+    if ( max1.z < min2.z ) return false;
+    if ( min1.z > max2.z ) return false;
+
+    return true;
 }

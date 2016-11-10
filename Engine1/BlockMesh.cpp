@@ -92,9 +92,7 @@ std::vector< std::shared_ptr<BlockMesh> > BlockMesh::createFromMemory( std::vect
     return MeshFileParser::parseBlockMeshFile( format, dataIt, dataEndIt, invertZCoordinate, invertVertexWindingOrder, flipUVs );
 }
 
-BlockMesh::BlockMesh() :
-m_boundingBoxMin( float3::ZERO ),
-m_boundingBoxMax( float3::ZERO )
+BlockMesh::BlockMesh()
 {}
 
 BlockMesh::BlockMesh( const int vertexCount, const bool hasNormalsTangents, const int texcoordsSetCount, const int triangleCount )
@@ -356,6 +354,9 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif
 	}
+
+    if ( getBvhTree() )
+        loadBvhTreeToGpu( device );
 }
 
 void BlockMesh::loadGpuToCpu()
@@ -580,18 +581,19 @@ ID3D11ShaderResourceView* BlockMesh::getTriangleBufferResource() const
 
 void BlockMesh::recalculateBoundingBox()
 {
-    std::tie( m_boundingBoxMin, m_boundingBoxMax ) = MathUtil::calculateBoundingBox( m_vertices );
+    m_boundingBox = MathUtil::calculateBoundingBox( m_vertices );
 }
 
-std::tuple<float3, float3> BlockMesh::getBoundingBox() const
+BoundingBox BlockMesh::getBoundingBox() const
 {
-    return std::make_tuple(m_boundingBoxMin, m_boundingBoxMax);
+    return m_boundingBox;
 }
 
 void BlockMesh::buildBvhTree()
 {
     std::shared_ptr< BVHTree > bvhTree = std::make_shared< BVHTree >( *this );
-    m_bvhTree                    = std::make_shared< BVHTreeBuffer >( *bvhTree );
+   
+    m_bvhTree = std::make_shared< BVHTreeBuffer >( *bvhTree );
 
     reorganizeTrianglesToMatchBvhTree();
 
@@ -696,6 +698,13 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device )
         Direct3DUtil::setResourceName( *m_bvhTreeBufferTrianglesGpu.Get(), resourceName );
 #endif
 	}
+}
+
+void BlockMesh::unloadBvhTreeFromGpu()
+{
+    m_bvhTreeBufferNodesGpu.Reset();
+    m_bvhTreeBufferNodesExtentsGpu.Reset();
+    m_bvhTreeBufferTrianglesGpu.Reset();
 }
 
 std::shared_ptr< const BVHTreeBuffer > BlockMesh::getBvhTree() const

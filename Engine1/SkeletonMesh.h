@@ -14,6 +14,7 @@
 #include "Asset.h"
 #include "SkeletonMeshEnums.h"
 #include "SkeletonMeshFileInfo.h"
+#include "BoundingBox.h"
 
 struct ID3D11Buffer;
 struct ID3D11Device;
@@ -124,7 +125,7 @@ namespace Engine1
 
         void recalculateBoundingBox();
         // Returns <min, max> of the bounding box.
-        std::tuple<float3, float3> getBoundingBox() const;
+        BoundingBox getBoundingBox() const;
 
         private:
 
@@ -151,8 +152,7 @@ namespace Engine1
 
         std::vector< Bone > m_bones;
 
-        float3 m_boundingBoxMin;
-        float3 m_boundingBoxMax;
+        BoundingBox m_boundingBox;
 
         // Copying mesh in not allowed.
         SkeletonMesh( const SkeletonMesh& ) = delete;

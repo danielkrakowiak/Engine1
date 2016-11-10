@@ -12,6 +12,8 @@
 #include "float44.h"
 #include "uint3.h"
 
+#include "BoundingBox.h"
+
 //#TODO: use const references in arguments where possible.
 
 namespace Engine1
@@ -47,6 +49,8 @@ namespace Engine1
         bool areEqual( float4 A, float4 B, float maxRelDiff = 0.0f, float maxAbsDiff = epsilonFive );
         bool areEqual( quat A, quat B, float maxRelDiff = 0.0f, float maxAbsDiff = epsilonFive );
 
+        float sign( const float x );
+
         float44 lookAtTransformation( float3 at, float3 eye, float3 up );
 
         float44 perspectiveProjectionTransformation( float fovY, float aspect, float zNear, float zFar );
@@ -58,15 +62,15 @@ namespace Engine1
         float3 rotationMatrixToAngles( const float33& mat );
 
         // Returns <min, max> of the bounding box.
-        std::tuple<float3, float3> calculateBoundingBox( const std::vector<float3>& vertices );
+        BoundingBox calculateBoundingBox( const std::vector<float3>& vertices );
 
         float3 getRayDirectionAtPixel( const float43& cameraPose, const float2& targetPixel,
                                        const float2& screenDimensions, const float fieldOfView );
 
         // Returns true if the ray intersects the box and returns the distance of the intersection.
         // Returns false if there is no intersection.
-        std::tuple< bool, float > intersectRayWithBoundingBox( const float3& rayOriginWorld, const float3& rayDirWorld, const float43& boxPose, const float3& boxMinLocal, const float3& boxMaxLocal );
-        std::tuple< bool, float > intersectRayWithBoundingBox( const float3& rayOriginInBoxSpace, const float3& rayDirInBoxSpace, const float3& boxMinLocal, const float3& boxMaxLocal );
+        std::tuple< bool, float > intersectRayWithBoundingBox( const float3& rayOriginWorld, const float3& rayDirWorld, const float43& boxPose, const BoundingBox& bbBoxLocal );
+        std::tuple< bool, float > intersectRayWithBoundingBox( const float3& rayOriginInBoxSpace, const float3& rayDirInBoxSpace, const BoundingBox& bbBox );
 
         std::tuple< bool, float > intersectRayWithBlockActor( const float3& rayOriginWorld, const float3& rayDirWorld, const BlockActor& actor, const float maxDist = FLT_MAX );
 
@@ -74,5 +78,9 @@ namespace Engine1
         float calcDistToTriangle( const float3& rayOrigin, const float3& rayDir, const float3& vertexPos1, const float3& vertexPos2, const float3& vertexPos3 );
 
         bool isPowerOfTwo( unsigned int number );
+
+        BoundingBox boundingBoxLocalToWorld( const BoundingBox& bboxInLocalSpace, const float43& bboxPose );
+
+        bool intersectBoundingBoxes( const BoundingBox& bbBox1, const BoundingBox& bbBox2 );
     }
 }

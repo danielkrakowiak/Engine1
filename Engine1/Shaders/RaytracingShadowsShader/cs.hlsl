@@ -33,6 +33,7 @@ SamplerState      g_samplerState;
 // Input / Output.
 RWTexture2D<uint>  g_illumination    : register( u0 );
 
+bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint index );
 float3x3 readVerticesPos( const uint3 vertices_index );
@@ -45,7 +46,7 @@ float2   calcInterpolatedTexCoords( const float3 barycentricCoords, const float2
 
 static const float requiredContributionTerm = 0.35f; // Discard rays which color is visible in less than 5% by the camera.
 
-static const float minHitDist = 0.01f;
+static const float minHitDist = 0.001f;
 
 static const float lightSampleCount = 64;
 static const float lightSampleCountPerSide = sqrt( lightSampleCount );
@@ -90,8 +91,12 @@ void main( uint3 groupId : SV_GroupID,
 	const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
 	const float3 lightUp   = cross( lightDir, lightSide );
 
-	// Transform the ray from world to local space.
-	const float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
+	// Offset to avoid self-collision. 
+    // Note: Is it useful? We still need to check against the "origin triangle" and ignore by intersection distance... Or not?
+    const float3 rayOriginOffset = rayDirBase * 0.001f; 
+    
+                                                        // Transform the ray from world to local space.
+	const float4 rayOriginLocal = mul( float4( rayOrigin + rayOriginOffset, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
 
 	//for ( float x = -lightSizeHalf; x <= lightSizeHalf; x += lightSizeStep )
 	//{
@@ -104,7 +109,7 @@ void main( uint3 groupId : SV_GroupID,
 	const float4 rayDirLocal  = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
 
 	// Test the ray against the bounding box
-	if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, boundingBoxMin, boundingBoxMax ) ) 
+	if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, rayMaxLength, boundingBoxMin, boundingBoxMax ) ) 
 	{
 		//output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
 		bool hit = false;
@@ -161,10 +166,10 @@ void main( uint3 groupId : SV_GroupID,
 					{
 						const float dist = calcDistToTriangle( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos );
 
-						//#TODO: Maybe could ignore calculating distance - it's only to avoid self-collision.
+						//#TODO: Maybe could ignore calculating distance - it's only to avoid self-collision (or not.. - triangles behind the ray origin).
 						if ( dist > minHitDist && dist < rayMaxLength )
 						{
-                            if ( !isOpaque )
+                              if ( !isOpaque )
                             {
                                 const float3 hitPos               = rayOriginLocal.xyz + rayDirLocal.xyz * dist;
                                 const float3 hitBarycentricCoords = calcBarycentricCoordsInTriangle( hitPos, verticesPos );
@@ -202,6 +207,24 @@ void main( uint3 groupId : SV_GroupID,
     g_illumination[ dispatchThreadId.xy ] = (uint)( max( 0.0f, illumination ) * 255.0f );
 }
 
+bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax )
+{
+	float tmin = -15000.0f;
+	float tmax =  15000.0f;
+ 
+	float3 t1 = ( boxMin - rayOrigin ) / rayDir;
+	float3 t2 = ( boxMax - rayOrigin ) / rayDir;
+ 
+	tmin = max(tmin, min(t1.x, t2.x));
+	tmax = min(tmax, max(t1.x, t2.x));
+	tmin = max(tmin, min(t1.y, t2.y));
+	tmax = min(tmax, max(t1.y, t2.y));
+	tmin = max(tmin, min(t1.z, t2.z));
+	tmax = min(tmax, max(t1.z, t2.z));
+
+    return ( tmax > 0.0f && tmax >= tmin && tmin < rayLength );
+}
+
 bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax )
 {
 	float tmin = -15000.0f;
@@ -217,7 +240,7 @@ bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 
 	tmin = max(tmin, min(t1.z, t2.z));
 	tmax = min(tmax, max(t1.z, t2.z));
 
-    return ( tmax >= tmin && tmax > 0.0f );
+    return ( tmax > 0.0f && tmax >= tmin );
 }
 
 uint3 readTriangle( const uint index ) 
@@ -272,6 +295,11 @@ bool rayTriangleIntersect( const float3 rayOrigin, const float3 rayDir, const fl
     const float dot1 = dot( rayDir, cross( vertices[0] - rayOrigin, vertices[1] - rayOrigin ));
 	const float dot2 = dot( rayDir, cross( vertices[1] - rayOrigin, vertices[2] - rayOrigin ));
 	const float dot3 = dot( rayDir, cross( vertices[2] - rayOrigin, vertices[0] - rayOrigin ));
+
+    // TODO OPTIMIZATION: Disabling backface culling is required only for meshes which have holes or are flat surfaces 
+    // (even flat surfaces can have two quads in the same place). Maybe there should be a flag for that or a special shader version?
+    // Or maybe such meshes should be forbidden..
+    // But it doesn't make a difference when profiling... Maybe because we are memory bound. Worth checking from time to time..
 
     // Without backface culling:
     return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );

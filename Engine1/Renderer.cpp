@@ -97,7 +97,8 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
                        const bool wireframeMode,
                        const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                        const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-                       const std::vector< std::shared_ptr< Light > >& selectedLights )
+                       const std::vector< std::shared_ptr< Light > >& selectedLights,
+                       const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
     bool frameReceived = false;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
@@ -134,7 +135,7 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) 
         = renderMainImage( scene, camera, lightsCastingShadows, lightsNotCastingShadows, m_activeViewLevel, m_activeViewType, wireframeMode,
-                           selectedBlockActors, selectedSkeletonActors, selectedLights );
+                           selectedBlockActors, selectedSkeletonActors, selectedLights, selectionVolumeMesh );
     
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -182,7 +183,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                            const bool wireframeMode,
                            const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                            const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-                           const std::vector< std::shared_ptr< Light > >& selectedLights )
+                           const std::vector< std::shared_ptr< Light > >& selectedLights,
+                           const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
     float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
 
@@ -238,6 +240,10 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.render( *m_lightModel, lightPose, viewMatrix, extraEmissive );
         }
     }
+
+    // Render selection volume.
+    if ( selectionVolumeMesh )
+        m_deferredRenderer.renderEmissive( *selectionVolumeMesh, float43::IDENTITY, viewMatrix, false );
 
     m_profiler.endEvent( Profiler::GlobalEventType::DeferredRendering );
 

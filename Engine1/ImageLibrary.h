@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FreeImagePlus.h"
+#include "FreeImage/FreeImagePlus.h"
 
 /* 
 This class is used to initialize/deinitialize FreeImage library.

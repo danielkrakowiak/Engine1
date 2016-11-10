@@ -1,0 +1,5 @@
+Not useful:
+
+- [Raytracing] Once we check that a mesh's bounding box max_dist and min_dsit along ray are all closer then rayLength there is no point checking it for every triangle... 
+  Not useful because for shadow rays once we intersect any triangle it's probably the end of our work. So we calculate ray distance and run that check only once.
+  For view rays it's also not useful because we calculate intersection distance because we need to know it the intersection occured closer then the previous one.

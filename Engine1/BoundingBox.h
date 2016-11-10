@@ -14,9 +14,9 @@ namespace Engine1
 
         void set(const float3& min, const float3& max);
 
-        float3& getMin();
-        float3& getMax();
-        float3& getCenter();
+        float3 getMin() const;
+        float3 getMax() const;
+        float3 getCenter() const;
 
         private:
 

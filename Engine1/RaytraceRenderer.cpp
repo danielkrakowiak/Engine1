@@ -417,8 +417,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
     {
         const BlockModel& model = *actor->getModel();
 
-        float3 bbMin, bbMax;
-        std::tie( bbMin, bbMax ) = model.getMesh()->getBoundingBox();
+        const BoundingBox bbBox = model.getMesh()->getBoundingBox();
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
             = model.getEmissiveTexturesCount() > 0 ? *model.getEmissiveTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
@@ -439,7 +438,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
             = model.getRefractiveIndexTexturesCount() > 0 ? *model.getRefractiveIndexTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
         m_raytracingPrimaryRaysComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), *getRayDirectionsTexture( 0 ), *actor->getModel()->getMesh(), actor->getPose(),
-                                                           bbMin, bbMax, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
+                                                           bbBox.getMin(), bbBox.getMax(), emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture );
 
         m_rendererCore.compute( groupCount );
     }
@@ -493,8 +492,7 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
 
         const BlockModel& model = *actor->getModel();
 
-        float3 bbMin, bbMax;
-        std::tie( bbMin, bbMax ) = model.getMesh()->getBoundingBox();
+        const BoundingBox bbBox = model.getMesh()->getBoundingBox();
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
             = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
@@ -518,7 +516,7 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
             = model.getRefractiveIndexTexturesCount() > 0 ? *model.getRefractiveIndexTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
 
         m_raytracingSecondaryRaysComputeShader->setParameters( *m_deviceContext.Get(), *m_rayOriginsTexture.at( level ), *m_rayDirectionsTexture.at( level ), *actor->getModel()->getMesh(), actor->getPose(), 
-                                                               bbMin, bbMax, alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture,
+                                                               bbBox.getMin(), bbBox.getMax(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture,
                                                                imageWidth, imageHeight );
 
         m_rendererCore.compute( groupCount );

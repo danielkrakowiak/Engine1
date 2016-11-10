@@ -57,18 +57,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(SolutionDir)\Engine1;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Engine1;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Engine1\x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(SolutionDir)\Engine1;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Engine1;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Engine1\x64\DebugDirect3D;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Engine1\x64\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(SolutionDir)\Engine1;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Engine1;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

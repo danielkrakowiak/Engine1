@@ -310,13 +310,26 @@ Idea:
 
 	  NOW:
 
-	  - slow down camera movement and object manipulation when Ctrl is pressed.
+	  - COMMIT !!!!
 
-	  - volumetric selection - select anything and then press some keys to expand selection volumetrically - as a bounding box. And keep selecting things inside of it...
+	  - VERY IMPORTANT: Is bounding volume test sensitive to ray direction and ray max distance? 
+	  Or is it testing ray forward and backwards? That would be a huge waste of power to test against triangles which have no chance to intersect..
+	  Ignore bounding boxes which are too far!!!! Both for shadows and for view rays (for boxes which are further than current min).
 
-	  - merge all flowers as one mesh.
+	  OPTIMIZATION: When testing shadow rays we know the maximal ray distance we care about... We shouldn't test against nothing furhter than that distance...
 
-	  - maybe add wireframe mode?
+	  - IMPORTANT TEST: How much the shadows would cost if they only used bounindg boxes for tests... Can disable self-shadowing for test..
+	  Because if the cost is very low, then maybe it's not a big optimization to use shadow mapping for hard shadows..?
+
+	  DONE - rotation with some degrees snapping (10?)...
+
+	  DONE - slow down camera movement and object manipulation when Ctrl is pressed.
+
+	  DONE - volumetric selection - select anything and then press some keys to expand selection volumetrically - as a bounding box. And keep selecting things inside of it...
+
+	  DONE - merge all flowers as one mesh.
+
+	  DONE - maybe add wireframe mode?
 
 	  - optimize walls and floor in the text scenes - they have tons of triangles.
 	  - optimize all meshes...
@@ -324,13 +337,6 @@ Idea:
 	  - modify floor UVs - and use nice PBR tile texture
 
 	  - display GPU name and optionally also CPU name on the screen
-
-	  ---- HERE: ->> use TextureType in BlockModel and SkeletonModel to ad/set/get textures and texture sets.
-	  - then refactor merging models to operate on the whole texture sets using loops etc instead of seperate code for each type.
-
-	  PROBLEM: Repeated textures are merged correctly, but as they are the same texture their placement is read incorrectly... How to differantiate them? Or how to avoid the problem?
-
-	  IDEA: When there is only one repeated texture - use a given texture placement - avoid merging alltogether... Add a new method to TextureUtil...
 
 	  BETTER IDEA: Start merging using with the type (albedo, roughness) which has the most unqiue textures. Then use that texture placement for other texture types.
 	  If some merging is not possible (using texcoords, not pixel values) then throw exception.

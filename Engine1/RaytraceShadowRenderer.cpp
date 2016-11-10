@@ -82,15 +82,14 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 		const BlockModel& model = *actor->getModel();
 
-		float3 bbMin, bbMax;
-		std::tie( bbMin, bbMax ) = model.getMesh()->getBoundingBox();
+		const BoundingBox bbBox = model.getMesh()->getBoundingBox();
 
 		const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture
 			= model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
 
 		m_raytracingShadowsComputeShader->setParameters( 
 			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, *actor->getModel()->getMesh(), actor->getPose(),
-			bbMin, bbMax, alphaTexture,	imageWidth, imageHeight 
+			bbBox.getMin(), bbBox.getMax(), alphaTexture,	imageWidth, imageHeight 
 		);
 
 		m_rendererCore.compute( groupCount );

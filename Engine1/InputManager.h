@@ -40,6 +40,7 @@ namespace Engine1
             static const unsigned int ctrl     = 17;
             static const unsigned int capsLock = 20;
             static const unsigned int esc      = 27;
+            static const unsigned int spacebar = 32;
             static const unsigned int left     = 37;
             static const unsigned int up       = 38;
             static const unsigned int right    = 39;

@@ -48,6 +48,7 @@ namespace Engine1
         void disableRenderTargets();
 
         void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode = false );
+        void renderEmissive( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode = false );
         void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const bool wireframeMode = false );
         void render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive = float4::ZERO, const bool wireframeMode = false );
         void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive = float4::ZERO, const bool wireframeMode = false );
@@ -76,12 +77,14 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11RasterizerState>   m_wireframeRasterizerState;
         Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
         Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForMeshRendering;
+        Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForTransparentMeshRendering;
         Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForTextRendering;
 
         Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createRasterizerState( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createWireframeRasterizerState( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11DepthStencilState> createDepthStencilState( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForMeshRendering( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTransparentMeshRendering( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTextRendering( ID3D11Device& device );
 
         // Render targets.
@@ -105,6 +108,7 @@ namespace Engine1
         // Shaders.
         std::shared_ptr<BlockMeshVertexShader>        m_blockMeshVertexShader;
         std::shared_ptr<BlockMeshFragmentShader>      m_blockMeshFragmentShader;
+        std::shared_ptr<BlockMeshFragmentShader>      m_blockMeshEmissiveFragmentShader;
         std::shared_ptr<SkeletonMeshVertexShader>     m_skeletonMeshVertexShader;
         std::shared_ptr<SkeletonMeshFragmentShader>   m_skeletonMeshFragmentShader;
         std::shared_ptr<BlockModelVertexShader>	      m_blockModelVertexShader;

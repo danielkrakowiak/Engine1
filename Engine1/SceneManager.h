@@ -6,6 +6,7 @@
 #include <wrl.h>
 
 #include "FreeCamera.h"
+#include "BoundingBox.h"
 
 #include "Texture2DGeneric.h"
 
@@ -21,6 +22,7 @@ namespace Engine1
     class Scene;
     class Actor;
     class BlockMesh;
+    class BlockModel;
 
     class SceneManager
     {
@@ -36,6 +38,8 @@ namespace Engine1
         std::vector< std::shared_ptr< Light > >&         getSelectedLights();
         std::vector< std::shared_ptr< BlockActor > >&    getSelectedBlockActors();
         std::vector< std::shared_ptr< SkeletonActor > >& getSelectedSkeletonActors();
+
+        std::shared_ptr< BlockMesh > getSelectionVolumeMesh();
 
         void loadCamera( std::string path );
         void saveCamera( std::string path );
@@ -68,6 +72,8 @@ namespace Engine1
         bool isLightSelected( std::shared_ptr< Light > light );
         void selectLight( std::shared_ptr< Light > light );
         void unselectLight( std::shared_ptr< Light > light );
+        void selectNext();
+        void selectPrev();
 
         void deleteSelected();
 
@@ -76,7 +82,12 @@ namespace Engine1
         void cloneInstancesOfSelectedActors();
         void cloneSelectedActors();
 
-        
+        void recreateSelectionVolumeMesh();
+        void recalculateSelectionVolume();
+        void modifySelectionVolume( const float3 minChange, const float3 maxChange );
+        void selectAllInsideSelectionVolume();
+
+        void rebuildBoundingBoxAndBVH();
 
         private:
 
@@ -94,6 +105,9 @@ namespace Engine1
         std::vector< std::shared_ptr< Light > >         m_selectedLights;
         std::vector< std::shared_ptr< BlockActor > >    m_selectedBlockActors;
         std::vector< std::shared_ptr< SkeletonActor > > m_selectedSkeletonActors;
+
+        BoundingBox                   m_selectionVolume;
+        std::shared_ptr< BlockMesh > m_selectionVolumeMesh;
 
         std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > > m_texturesToMerge;
         std::vector< std::shared_ptr< BlockMesh > >                         m_meshesToMerge;

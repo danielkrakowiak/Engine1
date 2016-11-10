@@ -80,9 +80,7 @@ std::vector< std::shared_ptr<SkeletonMesh> > SkeletonMesh::createFromMemory( std
 }
 
 SkeletonMesh::SkeletonMesh() :
-bonesPerVertexCount( BonesPerVertexCount::Type::ZERO ),
-m_boundingBoxMin( float3::ZERO ),
-m_boundingBoxMax( float3::ZERO )
+bonesPerVertexCount( BonesPerVertexCount::Type::ZERO )
 {}
 
 SkeletonMesh::~SkeletonMesh() 
@@ -721,10 +719,10 @@ const SkeletonMesh::Bone& SkeletonMesh::getBone( unsigned char index ) const
 
 void SkeletonMesh::recalculateBoundingBox()
 {
-    std::tie( m_boundingBoxMin, m_boundingBoxMax ) = MathUtil::calculateBoundingBox( m_vertices );
+    m_boundingBox = MathUtil::calculateBoundingBox( m_vertices );
 }
 
-std::tuple<float3, float3> SkeletonMesh::getBoundingBox() const
+BoundingBox SkeletonMesh::getBoundingBox() const
 {
-    return std::make_tuple( m_boundingBoxMin, m_boundingBoxMax );
+    return m_boundingBox;
 }

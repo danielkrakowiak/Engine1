@@ -774,6 +774,9 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="EmissiveBlockMeshFragmentShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1189,6 +1192,9 @@
     <Text Include="Notes2.txt">
       <Filter>Source Files\Notes</Filter>
     </Text>
+    <Text Include="Optimizations.txt">
+      <Filter>Source Files\Notes</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\BlockMeshShader\ps.hlsl">
@@ -1298,6 +1304,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\ShadingNoShadowsShader\cs2.hlsl">
       <Filter>Source Files\Shader\Shading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlockMeshShader\ps_emissive.hlsl">
+      <Filter>Source Files\Shader\BlockMesh</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

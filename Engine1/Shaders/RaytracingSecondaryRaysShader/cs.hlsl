@@ -44,7 +44,7 @@ RWTexture2D<uint>   g_hitIndexOfRefraction : register( u5 );
 RWTexture2D<uint4>  g_hitEmissive          : register( u6 );
 RWTexture2D<uint4>  g_hitAlbedoAlpha       : register( u7 );
 
-bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
+bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint index );
 float3x3 readVerticesPos( const uint3 vertices_index );
 float3x3 readVerticesNormals( const uint3 vertices_index );
@@ -56,7 +56,7 @@ float3   calcBarycentricCoordsInTriangle( const float3 p, const float3x3 vertice
 float3   calcInterpolatedVector(const float3 barycentricCoords, const float3x3 vectors);
 float2   calcInterpolatedTexCoords( const float3 barycentricCoords, const float2x3 verticesTexCoords );
 
-static const float minHitDist = 0.01f;
+static const float minHitDist = 0.001f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -82,13 +82,14 @@ void main( uint3 groupId : SV_GroupID,
 	const float4 rayOriginLocal = mul( float4( rayOrigin, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
 	const float4 rayDirLocal    = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
 
+    float hitDist = g_hitDistance[ dispatchThreadId.xy ];
+
     // Test the ray against the bounding box
-    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, boundingBoxMin, boundingBoxMax ) ) 
+    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, hitDist, boundingBoxMin, boundingBoxMax ) ) 
     {
         //output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
 
 	    int      hitTriangle           = -1;
-	    float    hitDist               = 20000.0f;
 
         // TODO: Size of the stack could be passed as argument in constant buffer?
         const uint BVH_STACK_SIZE = 32; 
@@ -113,7 +114,7 @@ void main( uint3 groupId : SV_GroupID,
 		    if ( !(bvhNodeData.x & 0x80000000) ) 
             { // Inner node.
 		        // If ray intersects inner node, push indices of left and right child nodes on the stack.
-			    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, g_bvhNodesExtents[ bvhNodeIndex * 2 ], g_bvhNodesExtents[ bvhNodeIndex * 2 + 1 ] )) {
+			    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, hitDist, g_bvhNodesExtents[ bvhNodeIndex * 2 ], g_bvhNodesExtents[ bvhNodeIndex * 2 + 1 ] )) {
 				
 				    bvhStack[ bvhStackIndex++ ] = bvhNodeData.x; // Left child node index.
 				    bvhStack[ bvhStackIndex++ ] = bvhNodeData.y; // Right child node index.
@@ -203,7 +204,7 @@ void main( uint3 groupId : SV_GroupID,
     }
 }
 
-bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax )
+bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax )
 {
 	float tmin = -15000.0f;
 	float tmax =  15000.0f;
@@ -218,7 +219,7 @@ bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 
 	tmin = max(tmin, min(t1.z, t2.z));
 	tmax = min(tmax, max(t1.z, t2.z));
 
-    return ( tmax >= tmin && tmax > 0.0f );
+    return ( tmax >= tmin && tmax > 0.0f && tmin < rayLength );
 }
 
 uint3 readTriangle( const uint index ) 

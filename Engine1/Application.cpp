@@ -62,6 +62,7 @@ Application::Application() :
     m_debugRenderAlpha( false ),
     m_debugWireframeMode( false ),
     m_slowmotionMode( false ),
+    m_snappingMode( false ),
     m_assetManager(),
     m_sceneManager( m_assetManager )
 {
@@ -263,35 +264,71 @@ void Application::run() {
         bool movingObjects = false;
         if ( m_windowFocused && ( !m_sceneManager.getSelectedBlockActors().empty() || !m_sceneManager.getSelectedSkeletonActors().empty() ) ) 
         {
-            const float   translationSensitivity = m_slowmotionMode ? 0.00001f : 0.0002f;
-            const float   rotationSensitivity    = m_slowmotionMode ? 0.00001f : 0.0001f;
-            const int2    mouseMove              = m_inputManager.getMouseMove();
+            const int2 mouseMove = m_inputManager.getMouseMove();
 
             const float3 sensitivity(
                 m_inputManager.isKeyPressed( InputManager::Keys::x ) ? 1.0f : 0.0f,
                 m_inputManager.isKeyPressed( InputManager::Keys::y ) ? 1.0f : 0.0f,
                 m_inputManager.isKeyPressed( InputManager::Keys::z ) ? 1.0f : 0.0f
-                );
+            );
 
-            if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) ) 
+            // Move along horizontal and vertical axes added together.
+            float mouseTotalMove = (float)(mouseMove.x - mouseMove.y);
+
+            if ( m_snappingMode )
             {
-                for ( auto& actor : m_sceneManager.getSelectedBlockActors() )
-                    actor->getPose().rotate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * rotationSensitivity );
+                const float rotationSnapAngleDegrees = m_slowmotionMode ? 1.0f : 5.0f;
+                const float translationSnapDist      = m_slowmotionMode ? 0.01f : 0.1f;
 
-                for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
-                    actor->getPose().rotate( (float)( mouseMove.x - mouseMove.y ) * (float)frameTimeMs * sensitivity * rotationSensitivity );
-                
-                movingObjects = true;
-            } 
-            else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) 
+                if ( fabs( mouseTotalMove ) > 1.0f )
+                {
+                    if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) ) 
+                    {
+                        for ( auto& actor : m_sceneManager.getSelectedBlockActors() )
+                            actor->getPose().rotate( MathUtil::sign( mouseTotalMove ) * sensitivity * ( 5.0f / 360.0f ) * MathUtil::piTwo );
+
+                        for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
+                            actor->getPose().rotate( MathUtil::sign( mouseTotalMove ) * sensitivity * ( 5.0f / 360.0f ) * MathUtil::piTwo );
+
+                        movingObjects = true;
+                    } 
+                    else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) 
+                    {
+                        for ( auto& actor : m_sceneManager.getSelectedBlockActors() )
+                            actor->getPose().translate( mouseTotalMove * translationSnapDist * sensitivity );
+
+                        for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
+                            actor->getPose().translate( mouseTotalMove * translationSnapDist * sensitivity );
+
+                        movingObjects = true;
+                    }
+                }
+            }
+            else
             {
-                for ( auto& actor : m_sceneManager.getSelectedBlockActors() )
-                    actor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity );
+                const float translationSensitivity = m_slowmotionMode ? 0.00001f : 0.0002f;
+                const float rotationSensitivity    = m_slowmotionMode ? 0.00001f : 0.0001f;
 
-                for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
-                    actor->getPose().translate( (float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity );
+                if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) ) 
+                {
+                    for ( auto& actor : m_sceneManager.getSelectedBlockActors() )
+                        actor->getPose().rotate( mouseTotalMove * (float)frameTimeMs * sensitivity * rotationSensitivity );
 
-                movingObjects = true;
+                    for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
+                        actor->getPose().rotate( mouseTotalMove * (float)frameTimeMs * sensitivity * rotationSensitivity );
+
+                    movingObjects = true;
+                } 
+                else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) 
+                {
+                    for ( auto& actor : m_sceneManager.getSelectedBlockActors() )
+                        actor->getPose().translate( mouseTotalMove * (float)frameTimeMs * sensitivity * translationSensitivity );
+
+                    for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
+                        actor->getPose().translate( mouseTotalMove * (float)frameTimeMs * sensitivity * translationSensitivity );
+
+                    movingObjects = true;
+                }
             }
         }
 
@@ -362,7 +399,7 @@ void Application::run() {
 
         std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
             = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), m_debugWireframeMode, m_sceneManager.getSelectedBlockActors(),
-                                      m_sceneManager.getSelectedSkeletonActors(), m_sceneManager.getSelectedLights() );
+                                      m_sceneManager.getSelectedSkeletonActors(), m_sceneManager.getSelectedLights(), m_sceneManager.getSelectionVolumeMesh() );
 
         const int2 mousePos = m_inputManager.getMousePos();
 
@@ -524,6 +561,48 @@ void Application::run() {
             std::stringstream ss;
             ss << "Selected: " << selectedVertexCount << " verts / " << selectedTriangleCount << " tris " << selectedMeshesCount << " actors \n";
             ss << "Scene:    " << totalVertexCount    << " verts / " << totalTriangleCount    << " tris " << totalActors         << " actors \n";
+
+            if ( selectedMeshesCount == 1 )
+            {
+                std::string modelPath, meshPath;
+                int bvhNodes = 0, bvhNodesExtents = 0, bvhTriangles = 0;
+
+                if ( !m_sceneManager.getSelectedBlockActors().empty() && 
+                     m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel() && 
+                     m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel()->getMesh() )
+                {
+                    const auto& model = m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel();
+
+                    modelPath = model->getFileInfo().getPath();
+                    meshPath  = model->getMesh()->getFileInfo().getPath();
+
+                    if ( model->getMesh()->getBvhTree() )
+                    {
+                        bvhNodes        = (int)model->getMesh()->getBvhTree()->getNodes().size();
+                        bvhNodesExtents = (int)model->getMesh()->getBvhTree()->getNodesExtents().size();
+                        bvhTriangles    = (int)model->getMesh()->getBvhTree()->getTriangles().size();
+                    }
+                }
+                else if ( !m_sceneManager.getSelectedSkeletonActors().empty() &&
+                     m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel() &&
+                     m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel()->getMesh() )
+                {
+                    const auto& model = m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel();
+
+                    modelPath = model->getFileInfo().getPath();
+                    meshPath  = model->getMesh()->getFileInfo().getPath();
+                }
+
+                const size_t modelPathStartIndex = modelPath.rfind( "\\" );
+                const size_t meshPathStartIndex  = meshPath.rfind( "\\" );
+
+                modelPath = modelPath.substr( modelPathStartIndex != std::string::npos ? modelPathStartIndex : 0 );
+                meshPath  = meshPath.substr( meshPathStartIndex != std::string::npos ? meshPathStartIndex : 0 );
+
+                ss << modelPath << "\n" << meshPath << "\n";
+
+                ss << "BVH nodes: " << bvhNodes << ", extents: " << bvhNodesExtents << " triangles: " << bvhTriangles;
+            }
 
             frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
@@ -797,6 +876,12 @@ void Application::onKeyPress( int key )
         m_sceneManager.selectAll();
     }
 
+    // [Shift + A] - Select all actors inside the selection volume.
+    if ( ( key == InputManager::Keys::shift || key == InputManager::Keys::a ) &&
+         ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) && m_inputManager.isKeyPressed( InputManager::Keys::a ) ) ) {
+        m_sceneManager.selectAllInsideSelectionVolume();
+    }
+
     // [Delete] - Delete selected actors and lights.
     if ( key == InputManager::Keys::delete_ ) 
         m_sceneManager.deleteSelected();
@@ -843,6 +928,20 @@ void Application::onKeyPress( int key )
     // [Ctrl] (only) - Enable slowmotion mode.
     if ( key == InputManager::Keys::capsLock )
         m_slowmotionMode = !m_slowmotionMode;
+
+    // [Ctrl + B] - Rebuild bounding box and BVH.
+    if ( key == InputManager::Keys::b && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
+        m_sceneManager.rebuildBoundingBoxAndBVH();
+
+    // [Spacebar] - Enable/disable snapping when rotating/translating actors.
+    if ( key == InputManager::Keys::spacebar )
+        m_snappingMode = !m_snappingMode;
+
+    // [Ctrl + +/-] - Select next/prev actor or light.
+    if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
+        m_sceneManager.selectNext();
+    else if ( key == InputManager::Keys::minus && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
+        m_sceneManager.selectPrev();
 
     /*static float normalThresholdChange = 0.01f;
     if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::n ) )

@@ -36,11 +36,14 @@ struct PixelOutputType
 
 PixelOutputType main( PixelInputType input )
 {
+    float  alphaColor  = alphaTexture.Sample( samplerState, input.texCoord ).r;
+    float4 albedoColor = albedoTexture.Sample( samplerState, input.texCoord );
+
 	PixelOutputType output;
 
     output.position    = float4( input.positionWorld, 0.0f );
     output.emissive    = emissiveTexture.Sample( samplerState, input.texCoord ) + extraEmissive;
-	output.albedoAlpha = float4( albedoTexture.Sample( samplerState, input.texCoord ).rgb, alphaTexture.Sample( samplerState, input.texCoord ).r );
+	output.albedoAlpha = float4( albedoColor.rgb, alphaColor );
 
     float3x3 tangentToWorldMatrix = float3x3( 
         normalize( input.tangent ),

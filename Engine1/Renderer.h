@@ -76,7 +76,8 @@ namespace Engine1
                      const bool wireframeMode,
                      const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                      const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-                     const std::vector< std::shared_ptr< Light > >& selectedLights );
+                     const std::vector< std::shared_ptr< Light > >& selectedLights,
+                     const std::shared_ptr< BlockMesh > selectionVolumeMesh );
 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >
         renderText( const std::string& text, Font& font, float2 position, float4 color );
@@ -108,7 +109,8 @@ namespace Engine1
                          const bool wireframeMode,
                          const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
                          const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-                         const std::vector< std::shared_ptr< Light > >& selectedLights );
+                         const std::vector< std::shared_ptr< Light > >& selectedLights,
+                         const std::shared_ptr< BlockMesh > selectionVolumeMesh );
 
         std::tuple<
         bool,

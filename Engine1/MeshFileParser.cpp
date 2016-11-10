@@ -7,10 +7,10 @@
 
 #include "BVHTreeBufferParser.h"
 
-#include "Importer.hpp"
-#include "Exporter.hpp"
-#include "scene.h" 
-#include "postprocess.h"
+#include "Assimp/Importer.hpp"
+#include "Assimp/Exporter.hpp"
+#include "Assimp/scene.h" 
+#include "Assimp/postprocess.h"
 
 #include "float44.h"
 
@@ -170,10 +170,12 @@ std::shared_ptr<BlockMesh> MeshFileParser::parseBlockMeshFileOwnFormat( std::vec
     dataCurrIt += trianglesDataSize;
 
     // Read bounding box.
-    std::memcpy( &mesh->m_boundingBoxMin, &( *dataCurrIt ), sizeof( float3 ) );
+    float3 bbMin, bbMax;
+    std::memcpy( &bbMin, &( *dataCurrIt ), sizeof( float3 ) );
     dataCurrIt += sizeof( float3 );
-    std::memcpy( &mesh->m_boundingBoxMax, &( *dataCurrIt ), sizeof( float3 ) );
+    std::memcpy( &bbMax, &( *dataCurrIt ), sizeof( float3 ) );
     dataCurrIt += sizeof( float3 );
+    mesh->m_boundingBox.set( bbMin, bbMax );
 
     // Read if mesh has BVH tree.
     bool hasBVHTree = false;
@@ -487,8 +489,9 @@ void MeshFileParser::writeBlockMeshFileOwnFormat( std::vector< char >& data, con
     dataIt += trianglesDataSize;
 
     // Write bounding box.
-    float3 bbMin, bbMax;
-    std::tie( bbMin, bbMax ) = mesh.getBoundingBox();
+    const BoundingBox bbBox = mesh.getBoundingBox();
+    const float3 bbMin( bbBox.getMin() );
+    const float3 bbMax( bbBox.getMax() );
     std::memcpy( &( *dataIt ), &bbMin, sizeof( bbMin ) );
     dataIt += sizeof( bbMin );
     std::memcpy( &( *dataIt ), &bbMax, sizeof( bbMax ) );

@@ -100,7 +100,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">
@@ -110,7 +110,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -120,7 +120,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Include\FreeImage;$(SolutionDir)\Include\Assimp;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -264,6 +264,7 @@
     <ClInclude Include="BVHTreeBuffer.h" />
     <ClInclude Include="BVHTreeBufferParser.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="EmissiveBlockMeshFragmentShader.h" />
     <ClInclude Include="FreeCameraParser.h" />
     <ClInclude Include="CombiningFragmentShader.h" />
     <ClInclude Include="CombiningFragmentShader2.h" />
@@ -516,6 +517,7 @@
     <Text Include="Ideas.txt" />
     <Text Include="Notes.txt" />
     <Text Include="Notes2.txt" />
+    <Text Include="Optimizations.txt" />
     <Text Include="Rules.txt" />
     <Text Include="Tests To do.txt" />
     <Text Include="Time.txt" />
@@ -541,6 +543,14 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlockMeshShader\ps_emissive.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\BlockMeshShader\vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

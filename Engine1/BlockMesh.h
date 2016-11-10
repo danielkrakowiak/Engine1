@@ -12,6 +12,7 @@
 
 #include "Asset.h"
 #include "BlockMeshFileInfo.h"
+#include "BoundingBox.h"
 
 struct ID3D11Device;
 struct ID3D11Buffer;
@@ -83,24 +84,25 @@ namespace Engine1
 
         void recalculateBoundingBox();
         // Returns <min, max> of the bounding box.
-        std::tuple<float3, float3> getBoundingBox() const;
+        BoundingBox getBoundingBox() const;
 
         void                                   buildBvhTree();
         void                                   loadBvhTreeToGpu( ID3D11Device& device );
+        void                                   unloadBvhTreeFromGpu();
         std::shared_ptr< const BVHTreeBuffer > getBvhTree() const;
         void                                   setBvhTree( std::shared_ptr< BVHTreeBuffer > bvhTree );
-
-        // Reorganizes triangle order to match the BVH tree (for better ray tracing performance).
-        // It means that triangle indices in BVH nodes point directly to mesh triangles
-        // and there is no need to use BVH's triangles vector to map node's triangles onto mesh's triangles.
-        // Note: Triangles need to be re-uploaded to GPU after that operation.
-        void reorganizeTrianglesToMatchBvhTree();
 
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferNodesShaderResourceView()        const;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferNodesExtentsShaderResourceView() const;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getBvhTreeBufferTrianglesShaderResourceView()    const;
 
         private:
+
+        // Reorganizes triangle order to match the BVH tree (for better ray tracing performance).
+        // It means that triangle indices in BVH nodes point directly to mesh triangles
+        // and there is no need to use BVH's triangles vector to map node's triangles onto mesh's triangles.
+        // Note: Triangles need to be re-uploaded to GPU after that operation.
+        void reorganizeTrianglesToMatchBvhTree();
 
         BlockMeshFileInfo m_fileInfo;
 
@@ -122,8 +124,7 @@ namespace Engine1
         std::list< Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> > m_texcoordBufferResources;
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_triangleBufferResource;
 
-        float3 m_boundingBoxMin;
-        float3 m_boundingBoxMax;
+        BoundingBox m_boundingBox;
 
         std::shared_ptr< BVHTreeBuffer >                 m_bvhTree;
         Microsoft::WRL::ComPtr<ID3D11Buffer>             m_bvhTreeBufferNodesGpu;
