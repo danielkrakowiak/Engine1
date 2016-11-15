@@ -68,7 +68,7 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 		const float fieldOfView = (float)MathUtil::pi / 4.0f;
 		const float screenAspect = (float)imageWidth / (float)imageHeight;
 		const float zNear = 0.1f;
-		const float zFar = 1000.0f;
+		const float zFar = 100.0f;
 
 		m_perspectiveProjectionMatrix = MathUtil::perspectiveProjectionTransformation( fieldOfView, screenAspect, zNear, zFar );
 		m_orthographicProjectionMatrix = MathUtil::orthographicProjectionTransformation( (float)imageWidth, (float)imageHeight, zNear, zFar );
@@ -84,6 +84,8 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
+
+    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -120,6 +122,8 @@ void Direct3DDeferredRenderer::renderEmissive( const BlockMesh& mesh, const floa
 {
     if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::renderEmissive - renderer not initialized." );
 
+    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
+
     { // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
@@ -154,6 +158,8 @@ void Direct3DDeferredRenderer::renderEmissive( const BlockMesh& mesh, const floa
 void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const bool wireframeMode )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
+
+    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -190,6 +196,8 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
     if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
+
+    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -249,6 +257,8 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 	if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
 
+    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
+
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
@@ -305,6 +315,8 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
 void Direct3DDeferredRenderer::render( const std::string& text, Font& font, float2 position, float4 color )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::renders - renderer not initialized." );
+
+    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
     color; // Unused.
 

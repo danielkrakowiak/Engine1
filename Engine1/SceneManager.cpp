@@ -22,6 +22,7 @@
 #include "StringUtil.h"
 
 #include "PointLight.h"
+#include "SpotLight.h"
 
 using namespace Engine1;
 using Microsoft::WRL::ComPtr;
@@ -779,13 +780,24 @@ std::tuple< int, int > SceneManager::getSceneVertexAndTriangleCount()
     return std::make_tuple( vertexCount, triangleCount );
 }
 
-void SceneManager::addLight()
+void SceneManager::addPointLight()
 {
     float3 lightPosition = m_camera.getPosition() + m_camera.getDirection();
 
     std::shared_ptr< Light > light = std::make_shared< PointLight >( lightPosition );
 
-    light->setColor( float3( 1.0f, 1.0f, 1.0f ) );
+    m_scene->addLight( light );
+
+    m_selectedLights.clear();
+    m_selectedLights.push_back( light );
+}
+
+void SceneManager::addSpotLight()
+{
+    float3 lightPosition = m_camera.getPosition() + m_camera.getDirection();
+
+    std::shared_ptr< Light > light = std::make_shared< SpotLight >( lightPosition, m_camera.getDirection(), MathUtil::pi / 4.0f );
+
     m_scene->addLight( light );
 
     m_selectedLights.clear();
@@ -923,7 +935,7 @@ void SceneManager::selectNext()
 
     if ( selectedActor )
     {
-        auto& it = m_scene->getActors().find( selectedActor );
+        auto it = m_scene->getActors().find( selectedActor );
 
         if ( it == m_scene->getActors().end() ) 
             return;
@@ -940,7 +952,7 @@ void SceneManager::selectNext()
     }
     else if ( selectedLight )
     {
-        auto& it = m_scene->getLights().find( selectedLight );
+        auto it = m_scene->getLights().find( selectedLight );
 
         if ( it == m_scene->getLights().end() )
             return;

@@ -89,7 +89,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 		m_raytracingShadowsComputeShader->setParameters( 
 			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, *actor->getModel()->getMesh(), actor->getPose(),
-			bbBox.getMin(), bbBox.getMax(), alphaTexture,	imageWidth, imageHeight 
+			bbBox.getMin(), bbBox.getMax(), alphaTexture, imageWidth, imageHeight 
 		);
 
 		m_rendererCore.compute( groupCount );

@@ -34,19 +34,6 @@ void CombiningRenderer::initialize( const int screenWidth, const int screenHeigh
     m_rasterizerState = createRasterizerState( *device.Get() );
 	m_blendState      = createBlendState( *device.Get() );
 
-    // TODO: Should be done through rendererCore every time before rendering.
-	{ // Initialize viewport.
-		D3D11_VIEWPORT viewport;
-		viewport.Width    = (float)screenWidth;
-		viewport.Height   = (float)screenHeight;
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-		viewport.TopLeftX = 0.0f;
-		viewport.TopLeftY = 0.0f;
-
-		deviceContext->RSSetViewports( 1, &viewport );
-	}
-
     loadAndCompileShaders( *device.Get() );
 
     { // Load default rectangle mesh to GPU.
@@ -68,6 +55,8 @@ void CombiningRenderer::combine( std::shared_ptr< Texture2D< TexUsage::Default, 
                                  const int srcTextureFilledWidth, const int srcTextureFilledHeight )
 {
     if ( !m_initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
+
+    m_rendererCore.setViewport( (float2)destTexture->getDimensions() );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -111,6 +100,8 @@ void CombiningRenderer::combine( std::shared_ptr< Texture2D< TexUsage::Default, 
                       const int srcTextureFilledWidth, const int srcTextureFilledHeight )
 {
     if ( !m_initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
+
+    m_rendererCore.setViewport( (float2)destTexture->getDimensions() );
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;

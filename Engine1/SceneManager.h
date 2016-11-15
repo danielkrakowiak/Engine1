@@ -58,7 +58,9 @@ namespace Engine1
         std::tuple< int, int > getSelectedActorsVertexAndTriangleCount();
         std::tuple< int, int > getSceneVertexAndTriangleCount();
 
-        void addLight();
+        void addPointLight();
+        void addSpotLight();
+
         void modifySelectedLightsColor( float3 colorChange );
         void enableDisableSelectedLights();
 

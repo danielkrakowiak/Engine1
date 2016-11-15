@@ -24,6 +24,7 @@
 #include "SkeletonActor.h"
 
 #include "PointLight.h"
+#include "SpotLight.h"
 
 #include "Scene.h"
 
@@ -285,10 +286,10 @@ void Application::run() {
                     if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) ) 
                     {
                         for ( auto& actor : m_sceneManager.getSelectedBlockActors() )
-                            actor->getPose().rotate( MathUtil::sign( mouseTotalMove ) * sensitivity * ( 5.0f / 360.0f ) * MathUtil::piTwo );
+                            actor->getPose().rotate( MathUtil::sign( mouseTotalMove ) * sensitivity * ( rotationSnapAngleDegrees / 360.0f ) * MathUtil::piTwo );
 
                         for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
-                            actor->getPose().rotate( MathUtil::sign( mouseTotalMove ) * sensitivity * ( 5.0f / 360.0f ) * MathUtil::piTwo );
+                            actor->getPose().rotate( MathUtil::sign( mouseTotalMove ) * sensitivity * ( rotationSnapAngleDegrees / 360.0f ) * MathUtil::piTwo );
 
                         movingObjects = true;
                     } 
@@ -332,11 +333,14 @@ void Application::run() {
             }
         }
 
-        // Translate the selected light.
+        // Translate / rotate the selected light.
         if ( m_windowFocused && !m_sceneManager.getSelectedLights().empty() ) 
         {
             const float   translationSensitivity = m_slowmotionMode ? 0.00005f : 0.0002f;
+            const float   rotationSensitivity    = m_slowmotionMode ? 0.00001f : 0.0001f;
             const int2    mouseMove              = m_inputManager.getMouseMove();
+
+            float mouseTotalMove = (float)(mouseMove.x - mouseMove.y);
 
             const float3 sensitivity(
                 m_inputManager.isKeyPressed( InputManager::Keys::x ) ? 1.0f : 0.0f,
@@ -347,9 +351,70 @@ void Application::run() {
             if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) 
             {
                 for ( auto& light : m_sceneManager.getSelectedLights() )
-                    light->setPosition( light->getPosition() + ((float)(mouseMove.x - mouseMove.y) * (float)frameTimeMs * sensitivity * translationSensitivity ) );
+                    light->setPosition( light->getPosition() + ( mouseTotalMove * (float)frameTimeMs * sensitivity * translationSensitivity ) );
                 
                 movingObjects = true;
+            }
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) )
+            {
+                for ( auto& light : m_sceneManager.getSelectedLights() )
+                {
+                    if ( light->getType() != Light::Type::SpotLight )
+                        continue;
+
+                    auto& spotLight = static_cast< SpotLight& >( *light );
+
+                    float3 direction = spotLight.getDirection();
+                    direction.rotate( mouseTotalMove * (float)frameTimeMs * sensitivity * rotationSensitivity );
+
+                    spotLight.setDirection( direction );
+                }
+
+                movingObjects = true;
+            }
+        }
+
+        // Modify spot light cone angle.
+        if ( m_windowFocused && !m_sceneManager.getSelectedLights().empty() ) 
+        {
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+            {
+                const float sensitivity = 0.0001f * (float)frameTimeMs;
+
+                float change = 0.0f;
+                if ( m_inputManager.isKeyPressed( InputManager::Keys::plus ) ) {
+                    change = sensitivity;
+                } else if ( m_inputManager.isKeyPressed( InputManager::Keys::minus ) ) {
+                    change = -sensitivity;
+                }
+
+                if ( change != 0.0f ) {
+                    for ( auto& light : m_sceneManager.getSelectedLights() ) {
+                        if ( light->getType() != Light::Type::SpotLight )
+                            continue;
+
+                        auto& spotLight = static_cast<SpotLight&>( *light );
+
+                        spotLight.setConeAngle( std::min( MathUtil::pi, std::max( 0.01f, spotLight.getConeAngle() + change ) ) );
+                    }
+
+                    movingObjects = true;
+                }
+            }
+        }
+
+        // Set camera to align with a spot light.
+        if ( m_windowFocused && m_sceneManager.getSelectedLights().size() == 1 && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::l ) )
+        {
+            const Light& light = *m_sceneManager.getSelectedLights()[ 0 ];
+
+            if ( light.getType() == Light::Type::SpotLight )
+            {
+                const SpotLight& spotLight = static_cast< const SpotLight& >( light );
+
+                m_sceneManager.getCamera().setFieldOfView( spotLight.getConeAngle() );
+                m_sceneManager.getCamera().setPosition( spotLight.getPosition() );
+                m_sceneManager.getCamera().setDirection( spotLight.getDirection() );
             }
         }
 
@@ -396,6 +461,9 @@ void Application::run() {
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
 
         m_renderer.clear();
+
+        if ( movingObjects )
+            m_renderer.renderShadowMaps( m_sceneManager.getScene() );
 
         std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
             = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), m_debugWireframeMode, m_sceneManager.getSelectedBlockActors(),
@@ -859,8 +927,12 @@ void Application::onFocusChange( bool windowFocused )
 
 void Application::onKeyPress( int key )
 {
-    if ( key == InputManager::Keys::l ) 
-        m_sceneManager.addLight();
+    // [ L + P ] - Add point light.
+    // [ L + S ] - Add spot light.
+    if ( key == InputManager::Keys::l && m_inputManager.isKeyPressed( InputManager::Keys::p ) ) 
+        m_sceneManager.addPointLight();
+    else if ( key == InputManager::Keys::l && m_inputManager.isKeyPressed( InputManager::Keys::s ) )
+        m_sceneManager.addSpotLight();
     
     // [Ctrl + S] - save scene or selected models.
     if ( ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) &&
@@ -874,6 +946,12 @@ void Application::onKeyPress( int key )
        ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::a ) ) )
     {
         m_sceneManager.selectAll();
+    }
+
+    // [Ctrl + D] - Unselect all.
+    if ( ( key == InputManager::Keys::ctrl || key == InputManager::Keys::d ) &&
+         ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::d ) ) ) {
+        m_sceneManager.clearSelection();
     }
 
     // [Shift + A] - Select all actors inside the selection volume.

@@ -323,6 +323,8 @@
     <ClInclude Include="SkeletonModelFragmentShader.h" />
     <ClInclude Include="SkeletonModelParser.h" />
     <ClInclude Include="SkeletonModelVertexShader.h" />
+    <ClInclude Include="SpotLight.h" />
+    <ClInclude Include="SpotLightParser.h" />
     <ClInclude Include="StagingTexture2D.h" />
     <ClInclude Include="TextFile.h" />
     <ClInclude Include="FontLibrary.h" />
@@ -463,6 +465,8 @@
     <ClCompile Include="SkeletonModelFragmentShader.cpp" />
     <ClCompile Include="SkeletonModelParser.cpp" />
     <ClCompile Include="SkeletonModelVertexShader.cpp" />
+    <ClCompile Include="SpotLight.cpp" />
+    <ClCompile Include="SpotLightParser.cpp" />
     <ClCompile Include="TextFile.cpp" />
     <ClCompile Include="FontLibrary.cpp" />
     <ClCompile Include="ImageLibrary.cpp" />

@@ -62,9 +62,14 @@ namespace Engine1
 			float        pad4;
             unsigned int isOpaque;
             float3       pad5;
+            unsigned int isShadowMapAvailable;
+            float3       pad6;
+            float44      shadowMapViewMatrix;
+            float44      shadowMapProjectionMatrix;
 		};
 
-		Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
+        Microsoft::WRL::ComPtr< ID3D11SamplerState > m_pointSamplerState;
+		Microsoft::WRL::ComPtr< ID3D11SamplerState > m_linearSamplerState;
 
 		// Copying is not allowed.
 		RaytracingShadowsComputeShader( const RaytracingShadowsComputeShader& ) = delete;

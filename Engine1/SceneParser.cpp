@@ -12,6 +12,7 @@
 #include "SkeletonModelFileInfo.h"
 
 #include "PointLight.h"
+#include "SpotLight.h"
 
 #include <unordered_map>
 
@@ -72,13 +73,19 @@ std::tuple< std::shared_ptr<Scene>, std::shared_ptr<std::vector< std::shared_ptr
     }
 
     { // Read lights.
-        // Read number of lights.
-        const int lightsCount = BinaryFile::readInt( dataIt );
+        // Read number of point lights.
+        const int pointLightCount = BinaryFile::readInt( dataIt );
 
-        // Read all lights.
-        for ( int i = 0; i < lightsCount; ++i ) {
+        // Read point lights.
+        for ( int i = 0; i < pointLightCount; ++i )
             scene->addLight( PointLight::createFromMemory( dataIt ) );
-        }
+
+        // Read number of spot lights.
+        const int spotLightCount = BinaryFile::readInt( dataIt );
+
+        // Read spot lights.
+        for ( int i = 0; i < spotLightCount; ++i )
+            scene->addLight( SpotLight::createFromMemory( dataIt ) );
     }
     
     return std::make_pair( scene, fileInfos );
@@ -157,14 +164,41 @@ void SceneParser::writeBinary( std::vector<char>& data, const Scene& scene )
     }
 
     { // Save lights.
-        // Save number of lights.
-        BinaryFile::writeInt( data, (int)scene.m_lights.size() );
+        int pointLightCount = 0;
+        int spotLightCount  = 0;
 
-        // Save lights.
-        for ( const std::shared_ptr<Light>& light : scene.m_lights ) {
-            if ( light->getType() == Light::Type::PointLight ) {
-                const std::shared_ptr<PointLight>& pointLight = std::static_pointer_cast<PointLight>( light );
+        // Count lights of each type.
+        for ( const std::shared_ptr< Light >& light : scene.m_lights ) 
+        {
+            if ( light->getType() == Light::Type::PointLight )
+                ++pointLightCount;
+            else if ( light->getType() == Light::Type::SpotLight )
+                ++spotLightCount;
+        }
+
+        // Save number of point lights.
+        BinaryFile::writeInt( data, pointLightCount );
+
+        // Save point lights.
+        for ( const auto& light : scene.m_lights ) 
+        {
+            if ( light->getType() == Light::Type::PointLight )
+            {
+                const auto& pointLight = std::static_pointer_cast< PointLight >( light );
                 pointLight->saveToMemory( data );
+            }
+        }
+
+        // Save number of spot lights.
+        BinaryFile::writeInt( data, spotLightCount );
+
+        // Save spot lights.
+        for ( const auto& light : scene.m_lights ) 
+        {
+            if ( light->getType() == Light::Type::SpotLight ) 
+            {
+                const auto& spotLight = std::static_pointer_cast< SpotLight >( light );
+                spotLight->saveToMemory( data );
             }
         }
     }

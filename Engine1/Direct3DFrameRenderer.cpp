@@ -83,19 +83,6 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
     m_blendStateNoBlending   = createBlendStateNoBlending( *m_device.Get() );
 	m_blendStateWithBlending = createBlendStateWithBlending( *m_device.Get() );
 
-    // TODO: Viewport should be set before rendering - not only once.
-	{ // Initialize viewport.
-		D3D11_VIEWPORT viewport;
-		viewport.Width    = (float)screenWidth;
-		viewport.Height   = (float)screenHeight;
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-		viewport.TopLeftX = 0.0f;
-		viewport.TopLeftY = 0.0f;
-
-		m_deviceContext->RSSetViewports( 1, &viewport );
-	}
-
 	loadAndCompileShaders( *m_device.Get() );
 
 	{ // Load default rectangle mesh to GPU.
@@ -384,9 +371,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
+    m_rendererCore.setViewport( float2( (float)m_screenWidth, (float)m_screenHeight ) );
+
 	float relativeWidth  = ( width / (float)m_screenWidth );
 	float relativeHeight = ( height / (float)m_screenHeight );
-
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -417,9 +405,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
+    m_rendererCore.setViewport( float2( (float)m_screenWidth, (float)m_screenHeight ) );
+
     float relativeWidth  = ( width / (float)m_screenWidth );
     float relativeHeight = ( height / (float)m_screenHeight );
-
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -450,9 +439,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
+    m_rendererCore.setViewport( float2( (float)m_screenWidth, (float)m_screenHeight ) );
+
     float relativeWidth  = ( width / (float)m_screenWidth );
     float relativeHeight = ( height / (float)m_screenHeight );
-
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -483,9 +473,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
+    m_rendererCore.setViewport( float2( (float)m_screenWidth, (float)m_screenHeight ) );
+
     float relativeWidth  = ( width / (float)m_screenWidth );
     float relativeHeight = ( height / (float)m_screenHeight );
-
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -515,6 +506,8 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY, float width, float height, bool blend )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
+
+    m_rendererCore.setViewport( float2( (float)m_screenWidth, (float)m_screenHeight ) );
 
     float relativeWidth  = ( width / (float)m_screenWidth );
     float relativeHeight = ( height / (float)m_screenHeight );
@@ -549,9 +542,10 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind:
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
+    m_rendererCore.setViewport( float2( (float)m_screenWidth, (float)m_screenHeight ) );
+
     float relativeWidth  = ( width / (float)m_screenWidth );
     float relativeHeight = ( height / (float)m_screenHeight );
-
 
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;

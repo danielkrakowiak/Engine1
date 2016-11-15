@@ -9,6 +9,8 @@
 #include "ComputeShader.h"
 #include "SkeletonMeshVertexShader.h"
 
+#include "MathUtil.h"
+
 #include <d3d11.h>
 
 using namespace Engine1;
@@ -17,6 +19,10 @@ using Microsoft::WRL::ComPtr;
 
 Direct3DRendererCore::Direct3DRendererCore() :
 m_deviceContext( nullptr ),
+viewportDimensions( float2::ZERO ),
+viewportTopLeft( float2::ZERO ),
+viewportDepthMin( 0.0f ),
+viewportDepthMax( 0.0f ),
 m_currentRenderTargetViews(),
 m_currentDepthRenderTargetView( nullptr ),
 m_graphicsShaderEnabled( false ),
@@ -69,7 +75,7 @@ void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexS
         m_currentVertexShader = vertexShader;
 	}
 
-	// Check if currently set fragment shader is the same as the one to be enabled - do nothing then. 
+	// Check if currently set fragment shader is the same as the one to be enabled - do nothing then.
 	if ( !m_currentFragmentShader.expired() && !fragmentShader )
 	{
 		m_deviceContext->PSSetShader( nullptr, nullptr, 0 );
@@ -78,7 +84,7 @@ void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexS
 	}
 	else if ( m_currentFragmentShader.expired() || !m_currentFragmentShader.lock()->isSame( *fragmentShader ) ) 
 	{
-		m_deviceContext->PSSetShader( &fragmentShader->getShader(), nullptr, 0 );
+		m_deviceContext->PSSetShader( fragmentShader ? &fragmentShader->getShader() : nullptr, nullptr, 0 );
 
         m_currentFragmentShader = fragmentShader;
 	}
@@ -124,6 +130,28 @@ void Direct3DRendererCore::disableComputeShaders()
         m_currentComputeShader.reset();
 
         m_computeShaderEnabled = false;
+    }
+}
+
+void Direct3DRendererCore::setViewport( float2 dimensions, float2 topLeft, float depthMin, float depthMax )
+{
+    if ( !MathUtil::areEqual( dimensions, viewportDimensions ) || !MathUtil::areEqual( topLeft, viewportTopLeft ) || 
+         !MathUtil::areEqual( depthMin, viewportDepthMin ) || !MathUtil::areEqual( depthMax, viewportDepthMax ) )
+    {
+        D3D11_VIEWPORT viewport;
+        viewport.Width    = (float)dimensions.x;
+        viewport.Height   = (float)dimensions.y;
+        viewport.MinDepth = depthMin;
+        viewport.MaxDepth = depthMax;
+        viewport.TopLeftX = topLeft.x;
+        viewport.TopLeftY = topLeft.y;
+
+        m_deviceContext->RSSetViewports( 1, &viewport );
+
+        viewportDimensions = dimensions;
+        viewportTopLeft    = topLeft;
+        viewportDepthMin   = depthMin;
+        viewportDepthMax   = depthMax;
     }
 }
 

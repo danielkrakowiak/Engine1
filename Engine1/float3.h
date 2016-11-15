@@ -161,6 +161,8 @@ namespace Engine1
         {
             return x*x + y*y + z*z;
         }
+
+        void rotate( const float3& rotationAngles );
     };
 
     float  dot( const float3& vec1, const float3& vec2 );

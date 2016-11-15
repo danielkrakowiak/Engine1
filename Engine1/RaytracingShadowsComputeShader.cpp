@@ -3,6 +3,9 @@
 #include "StringUtil.h"
 #include "BlockMesh.h"
 #include "Light.h"
+#include "SpotLight.h"
+
+#include "MathUtil.h"
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -63,7 +66,28 @@ void RaytracingShadowsComputeShader::compileFromFile( std::string path, ID3D11De
 		if ( result < 0 ) throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - creating constant buffer failed." );
 	}
 
-	{ // Create sampler configuration.
+    { // Create point sampler configuration.
+        D3D11_SAMPLER_DESC desc;
+        desc.Filter           = D3D11_FILTER_MIN_MAG_MIP_POINT;
+        desc.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.MipLODBias       = 0.0f;
+        desc.MaxAnisotropy    = 1;
+        desc.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
+        desc.BorderColor[ 0 ] = 0;
+        desc.BorderColor[ 1 ] = 0;
+        desc.BorderColor[ 2 ] = 0;
+        desc.BorderColor[ 3 ] = 0;
+        desc.MinLOD           = 0;
+        desc.MaxLOD           = D3D11_FLOAT32_MAX;
+
+        // Create the texture sampler state.
+        result = device.CreateSamplerState( &desc, m_pointSamplerState.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - Failed to create texture sampler state." );
+    }
+
+	{ // Create linear sampler configuration.
 		D3D11_SAMPLER_DESC desc;
 		desc.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		desc.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -80,7 +104,7 @@ void RaytracingShadowsComputeShader::compileFromFile( std::string path, ID3D11De
 		desc.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &desc, m_samplerState.ReleaseAndGetAddressOf() );
+		result = device.CreateSamplerState( &desc, m_linearSamplerState.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - Failed to create texture sampler state." );
 	}
 
@@ -104,12 +128,18 @@ void RaytracingShadowsComputeShader::setParameters(
 {
 	if ( !m_compiled ) throw std::exception( "RaytracingShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
+    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > shadowMap;
+
+    if ( light.getType() == Light::Type::SpotLight )
+        shadowMap = static_cast< const SpotLight& >( light ).getShadowMap();
+    
+
 	{ // Set input buffers and textures.
-		const unsigned int resourceCount = 8;
+		const unsigned int resourceCount = 9;
 		ID3D11ShaderResourceView* resources[ resourceCount ] = {
 			rayOriginTexture.getShaderResourceView(),
 			surfaceNormalTexture.getShaderResourceView(),
-			/*contributionTermTexture.getShaderResourceView(),*/
+            shadowMap ? shadowMap->getShaderResourceView() : nullptr,
 			mesh.getVertexBufferResource(),
 			!mesh.getTexcoordBufferResources().empty() ? mesh.getTexcoordBufferResources().front() : nullptr,
 			mesh.getTriangleBufferResource(),
@@ -132,21 +162,39 @@ void RaytracingShadowsComputeShader::setParameters(
 
 		dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-		dataPtr->localToWorldMatrix = float44( worldMatrix ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
-		dataPtr->worldToLocalMatrix = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
-		dataPtr->boundingBoxMin     = boundingBoxMin;
-		dataPtr->boundingBoxMax     = boundingBoxMax;
-		dataPtr->outputTextureSize  = float2( (float)outputTextureWidth, (float)outputTextureHeight );
-		dataPtr->lightPosition      = light.getPosition();
-        dataPtr->isOpaque           = isOpaque ? 1 : 0;
+		dataPtr->localToWorldMatrix   = float44( worldMatrix ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
+		dataPtr->worldToLocalMatrix   = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
+		dataPtr->boundingBoxMin       = boundingBoxMin;
+		dataPtr->boundingBoxMax       = boundingBoxMax;
+		dataPtr->outputTextureSize    = float2( (float)outputTextureWidth, (float)outputTextureHeight );
+		dataPtr->lightPosition        = light.getPosition();
+        dataPtr->isOpaque             = isOpaque ? 1 : 0;
+        dataPtr->isShadowMapAvailable = shadowMap ? 1 : 0;
+        
+        if ( shadowMap ) 
+        {
+            const SpotLight& spotLight = static_cast< const SpotLight& >( light );
+            
+            // #TODO: Should be calculated inside a spotlight ( like getViewMatrix() and getProjectionMatrix() ) 
+            // to ensure that all classes using a spotlight have the same view and projection matrices.
+            dataPtr->shadowMapViewMatrix       = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) ).getTranspose();
+            dataPtr->shadowMapProjectionMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle(), (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f ).getTranspose();
+            //dataPtr->shadowMapProjectionMatrix =  MathUtil::orthographicProjectionTransformation( (float)SpotLight::s_shadowMapDimensions.x, (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 50.0f ).getTranspose();
+        }
+        else
+        {
+            dataPtr->shadowMapViewMatrix       = float44::IDENTITY;
+            dataPtr->shadowMapProjectionMatrix = float44::IDENTITY;
+        }
 
 		deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
 		deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 	}
 
-	{ // Set texture sampler.
-		deviceContext.CSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
+	{ // Set texture samplers.
+        ID3D11SamplerState* samplerStates[] = { m_pointSamplerState.Get(), m_linearSamplerState.Get() };
+		deviceContext.CSSetSamplers( 0, 2, samplerStates );
 	}
 }
 
@@ -155,10 +203,10 @@ void RaytracingShadowsComputeShader::unsetParameters( ID3D11DeviceContext& devic
 	if ( !m_compiled ) throw std::exception( "RaytracingShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
 	// Unset buffers and textures.
-	ID3D11ShaderResourceView* nullResources[ 8 ] = {};
-	deviceContext.CSSetShaderResources( 0, 8, nullResources );
+	ID3D11ShaderResourceView* nullResources[ 9 ] = {};
+	deviceContext.CSSetShaderResources( 0, 9, nullResources );
 
 	// Unset samplers.
-	ID3D11SamplerState* nullSamplers[ 1 ] = {};
-	deviceContext.CSSetSamplers( 0, 1, nullSamplers );
+	ID3D11SamplerState* nullSamplers[ 2 ] = {};
+	deviceContext.CSSetSamplers( 0, 2, nullSamplers );
 }

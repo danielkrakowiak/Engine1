@@ -19,6 +19,7 @@
 #include "SkeletonActor.h"
 #include "SkeletonModel.h"
 #include "Light.h"
+#include "SpotLight.h"
 
 #include "StagingTexture2D.h"
 
@@ -64,7 +65,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_combiningRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
 	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-	m_shadowMapRenderer.initialize( 256, 256, device, deviceContext );
+	m_shadowMapRenderer.initialize( device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
@@ -84,7 +85,50 @@ void Renderer::clear2()
 
 void Renderer::renderShadowMaps( const Scene& scene )
 {
-	// TODO: render shadow maps for each light.
+    for ( const auto& light : scene.getLights() )
+    {
+        if ( light->getType() != Light::Type::SpotLight )
+            continue;
+
+        SpotLight& spotLight = static_cast< SpotLight& >( *light );
+
+        const float44 viewMatrix        = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) );
+        const float44 perspectiveMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle(), (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f );
+        //const float44 perspectiveMatrix = MathUtil::orthographicProjectionTransformation( (float)SpotLight::s_shadowMapDimensions.x, (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 50.0f );
+
+        if ( spotLight.getShadowMap() )
+            m_shadowMapRenderer.setRenderTarget( spotLight.getShadowMap() );
+        else
+            m_shadowMapRenderer.createAndSetRenderTarget( SpotLight::s_shadowMapDimensions, *m_device.Get() );
+
+        m_shadowMapRenderer.clearRenderTarget( 1.0f ); //#TODO: What clear value?
+
+        for ( const auto& actor : scene.getActors() )
+        {
+            if ( actor->getType() == Actor::Type::BlockActor )
+            {
+                const BlockActor& blockActor = static_cast< BlockActor& >( *actor );
+
+                if ( !blockActor.getModel() || !blockActor.getModel()->getMesh() )
+                    continue;
+
+                m_shadowMapRenderer.render( *blockActor.getModel()->getMesh(), blockActor.getPose(), viewMatrix, perspectiveMatrix );
+            }
+            else if ( actor->getType() == Actor::Type::BlockActor ) 
+            {
+                const SkeletonActor& skeletonActor = static_cast< SkeletonActor& >( *actor );
+
+                if ( !skeletonActor.getModel() || !skeletonActor.getModel()->getMesh() )
+                    continue;
+
+                m_shadowMapRenderer.render( *skeletonActor.getModel()->getMesh(), skeletonActor.getPose(), viewMatrix, perspectiveMatrix, skeletonActor.getSkeletonPose() );
+            }
+        }
+
+        spotLight.setShadowMap( m_shadowMapRenderer.getRenderTarget() );
+    }
+
+    m_shadowMapRenderer.disableRenderTarget();
 }
 
 std::tuple< 
@@ -100,6 +144,9 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
                        const std::vector< std::shared_ptr< Light > >& selectedLights,
                        const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
+    // Render shadow maps. #TODO: Should NOT be done every frame.
+    //renderShadowMaps( scene );
+
     bool frameReceived = false;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >         frameUchar4;

@@ -308,3 +308,6 @@ Sun 06.11.2016 - 7h - Added selecting by volume and rendering of selection volum
 Mon 07.11.2016 - 3h - Trying to simplify some meshes in Bathroom Scene.
 Tue 08.11.2016 - 7h - Added loading BVH tree to GPU when mesh is loaded to GPU. Improving bathroom scene, merging models, simplifying meshes.
 Wed 09.10.2016 - 2h - Trying to optimize raytracing shaders - without results.
+Thu 10.10.2016 - 3h - Added SpotLight, SpotLightParser classes. Added rendering of shadow maps for spotlights.
+Fri 11.10.2016 - 3h - Sampling a shadow map when calculating illumination texture. Trying to fix Shadow Mapping.
+Sat 12.10.2016 - 4h - Fixed shadow mapping. Artefacts caused by too large bias and incorrect viewport settings. Added setting viewport in RendererCore.

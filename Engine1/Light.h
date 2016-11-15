@@ -10,7 +10,8 @@ namespace Engine1
 
         enum class Type : char
         {
-            PointLight = 0
+            PointLight = 0,
+            SpotLight
         };
 
         virtual Type getType() const = 0;

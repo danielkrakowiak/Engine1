@@ -42,6 +42,8 @@ namespace Engine1
         void disableRenderingPipeline();
         void disableComputePipeline();
 
+        void setViewport( float2 dimensions, float2 topLeft = float2::ZERO, float depthMin = 0.0f, float depthMax = 1.0f );
+
 		void enableRenderTargets( const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget, const int mipmapLevel = 0 );
 
         void enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
@@ -125,6 +127,11 @@ namespace Engine1
         std::weak_ptr< const VertexShader >   m_currentVertexShader;
         std::weak_ptr< const FragmentShader > m_currentFragmentShader;
         std::weak_ptr< const ComputeShader >  m_currentComputeShader;
+
+        float2 viewportDimensions;
+        float2 viewportTopLeft;
+        float  viewportDepthMin;
+        float  viewportDepthMax;
 
         std::vector< ID3D11RenderTargetView* >    m_currentRenderTargetViews;
         ID3D11DepthStencilView*                   m_currentDepthRenderTargetView;

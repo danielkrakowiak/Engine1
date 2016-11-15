@@ -31,22 +31,25 @@ namespace Engine1
 		ShadowMapRenderer( Direct3DRendererCore& rendererCore );
 		~ShadowMapRenderer();
 
-		void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device,
+		void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device,
 			Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
-		void clearRenderTarget( float depth );
-		void disableRenderTarget();
+        void setRenderTarget( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > renderTarget );
+        void createAndSetRenderTarget( const int2 dimensions, ID3D11Device& device );
 
-		void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix );
-		void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace );
+        void clearRenderTarget( float depth );
+        void disableRenderTarget();
 
-		std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > getDepthRenderTarget();
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > getRenderTarget();
+
+		void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const float44& perspectiveMatrix );
+		void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const float44& perspectiveMatrix, const SkeletonPose& poseInSkeletonSpace );
 
 		private:
 
 		Direct3DRendererCore& m_rendererCore;
 
-		Microsoft::WRL::ComPtr<ID3D11Device> m_device;
+		Microsoft::WRL::ComPtr<ID3D11Device>        m_device;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
 		bool m_initialized;
@@ -56,15 +59,7 @@ namespace Engine1
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> createDepthStencilState( ID3D11Device& device );
 
 		// Render targets.
-		int m_imageWidth, m_imageHeight;
-
-		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > m_depthRenderTarget;
-
-		void createRenderTarget( int imageWidth, int imageHeight, ID3D11Device& device );
-
-		// Projection matrices.
-		float44 m_perspectiveProjectionMatrix;
-		float44 m_orthographicProjectionMatrix;
+		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > m_renderTarget;
 
 		// Shaders.
 		std::shared_ptr<BlockMeshVertexShader>    m_blockMeshVertexShader;

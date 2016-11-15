@@ -774,8 +774,14 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="SpotLight.h">
+      <Filter>Header Files\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLightParser.h">
+      <Filter>Header Files\Light\Parsers</Filter>
+    </ClInclude>
     <ClInclude Include="EmissiveBlockMeshFragmentShader.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shader\BlockMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1165,6 +1171,12 @@
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLight.cpp">
+      <Filter>Source Files\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLightParser.cpp">
+      <Filter>Source Files\Light\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

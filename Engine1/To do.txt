@@ -310,7 +310,23 @@ Idea:
 
 	  NOW:
 
-	  - COMMIT !!!!
+	  - Good paper (a bit lod now...) describing various soft-shadow techniques: http://maverick.inria.fr/Publications/2003/HLHS03a/SurveyRTSoftShadows.pdf
+
+	  - maybe I should try blurring the shadows as the distance to the obstalce increases? I would probably ned more expensive ray tracing to get min distance to obstacle... 
+	    Or use depth from a shadow map. Maybe despite of variable blur radius I could use two-pass blurring? How to deal with perspective when blurring?
+		IMPORTANT: Why nobody is doing this? Blurring illumination texture...
+
+	  - add changing viewport size to RendererCore - add setting viewport size in different rednerers and when rendering shadows...
+
+	  - why can i see the skybox in the mirror in the bathroom scene? The skybox is supposed to be removed from the scene...
+
+	  - use sampler2DShadow as in http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/ to know if we are on the shadow border...?
+
+	  - optimization to shadow mapping - use border value and D3D11_TEXTURE_ADDRESS_BORDER and remove if in the shader checking if sample is within texture area.
+
+	  - maybe use different vertex shader for shadow maps....
+
+	  - why spotlight seems to be shifted when looking at it's shadow? Maybe I should compare it against it's raytraced shadow?
 
 	  - VERY IMPORTANT: Is bounding volume test sensitive to ray direction and ray max distance? 
 	  Or is it testing ray forward and backwards? That would be a huge waste of power to test against triangles which have no chance to intersect..
@@ -321,20 +337,8 @@ Idea:
 	  - IMPORTANT TEST: How much the shadows would cost if they only used bounindg boxes for tests... Can disable self-shadowing for test..
 	  Because if the cost is very low, then maybe it's not a big optimization to use shadow mapping for hard shadows..?
 
-	  DONE - rotation with some degrees snapping (10?)...
-
-	  DONE - slow down camera movement and object manipulation when Ctrl is pressed.
-
-	  DONE - volumetric selection - select anything and then press some keys to expand selection volumetrically - as a bounding box. And keep selecting things inside of it...
-
-	  DONE - merge all flowers as one mesh.
-
-	  DONE - maybe add wireframe mode?
-
 	  - optimize walls and floor in the text scenes - they have tons of triangles.
 	  - optimize all meshes...
-
-	  - modify floor UVs - and use nice PBR tile texture
 
 	  - display GPU name and optionally also CPU name on the screen
 

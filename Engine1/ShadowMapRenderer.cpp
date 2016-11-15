@@ -13,8 +13,6 @@ using Microsoft::WRL::ComPtr;
 ShadowMapRenderer::ShadowMapRenderer( Direct3DRendererCore& rendererCore ) :
 m_rendererCore( rendererCore ),
 m_initialized( false ),
-m_imageWidth( 0 ),
-m_imageHeight( 0 ),
 m_blockMeshVertexShader( std::make_shared<BlockMeshVertexShader>() ),
 m_skeletonMeshVertexShader( std::make_shared<SkeletonMeshVertexShader>() )
 {
@@ -24,29 +22,14 @@ ShadowMapRenderer::~ShadowMapRenderer()
 {
 }
 
-void ShadowMapRenderer::initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device,
+void ShadowMapRenderer::initialize( Microsoft::WRL::ComPtr< ID3D11Device > device,
 	Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext )
 {
 	this->m_device = device;
 	this->m_deviceContext = deviceContext;
 
-	this->m_imageWidth = imageWidth;
-	this->m_imageHeight = imageHeight;
-
 	// Initialize depth stencil state.
 	m_depthStencilState = createDepthStencilState( *device.Get() );
-
-	createRenderTarget( imageWidth, imageHeight, *device.Get() );
-
-	{ // Initialize projection matrices.
-		const float fieldOfView = (float)MathUtil::pi / 4.0f;
-		const float screenAspect = (float)imageWidth / (float)imageHeight;
-		const float zNear = 0.1f;
-		const float zFar = 1000.0f;
-
-		m_perspectiveProjectionMatrix = MathUtil::perspectiveProjectionTransformation( fieldOfView, screenAspect, zNear, zFar );
-		m_orthographicProjectionMatrix = MathUtil::orthographicProjectionTransformation( (float)imageWidth, (float)imageHeight, zNear, zFar );
-	}
 
 	loadAndCompileShaders( *device.Get() );
 
@@ -55,23 +38,27 @@ void ShadowMapRenderer::initialize( int imageWidth, int imageHeight, Microsoft::
 
 void ShadowMapRenderer::clearRenderTarget( float depth )
 {
-	m_depthRenderTarget->clearDepthStencilView( *m_deviceContext.Get(), true, depth, true, 0 );
+	m_renderTarget->clearDepthStencilView( *m_deviceContext.Get(), true, depth, false, 0 );
 }
 
 void ShadowMapRenderer::disableRenderTarget()
 {
 	m_rendererCore.disableRenderTargetViews();
+
+    m_renderTarget.reset();
 }
 
-void ShadowMapRenderer::render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix )
+void ShadowMapRenderer::render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const float44& perspectiveMatrix )
 {
 	if ( !m_initialized ) throw std::exception( "ShadowMapRenderer::render - renderer not initialized." );
 
+    m_rendererCore.setViewport( (float2)m_renderTarget->getDimensions() );
+
 	// Enable render targets.
-	m_rendererCore.enableRenderTargets( m_depthRenderTarget );
+	m_rendererCore.enableRenderTargets( m_renderTarget );
 
 	{ // Configure and set shaders.
-		m_blockMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix );
+		m_blockMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, perspectiveMatrix );
 
 		m_rendererCore.enableRenderingShaders( m_blockMeshVertexShader, nullptr );
 	}
@@ -82,15 +69,17 @@ void ShadowMapRenderer::render( const BlockMesh& mesh, const float43& worldMatri
 	m_rendererCore.draw( mesh );
 }
 
-void ShadowMapRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace )
+void ShadowMapRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const float44& perspectiveMatrix, const SkeletonPose& poseInSkeletonSpace )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
+    m_rendererCore.setViewport( (float2)m_renderTarget->getDimensions() );
+
 	// Enable render targets.
-	m_rendererCore.enableRenderTargets( m_depthRenderTarget );
+	m_rendererCore.enableRenderTargets( m_renderTarget );
 
 	{ // Configure and set shaders.
-		m_skeletonMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix, mesh, poseInSkeletonSpace );
+		m_skeletonMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, perspectiveMatrix, mesh, poseInSkeletonSpace );
 
 		m_rendererCore.enableRenderingShaders( m_skeletonMeshVertexShader, nullptr );
 	}
@@ -132,15 +121,25 @@ Microsoft::WRL::ComPtr<ID3D11DepthStencilState> ShadowMapRenderer::createDepthSt
 	return depthStencilState;
 }
 
-void ShadowMapRenderer::createRenderTarget( int imageWidth, int imageHeight, ID3D11Device& device )
+void ShadowMapRenderer::setRenderTarget( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > renderTarget )
+{
+    m_renderTarget = renderTarget;
+}
+
+void ShadowMapRenderer::createAndSetRenderTarget( const int2 dimensions, ID3D11Device& device )
 {
 	// Create depth render target.
-	m_depthRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
-		( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT );
+	m_renderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
+		( device, dimensions.x, dimensions.y, false, true, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 
 void ShadowMapRenderer::loadAndCompileShaders( ID3D11Device& device )
 {
 	m_blockMeshVertexShader->compileFromFile( "Shaders/BlockMeshShader/vs.hlsl", device );
 	m_skeletonMeshVertexShader->compileFromFile( "Shaders/SkeletonMeshShader/vs.hlsl", device );
+}
+
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > ShadowMapRenderer::getRenderTarget()
+{
+    return m_renderTarget;
 }
