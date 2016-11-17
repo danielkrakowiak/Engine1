@@ -41,7 +41,9 @@ void main( uint3 groupId : SV_GroupID,
            uint  groupIndex : SV_GroupIndex )
 {
     const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
-    const float2 outputTextureHalfPixelSize = 1.0f / outputTextureSize; // Should be illumination texture size?
+    //const float2 outputTextureHalfPixelSize = 1.0f / outputTextureSize; // Should be illumination texture size?
+
+    const float2 pixelSize0 = 1.0f / outputTextureSize;
 
     const float3 surfacePosition     = g_positionTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfaceAlbedo       = g_albedoTexture[ dispatchThreadId.xy ].xyz;
@@ -50,20 +52,63 @@ void main( uint3 groupId : SV_GroupID,
     const float  surfaceRoughness    = g_roughnessTexture[ dispatchThreadId.xy ];
     const float3 surfaceNormal       = g_normalTexture[ dispatchThreadId.xy ].xyz;
 
-	const float surfaceIllumination = (
+    const float3 vectorToCamera = cameraPos - surfacePosition;
+    const float3 dirToCamera    = normalize( vectorToCamera );
+    const float  distToCamera   = length( vectorToCamera );
+
+    const float3 vectorToLight = lightPosition.xyz - surfacePosition;
+    const float3 dirToLight    = normalize( vectorToLight );
+    const float  distToLight   = length( vectorToLight );
+
+    const float blurRadius = 10.0f * max( 0.0f, distToLight - 0.5f ) / log2( distToCamera + 1.0f );
+
+    float samplingRadius      = 2.0f * min( 1.0f, blurRadius );
+    float samplingMipmapLevel = log2( blurRadius / 2.0f );
+    
+
+    float surfaceIllumination = 0.0f;
+
+    if ( samplingRadius <= 0.0001f )
+    {
+        surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
+    }
+    else
+    {
+        float2 pixelSize = pixelSize0 * (float)pow( 2, samplingMipmapLevel );
+        float sampleCount = 0.0f;
+
+        for ( float y = -samplingRadius; y <= samplingRadius; y += 1.0f ) 
+        {
+            for ( float x = -samplingRadius; x <= samplingRadius; x += 1.0f ) 
+            {
+                const float2 texCoordShift = float2( pixelSize.x * x, pixelSize.y * y );
+
+                surfaceIllumination += g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift * 0.5f, samplingMipmapLevel );
+                sampleCount += 1.0f;
+            }
+        }
+
+        surfaceIllumination /= sampleCount;
+    }
+
+    //const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, mipmapLevel );
+
+    /*const float surfaceIllumination = (
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), mipmapLevel ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), mipmapLevel ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), mipmapLevel ) +
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), mipmapLevel ) ) / 4.0f;*/
+
+	/*const float surfaceIllumination = (
         g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
         g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
         g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) ) / 4.0f;
+        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) ) / 4.0f;*/
 
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
 
     float4 outputColor = float4( 0.0f, 0.0f, 0.0f, 0.0f );//float4( surfaceEmissive, 1.0f );
-
-    const float3 dirToCamera = normalize( cameraPos - surfacePosition );
-
-    const float3 dirToLight  = normalize( lightPosition.xyz - surfacePosition );
 
     outputColor.rgb += calculateDiffuseOutputColor( surfaceDiffuseColor, surfaceNormal, lightColor.rgb * surfaceIllumination, dirToLight );
     outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, lightColor.rgb * surfaceIllumination, dirToLight, dirToCamera );

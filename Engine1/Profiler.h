@@ -77,7 +77,9 @@ namespace Engine1
 
         enum class EventTypePerStagePerLight : int
         {
-            Shadows = 0,
+            ShadowsMapping = 0,
+            RaytracingShadows,
+            MipmapGenerationForIllumination,
             Shading,
             MAX_VALUE
         };

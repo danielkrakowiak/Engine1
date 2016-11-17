@@ -12,6 +12,7 @@
 #include "CombiningRenderer.h"
 #include "TextureRescaleRenderer.h"
 #include "RaytraceShadowRenderer.h"
+#include "RasterizeShadowRenderer.h"
 #include "ShadowMapRenderer.h"
 
 #include "uchar4.h"
@@ -159,15 +160,16 @@ namespace Engine1
         Direct3DRendererCore&     m_rendererCore;
         Profiler&                 m_profiler;
 
-        Direct3DDeferredRenderer  m_deferredRenderer;
-        RaytraceRenderer          m_raytraceRenderer;
-        ShadingRenderer           m_shadingRenderer;
+        Direct3DDeferredRenderer            m_deferredRenderer;
+        RaytraceRenderer                    m_raytraceRenderer;
+        ShadingRenderer                     m_shadingRenderer;
         ReflectionRefractionShadingRenderer m_reflectionRefractionShadingRenderer;
-        EdgeDetectionRenderer     m_edgeDetectionRenderer;
-        CombiningRenderer         m_combiningRenderer;
-        TextureRescaleRenderer    m_textureRescaleRenderer;
-		RaytraceShadowRenderer    m_raytraceShadowRenderer;
-		ShadowMapRenderer         m_shadowMapRenderer;
+        EdgeDetectionRenderer               m_edgeDetectionRenderer;
+        CombiningRenderer                   m_combiningRenderer;
+        TextureRescaleRenderer              m_textureRescaleRenderer;
+        RasterizeShadowRenderer             m_rasterizeShadowRenderer;
+		RaytraceShadowRenderer              m_raytraceShadowRenderer;
+		ShadowMapRenderer                   m_shadowMapRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

@@ -36,6 +36,7 @@ namespace Engine1
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
 			/*const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,*/
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
 			const BlockMesh& mesh,
 			const float43& worldMatrix,
 			const float3 boundingBoxMin,
@@ -62,7 +63,7 @@ namespace Engine1
 			float        pad4;
             unsigned int isOpaque;
             float3       pad5;
-            unsigned int isShadowMapAvailable;
+            unsigned int isPreIlluminationAvailable;
             float3       pad6;
             float44      shadowMapViewMatrix;
             float44      shadowMapProjectionMatrix;

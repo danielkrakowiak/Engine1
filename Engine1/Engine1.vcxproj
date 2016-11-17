@@ -284,6 +284,8 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelUtil.h" />
     <ClInclude Include="Profiler.h" />
+    <ClInclude Include="RasterizeShadowRenderer.h" />
+    <ClInclude Include="RasterizingShadowsComputeShader.h" />
     <ClInclude Include="RaytraceShadowRenderer.h" />
     <ClInclude Include="RaytracingShadowsComputeShader.h" />
     <ClInclude Include="ReflectionShadingComputeShader.h" />
@@ -427,6 +429,8 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelUtil.cpp" />
     <ClCompile Include="Profiler.cpp" />
+    <ClCompile Include="RasterizeShadowRenderer.cpp" />
+    <ClCompile Include="RasterizingShadowsComputeShader.cpp" />
     <ClCompile Include="RaytraceShadowRenderer.cpp" />
     <ClCompile Include="RaytracingShadowsComputeShader.cpp" />
     <ClCompile Include="ReflectionShadingComputeShader.cpp" />
@@ -768,6 +772,14 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\RasterizingShadowsShader\cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>

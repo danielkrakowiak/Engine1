@@ -14,7 +14,7 @@ cbuffer ConstantBuffer : register( b0 )
 	float    pad4;
     uint     isOpaque; // 1 - fully opaque, 0 - semi transparent.
     float3   pad5;
-    uint     isShadowMapAvailable; // 1 - available, 0 - not available.
+    uint     isPreIlluminationAvailable; // 1 - available, 0 - not available.
     float3   pad6;
     float4x4 shadowMapViewMatrix;
     float4x4 shadowMapProjectionMatrix;
@@ -24,7 +24,7 @@ cbuffer ConstantBuffer : register( b0 )
 Texture2D<float4> g_rayOrigins       : register( t0 );
 Texture2D<float4> g_surfaceNormal    : register( t1 );
 //Texture2D<float4> g_contributionTerm : register( t1 ); // How much of the ray color is visible by the camera. Used to avoid checking shadows for useless rays.
-Texture2D<float>  g_shadowMap        : register( t2 );
+Texture2D<float>  g_preIllumination  : register( t2 );
 ByteAddressBuffer g_meshVertices     : register( t3 );
 ByteAddressBuffer g_meshTexcoords    : register( t4 );
 ByteAddressBuffer g_meshTriangles    : register( t5 );
@@ -54,12 +54,6 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minHitDist = 0.001f;
 
-static const float lightSampleCount = 64;
-static const float lightSampleCountPerSide = sqrt( lightSampleCount );
-static const float lightSizeHalf = 0.10f;
-static const float lightSizeStep = lightSizeHalf * 2.0f / lightSampleCountPerSide;
-static const float lightAmountPerSample = (1.0f / lightSampleCount);
-
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
@@ -70,6 +64,10 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
+    // DISABLED FOR NOW:
+    g_illumination[ dispatchThreadId.xy ] = g_preIllumination[ dispatchThreadId.xy ];
+    return;
+
     const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
 
 	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
@@ -90,73 +88,19 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    ////////////////////////////////////////////
-
-    if ( isShadowMapAvailable )
-    {
-        float4 rayOriginInShadowMap;
-        rayOriginInShadowMap = mul( float4( rayOrigin, 1.0f ), shadowMapViewMatrix );
-        rayOriginInShadowMap = mul( rayOriginInShadowMap, shadowMapProjectionMatrix );
-
-         // Calculate the projected texture coordinates.
-        rayOriginInShadowMap.x =  rayOriginInShadowMap.x / rayOriginInShadowMap.w / 2.0f + 0.5f;
-        rayOriginInShadowMap.y = -rayOriginInShadowMap.y / rayOriginInShadowMap.w / 2.0f + 0.5f;
-
-         // Determine if the projected coordinates are in the 0 to 1 range.  If so then this pixel is in the view of the light.
-        if( (saturate( rayOriginInShadowMap.x ) == rayOriginInShadowMap.x ) && ( saturate( rayOriginInShadowMap.y ) == rayOriginInShadowMap.y ) )
-        {
-             // Sample the shadow map depth value from the depth texture using the sampler at the projected texture coordinate location.
-            const float shadowMapDepth = g_shadowMap.SampleLevel( g_pointSamplerState, rayOriginInShadowMap.xy, 0.0f ).r; // #TODO: Which sampler to use?
-            
-            // Calculate the depth of the light.
-            const float rayOriginDepth = rayOriginInShadowMap.z / rayOriginInShadowMap.w;
-
-            // Subtract the bias from the lightDepthValue.
-            const float bias = 0.0001f * tan( acos( saturate( normalLightDot ) ) );
-
-            // Compare the depth of the shadow map value and the depth of the light to determine whether to shadow or to light this pixel.
-            // If the light is in front of the object then light the pixel, if not then shadow this pixel since an object (occluder) is casting a shadow on it.
-            if( rayOriginDepth - bias > shadowMapDepth )
-            {
-                g_illumination[ dispatchThreadId.xy ] = 0;
-                return;
-            }
-        }
-        else
-        {
-            g_illumination[ dispatchThreadId.xy ] = 0;
-            return;
-        }
-
-        return; //////// Don't trace any rays for now...
-    }
-
-    ///////////////////////////////////////////
-
     // #TODO: Reading unsigned char from UAV is supported only on DirectX 11.3. 
 	float illumination = (float)illuminationUint / 255.0f;
 
 	const float  rayMaxLength = length( lightPosition - rayOrigin );
 
-	const float3 lightDir  = normalize( lightPosition - rayOrigin );
-	const float3 lightSide = cross( lightDir, float3( 0.0f, 1.0f, 0.0f ) );
-	const float3 lightUp   = cross( lightDir, lightSide );
-
 	// Offset to avoid self-collision. 
     // Note: Is it useful? We still need to check against the "origin triangle" and ignore by intersection distance... Or not?
     const float3 rayOriginOffset = rayDirBase * 0.001f; 
     
-                                                        // Transform the ray from world to local space.
+    // Transform the ray from world to local space.
 	const float4 rayOriginLocal = mul( float4( rayOrigin + rayOriginOffset, 1.0f ), worldToLocalMatrix ); //#TODO: ray origin could be passed in local space to avoid this calculation.
 
-	//for ( float x = -lightSizeHalf; x <= lightSizeHalf; x += lightSizeStep )
-	//{
-		//for ( float y = -lightSizeHalf; y <= lightSizeHalf; y += lightSizeStep )
-		//{
-
-			/////////////////////////////////////////////////////
-
-	const float3 rayDir       = normalize( lightPosition /*+ x * lightSide + y * lightUp*/ - rayOrigin );
+	const float3 rayDir       = normalize( lightPosition - rayOrigin );
 	const float4 rayDirLocal  = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix ) - rayOriginLocal;
 
 	// Test the ray against the bounding box
@@ -249,11 +193,6 @@ void main( uint3 groupId : SV_GroupID,
 			}
 		}
 	}
-
-			/////////////////////////////////////////////////////
-
-		//}
-	//}
 
     g_illumination[ dispatchThreadId.xy ] = (uint)( max( 0.0f, illumination ) * 255.0f );
 }

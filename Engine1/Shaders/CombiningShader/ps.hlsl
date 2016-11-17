@@ -217,6 +217,10 @@ float4 main(PixelInputType input) : SV_Target
 
         // Note: Sample more sparsly when large sampling radius is used to avoid taking too many samples and decreasing performance.
         // Usually large sampling radius is caused by zooming on an object or very high roughness, to skipping some samples causes no problem then.
+
+        // #TODO: What if sampling radius < 1 - step always equals to 1... makes no sense..?
+        // Shouldn't this loop be hardcoded from -1 to 1 with step size of 1? Only pixel size would differ...
+        // IMPORTANT: Maybe the whole loop can be unrolled?
         for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep ) 
         {
             for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 

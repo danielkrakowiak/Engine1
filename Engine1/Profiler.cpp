@@ -69,6 +69,7 @@ std::string Profiler::eventTypeToString( const EventTypePerStage eventType )
         case EventTypePerStage::EmissiveShading:                       return "EmissiveShading";
         case EventTypePerStage::ReflectionTransmissionShading:         return "ReflectionTransmissionShading";
         case EventTypePerStage::Raytracing:                            return "Raytracing";
+        case EventTypePerStage::ShadingNoShadows:                      return "ShadingNoShadows";
         case EventTypePerStage::Shading:                               return "Shading";
         case EventTypePerStage::MipmapGenerationForShadedImage:        return "MipmapGenerationForShadedImage";
         case EventTypePerStage::CombiningWithMainImage:                return "CombiningWithMainImage";
@@ -81,8 +82,10 @@ std::string Profiler::eventTypeToString( const EventTypePerStagePerLight eventTy
 {
     switch ( eventType ) 
     {
-        case EventTypePerStagePerLight::Shadows: return "Shadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
-        case EventTypePerStagePerLight::Shading: return "Shading" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::ShadowsMapping:                  return "Shadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::RaytracingShadows:               return "RaytracingShadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::MipmapGenerationForIllumination: return "MipmapGenerationForIllumination" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::Shading:                         return "Shading" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
     }
 
     return "";

@@ -39,6 +39,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_edgeDetectionRenderer( rendererCore ),
     m_combiningRenderer( rendererCore ),
     m_textureRescaleRenderer( rendererCore ),
+    m_rasterizeShadowRenderer( rendererCore ),
 	m_raytraceShadowRenderer( rendererCore ),
 	m_shadowMapRenderer( rendererCore ),
     m_activeViewType( View::Final ),
@@ -64,6 +65,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_edgeDetectionRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_combiningRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
+    m_rasterizeShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_shadowMapRenderer.initialize( device, deviceContext );
 
@@ -310,14 +312,12 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
     m_deferredRenderer.getPositionRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
-
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_deferredRenderer.getEmissiveRenderTarget() );
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
-
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows( camera, m_deferredRenderer.getPositionRenderTarget(),
@@ -329,18 +329,37 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
 
-		m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsCastingShadows[ lightIdx ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
+        if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight 
+             && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
+        )
+        {
+            m_rasterizeShadowRenderer.performShadowMapping(
+                lightsCastingShadows[ lightIdx ],
+                m_deferredRenderer.getPositionRenderTarget(),
+                m_deferredRenderer.getNormalRenderTarget()
+            );
+        }
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
+        //m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsCastingShadows[ lightIdx ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
+
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
+
+        m_rasterizeShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        //m_raytraceShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(),
 			m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
-			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture(), *lightsCastingShadows[ lightIdx ] );
+			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/, *lightsCastingShadows[ lightIdx ] );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
@@ -375,7 +394,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             case View::IndexOfRefraction:
                 return std::make_tuple( true, m_deferredRenderer.getIndexOfRefractionRenderTarget(), nullptr, nullptr, nullptr, nullptr );
 			case View::Test:
-				return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+				return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/, nullptr, nullptr, nullptr, nullptr );
         }
     }
 
@@ -519,18 +538,32 @@ void Renderer::renderFirstReflections( const Camera& camera,
     const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
+        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
 
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight
+             && std::static_pointer_cast<SpotLight>( lightsCastingShadows[ lightIdx ] )->getShadowMap()
+        ) 
+        {
+            m_rasterizeShadowRenderer.performShadowMapping(
+                lightsCastingShadows[ lightIdx ],
+                m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+                m_raytraceRenderer.getRayHitNormalTexture( 0 )
+            );
+        }
 
-		m_raytraceShadowRenderer.generateAndTraceShadowRays( 
-			lightsCastingShadows[ lightIdx ], 
-			m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
-			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
-			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-			blockActors 
-		);
+        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+		//m_raytraceShadowRenderer.generateAndTraceShadowRays( 
+		//	lightsCastingShadows[ lightIdx ], 
+		//	m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
+		//	m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
+		//	m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
+  //          nullptr, //#TODO: Should I use a pre-illumination?
+		//	blockActors 
+		//);
+
+        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
@@ -541,7 +574,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
 			m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
-			m_raytraceShadowRenderer.getIlluminationTexture(),
+			m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
 			*lightsCastingShadows[ lightIdx ] 
 		);
 
@@ -628,17 +661,32 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
 
-		m_raytraceShadowRenderer.generateAndTraceShadowRays(
-			lightsCastingShadows[ lightIdx ],
-			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
-			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
-			blockActors
-		);
+        if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight
+             && std::static_pointer_cast<SpotLight>( lightsCastingShadows[ lightIdx ] )->getShadowMap()
+        ) 
+        {
+            m_rasterizeShadowRenderer.performShadowMapping(
+                lightsCastingShadows[ lightIdx ],
+                m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+                m_raytraceRenderer.getRayHitNormalTexture( 0 )
+            );
+        }
 
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+
+		//m_raytraceShadowRenderer.generateAndTraceShadowRays(
+		//	lightsCastingShadows[ lightIdx ],
+		//	m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+		//	m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
+		//	m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
+  //          nullptr, //#TODO: Should I use a pre-illumination?
+		//	blockActors
+		//);
+
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
         m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
@@ -649,7 +697,7 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 			m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
-			m_raytraceShadowRenderer.getIlluminationTexture(),
+			m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
 			*lightsCastingShadows[ lightIdx ]
 		);
 
@@ -717,13 +765,25 @@ void Renderer::renderReflections( const int level, const Camera& camera,
 
     for ( const std::shared_ptr< Light >& light : lightsCastingShadows ) 
     {
-        m_raytraceShadowRenderer.generateAndTraceShadowRays(
-            light,
-            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-            m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
-            blockActors
+        if ( light->getType() == Light::Type::SpotLight
+             && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
+        ) 
+        {
+            m_rasterizeShadowRenderer.performShadowMapping(
+                light,
+                m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+                m_raytraceRenderer.getRayHitNormalTexture( level - 1 )
             );
+        }
+
+        //m_raytraceShadowRenderer.generateAndTraceShadowRays(
+        //    light,
+        //    m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+        //    m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+        //    m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+        //    nullptr, //#TODO: Should I use a pre-illumination?
+        //    blockActors
+        //    );
 
         // Perform shading on the main image.
         m_shadingRenderer.performShading(
@@ -733,7 +793,7 @@ void Renderer::renderReflections( const int level, const Camera& camera,
             m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-            m_raytraceShadowRenderer.getIlluminationTexture(),
+            m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
             *light
             );
     }
@@ -789,13 +849,25 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
 
     for ( const std::shared_ptr< Light >& light : lightsCastingShadows ) 
     {
-        m_raytraceShadowRenderer.generateAndTraceShadowRays(
-            light,
-            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-            m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
-            blockActors
+        if ( light->getType() == Light::Type::SpotLight
+             && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
+        ) 
+        {
+            m_rasterizeShadowRenderer.performShadowMapping(
+                light,
+                m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+                m_raytraceRenderer.getRayHitNormalTexture( level - 1 )
             );
+        }
+
+        //m_raytraceShadowRenderer.generateAndTraceShadowRays(
+        //    light,
+        //    m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+        //    m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+        //    m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+        //    nullptr, //#TODO: Should I use a pre-illumination?
+        //    blockActors
+        //    );
 
         // Perform shading on the main image.
         m_shadingRenderer.performShading(
@@ -805,7 +877,7 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
             m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-            m_raytraceShadowRenderer.getIlluminationTexture(),
+            m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
             *light
             );
     }

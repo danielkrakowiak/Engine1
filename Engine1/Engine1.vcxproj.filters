@@ -355,6 +355,12 @@
     <Filter Include="Source Files\SceneManager">
       <UniqueIdentifier>{0000023b-b85f-4d1a-8190-4bdf50fed411}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shader\RasterizingShadows">
+      <UniqueIdentifier>{04aa38fa-d233-440c-982e-a64c836b967c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\RasterizingShadows">
+      <UniqueIdentifier>{d44c1ef0-eec1-4f00-9008-f1e7bf977f3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -783,6 +789,12 @@
     <ClInclude Include="EmissiveBlockMeshFragmentShader.h">
       <Filter>Header Files\Shader\BlockMesh</Filter>
     </ClInclude>
+    <ClInclude Include="RasterizeShadowRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizingShadowsComputeShader.h">
+      <Filter>Header Files\Shader\RasterizingShadows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1178,6 +1190,12 @@
     <ClCompile Include="SpotLightParser.cpp">
       <Filter>Source Files\Light\Parsers</Filter>
     </ClCompile>
+    <ClCompile Include="RasterizeShadowRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RasterizingShadowsComputeShader.cpp">
+      <Filter>Source Files\Shader\RasterizingShadows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1319,6 +1337,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\BlockMeshShader\ps_emissive.hlsl">
       <Filter>Source Files\Shader\BlockMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RasterizingShadowsShader\cs.hlsl">
+      <Filter>Source Files\Shader\RasterizingShadows</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

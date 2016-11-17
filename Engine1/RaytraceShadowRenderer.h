@@ -39,10 +39,11 @@ namespace Engine1
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
 			const std::vector< std::shared_ptr< const BlockActor > >& actors
 		);
 
-		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > getIlluminationTexture();
+		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getIlluminationTexture();
 
 	private:
 
@@ -56,7 +57,7 @@ namespace Engine1
 		// Render targets.
 		int m_imageWidth, m_imageHeight;
 
-		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_illuminationTexture;
+		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_illuminationTexture;
 
 		void createComputeTargets(int imageWidth, int imageHeight, ID3D11Device& device);
 

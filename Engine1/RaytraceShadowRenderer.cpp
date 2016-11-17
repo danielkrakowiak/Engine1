@@ -50,6 +50,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
 	const std::vector< std::shared_ptr< const BlockActor > >& actors
 )
 {
@@ -88,7 +89,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 			= model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
 
 		m_raytracingShadowsComputeShader->setParameters( 
-			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, *actor->getModel()->getMesh(), actor->getPose(),
+			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, preIlluminationTexture, *actor->getModel()->getMesh(), actor->getPose(),
 			bbBox.getMin(), bbBox.getMax(), alphaTexture, imageWidth, imageHeight 
 		);
 
@@ -103,15 +104,16 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getIlluminationTexture()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getIlluminationTexture()
 {
 	return m_illuminationTexture;
 }
 
 void RaytraceShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-	m_illuminationTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
-		( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
+    // #TODO: Is using mipmaps? Disable them if they are not necessary.
+	m_illuminationTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
+		( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 }
 
 void RaytraceShadowRenderer::loadAndCompileShaders( ID3D11Device& device )

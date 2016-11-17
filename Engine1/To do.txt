@@ -310,6 +310,36 @@ Idea:
 
 	  NOW:
 
+	  - blurring shadows could be done in a separate pass... To shorten the shaders.. Why mix it with shading... Also easier to track performance...
+
+	  - fix shadow map to be read only once - not for each object..
+	  - use normal when calculating blur radius for shadow... to avoid dim shadow at flat angles.
+
+	  NEEDED TEST SCENES:
+		- a tower in the desert - to show shadow far from the occluder. How it looks with shadow map and how with ray tracing. How soft shadow acts with distance, how soft shadow look using RT or SM.
+
+		- how to handle semi-transparent models in shadow mapping phase?
+		- should there be a separate shadow raytracing shader for lights without shadow maps?
+
+	  - THOUGHTS ON MY TECHNIQUE FOR SOFT SHADOWS:
+		- the only way to get sharp shadows is to calculate them in screen-space
+		- and when doing it in screen-space I found a prety good technique to make them soft where needed
+		- we can also know the needed quality in advance and trace rays where sharp shadow is needed and use shadow map where soft shadow is needed (as optimization)
+		- and generally use shadow map to avoid tracing most rays (fully illuminated or shadowed).
+		- FIX: I have to fix fake bright samples...
+		- FIX: problem when looking at flat angle - smaller screen space is covered in shadow and shadow gets too dim...
+		- FIX: handle samples outside of screen - or rather mipmap generation fails for screen regions near egdes..
+		- how this blurring would work in reflections? When it is needed?
+
+	  - what is the size of the penumbra? Source: https://www.nde-ed.org/GeneralResources/Formula/RTFormula/Unsharpness/GeometricUnsharpness.htm
+	    How much to blur shadows based on light source size, distance from light ot occluder and distance from occluder to shadow receiver.
+		u = lightRadius * (lightToOccluderDist / occluderToSurfaceDist)
+
+	  - Do I know the length of the shortest shadow ray for given pixel? No... Needed only for area lights...
+	    I should probably store it in a separate texture.
+
+	  - should not sample shadow map in every raytracing pass!!1 Should only do it once and then improve the edges using raytracing...
+
 	  - Good paper (a bit lod now...) describing various soft-shadow techniques: http://maverick.inria.fr/Publications/2003/HLHS03a/SurveyRTSoftShadows.pdf
 
 	  - maybe I should try blurring the shadows as the distance to the obstalce increases? I would probably ned more expensive ray tracing to get min distance to obstacle... 

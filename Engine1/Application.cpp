@@ -245,6 +245,8 @@ void Application::run() {
 
     Timer profilingLastRefreshTime;
 
+    m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+
 	while ( run ) {
 		Timer frameStartTime;
 
@@ -543,9 +545,14 @@ void Application::run() {
 
                     for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
                     {
-                        stageProfilingInfo[ stage ].shadowsPerLight[ lightIdx ] = m_profiler.getEventDuration( (Profiler::StageType)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
-                        if ( stageProfilingInfo[ stage ].shadowsPerLight[ lightIdx ] >= 0.0f )
-                            stageProfilingInfo[ stage ].shadowsTotal += stageProfilingInfo[ stage ].shadowsPerLight[ lightIdx ];
+                        stageProfilingInfo[ stage ].shadowMappingPerLight[ lightIdx ]     = m_profiler.getEventDuration( (Profiler::StageType)stage, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+                        stageProfilingInfo[ stage ].raytracingShadowsPerLight[ lightIdx ] = m_profiler.getEventDuration( (Profiler::StageType)stage, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
+
+                        if ( stageProfilingInfo[ stage ].shadowMappingPerLight[ lightIdx ] >= 0.0f )
+                            stageProfilingInfo[ stage ].shadowsTotal += stageProfilingInfo[ stage ].shadowMappingPerLight[ lightIdx ];
+
+                        if ( stageProfilingInfo[ stage ].raytracingShadowsPerLight[ lightIdx ] >= 0.0f )
+                            stageProfilingInfo[ stage ].shadowsTotal += stageProfilingInfo[ stage ].raytracingShadowsPerLight[ lightIdx ];
                         
                         stageProfilingInfo[ stage ].shadingPerLight[ lightIdx ] = m_profiler.getEventDuration( (Profiler::StageType)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
                         
@@ -593,9 +600,21 @@ void Application::run() {
 
                 for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx )
                 {
-                    const float eventDuration = stageProfilingInfo[ stage ].shadowsPerLight[ lightIdx ];
+                    const float eventDuration  = stageProfilingInfo[ stage ].shadowMappingPerLight[ lightIdx ];
+                    const float eventDuration2 = stageProfilingInfo[ stage ].raytracingShadowsPerLight[ lightIdx ];
+
+                    if ( eventDuration <= 0.0f && eventDuration2 <= 0.0f )
+                        continue;
+
+                    ss << "        ";
+
                     if ( eventDuration > 0.0f )
-                        ss << "        " << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::Shadows, lightIdx ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+                        ss << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::ShadowsMapping, lightIdx ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%";
+                    
+                    if ( eventDuration2 > 0.0f )
+                        ss << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::RaytracingShadows, lightIdx ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%";
+
+                    ss << "\n";
                 }
 
                 // Print duration of shading calculations (total + for each light).
@@ -930,9 +949,15 @@ void Application::onKeyPress( int key )
     // [ L + P ] - Add point light.
     // [ L + S ] - Add spot light.
     if ( key == InputManager::Keys::l && m_inputManager.isKeyPressed( InputManager::Keys::p ) ) 
+    {
         m_sceneManager.addPointLight();
+        m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+    }
     else if ( key == InputManager::Keys::l && m_inputManager.isKeyPressed( InputManager::Keys::s ) )
+    {
         m_sceneManager.addSpotLight();
+        m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+    }
     
     // [Ctrl + S] - save scene or selected models.
     if ( ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) &&
@@ -962,7 +987,10 @@ void Application::onKeyPress( int key )
 
     // [Delete] - Delete selected actors and lights.
     if ( key == InputManager::Keys::delete_ ) 
+    {
         m_sceneManager.deleteSelected();
+        m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+    }
 
     // [+] or [-] - Change light brightness.
     if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
@@ -981,7 +1009,10 @@ void Application::onKeyPress( int key )
 
     // [Shift + Enter] - Enable/disable casting shadows for lights and actors.
     if ( key == InputManager::Keys::enter && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+    {
         m_sceneManager.enableDisableCastingShadowsForSelected();
+        m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+    }
 
     // [Shift + C] - Clone the actors, but share their models with the original actors.
     if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) 
