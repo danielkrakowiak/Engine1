@@ -12,10 +12,14 @@ cbuffer ConstantBuffer : register( b0 )
     float2   pad3;
 	float3   lightPosition;
 	float    pad4;
-    uint     isOpaque; // 1 - fully opaque, 0 - semi transparent.
+    float    lightConeMinDot;
     float3   pad5;
+    float3   lightDirection;
+    float    pad6;
+    uint     isOpaque; // 1 - fully opaque, 0 - semi transparent.
+    float3   pad7;
     uint     isPreIlluminationAvailable; // 1 - available, 0 - not available.
-    float3   pad6;
+    float3   pad8;
     float4x4 shadowMapViewMatrix;
     float4x4 shadowMapProjectionMatrix;
 };
@@ -64,16 +68,38 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    // DISABLED FOR NOW:
-    g_illumination[ dispatchThreadId.xy ] = g_preIllumination[ dispatchThreadId.xy ];
-    return;
-
     const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
 
 	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 	//const float3 contributionTerm = g_contributionTerm.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
-	const float3 rayDirBase    = normalize( lightPosition /*+ x * lightSide + y * lightUp*/ - rayOrigin );
+	const float3 rayDirBase = normalize( lightPosition - rayOrigin );
+
+    // If pixel is outside of spot light's cone - ignore.
+    if ( dot( lightDirection, -rayDirBase ) < lightConeMinDot ) {
+        g_illumination[ dispatchThreadId.xy ] = 0;
+        return;
+    }
+
+    // Check if raytracing shadows is needed for this pixel.
+    const float preillumination = g_preIllumination.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
+    if ( preillumination < 0.01f || preillumination > 0.99f )
+    {
+        // This pixel and its neighbors are entirely in shadow or entirely lit - don't raytrace.
+
+        //#TODO: This write should be avoided. There is not point to write the same copied value each time this shader is run...
+        // This could be done in the first pass. Just copying values from preillumination texture. Or preillumination could be copied entirely using a copy drawcall.
+
+        g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
+        return;
+    }
+    //else
+    //{
+    //    // Raytrace!!!
+    //    g_illumination[ dispatchThreadId.xy ] = 128;
+    //    return;
+    //}
+
 	const float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
     const float normalLightDot = dot( surfaceNormal, rayDirBase );

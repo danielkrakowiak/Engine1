@@ -186,7 +186,9 @@ void RaytracingShadowsComputeShader::setParameters(
             // #TODO: Should be calculated inside a spotlight ( like getViewMatrix() and getProjectionMatrix() ) 
             // to ensure that all classes using a spotlight have the same view and projection matrices.
             dataPtr->shadowMapViewMatrix       = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) ).getTranspose();
-            dataPtr->shadowMapProjectionMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle(), (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f ).getTranspose();
+            dataPtr->shadowMapProjectionMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f ).getTranspose();
+            dataPtr->lightConeMinDot           = cos( spotLight.getConeAngle() );
+            dataPtr->lightDirection            = spotLight.getDirection();
             //dataPtr->shadowMapProjectionMatrix =  MathUtil::orthographicProjectionTransformation( (float)SpotLight::s_shadowMapDimensions.x, (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 50.0f ).getTranspose();
         }
         else

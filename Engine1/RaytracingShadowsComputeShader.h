@@ -49,7 +49,7 @@ namespace Engine1
 		private:
 
 		__declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
-			struct ConstantBuffer
+		struct ConstantBuffer
 		{
 			float44      localToWorldMatrix;
 			float44      worldToLocalMatrix;
@@ -61,10 +61,14 @@ namespace Engine1
 			float2       pad3;
 			float3       lightPosition;
 			float        pad4;
-            unsigned int isOpaque;
+            float        lightConeMinDot;
             float3       pad5;
+            float3       lightDirection;
+            float        pad6;
+            unsigned int isOpaque;
+            float3       pad7;
             unsigned int isPreIlluminationAvailable;
-            float3       pad6;
+            float3       pad8;
             float44      shadowMapViewMatrix;
             float44      shadowMapProjectionMatrix;
 		};

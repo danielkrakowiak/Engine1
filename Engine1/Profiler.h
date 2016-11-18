@@ -79,6 +79,7 @@ namespace Engine1
         {
             ShadowsMapping = 0,
             RaytracingShadows,
+            MipmapGenerationForPreillumination,
             MipmapGenerationForIllumination,
             Shading,
             MAX_VALUE

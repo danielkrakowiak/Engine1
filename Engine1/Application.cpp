@@ -590,7 +590,7 @@ void Application::run() {
                 {
                     const float eventDuration = stageProfilingInfo[ stage ].event[ eventType ];
                     if ( eventDuration >= 0.0f )
-                        ss << "    " << Profiler::eventTypeToString( (Profiler::EventTypePerStage)eventType ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+                        ss << "    " << Profiler::eventTypeToString( (Profiler::EventTypePerStage)eventType ) << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
                 }
 
                 // Print duration of shadow calculations (total + for each light).
@@ -609,10 +609,10 @@ void Application::run() {
                     ss << "        ";
 
                     if ( eventDuration > 0.0f )
-                        ss << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::ShadowsMapping, lightIdx ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%";
+                        ss << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::ShadowsMapping, lightIdx ) << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% ";
                     
                     if ( eventDuration2 > 0.0f )
-                        ss << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::RaytracingShadows, lightIdx ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%";
+                        ss << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::RaytracingShadows, lightIdx ) << ": " << eventDuration2 << " ms " << ( eventDuration2 / totalFrameTimeGPU ) * 100.0f << "% ";
 
                     ss << "\n";
                 }
@@ -626,7 +626,7 @@ void Application::run() {
                 {
                     const float eventDuration = stageProfilingInfo[ stage ].shadingPerLight[ lightIdx ];
                     if ( eventDuration > 0.0f )
-                        ss << "        " << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::Shading, lightIdx ) << ": " << eventDuration << " ms" << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+                        ss << "        " << Profiler::eventTypeToString( Profiler::EventTypePerStagePerLight::Shading, lightIdx ) << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
                 }
             }
 
@@ -1096,6 +1096,12 @@ void Application::onKeyPress( int key )
         m_renderer.setActiveViewType( Renderer::View::Contribution );
     else if ( key == InputManager::Keys::f2 )
         m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
+    else if ( key == InputManager::Keys::f3 )
+        m_renderer.setActiveViewType( Renderer::View::Preillumination );
+    else if ( key == InputManager::Keys::f4 )
+        m_renderer.setActiveViewType( Renderer::View::Illumination );
+    else if ( key == InputManager::Keys::f5 )
+        m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
 	else if ( key == InputManager::Keys::f12 )
 		m_renderer.setActiveViewType( Renderer::View::Test );
 

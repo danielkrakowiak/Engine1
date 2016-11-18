@@ -95,3 +95,9 @@ BIIIIIIG PROBLEM: !!!!!!!!!!!!!!!!!!!!!!
 	  - Do I have to have one raytracer per level? Do I need all of the raytracer's data buffers?
 
 
+
+BIG PROBLEM: Running raytracing shader for each mesh, reading screen-size texture over and over burns bandwidth really quickly. And is not scalable. 
+It costs 2ms to run a raytracing shader 57 times which does nothing but read one texture and quit. But it also writes something...
+- Reading the "ray origin" texture seems to be the bottleneck. Probably because it's float4 expensive format. I could use depth instead to save some bandwidth. But it's still not scalable enough...
+
+

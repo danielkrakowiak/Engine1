@@ -68,11 +68,11 @@ void main( uint3 groupId : SV_GroupID,
 
     float surfaceIllumination = 0.0f;
 
-    if ( samplingRadius <= 0.0001f )
-    {
+    //if ( samplingRadius <= 0.0001f )
+    //{
         surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
-    }
-    else
+    //}
+    /*else
     {
         float2 pixelSize = pixelSize0 * (float)pow( 2, samplingMipmapLevel );
         float sampleCount = 0.0f;
@@ -89,7 +89,7 @@ void main( uint3 groupId : SV_GroupID,
         }
 
         surfaceIllumination /= sampleCount;
-    }
+    }*/
 
     //const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, mipmapLevel );
 

@@ -95,7 +95,7 @@ void Renderer::renderShadowMaps( const Scene& scene )
         SpotLight& spotLight = static_cast< SpotLight& >( *light );
 
         const float44 viewMatrix        = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) );
-        const float44 perspectiveMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle(), (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f );
+        const float44 perspectiveMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f );
         //const float44 perspectiveMatrix = MathUtil::orthographicProjectionTransformation( (float)SpotLight::s_shadowMapDimensions.x, (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 50.0f );
 
         if ( spotLight.getShadowMap() )
@@ -342,16 +342,30 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             );
         }
 
+        
+
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
+        
+        //#TODO: Should not generate all mipmaps. Maybe only two or three...
+        m_rasterizeShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
-        //m_raytraceShadowRenderer.generateAndTraceShadowRays( lightsCastingShadows[ lightIdx ], m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), nullptr, blockActors );
+        m_raytraceShadowRenderer.generateAndTraceShadowRays( 
+            lightsCastingShadows[ lightIdx ], 
+            m_deferredRenderer.getPositionRenderTarget(), 
+            m_deferredRenderer.getNormalRenderTarget(),
+            nullptr, 
+            m_rasterizeShadowRenderer.getIlluminationTexture(),
+            blockActors 
+        );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
 
-        m_rasterizeShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        //m_raytraceShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        m_raytraceShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
@@ -359,7 +373,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(),
 			m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
-			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/, *lightsCastingShadows[ lightIdx ] );
+			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/, *lightsCastingShadows[ lightIdx ] );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
@@ -393,8 +407,10 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                 return std::make_tuple( true, m_deferredRenderer.getRoughnessRenderTarget(), nullptr, nullptr, nullptr, nullptr );
             case View::IndexOfRefraction:
                 return std::make_tuple( true, m_deferredRenderer.getIndexOfRefractionRenderTarget(), nullptr, nullptr, nullptr, nullptr );
-			case View::Test:
-				return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/, nullptr, nullptr, nullptr, nullptr );
+			case View::Preillumination:
+				return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::Illumination:
+                return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
         }
     }
 
@@ -473,8 +489,10 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
                 return std::make_tuple( true, nullptr, m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), nullptr, nullptr, nullptr );
             case View::CurrentRefractiveIndex:
                 return std::make_tuple( true, m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 ), nullptr, nullptr, nullptr, nullptr );
-			case View::Test:
-				return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::Preillumination:
+                return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::Illumination:
+                return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
         }
     }
 

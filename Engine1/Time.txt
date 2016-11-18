@@ -312,4 +312,4 @@ Thu 10.11.2016 - 3h - Added SpotLight, SpotLightParser classes. Added rendering 
 Fri 11.11.2016 - 3h - Sampling a shadow map when calculating illumination texture. Trying to fix Shadow Mapping.
 Sat 12.11.2016 - 4h - Fixed shadow mapping. Artefacts caused by too large bias and incorrect viewport settings. Added setting viewport in RendererCore.
 Tue 15.11.2016 - 2h - Implemented soft shadows using screen-space blur of illumination texture (work in progress).
-Thu 17.11.2016 - 2h - Added RasterizeShadowRenderer and RasterizingShadowsComputeShader classes. Performing shadow mapping in a separate pass.
+Thu 17.11.2016 - 4h - Added RasterizeShadowRenderer and RasterizingShadowsComputeShader classes. Performing shadow mapping in a separate pass. Detecting for which pixels I need to cast shadow rays depending on preillumination texture (from shadow mapping). Added ignoring pixels outside of spotlight cone. Detecing bottlenecks in raytracing shadows shader.

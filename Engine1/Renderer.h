@@ -51,6 +51,9 @@ namespace Engine1
             RayDirections,
             Contribution,
             CurrentRefractiveIndex,
+            Preillumination,
+            Illumination,
+            BlurredIllumination,
 			Test
         };
 

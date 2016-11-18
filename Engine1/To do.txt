@@ -310,10 +310,36 @@ Idea:
 
 	  NOW:
 
+	  - check all shader with SKIP_OPTIMIZATION flags and check if they are faster/slower with/without this flag.
+
+	  - VERY IMPORTANT: should I switch to reconstructing position from depth globally - it would reduce read bandwidth by factor of 4... And it seems to be the bottleneck...
+	    But I need to know ray direction anyways...
+	    But maybe later once I clean up the mess with shadows...
+
+	  - why shadowRaytracing shader costs 2ms even if it does nothing, but color the regions for which rays will be traced... Because of running it for every mesh... How ti improve that?
+	    I am probably burning bandwidth like hell by reading the same textures (screen-size) over and over..
+		Or maybe the problem is the number of runs or the fact that the shader writes to the illumination buffer... Maybe it shouldn't write if does nothing...
+		- Idea: I could handle the first copying from preillumination texture as a separate pass... to avoid worrying about it later on for every run.
+		- Better idea: Just copying values from preillumination texture. Or preillumination could be copied entirely using a copy drawcall (no need for another shader).
+		- Reading the "ray origin" texture seems to be the bottleneck. Probably because it's float4 expensive format. I could use depth instead to save some bandwidth. But it's still not scalable enough...
+
+	  - IMPORTANT: Can I somehow tell the compiler to not synchronize writes to the UAV? To ensure that I won't write to the same pixels from different threads... That could boost writes a bit..
+	    Is it really worth the effort? Or switching to pixel shaders?
+
+	  - OPTIMIZATION: Can I deduce for which screen region it is worth to run shadow raytracing shaders by projecting bounding box on screen - to avoid running shader for pixel which won't do anything in that particular run.
+	    To disable whole groups of threads by running them only in some square region of screen.
+
 	  - blurring shadows could be done in a separate pass... To shorten the shaders.. Why mix it with shading... Also easier to track performance...
 
-	  - fix shadow map to be read only once - not for each object..
+	  - OPTIMIZATION: when detecting pixels for which its useful to trace shadow rays I detect the need for pixels at the edge of spot light cone. There is no point to trace these rays. How to avoid that? Calculate dot in the shader for that light and compare with cone angle?
+
+	  - how to quickly tests neighbor pixels in preillumination texture? Create one or two mipmaps for it? And then sample only one pixel? Good because it doesn't miss any pixels like sparse samples could....
+
 	  - use normal when calculating blur radius for shadow... to avoid dim shadow at flat angles.
+
+	  - need to handle casting shadow rays for pixel which are too far from the spot light (ex. above 100m which is max for shadow map).
+
+	  - PROFILING: how to track the total number of traced rays?
 
 	  NEEDED TEST SCENES:
 		- a tower in the desert - to show shadow far from the occluder. How it looks with shadow map and how with ray tracing. How soft shadow acts with distance, how soft shadow look using RT or SM.

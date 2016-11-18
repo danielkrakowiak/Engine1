@@ -48,6 +48,10 @@ namespace Engine1
             float2       pad1;
             float3       lightPosition;
             float        pad2;
+            float        lightConeMinDot;
+            float3       pad3;
+            float3       lightDirection;
+            float        pad4;
             float44      shadowMapViewMatrix;
             float44      shadowMapProjectionMatrix;
         };

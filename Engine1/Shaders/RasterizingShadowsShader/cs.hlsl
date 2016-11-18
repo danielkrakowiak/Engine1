@@ -6,6 +6,10 @@ cbuffer ConstantBuffer : register( b0 )
     float2   pad1;
 	float3   lightPosition;
 	float    pad2;
+    float    lightConeMinDot;
+    float3   pad3;
+    float3   lightDirection;
+    float    pad4;
     float4x4 shadowMapViewMatrix;
     float4x4 shadowMapProjectionMatrix;
 };
@@ -38,7 +42,14 @@ void main( uint3 groupId : SV_GroupID,
 
 	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
-	const float3 rayDirBase    = normalize( lightPosition - rayOrigin );
+	const float3 rayDirBase  = normalize( lightPosition - rayOrigin );
+
+    // If pixel is outside of spot light's cone - ignore.
+    if ( dot( lightDirection, -rayDirBase ) < lightConeMinDot ) {
+        g_illumination[ dispatchThreadId.xy ] = 0;
+        return;
+    }
+
 	const float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
     const float normalLightDot = dot( surfaceNormal, rayDirBase );
@@ -69,7 +80,7 @@ void main( uint3 groupId : SV_GroupID,
         const float rayOriginDepth = rayOriginInShadowMap.z / rayOriginInShadowMap.w;
 
         // Subtract the bias from the lightDepthValue.
-        const float bias = 0.0001f * tan( acos( saturate( normalLightDot ) ) );
+        const float bias = 0.0005f * tan( acos( saturate( normalLightDot ) ) );
 
         // Compare the depth of the shadow map value and the depth of the light to determine whether to shadow or to light this pixel.
         // If the light is in front of the object then light the pixel, if not then shadow this pixel since an object (occluder) is casting a shadow on it.
