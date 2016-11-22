@@ -92,7 +92,7 @@ namespace Engine1
         std::shared_ptr< CombiningFragmentShader >  m_combiningFragmentShader;
         std::shared_ptr< CombiningFragmentShader2 > m_combiningFragmentShader2;
 
-        void loadAndCompileShaders( ID3D11Device& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         // Copying is not allowed.
         CombiningRenderer( const CombiningRenderer& )           = delete;

@@ -34,7 +34,7 @@ void CombiningRenderer::initialize( const int screenWidth, const int screenHeigh
     m_rasterizerState = createRasterizerState( *device.Get() );
 	m_blendState      = createBlendState( *device.Get() );
 
-    loadAndCompileShaders( *device.Get() );
+    loadAndCompileShaders( device );
 
     { // Load default rectangle mesh to GPU.
 		m_rectangleMesh.loadCpuToGpu( *device.Get() );
@@ -211,9 +211,9 @@ ComPtr<ID3D11BlendState> CombiningRenderer::createBlendState( ID3D11Device& devi
 	return blendState;
 }
 
-void CombiningRenderer::loadAndCompileShaders( ID3D11Device& device )
+void CombiningRenderer::loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device )
 {
-    m_combiningVertexShader->compileFromFile( "Shaders/CombiningShader/vs.hlsl", device );
-    m_combiningFragmentShader->compileFromFile( "Shaders/CombiningShader/ps.hlsl", device );
-    m_combiningFragmentShader2->compileFromFile( "Shaders/CombiningShader/ps2.hlsl", device );
+    m_combiningVertexShader->loadAndInitialize( "Shaders/CombiningShader/Combining_vs.cso", device );
+    m_combiningFragmentShader->loadAndInitialize( "Shaders/CombiningShader/Combining_ps.cso", device );
+    m_combiningFragmentShader2->loadAndInitialize( "Shaders/CombiningShader/Combining_ps2.cso", device );
 }

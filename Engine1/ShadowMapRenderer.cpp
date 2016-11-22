@@ -31,7 +31,7 @@ void ShadowMapRenderer::initialize( Microsoft::WRL::ComPtr< ID3D11Device > devic
 	// Initialize depth stencil state.
 	m_depthStencilState = createDepthStencilState( *device.Get() );
 
-	loadAndCompileShaders( *device.Get() );
+	loadAndCompileShaders( device );
 
 	m_initialized = true;
 }
@@ -133,10 +133,10 @@ void ShadowMapRenderer::createAndSetRenderTarget( const int2 dimensions, ID3D11D
 		( device, dimensions.x, dimensions.y, false, true, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 
-void ShadowMapRenderer::loadAndCompileShaders( ID3D11Device& device )
+void ShadowMapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_blockMeshVertexShader->compileFromFile( "Shaders/BlockMeshShader/vs.hlsl", device );
-	m_skeletonMeshVertexShader->compileFromFile( "Shaders/SkeletonMeshShader/vs.hlsl", device );
+	m_blockMeshVertexShader->loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
+	m_skeletonMeshVertexShader->loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
 }
 
 std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > ShadowMapRenderer::getRenderTarget()

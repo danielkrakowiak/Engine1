@@ -118,7 +118,7 @@ namespace Engine1
         std::shared_ptr<TextVertexShader>             m_textVertexShader;
         std::shared_ptr<TextFragmentShader>           m_textFragmentShader;
 
-        void loadAndCompileShaders( ID3D11Device& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         // Default textures.
         std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultAlphaTexture;

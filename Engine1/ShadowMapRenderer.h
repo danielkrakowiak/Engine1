@@ -65,7 +65,7 @@ namespace Engine1
 		std::shared_ptr<BlockMeshVertexShader>    m_blockMeshVertexShader;
 		std::shared_ptr<SkeletonMeshVertexShader> m_skeletonMeshVertexShader;
 
-		void loadAndCompileShaders( ID3D11Device& device );
+		void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
 		// Copying is not allowed.
 		ShadowMapRenderer( const ShadowMapRenderer& ) = delete;

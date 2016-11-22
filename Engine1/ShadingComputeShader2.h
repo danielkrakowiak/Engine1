@@ -27,7 +27,7 @@ namespace Engine1
         ShadingComputeShader2();
         virtual ~ShadingComputeShader2();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext, 
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,

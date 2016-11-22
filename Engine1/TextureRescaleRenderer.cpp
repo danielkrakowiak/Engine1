@@ -25,7 +25,7 @@ void TextureRescaleRenderer::initialize( ComPtr< ID3D11Device > device,
     this->m_device        = device;
 	this->m_deviceContext = deviceContext;
 
-    loadAndCompileShaders( *device.Get() );
+    loadAndCompileShaders( device );
 
     m_initialized = true;
 }
@@ -60,7 +60,7 @@ void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpe
     m_rendererCore.disableComputePipeline();
 }
 
-void TextureRescaleRenderer::loadAndCompileShaders( ID3D11Device& device )
+void TextureRescaleRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_textureRescaleComputeShader->compileFromFile( "Shaders/TextureRescaleShader/cs.hlsl", device );
+    m_textureRescaleComputeShader->loadAndInitialize( "Shaders/TextureRescaleShader/TextureRescale_cs.cso", device );
 }

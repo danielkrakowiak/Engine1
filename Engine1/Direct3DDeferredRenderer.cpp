@@ -74,7 +74,7 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 		m_orthographicProjectionMatrix = MathUtil::orthographicProjectionTransformation( (float)imageWidth, (float)imageHeight, zNear, zFar );
 	}
 
-	loadAndCompileShaders( *device.Get() );
+	loadAndCompileShaders( device );
 
     createDefaultTextures( *device.Get() );
 
@@ -652,23 +652,23 @@ void Direct3DDeferredRenderer::disableRenderTargets()
     m_rendererCore.disableRenderTargetViews();
 }
 
-void Direct3DDeferredRenderer::loadAndCompileShaders( ID3D11Device& device )
+void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_blockMeshVertexShader->compileFromFile( "Shaders/BlockMeshShader/vs.hlsl", device );
-	m_blockMeshFragmentShader->compileFromFile( "Shaders/BlockMeshShader/ps.hlsl", device );
-    m_blockMeshEmissiveFragmentShader->compileFromFile( "Shaders/BlockMeshShader/ps_emissive.hlsl", device );
+	m_blockMeshVertexShader->loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
+    m_blockMeshFragmentShader->loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_ps.cso", device );
+    m_blockMeshEmissiveFragmentShader->loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_ps_emissive.cso", device );
 
-	m_skeletonMeshVertexShader->compileFromFile( "Shaders/SkeletonMeshShader/vs.hlsl", device );
-	m_skeletonMeshFragmentShader->compileFromFile( "Shaders/SkeletonMeshShader/ps.hlsl", device );
+	m_skeletonMeshVertexShader->loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
+	m_skeletonMeshFragmentShader->loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_ps.cso", device );
 
-	m_blockModelVertexShader->compileFromFile( "Shaders/BlockModelShader/vs.hlsl", device );
-	m_blockModelFragmentShader->compileFromFile( "Shaders/BlockModelShader/ps.hlsl", device );
+	m_blockModelVertexShader->loadAndInitialize( "Shaders/BlockModelShader/BlockModel_vs.cso", device );
+	m_blockModelFragmentShader->loadAndInitialize( "Shaders/BlockModelShader/BlockModel_ps.cso", device );
 
-	m_skeletonModelVertexShader->compileFromFile( "Shaders/SkeletonModelShader/vs.hlsl", device );
-	m_skeletonModelFragmentShader->compileFromFile( "Shaders/SkeletonModelShader/ps.hlsl", device );
+	m_skeletonModelVertexShader->loadAndInitialize( "Shaders/SkeletonModelShader/SkeletonModel_vs.cso", device );
+	m_skeletonModelFragmentShader->loadAndInitialize( "Shaders/SkeletonModelShader/SkeletonModel_ps.cso", device );
 
-	m_textVertexShader->compileFromFile( "Shaders/TextShader/vs.hlsl", device );
-	m_textFragmentShader->compileFromFile( "Shaders/TextShader/ps.hlsl", device );
+	m_textVertexShader->loadAndInitialize( "Shaders/TextShader/Text_vs.cso", device );
+	m_textFragmentShader->loadAndInitialize( "Shaders/TextShader/Text_ps.cso", device );
 }
 
 void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )

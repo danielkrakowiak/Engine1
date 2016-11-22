@@ -62,7 +62,7 @@ namespace Engine1
         // Shaders.
         std::shared_ptr< RasterizingShadowsComputeShader > m_rasterizeShadowsComputeShader;
 
-        void loadAndCompileShaders( ID3D11Device& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         // Copying is not allowed.
         RasterizeShadowRenderer( const RasterizeShadowRenderer& ) = delete;

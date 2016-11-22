@@ -1,9 +1,14 @@
 #include "FragmentShader.h"
 
 #include <d3d11.h>
-#include <d3dcompiler.h>
+//#include <d3dcompiler.h>
+
+//#include "StringUtil.h"
+#include "BinaryFile.h"
 
 using namespace Engine1;
+
+using Microsoft::WRL::ComPtr;
 
 unsigned int FragmentShader::compiledShadersCount = 0;
 
@@ -14,6 +19,33 @@ m_shaderId( 0 )
 
 FragmentShader::~FragmentShader()
 {}
+
+void FragmentShader::loadAndInitialize( const std::string& path, ComPtr< ID3D11Device >& device )
+{
+    load( path, device );
+    initialize( device );
+}
+
+void FragmentShader::load( const std::string& path, ComPtr< ID3D11Device >& device )
+{
+    if ( m_compiled )
+        throw std::exception( "FragmentShader::loadFromFile - Shader has already been compiled" );
+
+    const auto compiledShader = BinaryFile::load( path );
+
+    HRESULT result = device->CreatePixelShader( compiledShader->data(), compiledShader->size(), nullptr, m_shader.ReleaseAndGetAddressOf() );
+    if ( result < 0 )
+        throw std::exception( "FragmentShader::loadFromFile - Failed to create shader" );
+
+    this->m_device   = device;
+    this->m_compiled = true;
+    this->m_shaderId = ++compiledShadersCount;
+}
+
+void FragmentShader::initialize( ComPtr< ID3D11Device >& device )
+{
+    device;
+}
 
 bool FragmentShader::isSame( const FragmentShader& shader ) const
 {
@@ -32,5 +64,17 @@ ID3D11PixelShader& FragmentShader::getShader() const
 bool FragmentShader::isCompiled() const
 {
 	return m_compiled;
+}
+
+unsigned int FragmentShader::getCompileFlags() const
+{
+    //#TODO: Is that flag still needed?
+    UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
+
+#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
+    flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
+#endif
+
+    return flags;
 }
 

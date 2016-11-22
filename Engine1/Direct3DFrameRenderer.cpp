@@ -83,7 +83,7 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
     m_blendStateNoBlending   = createBlendStateNoBlending( *m_device.Get() );
 	m_blendStateWithBlending = createBlendStateWithBlending( *m_device.Get() );
 
-	loadAndCompileShaders( *m_device.Get() );
+	loadAndCompileShaders( m_device );
 
 	{ // Load default rectangle mesh to GPU.
 		rectangleMesh.loadCpuToGpu( *m_device.Get() );
@@ -224,7 +224,7 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceCon
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 
 	// Create the swap chain, Direct3D device, and Direct3D device context.
 	HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, &featureLevel, 1,
@@ -232,16 +232,17 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceCon
 													basicDevice.ReleaseAndGetAddressOf(), nullptr, basicDeviceContext.ReleaseAndGetAddressOf() );
 	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of device or swap chain failed" );
 
-	ComPtr<ID3D11Device3> device;
-	ComPtr<ID3D11DeviceContext3> deviceContext;
+	ComPtr< ID3D11Device3 >        device;
+	ComPtr< ID3D11DeviceContext3 > deviceContext;
 
-    /*result = basicDevice.As( &device );
+    result = basicDevice.As( &device );
 
-    if ( result < 0 ) throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of DirectX 11.3 device failed" );
+    if ( result < 0 ) 
+        throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of DirectX 11.3 device failed" );
 
     (void)basicDeviceContext.As( &deviceContext );
 
-    return std::make_tuple( swapChain, device, deviceContext );*/
+    return std::make_tuple( swapChain, device, deviceContext );
 
     //////////////////////////////////////////////////////////////
     // Check features support
@@ -267,7 +268,7 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceCon
 
     /////////////////////////////////////////////////////////////
 
-    return std::make_tuple( swapChain, basicDevice, basicDeviceContext );
+    //return std::make_tuple( swapChain, basicDevice, basicDeviceContext );
 }
 
 ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwapChain& swapChain )
@@ -357,14 +358,14 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateWithBlending( ID
     return blendState;
 }
 
-void Direct3DFrameRenderer::loadAndCompileShaders( ID3D11Device& device )
+void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_textureVertexShader->compileFromFile( "Shaders/TextureShader/vs.hlsl", device );
-	m_textureFragmentShader->compileFromFile( "Shaders/TextureShader/ps.hlsl", device );
-    m_textureAlphaFragmentShader->compileFromFile( "Shaders/TextureShader/ps2.hlsl", device );
+	m_textureVertexShader->loadAndInitialize( "Shaders/TextureShader/Texture_vs.cso", device );
+	m_textureFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_ps.cso", device );
+    m_textureAlphaFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_ps2.cso", device );
 
-	m_textVertexShader->compileFromFile( "Shaders/TextShader/vs.hlsl", device );
-	m_textFragmentShader->compileFromFile( "Shaders/TextShader/ps.hlsl", device );
+	m_textVertexShader->loadAndInitialize( "Shaders/TextShader/Text_vs.cso", device );
+	m_textFragmentShader->loadAndInitialize( "Shaders/TextShader/Text_ps.cso", device );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY, float width, float height, bool blend )

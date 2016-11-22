@@ -342,8 +342,6 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             );
         }
 
-        
-
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         

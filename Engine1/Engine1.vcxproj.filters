@@ -795,6 +795,9 @@
     <ClInclude Include="RasterizingShadowsComputeShader.h">
       <Filter>Header Files\Shader\RasterizingShadows</Filter>
     </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>Header Files\File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1196,6 +1199,9 @@
     <ClCompile Include="RasterizingShadowsComputeShader.cpp">
       <Filter>Source Files\Shader\RasterizingShadows</Filter>
     </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>Source Files\File</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1227,119 +1233,119 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\BlockMeshShader\ps.hlsl">
+    <FxCompile Include="Shaders\BlockMeshShader\BlockMesh_ps.hlsl">
       <Filter>Source Files\Shader\BlockMesh</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\BlockMeshShader\vs.hlsl">
+    <FxCompile Include="Shaders\BlockMeshShader\BlockMesh_ps_emissive.hlsl">
       <Filter>Source Files\Shader\BlockMesh</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\BlockModelShader\ps.hlsl">
+    <FxCompile Include="Shaders\BlockMeshShader\BlockMesh_vs.hlsl">
+      <Filter>Source Files\Shader\BlockMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlockModelShader\BlockModel_ps.hlsl">
       <Filter>Source Files\Shader\BlockModel</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\BlockModelShader\vs.hlsl">
+    <FxCompile Include="Shaders\BlockModelShader\BlockModel_vs.hlsl">
       <Filter>Source Files\Shader\BlockModel</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\TextShader\ps.hlsl">
-      <Filter>Source Files\Shader\Text</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\TextShader\vs.hlsl">
-      <Filter>Source Files\Shader\Text</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\SkeletonMeshShader\ps.hlsl">
-      <Filter>Source Files\Shader\SkeletonMesh</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\SkeletonMeshShader\vs.hlsl">
-      <Filter>Source Files\Shader\SkeletonMesh</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\TextureShader\ps.hlsl">
-      <Filter>Source Files\Shader\Texture</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\TextureShader\vs.hlsl">
-      <Filter>Source Files\Shader\Texture</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\SkeletonModelShader\ps.hlsl">
-      <Filter>Source Files\Shader\SkeletonModel</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\SkeletonModelShader\vs.hlsl">
-      <Filter>Source Files\Shader\SkeletonModel</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\GenerateRaysShader\cs.hlsl">
-      <Filter>Source Files\Shader\GenerateRays</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\RaytracingPrimaryRaysShader\cs.hlsl">
-      <Filter>Source Files\Shader\RaytracingPrimaryRays</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\RaytracingSecondaryRaysShader\cs.hlsl">
-      <Filter>Source Files\Shader\RaytracingSecondaryRays</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\ShadingShader\cs.hlsl">
-      <Filter>Source Files\Shader\Shading</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\CombiningShader\ps.hlsl">
+    <FxCompile Include="Shaders\CombiningShader\Combining_ps.hlsl">
       <Filter>Source Files\Shader\Combining</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\CombiningShader\vs.hlsl">
+    <FxCompile Include="Shaders\CombiningShader\Combining_ps2.hlsl">
       <Filter>Source Files\Shader\Combining</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\EdgeDetectionShader\cs.hlsl">
+    <FxCompile Include="Shaders\CombiningShader\Combining_vs.hlsl">
+      <Filter>Source Files\Shader\Combining</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\EdgeDetectionShader\EdgeDetection_cs.hlsl">
       <Filter>Source Files\Shader\EdgeDetection</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\EdgeDistanceShader\cs.hlsl">
+    <FxCompile Include="Shaders\EdgeDistanceShader\EdgeDistance_cs.hlsl">
       <Filter>Source Files\Shader\EdgeDistance</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\TextureRescaleShader\cs.hlsl">
-      <Filter>Source Files\Shader\TextureRescale</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\CombiningShader\ps2.hlsl">
-      <Filter>Source Files\Shader\Combining</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\ShadingShader\cs2.hlsl">
-      <Filter>Source Files\Shader\Shading</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\ReflectionShadingShader\cs.hlsl">
-      <Filter>Source Files\Shader\ReflectionShading</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\GenerateReflectedRaysShader\cs.hlsl">
-      <Filter>Source Files\Shader\GenerateReflectedRays</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\GenerateFirstReflectedRaysShader\cs.hlsl">
+    <FxCompile Include="Shaders\GenerateFirstReflectedRaysShader\GenerateFirstReflectedRays_cs.hlsl">
       <Filter>Source Files\Shader\GenerateFirstReflectedRays</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\GenerateFirstRefractedRaysShader\cs.hlsl">
+    <FxCompile Include="Shaders\GenerateFirstRefractedRaysShader\GenerateFirstRefractedRays_cs.hlsl">
       <Filter>Source Files\Shader\GenerateFirstRefractedRays</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\GenerateRefractedRaysShader\cs.hlsl">
+    <FxCompile Include="Shaders\GenerateRaysShader\GenerateRays_cs.hlsl">
+      <Filter>Source Files\Shader\GenerateRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateReflectedRaysShader\GenerateReflectedRays_cs.hlsl">
+      <Filter>Source Files\Shader\GenerateReflectedRays</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateRefractedRaysShader\GenerateRefractedRays_cs.hlsl">
       <Filter>Source Files\Shader\GenerateRefractedRays</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\RefractionShadingShader\cs.hlsl">
-      <Filter>Source Files\Shader\RefractionShading</Filter>
+    <FxCompile Include="Shaders\RasterizingShadowsShader\RasterizingShadows_cs.hlsl">
+      <Filter>Source Files\Shader\RasterizingShadows</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\ReflectionShadingShader\cs2.hlsl">
-      <Filter>Source Files\Shader\ReflectionShading</Filter>
+    <FxCompile Include="Shaders\RaytracingPrimaryRaysShader\RaytracingPrimaryRays_cs.hlsl">
+      <Filter>Source Files\Shader\RaytracingPrimaryRays</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\RefractionShadingShader\cs2.hlsl">
-      <Filter>Source Files\Shader\RefractionShading</Filter>
+    <FxCompile Include="Shaders\RaytracingSecondaryRaysShader\RaytracingSecondaryRays_cs.hlsl">
+      <Filter>Source Files\Shader\RaytracingSecondaryRays</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\TextureShader\ps2.hlsl">
-      <Filter>Source Files\Shader\Texture</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\RaytracingShadowsShader\cs.hlsl">
+    <FxCompile Include="Shaders\RaytracingShadowsShader\RaytracingShadows_cs.hlsl">
       <Filter>Source Files\Shader\RaytracingShadows</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\ShadingShader\cs0.hlsl">
+    <FxCompile Include="Shaders\ReflectionShadingShader\ReflectionShading_cs.hlsl">
+      <Filter>Source Files\Shader\ReflectionShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ReflectionShadingShader\ReflectionShading_cs2.hlsl">
+      <Filter>Source Files\Shader\ReflectionShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RefractionShadingShader\RefractionShading_cs.hlsl">
+      <Filter>Source Files\Shader\RefractionShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\RefractionShadingShader\RefractionShading_cs2.hlsl">
+      <Filter>Source Files\Shader\RefractionShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadingShader\Shading_cs.hlsl">
       <Filter>Source Files\Shader\Shading</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\ShadingNoShadowsShader\cs.hlsl">
+    <FxCompile Include="Shaders\ShadingNoShadowsShader\ShadingNoShadows_cs.hlsl">
       <Filter>Source Files\Shader\Shading</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\ShadingNoShadowsShader\cs2.hlsl">
+    <FxCompile Include="Shaders\ShadingShader\Shading_cs0.hlsl">
       <Filter>Source Files\Shader\Shading</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\BlockMeshShader\ps_emissive.hlsl">
-      <Filter>Source Files\Shader\BlockMesh</Filter>
+    <FxCompile Include="Shaders\ShadingShader\Shading_cs2.hlsl">
+      <Filter>Source Files\Shader\Shading</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\RasterizingShadowsShader\cs.hlsl">
-      <Filter>Source Files\Shader\RasterizingShadows</Filter>
+    <FxCompile Include="Shaders\ShadingNoShadowsShader\ShadingNoShadows_cs2.hlsl">
+      <Filter>Source Files\Shader\Shading</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonMeshShader\SkeletonMesh_ps.hlsl">
+      <Filter>Source Files\Shader\SkeletonMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonMeshShader\SkeletonMesh_vs.hlsl">
+      <Filter>Source Files\Shader\SkeletonMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonModelShader\SkeletonModel_ps.hlsl">
+      <Filter>Source Files\Shader\SkeletonModel</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkeletonModelShader\SkeletonModel_vs.hlsl">
+      <Filter>Source Files\Shader\SkeletonModel</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextShader\Text_ps.hlsl">
+      <Filter>Source Files\Shader\Text</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextShader\Text_vs.hlsl">
+      <Filter>Source Files\Shader\Text</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShader\Texture_ps.hlsl">
+      <Filter>Source Files\Shader\Texture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShader\Texture_ps2.hlsl">
+      <Filter>Source Files\Shader\Texture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShader\Texture_vs.hlsl">
+      <Filter>Source Files\Shader\Texture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureRescaleShader\TextureRescale_cs.hlsl">
+      <Filter>Source Files\Shader\TextureRescale</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -43,7 +43,7 @@ namespace Engine1
         // Shaders.
         std::shared_ptr< TextureRescaleComputeShader > m_textureRescaleComputeShader;
 
-        void loadAndCompileShaders( ID3D11Device& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         // Copying is not allowed.
         TextureRescaleRenderer( const TextureRescaleRenderer& )           = delete;

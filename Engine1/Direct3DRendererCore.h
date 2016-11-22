@@ -108,7 +108,7 @@ namespace Engine1
 		template< typename T >
 		void copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
 					      const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
-						  const int x, const int y, const int width, const int height );
+						  const int x = 0, const int y = 0, int width = 0, int height = 0 );
 
         template< typename T >
         void copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture );
@@ -156,9 +156,14 @@ namespace Engine1
 	template< typename T >
 	void Direct3DRendererCore::copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
 											const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
-											const int x, const int y, const int width, const int height )
+											const int x, const int y, int width, int height )
 	{
 		if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+
+        if ( width == 0 && height == 0 ) {
+            width  = srcTexture.getWidth();
+            height = srcTexture.getHeight();
+        }
 
 		if ( x < 0 || y < 0 || width < 0 || height < 0 || x + width > srcTexture.getWidth() || y + height > srcTexture.getHeight() )
 			throw std::exception( "Direct3DRendererCore::copyTexture - given fragment exceeds boundaries of the source/destination texture." );

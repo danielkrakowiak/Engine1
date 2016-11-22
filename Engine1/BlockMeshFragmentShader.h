@@ -11,8 +11,6 @@ namespace Engine1
         BlockMeshFragmentShader();
         virtual ~BlockMeshFragmentShader();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
-
         private:
 
         // Copying is not allowed.

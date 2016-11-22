@@ -34,7 +34,7 @@ void EdgeDetectionRenderer::initialize( int imageWidth, int imageHeight, ComPtr<
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 
-    loadAndCompileShaders( *device.Get() );
+    loadAndCompileShaders( device );
 
 	m_initialized = true;
 }
@@ -119,8 +119,8 @@ void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 }
 
-void EdgeDetectionRenderer::loadAndCompileShaders( ID3D11Device& device )
+void EdgeDetectionRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_edgeDetectionComputeShader->compileFromFile( "Shaders/EdgeDetectionShader/cs.hlsl", device );
-    m_edgeDistanceComputeShader->compileFromFile( "Shaders/EdgeDistanceShader/cs.hlsl", device );
+    m_edgeDetectionComputeShader->loadAndInitialize( "Shaders/EdgeDetectionShader/EdgeDetection_cs.cso", device );
+    m_edgeDistanceComputeShader->loadAndInitialize( "Shaders/EdgeDistanceShader/EdgeDistance_cs.cso", device );
 }

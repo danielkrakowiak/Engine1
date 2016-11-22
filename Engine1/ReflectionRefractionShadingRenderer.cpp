@@ -41,7 +41,7 @@ void ReflectionRefractionShadingRenderer::initialize( int imageWidth, int imageH
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 
-    loadAndCompileShaders( *device.Get() );
+    loadAndCompileShaders( device );
 
 	m_initialized = true;
 }
@@ -188,10 +188,10 @@ void ReflectionRefractionShadingRenderer::createRenderTargets( int imageWidth, i
     
 }
 
-void ReflectionRefractionShadingRenderer::loadAndCompileShaders( ID3D11Device& device )
+void ReflectionRefractionShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_reflectionShadingComputeShader->compileFromFile( "Shaders/ReflectionShadingShader/cs.hlsl", device );
-    m_reflectionShadingComputeShader2->compileFromFile( "Shaders/ReflectionShadingShader/cs2.hlsl", device );
-    m_refractionShadingComputeShader->compileFromFile( "Shaders/RefractionShadingShader/cs.hlsl", device );
-    m_refractionShadingComputeShader2->compileFromFile( "Shaders/RefractionShadingShader/cs2.hlsl", device );
+    m_reflectionShadingComputeShader->loadAndInitialize( "Shaders/ReflectionShadingShader/ReflectionShading_cs.cso", device );
+    m_reflectionShadingComputeShader2->loadAndInitialize( "Shaders/ReflectionShadingShader/ReflectionShading_cs2.cso", device );
+    m_refractionShadingComputeShader->loadAndInitialize( "Shaders/RefractionShadingShader/RefractionShading_cs.cso", device );
+    m_refractionShadingComputeShader2->loadAndInitialize( "Shaders/RefractionShadingShader/RefractionShading_cs2.cso", device );
 }

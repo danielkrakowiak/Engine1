@@ -11,6 +11,8 @@
 
 using namespace Engine1;
 
+using Microsoft::WRL::ComPtr;
+
 RasterizeShadowRenderer::RasterizeShadowRenderer( Direct3DRendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
@@ -36,7 +38,7 @@ void RasterizeShadowRenderer::initialize(
 
     createComputeTargets( imageWidth, imageHeight, *device.Get() );
 
-    loadAndCompileShaders( *device.Get() );
+    loadAndCompileShaders( device );
 
     m_initialized = true;
 }
@@ -97,9 +99,9 @@ void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHei
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 }
 
-void RasterizeShadowRenderer::loadAndCompileShaders( ID3D11Device& device )
+void RasterizeShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_rasterizeShadowsComputeShader->compileFromFile( "Shaders/RasterizingShadowsShader/cs.hlsl", device );
+    m_rasterizeShadowsComputeShader->loadAndInitialize( "Shaders/RasterizingShadowsShader/RasterizingShadows_cs.cso", device );
 }
 
 

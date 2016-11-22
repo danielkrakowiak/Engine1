@@ -2,44 +2,44 @@
 
 #include <fstream>
 
+#include "File.h"
+
 using namespace Engine1;
 
 std::shared_ptr< std::vector<char> > BinaryFile::load( const std::string& path )
 {
 
 	std::ifstream file;
-	std::vector<char> fileData;
+	auto fileData = std::make_shared< std::vector< char > >();
+
+    // Get file size.
+    const long long fileSize = File::getFileSize( path );
 
 	// Open the file.
 	file.open( path.c_str(), std::ifstream::in | std::ifstream::binary );
 
 	// Check if open succeeded.
-	if ( !file.is_open() )	throw std::exception( "BinaryFile::load - Failed to open file." );
+	if ( !file.is_open() )	
+        throw std::exception( "BinaryFile::load - Failed to open file." );
 
 	try {
 		// Check file size.
-		std::streamoff fileSize = 0;
-		file.seekg( 0, std::ios::end ); // Move cursor to the end of the file.
-		fileSize = file.tellg(); // Save cursor position.
+		//std::streamoff fileSize = 0;
+		//file.seekg( 0, std::ios::end ); // Move cursor to the end of the file.
+		//fileSize = file.tellg(); // Save cursor position.
 
 		// Allocate memory for the file (+ zero at the end).
-		fileData.reserve( (size_t)fileSize + 1 );
-		fileData.resize( (size_t)fileSize + 1 );
+		fileData->reserve( (size_t)fileSize );
+		fileData->resize( (size_t)fileSize );
 
 		// Read the file.
 		file.seekg( 0, std::ios::beg );  // Move cursor to the beginning of the file.
-		file.read( fileData.data(), fileSize );
-
-		// Trim the data vector to the real number of characters read (on Windows multiple bytes can be read as one character - ex: LF CR -> '\n').
-		fileData.resize( (size_t)file.gcount() + 1 );
-
-		// Set last character in the buffer to 0.
-		fileData.at( (size_t)file.gcount() ) = 0;
+		file.read( fileData->data(), fileSize );
 
 		// Close the file.
 		file.close();
 
-		return std::make_shared< std::vector<char> >( fileData );
+		return fileData;
 
 	} catch ( ... ) {
 		// In case of errors - close the file.

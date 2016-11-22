@@ -101,7 +101,7 @@ namespace Engine1
         std::shared_ptr< ShadingNoShadowsComputeShader > m_shadingNoShadowsComputeShader;
         std::shared_ptr< ShadingNoShadowsComputeShader2 > m_shadingNoShadowsComputeShader2;
 
-        void loadAndCompileShaders( ID3D11Device& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         // Copying is not allowed.
         ShadingRenderer( const ShadingRenderer& )           = delete;

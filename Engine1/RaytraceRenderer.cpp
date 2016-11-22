@@ -50,7 +50,7 @@ void RaytraceRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D
 
     createComputeTargets( imageWidth, imageHeight, *device.Get() );
 
-    loadAndCompileShaders( *device.Get() );
+    loadAndCompileShaders( device );
 
     createDefaultTextures( *device.Get() );
 
@@ -593,15 +593,15 @@ RaytraceRenderer::getCurrentRefractiveIndexTextures()
     return m_currentRefractiveIndexTextures;
 }
 
-void RaytraceRenderer::loadAndCompileShaders( ID3D11Device& device )
+void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_generateRaysComputeShader->compileFromFile( "Shaders/GenerateRaysShader/cs.hlsl", device );
-    m_generateFirstReflectedRaysComputeShader->compileFromFile( "Shaders/GenerateFirstReflectedRaysShader/cs.hlsl", device );
-    m_generateReflectedRaysComputeShader->compileFromFile( "Shaders/GenerateReflectedRaysShader/cs.hlsl", device );
-    m_generateFirstRefractedRaysComputeShader->compileFromFile( "Shaders/GenerateFirstRefractedRaysShader/cs.hlsl", device );
-    m_generateRefractedRaysComputeShader->compileFromFile( "Shaders/GenerateRefractedRaysShader/cs.hlsl", device );
-    m_raytracingPrimaryRaysComputeShader->compileFromFile( "Shaders/RaytracingPrimaryRaysShader/cs.hlsl", device );
-    m_raytracingSecondaryRaysComputeShader->compileFromFile( "Shaders/RaytracingSecondaryRaysShader/cs.hlsl", device );
+    m_generateRaysComputeShader->loadAndInitialize( "Shaders/GenerateRaysShader/GenerateRays_cs.cso", device );
+    m_generateFirstReflectedRaysComputeShader->loadAndInitialize( "Shaders/GenerateFirstReflectedRaysShader/GenerateFirstReflectedRays_cs.cso", device );
+    m_generateReflectedRaysComputeShader->loadAndInitialize( "Shaders/GenerateReflectedRaysShader/GenerateReflectedRays_cs.cso", device );
+    m_generateFirstRefractedRaysComputeShader->loadAndInitialize( "Shaders/GenerateFirstRefractedRaysShader/GenerateFirstRefractedRays_cs.cso", device );
+    m_generateRefractedRaysComputeShader->loadAndInitialize( "Shaders/GenerateRefractedRaysShader/GenerateRefractedRays_cs.cso", device );
+    m_raytracingPrimaryRaysComputeShader->loadAndInitialize( "Shaders/RaytracingPrimaryRaysShader/RaytracingPrimaryRays_cs.cso", device );
+    m_raytracingSecondaryRaysComputeShader->loadAndInitialize( "Shaders/RaytracingSecondaryRaysShader/RaytracingSecondaryRays_cs.cso", device );
 }
 
 void RaytraceRenderer::createDefaultTextures( ID3D11Device& device )

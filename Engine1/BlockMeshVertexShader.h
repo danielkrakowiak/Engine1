@@ -19,7 +19,7 @@ namespace Engine1
         BlockMeshVertexShader();
         virtual ~BlockMeshVertexShader();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix );
 
         ID3D11InputLayout& getInputLauout() const;

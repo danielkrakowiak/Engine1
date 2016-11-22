@@ -310,6 +310,21 @@ Idea:
 
 	  NOW:
 
+	  - try to compile shader with fxc.exe and load the compiled shader....
+
+	  - shader need to have full names.. because they will be stored in a single output folder.
+
+	  //////////////////////
+
+	   Maybe I can somehow glue buffers together???????? Send them as one to shader despite being many...
+
+	   Higher shader profile???
+
+	  /////////////////////
+
+
+	  - OPTIMIZATION: When I read from raw buffers in raytracing shaders I can read multiple values at once. Using Load2, Load3, Load4 methods... I need to try it!!
+
 	  - check all shader with SKIP_OPTIMIZATION flags and check if they are faster/slower with/without this flag.
 
 	  - VERY IMPORTANT: should I switch to reconstructing position from depth globally - it would reduce read bandwidth by factor of 4... And it seems to be the bottleneck...
@@ -468,6 +483,8 @@ Idea:
 
 	  - Support for multiple UV sets when merging models? Some textures use one UV set, others use a different one.
 
+	  - ideas to optimize blurring using shared memory: http://shiba.hpe.cn/jiaoyanzu/WULI/%E6%96%87%E4%BB%B6/soft/directX/Introduction_to_3D_Game_Programming_with_Directx_12.pdf
+	    page 721
 
 	  Sources: 
 

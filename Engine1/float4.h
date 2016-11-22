@@ -15,6 +15,7 @@ namespace Engine1
         float w;
 
         static const float4 ZERO;
+        static const float4 ONE;
 
         float4() {}
 

@@ -5,6 +5,7 @@
 using namespace Engine1;
 
 const float4 float4::ZERO( 0.0f, 0.0f, 0.0f, 0.0f );
+const float4 float4::ONE( 1.0f, 1.0f, 1.0f, 1.0f );
 
 float4::float4(const float3& a, float w) : x(a.x), y(a.y), z(a.z), w(w) {}
 

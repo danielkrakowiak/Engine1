@@ -42,9 +42,12 @@ std::shared_ptr< BVHTreeBuffer > BVHTreeBufferParser::parseBVHTreeFile( std::vec
 
     // Read triangles.
     bvhTree->m_triangles.resize( triangleCount );
-    const int trianglesDataSize = triangleCount * sizeof( unsigned int );
-    std::memcpy( bvhTree->m_triangles.data(), &( *dataCurrIt ), trianglesDataSize );
-    dataCurrIt += trianglesDataSize;
+    if ( triangleCount > 0 )
+    {
+        const int trianglesDataSize = triangleCount * sizeof( unsigned int );
+        std::memcpy( bvhTree->m_triangles.data(), &( *dataCurrIt ), trianglesDataSize );
+        dataCurrIt += trianglesDataSize;
+    }
 
     return bvhTree;
 }

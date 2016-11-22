@@ -98,7 +98,7 @@ namespace Engine1
         RectangleMesh rectangleMesh;
 
         // Shaders.
-        void loadAndCompileShaders( ID3D11Device& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         std::shared_ptr<TextureVertexShader>   m_textureVertexShader;
         std::shared_ptr<TextureFragmentShader> m_textureFragmentShader;

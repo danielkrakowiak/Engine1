@@ -60,7 +60,7 @@ namespace Engine1
         std::shared_ptr< EdgeDetectionComputeShader > m_edgeDetectionComputeShader;
         std::shared_ptr< EdgeDistanceComputeShader >  m_edgeDistanceComputeShader;
 
-        void loadAndCompileShaders( ID3D11Device& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         // Copying is not allowed.
         EdgeDetectionRenderer( const EdgeDetectionRenderer& )           = delete;

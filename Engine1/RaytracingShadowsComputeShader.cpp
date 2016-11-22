@@ -1,59 +1,30 @@
 #include "RaytracingShadowsComputeShader.h"
 
 #include "StringUtil.h"
+#include "BlockActor.h"
+#include "BlockModel.h"
 #include "BlockMesh.h"
 #include "Light.h"
 #include "SpotLight.h"
 
 #include "MathUtil.h"
+#include "TextFile.h"
 
 #include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using Microsoft::WRL::ComPtr;
 using namespace Engine1;
 
-RaytracingShadowsComputeShader::RaytracingShadowsComputeShader() {}
+RaytracingShadowsComputeShader::RaytracingShadowsComputeShader() 
+: m_resourceCount( 0 )
+{}
 
 RaytracingShadowsComputeShader::~RaytracingShadowsComputeShader() {}
 
-void RaytracingShadowsComputeShader::compileFromFile( std::string path, ID3D11Device& device )
+void RaytracingShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device )
 {
-	if ( m_compiled ) 
-        throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - Shader has already been compiled." );
-
-	HRESULT result;
-	ComPtr<ID3D10Blob> shaderBuffer;
-	{ // Compile the shader.
-		ComPtr<ID3D10Blob> errorMessage;
-
-		UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
-
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
-		flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3D10_SHADER_PREFER_FLOW_CONTROL;
-#endif
-		// Note: This shader with BVH actually works faster with optimizations skipped. (2.5x faster)
-		// TODO: Find out why and modify shader code with optimization attributes (such as [branch] etc).
-		flags |= D3D10_SHADER_SKIP_OPTIMIZATION;
-
-		result = D3DCompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "cs_5_0", flags, 0,
-			shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
-		if ( result < 0 ) {
-			if ( errorMessage ) {
-				std::string compileMessage( (char*)errorMessage->GetBufferPointer() );
-
-				throw std::exception( (std::string( "RaytracingShadowsComputeShader::compileFromFile - Compilation failed with errors: " ) + compileMessage ).c_str() );
-			}
-			else {
-				throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - Failed to open file." );
-			}
-		}
-
-		result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) 
-            throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - Failed to create shader." );
-	}
-
 	{
 		// Create constant buffer.
 		D3D11_BUFFER_DESC desc;
@@ -64,9 +35,9 @@ void RaytracingShadowsComputeShader::compileFromFile( std::string path, ID3D11De
 		desc.MiscFlags           = 0;
 		desc.StructureByteStride = 0;
 
-		result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
+		HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) 
-            throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - creating constant buffer failed." );
+            throw std::exception( "RaytracingShadowsComputeShader::initialize - creating constant buffer failed." );
 	}
 
     { // Create point sampler configuration.
@@ -86,9 +57,9 @@ void RaytracingShadowsComputeShader::compileFromFile( std::string path, ID3D11De
         desc.MaxLOD           = D3D11_FLOAT32_MAX;
 
         // Create the texture sampler state.
-        result = device.CreateSamplerState( &desc, m_pointSamplerState.ReleaseAndGetAddressOf() );
+        HRESULT result = device->CreateSamplerState( &desc, m_pointSamplerState.ReleaseAndGetAddressOf() );
         if ( result < 0 ) 
-            throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - Failed to create texture sampler state." );
+            throw std::exception( "RaytracingShadowsComputeShader::initialize - Failed to create texture sampler state." );
     }
 
 	{ // Create linear sampler configuration.
@@ -108,14 +79,10 @@ void RaytracingShadowsComputeShader::compileFromFile( std::string path, ID3D11De
 		desc.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &desc, m_linearSamplerState.ReleaseAndGetAddressOf() );
+		HRESULT result = device->CreateSamplerState( &desc, m_linearSamplerState.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) 
-            throw std::exception( "RaytracingShadowsComputeShader::compileFromFile - Failed to create texture sampler state." );
+            throw std::exception( "RaytracingShadowsComputeShader::initialize - Failed to create texture sampler state." );
 	}
-
-	this->m_device   = &device;
-	this->m_compiled = true;
-	this->m_shaderId = ++compiledShadersCount;
 }
 
 void RaytracingShadowsComputeShader::setParameters(
@@ -125,11 +92,8 @@ void RaytracingShadowsComputeShader::setParameters(
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
 	/*const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,*/
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
-	const BlockMesh& mesh,
-	const float43& worldMatrix,
-	const float3 boundingBoxMin,
-	const float3 boundingBoxMax,
-	const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture,
+	const std::vector< std::shared_ptr< const BlockActor > >& actors,
+	const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& defaultAlphaTexture,
 	const int outputTextureWidth, const int outputTextureHeight )
 {
 	if ( !m_compiled ) 
@@ -140,60 +104,97 @@ void RaytracingShadowsComputeShader::setParameters(
     if ( light.getType() == Light::Type::SpotLight )
         shadowMap = static_cast< const SpotLight& >( light ).getShadowMap();
     
-
 	{ // Set input buffers and textures.
-		const unsigned int resourceCount = 9;
-		ID3D11ShaderResourceView* resources[ resourceCount ] = {
-			rayOriginTexture.getShaderResourceView(),
-			surfaceNormalTexture.getShaderResourceView(),
-            preIlluminationTexture ? preIlluminationTexture->getShaderResourceView() : nullptr,
-			mesh.getVertexBufferResource(),
-			!mesh.getTexcoordBufferResources().empty() ? mesh.getTexcoordBufferResources().front() : nullptr,
-			mesh.getTriangleBufferResource(),
-			mesh.getBvhTreeBufferNodesShaderResourceView().Get(),
-			mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get(),
-			alphaTexture.getShaderResourceView(),
-		};
+        const int lightRelatedResourceCount = 3;
+        const int meshRelatedResourceCount  = 6;
 
-		deviceContext.CSSetShaderResources( 0, resourceCount, resources );
+        int passedActorsCount = 0;
+
+        // Note: We initialize resources to nullptr - so we only need to fill non-null resources.
+        std::vector< ID3D11ShaderResourceView* > resources;
+        resources.resize( lightRelatedResourceCount + s_maxActorCount * meshRelatedResourceCount, nullptr );
+
+        resources[ 0 ] = rayOriginTexture.getShaderResourceView();
+        resources[ 1 ] = surfaceNormalTexture.getShaderResourceView();
+        resources[ 2 ] = preIlluminationTexture ? preIlluminationTexture->getShaderResourceView() : nullptr;
+
+        for ( int actorIdx = 0; actorIdx < actors.size() && passedActorsCount < s_maxActorCount; ++actorIdx ) 
+        {
+            const auto& actor = actors[ actorIdx ];
+            if ( !actor || !actor->getModel() || !actor->getModel()->getMesh() )
+                continue;
+
+            const auto& mesh = *actor->getModel()->getMesh();
+
+            const auto& alphaTexture = actor->getModel()->getAlphaTexturesCount() > 0 ? *actor->getModel()->getAlphaTexture( 0 ).getTexture() : defaultAlphaTexture;
+
+            const int resourceBaseIndex = lightRelatedResourceCount + passedActorsCount * meshRelatedResourceCount;
+            
+            resources[ resourceBaseIndex ]     = mesh.getVertexBufferResource();
+            resources[ resourceBaseIndex + 1 ] = !mesh.getTexcoordBufferResources().empty() ? mesh.getTexcoordBufferResources().front() : nullptr;
+            resources[ resourceBaseIndex + 2 ] = mesh.getTriangleBufferResource();
+            resources[ resourceBaseIndex + 3 ] = mesh.getBvhTreeBufferNodesShaderResourceView().Get();
+            resources[ resourceBaseIndex + 4 ] = mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get();
+            resources[ resourceBaseIndex + 5 ] = alphaTexture.getShaderResourceView();
+
+            ++passedActorsCount;
+        }
+
+        // Save resource count to unset them properly afterwards.
+        m_resourceCount = (int)resources.size();
+
+        // Note: There is a restriction of 128 slots for Nvidia GTX1080.
+		deviceContext.CSSetShaderResources( 0, (int)resources.size(), resources.data() );
 	}
 
 	{ // Set constant buffer.
-        const bool isOpaque = alphaTexture.getWidth() * alphaTexture.getHeight() == 1 && alphaTexture.isInCpuMemory() && alphaTexture.getData()[ 0 ] == 255; 
+        D3D11_MAPPED_SUBRESOURCE mappedResource;
+        ConstantBuffer* dataPtr;
 
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		ConstantBuffer* dataPtr;
-
-		HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
-		if ( result < 0 ) 
+        HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+        if ( result < 0 )
             throw std::exception( "RaytracingShadowsComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
 
-		dataPtr = (ConstantBuffer*)mappedResource.pData;
+        dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-		dataPtr->localToWorldMatrix         = float44( worldMatrix ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
-		dataPtr->worldToLocalMatrix         = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
-		dataPtr->boundingBoxMin             = boundingBoxMin;
-		dataPtr->boundingBoxMax             = boundingBoxMax;
-		dataPtr->outputTextureSize          = float2( (float)outputTextureWidth, (float)outputTextureHeight );
-		dataPtr->lightPosition              = light.getPosition();
-        dataPtr->isOpaque                   = isOpaque ? 1 : 0;
-        dataPtr->isPreIlluminationAvailable = preIlluminationTexture ? 1 : 0;
-        
-        if ( shadowMap ) 
+        int passedActorsCount = 0;
+        for ( int actorIdx = 0; actorIdx < actors.size() && passedActorsCount < s_maxActorCount; ++actorIdx )
         {
-            const SpotLight& spotLight = static_cast< const SpotLight& >( light );
-            
+            const auto& actor = actors[ actorIdx ];
+            if ( !actor || !actor->getModel() || !actor->getModel()->getMesh() )
+                continue;
+
+            const auto& alphaTexture = actor->getModel()->getAlphaTexturesCount() > 0 ? *actor->getModel()->getAlphaTexture( 0 ).getTexture() : defaultAlphaTexture;
+            const bool  isOpaque     = alphaTexture.getWidth() * alphaTexture.getHeight() == 1 && alphaTexture.isInCpuMemory() && alphaTexture.getData()[ 0 ] == 255;
+
+            const BoundingBox& boundingBox = actor->getModel()->getMesh()->getBoundingBox();
+
+            dataPtr->localToWorldMatrix[ passedActorsCount ] = float44( actor->getPose() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
+            dataPtr->worldToLocalMatrix[ passedActorsCount ] = float44( actor->getPose().getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
+            dataPtr->boundingBoxMin[ passedActorsCount ]     = float4( boundingBox.getMin(), 0.0f );
+            dataPtr->boundingBoxMax[ passedActorsCount ]     = float4( boundingBox.getMax(), 0.0f );
+            dataPtr->isOpaque[ passedActorsCount ]           = isOpaque ? float4::ONE : float4::ZERO;
+            dataPtr->outputTextureSize                       = float2( (float)outputTextureWidth, (float)outputTextureHeight );
+            dataPtr->lightPosition                           = light.getPosition();
+            dataPtr->isPreIlluminationAvailable              = preIlluminationTexture ? 1 : 0;
+
+            ++passedActorsCount;
+        }
+
+        dataPtr->actorCount = passedActorsCount;
+
+        if ( shadowMap ) {
+            const SpotLight& spotLight = static_cast<const SpotLight&>( light );
+
             // #TODO: Should be calculated inside a spotlight ( like getViewMatrix() and getProjectionMatrix() ) 
             // to ensure that all classes using a spotlight have the same view and projection matrices.
-            dataPtr->shadowMapViewMatrix       = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) ).getTranspose();
+            dataPtr->shadowMapViewMatrix = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) ).getTranspose();
             dataPtr->shadowMapProjectionMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f ).getTranspose();
-            dataPtr->lightConeMinDot           = cos( spotLight.getConeAngle() );
-            dataPtr->lightDirection            = spotLight.getDirection();
+            dataPtr->lightConeMinDot = cos( spotLight.getConeAngle() );
+            dataPtr->lightDirection = spotLight.getDirection();
             //dataPtr->shadowMapProjectionMatrix =  MathUtil::orthographicProjectionTransformation( (float)SpotLight::s_shadowMapDimensions.x, (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 50.0f ).getTranspose();
-        }
-        else
-        {
-            dataPtr->shadowMapViewMatrix       = float44::IDENTITY;
+        } else {
+            dataPtr->shadowMapViewMatrix = float44::IDENTITY;
             dataPtr->shadowMapProjectionMatrix = float44::IDENTITY;
         }
 
@@ -214,8 +215,10 @@ void RaytracingShadowsComputeShader::unsetParameters( ID3D11DeviceContext& devic
         throw std::exception( "RaytracingShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
 	// Unset buffers and textures.
-	ID3D11ShaderResourceView* nullResources[ 9 ] = {};
-	deviceContext.CSSetShaderResources( 0, 9, nullResources );
+	std::vector< ID3D11ShaderResourceView* > nullResources;
+    nullResources.resize( m_resourceCount, nullptr );
+
+	deviceContext.CSSetShaderResources( 0, (int)nullResources.size(), nullResources.data() );
 
 	// Unset samplers.
 	ID3D11SamplerState* nullSamplers[ 2 ] = {};

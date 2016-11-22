@@ -14,7 +14,7 @@ namespace Engine1
         TextFragmentShader();
         virtual ~TextFragmentShader();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext, ID3D11ShaderResourceView* characterTextureResource );
 
         private:

@@ -13,37 +13,8 @@ TextVertexShader::TextVertexShader() {}
 
 TextVertexShader::~TextVertexShader() {}
 
-void TextVertexShader::compileFromFile( std::string path, ID3D11Device& device )
+void TextVertexShader::initialize( ComPtr< ID3D11Device >& device )
 {
-	if ( m_compiled ) throw std::exception( "TextVertexShader::compileFromFile - Shader has already been compiled" );
-
-	HRESULT result;
-	ComPtr<ID3D10Blob> shaderBuffer;
-	{ // Compile the shader.
-		ComPtr<ID3D10Blob> errorMessage;
-
-		UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
-
-		#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
-		flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
-		#endif
-
-		result = D3DCompileFromFile( StringUtil::widen( path ).c_str( ), nullptr, nullptr, "main", "vs_5_0", flags, 0,
-										shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
-		if ( result < 0 ) {
-			if ( errorMessage ) {
-				std::string compileMessage( (char*)( errorMessage->GetBufferPointer() ) );
-
-				throw std::exception( ( std::string( "TextVertexShader::compileFromFile - Compilation failed with errors: " ) + compileMessage ).c_str() );
-			} else {
-				throw std::exception( "TextVertexShader::compileFromFile - Failed to open file" );
-			}
-		}
-
-		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "TextVertexShader::compileFromFile - Failed to create shader" );
-	}
-
 	{
 		const unsigned int inputLayoutCount = 2;
 		D3D11_INPUT_ELEMENT_DESC desc[ inputLayoutCount ];
@@ -64,9 +35,10 @@ void TextVertexShader::compileFromFile( std::string path, ID3D11Device& device )
 		desc[ 1 ].InstanceDataStepRate = 0;
 
 		// Create the vertex input layout.
-		result = device.CreateInputLayout( desc, inputLayoutCount, shaderBuffer->GetBufferPointer(),
-										   shaderBuffer->GetBufferSize(), m_inputLayout.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "TextVertexShader::compileFromFile - creating input layout failed" );
+		HRESULT result = device->CreateInputLayout( desc, inputLayoutCount, m_shaderBytecode->data(),
+										   m_shaderBytecode->size(), m_inputLayout.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) 
+            throw std::exception( "TextVertexShader::compileFromFile - creating input layout failed" );
 	}
 
 	{
@@ -79,13 +51,10 @@ void TextVertexShader::compileFromFile( std::string path, ID3D11Device& device )
 		desc.MiscFlags           = 0;
 		desc.StructureByteStride = 0;
 
-		result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "TextVertexShader::compileFromFile - creating constant buffer failed" );
+		HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) 
+            throw std::exception( "TextVertexShader::compileFromFile - creating constant buffer failed" );
 	}
-
-	this->m_device = &device;
-	this->m_compiled = true;
-	this->m_shaderId = ++compiledShadersCount;
 }
 
 void TextVertexShader::setParameters( ID3D11DeviceContext& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix )

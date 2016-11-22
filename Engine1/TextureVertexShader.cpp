@@ -13,68 +13,40 @@ TextureVertexShader::TextureVertexShader() {}
 
 TextureVertexShader::~TextureVertexShader() {}
 
-void TextureVertexShader::compileFromFile( std::string path, ID3D11Device& device )
+void TextureVertexShader::initialize( ComPtr< ID3D11Device >& device )
 {
-	if ( m_compiled ) throw std::exception( "TextureVertexShader::compileFromFile - Shader has already been compiled" );
-
-	HRESULT result;
-	ComPtr<ID3D10Blob> shaderBuffer;
-	{ // Compile the shader.
-		ComPtr<ID3D10Blob> errorMessage;
-
-		UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
-
-		#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
-		flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
-		#endif
-
-		result = D3DCompileFromFile( StringUtil::widen( path ).c_str( ), nullptr, nullptr, "main", "vs_5_0", flags, 0,
-										shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
-		if ( result < 0 ) {
-			if ( errorMessage ) {
-				std::string compileMessage( (char*)( errorMessage->GetBufferPointer() ) );
-
-				throw std::exception( ( std::string( "TextureVertexShader::compileFromFile - Compilation failed with errors: " ) + compileMessage ).c_str() );
-			} else {
-				throw std::exception( "TextureVertexShader::compileFromFile - Failed to open file" );
-			}
-		}
-
-		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "TextureVertexShader::compileFromFile - Failed to create shader" );
-	}
-
 	{
 		const unsigned int inputLayoutCount = 3;
 		D3D11_INPUT_ELEMENT_DESC desc[ inputLayoutCount ];
-		desc[ 0 ].SemanticName = "POSITION";
-		desc[ 0 ].SemanticIndex = 0;
-		desc[ 0 ].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		desc[ 0 ].InputSlot = 0;
-		desc[ 0 ].AlignedByteOffset = 0;
-		desc[ 0 ].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		desc[ 0 ].InstanceDataStepRate = 0;
+		desc[ 0 ].SemanticName              = "POSITION";
+		desc[ 0 ].SemanticIndex             = 0;
+		desc[ 0 ].Format                    = DXGI_FORMAT_R32G32B32_FLOAT;
+		desc[ 0 ].InputSlot                 = 0;
+		desc[ 0 ].AlignedByteOffset         = 0;
+		desc[ 0 ].InputSlotClass            = D3D11_INPUT_PER_VERTEX_DATA;
+		desc[ 0 ].InstanceDataStepRate      = 0;
 
-		desc[ 1 ].SemanticName = "NORMAL";
-		desc[ 1 ].SemanticIndex = 0;
-		desc[ 1 ].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		desc[ 1 ].InputSlot = 1;
-		desc[ 1 ].AlignedByteOffset = 0;
-		desc[ 1 ].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		desc[ 1 ].SemanticName         = "NORMAL";
+		desc[ 1 ].SemanticIndex        = 0;
+		desc[ 1 ].Format               = DXGI_FORMAT_R32G32B32_FLOAT;
+		desc[ 1 ].InputSlot            = 1;
+		desc[ 1 ].AlignedByteOffset    = 0;
+		desc[ 1 ].InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
 		desc[ 1 ].InstanceDataStepRate = 0;
 
-		desc[ 2 ].SemanticName = "TEXCOORD";
-		desc[ 2 ].SemanticIndex = 0;
-		desc[ 2 ].Format = DXGI_FORMAT_R32G32_FLOAT;
-		desc[ 2 ].InputSlot = 2;
-		desc[ 2 ].AlignedByteOffset = 0;
-		desc[ 2 ].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		desc[ 2 ].SemanticName         = "TEXCOORD";
+		desc[ 2 ].SemanticIndex        = 0;
+		desc[ 2 ].Format               = DXGI_FORMAT_R32G32_FLOAT;
+		desc[ 2 ].InputSlot            = 2;
+		desc[ 2 ].AlignedByteOffset    = 0;
+		desc[ 2 ].InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
 		desc[ 2 ].InstanceDataStepRate = 0;
 
 		// Create the vertex input layout.
-		result = device.CreateInputLayout( desc, inputLayoutCount, shaderBuffer->GetBufferPointer(),
-										   shaderBuffer->GetBufferSize(), m_inputLayout.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "TextureVertexShader::compileFromFile - creating input layout failed" );
+		HRESULT result = device->CreateInputLayout( desc, inputLayoutCount, m_shaderBytecode->data(),
+										   m_shaderBytecode->size(), m_inputLayout.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) 
+            throw std::exception( "TextureVertexShader::compileFromFile - creating input layout failed" );
 	}
 
 	{
@@ -88,13 +60,10 @@ void TextureVertexShader::compileFromFile( std::string path, ID3D11Device& devic
 		desc.StructureByteStride = 0;
 
 		// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-		result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "BlockMeshVertexShader::compileFromFile - creating constant buffer failed" );
+		HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) 
+            throw std::exception( "BlockMeshVertexShader::compileFromFile - creating constant buffer failed" );
 	}
-
-	this->m_device = &device;
-	this->m_compiled = true;
-	this->m_shaderId = ++compiledShadersCount;
 }
 
 void TextureVertexShader::setParameters( ID3D11DeviceContext& deviceContext, float posX, float posY, float width, float height )

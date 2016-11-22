@@ -41,7 +41,7 @@ void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D1
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 
-    loadAndCompileShaders( *device.Get() );
+    loadAndCompileShaders( device );
 
 	m_initialized = true;
 }
@@ -215,11 +215,11 @@ void ShadingRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
-void ShadingRenderer::loadAndCompileShaders( ID3D11Device& device )
+void ShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_shadingComputeShader0->compileFromFile( "Shaders/ShadingShader/cs0.hlsl", device );
-    m_shadingComputeShader->compileFromFile( "Shaders/ShadingShader/cs.hlsl", device );
-    m_shadingComputeShader2->compileFromFile( "Shaders/ShadingShader/cs2.hlsl", device );
-    m_shadingNoShadowsComputeShader->compileFromFile( "Shaders/ShadingNoShadowsShader/cs.hlsl", device );
-    m_shadingNoShadowsComputeShader2->compileFromFile( "Shaders/ShadingNoShadowsShader/cs2.hlsl", device );
+    m_shadingComputeShader0->loadAndInitialize( "Shaders/ShadingShader/Shading_cs0.cso", device );
+    m_shadingComputeShader->loadAndInitialize( "Shaders/ShadingShader/Shading_cs.cso", device );
+    m_shadingComputeShader2->loadAndInitialize( "Shaders/ShadingShader/Shading_cs2.cso", device );
+    m_shadingNoShadowsComputeShader->loadAndInitialize( "Shaders/ShadingNoShadowsShader/ShadingNoShadows_cs.cso", device );
+    m_shadingNoShadowsComputeShader2->loadAndInitialize( "Shaders/ShadingNoShadowsShader/ShadingNoShadows_cs2.cso", device );
 }

@@ -13,37 +13,8 @@ CombiningVertexShader::CombiningVertexShader() {}
 
 CombiningVertexShader::~CombiningVertexShader() {}
 
-void CombiningVertexShader::compileFromFile( std::string path, ID3D11Device& device )
+void CombiningVertexShader::initialize( ComPtr< ID3D11Device >& device )
 {
-	if ( m_compiled ) throw std::exception( "CombiningVertexShader::compileFromFile - Shader has already been compiled" );
-
-	HRESULT result;
-	ComPtr<ID3D10Blob> shaderBuffer;
-	{ // Compile the shader.
-		ComPtr<ID3D10Blob> errorMessage;
-
-		UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
-
-		#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
-		flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
-		#endif
-
-		result = D3DCompileFromFile( StringUtil::widen( path ).c_str( ), nullptr, nullptr, "main", "vs_5_0", flags, 0,
-										shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
-		if ( result < 0 ) {
-			if ( errorMessage ) {
-				std::string compileMessage( (char*)( errorMessage->GetBufferPointer() ) );
-
-				throw std::exception( ( std::string( "CombiningVertexShader::compileFromFile - Compilation failed with errors: " ) + compileMessage ).c_str() );
-			} else {
-				throw std::exception( "CombiningVertexShader::compileFromFile - Failed to open file" );
-			}
-		}
-
-		result = device.CreateVertexShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "CombiningVertexShader::compileFromFile - Failed to create shader" );
-	}
-
 	{
 		const unsigned int inputLayoutCount = 3;
 		D3D11_INPUT_ELEMENT_DESC desc[ inputLayoutCount ];
@@ -72,8 +43,8 @@ void CombiningVertexShader::compileFromFile( std::string path, ID3D11Device& dev
 		desc[ 2 ].InstanceDataStepRate = 0;
 
 		// Create the vertex input layout.
-		result = device.CreateInputLayout( desc, inputLayoutCount, shaderBuffer->GetBufferPointer(),
-										   shaderBuffer->GetBufferSize(), m_inputLayout.ReleaseAndGetAddressOf() );
+		HRESULT result = device->CreateInputLayout( desc, inputLayoutCount, m_shaderBytecode->data(),
+										   m_shaderBytecode->size(), m_inputLayout.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "CombiningVertexShader::compileFromFile - creating input layout failed" );
 	}
 
@@ -88,13 +59,9 @@ void CombiningVertexShader::compileFromFile( std::string path, ID3D11Device& dev
 	//	desc.StructureByteStride = 0;
 
 	//	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	//	result = device.CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
+	//	result = device->CreateBuffer( &desc, nullptr, constantInputBuffer.ReleaseAndGetAddressOf() );
 	//	if ( result < 0 ) throw std::exception( "BlockMeshVertexShader::compileFromFile - creating constant buffer failed" );
 	//}
-
-	this->m_device = &device;
-	this->m_compiled = true;
-	this->m_shaderId = ++compiledShadersCount;
 }
 
 void CombiningVertexShader::setParameters( ID3D11DeviceContext& deviceContext )

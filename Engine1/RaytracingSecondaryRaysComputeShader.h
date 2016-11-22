@@ -27,7 +27,7 @@ namespace Engine1
         RaytracingSecondaryRaysComputeShader();
         virtual ~RaytracingSecondaryRaysComputeShader();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         void setParameters( ID3D11DeviceContext& deviceContext,
                             const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayOriginsTexture,

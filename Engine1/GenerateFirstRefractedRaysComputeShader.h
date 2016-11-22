@@ -22,7 +22,7 @@ namespace Engine1
         GenerateFirstRefractedRaysComputeShader();
         virtual ~GenerateFirstRefractedRaysComputeShader();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                             const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,

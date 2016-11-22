@@ -28,7 +28,7 @@ namespace Engine1
         RasterizingShadowsComputeShader();
         virtual ~RasterizingShadowsComputeShader();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         void setParameters(
             ID3D11DeviceContext& deviceContext,

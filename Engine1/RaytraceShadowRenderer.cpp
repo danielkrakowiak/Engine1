@@ -10,6 +10,7 @@
 #include "BlockActor.h"
 
 using namespace Engine1;
+using Microsoft::WRL::ComPtr;
 
 RaytraceShadowRenderer::RaytraceShadowRenderer(Direct3DRendererCore& rendererCore) :
 	m_rendererCore( rendererCore ),
@@ -38,7 +39,7 @@ void RaytraceShadowRenderer::initialize(
 
 	createComputeTargets( imageWidth, imageHeight, *device.Get() );
 
-	loadAndCompileShaders( *device.Get() );
+	loadAndCompileShaders( device );
 
 	createDefaultTextures( *device.Get() );
 
@@ -58,8 +59,15 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 	m_rendererCore.enableComputeShader( m_raytracingShadowsComputeShader );
 
-	// Clear unordered access targets.
+	// Don't have to clear, because illumination should be initialized with pre-illumination.
 	m_illuminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
+
+    // Copy pre-illumination texture as initial illumination. 
+    // This is to avoid copying values inside the shader in each pass.
+    ///*m_rendererCore.copyTexture(
+    //    *m_illuminationTexture,
+    //    *preIlluminationTexture
+    //);*/
 
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
@@ -76,25 +84,24 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 	uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
-	for ( const std::shared_ptr< const BlockActor >& actor : actors )
-	{
-        if ( !actor->isCastingShadows() || !actor->getModel() || !actor->getModel()->getMesh() )
-            continue;
+	//for ( const std::shared_ptr< const BlockActor >& actor : actors )
+	//{
+        //if ( !actor->isCastingShadows() || !actor->getModel() || !actor->getModel()->getMesh() )
+        //    continue;
 
-		const BlockModel& model = *actor->getModel();
+		//const BlockModel& model = *actor->getModel();
 
-		const BoundingBox bbBox = model.getMesh()->getBoundingBox();
+		//const BoundingBox bbBox = model.getMesh()->getBoundingBox();
 
-		const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture
-			= model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
+        /*const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture
+            = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;*/
 
 		m_raytracingShadowsComputeShader->setParameters( 
-			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, preIlluminationTexture, *actor->getModel()->getMesh(), actor->getPose(),
-			bbBox.getMin(), bbBox.getMax(), alphaTexture, imageWidth, imageHeight 
+			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, preIlluminationTexture, actors, *m_defaultAlphaTexture, imageWidth, imageHeight 
 		);
 
 		m_rendererCore.compute( groupCount );
-	}
+	//}
 
 	// Unbind resources to avoid binding the same resource on input and output.
 	m_rendererCore.disableUnorderedAccessViews();
@@ -116,9 +123,9 @@ void RaytraceShadowRenderer::createComputeTargets( int imageWidth, int imageHeig
 		( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 }
 
-void RaytraceShadowRenderer::loadAndCompileShaders( ID3D11Device& device )
+void RaytraceShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_raytracingShadowsComputeShader->compileFromFile( "Shaders/RaytracingShadowsShader/cs.hlsl", device );
+	m_raytracingShadowsComputeShader->loadAndInitialize( "Shaders/RaytracingShadowsShader/RaytracingShadows_cs.cso", device );
 }
 
 void RaytraceShadowRenderer::createDefaultTextures( ID3D11Device& device )

@@ -90,7 +90,7 @@ namespace Engine1
         std::shared_ptr< RefractionShadingComputeShader >   m_refractionShadingComputeShader;
         std::shared_ptr< RefractionShadingComputeShader2 >  m_refractionShadingComputeShader2;
 
-        void loadAndCompileShaders( ID3D11Device& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         // Copying is not allowed.
         ReflectionRefractionShadingRenderer( const ReflectionRefractionShadingRenderer& )           = delete;

@@ -13,37 +13,8 @@ TextureRescaleComputeShader::TextureRescaleComputeShader() {}
 
 TextureRescaleComputeShader::~TextureRescaleComputeShader() {}
 
-void TextureRescaleComputeShader::compileFromFile( std::string path, ID3D11Device& device )
+void TextureRescaleComputeShader::initialize( ComPtr< ID3D11Device >& device )
 {
-    if ( m_compiled ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - Shader has already been compiled." );
-
-    HRESULT result;
-    ComPtr<ID3D10Blob> shaderBuffer;
-    { // Compile the shader.
-        ComPtr<ID3D10Blob> errorMessage;
-
-        UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
-
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
-        flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3D10_SHADER_PREFER_FLOW_CONTROL;
-#endif
-
-        result = D3DCompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "cs_5_0", flags, 0,
-                                        shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
-        if ( result < 0 ) {
-            if ( errorMessage ) {
-                std::string compileMessage( (char*)(errorMessage->GetBufferPointer()) );
-
-                throw std::exception( (std::string( "TextureRescaleComputeShader::compileFromFile - Compilation failed with errors: " ) + compileMessage).c_str() );
-            } else {
-                throw std::exception( "TextureRescaleComputeShader::compileFromFile - Failed to open file." );
-            }
-        }
-
-        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - Failed to create shader." );
-    }
-
     {
         // Create constant buffer.
         D3D11_BUFFER_DESC desc;
@@ -54,8 +25,9 @@ void TextureRescaleComputeShader::compileFromFile( std::string path, ID3D11Devic
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
-        result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - creating constant buffer failed." );
+        HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) 
+            throw std::exception( "TextureRescaleComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
     { // Create sampler configuration.
@@ -75,13 +47,10 @@ void TextureRescaleComputeShader::compileFromFile( std::string path, ID3D11Devic
 		samplerConfiguration.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &samplerConfiguration, m_samplerState.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "TextureRescaleComputeShader::compileFromFile - Failed to create texture sampler state." );
+		HRESULT result = device->CreateSamplerState( &samplerConfiguration, m_samplerState.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) 
+            throw std::exception( "TextureRescaleComputeShader::compileFromFile - Failed to create texture sampler state." );
 	}
-
-    this->m_device = &device;
-    this->m_compiled = true;
-    this->m_shaderId = ++compiledShadersCount;
 }
 
 void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext& deviceContext,

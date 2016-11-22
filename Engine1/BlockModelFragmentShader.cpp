@@ -16,37 +16,8 @@ BlockModelFragmentShader::BlockModelFragmentShader() : m_samplerState( nullptr )
 BlockModelFragmentShader::~BlockModelFragmentShader()
 {}
 
-void BlockModelFragmentShader::compileFromFile( std::string path, ID3D11Device& device )
+void BlockModelFragmentShader::initialize( ComPtr< ID3D11Device >& device )
 {
-	if ( m_compiled ) throw std::exception( "BlockModelFragmentShader::compileFromFile - Shader has already been compiled" );
-
-	HRESULT result;
-	ComPtr<ID3D10Blob> shaderBuffer;
-	{ // Compile the shader.
-		ComPtr<ID3D10Blob> errorMessage;
-
-		UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
-
-		#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
-		flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
-		#endif
-
-		result = D3DCompileFromFile( StringUtil::widen( path ).c_str( ), nullptr, nullptr, "main", "ps_5_0", flags, 0,
-										shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
-		if ( result < 0 ) {
-			if ( errorMessage ) {
-				std::string compileMessage( (char*)( errorMessage->GetBufferPointer() ) );
-
-				throw std::exception( ( std::string( "BlockModelFragmentShader::compileFromFile - Compilation failed with errors: " ) + compileMessage ).c_str() );
-			} else {
-				throw std::exception( "BlockModelFragmentShader::compileFromFile - Failed to open file" );
-			}
-		}
-
-		result = device.CreatePixelShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "BlockModelFragmentShader::compileFromFile - Failed to create shader" );
-	}
-
 	{ // Create sampler configuration.
 		D3D11_SAMPLER_DESC desc;
 		desc.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -64,8 +35,9 @@ void BlockModelFragmentShader::compileFromFile( std::string path, ID3D11Device& 
 		desc.MaxLOD           = D3D11_FLOAT32_MAX;
 
 		// Create the texture sampler state.
-		result = device.CreateSamplerState( &desc, m_samplerState.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "BlockModelFragmentShader::compileFromFile - Failed to create texture sampler state" );
+		HRESULT result = device->CreateSamplerState( &desc, m_samplerState.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) 
+            throw std::exception( "BlockModelFragmentShader::compileFromFile - Failed to create texture sampler state" );
 	}
 
     {
@@ -78,13 +50,10 @@ void BlockModelFragmentShader::compileFromFile( std::string path, ID3D11Device& 
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
-        result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "BlockModelFragmentShader::compileFromFile - creating constant buffer failed" );
+        HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) 
+            throw std::exception( "BlockModelFragmentShader::compileFromFile - creating constant buffer failed" );
     }
-
-	this->m_device = &device;
-	this->m_compiled = true;
-	this->m_shaderId = ++compiledShadersCount;
 }
 
 void BlockModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 

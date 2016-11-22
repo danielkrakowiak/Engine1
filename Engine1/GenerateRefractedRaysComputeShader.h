@@ -22,7 +22,7 @@ namespace Engine1
         GenerateRefractedRaysComputeShader();
         virtual ~GenerateRefractedRaysComputeShader();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext, const unsigned int refractionLevel,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitPositionTexture,

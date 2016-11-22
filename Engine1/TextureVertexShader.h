@@ -19,7 +19,7 @@ namespace Engine1
         TextureVertexShader();
         virtual ~TextureVertexShader();
 
-        void compileFromFile( std::string path, ID3D11Device& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext, float posX, float posY, float width, float height );
 
         ID3D11InputLayout& getInputLauout() const;

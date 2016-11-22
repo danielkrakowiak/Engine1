@@ -64,12 +64,12 @@ namespace Engine1
 		// Shaders.
 		std::shared_ptr< RaytracingShadowsComputeShader > m_raytracingShadowsComputeShader;
 
-		void loadAndCompileShaders(ID3D11Device& device);
+		void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
 		// Default textures.
 		std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultAlphaTexture;
 
-		void createDefaultTextures(ID3D11Device& device);
+		void createDefaultTextures( ID3D11Device& device );
 
 		// Copying is not allowed.
 		RaytraceShadowRenderer(const RaytraceShadowRenderer&) = delete;

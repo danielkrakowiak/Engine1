@@ -15,37 +15,8 @@ GenerateRefractedRaysComputeShader::GenerateRefractedRaysComputeShader() :
 
 GenerateRefractedRaysComputeShader::~GenerateRefractedRaysComputeShader() {}
 
-void GenerateRefractedRaysComputeShader::compileFromFile( std::string path, ID3D11Device& device )
+void GenerateRefractedRaysComputeShader::initialize( ComPtr< ID3D11Device >& device )
 {
-    if ( m_compiled ) throw std::exception( "GenerateRefractedRaysComputeShader::compileFromFile - Shader has already been compiled." );
-
-    HRESULT result;
-    ComPtr<ID3D10Blob> shaderBuffer;
-    { // Compile the shader.
-        ComPtr<ID3D10Blob> errorMessage;
-
-        UINT flags = D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_SKIP_OPTIMIZATION; // #TODO: Why HLSL compiler crashes without "skip optimization" flag?
-
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
-        flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION | D3D10_SHADER_PREFER_FLOW_CONTROL;
-#endif
-
-        result = D3DCompileFromFile( StringUtil::widen( path ).c_str(), nullptr, nullptr, "main", "cs_5_0", flags, 0,
-                                        shaderBuffer.GetAddressOf(), errorMessage.GetAddressOf() );
-        if ( result < 0 ) {
-            if ( errorMessage ) {
-                std::string compileMessage( (char*)(errorMessage->GetBufferPointer()) );
-
-                throw std::exception( (std::string( "GenerateRefractedRaysComputeShader::compileFromFile - Compilation failed with errors: " ) + compileMessage).c_str() );
-            } else {
-                throw std::exception( "GenerateRefractedRaysComputeShader::compileFromFile - Failed to open file." );
-            }
-        }
-
-        result = device.CreateComputeShader( shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), nullptr, m_shader.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "GenerateRefractedRaysComputeShader::compileFromFile - Failed to create shader." );
-    }
-
     { // Create linear filter sampler configuration
         D3D11_SAMPLER_DESC samplerConfiguration;
         samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
@@ -63,7 +34,7 @@ void GenerateRefractedRaysComputeShader::compileFromFile( std::string path, ID3D
         samplerConfiguration.MaxLOD           = D3D11_FLOAT32_MAX;
 
         // Create the texture sampler state.
-        result = device.CreateSamplerState( &samplerConfiguration, m_samplerStateLinearFilter.ReleaseAndGetAddressOf() );
+        HRESULT result = device->CreateSamplerState( &samplerConfiguration, m_samplerStateLinearFilter.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::compileFromFile - Failed to create texture sampler state." );
     }
 
@@ -77,13 +48,9 @@ void GenerateRefractedRaysComputeShader::compileFromFile( std::string path, ID3D
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
-        result = device.CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
+        HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "GenerateFirstRefractedRaysComputeShader::compileFromFile - creating constant buffer failed." );
     }
-
-    this->m_device = &device;
-    this->m_compiled = true;
-    this->m_shaderId = ++compiledShadersCount;
 }
 
 void GenerateRefractedRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const unsigned int refractionLevel,
