@@ -99,7 +99,7 @@ void RaytracingShadowsComputeShader::setParameters(
 	if ( !m_compiled ) 
         throw std::exception( "RaytracingShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > shadowMap;
+    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > shadowMap;
 
     if ( light.getType() == Light::Type::SpotLight )
         shadowMap = static_cast< const SpotLight& >( light ).getShadowMap();
@@ -130,12 +130,12 @@ void RaytracingShadowsComputeShader::setParameters(
 
             const int resourceBaseIndex = lightRelatedResourceCount + passedActorsCount * meshRelatedResourceCount;
             
-            resources[ resourceBaseIndex ]     = mesh.getVertexBufferResource();
-            resources[ resourceBaseIndex + 1 ] = !mesh.getTexcoordBufferResources().empty() ? mesh.getTexcoordBufferResources().front() : nullptr;
-            resources[ resourceBaseIndex + 2 ] = mesh.getTriangleBufferResource();
-            resources[ resourceBaseIndex + 3 ] = mesh.getBvhTreeBufferNodesShaderResourceView().Get();
-            resources[ resourceBaseIndex + 4 ] = mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get();
-            resources[ resourceBaseIndex + 5 ] = alphaTexture.getShaderResourceView();
+            resources[ lightRelatedResourceCount + actorIdx ]                       = mesh.getVertexBufferResource();
+            resources[ lightRelatedResourceCount + 1 * s_maxActorCount + actorIdx ] = !mesh.getTexcoordBufferResources().empty() ? mesh.getTexcoordBufferResources().front() : nullptr;
+            resources[ lightRelatedResourceCount + 2 * s_maxActorCount + actorIdx ] = mesh.getTriangleBufferResource();
+            resources[ lightRelatedResourceCount + 3 * s_maxActorCount + actorIdx ] = mesh.getBvhTreeBufferNodesShaderResourceView().Get();
+            resources[ lightRelatedResourceCount + 4 * s_maxActorCount + actorIdx ] = mesh.getBvhTreeBufferNodesExtentsShaderResourceView().Get();
+            resources[ lightRelatedResourceCount + 5 * s_maxActorCount + actorIdx ] = alphaTexture.getShaderResourceView();
 
             ++passedActorsCount;
         }
@@ -188,14 +188,13 @@ void RaytracingShadowsComputeShader::setParameters(
 
             // #TODO: Should be calculated inside a spotlight ( like getViewMatrix() and getProjectionMatrix() ) 
             // to ensure that all classes using a spotlight have the same view and projection matrices.
-            dataPtr->shadowMapViewMatrix = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) ).getTranspose();
-            dataPtr->shadowMapProjectionMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f ).getTranspose();
-            dataPtr->lightConeMinDot = cos( spotLight.getConeAngle() );
-            dataPtr->lightDirection = spotLight.getDirection();
-            //dataPtr->shadowMapProjectionMatrix =  MathUtil::orthographicProjectionTransformation( (float)SpotLight::s_shadowMapDimensions.x, (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 50.0f ).getTranspose();
+            dataPtr->shadowMapViewMatrix         = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) ).getTranspose();
+            dataPtr->shadowMapProjectionMatrix   = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f ).getTranspose();
+            dataPtr->lightConeMinDot             = cos( spotLight.getConeAngle() );
+            dataPtr->lightDirection              = spotLight.getDirection();
         } else {
-            dataPtr->shadowMapViewMatrix = float44::IDENTITY;
-            dataPtr->shadowMapProjectionMatrix = float44::IDENTITY;
+            dataPtr->shadowMapViewMatrix         = float44::IDENTITY;
+            dataPtr->shadowMapProjectionMatrix   = float44::IDENTITY;
         }
 
 		deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );

@@ -45,6 +45,7 @@ namespace Engine1
         void setViewport( float2 dimensions, float2 topLeft = float2::ZERO, float depthMin = 0.0f, float depthMax = 1.0f );
 
 		void enableRenderTargets( const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget, const int mipmapLevel = 0 );
+        void enableRenderTargets( const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, float > > depthRenderTarget, const int mipmapLevel = 0 );
 
         void enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
                                   const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >& renderTargetsF4,

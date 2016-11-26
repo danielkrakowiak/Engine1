@@ -93,7 +93,7 @@ void RasterizingShadowsComputeShader::setParameters(
     if ( !m_compiled ) 
         throw std::exception( "RasterizingShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > shadowMap;
+    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > shadowMap;
 
     if ( light.getType() == Light::Type::SpotLight )
         shadowMap = static_cast<const SpotLight&>( light ).getShadowMap();
@@ -127,8 +127,9 @@ void RasterizingShadowsComputeShader::setParameters(
 
         // #TODO: Should be calculated inside a spotlight ( like getViewMatrix() and getProjectionMatrix() ) 
         // to ensure that all classes using a spotlight have the same view and projection matrices.
+        
         dataPtr->shadowMapViewMatrix       = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) ).getTranspose();
-        dataPtr->shadowMapProjectionMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f ).getTranspose();
+        dataPtr->shadowMapProjectionMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, SpotLight::s_shadowMapZNear, SpotLight::s_shadowMapZFar ).getTranspose();
         dataPtr->lightConeMinDot           = cos( spotLight.getConeAngle() );
         dataPtr->lightDirection            = spotLight.getDirection();
 

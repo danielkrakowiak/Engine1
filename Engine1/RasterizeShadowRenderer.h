@@ -42,6 +42,7 @@ namespace Engine1
             );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getIlluminationTexture();
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         getDistanceToOccluderTexture();
 
         private:
 
@@ -56,6 +57,7 @@ namespace Engine1
         int m_imageWidth, m_imageHeight;
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_illuminationTexture;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         m_distanceToOccluderTexture;
 
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

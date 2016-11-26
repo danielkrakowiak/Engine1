@@ -6,6 +6,8 @@
 using namespace Engine1;
 
 const int2 SpotLight::s_shadowMapDimensions( 256, 256 );
+const float SpotLight::s_shadowMapZNear( 0.1f );
+const float SpotLight::s_shadowMapZFar( 5.0f );
 
 std::shared_ptr< SpotLight > SpotLight::createFromFile( const std::string& path )
 {
@@ -65,7 +67,7 @@ void SpotLight::setConeAngle( const float coneAngle )
     m_coneAngle = coneAngle;
 }
 
-void SpotLight::setShadowMap( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > shadowMap )
+void SpotLight::setShadowMap( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > shadowMap )
 {
     m_shadowMap = shadowMap;
 }
@@ -80,12 +82,12 @@ float  SpotLight::getConeAngle() const
     return m_coneAngle;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > SpotLight::getShadowMap()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > SpotLight::getShadowMap()
 {
     return m_shadowMap;
 }
 
-const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > SpotLight::getShadowMap() const
+const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > SpotLight::getShadowMap() const
 {
     return m_shadowMap;
 }

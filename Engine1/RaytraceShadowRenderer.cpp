@@ -52,6 +52,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > distanceToOccluderTexture,
 	const std::vector< std::shared_ptr< const BlockActor > >& actors
 )
 {
@@ -75,6 +76,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
+    unorderedAccessTargetsF1.push_back( distanceToOccluderTexture );
 	unorderedAccessTargetsU1.push_back( m_illuminationTexture );
 
 	m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
@@ -84,24 +86,26 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 	uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
-	//for ( const std::shared_ptr< const BlockActor >& actor : actors )
-	//{
-        //if ( !actor->isCastingShadows() || !actor->getModel() || !actor->getModel()->getMesh() )
-        //    continue;
+    std::vector< std::shared_ptr< const BlockActor > > actorsToPass;
+    int passedActorsCount = 0;
 
-		//const BlockModel& model = *actor->getModel();
-
-		//const BoundingBox bbBox = model.getMesh()->getBoundingBox();
-
-        /*const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture
-            = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;*/
+	while ( passedActorsCount < actors.size() )
+    {
+        //#TODO: Should we only pass actors which cast shadows?
+        // Gather a few actors to pass to the shader. 
+        actorsToPass.clear();
+        while ( actorsToPass.size() < RaytracingShadowsComputeShader::s_maxActorCount && passedActorsCount < actors.size() )
+        {
+            if ( actors[ passedActorsCount ]->isCastingShadows() )
+                actorsToPass.push_back( actors[ passedActorsCount++ ] );
+        }
 
 		m_raytracingShadowsComputeShader->setParameters( 
-			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, preIlluminationTexture, actors, *m_defaultAlphaTexture, imageWidth, imageHeight 
+			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, preIlluminationTexture, actorsToPass, *m_defaultAlphaTexture, imageWidth, imageHeight 
 		);
 
 		m_rendererCore.compute( groupCount );
-	//}
+	}
 
 	// Unbind resources to avoid binding the same resource on input and output.
 	m_rendererCore.disableUnorderedAccessViews();

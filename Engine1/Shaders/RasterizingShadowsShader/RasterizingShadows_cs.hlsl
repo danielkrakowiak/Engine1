@@ -20,13 +20,20 @@ Texture2D<float4> g_surfaceNormal    : register( t1 );
 //Texture2D<float4> g_contributionTerm : register( t1 ); // How much of the ray color is visible by the camera. Used to avoid checking shadows for useless rays.
 Texture2D<float>  g_shadowMap        : register( t2 );
 
-SamplerState      g_pointSamplerState     : register( s0 );
-SamplerState      g_linearSamplerState    : register( s1 );
+SamplerState      g_pointSamplerState   : register( s0 );
+SamplerState      g_linearSamplerState  : register( s1 );
 
 // Input / Output.
-RWTexture2D<uint>  g_illumination    : register( u0 );
+RWTexture2D<float> g_distanceToOccluder : register( u0 );
+RWTexture2D<uint>  g_illumination       : register( u1 );
 
 static const float minHitDist = 0.001f;
+
+static const float zNear   = 0.1f;
+static const float zFar    = 5.0f;
+static const float zRange  = zFar - zNear;
+
+float linearizeDepth( float depthSample );
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -40,9 +47,8 @@ void main( uint3 groupId : SV_GroupID,
 {
     const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
 
-	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
-
-	const float3 rayDirBase  = normalize( lightPosition - rayOrigin );
+	const float3 rayOrigin  = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
+	const float3 rayDirBase = normalize( lightPosition - rayOrigin );
 
     // If pixel is outside of spot light's cone - ignore.
     if ( dot( lightDirection, -rayDirBase ) < lightConeMinDot ) {
@@ -62,9 +68,9 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    float4 rayOriginInShadowMap;
-    rayOriginInShadowMap = mul( float4( rayOrigin, 1.0f ), shadowMapViewMatrix );
-    rayOriginInShadowMap = mul( rayOriginInShadowMap, shadowMapProjectionMatrix );
+    float4 rayOriginInLightSpace, rayOriginInShadowMap;
+    rayOriginInLightSpace = mul( float4( rayOrigin, 1.0f ), shadowMapViewMatrix );
+    rayOriginInShadowMap  = mul( rayOriginInLightSpace, shadowMapProjectionMatrix );
 
     // Calculate the projected texture coordinates.
     rayOriginInShadowMap.x =  rayOriginInShadowMap.x / rayOriginInShadowMap.w / 2.0f + 0.5f;
@@ -73,7 +79,7 @@ void main( uint3 groupId : SV_GroupID,
     // Determine if the projected coordinates are in the 0 to 1 range.  If so then this pixel is in the view of the light.
     if( (saturate( rayOriginInShadowMap.x ) == rayOriginInShadowMap.x ) && ( saturate( rayOriginInShadowMap.y ) == rayOriginInShadowMap.y ) )
     {
-            // Sample the shadow map depth value from the depth texture using the sampler at the projected texture coordinate location.
+        // Sample the shadow map depth value from the depth texture using the sampler at the projected texture coordinate location.
         const float shadowMapDepth = g_shadowMap.SampleLevel( g_pointSamplerState, rayOriginInShadowMap.xy, 0.0f ).r; // #TODO: Which sampler to use?
             
         // Calculate the depth of the light.
@@ -86,7 +92,17 @@ void main( uint3 groupId : SV_GroupID,
         // If the light is in front of the object then light the pixel, if not then shadow this pixel since an object (occluder) is casting a shadow on it.
         if( rayOriginDepth - bias > shadowMapDepth )
         {
-            g_illumination[ dispatchThreadId.xy ] = 0;
+            //#TODO: IMPORTANT: Linearized depth value is not a distance from light, but a distance from a light plane... So we need to scale it.
+            //# https://mynameismjp.wordpress.com/2010/09/05/position-from-depth-3/
+
+            const float  viewRayToDepthScale = dot( lightDirection, -rayDirBase );
+
+            const float occluderDistToLight     = linearizeDepth( shadowMapDepth ) / viewRayToDepthScale;
+            const float rayOriginDistToLight    = length( lightPosition - rayOrigin );
+            const float rayOriginDistToOccluder = max( 0.0f, rayOriginDistToLight - occluderDistToLight );
+
+            g_illumination[ dispatchThreadId.xy ]       = 0;
+            g_distanceToOccluder[ dispatchThreadId.xy ] = rayOriginDistToOccluder; /*/ viewRayToDepthScale*/;//occluderDistToLight; //#TODO: Do I need to linearize that value? Probably...
             return;
         }
     }
@@ -95,4 +111,27 @@ void main( uint3 groupId : SV_GroupID,
         g_illumination[ dispatchThreadId.xy ] = 0;
         return;
     }
+}
+
+float linearizeDepth( float depthSample )
+{
+    //depthSample = 2.0 * depthSample - 1.0;
+    //float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthSample * (zFar - zNear));
+    
+    //float zLinear = depthSample / (zFar - depthSample * zRange);
+    //const float zLinear = (zNear * zFar) / (zFar - depthSample * zRange);
+    
+    const float projectionA = zFar / zRange;
+    const float projectionB = (-zFar * zNear) / zRange;
+
+    /*return float44(
+		xScale, 0.0f, 0.0f, 0.0f,
+		0.0f, yScale, 0.0f, 0.0f,
+		0.0f, 0.0f, zFar / ( zFar - zNear ), 1.0f,
+		0.0f, 0.0f, -zNear*zFar / ( zFar - zNear ), 0.0f
+		);*/
+    
+    const float linearDepth = projectionB / (depthSample - projectionA);
+
+    return linearDepth;
 }

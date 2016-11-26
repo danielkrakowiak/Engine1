@@ -506,7 +506,7 @@ void Application::run() {
             }
             else if ( frameFloat ) 
             {
-                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)frameFloat->getWidth(), (float)frameFloat->getHeight(), false );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
                     debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
@@ -1102,6 +1102,10 @@ void Application::onKeyPress( int key )
         m_renderer.setActiveViewType( Renderer::View::Illumination );
     else if ( key == InputManager::Keys::f5 )
         m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
+    else if ( key == InputManager::Keys::f6 )
+        m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
+    else if ( key == InputManager::Keys::f7 )
+        m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
 	else if ( key == InputManager::Keys::f12 )
 		m_renderer.setActiveViewType( Renderer::View::Test );
 

@@ -310,6 +310,18 @@ Idea:
 
 	  NOW:
 
+	  - when I save distance to occluder in shadow map i take distance to the closest-to-light occluder.
+	    But when I do this for ray tracing i get get closest-to-ray origin occluder.
+
+	  - IMPORTANT: what happens with soft shadow when two objects cast shadow which are near to each other, but with different blur radius? On is rather sharp and the other rather soft. How the algorithm should blur the space betweeen them (or covered in both shadows)?
+
+
+	  - it seems it fucked up something when passing SRVs to raytracing shadows shader.... Fix it first using debug layer...
+
+	  - distance to occluder in shadow rasterize shader should be linearized I guess...
+
+	  - be careful about linearizing depth values when writing distance to occluder - zNear and zFar should be passed as param and should be the same as used to render the shadow maps.
+
 	  - try to compile shader with fxc.exe and load the compiled shader....
 
 	  - shader need to have full names.. because they will be stored in a single output folder.

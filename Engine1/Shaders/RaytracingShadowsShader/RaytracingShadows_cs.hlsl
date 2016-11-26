@@ -1,31 +1,6 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
-#define MAX_ACTOR_COUNT 20
-
-//struct Inputs
-//{
-//    float4x4 localToWorldMatrix[ MAX_ACTOR_COUNT ]; // Transform from local to world space.
-//    float4x4 worldToLocalMatrix[ MAX_ACTOR_COUNT ]; // Transform from world to local space.
-//    float4   boundingBoxMin[ MAX_ACTOR_COUNT ]; // In local space (4th component is padding).
-//    float4   boundingBoxMax[ MAX_ACTOR_COUNT ]; // In local space (4th component is padding).
-//    float4   isOpaque[ MAX_ACTOR_COUNT ]; // 0 - semi transparent, else - fully opaque (2nd, 3rd, 4th components are padding).
-//    uint     actorCount;
-//    float3   pad1;
-//    float2   outputTextureSize;
-//    float2   pad2;
-//	float3   lightPosition;
-//	float    pad3;
-//    float    lightConeMinDot;
-//    float3   pad4;
-//    float3   lightDirection;
-//    float    pad5;
-//    uint     isPreIlluminationAvailable; // 1 - available, 0 - not available.
-//    float3   pad6;
-//    float4x4 shadowMapViewMatrix;
-//    float4x4 shadowMapProjectionMatrix;
-//};
-//
-//ConstantBuffer< Inputs > cb : register( b0, space0 );
+#define MAX_ACTOR_COUNT 1
 
 cbuffer ConstantBuffer : register( b0 )
 {
@@ -55,20 +30,22 @@ Texture2D<float4> g_rayOrigins                          : register( t0 );
 Texture2D<float4> g_surfaceNormal                       : register( t1 );
 //Texture2D<float4> g_contributionTerm                  : register( t1 ); // How much of the ray color is visible by the camera. Used to avoid checking shadows for useless rays.
 Texture2D<float>  g_preIllumination                     : register( t2 );
-ByteAddressBuffer g_meshVertices[ MAX_ACTOR_COUNT ];     //: register( t3 );
-ByteAddressBuffer g_meshTexcoords[ MAX_ACTOR_COUNT ];    //: register( t4 );
-ByteAddressBuffer g_meshTriangles[ MAX_ACTOR_COUNT ];    //: register( t5 );
-Buffer<uint2>     g_bvhNodes[ MAX_ACTOR_COUNT ];         //: register( t6 );
-Buffer<float3>    g_bvhNodesExtents[ MAX_ACTOR_COUNT ];  //: register( t7 ); // min, max, min, max interleaved.
+ByteAddressBuffer g_meshVertices[ MAX_ACTOR_COUNT ]     : register( t3 );
+ByteAddressBuffer g_meshTexcoords[ MAX_ACTOR_COUNT ]    : register( t4 );
+ByteAddressBuffer g_meshTriangles[ MAX_ACTOR_COUNT ]    : register( t5 );
+Buffer<uint2>     g_bvhNodes[ MAX_ACTOR_COUNT ]         : register( t6 );
+Buffer<float3>    g_bvhNodesExtents[ MAX_ACTOR_COUNT ]  : register( t7 ); // min, max, min, max interleaved.
 
-Texture2D         g_alphaTexture[ MAX_ACTOR_COUNT ];     //: register( t8 );
+Texture2D         g_alphaTexture[ MAX_ACTOR_COUNT ]     : register( t8 );
 
 SamplerState      g_pointSamplerState     : register( s0 );
 SamplerState      g_linearSamplerState    : register( s1 );
 
 // Input / Output.
-RWTexture2D<uint>  g_illumination    : register( u0 );
+RWTexture2D<float> g_distanceToOccluder : register( u0 );
+RWTexture2D<uint>  g_illumination       : register( u1 );
 
+void     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint actorIdx, const uint index );
@@ -82,7 +59,7 @@ float2   calcInterpolatedTexCoords( const float3 barycentricCoords, const float2
 
 static const float requiredContributionTerm = 0.35f; // Discard rays which color is visible in less than 5% by the camera.
 
-static const float minHitDist = 0.001f;
+static const float minAllowedHitDist = 0.001f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -94,15 +71,13 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float2 texcoords = (float2)dispatchThreadId.xy / /*cb.*/outputTextureSize;
+    const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
 
 	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
-	//const float3 contributionTerm = g_contributionTerm.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
-
-	const float3 rayDirBase = normalize( /*cb.*/lightPosition - rayOrigin );
+	const float3 rayDir    = normalize( lightPosition - rayOrigin );
 
     // If pixel is outside of spot light's cone - ignore.
-    if ( dot( /*cb.*/lightDirection, -rayDirBase ) < /*cb.*/lightConeMinDot ) {
+    if ( dot( lightDirection, -rayDir ) < lightConeMinDot ) {
         g_illumination[ dispatchThreadId.xy ] = 0;
         return;
     }
@@ -126,133 +101,144 @@ void main( uint3 groupId : SV_GroupID,
     //    return;
     //}
 
-	const float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
-
-    const float normalLightDot = dot( surfaceNormal, rayDirBase );
+	const float3 surfaceNormal  = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
+    const float  normalLightDot = dot( surfaceNormal, rayDir );
 
 	// #TODO: Discard ray with zero contribution.
 
     const uint illuminationUint = g_illumination[ dispatchThreadId.xy ];
 
 	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
-    if ( !any( rayOrigin ) || normalLightDot < 0.0f || illuminationUint == 0/*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) { 
+    if ( !any( rayOrigin ) || normalLightDot < 0.0f || illuminationUint == 0/*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) 
+    { 
         g_illumination[ dispatchThreadId.xy ] = 0;
         return;
     }
 
+    const float rayMaxLength = length( lightPosition - rayOrigin );
+
     // #TODO: Reading unsigned char from UAV is supported only on DirectX 11.3. 
 	float illumination = (float)illuminationUint / 255.0f;
-
-	const float  rayMaxLength = length( /*cb.*/lightPosition - rayOrigin );
-
-	// Offset to avoid self-collision. 
-    // Note: Is it useful? We still need to check against the "origin triangle" and ignore by intersection distance... Or not?
-    const float3 rayOriginOffset = rayDirBase * 0.001f; 
     
-    const float3 rayDir          = normalize( /*cb.*/lightPosition - rayOrigin );
-    
-    const uint actorIdx = 0;
+    // We only care about intersections closer to ray origin than the light source. #TODO: Or all of them? - alpha etc, illumination?
+    float farthestHitDist = 0.0f;
 
     //[loop]
-    //for ( uint actorIdx = 0; actorIdx < /*cb.*/actorCount; ++actorIdx )
+    //for ( uint actorIdx = 0; actorIdx < actorCount; ++actorIdx )
     //{
-        // Transform the ray from world to local space.
-	    const float4 rayOriginLocal = mul( float4( rayOrigin + rayOriginOffset, 1.0f ), /*cb.*/worldToLocalMatrix[ actorIdx ] );
-	    const float4 rayDirLocal    = mul( float4( rayOrigin + rayDir, 1.0f ), /*cb.*/worldToLocalMatrix[ actorIdx ] ) - rayOriginLocal;
-
-	    // Test the ray against the bounding box
-	    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, rayMaxLength, /*cb.*/boundingBoxMin[ actorIdx ].xyz, /*cb.*/boundingBoxMax[ actorIdx ].xyz ) ) 
-	    {
-		    //output = float4( 0.0f, 0.5f, 0.2f, 1.0f );
-		    bool hit = false;
-
-		    // TODO: Size of the stack could be passed as argument in constant buffer?
-		    const uint BVH_STACK_SIZE = 32; 
-
-		    // Stack of BVH nodes (as indices) which were visited or will be visited.
-		    uint bvhStack[ BVH_STACK_SIZE ];
-		    uint bvhStackIndex = 0;
-
-		    // Push root node on the stack.
-		    bvhStack[ bvhStackIndex++ ] = 0; 
-
-		    // While the stack is not empty.
-		    while ( bvhStackIndex > 0 ) {
-		
-			    // Pop a node from the stack.
-			    int bvhNodeIndex = bvhStack[ --bvhStackIndex ];
-
-			    uint2 bvhNodeData = g_bvhNodes[ actorIdx ][ bvhNodeIndex ];
-
-			    // Determine if BVH node is an inner node or a leaf node by checking the highest bit.
-			    // Inner node if highest bit is 0, leaf node if 1.
-			    if ( !(bvhNodeData.x & 0x80000000) ) 
-			    { // Inner node.
-				    // If ray intersects inner node, push indices of left and right child nodes on the stack.
-				    if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, g_bvhNodesExtents[ actorIdx ][ bvhNodeIndex * 2 ], g_bvhNodesExtents[ actorIdx ][ bvhNodeIndex * 2 + 1 ] )) {
-				
-					    bvhStack[ bvhStackIndex++ ] = bvhNodeData.x; // Left child node index.
-					    bvhStack[ bvhStackIndex++ ] = bvhNodeData.y; // Right child node index.
-				
-					    // Return if stack size is exceeded. 
-					    //TODO: Maybe we can remove that check and check it before running the shader.
-					    if ( bvhStackIndex > BVH_STACK_SIZE )
-						    return; 
-				    }
-			    }
-			    else
-			    { // Leaf node.
-
-				    // Loop over every triangle in the leaf node.
-				    // bvhNodeData.x - triangle count (and top-bit set to 1 to indicate leaf node).
-				    // bvhNodeData.y - first triangles index.
-				    const uint triangleCount      = bvhNodeData.x & 0x7fffffff;
-				    const uint firstTriangleIndex = bvhNodeData.y;
-				    const uint lastTriangleIndex  = firstTriangleIndex + triangleCount;
-				    for ( uint triangleIdx = firstTriangleIndex; triangleIdx < lastTriangleIndex; ++triangleIdx ) 
-				    {
-					    const uint3    trianglee   = readTriangle( actorIdx, triangleIdx );
-					    const float3x3 verticesPos = readVerticesPos( actorIdx, trianglee );
-
-					    if ( rayTriangleIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos ) )
-					    {
-						    const float dist = calcDistToTriangle( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos );
-
-						    //#TODO: Maybe could ignore calculating distance - it's only to avoid self-collision (or not.. - triangles behind the ray origin).
-						    if ( dist > minHitDist && dist < rayMaxLength )
-						    {
-                                if ( /*cb.*/isOpaque[ actorIdx ].x == 0.0f )
-                                {
-                                    const float3 hitPos               = rayOriginLocal.xyz + rayDirLocal.xyz * dist;
-                                    const float3 hitBarycentricCoords = calcBarycentricCoordsInTriangle( hitPos, verticesPos );
-
-							        const float2x3 verticesTexCoords = readVerticesTexCoords( actorIdx, trianglee );
-							        const float2   hitTexCoords      = calcInterpolatedTexCoords( hitBarycentricCoords, verticesTexCoords );
-
-                                    const float alpha = 1.0f;//g_alphaTexture[ actorIdx ].SampleLevel( g_linearSamplerState, hitTexCoords, 0.0f ).r;
-
-                                    illumination -= alpha;
-
-                                    // Stop tracing shadow rays if the pixel is already fully shadowed.
-                                    if ( illumination < 0.001f )
-                                        break;
-                                }
-                                else
-                                {
-                                    illumination = 0.0f;
-							        //illumination -= lightAmountPerSample;
-
-                                    break;
-                                }
-						    }
-					    }
-				    }
-			    }
-		    }
-	    }
+    rayMeshIntersect( rayOrigin, rayDir, 0, rayMaxLength, farthestHitDist, illumination );
+    //rayMeshIntersect( rayOrigin, rayDir, 1, hitDist, illumination );
     //}
 
-    g_illumination[ dispatchThreadId.xy ] = (uint)( max( 0.0f, illumination ) * 255.0f );
+    g_distanceToOccluder[ dispatchThreadId.xy ] = farthestHitDist;
+    g_illumination[ dispatchThreadId.xy ]       = (uint)( max( 0.0f, illumination ) * 255.0f );
+}
+
+void rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination )
+{
+    // Offset to avoid self-collision. 
+    // Note: Is it useful? We still need to check against the "origin triangle" and ignore by intersection distance... Or not?
+    const float3 rayOriginOffset = rayDir * 0.001f; 
+
+    // Transform the ray from world to local space.
+	const float4 rayOriginLocal  = mul( float4( rayOrigin + rayOriginOffset, 1.0f ), worldToLocalMatrix[ actorIdx ] );
+	const float4 rayDirLocal     = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix[ actorIdx ] ) - rayOriginLocal;
+
+     //#TODO: Should find all intersections - even those further from ray origin - to determine alpha...
+
+	// Test the ray against the bounding box
+	if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, maxAllowedHitDist, boundingBoxMin[ actorIdx ].xyz, boundingBoxMax[ actorIdx ].xyz ) ) 
+	{
+		// TODO: Size of the stack could be passed as argument in constant buffer?
+		const uint BVH_STACK_SIZE = 32; 
+
+		// Stack of BVH nodes (as indices) which were visited or will be visited.
+		uint bvhStack[ BVH_STACK_SIZE ];
+		uint bvhStackIndex = 0;
+
+		// Push root node on the stack.
+		bvhStack[ bvhStackIndex++ ] = 0; 
+
+		// While the stack is not empty.
+		while ( bvhStackIndex > 0 ) 
+        {
+			// Pop a node from the stack.
+			int bvhNodeIndex = bvhStack[ --bvhStackIndex ];
+
+			uint2 bvhNodeData = g_bvhNodes[ actorIdx ][ bvhNodeIndex ];
+
+			// Determine if BVH node is an inner node or a leaf node by checking the highest bit.
+			// Inner node if highest bit is 0, leaf node if 1.
+			if ( !(bvhNodeData.x & 0x80000000) ) 
+			{ // Inner node.
+				// If ray intersects inner node, push indices of left and right child nodes on the stack.
+				if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, g_bvhNodesExtents[ actorIdx ][ bvhNodeIndex * 2 ], g_bvhNodesExtents[ actorIdx ][ bvhNodeIndex * 2 + 1 ] )) {
+				
+					bvhStack[ bvhStackIndex++ ] = bvhNodeData.x; // Left child node index.
+					bvhStack[ bvhStackIndex++ ] = bvhNodeData.y; // Right child node index.
+				
+					// Return if stack size is exceeded. 
+					//TODO: Maybe we can remove that check and check it before running the shader.
+					if ( bvhStackIndex > BVH_STACK_SIZE )
+						return; 
+				}
+			}
+			else
+			{ // Leaf node.
+
+				// Loop over every triangle in the leaf node.
+				// bvhNodeData.x - triangle count (and top-bit set to 1 to indicate leaf node).
+				// bvhNodeData.y - first triangles index.
+				const uint triangleCount      = bvhNodeData.x & 0x7fffffff;
+				const uint firstTriangleIndex = bvhNodeData.y;
+				const uint lastTriangleIndex  = firstTriangleIndex + triangleCount;
+				for ( uint triangleIdx = firstTriangleIndex; triangleIdx < lastTriangleIndex; ++triangleIdx ) 
+				{
+					const uint3    trianglee   = readTriangle( actorIdx, triangleIdx );
+					const float3x3 verticesPos = readVerticesPos( actorIdx, trianglee );
+
+					if ( rayTriangleIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos ) )
+					{
+						const float dist = calcDistToTriangle( rayOriginLocal.xyz, rayDirLocal.xyz, verticesPos );
+
+						//#TODO: Maybe could ignore calculating distance - it's only to avoid self-collision (or not.. - triangles behind the ray origin).
+						if ( dist > minAllowedHitDist && dist < maxAllowedHitDist )
+						{
+                            farthestHitDist = max( farthestHitDist, dist );
+
+                            if ( isOpaque[ actorIdx ].x == 0.0f )
+                            {
+                                const float3 hitPos               = rayOriginLocal.xyz + rayDirLocal.xyz * dist;
+                                const float3 hitBarycentricCoords = calcBarycentricCoordsInTriangle( hitPos, verticesPos );
+
+							    const float2x3 verticesTexCoords = readVerticesTexCoords( actorIdx, trianglee );
+							    const float2   hitTexCoords      = calcInterpolatedTexCoords( hitBarycentricCoords, verticesTexCoords );
+
+                                const float alpha = 1.0f;//g_alphaTexture[ actorIdx ].SampleLevel( g_linearSamplerState, hitTexCoords, 0.0f ).r;
+
+                                illumination -= alpha;
+
+                                // Note: We don't stop tracing rays now, because we need to find the closest intersection for soft shadow calculation.
+
+                                // Stop tracing shadow rays if the pixel is already fully shadowed.
+                                //if ( illumination < 0.001f )
+                                //    break;
+                            }
+                            else
+                            {
+                                illumination = 0.0f;
+                                //break;
+							    //illumination -= lightAmountPerSample;
+
+                                // Note: We don't stop tracing rays now, because we need to find the closest intersection for soft shadow calculation.
+                                //break;
+                            }
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax )

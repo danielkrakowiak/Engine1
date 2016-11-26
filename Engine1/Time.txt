@@ -315,4 +315,8 @@ Tue 15.11.2016 - 2h - Implemented soft shadows using screen-space blur of illumi
 Thu 17.11.2016 - 4h - Added RasterizeShadowRenderer and RasterizingShadowsComputeShader classes. Performing shadow mapping in a separate pass. Detecting for which pixels I need to cast shadow rays depending on preillumination texture (from shadow mapping). Added ignoring pixels outside of spotlight cone. Detecing bottlenecks in raytracing shadows shader.
 Fri 18.11.2016 - 4h - Trying to raytrace shadows against multiple actors in a single shader pass. Modified setting shader params. Moved to Shader Model 5.1 to get variable indexed buffers. Trying to compile compute shader for SM 5.1.
 Sat 19.11.2016 - 7h - Trying to deduce why creation of compute shader fails for Shader Model 5.1 despite successful compilation. Refactoring shader classes to load compiled shaders from file rather than compile in runtime.
-Tue 22.11.2016 - 2h - Refactoring shader classes to load compiled shaders from file rather than compile in runtime.
+Tue 22.11.2016 - 3h - Refactoring shader classes to load compiled shaders from file rather than compile in runtime. Added saving distance to occluder in shadow rasterizing and raytracing shaders.
+Wed 23.11.2016 - 2h - Fixing raytracing shadows shader to work with multiple meshes at a time.
+Thu 24.11.2016 - 4h - Calculating distance to light source from a shadow map.
+Fri 25.11.2016 - 1h - Trying to fix calculating distance to occluder.
+Sat 26.11.2016 - 1h - Fixed calculating distance to occluder.

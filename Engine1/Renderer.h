@@ -54,6 +54,8 @@ namespace Engine1
             Preillumination,
             Illumination,
             BlurredIllumination,
+            SpotlightDepth,
+            DistanceToOccluder,
 			Test
         };
 

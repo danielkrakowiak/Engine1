@@ -43,7 +43,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
 	m_raytraceShadowRenderer( rendererCore ),
 	m_shadowMapRenderer( rendererCore ),
     m_activeViewType( View::Final ),
-    m_maxLevelCount( 1 )
+    m_maxLevelCount( 0 )
 {}
 
 Renderer::~Renderer()
@@ -95,11 +95,10 @@ void Renderer::renderShadowMaps( const Scene& scene )
         SpotLight& spotLight = static_cast< SpotLight& >( *light );
 
         const float44 viewMatrix        = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) );
-        const float44 perspectiveMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 100.0f );
-        //const float44 perspectiveMatrix = MathUtil::orthographicProjectionTransformation( (float)SpotLight::s_shadowMapDimensions.x, (float)SpotLight::s_shadowMapDimensions.y, 0.1f, 50.0f );
+        const float44 perspectiveMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, SpotLight::s_shadowMapZNear, SpotLight::s_shadowMapZFar );
 
         if ( spotLight.getShadowMap() )
-            m_shadowMapRenderer.setRenderTarget( spotLight.getShadowMap() );
+            m_shadowMapRenderer.setRenderTarget( std::static_pointer_cast< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > >( spotLight.getShadowMap() ) );
         else
             m_shadowMapRenderer.createAndSetRenderTarget( SpotLight::s_shadowMapDimensions, *m_device.Get() );
 
@@ -357,6 +356,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getNormalRenderTarget(),
             nullptr, 
             m_rasterizeShadowRenderer.getIlluminationTexture(),
+            m_rasterizeShadowRenderer.getDistanceToOccluderTexture(),
             blockActors 
         );
 
@@ -409,6 +409,11 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 				return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::Illumination:
                 return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::SpotlightDepth:
+                if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
+                    return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );
+            case View::DistanceToOccluder:
+                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getDistanceToOccluderTexture() );
         }
     }
 

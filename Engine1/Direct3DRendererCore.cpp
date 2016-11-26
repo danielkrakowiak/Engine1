@@ -164,6 +164,17 @@ void Direct3DRendererCore::enableRenderTargets( const std::shared_ptr< Texture2D
 
 	// Enable render targets.
 	m_deviceContext->OMSetRenderTargets( 0, 0, m_currentDepthRenderTargetView );
+}
+
+void Direct3DRendererCore::enableRenderTargets( const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, float > > depthRenderTarget, const int mipmapLevel )
+{
+    m_currentRenderTargetViews.clear();
+
+    if ( depthRenderTarget )
+        m_currentDepthRenderTargetView = depthRenderTarget->getDepthStencilView( mipmapLevel );
+
+    // Enable render targets.
+    m_deviceContext->OMSetRenderTargets( 0, 0, m_currentDepthRenderTargetView );
 
 }
 

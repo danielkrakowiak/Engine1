@@ -34,13 +34,13 @@ namespace Engine1
 		void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device,
 			Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
-        void setRenderTarget( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > renderTarget );
+        void setRenderTarget( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > renderTarget );
         void createAndSetRenderTarget( const int2 dimensions, ID3D11Device& device );
 
         void clearRenderTarget( float depth );
         void disableRenderTarget();
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > getRenderTarget();
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > getRenderTarget();
 
 		void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const float44& perspectiveMatrix );
 		void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const float44& perspectiveMatrix, const SkeletonPose& poseInSkeletonSpace );
@@ -59,7 +59,7 @@ namespace Engine1
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> createDepthStencilState( ID3D11Device& device );
 
 		// Render targets.
-		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > m_renderTarget;
+		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > m_renderTarget;
 
 		// Shaders.
 		std::shared_ptr<BlockMeshVertexShader>    m_blockMeshVertexShader;

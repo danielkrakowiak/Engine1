@@ -87,6 +87,7 @@ float44 MathUtil::lookAtTransformation( float3 at, float3 eye, float3 up ) {
 	xaxis.normalize( );
 	float3 yaxis = cross( zaxis, xaxis );
 
+    // Note: Base vectors are in columns, because this matrix (world-to-view) is the transpose of view-to-world transform.
 	return float44(
 		xaxis.x, yaxis.x, zaxis.x, 0.0f,
 		xaxis.y, yaxis.y, zaxis.y, 0.0f,

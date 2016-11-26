@@ -24,8 +24,9 @@ namespace Engine1
 
 	class RaytracingShadowsComputeShader : public ComputeShader
 	{
-
 		public:
+
+        static const int s_maxActorCount = 1;
 
 		RaytracingShadowsComputeShader();
 		virtual ~RaytracingShadowsComputeShader();
@@ -46,8 +47,6 @@ namespace Engine1
 		void unsetParameters( ID3D11DeviceContext& deviceContext );
 
 		private:
-
-        static const int s_maxActorCount = 20;
 
 		__declspec(align(DIRECTX_CONSTANT_BUFFER_ALIGNMENT))
 		struct ConstantBuffer
