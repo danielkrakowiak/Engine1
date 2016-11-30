@@ -9,7 +9,7 @@ struct PixelInputType
 };
 
 static const float zNear   = 0.1f;
-static const float zFar    = 5.0f;
+static const float zFar    = 100.0f;
 static const float zRange  = zFar - zNear;
 
 float linearizeDepth( float depthSample );

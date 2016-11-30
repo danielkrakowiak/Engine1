@@ -78,11 +78,12 @@ void ShadingRenderer::performShading( const Camera& camera,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture, 
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
 	                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluderTexture,
 	                                  const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    m_shadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, illuminationTexture, light );
+    m_shadingComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, albedoTexture, metalnessTexture, roughnessTexture, normalTexture, illuminationTexture, distanceToOccluderTexture, light );
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader );
 

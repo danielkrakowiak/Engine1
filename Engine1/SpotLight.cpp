@@ -7,7 +7,7 @@ using namespace Engine1;
 
 const int2 SpotLight::s_shadowMapDimensions( 256, 256 );
 const float SpotLight::s_shadowMapZNear( 0.1f );
-const float SpotLight::s_shadowMapZFar( 5.0f );
+const float SpotLight::s_shadowMapZFar( 100.0f );
 
 std::shared_ptr< SpotLight > SpotLight::createFromFile( const std::string& path )
 {

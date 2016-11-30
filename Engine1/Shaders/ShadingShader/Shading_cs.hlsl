@@ -13,12 +13,13 @@ cbuffer ConstantBuffer : register( b0 )
 SamplerState g_linearSamplerState;
 
 // Input.
-Texture2D<float4> g_positionTexture          : register( t0 );
-Texture2D<float4> g_albedoTexture            : register( t1 );
-Texture2D<float>  g_metalnessTexture         : register( t2 );
-Texture2D<float>  g_roughnessTexture         : register( t3 );
-Texture2D<float4> g_normalTexture            : register( t4 ); 
-Texture2D<float>  g_illuminationTexture      : register( t5 ); 
+Texture2D<float4> g_positionTexture           : register( t0 );
+Texture2D<float4> g_albedoTexture             : register( t1 );
+Texture2D<float>  g_metalnessTexture          : register( t2 );
+Texture2D<float>  g_roughnessTexture          : register( t3 );
+Texture2D<float4> g_normalTexture             : register( t4 ); 
+Texture2D<float>  g_illuminationTexture       : register( t5 ); 
+Texture2D<float>  g_distanceToOccluderTexture : register( t6 );
 
 // Input / Output.
 RWTexture2D<float4> g_colorTexture : register( u0 );
@@ -56,11 +57,16 @@ void main( uint3 groupId : SV_GroupID,
     const float3 dirToCamera    = normalize( vectorToCamera );
     const float  distToCamera   = length( vectorToCamera );
 
-    const float3 vectorToLight = lightPosition.xyz - surfacePosition;
-    const float3 dirToLight    = normalize( vectorToLight );
-    const float  distToLight   = length( vectorToLight );
+    const float3 vectorToLight       = lightPosition.xyz - surfacePosition;
+    const float3 dirToLight          = normalize( vectorToLight );
+    const float  distToLight         = length( vectorToLight );
+    const float  distToOccluder      = g_distanceToOccluderTexture[ dispatchThreadId.xy ];
+    const float  distLightToOccluder = distToLight - distToOccluder;
+    const float  lightRadius         = 20.0f;
 
-    const float blurRadius = 10.0f * max( 0.0f, distToLight - 0.5f ) / log2( distToCamera + 1.0f );
+    const float baseBlurRadius = lightRadius * ( distToOccluder / distLightToOccluder );
+
+    const float blurRadius = baseBlurRadius / log2( distToCamera + 1.0f );
 
     float samplingRadius      = 2.0f * min( 1.0f, blurRadius );
     float samplingMipmapLevel = log2( blurRadius / 2.0f );
@@ -68,11 +74,11 @@ void main( uint3 groupId : SV_GroupID,
 
     float surfaceIllumination = 0.0f;
 
-    //if ( samplingRadius <= 0.0001f )
-    //{
+    if ( samplingRadius <= 0.0001f )
+    {
         surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
-    //}
-    /*else
+    }
+    else
     {
         float2 pixelSize = pixelSize0 * (float)pow( 2, samplingMipmapLevel );
         float sampleCount = 0.0f;
@@ -89,7 +95,7 @@ void main( uint3 groupId : SV_GroupID,
         }
 
         surfaceIllumination /= sampleCount;
-    }*/
+    }
 
     //const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, mipmapLevel );
 

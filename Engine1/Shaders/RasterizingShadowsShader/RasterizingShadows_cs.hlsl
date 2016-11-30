@@ -30,7 +30,7 @@ RWTexture2D<uint>  g_illumination       : register( u1 );
 static const float minHitDist = 0.001f;
 
 static const float zNear   = 0.1f;
-static const float zFar    = 5.0f;
+static const float zFar    = 100.0f;
 static const float zRange  = zFar - zNear;
 
 float linearizeDepth( float depthSample );
@@ -102,7 +102,7 @@ void main( uint3 groupId : SV_GroupID,
             const float rayOriginDistToOccluder = max( 0.0f, rayOriginDistToLight - occluderDistToLight );
 
             g_illumination[ dispatchThreadId.xy ]       = 0;
-            g_distanceToOccluder[ dispatchThreadId.xy ] = rayOriginDistToOccluder; /*/ viewRayToDepthScale*/;//occluderDistToLight; //#TODO: Do I need to linearize that value? Probably...
+            g_distanceToOccluder[ dispatchThreadId.xy ] = rayOriginDistToOccluder;
             return;
         }
     }

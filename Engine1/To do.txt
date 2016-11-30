@@ -334,6 +334,7 @@ Idea:
 
 	  /////////////////////
 
+	  - IMPORTANT PROBLEM: when writing distance to occluder in rasterizing shadow map step - we always save it for the closest object... But when two objects cast shadow... the distance to occluder should be saved for the one which gives the most sharp shadow...
 
 	  - OPTIMIZATION: When I read from raw buffers in raytracing shaders I can read multiple values at once. Using Load2, Load3, Load4 methods... I need to try it!!
 
@@ -386,7 +387,7 @@ Idea:
 
 	  - what is the size of the penumbra? Source: https://www.nde-ed.org/GeneralResources/Formula/RTFormula/Unsharpness/GeometricUnsharpness.htm
 	    How much to blur shadows based on light source size, distance from light ot occluder and distance from occluder to shadow receiver.
-		u = lightRadius * (lightToOccluderDist / occluderToSurfaceDist)
+		u = lightRadius * ( occluderToSurfaceDist / lightToOccluderDist)
 
 	  - Do I know the length of the shortest shadow ray for given pixel? No... Needed only for area lights...
 	    I should probably store it in a separate texture.

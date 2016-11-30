@@ -98,7 +98,7 @@ void Renderer::renderShadowMaps( const Scene& scene )
         const float44 perspectiveMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, SpotLight::s_shadowMapZNear, SpotLight::s_shadowMapZFar );
 
         if ( spotLight.getShadowMap() )
-            m_shadowMapRenderer.setRenderTarget( std::static_pointer_cast< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > >( spotLight.getShadowMap() ) );
+            m_shadowMapRenderer.setRenderTarget( spotLight.getShadowMap() );
         else
             m_shadowMapRenderer.createAndSetRenderTarget( SpotLight::s_shadowMapDimensions, *m_device.Get() );
 
@@ -369,9 +369,17 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
-		m_shadingRenderer.performShading( camera, m_deferredRenderer.getPositionRenderTarget(),
-			m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
-			m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_raytraceShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/, *lightsCastingShadows[ lightIdx ] );
+		m_shadingRenderer.performShading( 
+            camera, 
+            m_deferredRenderer.getPositionRenderTarget(),
+			m_deferredRenderer.getAlbedoRenderTarget(), 
+            m_deferredRenderer.getMetalnessRenderTarget(),
+			m_deferredRenderer.getRoughnessRenderTarget(), 
+            m_deferredRenderer.getNormalRenderTarget(), 
+            m_raytraceShadowRenderer.getIlluminationTexture(), 
+            m_rasterizeShadowRenderer.getDistanceToOccluderTexture(),
+            *lightsCastingShadows[ lightIdx ] 
+        );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
