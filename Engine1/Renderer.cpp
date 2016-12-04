@@ -42,6 +42,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_rasterizeShadowRenderer( rendererCore ),
 	m_raytraceShadowRenderer( rendererCore ),
 	m_shadowMapRenderer( rendererCore ),
+    m_mipmapMinValueRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_maxLevelCount( 0 )
 {}
@@ -63,11 +64,12 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_shadingRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_reflectionRefractionShadingRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_edgeDetectionRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-    m_combiningRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
+    m_combiningRenderer.initialize( device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
     m_rasterizeShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_shadowMapRenderer.initialize( device, deviceContext );
+    m_mipmapMinValueRenderer.initialize( device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
@@ -366,6 +368,12 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_raytraceShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
+
+        auto distanceToOccluderTexture = m_rasterizeShadowRenderer.getDistanceToOccluderTexture();
+        m_mipmapMinValueRenderer.generateMipmapsMinValue( distanceToOccluderTexture );
+
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.

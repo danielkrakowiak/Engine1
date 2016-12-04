@@ -11,6 +11,7 @@ cbuffer ConstantBuffer : register( b0 )
 };
 
 SamplerState g_linearSamplerState;
+SamplerState g_pointSamplerState;
 
 // Input.
 Texture2D<float4> g_positionTexture           : register( t0 );
@@ -24,12 +25,15 @@ Texture2D<float>  g_distanceToOccluderTexture : register( t6 );
 // Input / Output.
 RWTexture2D<float4> g_colorTexture : register( u0 );
 
+float  readDistToOccluder( float2 texcoords );
 float3 calculateDiffuseOutputColor( float3 surfaceDiffuseColor, float3 surfaceNormal, float3 lightColor, float3 dirToLight );
 float3 calculateSpecularOutputColor( float3 surfaceSpecularColor, float surfaceRoughness, float3 surfaceNormal, float3 lightColor, float3 dirToLight, float3 dirToCamera );
 
 static const float Pi = 3.14159265f;
 
 static const float3 dielectricSpecularColor = float3( 0.04f, 0.04f, 0.04f );
+
+static const float maxDistToOccluder = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -60,7 +64,11 @@ void main( uint3 groupId : SV_GroupID,
     const float3 vectorToLight       = lightPosition.xyz - surfacePosition;
     const float3 dirToLight          = normalize( vectorToLight );
     const float  distToLight         = length( vectorToLight );
-    const float  distToOccluder      = g_distanceToOccluderTexture[ dispatchThreadId.xy ];
+
+    // #TODO: Try to sample form 0 mip to lower mips until sampled value is lower than maximal.
+    //const float  distToOccluder      = g_distanceToOccluderTexture[ dispatchThreadId.xy ];
+    float distToOccluder = readDistToOccluder( texcoords ); 
+
     const float  distLightToOccluder = distToLight - distToOccluder;
     const float  lightRadius         = 20.0f;
 
@@ -120,6 +128,22 @@ void main( uint3 groupId : SV_GroupID,
     outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, lightColor.rgb * surfaceIllumination, dirToLight, dirToCamera );
 
     g_colorTexture[ dispatchThreadId.xy ] += outputColor;
+}
+
+float readDistToOccluder( float2 texcoords )
+{
+    float distToOccluder;
+    
+    // Try to sample from 0 mip to lower mips until sampled value is lower than maximal (otherwise it's a missing value).
+    for ( float mipmap = 0.0f; mipmap <= 6.0f; mipmap += 1.0f )
+    {
+        distToOccluder = g_distanceToOccluderTexture.SampleLevel( g_pointSamplerState, texcoords, mipmap );
+
+        if ( distToOccluder < maxDistToOccluder )
+            return distToOccluder;
+    }
+
+    return distToOccluder;
 }
 
 float3 calculateDiffuseOutputColor( float3 surfaceDiffuseColor, float3 surfaceNormal, float3 lightColor, float3 dirToLight )

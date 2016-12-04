@@ -320,3 +320,5 @@ Wed 23.11.2016 - 2h - Fixing raytracing shadows shader to work with multiple mes
 Thu 24.11.2016 - 4h - Calculating distance to light source from a shadow map.
 Fri 25.11.2016 - 1h - Trying to fix calculating distance to occluder.
 Sat 26.11.2016 - 1h - Fixed calculating distance to occluder.
+Wed 30.11.2016 - 2h - Generating mipmaps (with minimal value instead of avaraged) for distance-to-occluder texture. Needed to spread distance-to-occluder info from shadowed areas to lit areas.
+Thu 01.12.2016 - 3h - Generating mipmaps for distance-to-occluder texture using pixel and vertex shaders. Fixed Texture2D dimensions getters for mipmap level higher than 0. Sampling distance-to-occluder texture mipmaps to deduce shadow blur radius.

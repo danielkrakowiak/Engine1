@@ -977,7 +977,7 @@ namespace Engine1
         if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
 		    throw std::exception( "Texture2DGeneric::getWidth - Incorrect level requested. There is no mipmap with such level." );
 
-	    return std::max( 1, m_width / ( 1 + (int)mipMapLevel ) );
+	    return std::max( 1, m_width / (int)pow( 2, (int)mipMapLevel ) );
     }
 
     template< typename PixelType >
@@ -987,7 +987,7 @@ namespace Engine1
         if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
 		    throw std::exception( "Texture2DGeneric::getHeight - Incorrect level requested. There is no mipmap with such level." );
 
-	    return std::max( 1, m_height / ( 1 + (int)mipMapLevel ) );
+	    return std::max( 1, m_height / (int)pow( 2, (int)mipMapLevel ) );
     }
 
     template< typename PixelType >
@@ -997,7 +997,7 @@ namespace Engine1
         if ( (int)mipMapLevel >= getMipMapCountOnCpu() && (int)mipMapLevel >= getMipMapCountOnGpu() )
             throw std::exception( "Texture2DGeneric::getDimensions - Incorrect level requested. There is no mipmap with such level." );
 
-        return int2( std::max( 1, m_width / ( 1 + (int)mipMapLevel ) ), std::max( 1, m_height / ( 1 + (int)mipMapLevel ) ) );
+        return int2( std::max( 1, m_width / (int)pow( 2, (int)mipMapLevel ) ), std::max( 1, m_height / (int)pow( 2, (int)mipMapLevel ) ) );
     }
 
     template< typename PixelType >

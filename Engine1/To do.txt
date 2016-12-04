@@ -334,6 +334,13 @@ Idea:
 
 	  /////////////////////
 
+	  - fix problem with spotlight cone angle limit - should be a sharp shadow always - not blurred.
+
+	  - option to optionally change the mipmap level of the texture you are seeing as active view (useful for intermediate textures - such as dist-to-occluder- should swithc to zero each time you change active view?).
+
+	  - we only have dist-to-ccluder for pixels which are in shadow. How to spread that info? Best idea: Kind of custom mippmaping of dist-to-occluder texture, but instead of avaraging pixels I take a minimum of 4-pixels.
+	    This way dist-to-occluder spreads from edges to the other parts of image. Should be gentle on memory as well...
+
 	  - IMPORTANT PROBLEM: when writing distance to occluder in rasterizing shadow map step - we always save it for the closest object... But when two objects cast shadow... the distance to occluder should be saved for the one which gives the most sharp shadow...
 
 	  - OPTIMIZATION: When I read from raw buffers in raytracing shaders I can read multiple values at once. Using Load2, Load3, Load4 methods... I need to try it!!

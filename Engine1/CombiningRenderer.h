@@ -33,8 +33,7 @@ namespace Engine1
         CombiningRenderer( Direct3DRendererCore& rendererCore );
         ~CombiningRenderer();
 
-        void initialize( const int screenWidth, const int screenHeight,
-                         Microsoft::WRL::ComPtr< ID3D11Device > device, 
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
         // TODO: alpha should be replaced by "alpha texture".

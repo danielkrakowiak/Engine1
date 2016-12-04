@@ -152,24 +152,29 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
-/UnitTests/DebugDirect3D/UnitTests.tlog/UnitTests.write.1u.tlog
-/Engine1/DebugDirect3D/Engine1.tlog/FXC.command.1.tlog
-/Engine1/DebugDirect3D/Engine1.tlog/fxc.read.1.tlog
-/DebugDirect3D/vs.cso
-/DebugDirect3D/ps.cso
-/DebugDirect3D/cs.cso
+
+
+*.tlog
+# Ignore compiled shader files. For now - could be added to repository later on.
+*.cso 
 
 # Had to add it in VS 2015, because Git Tool was failing to open them (as they were used by VS 2015) and it caused Git Tool to not see any changes to other files.
 /Engine1.VC.opendb
 /Engine1.VC.db
-/Assets
-/Engine1/Assets/Models
+
+/Engine1/Assets/*
+/Engine1/TestAssets/*
 /Engine1/error.txt
 /Engine1.VC.VC.opendb
 /Engine1/begin.txt
-/UnitTests/Debug
-/Debug
 /Engine1/DebugDirect3D/Engine1.tlog
-/Engine1
-/Release
-/UnitTests/Release
+/Debug/*
+/DebugDirect3D/*
+/Release/*
+/UnitTests/Debug/*
+/UnitTests/DebugDirect3D/*
+/UnitTests/Release/*
+/Engine1/Shaders/GenerateMipmapMinValueShader/GenerateMipmapMinValue_vs.cso
+/Engine1/Shaders/GenerateMipmapMinValueShader/GenerateMipmapMinValue_ps.cso
+/Engine1/Shaders/GenerateMipmapMinValueShader/GenerateMipmapMinValue_cs.cso
+*.idb

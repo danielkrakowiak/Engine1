@@ -88,6 +88,7 @@ void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& wor
     m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
@@ -101,7 +102,7 @@ void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& wor
         renderTargetsU4.push_back( m_emissiveRenderTarget );
         renderTargetsU4.push_back( m_albedoRenderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -125,6 +126,7 @@ void Direct3DDeferredRenderer::renderEmissive( const BlockMesh& mesh, const floa
     m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
     { // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
@@ -138,7 +140,7 @@ void Direct3DDeferredRenderer::renderEmissive( const BlockMesh& mesh, const floa
         renderTargetsU4.push_back( m_emissiveRenderTarget );
         renderTargetsU4.push_back( m_albedoRenderTarget );
 
-        m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
+        m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
     }
 
     { // Configure and set shaders.
@@ -162,6 +164,7 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
     m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
@@ -175,7 +178,7 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
         renderTargetsU4.push_back( m_emissiveRenderTarget );
         renderTargetsU4.push_back( m_albedoRenderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -200,6 +203,7 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
     m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
@@ -213,7 +217,7 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
         renderTargetsU4.push_back( m_emissiveRenderTarget );
         renderTargetsU4.push_back( m_albedoRenderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -260,6 +264,7 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
     m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
@@ -273,7 +278,7 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
         renderTargetsU4.push_back( m_emissiveRenderTarget );
         renderTargetsU4.push_back( m_albedoRenderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
 	}
 
 	{ // Configure and set shaders.
@@ -321,6 +326,7 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
     color; // Unused.
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
@@ -329,7 +335,7 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
         renderTargetsF4.push_back( m_normalRenderTarget );
         renderTargetsU4.push_back( m_albedoRenderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
 	}
 
 	m_rendererCore.enableRenderingShaders( m_textVertexShader, m_textFragmentShader );

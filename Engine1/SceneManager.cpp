@@ -1123,6 +1123,8 @@ void SceneManager::recalculateSelectionVolume()
 
 void SceneManager::modifySelectionVolume( const float3 minChange, const float3 maxChange )
 {
+    minChange;
+    maxChange;
 }
 
 void SceneManager::selectAllInsideSelectionVolume()

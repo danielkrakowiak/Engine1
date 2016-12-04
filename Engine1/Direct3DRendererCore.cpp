@@ -178,7 +178,8 @@ void Direct3DRendererCore::enableRenderTargets( const std::shared_ptr< Texture2D
 
 }
 
-void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
+void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >&  renderTargetsF1,
+                                                const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >& renderTargetsF4,
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > >& renderTargetsU1, 
                                                 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargetsU4, 
@@ -192,15 +193,24 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 
 	{ // Check if render targets to be enabled are the same as the current ones.
 		//if ( renderTargets.size() == currentRenderTargetViews.size() ) {
+            for ( unsigned int i = 0; i < renderTargetsF1.size(); ++i ) {
+                // Check each pair of render targets at corresponding indexes.
+                if ( m_currentRenderTargetViews.size() <= i || renderTargetsF1.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( i ) ) {
+                    sameAsCurrent = false;
+                    break;
+                }
+            }
+
+            const unsigned int zero = (unsigned int)renderTargetsF1.size();
 			for ( unsigned int i = 0; i < renderTargetsF2.size(); ++i ) {
 				// Check each pair of render targets at corresponding indexes.
-				if ( m_currentRenderTargetViews.size() <= i || renderTargetsF2.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( i ) ) {
+				if ( m_currentRenderTargetViews.size() <= (zero + i) || renderTargetsF2.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( zero + i ) ) {
 					sameAsCurrent = false;
 					break;
 				}
 			}
 
-            const unsigned int first = (unsigned int)renderTargetsF2.size();
+            const unsigned int first = zero + (unsigned int)renderTargetsF2.size();
             for ( unsigned int i = 0; i < renderTargetsF4.size(); ++i ) {
 				// Check each pair of render targets at corresponding indexes.
 				if ( m_currentRenderTargetViews.size() <= (first + i) || renderTargetsF4.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( first + i ) ) {
@@ -243,6 +253,9 @@ void Direct3DRendererCore::enableRenderTargets( const std::vector< std::shared_p
 
 	// Collect and save render target views from passed render targets.
     m_currentRenderTargetViews.clear();
+    for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > >& renderTarget : renderTargetsF1 )
+		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
+
 	for ( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > >& renderTarget : renderTargetsF2 )
 		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 

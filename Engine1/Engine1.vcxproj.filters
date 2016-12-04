@@ -361,6 +361,12 @@
     <Filter Include="Source Files\Shader\RasterizingShadows">
       <UniqueIdentifier>{d44c1ef0-eec1-4f00-9008-f1e7bf977f3d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shader\GenerateMipmapMinValue">
+      <UniqueIdentifier>{5e388846-a3d8-43de-9df4-f15be78662af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateMipmapMinValue">
+      <UniqueIdentifier>{9e96639e-71dc-4be5-ba4a-2212ff47310b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -798,6 +804,18 @@
     <ClInclude Include="File.h">
       <Filter>Header Files\File</Filter>
     </ClInclude>
+    <ClInclude Include="GenerateMipmapMinValueComputeShader.h">
+      <Filter>Header Files\Shader\GenerateMipmapMinValue</Filter>
+    </ClInclude>
+    <ClInclude Include="MipmapMinValueRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateMipmapMinValueVertexShader.h">
+      <Filter>Header Files\Shader\GenerateMipmapMinValue</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateMipmapMinValueFragmentShader.h">
+      <Filter>Header Files\Shader\GenerateMipmapMinValue</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1202,6 +1220,18 @@
     <ClCompile Include="File.cpp">
       <Filter>Source Files\File</Filter>
     </ClCompile>
+    <ClCompile Include="GenerateMipmapMinValueComputeShader.cpp">
+      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
+    </ClCompile>
+    <ClCompile Include="MipmapMinValueRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateMipmapMinValueVertexShader.cpp">
+      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateMipmapMinValueFragmentShader.cpp">
+      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1346,6 +1376,15 @@
     </FxCompile>
     <FxCompile Include="Shaders\TextureRescaleShader\TextureRescale_cs.hlsl">
       <Filter>Source Files\Shader\TextureRescale</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapMinValueShader\GenerateMipmapMinValue_cs.hlsl">
+      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapMinValueShader\GenerateMipmapMinValue_ps.hlsl">
+      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapMinValueShader\GenerateMipmapMinValue_vs.hlsl">
+      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

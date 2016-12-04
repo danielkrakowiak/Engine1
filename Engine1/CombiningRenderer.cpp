@@ -24,8 +24,7 @@ CombiningRenderer::CombiningRenderer( Direct3DRendererCore& rendererCore ) :
 CombiningRenderer::~CombiningRenderer()
 {}
 
-void CombiningRenderer::initialize( const int screenWidth, const int screenHeight, 
-                                    ComPtr< ID3D11Device > device, 
+void CombiningRenderer::initialize( ComPtr< ID3D11Device > device, 
                                     ComPtr< ID3D11DeviceContext > deviceContext )
 {
     this->m_device        = device;
@@ -59,13 +58,14 @@ void CombiningRenderer::combine( std::shared_ptr< Texture2D< TexUsage::Default, 
     m_rendererCore.setViewport( (float2)destTexture->getDimensions() );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsF4.push_back( destTexture );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
@@ -104,13 +104,14 @@ void CombiningRenderer::combine( std::shared_ptr< Texture2D< TexUsage::Default, 
     m_rendererCore.setViewport( (float2)destTexture->getDimensions() );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsF4.push_back( destTexture );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.

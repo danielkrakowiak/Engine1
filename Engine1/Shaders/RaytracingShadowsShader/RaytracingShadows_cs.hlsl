@@ -45,7 +45,7 @@ SamplerState      g_linearSamplerState    : register( s1 );
 RWTexture2D<float> g_distanceToOccluder : register( u0 );
 RWTexture2D<uint>  g_illumination       : register( u1 );
 
-void     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination );
+bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint actorIdx, const uint index );
@@ -126,15 +126,16 @@ void main( uint3 groupId : SV_GroupID,
     //[loop]
     //for ( uint actorIdx = 0; actorIdx < actorCount; ++actorIdx )
     //{
-    rayMeshIntersect( rayOrigin, rayDir, 0, rayMaxLength, farthestHitDist, illumination );
+    if ( rayMeshIntersect( rayOrigin, rayDir, 0, rayMaxLength, farthestHitDist, illumination ) )
+    {
+        g_distanceToOccluder[ dispatchThreadId.xy ] = farthestHitDist;
+        g_illumination[ dispatchThreadId.xy ]       = (uint)( max( 0.0f, illumination ) * 255.0f );
+    }
     //rayMeshIntersect( rayOrigin, rayDir, 1, hitDist, illumination );
     //}
-
-    g_distanceToOccluder[ dispatchThreadId.xy ] = farthestHitDist;
-    g_illumination[ dispatchThreadId.xy ]       = (uint)( max( 0.0f, illumination ) * 255.0f );
 }
 
-void rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination )
+bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination )
 {
     // Offset to avoid self-collision. 
     // Note: Is it useful? We still need to check against the "origin triangle" and ignore by intersection distance... Or not?
@@ -145,6 +146,8 @@ void rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int ac
 	const float4 rayDirLocal     = mul( float4( rayOrigin + rayDir, 1.0f ), worldToLocalMatrix[ actorIdx ] ) - rayOriginLocal;
 
      //#TODO: Should find all intersections - even those further from ray origin - to determine alpha...
+
+    bool intersected = false;
 
 	// Test the ray against the bounding box
 	if ( rayBoxIntersect( rayOriginLocal.xyz, rayDirLocal.xyz, maxAllowedHitDist, boundingBoxMin[ actorIdx ].xyz, boundingBoxMax[ actorIdx ].xyz ) ) 
@@ -180,7 +183,7 @@ void rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int ac
 					// Return if stack size is exceeded. 
 					//TODO: Maybe we can remove that check and check it before running the shader.
 					if ( bvhStackIndex > BVH_STACK_SIZE )
-						return; 
+						return intersected; 
 				}
 			}
 			else
@@ -204,6 +207,7 @@ void rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int ac
 						//#TODO: Maybe could ignore calculating distance - it's only to avoid self-collision (or not.. - triangles behind the ray origin).
 						if ( dist > minAllowedHitDist && dist < maxAllowedHitDist )
 						{
+                            intersected = true;
                             farthestHitDist = max( farthestHitDist, dist );
 
                             if ( isOpaque[ actorIdx ].x == 0.0f )
@@ -239,6 +243,8 @@ void rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int ac
 			}
 		}
 	}
+
+    return intersected;
 }
 
 bool rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax )

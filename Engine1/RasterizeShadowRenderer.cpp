@@ -56,7 +56,7 @@ void RasterizeShadowRenderer::performShadowMapping(
 
     // Clear unordered access targets. #TODO: Probably not needed for shadow mapping? Every value will be written.
     m_illuminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
-    m_distanceToOccluderTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
+    m_distanceToOccluderTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 1000, 1000, 1000, 1000 ) );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
@@ -105,8 +105,9 @@ void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHei
     m_illuminationTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 
+    // #TODO: Is using mipmaps? Disable them if they are not necessary.
     m_distanceToOccluderTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
+        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 
 void RasterizeShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )

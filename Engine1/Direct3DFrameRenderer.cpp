@@ -316,7 +316,7 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateNoBlending( ID3D
 	blendDesc.AlphaToCoverageEnable  = false;
 	blendDesc.IndependentBlendEnable = false;
 
-	// Enable blending.
+	// Disable blending.
 	blendDesc.RenderTarget[ 0 ].BlendEnable           = false;
 	blendDesc.RenderTarget[ 0 ].SrcBlend              = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[ 0 ].DestBlend             = D3D11_BLEND_ZERO;
@@ -378,13 +378,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
@@ -412,13 +413,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
@@ -446,13 +448,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
@@ -480,13 +483,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
@@ -515,13 +519,14 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
@@ -549,13 +554,14 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind:
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
+        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
 	}
 
 	{ // Configure and enable shaders.
