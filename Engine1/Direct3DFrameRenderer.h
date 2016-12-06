@@ -45,13 +45,13 @@ namespace Engine1
 
         void reportLiveObjects();
 
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char >&  texture, float posX, float posY, float width, float height, bool blend );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >&         texture, float posX, float posY, float width, float height, bool blend );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4 >&         texture, float posX, float posY, float width, float height, bool blend );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float2  >&        texture, float posX, float posY, float width, float height, bool blend );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float  >&         texture, float posX, float posY, float width, float height, bool blend );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char >&  texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4 >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float2  >&        texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float  >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
 
-        void renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >& texture, float posX, float posY, float width, float height, bool blend );
+        void renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
 
         void displayFrame();
 

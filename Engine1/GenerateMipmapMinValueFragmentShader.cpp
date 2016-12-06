@@ -39,12 +39,13 @@ void GenerateMipmapMinValueFragmentShader::initialize( ComPtr< ID3D11Device >& d
 
         // Create the texture sampler state.
         HRESULT result = device->CreateSamplerState( &samplerConfiguration, m_samplerState.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "GenerateMipmapMinValueFragmentShader::compileFromFile - Failed to create texture sampler state." );
+        if ( result < 0 ) 
+            throw std::exception( "GenerateMipmapMinValueFragmentShader::compileFromFile - Failed to create texture sampler state." );
     }
 
     {
         // Create constant buffer.
-        /*D3D11_BUFFER_DESC desc;
+        D3D11_BUFFER_DESC desc;
         desc.Usage               = D3D11_USAGE_DYNAMIC;
         desc.ByteWidth           = sizeof( ConstantBuffer );
         desc.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
@@ -53,7 +54,8 @@ void GenerateMipmapMinValueFragmentShader::initialize( ComPtr< ID3D11Device >& d
         desc.StructureByteStride = 0;
 
         HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "GenerateMipmapMinValueFragmentShader::compileFromFile - creating constant buffer failed." );*/
+        if ( result < 0 ) 
+            throw std::exception( "GenerateMipmapMinValueFragmentShader::compileFromFile - creating constant buffer failed." );
     }
 }
 
@@ -70,7 +72,7 @@ void GenerateMipmapMinValueFragmentShader::setParameters( ID3D11DeviceContext& d
         deviceContext.PSSetShaderResources( 0, resourceCount, resources );
     }
 
-    /*D3D11_MAPPED_SUBRESOURCE mappedResource;
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
     ConstantBuffer* dataPtr;
 
     HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
@@ -78,9 +80,14 @@ void GenerateMipmapMinValueFragmentShader::setParameters( ID3D11DeviceContext& d
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
+    // HACK: Multiplied by 1.02f to avoid some issues during sampling. I don't really yet understand the source of the problem.
+    // The problem is that values spread more to the left and down than right and up (more to the negative UVs).
+    dataPtr->srcPixelSizeInTexcoords = (float2::ONE / (float2)texture.getDimensions( srcMipLevel )) * 1.02f; 
+    dataPtr->srcMipmapLevel          = (float)srcMipLevel;
+
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
-    deviceContext.PSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );*/
+    deviceContext.PSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 
     ID3D11SamplerState* samplerStates[] = { m_samplerState.Get() };
     deviceContext.PSSetSamplers( 0, 1, samplerStates );

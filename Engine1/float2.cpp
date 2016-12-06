@@ -3,6 +3,7 @@
 using namespace Engine1;
 
 const float2 float2::ZERO( 0.0f, 0.0f );
+const float2 float2::ONE( 1.0f, 1.0f );
 
 float2 Engine1::operator * (const float value, const float2& vec)
 {

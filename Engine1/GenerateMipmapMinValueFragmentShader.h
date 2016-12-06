@@ -30,10 +30,14 @@ namespace Engine1
 
         private:
 
-        /*__declspec( align( DIRECTX_CONSTANT_BUFFER_ALIGNMENT ) )
-            struct ConstantBuffer
+        __declspec( align( DIRECTX_CONSTANT_BUFFER_ALIGNMENT ) )
+        struct ConstantBuffer
         {
-        };*/
+            float2 srcPixelSizeInTexcoords;
+            float2 pad1;
+            float  srcMipmapLevel;
+            float3 pad2;
+        };
 
         int m_resourceCount;
 

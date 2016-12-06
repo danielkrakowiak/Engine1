@@ -101,6 +101,7 @@ namespace Engine1
 
         bool m_debugRenderAlpha;
         bool m_debugWireframeMode;
+        int  m_debugDisplayedMipmapLevel;
 
         bool m_slowmotionMode;
         bool m_snappingMode;

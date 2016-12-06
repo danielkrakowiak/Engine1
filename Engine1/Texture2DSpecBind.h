@@ -28,7 +28,7 @@ namespace Engine1
         // mipmapLevel >= 0 - returns view to a specific mipmap.
         ID3D11ShaderResourceView* getShaderResourceView( int mipmapLevel = -1 ) const
         {
-            if ( mipmapLevel < -1 || mipmapLevel >= (int)m_renderTargetViews.size() )
+            if ( mipmapLevel < -1 || mipmapLevel >= (int)m_shaderResourceViews.size() )
                 throw std::exception( "Texture2DSpecBind< TexBind::ShaderResource >::getShaderResourceView - Tried to access shader resource view for non-existing mipmap level." );
 
             if ( mipmapLevel == -1 )

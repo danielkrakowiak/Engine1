@@ -61,6 +61,7 @@ Application::Application() :
 	m_zBufferDepth( 32 ),
 	m_windowFocused( false ),
     m_debugRenderAlpha( false ),
+    m_debugDisplayedMipmapLevel( 0 ),
     m_debugWireframeMode( false ),
     m_slowmotionMode( false ),
     m_snappingMode( false ),
@@ -500,7 +501,7 @@ void Application::run() {
             if ( frameUchar ) 
             {
                 m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, 0, 0, frameUchar->getWidth(), frameUchar->getHeight() );
-		        m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+		        m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed(0) ) 
                     debugDisplayTextureValue( *frameUchar, mousePos.x, mousePos.y );
@@ -508,27 +509,27 @@ void Application::run() {
             else if ( frameUchar4 )
             {
                 if ( m_debugRenderAlpha )
-		            m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+		            m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
                 else
-                    m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+                    m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
                     debugDisplayTextureValue( *frameUchar4, mousePos.x, mousePos.y );
             } 
             else if ( frameFloat4 )
             {
-                m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+                m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
                     debugDisplayTextureValue( *frameFloat4, mousePos.x, mousePos.y );
             }
             else if ( frameFloat2 )
             {
-                m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false );
+                m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
             }
             else if ( frameFloat ) 
             {
-                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)frameFloat->getWidth(), (float)frameFloat->getHeight(), false );
+                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)frameFloat->getWidth(), (float)frameFloat->getHeight(), false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
                     debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
@@ -1077,6 +1078,12 @@ void Application::onKeyPress( int key )
     // [Enter] - Render alpha.
     if ( key == InputManager::Keys::enter )
         m_debugRenderAlpha = !m_debugRenderAlpha;
+
+    // [Page up/Page down] - Switch displayed mipmap.
+    if ( key == InputManager::Keys::pageUp )
+        m_debugDisplayedMipmapLevel = std::max( 0, m_debugDisplayedMipmapLevel - 1 );
+    else if ( key == InputManager::Keys::pageDown )
+        m_debugDisplayedMipmapLevel = m_debugDisplayedMipmapLevel + 1;
 
     // [Backspace] - Render in wireframe mode.
     if ( key == InputManager::Keys::backspace )

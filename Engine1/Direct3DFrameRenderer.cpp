@@ -368,7 +368,7 @@ void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& devic
 	m_textFragmentShader->loadAndInitialize( "Shaders/TextShader/Text_ps.cso", device );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY, float width, float height, bool blend )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -390,7 +390,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 
 	{ // Configure and enable shaders.
 		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
-		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
@@ -403,7 +403,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -425,7 +425,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 
 	{ // Configure and enable shaders.
 		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
-		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
@@ -438,7 +438,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY, float width, float height, bool blend )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -460,7 +460,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 
 	{ // Configure and enable shaders.
 		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
-		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
@@ -473,7 +473,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY, float width, float height, bool blend )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -495,7 +495,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 
 	{ // Configure and enable shaders.
 		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
-		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
@@ -508,7 +508,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY, float width, float height, bool blend )
+void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -531,7 +531,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 
 	{ // Configure and enable shaders.
 		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
-		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture );
+		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
 	}
@@ -544,7 +544,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend )
+void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -566,7 +566,7 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind:
 
 	{ // Configure and enable shaders.
 		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
-		m_textureAlphaFragmentShader->setParameters( *m_deviceContext.Get(), texture );
+		m_textureAlphaFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
 
 		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureAlphaFragmentShader );
 	}

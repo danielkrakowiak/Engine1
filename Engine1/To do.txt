@@ -334,6 +334,11 @@ Idea:
 
 	  /////////////////////
 
+	  - GOOD FIX: it may be much better to store shadow blur radius in a texture rather than some dist-to-occluder. Because by blur radius we know how much to spread that value (no more than it's value), but for dist-to-occluder we don't know that.
+
+	  - IMPORTANT MAJOR FIX: I could fix most of the near-screen-edge problems by rendering the whole thing with a bit larger resolution... 
+	    I could event lower the quality a bit for those regions. A lot of possible ways and not too much of overhead... I could also ignore those extra regions when performing blurs etc.
+
 	  - everything that is outside of shadow map should be treated as lit for most of the time... to avoid artefacts when blurring soft shadow...
 
 	  - make sure to avoid raytracing shadow rays outside of spotlight cone... don't depend on preillumination as it may be falsly lit.
