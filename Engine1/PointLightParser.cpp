@@ -14,6 +14,7 @@ std::shared_ptr< PointLight > PointLightParser::parseBinary( std::vector< char >
     light->setCastingShadows( BinaryFile::readBool( dataIt ) );
     light->setPosition( BinaryFile::readFloat3( dataIt ) );
     light->setColor( BinaryFile::readFloat3( dataIt ) );
+    light->setEmitterRadius( BinaryFile::readFloat( dataIt ) );
 
     return light;
 }
@@ -24,4 +25,5 @@ void PointLightParser::writeBinary( std::vector<char>& data, const PointLight& l
     BinaryFile::writeBool( data, light.isCastingShadows() );
     BinaryFile::writeFloat3( data, light.getPosition() );
     BinaryFile::writeFloat3( data, light.getColor( ) );
+    BinaryFile::writeFloat( data, light.getEmitterRadius() );
 }

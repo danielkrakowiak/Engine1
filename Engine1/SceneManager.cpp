@@ -837,6 +837,11 @@ void SceneManager::saveSceneOrSelectedModels()
     }
 }
 
+bool SceneManager::isSelectionEmpty()
+{
+    return m_selectedBlockActors.empty() && m_selectedSkeletonActors.empty() && m_selectedLights.empty();
+}
+
 void SceneManager::selectAll()
 {
     m_selectedBlockActors.clear();

@@ -16,6 +16,7 @@ std::shared_ptr< SpotLight > SpotLightParser::parseBinary( std::vector< char >::
     light->setColor( BinaryFile::readFloat3( dataIt ) );
     light->setDirection( BinaryFile::readFloat3( dataIt ) );
     light->setConeAngle( BinaryFile::readFloat( dataIt ) );
+    light->setEmitterRadius( BinaryFile::readFloat( dataIt ) );
 
     return light;
 }
@@ -28,4 +29,5 @@ void SpotLightParser::writeBinary( std::vector<char>& data, const SpotLight& lig
     BinaryFile::writeFloat3( data, light.getColor() );
     BinaryFile::writeFloat3( data, light.getDirection() );
     BinaryFile::writeFloat( data, light.getConeAngle() );
+    BinaryFile::writeFloat( data, light.getEmitterRadius() );
 }

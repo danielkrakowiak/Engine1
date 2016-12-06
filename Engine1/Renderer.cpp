@@ -43,6 +43,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
 	m_raytraceShadowRenderer( rendererCore ),
 	m_shadowMapRenderer( rendererCore ),
     m_mipmapMinValueRenderer( rendererCore ),
+    m_blurShadowsRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_maxLevelCount( 0 )
 {}
@@ -70,6 +71,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
 	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_shadowMapRenderer.initialize( device, deviceContext );
     m_mipmapMinValueRenderer.initialize( device, deviceContext );
+    m_blurShadowsRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
@@ -96,8 +98,8 @@ void Renderer::renderShadowMaps( const Scene& scene )
 
         SpotLight& spotLight = static_cast< SpotLight& >( *light );
 
-        const float44 viewMatrix        = MathUtil::lookAtTransformation( spotLight.getPosition() + spotLight.getDirection(), spotLight.getPosition(), float3( 0.0f, 1.0f, 0.0f ) );
-        const float44 perspectiveMatrix = MathUtil::perspectiveProjectionTransformation( spotLight.getConeAngle() * 2.0f, (float)SpotLight::s_shadowMapDimensions.x / (float)SpotLight::s_shadowMapDimensions.y, SpotLight::s_shadowMapZNear, SpotLight::s_shadowMapZFar );
+        const float44 viewMatrix        = spotLight.getShadowMapViewMatrix();
+        const float44 perspectiveMatrix = spotLight.getShadowMapProjectionMatrix();
 
         if ( spotLight.getShadowMap() )
             m_shadowMapRenderer.setRenderTarget( spotLight.getShadowMap() );
@@ -330,26 +332,27 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-
         if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight 
              && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
         )
         {
+            m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+
             m_rasterizeShadowRenderer.performShadowMapping(
                 lightsCastingShadows[ lightIdx ],
                 m_deferredRenderer.getPositionRenderTarget(),
                 m_deferredRenderer.getNormalRenderTarget()
             );
+
+            m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+            m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
+
+            //#TODO: Should not generate all mipmaps. Maybe only two or three...
+            m_rasterizeShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+            m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         }
-
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         
-        //#TODO: Should not generate all mipmaps. Maybe only two or three...
-        m_rasterizeShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays( 
@@ -374,6 +377,19 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_mipmapMinValueRenderer.generateMipmapsMinValue( distanceToOccluderTexture );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+
+        // Blur shadows.
+        m_blurShadowsRenderer.blurShadows(
+            camera,
+            m_deferredRenderer.getPositionRenderTarget(),
+            m_deferredRenderer.getNormalRenderTarget(),
+            m_raytraceShadowRenderer.getIlluminationTexture(),
+            m_rasterizeShadowRenderer.getDistanceToOccluderTexture(),
+            *lightsCastingShadows[ lightIdx ]
+        );
+
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
@@ -384,7 +400,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getMetalnessRenderTarget(),
 			m_deferredRenderer.getRoughnessRenderTarget(), 
             m_deferredRenderer.getNormalRenderTarget(), 
-            m_raytraceShadowRenderer.getIlluminationTexture(), 
+            m_blurShadowsRenderer.getIlluminationTexture(), 
             m_rasterizeShadowRenderer.getDistanceToOccluderTexture(),
             *lightsCastingShadows[ lightIdx ] 
         );
@@ -425,6 +441,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 				return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::Illumination:
                 return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::BlurredIllumination:
+                return std::make_tuple( true, m_blurShadowsRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::SpotlightDepth:
                 if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
                     return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );

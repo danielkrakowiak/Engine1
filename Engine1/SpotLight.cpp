@@ -3,6 +3,8 @@
 #include "SpotLightParser.h"
 #include "BinaryFile.h"
 
+#include "MathUtil.h"
+
 using namespace Engine1;
 
 const int2 SpotLight::s_shadowMapDimensions( 256, 256 );
@@ -90,4 +92,20 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResou
 const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > SpotLight::getShadowMap() const
 {
     return m_shadowMap;
+}
+
+float44 SpotLight::getShadowMapViewMatrix() const
+{
+    const float44 viewMatrix = MathUtil::lookAtTransformation( getPosition() + getDirection(), getPosition(), float3( 0.0f, 1.0f, 0.0f ) );
+
+    return viewMatrix;
+}
+
+float44 SpotLight::getShadowMapProjectionMatrix() const
+{
+    const float fovY = getConeAngle() * 2.0f;
+
+    const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation( fovY, (float)s_shadowMapDimensions.x / (float)s_shadowMapDimensions.y, s_shadowMapZNear, s_shadowMapZFar );
+
+    return projectionMatrix;
 }

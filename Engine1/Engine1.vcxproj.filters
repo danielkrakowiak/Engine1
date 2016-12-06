@@ -367,6 +367,12 @@
     <Filter Include="Source Files\Shader\GenerateMipmapMinValue">
       <UniqueIdentifier>{9e96639e-71dc-4be5-ba4a-2212ff47310b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\BlurShadows">
+      <UniqueIdentifier>{ad40b482-14d7-4cdf-9482-228dba83e550}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\BlurShadows">
+      <UniqueIdentifier>{c8529707-0f7c-4333-9fb4-0e86a8e5791a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -816,6 +822,12 @@
     <ClInclude Include="GenerateMipmapMinValueFragmentShader.h">
       <Filter>Header Files\Shader\GenerateMipmapMinValue</Filter>
     </ClInclude>
+    <ClInclude Include="BlurShadowsComputeShader.h">
+      <Filter>Header Files\Shader\BlurShadows</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurShadowsRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1232,6 +1244,12 @@
     <ClCompile Include="GenerateMipmapMinValueFragmentShader.cpp">
       <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
     </ClCompile>
+    <ClCompile Include="BlurShadowsComputeShader.cpp">
+      <Filter>Source Files\Shader\BlurShadows</Filter>
+    </ClCompile>
+    <ClCompile Include="BlurShadowsRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1385,6 +1403,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\GenerateMipmapMinValueShader\GenerateMipmapMinValue_vs.hlsl">
       <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlurShadows\BlurShadows_cs.hlsl">
+      <Filter>Source Files\Shader\BlurShadows</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

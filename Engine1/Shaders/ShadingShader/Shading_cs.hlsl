@@ -59,65 +59,11 @@ void main( uint3 groupId : SV_GroupID,
 
     const float3 vectorToCamera = cameraPos - surfacePosition;
     const float3 dirToCamera    = normalize( vectorToCamera );
-    const float  distToCamera   = length( vectorToCamera );
 
     const float3 vectorToLight       = lightPosition.xyz - surfacePosition;
     const float3 dirToLight          = normalize( vectorToLight );
-    const float  distToLight         = length( vectorToLight );
 
-    // #TODO: Try to sample form 0 mip to lower mips until sampled value is lower than maximal.
-    //const float  distToOccluder      = g_distanceToOccluderTexture[ dispatchThreadId.xy ];
-    float distToOccluder = readDistToOccluder( texcoords ); 
-
-    const float  distLightToOccluder = distToLight - distToOccluder;
-    const float  lightRadius         = 20.0f;
-
-    const float baseBlurRadius = lightRadius * ( distToOccluder / distLightToOccluder );
-
-    const float blurRadius = baseBlurRadius / log2( distToCamera + 1.0f );
-
-    float samplingRadius      = 2.0f * min( 1.0f, blurRadius );
-    float samplingMipmapLevel = log2( blurRadius / 2.0f );
-    
-
-    float surfaceIllumination = 0.0f;
-
-    if ( samplingRadius <= 0.0001f )
-    {
-        surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
-    }
-    else
-    {
-        float2 pixelSize = pixelSize0 * (float)pow( 2, samplingMipmapLevel );
-        float sampleCount = 0.0f;
-
-        for ( float y = -samplingRadius; y <= samplingRadius; y += 1.0f ) 
-        {
-            for ( float x = -samplingRadius; x <= samplingRadius; x += 1.0f ) 
-            {
-                const float2 texCoordShift = float2( pixelSize.x * x, pixelSize.y * y );
-
-                surfaceIllumination += g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift * 0.5f, samplingMipmapLevel );
-                sampleCount += 1.0f;
-            }
-        }
-
-        surfaceIllumination /= sampleCount;
-    }
-
-    //const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, mipmapLevel );
-
-    /*const float surfaceIllumination = (
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), mipmapLevel ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), mipmapLevel ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), mipmapLevel ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), mipmapLevel ) ) / 4.0f;*/
-
-	/*const float surfaceIllumination = (
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) ) / 4.0f;*/
+    const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
 
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
@@ -128,22 +74,6 @@ void main( uint3 groupId : SV_GroupID,
     outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, lightColor.rgb * surfaceIllumination, dirToLight, dirToCamera );
 
     g_colorTexture[ dispatchThreadId.xy ] += outputColor;
-}
-
-float readDistToOccluder( float2 texcoords )
-{
-    float distToOccluder;
-    
-    // Try to sample from 0 mip to lower mips until sampled value is lower than maximal (otherwise it's a missing value).
-    for ( float mipmap = 0.0f; mipmap <= 6.0f; mipmap += 1.0f )
-    {
-        distToOccluder = g_distanceToOccluderTexture.SampleLevel( g_pointSamplerState, texcoords, mipmap );
-
-        if ( distToOccluder < maxDistToOccluder )
-            return distToOccluder;
-    }
-
-    return distToOccluder;
 }
 
 float3 calculateDiffuseOutputColor( float3 surfaceDiffuseColor, float3 surfaceNormal, float3 lightColor, float3 dirToLight )

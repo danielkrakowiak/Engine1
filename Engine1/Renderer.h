@@ -15,6 +15,7 @@
 #include "RasterizeShadowRenderer.h"
 #include "ShadowMapRenderer.h"
 #include "MipmapMinValueRenderer.h"
+#include "BlurShadowsRenderer.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -177,6 +178,7 @@ namespace Engine1
 		RaytraceShadowRenderer              m_raytraceShadowRenderer;
 		ShadowMapRenderer                   m_shadowMapRenderer;
         MipmapMinValueRenderer              m_mipmapMinValueRenderer;
+        BlurShadowsRenderer                 m_blurShadowsRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

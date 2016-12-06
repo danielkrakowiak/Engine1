@@ -66,6 +66,7 @@ namespace Engine1
 
         void saveSceneOrSelectedModels();
         
+        bool isSelectionEmpty();
         void selectAll();
         void clearSelection();
         bool isActorSelected( std::shared_ptr< Actor > actor );

@@ -261,6 +261,8 @@
     <ClInclude Include="BlockModelFragmentShader.h" />
     <ClInclude Include="BlockModelLOD.h" />
     <ClInclude Include="BlockModelVertexShader.h" />
+    <ClInclude Include="BlurShadowsComputeShader.h" />
+    <ClInclude Include="BlurShadowsRenderer.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="BVHNode.h" />
     <ClInclude Include="BVHTree.h" />
@@ -412,6 +414,8 @@
     <ClCompile Include="BlockModelFragmentShader.cpp" />
     <ClCompile Include="BlockModelLOD.cpp" />
     <ClCompile Include="BlockModelVertexShader.cpp" />
+    <ClCompile Include="BlurShadowsComputeShader.cpp" />
+    <ClCompile Include="BlurShadowsRenderer.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="BVHNode.cpp" />
     <ClCompile Include="BVHTree.cpp" />
@@ -647,6 +651,17 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\BlockModelShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\BlockModelShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\BlockModelShader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlurShadows\BlurShadows_cs.hlsl">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\BlurShadowsShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\BlurShadowsShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\BlurShadowsShader\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\CombiningShader\Combining_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

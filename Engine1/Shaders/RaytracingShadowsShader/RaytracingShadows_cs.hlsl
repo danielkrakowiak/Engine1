@@ -78,7 +78,7 @@ void main( uint3 groupId : SV_GroupID,
 
     // If pixel is outside of spot light's cone - ignore.
     if ( dot( lightDirection, -rayDir ) < lightConeMinDot ) {
-        g_illumination[ dispatchThreadId.xy ] = 0;
+        g_illumination[ dispatchThreadId.xy ] = 255;
         return;
     }
 

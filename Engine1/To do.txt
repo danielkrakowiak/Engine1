@@ -334,6 +334,17 @@ Idea:
 
 	  /////////////////////
 
+	  - everything that is outside of shadow map should be treated as lit for most of the time... to avoid artefacts when blurring soft shadow...
+
+	  - make sure to avoid raytracing shadow rays outside of spotlight cone... don't depend on preillumination as it may be falsly lit.
+
+	  - point lights are not working correctly - I need to support them through raytracing everything. Without sampling preillumination etc...
+
+	  - to correctly blur shadows near the spot light cone limit I have to have a bit larger shadow map - with larger fov than the light itself.
+		So maybe I can enforce different fov for light and shadow map... Maybe even depending on light radius - to not waste resolution for lights with small radius.
+
+	  - add light radius to lights - to be used when blurring shadows...
+
 	  - fix problem with spotlight cone angle limit - should be a sharp shadow always - not blurred.
 
 	  - option to optionally change the mipmap level of the texture you are seeing as active view (useful for intermediate textures - such as dist-to-occluder- should swithc to zero each time you change active view?).

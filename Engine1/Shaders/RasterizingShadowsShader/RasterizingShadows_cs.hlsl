@@ -51,10 +51,10 @@ void main( uint3 groupId : SV_GroupID,
 	const float3 rayDirBase = normalize( lightPosition - rayOrigin );
 
     // If pixel is outside of spot light's cone - ignore.
-    if ( dot( lightDirection, -rayDirBase ) < lightConeMinDot ) {
-        g_illumination[ dispatchThreadId.xy ] = 0;
-        return;
-    }
+    //if ( dot( lightDirection, -rayDirBase ) < lightConeMinDot ) {
+    //    g_illumination[ dispatchThreadId.xy ] = 255;
+    //    return;
+    //}
 
 	const float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
@@ -108,7 +108,8 @@ void main( uint3 groupId : SV_GroupID,
     }
     else
     {
-        g_illumination[ dispatchThreadId.xy ] = 0;
+        // Note: Outside of spot light cone - keep it lit until later to avoid artefacts during shadow blurring.
+        g_illumination[ dispatchThreadId.xy ] = 255;
         return;
     }
 }

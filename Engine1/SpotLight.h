@@ -43,6 +43,9 @@ namespace Engine1
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > >       getShadowMap();
         const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > getShadowMap() const;
 
+        float44 getShadowMapViewMatrix() const;
+        float44 getShadowMapProjectionMatrix() const;
+
         private:
 
         float3 m_direction;

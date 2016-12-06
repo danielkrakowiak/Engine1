@@ -6,14 +6,16 @@ Light::Light() :
     m_enabled( true ),
     m_castingShadows( true ),
     m_position( float3::ZERO ),
-    m_color( float3::ZERO )
+    m_color( float3::ZERO ),
+    m_emitterRadius( 0.0f )
 {}
 
-Light::Light( const float3& position, const float3& color, const bool enabled, const bool castingShadows ) :
+Light::Light( const float3& position, const float3& color, const bool enabled, const bool castingShadows, const float emitterRadius ) :
     m_enabled( enabled ),
-    m_castingShadows(  castingShadows ),
+    m_castingShadows( castingShadows ),
     m_position( position ),
-    m_color( color )
+    m_color( color ),
+    m_emitterRadius( emitterRadius )
 {}
 
 Light::~Light( )
@@ -39,6 +41,11 @@ void Light::setColor( const float3& color )
     m_color = color;
 }
 
+void Light::setEmitterRadius( const float emitterRadius )
+{
+    m_emitterRadius = emitterRadius;
+}
+
 bool Light::isEnabled() const
 {
     return m_enabled;
@@ -57,4 +64,9 @@ float3 Light::getPosition() const
 float3 Light::getColor() const
 {
     return m_color;
+}
+
+float Light::getEmitterRadius() const
+{
+    return m_emitterRadius;
 }

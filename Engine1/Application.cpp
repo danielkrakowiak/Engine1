@@ -264,7 +264,7 @@ void Application::run() {
 		}
 
         // Translate / rotate the selected actors.
-        bool movingObjects = false;
+        bool modifyingScene = false;
         if ( m_windowFocused && ( !m_sceneManager.getSelectedBlockActors().empty() || !m_sceneManager.getSelectedSkeletonActors().empty() ) ) 
         {
             const int2 mouseMove = m_inputManager.getMouseMove();
@@ -293,7 +293,7 @@ void Application::run() {
                         for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
                             actor->getPose().rotate( MathUtil::sign( mouseTotalMove ) * sensitivity * ( rotationSnapAngleDegrees / 360.0f ) * MathUtil::piTwo );
 
-                        movingObjects = true;
+                        modifyingScene = true;
                     } 
                     else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) 
                     {
@@ -303,7 +303,7 @@ void Application::run() {
                         for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
                             actor->getPose().translate( mouseTotalMove * translationSnapDist * sensitivity );
 
-                        movingObjects = true;
+                        modifyingScene = true;
                     }
                 }
             }
@@ -320,7 +320,7 @@ void Application::run() {
                     for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
                         actor->getPose().rotate( mouseTotalMove * (float)frameTimeMs * sensitivity * rotationSensitivity );
 
-                    movingObjects = true;
+                    modifyingScene = true;
                 } 
                 else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) 
                 {
@@ -330,7 +330,7 @@ void Application::run() {
                     for ( auto& actor : m_sceneManager.getSelectedSkeletonActors() )
                         actor->getPose().translate( mouseTotalMove * (float)frameTimeMs * sensitivity * translationSensitivity );
 
-                    movingObjects = true;
+                    modifyingScene = true;
                 }
             }
         }
@@ -355,7 +355,7 @@ void Application::run() {
                 for ( auto& light : m_sceneManager.getSelectedLights() )
                     light->setPosition( light->getPosition() + ( mouseTotalMove * (float)frameTimeMs * sensitivity * translationSensitivity ) );
                 
-                movingObjects = true;
+                modifyingScene = true;
             }
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) )
             {
@@ -372,14 +372,14 @@ void Application::run() {
                     spotLight.setDirection( direction );
                 }
 
-                movingObjects = true;
+                modifyingScene = true;
             }
         }
 
         // Modify spot light cone angle.
         if ( m_windowFocused && !m_sceneManager.getSelectedLights().empty() ) 
         {
-            if ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) && !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
             {
                 const float sensitivity = 0.0001f * (float)frameTimeMs;
 
@@ -400,7 +400,29 @@ void Application::run() {
                         spotLight.setConeAngle( std::min( MathUtil::pi, std::max( 0.01f, spotLight.getConeAngle() + change ) ) );
                     }
 
-                    movingObjects = true;
+                    modifyingScene = true;
+                }
+            }
+        }
+
+        // Modify light emitter radius.
+        if ( m_windowFocused && !m_sceneManager.getSelectedLights().empty() ) {
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) {
+                const float sensitivity = 0.01f * (float)frameTimeMs;
+
+                float change = 0.0f;
+                if ( m_inputManager.isKeyPressed( InputManager::Keys::plus ) ) {
+                    change = sensitivity;
+                } else if ( m_inputManager.isKeyPressed( InputManager::Keys::minus ) ) {
+                    change = -sensitivity;
+                }
+
+                if ( change != 0.0f ) {
+                    for ( auto& light : m_sceneManager.getSelectedLights() ) {
+                        light->setEmitterRadius( std::min( 50.0f, std::max( 0.0f, light->getEmitterRadius() + change ) ) );
+                    }
+
+                    modifyingScene = true;
                 }
             }
         }
@@ -421,7 +443,7 @@ void Application::run() {
         }
 
         // Update the camera.
-        if ( m_windowFocused && !movingObjects && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) 
+        if ( m_windowFocused && !modifyingScene && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) 
         { 
             const float cameraRotationSensitivity = m_slowmotionMode ? 0.00002f : 0.0001f;
             const float acceleration              = m_slowmotionMode ? 0.02f : 0.25f;
@@ -464,7 +486,7 @@ void Application::run() {
 
         m_renderer.clear();
 
-        if ( movingObjects )
+        if ( modifyingScene )
             m_renderer.renderShadowMaps( m_sceneManager.getScene() );
 
         std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
@@ -637,6 +659,7 @@ void Application::run() {
             int selectedVertexCount   = 0;
             int selectedTriangleCount = 0;
             int selectedMeshesCount   = (int)(m_sceneManager.getSelectedBlockActors().size() + m_sceneManager.getSelectedSkeletonActors().size()); 
+            int selectedLightsCount   = (int)m_sceneManager.getSelectedLights().size();
             int totalVertexCount      = 0;
             int totalTriangleCount    = 0;
             int totalActors           = (int)m_sceneManager.getScene().getActors().size();
@@ -689,6 +712,28 @@ void Application::run() {
                 ss << modelPath << "\n" << meshPath << "\n";
 
                 ss << "BVH nodes: " << bvhNodes << ", extents: " << bvhNodesExtents << " triangles: " << bvhTriangles;
+            }
+
+            if ( selectedLightsCount == 1 && selectedMeshesCount == 0 )
+            {
+                auto& light = m_sceneManager.getSelectedLights().front();
+
+                if ( light->getType() == Light::Type::PointLight )
+                {
+                    ss << "Point light - emitter radius: " << light->getEmitterRadius() << "\n"
+                        << ", color: (" << light->getColor().x << ", " << light->getColor().y << ", " << light->getColor().z << "), " << "\n"
+                        << ( light->isCastingShadows() ? "casts shadow" : "does not cast shadow" );
+                }
+                else if ( light->getType() == Light::Type::SpotLight )
+                {
+                    SpotLight& spotLight = static_cast< SpotLight& >( *light );
+
+                    ss << "Spot light - emitter radius: " << light->getEmitterRadius() << "\n"
+                       << ", color: (" << light->getColor().x << ", " << light->getColor().y << ", " << light->getColor().z << "), " << "\n"
+                       << ( light->isCastingShadows() ? "casts shadow" : "does not cast shadow" )
+                       << ", cone angle: " << MathUtil::radiansToDegrees( spotLight.getConeAngle() ) << " deg.";
+                }
+                
             }
 
             frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
@@ -993,14 +1038,17 @@ void Application::onKeyPress( int key )
     }
 
     // [+] or [-] - Change light brightness.
-    if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
+    if ( !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && !m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
     {
-        const float3 colorChange = 
-            ( key == InputManager::Keys::plus ) ? 
-            float3( 0.05f, 0.05f, 0.05f ) : 
-            float3( -0.05f, -0.05f, -0.05f );
+        if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
+        {
+            const float3 colorChange =
+                ( key == InputManager::Keys::plus ) ?
+                float3( 0.05f, 0.05f, 0.05f ) :
+                float3( -0.05f, -0.05f, -0.05f );
 
-        m_sceneManager.modifySelectedLightsColor( colorChange );
+            m_sceneManager.modifySelectedLightsColor( colorChange );
+        }
     }
 
     // [Enter] - Enable/disable light sources.
@@ -1034,7 +1082,7 @@ void Application::onKeyPress( int key )
     if ( key == InputManager::Keys::backspace )
         m_debugWireframeMode = !m_debugWireframeMode;
 
-    // [Ctrl] (only) - Enable slowmotion mode.
+    // [Caps Lock] - Enable slowmotion mode.
     if ( key == InputManager::Keys::capsLock )
         m_slowmotionMode = !m_slowmotionMode;
 
@@ -1046,10 +1094,10 @@ void Application::onKeyPress( int key )
     if ( key == InputManager::Keys::spacebar )
         m_snappingMode = !m_snappingMode;
 
-    // [Ctrl + +/-] - Select next/prev actor or light.
-    if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
+    // [left/right] - Select next/prev actor or light.
+    if ( key == InputManager::Keys::right )
         m_sceneManager.selectNext();
-    else if ( key == InputManager::Keys::minus && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
+    else if ( key == InputManager::Keys::left )
         m_sceneManager.selectPrev();
 
     /*static float normalThresholdChange = 0.01f;
@@ -1109,17 +1157,19 @@ void Application::onKeyPress( int key )
 	else if ( key == InputManager::Keys::f12 )
 		m_renderer.setActiveViewType( Renderer::View::Test );
 
-
-    if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
-        m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );
-    else if ( key == InputManager::Keys::minus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
-        m_renderer.setMaxLevelCount( std::max( 0, m_renderer.getMaxLevelCount() - 1 ) );
-    else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
-        m_renderer.activateNextViewLevel( true );
-    else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::t )  )
-        m_renderer.activateNextViewLevel( false );
-    else if ( key == InputManager::Keys::minus )
-        m_renderer.activatePrevViewLevel();
+    if ( m_sceneManager.isSelectionEmpty() )
+    {
+        if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+            m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );
+        else if ( key == InputManager::Keys::minus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+            m_renderer.setMaxLevelCount( std::max( 0, m_renderer.getMaxLevelCount() - 1 ) );
+        else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
+            m_renderer.activateNextViewLevel( true );
+        else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::t ) )
+            m_renderer.activateNextViewLevel( false );
+        else if ( key == InputManager::Keys::minus )
+            m_renderer.activatePrevViewLevel();
+    }
 }
 
 void Application::onMouseButtonPress( int button )
