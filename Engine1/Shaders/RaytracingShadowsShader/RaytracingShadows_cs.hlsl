@@ -78,7 +78,9 @@ void main( uint3 groupId : SV_GroupID,
 
     // If pixel is outside of spot light's cone - ignore.
     if ( dot( lightDirection, -rayDir ) < lightConeMinDot ) {
-        g_illumination[ dispatchThreadId.xy ] = 255;
+        // Preserve illumination from shadow map. 
+        // #TODO: It may be needed to raytrace shadows slightly outiside of spot light cone to ensure proper blurring of soft shadows.
+        g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
         return;
     }
 

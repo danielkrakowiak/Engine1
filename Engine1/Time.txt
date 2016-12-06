@@ -325,3 +325,4 @@ Wed 30.11.2016 - 2h - Generating mipmaps (with minimal value instead of avaraged
 Thu 01.12.2016 - 3h - Generating mipmaps for distance-to-occluder texture using pixel and vertex shaders. Fixed Texture2D dimensions getters for mipmap level higher than 0. Sampling distance-to-occluder texture mipmaps to deduce shadow blur radius.
 Sun 04.12.2016 - 2h - Added BlurShadowsRenderer and BlurShadowsComputeShader - extracted blurring shadows from shading to a separate pass.
 Mon 05.12.2016 - 2h - Fixing issues and artefacts in soft shadows. Added modifyable emitter radius field to light. Added light info display.
+Tue 06.12.2016 - 1h - Modified shadow map projection matrix to include regions slightly outiside of spot light's cone - to ensure proper soft shadow blurring near cone limits. Modified raytracing shadows shader to use illumination from shadow map in those regions.

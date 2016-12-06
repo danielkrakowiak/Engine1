@@ -103,7 +103,13 @@ float44 SpotLight::getShadowMapViewMatrix() const
 
 float44 SpotLight::getShadowMapProjectionMatrix() const
 {
-    const float fovY = getConeAngle() * 2.0f;
+    // Note: Shadow map has to be a bit larger than the spot light cone
+    // to ensure correct shadow blurring near the cone limits. 
+    // Otherwise we would have to assume that all regions outside of spot light's cone are in shadow,
+    // which causes artefacs in soft shadows.
+    const float additionalFovY = getConeAngle() * getEmitterRadius() / 100.0f; // #TODO: Come up with a real algorithm for that value..
+
+    const float fovY = getConeAngle() * 2.0f + additionalFovY;
 
     const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation( fovY, (float)s_shadowMapDimensions.x / (float)s_shadowMapDimensions.y, s_shadowMapZNear, s_shadowMapZFar );
 
