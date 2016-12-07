@@ -44,10 +44,10 @@ void RasterizeShadowRenderer::initialize(
 }
 
 void RasterizeShadowRenderer::performShadowMapping(
+    const float3& cameraPos,
     const std::shared_ptr< Light > light,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfacePositionTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture
-    /*const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,*/
     )
 {
     m_rendererCore.disableRenderingPipeline();
@@ -56,7 +56,7 @@ void RasterizeShadowRenderer::performShadowMapping(
 
     // Clear unordered access targets. #TODO: Probably not needed for shadow mapping? Every value will be written.
     m_illuminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
-    m_distanceToOccluderTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 1000, 1000, 1000, 1000 ) );
+    m_illuminationBlurRadiusTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 1000, 1000, 1000, 1000 ) );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
@@ -64,7 +64,7 @@ void RasterizeShadowRenderer::performShadowMapping(
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
-    unorderedAccessTargetsF1.push_back( m_distanceToOccluderTexture );
+    unorderedAccessTargetsF1.push_back( m_illuminationBlurRadiusTexture );
     unorderedAccessTargetsU1.push_back( m_illuminationTexture );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
@@ -75,7 +75,7 @@ void RasterizeShadowRenderer::performShadowMapping(
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     m_rasterizeShadowsComputeShader->setParameters(
-        *m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, 
+        *m_deviceContext.Get(), cameraPos, *light, *surfacePositionTexture, *surfaceNormalTexture, 
         imageWidth, imageHeight
         );
 
@@ -94,9 +94,9 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAc
     return m_illuminationTexture;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getDistanceToOccluderTexture()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getIlluminationBlurRadiusTexture()
 {
-    return m_distanceToOccluderTexture;
+    return m_illuminationBlurRadiusTexture;
 }
 
 void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
@@ -106,7 +106,7 @@ void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHei
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 
     // #TODO: Is using mipmaps? Disable them if they are not necessary.
-    m_distanceToOccluderTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+    m_illuminationBlurRadiusTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 

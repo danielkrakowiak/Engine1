@@ -10,29 +10,27 @@ cbuffer ConstantBuffer : register( b0 )
     float3 pad3;
     float3 lightDirection;
     float  pad4;
-    float  lightEmitterRadius;
-    float3 pad5;
     float2 outputTextureSize;
-    float2 pad6;
+    float2 pad5;
 };
 
 SamplerState g_linearSamplerState;
 SamplerState g_pointSamplerState;
 
 // Input.
-Texture2D<float4> g_positionTexture           : register( t0 );
-Texture2D<float4> g_normalTexture             : register( t1 ); 
-Texture2D<float>  g_illuminationTexture       : register( t2 ); 
-Texture2D<float>  g_distanceToOccluderTexture : register( t3 );
+Texture2D<float4> g_positionTexture               : register( t0 );
+Texture2D<float4> g_normalTexture                 : register( t1 ); 
+Texture2D<float>  g_illuminationTexture           : register( t2 ); 
+Texture2D<float>  g_illuminationBlurRadiusTexture : register( t3 );
 
 // Input / Output.
 RWTexture2D<float4> g_blurredIlluminationTexture : register( u0 );
 
-float  readDistToOccluder( float2 texcoords );
+float readIlluminationBlurRadius( float2 texcoords );
 
 static const float Pi = 3.14159265f;
 
-static const float maxDistToOccluder = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
+static const float maxBlurRadius = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -68,14 +66,7 @@ void main( uint3 groupId : SV_GroupID,
 
     // #TODO: Try to sample form 0 mip to lower mips until sampled value is lower than maximal.
     //const float  distToOccluder      = g_distanceToOccluderTexture[ dispatchThreadId.xy ];
-    float distToOccluder = readDistToOccluder( texcoords ); 
-
-    const float  distLightToOccluder = distToLight - distToOccluder;
-
-    const float baseBlurRadius = lightEmitterRadius * ( distToOccluder / distLightToOccluder );
-
-    const float blurRadius = baseBlurRadius / log2( distToCamera + 1.0f );
-
+    float blurRadius          = readIlluminationBlurRadius( texcoords ); 
     float samplingRadius      = 2.0f * min( 1.0f, blurRadius );
     float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
@@ -123,18 +114,17 @@ void main( uint3 groupId : SV_GroupID,
     g_blurredIlluminationTexture[ dispatchThreadId.xy ] = surfaceIllumination;
 }
 
-float readDistToOccluder( float2 texcoords )
+float readIlluminationBlurRadius( float2 texcoords )
 {
-    float distToOccluder;
-    
     // Try to sample from 0 mip to lower mips until sampled value is lower than maximal (otherwise it's a missing value).
     for ( float mipmap = 0.0f; mipmap <= 6.0f; mipmap += 1.0f )
     {
-        distToOccluder = g_distanceToOccluderTexture.SampleLevel( g_pointSamplerState, texcoords, mipmap + 1.0f ); // TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEESTTTT MIPMAP + 1
+        const float blurRadius = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords, mipmap /*+ 1.0f*/ ); // TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEESTTTT MIPMAP + 1
 
-        if ( distToOccluder < maxDistToOccluder )
-            return distToOccluder;
+        if ( blurRadius < maxBlurRadius )
+            return blurRadius;
     }
 
-    return distToOccluder;
+    // No blur radius found - don't blur then.
+    return 0.0f;
 }

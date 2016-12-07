@@ -19,10 +19,14 @@ cbuffer ConstantBuffer : register( b0 )
     float3   pad4;
     float3   lightDirection;
     float    pad5;
-    uint     isPreIlluminationAvailable; // 1 - available, 0 - not available.
+    float    lightEmitterRadius;
     float3   pad6;
+    uint     isPreIlluminationAvailable; // 1 - available, 0 - not available.
+    float3   pad7;
     float4x4 shadowMapViewMatrix;
     float4x4 shadowMapProjectionMatrix;
+    float3   cameraPosition;
+    float    pad8;
 };
 
 // Input.
@@ -42,9 +46,10 @@ SamplerState      g_pointSamplerState     : register( s0 );
 SamplerState      g_linearSamplerState    : register( s1 );
 
 // Input / Output.
-RWTexture2D<float> g_distanceToOccluder : register( u0 );
-RWTexture2D<uint>  g_illumination       : register( u1 );
+RWTexture2D<float> g_illuminationBlurRadius : register( u0 );
+RWTexture2D<uint>  g_illumination           : register( u1 );
 
+float    calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
 bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
@@ -130,11 +135,26 @@ void main( uint3 groupId : SV_GroupID,
     //{
     if ( rayMeshIntersect( rayOrigin, rayDir, 0, rayMaxLength, farthestHitDist, illumination ) )
     {
-        g_distanceToOccluder[ dispatchThreadId.xy ] = farthestHitDist;
-        g_illumination[ dispatchThreadId.xy ]       = (uint)( max( 0.0f, illumination ) * 255.0f );
+        const float surfaceDistToLight    = rayMaxLength;
+        const float surfaceDistToOccluder = farthestHitDist;
+        const float occluderDistToLight   = surfaceDistToLight - surfaceDistToOccluder;
+        const float surfaceDistToCamera   = length( rayOrigin - cameraPosition );
+
+        const float blurRadius = calculateIlluminationBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight, surfaceDistToCamera );
+
+        g_illuminationBlurRadius[ dispatchThreadId.xy ] = blurRadius;
+        g_illumination[ dispatchThreadId.xy ]           = (uint)( max( 0.0f, illumination ) * 255.0f );
     }
     //rayMeshIntersect( rayOrigin, rayDir, 1, hitDist, illumination );
     //}
+}
+
+float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
+{
+    const float baseBlurRadius = lightEmitterRadius * ( distToOccluder / distLightToOccluder );
+    const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
+
+    return blurRadius;
 }
 
 bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination )

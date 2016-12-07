@@ -85,6 +85,7 @@ void RasterizingShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device
 
 void RasterizingShadowsComputeShader::setParameters(
     ID3D11DeviceContext& deviceContext,
+    const float3& cameraPos,
     const Light& light,
     const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
     const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
@@ -120,8 +121,9 @@ void RasterizingShadowsComputeShader::setParameters(
 
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-        dataPtr->outputTextureSize = float2( (float)outputTextureWidth, (float)outputTextureHeight );
-        dataPtr->lightPosition = light.getPosition();
+        dataPtr->outputTextureSize  = float2( (float)outputTextureWidth, (float)outputTextureHeight );
+        dataPtr->lightPosition      = light.getPosition();
+        dataPtr->lightEmitterRadius = light.getEmitterRadius();
 
         const SpotLight& spotLight = static_cast<const SpotLight&>( light );
 
@@ -129,6 +131,7 @@ void RasterizingShadowsComputeShader::setParameters(
         dataPtr->shadowMapProjectionMatrix = spotLight.getShadowMapProjectionMatrix().getTranspose();
         dataPtr->lightConeMinDot           = cos( spotLight.getConeAngle() );
         dataPtr->lightDirection            = spotLight.getDirection();
+        dataPtr->cameraPosition            = cameraPos;
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

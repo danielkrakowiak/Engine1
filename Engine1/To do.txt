@@ -334,6 +334,12 @@ Idea:
 
 	  /////////////////////
 
+	  - how to make soft shadow and hard shadow touch without a gap between them?
+
+	  - REFERENCES: Screen space soft shadows - described in GPU Pro 6 !!!!!!!!!! Check it!!! 
+
+	  - there should be a second version of RasterizeShadows shader, which takes prev layer ray origin as camera position in each pixel. To handle correct blur radius in reflections.
+
 	  - GOOD FIX: it may be much better to store shadow blur radius in a texture rather than some dist-to-occluder. Because by blur radius we know how much to spread that value (no more than it's value), but for dist-to-occluder we don't know that.
 
 	  - IMPORTANT MAJOR FIX: I could fix most of the near-screen-edge problems by rendering the whole thing with a bit larger resolution... 

@@ -52,10 +52,8 @@ namespace Engine1
             float3 pad3;
             float3 lightDirection;
             float  pad4;
-            float  lightEmitterRadius;
-            float3 pad5;
             float2 outputTextureSize;
-            float2 pad6;
+            float2 pad5;
         };
 
         // Copying is not allowed.

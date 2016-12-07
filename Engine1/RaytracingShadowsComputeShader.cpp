@@ -87,6 +87,7 @@ void RaytracingShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device 
 
 void RaytracingShadowsComputeShader::setParameters(
 	ID3D11DeviceContext& deviceContext,
+    const float3& cameraPos,
 	const Light& light,
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
@@ -174,14 +175,16 @@ void RaytracingShadowsComputeShader::setParameters(
             dataPtr->boundingBoxMin[ passedActorsCount ]     = float4( boundingBox.getMin(), 0.0f );
             dataPtr->boundingBoxMax[ passedActorsCount ]     = float4( boundingBox.getMax(), 0.0f );
             dataPtr->isOpaque[ passedActorsCount ]           = isOpaque ? float4::ONE : float4::ZERO;
-            dataPtr->outputTextureSize                       = float2( (float)outputTextureWidth, (float)outputTextureHeight );
-            dataPtr->lightPosition                           = light.getPosition();
-            dataPtr->isPreIlluminationAvailable              = preIlluminationTexture ? 1 : 0;
 
             ++passedActorsCount;
         }
 
         dataPtr->actorCount = passedActorsCount;
+
+        dataPtr->outputTextureSize          = float2( (float)outputTextureWidth, (float)outputTextureHeight );
+        dataPtr->lightPosition              = light.getPosition();
+        dataPtr->lightEmitterRadius         = light.getEmitterRadius();
+        dataPtr->isPreIlluminationAvailable = preIlluminationTexture ? 1 : 0;
 
         if ( shadowMap ) {
             const SpotLight& spotLight = static_cast<const SpotLight&>( light );
@@ -194,6 +197,8 @@ void RaytracingShadowsComputeShader::setParameters(
             dataPtr->shadowMapViewMatrix         = float44::IDENTITY;
             dataPtr->shadowMapProjectionMatrix   = float44::IDENTITY;
         }
+
+        dataPtr->cameraPosition = cameraPos;
 
 		deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

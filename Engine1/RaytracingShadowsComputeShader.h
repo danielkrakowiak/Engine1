@@ -35,6 +35,7 @@ namespace Engine1
 
 		void setParameters( 
 			ID3D11DeviceContext& deviceContext,
+            const float3& cameraPos,
 			const Light& light,
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
@@ -66,10 +67,14 @@ namespace Engine1
             float3       pad4;
             float3       lightDirection;
             float        pad5;
-            unsigned int isPreIlluminationAvailable; // 1 - available, 0 - not available.
+            float        lightEmitterRadius;
             float3       pad6;
+            unsigned int isPreIlluminationAvailable; // 1 - available, 0 - not available.
+            float3       pad7;
             float44      shadowMapViewMatrix;
             float44      shadowMapProjectionMatrix;
+            float3       cameraPosition;
+            float        pad8;
 		};
 
         int m_resourceCount;

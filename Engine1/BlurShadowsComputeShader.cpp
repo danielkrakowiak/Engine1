@@ -112,7 +112,6 @@ void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext& deviceContext
 
         dataPtr->cameraPos          = cameraPos;
         dataPtr->lightPosition      = light.getPosition();
-        dataPtr->lightEmitterRadius = light.getEmitterRadius();
         
         dataPtr->outputTextureSize = float2( (float)positionTexture->getWidth(), (float)positionTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
 

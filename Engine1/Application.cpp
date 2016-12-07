@@ -1166,9 +1166,9 @@ void Application::onKeyPress( int key )
 
     if ( m_sceneManager.isSelectionEmpty() )
     {
-        if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+        if ( key == InputManager::Keys::up && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
             m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );
-        else if ( key == InputManager::Keys::minus && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+        else if ( key == InputManager::Keys::down && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
             m_renderer.setMaxLevelCount( std::max( 0, m_renderer.getMaxLevelCount() - 1 ) );
         else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
             m_renderer.activateNextViewLevel( true );

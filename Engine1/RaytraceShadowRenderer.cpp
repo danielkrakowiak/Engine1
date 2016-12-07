@@ -47,12 +47,13 @@ void RaytraceShadowRenderer::initialize(
 }
 
 void RaytraceShadowRenderer::generateAndTraceShadowRays(
+    const float3& cameraPos,
 	const std::shared_ptr< Light > light,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > distanceToOccluderTexture,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > illuminationBlurRadiusTexture,
 	const std::vector< std::shared_ptr< const BlockActor > >& actors
 )
 {
@@ -76,7 +77,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
-    unorderedAccessTargetsF1.push_back( distanceToOccluderTexture );
+    unorderedAccessTargetsF1.push_back( illuminationBlurRadiusTexture );
 	unorderedAccessTargetsU1.push_back( m_illuminationTexture );
 
 	m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
@@ -101,7 +102,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
         }
 
 		m_raytracingShadowsComputeShader->setParameters( 
-			*m_deviceContext.Get(), *light, *rayOriginTexture, *surfaceNormalTexture, preIlluminationTexture, actorsToPass, *m_defaultAlphaTexture, imageWidth, imageHeight 
+			*m_deviceContext.Get(), cameraPos, *light, *rayOriginTexture, *surfaceNormalTexture, preIlluminationTexture, actorsToPass, *m_defaultAlphaTexture, imageWidth, imageHeight 
 		);
 
 		m_rendererCore.compute( groupCount );

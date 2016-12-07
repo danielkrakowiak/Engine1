@@ -32,8 +32,9 @@ namespace Engine1
 
         void setParameters(
             ID3D11DeviceContext& deviceContext,
+            const float3& cameraPos,
             const Light& light,
-            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
+            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfacePositionTexture,
             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
             const int outputTextureWidth, const int outputTextureHeight );
 
@@ -44,16 +45,20 @@ namespace Engine1
         __declspec( align( DIRECTX_CONSTANT_BUFFER_ALIGNMENT ) )
         struct ConstantBuffer
         {
-            float2       outputTextureSize;
-            float2       pad1;
-            float3       lightPosition;
-            float        pad2;
-            float        lightConeMinDot;
-            float3       pad3;
-            float3       lightDirection;
-            float        pad4;
-            float44      shadowMapViewMatrix;
-            float44      shadowMapProjectionMatrix;
+            float2  outputTextureSize;
+            float2  pad1;
+            float3  lightPosition;
+            float   pad2;
+            float   lightConeMinDot;
+            float3  pad3;
+            float3  lightDirection;
+            float   pad4;
+            float   lightEmitterRadius;
+            float3  pad5;
+            float44 shadowMapViewMatrix;
+            float44 shadowMapProjectionMatrix;
+            float3  cameraPosition;
+            float   pad6;
         };
 
         Microsoft::WRL::ComPtr< ID3D11SamplerState > m_pointSamplerState;

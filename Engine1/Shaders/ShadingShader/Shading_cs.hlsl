@@ -20,7 +20,6 @@ Texture2D<float>  g_metalnessTexture          : register( t2 );
 Texture2D<float>  g_roughnessTexture          : register( t3 );
 Texture2D<float4> g_normalTexture             : register( t4 ); 
 Texture2D<float>  g_illuminationTexture       : register( t5 ); 
-Texture2D<float>  g_distanceToOccluderTexture : register( t6 );
 
 // Input / Output.
 RWTexture2D<float4> g_colorTexture : register( u0 );

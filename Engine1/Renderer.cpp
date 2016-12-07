@@ -339,6 +339,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
 
             m_rasterizeShadowRenderer.performShadowMapping(
+                camera.getPosition(),
                 lightsCastingShadows[ lightIdx ],
                 m_deferredRenderer.getPositionRenderTarget(),
                 m_deferredRenderer.getNormalRenderTarget()
@@ -356,12 +357,13 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays( 
+            camera.getPosition(),
             lightsCastingShadows[ lightIdx ], 
             m_deferredRenderer.getPositionRenderTarget(), 
             m_deferredRenderer.getNormalRenderTarget(),
             nullptr, 
             m_rasterizeShadowRenderer.getIlluminationTexture(),
-            m_rasterizeShadowRenderer.getDistanceToOccluderTexture(),
+            m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture(),
             blockActors 
         );
 
@@ -373,8 +375,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
 
-        auto distanceToOccluderTexture = m_rasterizeShadowRenderer.getDistanceToOccluderTexture();
-        m_mipmapMinValueRenderer.generateMipmapsMinValue( distanceToOccluderTexture );
+        auto illuminationBlurRadiusTexture = m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture();
+        m_mipmapMinValueRenderer.generateMipmapsMinValue( illuminationBlurRadiusTexture );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
@@ -385,7 +387,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getPositionRenderTarget(),
             m_deferredRenderer.getNormalRenderTarget(),
             m_raytraceShadowRenderer.getIlluminationTexture(),
-            m_rasterizeShadowRenderer.getDistanceToOccluderTexture(),
+            illuminationBlurRadiusTexture,
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -401,7 +403,6 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 			m_deferredRenderer.getRoughnessRenderTarget(), 
             m_deferredRenderer.getNormalRenderTarget(), 
             m_blurShadowsRenderer.getIlluminationTexture(), 
-            m_rasterizeShadowRenderer.getDistanceToOccluderTexture(),
             *lightsCastingShadows[ lightIdx ] 
         );
 
@@ -447,7 +448,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                 if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
                     return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );
             case View::DistanceToOccluder:
-                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getDistanceToOccluderTexture() );
+                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture() );
         }
     }
 
@@ -600,6 +601,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
         ) 
         {
             m_rasterizeShadowRenderer.performShadowMapping(
+                camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
                 lightsCastingShadows[ lightIdx ],
                 m_raytraceRenderer.getRayHitPositionTexture( 0 ),
                 m_raytraceRenderer.getRayHitNormalTexture( 0 )
@@ -723,6 +725,7 @@ void Renderer::renderFirstRefractions( const Camera& camera,
         ) 
         {
             m_rasterizeShadowRenderer.performShadowMapping(
+                camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
                 lightsCastingShadows[ lightIdx ],
                 m_raytraceRenderer.getRayHitPositionTexture( 0 ),
                 m_raytraceRenderer.getRayHitNormalTexture( 0 )
@@ -825,6 +828,7 @@ void Renderer::renderReflections( const int level, const Camera& camera,
         ) 
         {
             m_rasterizeShadowRenderer.performShadowMapping(
+                camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
                 light,
                 m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
                 m_raytraceRenderer.getRayHitNormalTexture( level - 1 )
@@ -909,6 +913,7 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
         ) 
         {
             m_rasterizeShadowRenderer.performShadowMapping(
+                camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
                 light,
                 m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
                 m_raytraceRenderer.getRayHitNormalTexture( level - 1 )

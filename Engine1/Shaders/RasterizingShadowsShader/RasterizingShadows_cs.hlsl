@@ -10,8 +10,12 @@ cbuffer ConstantBuffer : register( b0 )
     float3   pad3;
     float3   lightDirection;
     float    pad4;
+    float    lightEmitterRadius;
+    float3   pad5;
     float4x4 shadowMapViewMatrix;
     float4x4 shadowMapProjectionMatrix;
+    float3   cameraPosition;
+    float    pad6;
 };
 
 // Input.
@@ -24,8 +28,8 @@ SamplerState      g_pointSamplerState   : register( s0 );
 SamplerState      g_linearSamplerState  : register( s1 );
 
 // Input / Output.
-RWTexture2D<float> g_distanceToOccluder : register( u0 );
-RWTexture2D<uint>  g_illumination       : register( u1 );
+RWTexture2D<float> g_illuminationBlurRadius : register( u0 );
+RWTexture2D<uint>  g_illumination           : register( u1 );
 
 static const float minHitDist = 0.001f;
 
@@ -34,6 +38,7 @@ static const float zFar    = 100.0f;
 static const float zRange  = zFar - zNear;
 
 float linearizeDepth( float depthSample );
+float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -100,9 +105,10 @@ void main( uint3 groupId : SV_GroupID,
             const float occluderDistToLight     = linearizeDepth( shadowMapDepth ) / viewRayToDepthScale;
             const float rayOriginDistToLight    = length( lightPosition - rayOrigin );
             const float rayOriginDistToOccluder = max( 0.0f, rayOriginDistToLight - occluderDistToLight );
+            const float rayOriginDistToCamera   = length( rayOrigin - cameraPosition );
 
-            g_illumination[ dispatchThreadId.xy ]       = 0;
-            g_distanceToOccluder[ dispatchThreadId.xy ] = rayOriginDistToOccluder;
+            g_illumination[ dispatchThreadId.xy ]           = 0;
+            g_illuminationBlurRadius[ dispatchThreadId.xy ] = calculateIlluminationBlurRadius( lightEmitterRadius, rayOriginDistToOccluder, occluderDistToLight, rayOriginDistToCamera );
             return;
         }
     }
@@ -135,4 +141,12 @@ float linearizeDepth( float depthSample )
     const float linearDepth = projectionB / (depthSample - projectionA);
 
     return linearDepth;
+}
+
+float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
+{
+    const float baseBlurRadius = lightEmitterRadius * ( distToOccluder / distLightToOccluder );
+    const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
+
+    return blurRadius;
 }
