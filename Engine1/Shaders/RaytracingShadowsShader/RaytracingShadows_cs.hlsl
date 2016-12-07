@@ -66,6 +66,8 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minAllowedHitDist = 0.001f;
 
+static const float maxIlluminationBaseBlurRadius = 80.0f;
+
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
@@ -89,18 +91,20 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
+    // TEMPORARILY RAY TRACE FOR ALL PIXELS - BECAUSE SHADOW MAP KNOWS ONLY THE DIST TO THE NEAREST TO LIGHT OCCLUDER.
+
     // Check if raytracing shadows is needed for this pixel.
-    const float preillumination = g_preIllumination.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
-    if ( preillumination < 0.01f || preillumination > 0.99f )
-    {
+    //const float preillumination = g_preIllumination.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
+    //if ( preillumination < 0.01f || preillumination > 0.99f )
+    //{
         // This pixel and its neighbors are entirely in shadow or entirely lit - don't raytrace.
 
         //#TODO: This write should be avoided. There is not point to write the same copied value each time this shader is run...
         // This could be done in the first pass. Just copying values from preillumination texture. Or preillumination could be copied entirely using a copy drawcall.
 
-        g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
-        return;
-    }
+    //    g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
+    //    return;
+    //}
     //else
     //{
     //    // Raytrace!!!
@@ -115,8 +119,11 @@ void main( uint3 groupId : SV_GroupID,
 
     const uint illuminationUint = g_illumination[ dispatchThreadId.xy ];
 
+    // IMPORTANT: Cannot quit early when pixel is already in shadow, because we need to know if a mesh changed blur radius at that pixel!!!!
+    // Or maybe we can rely on blur radius from shadow map?
+
 	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
-    if ( !any( rayOrigin ) || normalLightDot < 0.0f || illuminationUint == 0/*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) 
+    if ( !any( rayOrigin ) || normalLightDot < 0.0f /*|| illuminationUint == 0*//*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) 
     { 
         g_illumination[ dispatchThreadId.xy ] = 0;
         return;
@@ -140,9 +147,10 @@ void main( uint3 groupId : SV_GroupID,
         const float occluderDistToLight   = surfaceDistToLight - surfaceDistToOccluder;
         const float surfaceDistToCamera   = length( rayOrigin - cameraPosition );
 
-        const float blurRadius = calculateIlluminationBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight, surfaceDistToCamera );
+        const float prevBlurRadius = g_illuminationBlurRadius[ dispatchThreadId.xy ];
+        const float blurRadius     = calculateIlluminationBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight, surfaceDistToCamera );
 
-        g_illuminationBlurRadius[ dispatchThreadId.xy ] = blurRadius;
+        g_illuminationBlurRadius[ dispatchThreadId.xy ] = min( prevBlurRadius, blurRadius );
         g_illumination[ dispatchThreadId.xy ]           = (uint)( max( 0.0f, illumination ) * 255.0f );
     }
     //rayMeshIntersect( rayOrigin, rayDir, 1, hitDist, illumination );
@@ -151,7 +159,7 @@ void main( uint3 groupId : SV_GroupID,
 
 float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
 {
-    const float baseBlurRadius = lightEmitterRadius * ( distToOccluder / distLightToOccluder );
+    const float baseBlurRadius = min( maxIlluminationBaseBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
     const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
 
     return blurRadius;

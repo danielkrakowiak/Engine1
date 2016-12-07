@@ -334,34 +334,23 @@ Idea:
 
 	  /////////////////////
 
+	  - IMPORTANT FIX: When soft shadow touches hard shadow, pixel in between start to blur some hard shadow too instead of only soft shadow. To fix that I could check if sampled shadow has similar blur radius at sampling point to the center pixel blur radius.
+	    This way I would avoid blurring shadows of completaly different sharpness. Probably...
+
+	  - OPTIMIZATION: I probably don't need float for illumination-blur-radius. A BYTE should be enough? We also don't care about fractional parts...
+
 	  - how to make soft shadow and hard shadow touch without a gap between them?
 
 	  - REFERENCES: Screen space soft shadows - described in GPU Pro 6 !!!!!!!!!! Check it!!! 
 
 	  - there should be a second version of RasterizeShadows shader, which takes prev layer ray origin as camera position in each pixel. To handle correct blur radius in reflections.
 
-	  - GOOD FIX: it may be much better to store shadow blur radius in a texture rather than some dist-to-occluder. Because by blur radius we know how much to spread that value (no more than it's value), but for dist-to-occluder we don't know that.
-
 	  - IMPORTANT MAJOR FIX: I could fix most of the near-screen-edge problems by rendering the whole thing with a bit larger resolution... 
-	    I could event lower the quality a bit for those regions. A lot of possible ways and not too much of overhead... I could also ignore those extra regions when performing blurs etc.
-
-	  - everything that is outside of shadow map should be treated as lit for most of the time... to avoid artefacts when blurring soft shadow...
+	    I could even lower the quality a bit for those regions. A lot of possible ways and not too much of overhead... I could also ignore those extra regions when performing blurs etc.
 
 	  - make sure to avoid raytracing shadow rays outside of spotlight cone... don't depend on preillumination as it may be falsly lit.
 
-	  - point lights are not working correctly - I need to support them through raytracing everything. Without sampling preillumination etc...
-
-	  - to correctly blur shadows near the spot light cone limit I have to have a bit larger shadow map - with larger fov than the light itself.
-		So maybe I can enforce different fov for light and shadow map... Maybe even depending on light radius - to not waste resolution for lights with small radius.
-
-	  - add light radius to lights - to be used when blurring shadows...
-
-	  - fix problem with spotlight cone angle limit - should be a sharp shadow always - not blurred.
-
-	  - option to optionally change the mipmap level of the texture you are seeing as active view (useful for intermediate textures - such as dist-to-occluder- should swithc to zero each time you change active view?).
-
-	  - we only have dist-to-ccluder for pixels which are in shadow. How to spread that info? Best idea: Kind of custom mippmaping of dist-to-occluder texture, but instead of avaraging pixels I take a minimum of 4-pixels.
-	    This way dist-to-occluder spreads from edges to the other parts of image. Should be gentle on memory as well...
+	  - point lights are not working correctly - I need to support them through raytracing everything. Without sampling preillumination etc..
 
 	  - IMPORTANT PROBLEM: when writing distance to occluder in rasterizing shadow map step - we always save it for the closest object... But when two objects cast shadow... the distance to occluder should be saved for the one which gives the most sharp shadow...
 
@@ -380,23 +369,18 @@ Idea:
 		- Better idea: Just copying values from preillumination texture. Or preillumination could be copied entirely using a copy drawcall (no need for another shader).
 		- Reading the "ray origin" texture seems to be the bottleneck. Probably because it's float4 expensive format. I could use depth instead to save some bandwidth. But it's still not scalable enough...
 
-	  - IMPORTANT: Can I somehow tell the compiler to not synchronize writes to the UAV? To ensure that I won't write to the same pixels from different threads... That could boost writes a bit..
-	    Is it really worth the effort? Or switching to pixel shaders?
-
-	  - OPTIMIZATION: Can I deduce for which screen region it is worth to run shadow raytracing shaders by projecting bounding box on screen - to avoid running shader for pixel which won't do anything in that particular run.
+	  - OPTIMIZATION: Can I deduce for which screen region it is worth to run shadow raytracing shaders by projecting mesh's bounding box on screen - to avoid running shader for pixel which won't do anything in that particular run.
 	    To disable whole groups of threads by running them only in some square region of screen.
 
-	  - blurring shadows could be done in a separate pass... To shorten the shaders.. Why mix it with shading... Also easier to track performance...
-
 	  - OPTIMIZATION: when detecting pixels for which its useful to trace shadow rays I detect the need for pixels at the edge of spot light cone. There is no point to trace these rays. How to avoid that? Calculate dot in the shader for that light and compare with cone angle?
-
-	  - how to quickly tests neighbor pixels in preillumination texture? Create one or two mipmaps for it? And then sample only one pixel? Good because it doesn't miss any pixels like sparse samples could....
 
 	  - use normal when calculating blur radius for shadow... to avoid dim shadow at flat angles.
 
 	  - need to handle casting shadow rays for pixel which are too far from the spot light (ex. above 100m which is max for shadow map).
 
 	  - PROFILING: how to track the total number of traced rays?
+
+	  - Should I use two-pass blurring for soft shadows? May fail, because blur kernel is assymetrical and variable across the screen (soft, hard shadows).
 
 	  NEEDED TEST SCENES:
 		- a tower in the desert - to show shadow far from the occluder. How it looks with shadow map and how with ray tracing. How soft shadow acts with distance, how soft shadow look using RT or SM.
@@ -418,18 +402,7 @@ Idea:
 	    How much to blur shadows based on light source size, distance from light ot occluder and distance from occluder to shadow receiver.
 		u = lightRadius * ( occluderToSurfaceDist / lightToOccluderDist)
 
-	  - Do I know the length of the shortest shadow ray for given pixel? No... Needed only for area lights...
-	    I should probably store it in a separate texture.
-
-	  - should not sample shadow map in every raytracing pass!!1 Should only do it once and then improve the edges using raytracing...
-
-	  - Good paper (a bit lod now...) describing various soft-shadow techniques: http://maverick.inria.fr/Publications/2003/HLHS03a/SurveyRTSoftShadows.pdf
-
-	  - maybe I should try blurring the shadows as the distance to the obstalce increases? I would probably ned more expensive ray tracing to get min distance to obstacle... 
-	    Or use depth from a shadow map. Maybe despite of variable blur radius I could use two-pass blurring? How to deal with perspective when blurring?
-		IMPORTANT: Why nobody is doing this? Blurring illumination texture...
-
-	  - add changing viewport size to RendererCore - add setting viewport size in different rednerers and when rendering shadows...
+	  - Good paper (a bit old now...) describing various soft-shadow techniques: http://maverick.inria.fr/Publications/2003/HLHS03a/SurveyRTSoftShadows.pdf
 
 	  - why can i see the skybox in the mirror in the bathroom scene? The skybox is supposed to be removed from the scene...
 
@@ -437,15 +410,9 @@ Idea:
 
 	  - optimization to shadow mapping - use border value and D3D11_TEXTURE_ADDRESS_BORDER and remove if in the shader checking if sample is within texture area.
 
+	  - OPTIMIZATION: make sure to check for max ray distance when intersecting rays with Bounding boxes in view raytracing. As it's done in shadows...
+
 	  - maybe use different vertex shader for shadow maps....
-
-	  - why spotlight seems to be shifted when looking at it's shadow? Maybe I should compare it against it's raytraced shadow?
-
-	  - VERY IMPORTANT: Is bounding volume test sensitive to ray direction and ray max distance? 
-	  Or is it testing ray forward and backwards? That would be a huge waste of power to test against triangles which have no chance to intersect..
-	  Ignore bounding boxes which are too far!!!! Both for shadows and for view rays (for boxes which are further than current min).
-
-	  OPTIMIZATION: When testing shadow rays we know the maximal ray distance we care about... We shouldn't test against nothing furhter than that distance...
 
 	  - IMPORTANT TEST: How much the shadows would cost if they only used bounindg boxes for tests... Can disable self-shadowing for test..
 	  Because if the cost is very low, then maybe it's not a big optimization to use shadow mapping for hard shadows..?
@@ -465,21 +432,10 @@ Idea:
 	  - fix merging models when all models share one alpha but have different other texutres.
 
 
-	  - shadow mapping? use it instead of raytracing for a while?
-
-	  - setting light intensity + how to set light color?
-
 	  - check which shaders are running with "skip optimization" flag? Maybe we slow down because of that... Is raytracing shader still faster with that flag?
 
-	  - selecting many actors by holding LMB and Shift? How to do that?
-
-	  - place profiling events everywhere - need to know how much time is spent on higher reflection levels...
-
-	  - create example kitchen scene
 
 	  - why skybox has reflections? Why roughness == 1.0f doesn't cancel raytracing? Bad skybox texture?
-
-	  - do I really want to do shadow mapping?
 
 	  - mipmapping (someone will probably ask about that) ?
 
@@ -494,8 +450,6 @@ Idea:
 
 	  - do I have to account for window frame height, borders etc when creating window? Is my image streched down?
 
-	  - own mesh format + format for storing BVH trees.
-
 	  - support for variable resolution per reflection/refraction depth
 
 	  - OPTIMIZATION: Replace float4 with float3 wherever possible in framebuffers/shaders.
@@ -504,18 +458,13 @@ Idea:
 
 	  - FAILED OPTIMIZATION: - pass 4 meshes at once to shadow raytracing shader.
 
-	  - should add Model class as a base for BlockModel and SkeletonModel. All texture methods could be shared. Plus flags such as "cast shadows" etc.
-
 	  - OPTIMIZATION: Mapping/Unmapping constant buffer each time we setParameters to shaders has to be very costly. How can I avoid that?
 
 	  - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
 
-	  - shadow mapping
-
 	  - all paths in models/scene should be relative to main folder or asset folder (could be useful if someone else was trying to test my application)
 	  
 	  - mipmapping
-	  - own mesh format
 	  - cubemap texture class - to use for skybox
 
 	  MUCH LATER:

@@ -37,6 +37,8 @@ static const float zNear   = 0.1f;
 static const float zFar    = 100.0f;
 static const float zRange  = zFar - zNear;
 
+static const float maxIlluminationBaseBlurRadius = 80.0f;
+
 float linearizeDepth( float depthSample );
 float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
 
@@ -50,6 +52,10 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
+    return;
+    /////////////////////////////
+
+
     const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
 
 	const float3 rayOrigin  = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
@@ -107,8 +113,11 @@ void main( uint3 groupId : SV_GroupID,
             const float rayOriginDistToOccluder = max( 0.0f, rayOriginDistToLight - occluderDistToLight );
             const float rayOriginDistToCamera   = length( rayOrigin - cameraPosition );
 
+            const float prevBlurRadius = g_illuminationBlurRadius[ dispatchThreadId.xy ];
+            const float blurRadius     = calculateIlluminationBlurRadius( lightEmitterRadius, rayOriginDistToOccluder, occluderDistToLight, rayOriginDistToCamera );
+
+            g_illuminationBlurRadius[ dispatchThreadId.xy ] = min( prevBlurRadius, blurRadius );
             g_illumination[ dispatchThreadId.xy ]           = 0;
-            g_illuminationBlurRadius[ dispatchThreadId.xy ] = calculateIlluminationBlurRadius( lightEmitterRadius, rayOriginDistToOccluder, occluderDistToLight, rayOriginDistToCamera );
             return;
         }
     }
@@ -145,7 +154,7 @@ float linearizeDepth( float depthSample )
 
 float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
 {
-    const float baseBlurRadius = lightEmitterRadius * ( distToOccluder / distLightToOccluder );
+    const float baseBlurRadius = min( maxIlluminationBaseBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
     const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
 
     return blurRadius;

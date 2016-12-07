@@ -16,7 +16,7 @@ float linearizeDepth( float depthSample );
 
 float4 main(PixelInputType input) : SV_Target
 {
-	float4 textureColor = albedoTexture.Sample( samplerState, input.texCoord ) * 0.25f;
+	float4 textureColor = albedoTexture.Sample( samplerState, input.texCoord ) * 0.05f;
 
 	return textureColor;
 }

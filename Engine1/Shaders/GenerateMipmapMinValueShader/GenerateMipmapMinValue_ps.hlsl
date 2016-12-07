@@ -33,7 +33,7 @@ float main(PixelInputType input) : SV_Target
 
     // #TODO: Smaller values should not spread equally to larger values...
 
-    const float minAcceptableValue = 2.5f + 2.0f * pow( 2.0f, srcMipmapLevel );
+    const float minAcceptableValue = 2.0f + 2.0f * pow( 2.0f, srcMipmapLevel );
 
     for ( float x = -srcPixelSizeInTexcoords.x; x <= srcPixelSizeInTexcoords.x; x += srcPixelSizeInTexcoords.x )
     {
@@ -42,7 +42,7 @@ float main(PixelInputType input) : SV_Target
             const float value = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2( x, y ) );
 
             // Note: This check is to avoid spreading very low values too far - hard shadows should not spread.
-            if ( value > minAcceptableValue )
+            if ( value >= minAcceptableValue )
                 minValue = min( minValue, value );
         }
     }
