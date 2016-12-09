@@ -133,7 +133,7 @@ std::shared_ptr<BlockMesh> MeshFileParser::parseBlockMeshFileOwnFormat( std::vec
 
     // Read tangents.
     mesh->m_tangents.resize( tangentsCount );
-    const int tangentsDataSize = normalsCount * sizeof( float3 );
+    const int tangentsDataSize = tangentsCount * sizeof( float3 );
     std::memcpy( mesh->m_tangents.data(), &( *dataCurrIt ), tangentsDataSize );
     dataCurrIt += tangentsDataSize;
 

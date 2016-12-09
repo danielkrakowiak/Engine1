@@ -88,17 +88,19 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     std::vector< std::shared_ptr< const BlockActor > > actorsToPass;
-    int passedActorsCount = 0;
+    int actorIdx = 0;
 
-	while ( passedActorsCount < actors.size() )
+	while ( actorIdx < actors.size() )
     {
         //#TODO: Should we only pass actors which cast shadows?
         // Gather a few actors to pass to the shader. 
         actorsToPass.clear();
-        while ( actorsToPass.size() < RaytracingShadowsComputeShader::s_maxActorCount && passedActorsCount < actors.size() )
+        while ( actorsToPass.size() < RaytracingShadowsComputeShader::s_maxActorCount && actorIdx < actors.size() )
         {
-            if ( actors[ passedActorsCount ]->isCastingShadows() )
-                actorsToPass.push_back( actors[ passedActorsCount++ ] );
+            if ( actors[ actorIdx ]->isCastingShadows() )
+                actorsToPass.push_back( actors[ actorIdx ] );
+
+            ++actorIdx;
         }
 
 		m_raytracingShadowsComputeShader->setParameters( 

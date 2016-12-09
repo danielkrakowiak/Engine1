@@ -65,10 +65,10 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 	createRenderTargets( imageWidth, imageHeight, *device.Get() );
 
 	{ // Initialize projection matrices.
-		const float fieldOfView = (float)MathUtil::pi / 4.0f;
+		const float fieldOfView  = (float)MathUtil::pi / 4.0f;
 		const float screenAspect = (float)imageWidth / (float)imageHeight;
-		const float zNear = 0.1f;
-		const float zFar = 100.0f;
+		const float zNear        = 0.1f;
+		const float zFar         = 1000.0f;
 
 		m_perspectiveProjectionMatrix = MathUtil::perspectiveProjectionTransformation( fieldOfView, screenAspect, zNear, zFar );
 		m_orthographicProjectionMatrix = MathUtil::orthographicProjectionTransformation( (float)imageWidth, (float)imageHeight, zNear, zFar );
