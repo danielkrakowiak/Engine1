@@ -12,6 +12,8 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
+float BlurShadowsComputeShader::s_positionThreshold  = 0.003f;
+
 BlurShadowsComputeShader::BlurShadowsComputeShader() {}
 
 BlurShadowsComputeShader::~BlurShadowsComputeShader() {}
@@ -36,9 +38,9 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device )
     { // Create linear sampler configuration.
         D3D11_SAMPLER_DESC desc;
         desc.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        desc.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
-        desc.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
-        desc.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.AddressU         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        desc.AddressV         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        desc.AddressW         = D3D11_TEXTURE_ADDRESS_CLAMP;
         desc.MipLODBias       = 0.0f;
         desc.MaxAnisotropy    = 1;
         desc.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
@@ -58,9 +60,9 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device )
     { // Create point sampler configuration.
         D3D11_SAMPLER_DESC desc;
         desc.Filter           = D3D11_FILTER_MIN_MAG_MIP_POINT;
-        desc.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
-        desc.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
-        desc.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.AddressU         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        desc.AddressV         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        desc.AddressW         = D3D11_TEXTURE_ADDRESS_CLAMP;
         desc.MipLODBias       = 0.0f;
         desc.MaxAnisotropy    = 1;
         desc.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
@@ -114,6 +116,8 @@ void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext& deviceContext
         dataPtr->lightPosition      = light.getPosition();
         
         dataPtr->outputTextureSize = float2( (float)positionTexture->getWidth(), (float)positionTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
+
+        dataPtr->positionThreshold  = s_positionThreshold;
 
         if ( light.getType() == Light::Type::SpotLight )
         {

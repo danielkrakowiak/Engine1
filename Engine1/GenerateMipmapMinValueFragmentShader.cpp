@@ -24,9 +24,9 @@ void GenerateMipmapMinValueFragmentShader::initialize( ComPtr< ID3D11Device >& d
     { // Create sampler configuration.
         D3D11_SAMPLER_DESC samplerConfiguration;
         samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_MIP_POINT;
-        samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
-        samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
-        samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_CLAMP;
         samplerConfiguration.MipLODBias       = 0.0f;
         samplerConfiguration.MaxAnisotropy    = 1;
         samplerConfiguration.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;

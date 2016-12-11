@@ -334,6 +334,40 @@ Idea:
 
 	  /////////////////////
 
+	  IDEA: Geometrically incorrect shadow:
+
+	  We create soft shadow within the hard shadow. This way we always know the blur radius. Problem: soft shadow at the edge of hard shadow is half dim. We have to account for that later on.
+
+	  I should also probably use point sampling in bluring phase? Otherwise there is always some mixing of soft/hard shadows for near samples. Even if I reject some of them...
+
+	  Add rejecting samples with wrong normal or depth? Both or just one criteria?
+
+	  I can increase shadow area (to correct soft shadows going only to the inside) by modifying fov, shadow ray direction etc... So it doesn't have to be completaly fake... :)
+
+	  Making edges brighter will fail for shadows from semi-transparent surfaces... How to handle that?
+
+	  //////////////////
+
+	  CURRENT SHADOW PROBLEMS:
+
+	  Blur shadows phase adds some unneccesary shift and blur to illumination texture - even for point lights with zero emitter radius.
+
+	  Illumination sampled in shading is a bit shifted to right-bottom - and adds an ugly light glow to objects in shadow. It's about 1 pixel to the right and bottom.
+
+	  If there was no acceptable samples found during blur - just take illumination from center point.
+
+
+
+	  /////////////////////////
+
+	  FIIIIIIX: All coordinates in compute shader should be calculated this way: 
+
+	  const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
+
+	  //////////////////
+
+	  - check which part os lambo has problems? Test1: make everything white, disable shadows and check if shading is ok for everything.
+
 	  - IMPORTANT FIX: When soft shadow touches hard shadow, pixel in between start to blur some hard shadow too instead of only soft shadow. To fix that I could check if sampled shadow has similar blur radius at sampling point to the center pixel blur radius.
 	    This way I would avoid blurring shadows of completaly different sharpness. Probably...
 

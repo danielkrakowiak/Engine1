@@ -376,7 +376,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
 
         auto illuminationBlurRadiusTexture = m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture();
-        m_mipmapMinValueRenderer.generateMipmapsMinValue( illuminationBlurRadiusTexture );
+        //m_mipmapMinValueRenderer.generateMipmapsMinValue( illuminationBlurRadiusTexture );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );

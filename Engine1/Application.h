@@ -66,6 +66,8 @@ namespace Engine1
         void onMouseButtonPress( int button );
 	    void onDragAndDropFile( std::string filePath );
 
+        int2 screenPosToWindowPos( int2 screenPos ) const;
+
         void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y );
         void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y );
         void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y );

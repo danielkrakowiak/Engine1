@@ -16,7 +16,13 @@ float linearizeDepth( float depthSample );
 
 float4 main(PixelInputType input) : SV_Target
 {
-	float4 textureColor = albedoTexture.Sample( samplerState, input.texCoord ) * 0.05f;
+	float4 textureColor = albedoTexture.Sample( samplerState, input.texCoord );
+
+    // Useful to show very high value pixels.
+    //////////////////////////////////////////////////////////////////
+    //if (textureColor.r > 1.5f)
+    //    textureColor /= 50.0f;
+    //////////////////////////////////////////////////////////////////
 
 	return textureColor;
 }

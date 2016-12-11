@@ -33,6 +33,9 @@
 #include "BVHTree.h"
 #include "BVHTreeBuffer.h"
 
+// Only for debugging.
+#include "BlurShadowsComputeShader.h"
+
 using namespace Engine1;
 
 Application* Application::windowsMessageReceiver = nullptr;
@@ -420,7 +423,7 @@ void Application::run() {
 
                 if ( change != 0.0f ) {
                     for ( auto& light : m_sceneManager.getSelectedLights() ) {
-                        light->setEmitterRadius( std::min( 50.0f, std::max( 0.0f, light->getEmitterRadius() + change ) ) );
+                        light->setEmitterRadius( std::min( 150.0f, std::max( 0.0f, light->getEmitterRadius() + change ) ) );
                     }
 
                     modifyingScene = true;
@@ -734,10 +737,11 @@ void Application::run() {
                        << ( light->isCastingShadows() ? "casts shadow" : "does not cast shadow" )
                        << ", cone angle: " << MathUtil::radiansToDegrees( spotLight.getConeAngle() ) << " deg.";
                 }
-                
+
+                ss << "\nBlurShadowsComputeShader::s_positionThreshold: " << BlurShadowsComputeShader::s_positionThreshold;
             }
 
-            frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 120.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render camera state.
@@ -1039,7 +1043,8 @@ void Application::onKeyPress( int key )
     }
 
     // [+] or [-] - Change light brightness.
-    if ( !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && !m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+    if ( !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && !m_inputManager.isKeyPressed( InputManager::Keys::shift ) 
+         && !m_inputManager.isKeyPressed( InputManager::Keys::p ) )
     {
         if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
         {
@@ -1049,6 +1054,23 @@ void Application::onKeyPress( int key )
                 float3( -0.05f, -0.05f, -0.05f );
 
             m_sceneManager.modifySelectedLightsColor( colorChange );
+        }
+    }
+
+    // [P] and ( [+] or [-] ) - Modify shadow blur position threshold and normal threshold.
+    if ( m_sceneManager.getSelectedLights().size() == 1 ) {
+        if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
+        {
+            const float positionThresholdChange = 
+                ( key == InputManager::Keys::plus ) ?
+                0.001f : - 0.001f;
+
+            const float normalDotThresholdChange =
+                ( key == InputManager::Keys::plus ) ?
+                0.005f : -0.005f;
+
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
+                BlurShadowsComputeShader::s_positionThreshold += positionThresholdChange;
         }
     }
 
@@ -1125,44 +1147,64 @@ void Application::onKeyPress( int key )
             combiningRenderer.setPositionThreshold( combiningRenderer.getPositionThreshold() - positionThresholdChange );
     }*/
 
-    if ( key == InputManager::Keys::tilde )
+    if ( key == InputManager::Keys::tilde ) {
         m_renderer.setActiveViewType( Renderer::View::Final );
-    else if ( key == InputManager::Keys::one )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::one ) {
         m_renderer.setActiveViewType( Renderer::View::Shaded );
-    else if ( key == InputManager::Keys::two )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::two ) {
         m_renderer.setActiveViewType( Renderer::View::Depth );
-    else if ( key == InputManager::Keys::three )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::three ) {
         m_renderer.setActiveViewType( Renderer::View::Position );
-    else if ( key == InputManager::Keys::four )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::four ) {
         m_renderer.setActiveViewType( Renderer::View::Emissive );
-    else if ( key == InputManager::Keys::five )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::five ) {
         m_renderer.setActiveViewType( Renderer::View::Albedo );
-    else if ( key == InputManager::Keys::six )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::six ) {
         m_renderer.setActiveViewType( Renderer::View::Normal );
-    else if ( key == InputManager::Keys::seven )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::seven ) {
         m_renderer.setActiveViewType( Renderer::View::Metalness );
-    else if ( key == InputManager::Keys::eight )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::eight ) {
         m_renderer.setActiveViewType( Renderer::View::Roughness );
-    else if ( key == InputManager::Keys::nine )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::nine ) {
         m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
-    else if ( key == InputManager::Keys::zero )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::zero ) {
         m_renderer.setActiveViewType( Renderer::View::RayDirections );
-    else if ( key == InputManager::Keys::f1 )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f1 ) {
         m_renderer.setActiveViewType( Renderer::View::Contribution );
-    else if ( key == InputManager::Keys::f2 )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f2 ) {
         m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
-    else if ( key == InputManager::Keys::f3 )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f3 ) {
         m_renderer.setActiveViewType( Renderer::View::Preillumination );
-    else if ( key == InputManager::Keys::f4 )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f4 ) {
         m_renderer.setActiveViewType( Renderer::View::Illumination );
-    else if ( key == InputManager::Keys::f5 )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f5 ) {
         m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
-    else if ( key == InputManager::Keys::f6 )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f6 ) {
         m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
-    else if ( key == InputManager::Keys::f7 )
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f7 ) {
         m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
-	else if ( key == InputManager::Keys::f12 )
+        m_debugDisplayedMipmapLevel = 0;
+	} else if ( key == InputManager::Keys::f12 ) {
 		m_renderer.setActiveViewType( Renderer::View::Test );
+        m_debugDisplayedMipmapLevel = 0;
+    }
 
     if ( m_sceneManager.isSelectionEmpty() )
     {
@@ -1242,4 +1284,17 @@ void Application::onDragAndDropFile( std::string filePath )
     const bool replaceSelected = m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
 
     m_sceneManager.loadAsset( filePath, replaceSelected );
+
+    m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+}
+
+int2 Application::screenPosToWindowPos( int2 screenPos ) const
+{
+    POINT pos;
+    pos.x = screenPos.x;
+    pos.y = screenPos.y;
+
+    ScreenToClient(m_windowHandle, &pos );
+
+    return int2( pos.x, pos.y );
 }

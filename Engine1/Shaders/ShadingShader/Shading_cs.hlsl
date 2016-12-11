@@ -44,7 +44,8 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
+    //const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
+    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
     //const float2 outputTextureHalfPixelSize = 1.0f / outputTextureSize; // Should be illumination texture size?
 
     const float2 pixelSize0 = 1.0f / outputTextureSize;
@@ -62,7 +63,7 @@ void main( uint3 groupId : SV_GroupID,
     const float3 vectorToLight       = lightPosition.xyz - surfacePosition;
     const float3 dirToLight          = normalize( vectorToLight );
 
-    const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
+    const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_pointSamplerState, texcoords/* + pixelSize0*/, 0.0f ); // PROBLEM: Input texture is a bit shifted compared to other image textures...
 
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );

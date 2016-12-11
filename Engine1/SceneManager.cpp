@@ -235,7 +235,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected )
         // We try to parse meshes with increasing index in file until it fails.
         for ( int indexInFile = 0; true; ++indexInFile ) {
             try {
-                BlockMeshFileInfo fileInfo( filePath, format, indexInFile, false, false, false );
+                BlockMeshFileInfo fileInfo( filePath, format, indexInFile, true, true, true ); // Note: Convert to right hand coord system.
                 std::shared_ptr< BlockMesh > mesh = std::static_pointer_cast<BlockMesh>( m_assetManager.getOrLoad( fileInfo ) );
 
                 if ( !mesh->getBvhTree() )
@@ -281,7 +281,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected )
         // We try to parse meshes with increasing index in file until it fails.
         for ( int indexInFile = 0; true; ++indexInFile ) {
             try {
-                SkeletonMeshFileInfo fileInfo( filePath, format, 0, false, false, false );
+                SkeletonMeshFileInfo fileInfo( filePath, format, 0, true, true, true ); // Note: Convert to right hand coord system.
                 std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>( m_assetManager.getOrLoad( fileInfo ) );
                 if ( !mesh->isInGpuMemory() )
                     mesh->loadCpuToGpu( *m_device.Get() );
@@ -788,8 +788,8 @@ void SceneManager::addPointLight()
 
     m_scene->addLight( light );
 
-    m_selectedLights.clear();
-    m_selectedLights.push_back( light );
+    clearSelection();
+    selectLight( light );
 }
 
 void SceneManager::addSpotLight()
@@ -800,8 +800,8 @@ void SceneManager::addSpotLight()
 
     m_scene->addLight( light );
 
-    m_selectedLights.clear();
-    m_selectedLights.push_back( light );
+    clearSelection();
+    selectLight( light );
 }
 
 void SceneManager::modifySelectedLightsColor( float3 colorChange )

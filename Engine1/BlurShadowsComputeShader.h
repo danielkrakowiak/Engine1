@@ -24,6 +24,12 @@ namespace Engine1
 
         public:
 
+        // Threshold used to decide whether a sample can be used in blur operation.
+        // Samples which are too "different" from the blur central pixel are rejected,
+        // because they can cause blurring of shadows/light of completely disconnected objects 
+        // (example: objects near and far from the camera).
+        static float s_positionThreshold;
+
         BlurShadowsComputeShader();
         virtual ~BlurShadowsComputeShader();
 
@@ -54,6 +60,8 @@ namespace Engine1
             float  pad4;
             float2 outputTextureSize;
             float2 pad5;
+            float  positionThreshold;
+            float3 pad6;
         };
 
         // Copying is not allowed.

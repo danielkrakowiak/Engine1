@@ -12,6 +12,8 @@ cbuffer ConstantBuffer : register( b0 )
     float  pad4;
     float2 outputTextureSize;
     float2 pad5;
+    float  positionThreshold;
+    float3 pad6;
 };
 
 SamplerState g_linearSamplerState;
@@ -32,6 +34,8 @@ static const float Pi = 3.14159265f;
 
 static const float maxBlurRadius = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
 
+bool canUseSample( const float3 blurCenterPosition, const float3 samplePosition, const float blurRadiusInWorldSpace, const float positionThreshold );
+
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
@@ -42,7 +46,9 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
+    //const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
+    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize; // Improvement? To start from pixel center rather than pixel edge...
+
     //const float2 outputTextureHalfPixelSize = 1.0f / outputTextureSize; // Should be illumination texture size?
 
     const float2 pixelSize0 = 1.0f / outputTextureSize;
@@ -64,67 +70,78 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    // #TODO: Try to sample form 0 mip to lower mips until sampled value is lower than maximal.
-    //const float  distToOccluder      = g_distanceToOccluderTexture[ dispatchThreadId.xy ];
-    float blurRadius          = readIlluminationBlurRadius( texcoords ); 
-    float samplingRadius      = 2.0f * min( 1.0f, blurRadius );
-    float samplingMipmapLevel = log2( blurRadius / 2.0f );
+    float blurRadius          = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
+    float samplingRadius      = blurRadius;
+    //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
     float surfaceIllumination = 0.0f;
 
-    if ( samplingRadius <= 0.0001f )
+    if ( samplingRadius <= 0.0001f || samplingRadius > maxBlurRadius )
     {
-        surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
+        surfaceIllumination = g_illuminationTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
     }
     else
     {
-        float2 pixelSize = pixelSize0 * (float)pow( 2, samplingMipmapLevel );
         float sampleCount = 0.0f;
 
-        for ( float y = -samplingRadius; y <= samplingRadius; y += 1.0f ) 
+        const float samplingStep = 0.2f * samplingRadius;
+
+        for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
         {
-            for ( float x = -samplingRadius; x <= samplingRadius; x += 1.0f ) 
+            for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
             {
-                const float2 texCoordShift = float2( pixelSize.x * x, pixelSize.y * y );
+                const float2 texCoordShift = float2( pixelSize0.x * x, pixelSize0.y * y );
 
-                // #TODO: When we sample outside of light cone - the sample should be black.
+                //#TODO: When we sample outside of light cone - the sample should be black.
 
-                surfaceIllumination += g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift * 0.5f, samplingMipmapLevel );
-                sampleCount += 1.0f;
+                //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
+                const float  sampleIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
+                const float  sampleBlurRadius   = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f );
+                //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
+                const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
+
+                float sampleWeight = 1.0f;
+
+                //if (samplePointIllumination < 0.8f ) { 
+                //    sampleWeight = max( 0.0f, 1.0f - abs(blurRadius - sampleBlurRadius) / blurRadius );
+                //}
+                    
+                // Note: It's impossible to tell how far samples are from each other in world space
+                // by using blur radius in screen space (because it depends on camera distance from surface).
+                // So we calculate blur radius in world space.
+                const float blurRadiusInWorldSpace = blurRadius * log2( distToCamera + 1.0f );
+
+                bool useSample = canUseSample( surfacePosition, samplePosition, blurRadiusInWorldSpace, positionThreshold );
+
+                if ( useSample )
+                {
+                    surfaceIllumination += sampleIllumination;
+
+                    // Add fully lit samples twice.
+                    if ( sampleIllumination > 0.99f )
+                        surfaceIllumination += sampleIllumination;
+                    
+                    //const float weightFromIllumination = sampleIllumination * 0.5f + 0.5f; // Note: To correct the transition from black to white, which would otherwise be from black to gray.
+                    
+
+                    sampleCount += sampleWeight;// * weightFromIllumination;// * weightFromPositionDiff;
+                }
             }
         }
 
         surfaceIllumination /= sampleCount;
     }
 
-    //const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords, mipmapLevel );
-
-    /*const float surfaceIllumination = (
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), mipmapLevel ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), mipmapLevel ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), mipmapLevel ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), mipmapLevel ) ) / 4.0f;*/
-
-	/*const float surfaceIllumination = (
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) ) / 4.0f;*/
-
     g_blurredIlluminationTexture[ dispatchThreadId.xy ] = surfaceIllumination;
 }
 
-float readIlluminationBlurRadius( float2 texcoords )
+bool canUseSample( const float3 blurCenterPosition, const float3 samplePosition, const float blurRadiusInWorldSpace, const float positionThreshold )
 {
-    // Try to sample from 0 mip to lower mips until sampled value is lower than maximal (otherwise it's a missing value).
-    for ( float mipmap = 0.0f; mipmap <= 6.0f; mipmap += 1.0f )
-    {
-        const float blurRadius = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords, mipmap /*+ 1.0f*/ ); // TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEESTTTT MIPMAP + 1
+    // Dev: Tried to compare normals here as well, but it didn't prove to be useful.
+    
+    //#TODO: Could be optimized by using "dot" instead of "length" and comparing against squared position threshold. It would save one square root.
+    const float  posDiff    = length( samplePosition - blurCenterPosition );
+    const float  maxPosDiff = positionThreshold * blurRadiusInWorldSpace;
 
-        if ( blurRadius < maxBlurRadius )
-            return blurRadius;
-    }
-
-    // No blur radius found - don't blur then.
-    return 0.0f;
+    return posDiff < maxPosDiff;
 }
