@@ -68,7 +68,8 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
+    // Note: Calculate texcoords for the pixel center.
+    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
     const float3 rayDir = g_rayDirections.SampleLevel( g_samplerState, texcoords, 0.0f ).xyz;
 

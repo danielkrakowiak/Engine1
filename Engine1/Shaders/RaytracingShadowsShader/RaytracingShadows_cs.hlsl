@@ -66,7 +66,7 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minAllowedHitDist = 0.001f;
 
-static const float maxIlluminationBaseBlurRadius = 80.0f;
+static const float maxIlluminationBaseBlurRadius = 150.0f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -78,7 +78,8 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
+    // Note: Calculate texcoords for the pixel center.
+    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
 	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 	const float3 rayDir    = normalize( lightPosition - rayOrigin );
@@ -248,7 +249,7 @@ bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int ac
 							    const float2x3 verticesTexCoords = readVerticesTexCoords( actorIdx, trianglee );
 							    const float2   hitTexCoords      = calcInterpolatedTexCoords( hitBarycentricCoords, verticesTexCoords );
 
-                                const float alpha = 1.0f;//g_alphaTexture[ actorIdx ].SampleLevel( g_linearSamplerState, hitTexCoords, 0.0f ).r;
+                                const float alpha = g_alphaTexture[ actorIdx ].SampleLevel( g_linearSamplerState, hitTexCoords, 0.0f ).r;
 
                                 illumination -= alpha;
 

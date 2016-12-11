@@ -350,14 +350,6 @@ Idea:
 
 	  CURRENT SHADOW PROBLEMS:
 
-	  Blur shadows phase adds some unneccesary shift and blur to illumination texture - even for point lights with zero emitter radius.
-
-	  Illumination sampled in shading is a bit shifted to right-bottom - and adds an ugly light glow to objects in shadow. It's about 1 pixel to the right and bottom.
-
-	  If there was no acceptable samples found during blur - just take illumination from center point.
-
-
-
 	  /////////////////////////
 
 	  FIIIIIIX: All coordinates in compute shader should be calculated this way: 
@@ -368,12 +360,7 @@ Idea:
 
 	  - check which part os lambo has problems? Test1: make everything white, disable shadows and check if shading is ok for everything.
 
-	  - IMPORTANT FIX: When soft shadow touches hard shadow, pixel in between start to blur some hard shadow too instead of only soft shadow. To fix that I could check if sampled shadow has similar blur radius at sampling point to the center pixel blur radius.
-	    This way I would avoid blurring shadows of completaly different sharpness. Probably...
-
 	  - OPTIMIZATION: I probably don't need float for illumination-blur-radius. A BYTE should be enough? We also don't care about fractional parts...
-
-	  - how to make soft shadow and hard shadow touch without a gap between them?
 
 	  - REFERENCES: Screen space soft shadows - described in GPU Pro 6 !!!!!!!!!! Check it!!! 
 
@@ -438,8 +425,6 @@ Idea:
 
 	  - Good paper (a bit old now...) describing various soft-shadow techniques: http://maverick.inria.fr/Publications/2003/HLHS03a/SurveyRTSoftShadows.pdf
 
-	  - why can i see the skybox in the mirror in the bathroom scene? The skybox is supposed to be removed from the scene...
-
 	  - use sampler2DShadow as in http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/ to know if we are on the shadow border...?
 
 	  - optimization to shadow mapping - use border value and D3D11_TEXTURE_ADDRESS_BORDER and remove if in the shader checking if sample is within texture area.
@@ -450,9 +435,6 @@ Idea:
 
 	  - IMPORTANT TEST: How much the shadows would cost if they only used bounindg boxes for tests... Can disable self-shadowing for test..
 	  Because if the cost is very low, then maybe it's not a big optimization to use shadow mapping for hard shadows..?
-
-	  - optimize walls and floor in the text scenes - they have tons of triangles.
-	  - optimize all meshes...
 
 	  - display GPU name and optionally also CPU name on the screen
 
@@ -512,6 +494,9 @@ Idea:
 	    page 721
 
 	  Sources: 
+
+	  Another idea for shadows with quality of full ray tracing:
+	  https://www.cs.purdue.edu/cgvlab/papers/popescu/popescuGEARSCGF2014.pdf
 
 	  - profiling, GPU queries: http://www.reedbeta.com/blog/2011/10/12/gpu-profiling-101/
 

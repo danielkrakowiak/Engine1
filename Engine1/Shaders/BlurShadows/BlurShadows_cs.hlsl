@@ -47,7 +47,8 @@ void main( uint3 groupId : SV_GroupID,
            uint  groupIndex : SV_GroupIndex )
 {
     //const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
-    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize; // Improvement? To start from pixel center rather than pixel edge...
+    // Note: Calculate texcoords for the pixel center.
+    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
     //const float2 outputTextureHalfPixelSize = 1.0f / outputTextureSize; // Should be illumination texture size?
 
@@ -82,9 +83,14 @@ void main( uint3 groupId : SV_GroupID,
     }
     else
     {
+        // Note: It's impossible to tell how far samples are from each other in world space
+        // by using blur radius in screen space (because it depends on camera distance from surface).
+        // So we calculate blur radius in world space.
+        const float blurRadiusInWorldSpace = blurRadius * log2( distToCamera + 1.0f );
+
         float sampleCount = 0.0f;
 
-        const float samplingStep = 0.2f * samplingRadius;
+        const float samplingStep = 0.1f * samplingRadius;
 
         for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
         {
@@ -96,7 +102,7 @@ void main( uint3 groupId : SV_GroupID,
 
                 //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
                 const float  sampleIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
-                const float  sampleBlurRadius   = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f );
+                //const float  sampleBlurRadius   = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f );
                 //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
                 const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
 
@@ -105,11 +111,6 @@ void main( uint3 groupId : SV_GroupID,
                 //if (samplePointIllumination < 0.8f ) { 
                 //    sampleWeight = max( 0.0f, 1.0f - abs(blurRadius - sampleBlurRadius) / blurRadius );
                 //}
-                    
-                // Note: It's impossible to tell how far samples are from each other in world space
-                // by using blur radius in screen space (because it depends on camera distance from surface).
-                // So we calculate blur radius in world space.
-                const float blurRadiusInWorldSpace = blurRadius * log2( distToCamera + 1.0f );
 
                 bool useSample = canUseSample( surfacePosition, samplePosition, blurRadiusInWorldSpace, positionThreshold );
 
@@ -129,6 +130,7 @@ void main( uint3 groupId : SV_GroupID,
             }
         }
 
+        // Note: We assume that at least the central pixel will get accepted - otherwise division by zero would occur.
         surfaceIllumination /= sampleCount;
     }
 

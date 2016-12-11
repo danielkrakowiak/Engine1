@@ -43,9 +43,8 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float2 texcoords = (float2)dispatchThreadId.xy / outputTextureSize;
-
-    const float2 pixelPos = (float2)dispatchThreadId.xy;
+    // Note: Calculate texcoords for the pixel center.
+    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
     const float3 surfacePosition            = g_surfacePosition.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
     const float  surfaceRoughness           = g_surfaceRoughness.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
