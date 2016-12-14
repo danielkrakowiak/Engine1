@@ -928,6 +928,8 @@ void SceneManager::unselectLight( std::shared_ptr< Light > light )
 
 void SceneManager::selectNext()
 {
+    // #TODO: Shoudl fix - it fails in many cases.
+
     std::shared_ptr< Actor > selectedActor;
     std::shared_ptr< Light > selectedLight;
 
@@ -973,6 +975,45 @@ void SceneManager::selectNext()
 
 void SceneManager::selectPrev()
 {
+    // #TODO: Shoudl fix - it fails in many cases.
+
+    std::shared_ptr< Actor > selectedActor;
+    std::shared_ptr< Light > selectedLight;
+
+    if ( m_selectedBlockActors.size() == 1 && m_selectedSkeletonActors.empty() && m_selectedLights.empty() )
+        selectedActor = m_selectedBlockActors[ 0 ];
+    else if ( m_selectedSkeletonActors.size() == 1 && m_selectedBlockActors.empty() && m_selectedLights.empty() )
+        selectedActor = m_selectedSkeletonActors[ 0 ];
+    else if ( m_selectedLights.size() == 1 && m_selectedBlockActors.empty() && m_selectedSkeletonActors.empty() )
+        selectedLight = m_selectedLights[ 0 ];
+
+    if ( selectedActor ) 
+    {
+        auto it = m_scene->getActors().find( selectedActor );
+
+        if ( it == m_scene->getActors().begin() )
+            it = m_scene->getActors().end();
+
+        --it;
+
+        clearSelection();
+
+        if ( selectedActor->getType() == Actor::Type::BlockActor )
+            m_selectedBlockActors.push_back( std::static_pointer_cast<BlockActor>( *it ) );
+        else if ( selectedActor->getType() == Actor::Type::SkeletonActor )
+            m_selectedSkeletonActors.push_back( std::static_pointer_cast<SkeletonActor>( *it ) );
+    } else if ( selectedLight ) {
+        auto it = m_scene->getLights().find( selectedLight );
+
+        if ( it == m_scene->getLights().begin() )
+            it = m_scene->getLights().end();
+
+        --it;
+
+        clearSelection();
+
+        m_selectedLights.push_back( *it );
+    }
 }
 
 void SceneManager::deleteSelected()

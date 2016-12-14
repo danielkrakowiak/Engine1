@@ -66,6 +66,8 @@ Application::Application() :
     m_debugRenderAlpha( false ),
     m_debugDisplayedMipmapLevel( 0 ),
     m_debugWireframeMode( false ),
+    m_renderText( true ),
+    m_renderFps( true ),
     m_slowmotionMode( false ),
     m_snappingMode( false ),
     m_assetManager(),
@@ -593,7 +595,9 @@ void Application::run() {
         { // Render FPS.
             std::stringstream ss;
             ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
-            frameUchar4 = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            
+            if ( m_renderFps )
+                frameUchar4 = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render profiling results.
@@ -656,7 +660,8 @@ void Application::run() {
                 }
             }
 
-            frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            if ( m_renderText )
+                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render scene stats and selection stats.
@@ -741,7 +746,8 @@ void Application::run() {
                 ss << "\nBlurShadowsComputeShader::s_positionThreshold: " << BlurShadowsComputeShader::s_positionThreshold;
             }
 
-            frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 120.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            if ( m_renderText )
+                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 120.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render camera state.
@@ -778,7 +784,8 @@ void Application::run() {
         // TODO: Should  be refactored somehow. Such method should not be called here.
         //deferredRenderer.disableRenderTargets();
 
-        m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, true );
+        if ( frameUchar4 )
+            m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, true );
 
 		m_frameRenderer.displayFrame();
 
@@ -996,6 +1003,17 @@ void Application::onFocusChange( bool windowFocused )
 
 void Application::onKeyPress( int key )
 {
+    // [\] - Hide/show text.
+    if ( key == InputManager::Keys::backslash )
+    {
+        m_renderText = !m_renderText;
+    }
+
+    // [/] - Hide/show FPS counter.
+    if ( key == InputManager::Keys::slash ) {
+        m_renderFps = !m_renderFps;
+    }
+
     // [ L + P ] - Add point light.
     // [ L + S ] - Add spot light.
     if ( key == InputManager::Keys::l && m_inputManager.isKeyPressed( InputManager::Keys::p ) ) 

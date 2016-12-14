@@ -352,9 +352,12 @@ Idea:
 
 	  /////////////////////////
 
-	  FIIIIIIX: All coordinates in compute shader should be calculated this way: 
+	  DEPTH PEEELING - fix for calculating dist-to-occluder in shadow mapping:
 
-	  const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
+	  - render first shadow map normally - like it is now - the closest object to light is visibile in SM.
+	  - render second shadow map, but only the pixels with greater depth than the prev SM. This SM will have all shadowed pixels...
+
+	  - By comparing the distance between first and second SM we know the dist-to-occluder.
 
 	  //////////////////
 
