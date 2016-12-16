@@ -521,6 +521,7 @@
     <ClCompile Include="SkeletonPose.cpp" />
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="TextFragmentShader.cpp" />
+    <ClCompile Include="Texture2DGeneric.cpp" />
     <ClCompile Include="TextureRescaleComputeShader.cpp" />
     <ClCompile Include="TextureRescaleRenderer.cpp" />
     <ClCompile Include="Texture2DFileInfo.cpp" />

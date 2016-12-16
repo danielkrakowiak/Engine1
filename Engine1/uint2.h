@@ -29,6 +29,14 @@ namespace Engine1
             return &x;
         }
 
+        uint2& operator = ( const uint2& vec )
+        {
+            x = vec.x;
+            y = vec.y;
+
+            return *this;
+        }
+
         bool operator == (const uint2& vec) const
         {
             return x == vec.x && y == vec.y;

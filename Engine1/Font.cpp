@@ -171,7 +171,8 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device 
 
 					desc.Width              = character.getSize().x;
 					desc.Height             = character.getSize().y;
-					desc.MipLevels          = desc.ArraySize = 1; //without mipmaps
+					desc.MipLevels          = 1;
+                    desc.ArraySize          = 1;
 					desc.Format             = DXGI_FORMAT_R8_UNORM;
 					desc.SampleDesc.Count   = 1;
 					desc.SampleDesc.Quality = 0;

@@ -29,6 +29,14 @@ namespace Engine1
             return &x;
         }
 
+        uchar2& operator = ( const uchar2& vec )
+        {
+            x = vec.x;
+            y = vec.y;
+
+            return *this;
+        }
+
         bool operator == (const uchar2& vec) const
         {
             return x == vec.x && y == vec.y;

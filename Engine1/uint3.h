@@ -30,6 +30,15 @@ namespace Engine1
             return &x;
         }
 
+        uint3& operator = ( const uint3& vec )
+        {
+            x = vec.x;
+            y = vec.y;
+            z = vec.z;
+
+            return *this;
+        }
+
         bool operator == (const uint3& vec) const
         {
             return x == vec.x && y == vec.y && z == vec.z;

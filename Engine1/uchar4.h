@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "float4.h"
+#include "uint4.h"
 
 namespace Engine1
 {
@@ -32,7 +33,7 @@ namespace Engine1
             return &x;
         }
 
-        uchar4& operator = (const uchar4& vec)
+        uchar4& operator = ( const uchar4& vec )
         {
             x = vec.x;
             y = vec.y;
@@ -150,6 +151,16 @@ namespace Engine1
                 (float)y,
                 (float)z,
                 (float)w
+            );
+        }
+
+        explicit operator uint4() const
+        {
+            return uint4(
+                (unsigned int)x,
+                (unsigned int)y,
+                (unsigned int)z,
+                (unsigned int)w
             );
         }
 

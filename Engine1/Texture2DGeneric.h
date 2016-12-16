@@ -10,6 +10,7 @@
 #include <wrl.h>
 
 #include "int2.h"
+#include "uchar4.h"
 #include "Texture2DEnums.h"
 #include "ImageLibrary.h"
 #include "Texture2DFileInfo.h"
@@ -118,14 +119,16 @@ namespace Engine1
 
         void initialize( ID3D11Device& device, Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture );
 
-        void createTextureOnCpu( const int width, const int height );
-        void createTextureOnCpu( const std::vector< PixelType >& data, const int width, const int height );
+        void createTextureOnCpu( const int width, const int height, const bool generateMipmaps );
+        void createTextureOnCpu( const std::vector< PixelType >& data, const int width, const int height, const bool generateMipmaps );
         // Re-interprets source data as the desired pixel type, removes padding at the end of each line and sets the data for the texture.
-        void createTextureOnCpu( const char* data, const int width, const int height, const int lineSize );
+        void createTextureOnCpu( const char* data, const int width, const int height, const int lineSize, const bool generateMipmaps );
+
+        void createMipmapsOnCpu( const int width, const int height, const int maxMipmapLevel = 0 );
 
         void createTextureOnGpu( ID3D11Device& device, const int width, const int height, const bool generateMipmaps, DXGI_FORMAT textureFormat );
 
-        void createTextureOnGpu( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, 
+        void createTextureOnGpu( ID3D11Device& device, const std::vector< std::vector< PixelType > >& dataMipmaps, const int width, const int height, 
                                  const bool generateMipmaps, DXGI_FORMAT textureFormat );
 
         void createTextureViewsOnGpu( ID3D11Device& device, const int width, const int height, const bool hasMipmaps, DXGI_FORMAT shaderResourceViewFormat, DXGI_FORMAT renderTargetViewFormat,
@@ -147,6 +150,9 @@ namespace Engine1
         UINT        getTextureMiscFlags();
 
         int formatToFreeImagePlusSaveFlag( Texture2DFileInfo::Format format ) const;
+
+        // Special averaging method used to avoid overflow for small integer types during mipmap calculations.
+        PixelType average( PixelType val1, PixelType val2, PixelType val3, PixelType val4 );
 
         Texture2DFileInfo m_fileInfo;
 
@@ -303,10 +309,10 @@ namespace Engine1
             + std::to_string( image.getBitsPerPixel() / 8 ) + " bytes) than texture PixelType (" + std::to_string( sizeof( PixelType ) )  + " bytes)." ).c_str() );
         }
 
-        createTextureOnCpu( (char*)image.accessPixels(), image.getWidth(), image.getHeight(), image.getLine() );
+        createTextureOnCpu( (char*)image.accessPixels(), image.getWidth(), image.getHeight(), image.getLine(), generateMipmaps );
 
         if ( storeOnGpu ) {
-            createTextureOnGpu( device, m_dataMipmaps.front(), image.getWidth(), image.getHeight(), generateMipmaps, textureFormat );
+            createTextureOnGpu( device, m_dataMipmaps, image.getWidth(), image.getHeight(), generateMipmaps, textureFormat );
             createTextureViewsOnGpu( device, image.getWidth(), image.getHeight(), generateMipmaps, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
@@ -339,7 +345,7 @@ namespace Engine1
             throw std::exception( "Texture2DGeneric::initialize - texture is set to be stored neither on CPU or GPU." );
 
         if ( storeOnCpu )
-            createTextureOnCpu( width, height );
+            createTextureOnCpu( width, height, hasMipmaps );
 
         if ( storeOnGpu ) {
             createTextureOnGpu( device, width, height, hasMipmaps, textureFormat );
@@ -372,13 +378,16 @@ namespace Engine1
             throw std::exception( "Texture2DGeneric::initialize - texture is set to be stored neither on CPU or GPU." );
 
         if ( storeOnCpu ) {
-            createTextureOnCpu( data, width, height );
-
-            // #TODO: generate mipmaps on CPU.
+            createTextureOnCpu( data, width, height, generateMipmaps );
         }
 
-        if ( storeOnGpu ) {
-            createTextureOnGpu( device, data, width, height, generateMipmaps, textureFormat );
+        if ( storeOnGpu ) 
+        {
+            std::vector< std::vector< PixelType > > inputDataMipmaps;
+            if ( !storeOnCpu )
+                inputDataMipmaps.push_back( data );
+
+            createTextureOnGpu( device, storeOnCpu ? m_dataMipmaps : inputDataMipmaps, width, height, generateMipmaps, textureFormat );
             createTextureViewsOnGpu( device, width, height, generateMipmaps, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         }
 
@@ -527,7 +536,7 @@ namespace Engine1
 
     template< typename PixelType >
     void Texture2DGeneric< PixelType >
-        ::createTextureOnCpu( const int width, const int height )
+        ::createTextureOnCpu( const int width, const int height, const bool generateMipmaps )
     {
         if ( width <= 0 || height <= 0)
             throw std::exception( "Texture2DGeneric::createTextureOnCpu - given width or height has zero or negative value." );
@@ -535,11 +544,14 @@ namespace Engine1
         m_dataMipmaps.clear();
         m_dataMipmaps.push_back( std::vector< PixelType >() );
         m_dataMipmaps.back().resize( width * height );
+
+        if ( generateMipmaps )
+            createMipmapsOnCpu( width, height );
     }
 
     template< typename PixelType >
     void Texture2DGeneric< PixelType >
-        ::createTextureOnCpu( const std::vector< PixelType >& data, const int width, const int height )
+        ::createTextureOnCpu( const std::vector< PixelType >& data, const int width, const int height, const bool generateMipmaps )
     {
         if ( width <= 0 || height <= 0)
             throw std::exception( "Texture2DGeneric::createTextureOnCpu - given width or height has zero or negative value." );
@@ -550,11 +562,14 @@ namespace Engine1
         m_dataMipmaps.clear();
         m_dataMipmaps.push_back( std::vector< PixelType >() );
         m_dataMipmaps.back().insert( m_dataMipmaps.back().begin(), data.cbegin(), data.cend() );
+
+        if ( generateMipmaps )
+            createMipmapsOnCpu( width, height );
     }
 
     template< typename PixelType >
     void Texture2DGeneric< PixelType >
-        ::createTextureOnCpu( const char* data, const int width, const int height, const int lineSize )
+        ::createTextureOnCpu( const char* data, const int width, const int height, const int lineSize, const bool generateMipmaps )
     {
         if ( width <= 0 || height <= 0)
             throw std::exception( "Texture2DGeneric::createTextureOnCpu - given width or height has zero or negative value." );
@@ -576,6 +591,59 @@ namespace Engine1
         } else {
             throw std::exception( "Texture2DGeneric::createTextureOnCpu - given line size is too small to store the pixels for the given width and pixel type." );
         }
+
+        if ( generateMipmaps )
+            createMipmapsOnCpu( width, height );
+    }
+
+    template< typename PixelType >
+    void Texture2DGeneric< PixelType >
+        ::createMipmapsOnCpu( const int width, const int height, const int maxMipmapLevel )
+    {
+        // If there is no image or it's 1x1 pixel - return.
+        if ( m_dataMipmaps.empty() || m_dataMipmaps.front().size() <= 1 )
+            return;
+
+        // Reset mipmaps - leave only the first one.
+        const int mipmapCount = 1 + (UINT)(floor( log2( std::max( width, height ) ) ));
+        m_dataMipmaps.reserve( mipmapCount );
+        m_dataMipmaps.resize( 1 );
+        
+
+        int prevMipmapWidth  = width;
+        int prevMipmapHeight = height;
+
+        // Loop until last mipmap is 1x1 pixel or we hit max given mipmap level.
+        while ( m_dataMipmaps.back().size() > 1 && ( maxMipmapLevel <= 0 || m_dataMipmaps.size() <= maxMipmapLevel ) )
+        {
+            const std::vector< PixelType >& prevMipmap = m_dataMipmaps.back();
+
+            // Add next empty mipmap.
+            m_dataMipmaps.push_back( std::vector< PixelType >() );
+            auto& nextMipmap = m_dataMipmaps.back();
+
+            const int nextMipmapWidth  = std::max( 1, prevMipmapWidth / 2 );
+            const int nextMipmapHeight = std::max( 1, prevMipmapHeight / 2 );
+
+            nextMipmap.resize( nextMipmapWidth * nextMipmapHeight );
+
+            for ( int y = 0; y < nextMipmapHeight; ++y )
+            {
+                for ( int x = 0; x < nextMipmapWidth; ++x ) 
+                {
+                    nextMipmap[ y * nextMipmapWidth + x ] = 
+                        average(
+                            prevMipmap[ ( 2 * y )     * prevMipmapWidth + 2 * x ],
+                            prevMipmap[ ( 2 * y )     * prevMipmapWidth + 2 * x + 1 ],
+                            prevMipmap[ ( 2 * y + 1 ) * prevMipmapWidth + 2 * x ],
+                            prevMipmap[ ( 2 * y + 1 ) * prevMipmapWidth + 2 * x + 1 ]
+                        );
+                }
+            }
+
+            prevMipmapWidth  = nextMipmapWidth;
+            prevMipmapHeight = nextMipmapHeight;
+        }
     }
 
     template< typename PixelType >
@@ -585,18 +653,14 @@ namespace Engine1
         if ( width <= 0 || height <= 0)
             throw std::exception( "Texture2DGeneric::createTextureOnGpu - given width or height has zero or negative value." );
 
-        // Note: for now, only texture which support mipmap generation on GPU can have mipmaps
-        // TODO: add manual creation of mipmaps on CPU to allow for mipmaps for different kinds of textures.
-        const UINT mipmapCount = supportsMipmapGenerationOnGpu() && generateMipmaps ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
-
-        generateMipmaps; // Unused.
+        const UINT mipmapCount = generateMipmaps ? (1 + (UINT)(floor( log2( std::max( width, height ))))) : 1;
 
         D3D11_TEXTURE2D_DESC desc;
         ZeroMemory( &desc, sizeof(desc) );
         desc.Width              = width;
         desc.Height             = height;
         desc.MipLevels          = mipmapCount;
-        desc.ArraySize          = mipmapCount;
+        desc.ArraySize          = 1;
         desc.Format             = textureFormat;
         desc.SampleDesc.Count   = 1;
         desc.SampleDesc.Quality = 0;
@@ -618,27 +682,30 @@ namespace Engine1
 
     template< typename PixelType >
     void Texture2DGeneric< PixelType >
-        ::createTextureOnGpu( ID3D11Device& device, const std::vector< PixelType >& data, const int width, const int height, 
+        ::createTextureOnGpu( ID3D11Device& device, const std::vector< std::vector< PixelType > >& dataMipmaps, const int width, const int height, 
                               const bool generateMipmaps, DXGI_FORMAT textureFormat )
     {
         if ( width <= 0 || height <= 0)
             throw std::exception( "Texture2DGeneric::createTextureOnGpu - given width or height has zero or negative value." );
 
-        if ( (int)data.size() != width * height )
+        if ( dataMipmaps.empty() )
+            throw std::exception( "Texture2DGeneric::createTextureOnGpu - given data is empty." );
+
+        if ( (int)dataMipmaps[0].size() != width * height )
             throw std::exception( "Texture2DGeneric::createTextureOnGpu - given data size doesn't match given width and height." );
 
-        // Note: for now, olny texture which support mipmap generation on GPU can have mipmaps.
-        // TODO: add manual creation of mipmaps on CPU to allow for mipmaps for different kinds of textures.
-        const UINT mipmapCount = supportsMipmapGenerationOnGpu() && generateMipmaps ? (1 + (UINT)(floor( log2( std::max( width, height ) ) ))) : 1;
-
-        generateMipmaps; // Unused.
+        // If it's possible - generate mipmaps on GPU, otherwise use the mipmaps generated on CPU.
+        const UINT mipmapCount = std::max(
+            (UINT)dataMipmaps.size(),
+            supportsMipmapGenerationOnGpu() && generateMipmaps ? ( 1 + (UINT)( floor( log2( std::max( width, height ))))) : 1
+        );
 
         D3D11_TEXTURE2D_DESC desc;
         ZeroMemory( &desc, sizeof(desc) );
         desc.Width              = width;
         desc.Height             = height;
         desc.MipLevels          = mipmapCount;
-        desc.ArraySize          = mipmapCount;
+        desc.ArraySize          = 1;
         desc.Format             = textureFormat;
         desc.SampleDesc.Count   = 1;
         desc.SampleDesc.Quality = 0;
@@ -647,14 +714,40 @@ namespace Engine1
         desc.CPUAccessFlags     = getTextureCPUAccessFlags();
         desc.MiscFlags          = getTextureMiscFlags();
 
-        D3D11_SUBRESOURCE_DATA dataDesc;
-        ZeroMemory( &dataDesc, sizeof(dataDesc) );
-        dataDesc.pSysMem          = data.data();
-        dataDesc.SysMemPitch      = sizeof(PixelType) * width;
-        dataDesc.SysMemSlicePitch = sizeof(PixelType) * width * height;
+        std::vector< D3D11_SUBRESOURCE_DATA > dataDesc;
+        if ( supportsMipmapGenerationOnGpu() )
+        {
+            dataDesc.resize( 1 );
 
-        HRESULT result = device.CreateTexture2D( &desc, &dataDesc, m_texture.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "Texture2DGeneric::createTextureOnGpu - creating texture on GPU failed." );
+            dataDesc[0].pSysMem          = dataMipmaps[0].data();
+            dataDesc[0].SysMemPitch      = sizeof( PixelType ) * width;
+            dataDesc[0].SysMemSlicePitch = sizeof( PixelType ) * width * height;
+        }
+        else
+        {
+            dataDesc.resize( mipmapCount );
+
+            int mipmapWidth  = width;
+            int mipmapHeight = height;
+
+            for ( int i = 0; i < (int)mipmapCount; ++i )
+            {
+                // Check if mipmap data size is correct.
+                if ( dataMipmaps[ i ].size() != mipmapWidth * mipmapHeight )
+                    throw std::exception( ("Texture2DGeneric::createTextureOnGpu - given data size for mipmap level " + std::to_string( i ) + " doesn't match expected width and height.").c_str() );
+
+                dataDesc[ i ].pSysMem          = dataMipmaps[ i ].data();
+                dataDesc[ i ].SysMemPitch      = sizeof( PixelType ) * mipmapWidth;
+                dataDesc[ i ].SysMemSlicePitch = sizeof( PixelType ) * mipmapWidth * mipmapHeight;
+
+                mipmapWidth  = std::max( 1, mipmapWidth / 2 );
+                mipmapHeight = std::max( 1, mipmapHeight / 2 );
+            }
+        }
+
+        HRESULT result = device.CreateTexture2D( &desc, dataDesc.data(), m_texture.ReleaseAndGetAddressOf() );
+        if ( result < 0 ) 
+            throw std::exception( "Texture2DGeneric::createTextureOnGpu - creating texture on GPU failed." );
 
         #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
         if ( !getFileInfo().getPath().empty() ) {
@@ -671,7 +764,7 @@ namespace Engine1
     {
         const UINT textureBindFlags = getTextureBindFlags();
 
-        const int mipmapCount = supportsMipmapGenerationOnGpu() && hasMipmaps ? (1 + (int)(floor( log2( std::max( width, height ) ) ))) : 1;
+        const int mipmapCount = hasMipmaps ? (1 + (int)(floor( log2( std::max( width, height ) ) ))) : 1;
 
         if ( (textureBindFlags & D3D11_BIND_SHADER_RESOURCE) != 0 ) {
             { // Create shader resource view to access all mipmap levels.
@@ -882,7 +975,7 @@ namespace Engine1
             throw std::exception( "Texture2DGeneric::loadCpuToGpu - texture is not in CPU memory." );
 
         if ( !isInGpuMemory() ) {
-            createTextureOnGpu( device, m_dataMipmaps.front(), m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
+            createTextureOnGpu( device, m_dataMipmaps, m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
             createTextureViewsOnGpu( device, m_width, m_height, getMipMapCountOnCpu() > 1, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
         } else {
             if ( supportsLoadCpuToGpu() ) {
@@ -898,7 +991,7 @@ namespace Engine1
                 deviceContext.Unmap( m_texture.Get(), 0 );
             } else {
                 unloadFromGpu();
-                createTextureOnGpu( device, m_dataMipmaps.front(), m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
+                createTextureOnGpu( device, m_dataMipmaps, m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
                 createTextureViewsOnGpu( device, m_width, m_height, getMipMapCountOnCpu() > 1, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
             }
         }
@@ -1124,5 +1217,43 @@ namespace Engine1
 
         return flags;
     }
+
+    template<>
+    inline unsigned char Texture2DGeneric< unsigned char >
+        ::average( unsigned char val1, unsigned char val2, unsigned char val3, unsigned char val4 )
+    {
+        // Note: Unsafe cast to smaller type.
+        return (unsigned char)( ((int)val1 + (int)val2 + (int)val3 + (int)val4) / 4 );
+    }
+
+    template<>
+    inline uchar4 Texture2DGeneric< uchar4 >
+        ::average( uchar4 val1, uchar4 val2, uchar4 val3, uchar4 val4 )
+    {
+        uint4 value = ((uint4)val1 + (uint4)val2 + (uint4)val3 + (uint4)val4) / 4;
+
+        // Note: Unsafe cast to smaller type.
+        return uchar4( (unsigned char)value.x, (unsigned char)value.y, (unsigned char)value.z, (unsigned char)value.w );
+    }
+
+    template<>
+    inline float Texture2DGeneric< float >
+        ::average( float val1, float val2, float val3, float val4 )
+    {
+        return (val1 + val2 + val3 + val4) / 4.0f;
+    }
+
+    template<>
+    inline float4 Texture2DGeneric< float4 >
+        ::average( float4 val1, float4 val2, float4 val3, float4 val4 )
+    {
+        return (val1 + val2 + val3 + val4) / 4.0f;
+    }
+
+    //template<typename PixelType>
+    //inline PixelType Texture2DGeneric<PixelType>::sum( PixelType val1, PixelType val2, PixelType val3, PixelType val4 )
+    //{
+    //    return PixelType();
+    //}
 }
 

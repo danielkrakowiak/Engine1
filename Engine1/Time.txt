@@ -331,3 +331,5 @@ Thu 08.12.2016 - 4h - Trying to f ix shadow blurring for pixels in soft shadow n
 Fri 09.12.2016 - 3h - Working on Lambo scene.
 Sat 10.12.2016 - 8h - Working on Lambo scene. Trying to fix issues with soft shadows - mostly failed.
 Sun 11.12.2016 - 10h - Fixed many shadow issues (but temporarily worsened sampling quality - banding etc) such as light leaking (by rejecting samples which are too far from blur center), 1-pixel wide light on the bottom-right part of objects (caused by imprecise texcoord caclulation in blur shader), gaps between shadows. Decided to simulate soft shadows only inside the area of hard shadows (not spreading to the outside) - because of I couldn't spread info about blur radius properly outisde of hard shadows - there were gaps where soft and hard shadows intersected. Tested shadows for semi-transparent objects.
+Wed 15.12.2016 - 3h - Adding mipmap generation on CPU.
+Thu 16.12.2016 - 1h - Added mipmap generation on CPU.

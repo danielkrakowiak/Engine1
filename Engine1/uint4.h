@@ -31,6 +31,16 @@ namespace Engine1
             return &x;
         }
 
+        uint4& operator = ( const uint4& vec )
+        {
+            x = vec.x;
+            y = vec.y;
+            z = vec.z;
+            w = vec.w;
+
+            return *this;
+        }
+
         bool operator == (const uint4& vec) const
         {
             return x == vec.x && y == vec.y && z == vec.z && w == vec.w;
@@ -39,6 +49,92 @@ namespace Engine1
         bool operator != (const uint4& vec) const
         {
             return x != vec.x || y != vec.y || z != vec.z || w != vec.w;
+        }
+
+        uint4 operator + ( const uint4& vec ) const
+        {
+            return uint4( x + vec.x, y + vec.y, z + vec.z, w + vec.w );
+        }
+
+        uint4 operator - ( const uint4& vec ) const
+        {
+            return uint4( x - vec.x, y - vec.y, z - vec.z, w - vec.w );
+        }
+
+        uint4 operator * ( const unsigned char value ) const
+        {
+            return uint4( x * value, y * value, z * value, w * value );
+        }
+
+        //Per-component multiplication
+        uint4 operator * ( const uint4& vec ) const
+        {
+            return uint4( x * vec.x, y * vec.y, z * vec.z, w * vec.w );
+        }
+
+        uint4 operator / ( const unsigned char value ) const
+        {
+            return uint4( x / value, y / value, z / value, w / value );
+        }
+
+        //Per-component division
+        uint4 operator / ( const uint4& vec ) const
+        {
+            return uint4( x / vec.x, y / vec.y, z / vec.z, w / vec.w );
+        }
+
+        uint4& operator += ( const unsigned char value )
+        {
+            x += value;
+            y += value;
+            z += value;
+            w += value;
+            return *this;
+        }
+
+        uint4& operator -= ( const unsigned char value )
+        {
+            x -= value;
+            y -= value;
+            z -= value;
+            w -= value;
+            return *this;
+        }
+
+        uint4& operator *= ( const unsigned char value )
+        {
+            x *= value;
+            y *= value;
+            z *= value;
+            w *= value;
+            return *this;
+        }
+
+        uint4& operator /= ( const unsigned char value )
+        {
+            x /= value;
+            y /= value;
+            z /= value;
+            w /= value;
+            return *this;
+        }
+
+        uint4& operator += ( const uint4& value )
+        {
+            x += value.x;
+            y += value.y;
+            z += value.z;
+            w += value.w;
+            return *this;
+        }
+
+        uint4& operator -= ( const uint4& value )
+        {
+            x -= value.x;
+            y -= value.y;
+            z -= value.z;
+            w -= value.w;
+            return *this;
         }
 
         explicit operator float4() const
