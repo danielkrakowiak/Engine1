@@ -151,7 +151,7 @@ void SceneManager::saveScene( std::string path )
     m_scene->saveToFile( path );
 }
 
-void SceneManager::loadAsset( std::string filePath, const bool replaceSelected )
+void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, const bool invertZ )
 {
     const size_t dotIndex = filePath.rfind( "." );
     if ( dotIndex == std::string::npos )
@@ -235,7 +235,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected )
         // We try to parse meshes with increasing index in file until it fails.
         for ( int indexInFile = 0; true; ++indexInFile ) {
             try {
-                BlockMeshFileInfo fileInfo( filePath, format, indexInFile, true, true, true ); // Note: Convert to right hand coord system.
+                BlockMeshFileInfo fileInfo( filePath, format, indexInFile, invertZ, invertZ, invertZ ); // Note: Convert to right hand coord system.
                 std::shared_ptr< BlockMesh > mesh = std::static_pointer_cast<BlockMesh>( m_assetManager.getOrLoad( fileInfo ) );
 
                 if ( !mesh->getBvhTree() )
@@ -281,7 +281,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected )
         // We try to parse meshes with increasing index in file until it fails.
         for ( int indexInFile = 0; true; ++indexInFile ) {
             try {
-                SkeletonMeshFileInfo fileInfo( filePath, format, 0, true, true, true ); // Note: Convert to right hand coord system.
+                SkeletonMeshFileInfo fileInfo( filePath, format, 0, invertZ, invertZ, invertZ ); // Note: Convert to right hand coord system.
                 std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>( m_assetManager.getOrLoad( fileInfo ) );
                 if ( !mesh->isInGpuMemory() )
                     mesh->loadCpuToGpu( *m_device.Get() );

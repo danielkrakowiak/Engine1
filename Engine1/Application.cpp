@@ -1299,9 +1299,11 @@ void Application::onDragAndDropFile( std::string filePath )
 	if ( filePath.find( "\\" ) == 0 )
 		filePath = filePath.substr( 1 );
 
-    const bool replaceSelected = m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
+    // Temporarily always replace assets. Holding Ctrl is too hard...
+    const bool replaceSelected = true; //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
+    const bool invertZ         = !m_inputManager.isKeyPressed( InputManager::Keys::shift );
 
-    m_sceneManager.loadAsset( filePath, replaceSelected );
+    m_sceneManager.loadAsset( filePath, replaceSelected, invertZ );
 
     m_renderer.renderShadowMaps( m_sceneManager.getScene() );
 }

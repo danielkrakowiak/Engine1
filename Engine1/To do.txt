@@ -328,11 +328,14 @@ Idea:
 
 	  //////////////////////
 
+
 	   Maybe I can somehow glue buffers together???????? Send them as one to shader despite being many...
 
 	   Higher shader profile???
 
 	  /////////////////////
+
+	  OPTIMIZATION: Calculate pixel position from depth - at least for first reflection/refraction... How about further levels?
 
 	  IDEA: Geometrically incorrect shadow:
 
@@ -357,6 +360,9 @@ Idea:
 	  - render first shadow map normally - like it is now - the closest object to light is visibile in SM.
 	  - render second shadow map, but only the pixels with greater depth than the prev SM. This SM will have all shadowed pixels...
 
+	  - WAAARNING: Depth peeling may also fail? Because it will still get the closest-to-light-dist, but one greater than the closest. And we need the furthest-from-light but closer than some surface... 
+	  How to achieve that? Inverted depth test with some maximum? How to know the maximum easily? Read it from screen?
+
 	  - By comparing the distance between first and second SM we know the dist-to-occluder.
 
 	  //////////////////
@@ -376,7 +382,8 @@ Idea:
 
 	  - point lights are not working correctly - I need to support them through raytracing everything. Without sampling preillumination etc..
 
-	  - IMPORTANT PROBLEM: when writing distance to occluder in rasterizing shadow map step - we always save it for the closest object... But when two objects cast shadow... the distance to occluder should be saved for the one which gives the most sharp shadow...
+	  - IMPORTANT PROBLEM: when writing distance to occluder in rasterizing shadow map step - we always save it for the closest object... But when two objects cast shadow... the distance to occluder should be saved for the one which gives the most sharp shadow..
+	  
 
 	  - OPTIMIZATION: When I read from raw buffers in raytracing shaders I can read multiple values at once. Using Load2, Load3, Load4 methods... I need to try it!!
 
@@ -487,6 +494,8 @@ Idea:
 	  - cubemap texture class - to use for skybox
 
 	  MUCH LATER:
+
+	  - I could implement a GPU path tracer to be able to compare normal renderer with physically perfect renderer. That could help a lot in my pursuit of great quality.
 
 	  - BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But rougness textures or emissive may have completely different dimensions and be placed differently in the atlas.
 	  So we somehow have to enforce layout withing the atlas based on the first created atlas. How to deal with big textures?
