@@ -88,7 +88,7 @@ void main( uint3 groupId : SV_GroupID,
     if ( dot( lightDirection, -rayDir ) < lightConeMinDot ) {
         // Preserve illumination from shadow map. 
         // #TODO: It may be needed to raytrace shadows slightly outiside of spot light cone to ensure proper blurring of soft shadows.
-        g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
+        //g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
         return;
     }
 
@@ -103,15 +103,18 @@ void main( uint3 groupId : SV_GroupID,
         //#TODO: This write should be avoided. There is not point to write the same copied value each time this shader is run...
         // This could be done in the first pass. Just copying values from preillumination texture. Or preillumination could be copied entirely using a copy drawcall.
 
-    //    g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
-    //    return;
+        //g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
+        //return;
     //}
     //else
     //{
-    //    // Raytrace!!!
-    //    g_illumination[ dispatchThreadId.xy ] = 128;
-    //    return;
+        // Raytrace!!!
+        //g_illumination[ dispatchThreadId.xy ] = 128;
+        //return;
     //}
+
+    //return; // TO TEST SHADOW MAPPING
+    /////////////////////////////////////
 
 	const float3 surfaceNormal  = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
     const float  normalLightDot = dot( surfaceNormal, rayDir );
@@ -137,6 +140,8 @@ void main( uint3 groupId : SV_GroupID,
     
     // We only care about intersections closer to ray origin than the light source. #TODO: Or all of them? - alpha etc, illumination?
     float farthestHitDist = 0.0f;
+
+    // #OPTIMIZATION: Could be more effective to trace ray from light to surface - because we care about the nearest to light intersection. Easier to skip other objects. 
 
     //[loop]
     //for ( uint actorIdx = 0; actorIdx < actorCount; ++actorIdx )

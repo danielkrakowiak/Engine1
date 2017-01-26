@@ -373,6 +373,12 @@
     <Filter Include="Header Files\Shader\BlurShadows">
       <UniqueIdentifier>{c8529707-0f7c-4333-9fb4-0e86a8e5791a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\ReplaceValue">
+      <UniqueIdentifier>{7cf89a87-1c88-434d-98fd-010807d97b9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\ReplaceValue">
+      <UniqueIdentifier>{887dba40-9150-4a80-9248-f5da893fd4f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -828,6 +834,12 @@
     <ClInclude Include="BlurShadowsRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="ReplaceValueComputeShader.h">
+      <Filter>Header Files\Shader\ReplaceValue</Filter>
+    </ClInclude>
+    <ClInclude Include="ReplaceValueRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1253,6 +1265,12 @@
     <ClCompile Include="Texture2DGeneric.cpp">
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
+    <ClCompile Include="ReplaceValueComputeShader.cpp">
+      <Filter>Source Files\Shader\ReplaceValue</Filter>
+    </ClCompile>
+    <ClCompile Include="ReplaceValueRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1409,6 +1427,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\BlurShadows\BlurShadows_cs.hlsl">
       <Filter>Source Files\Shader\BlurShadows</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ReplaceValueShader\ReplaceValue_cs.hlsl">
+      <Filter>Source Files\Shader\ReplaceValue</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

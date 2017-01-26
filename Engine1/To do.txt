@@ -42,6 +42,10 @@
 	- [ Texture copy ] When copying texture GPU - GPU we should check if their dimensions are the same - otherwise throw exception.
 20.09.2016
 	- [ BinaryFile ] Reading/Writing could a template method - able to read any type from file - such as int/float/float3 - it works as a copy anyways...
+25.01.2016
+	- [RendererCore - refactoring] RendererCore::copyTexture method is a template, so any texture works fine when passed. 
+	  But compiler cannot deduce template parameter type and perform implicit type conversions at the same type, so it's confused and fails to compile.
+	  How to avoid having to explicitly cast textures to avoid compiler confusion? Add some methods for the most common texture types and use template version inside?
 
 For later ######################################################################################################################
 
@@ -504,6 +508,26 @@ Idea:
 
 	  - ideas to optimize blurring using shared memory: http://shiba.hpe.cn/jiaoyanzu/WULI/%E6%96%87%E4%BB%B6/soft/directX/Introduction_to_3D_Game_Programming_with_Directx_12.pdf
 	    page 721
+
+	  FINAL TODO: ---------------------------------------------------------------
+
+	  - add replacing blur radius at the end of raytracing to 0 for all untouched pixels.
+
+	  - [LOOKS DONE] raytracing should store dist-to-occluder nearest to light source - 
+	  - check if dist-to-ocluder is same for Shadow Mapping and RT
+	  - make sure blur-radius is ok in shadowed areas for Shadow Mapping - there are weird problems at shadow intersections between near and far objects.
+	  - why rasterizing shadow shader reads previous blur radius value? Is there anyvalue there before that shader is run? What's the point?
+	  - IDEA: Sample shadow map with bilinear filtering to get dist-to-occluder - that should make transitions between big pixels smoother. But be careful when to use or not bilinear sampling.
+	  - HOPE: With good filtering of blur radius, good blur radius from ray tracing on edges it could be feasible...
+	  - IMPORTANT: Set initial blur radius (when clearing texture) to 0, not 1000. It improves filtering, mipmaping etc. 
+	    Also sample blur radius at level 4,5 with bilinear filtering. It gives good results for Shadow Mapping.
+		Or replace pixels with initial (1000) blur radius at the end, before usign to 0.
+
+	  - some nice antialiasing of shadow could be achieved by limiting minimal blur value to let's say 1 or 2.
+	  - display name of currently showed render target
+	  - Add some antialiasing?
+
+	  ---------------------------------------------------------------------------
 
 	  Sources: 
 

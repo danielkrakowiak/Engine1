@@ -327,9 +327,16 @@ Sun 04.12.2016 - 2h - Added BlurShadowsRenderer and BlurShadowsComputeShader - e
 Mon 05.12.2016 - 2h - Fixing issues and artefacts in soft shadows. Added modifyable emitter radius field to light. Added light info display.
 Tue 06.12.2016 - 6h - Modified shadow map projection matrix to include regions slightly outiside of spot light's cone - to ensure proper soft shadow blurring near cone limits. Modified raytracing shadows shader to use illumination from shadow map in those regions. Fixed min-value-mipmap generation for dist-to-occluder texture. Added debug display of specific mipmap level. Modifying dist-to-occluder calculations to store illumination-blur-radius instead.
 Wed 07.12.2016 - 6h - Modified dist-to-occluder calculations to store illumination-blur-radius instead. It's because blur radius should not be spread more than it's value during min-value-mipmap generation - and with dist-to-occluder there is no way of knowing how much to spread each value. Trying to improve intersections of hard shadows with soft shadows. Fixed a problem that soft shadow (large blur) overwrites hard shadow (small blur).
-Thu 08.12.2016 - 4h - Trying to f ix shadow blurring for pixels in soft shadow near hard shadow - to avoid blurring in parts of the hard shadow. Added lamborghini scene.
+Thu 08.12.2016 - 4h - Trying to fix shadow blurring for pixels in soft shadow near hard shadow - to avoid blurring in parts of the hard shadow. Added lamborghini scene.
 Fri 09.12.2016 - 3h - Working on Lambo scene.
 Sat 10.12.2016 - 8h - Working on Lambo scene. Trying to fix issues with soft shadows - mostly failed.
 Sun 11.12.2016 - 10h - Fixed many shadow issues (but temporarily worsened sampling quality - banding etc) such as light leaking (by rejecting samples which are too far from blur center), 1-pixel wide light on the bottom-right part of objects (caused by imprecise texcoord caclulation in blur shader), gaps between shadows. Decided to simulate soft shadows only inside the area of hard shadows (not spreading to the outside) - because of I couldn't spread info about blur radius properly outisde of hard shadows - there were gaps where soft and hard shadows intersected. Tested shadows for semi-transparent objects.
 Wed 15.12.2016 - 3h - Adding mipmap generation on CPU.
 Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
+--- December 2016 - 48h
+
+--- 2016 - 566h
+
+24.01.2016 - 2h - Trying to figure a way to solve soft shadow problems - especially crossing of soft vs hard shadows while deducing dist-to-occluder from a Shadow Map.
+25.01.2016 - 3h - Trying to figure a way to solve soft shadow problems - got good improvement by blurring blur-radius texture. Had to replace all maximum blur radius values with 0 before blurring. Added ReplaceValueRenderer, ReplaceValueComputeShader classes. 
+26.01.2016 - 1h - Finished ReplaceValue shader and renderer. Testing shadow intersections using Ray Tracing.

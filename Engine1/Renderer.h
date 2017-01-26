@@ -16,6 +16,7 @@
 #include "ShadowMapRenderer.h"
 #include "MipmapMinValueRenderer.h"
 #include "BlurShadowsRenderer.h"
+#include "ReplaceValueRenderer.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -179,6 +180,7 @@ namespace Engine1
 		ShadowMapRenderer                   m_shadowMapRenderer;
         MipmapMinValueRenderer              m_mipmapMinValueRenderer;
         BlurShadowsRenderer                 m_blurShadowsRenderer;
+        ReplaceValueRenderer                m_replaceValueRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

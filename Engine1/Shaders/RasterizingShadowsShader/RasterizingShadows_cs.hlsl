@@ -52,8 +52,8 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    return;
-    /////////////////////////////
+
+    return; // FOR TEST
 
 
     // Note: Calculate texcoords for the pixel center.
@@ -114,10 +114,10 @@ void main( uint3 groupId : SV_GroupID,
             const float rayOriginDistToOccluder = max( 0.0f, rayOriginDistToLight - occluderDistToLight );
             const float rayOriginDistToCamera   = length( rayOrigin - cameraPosition );
 
-            const float prevBlurRadius = g_illuminationBlurRadius[ dispatchThreadId.xy ];
+            //const float prevBlurRadius = g_illuminationBlurRadius[ dispatchThreadId.xy ];
             const float blurRadius     = calculateIlluminationBlurRadius( lightEmitterRadius, rayOriginDistToOccluder, occluderDistToLight, rayOriginDistToCamera );
 
-            g_illuminationBlurRadius[ dispatchThreadId.xy ] = min( prevBlurRadius, blurRadius );
+            g_illuminationBlurRadius[ dispatchThreadId.xy ] = /*min( prevBlurRadius, */blurRadius; //);
             g_illumination[ dispatchThreadId.xy ]           = 0;
             return;
         }

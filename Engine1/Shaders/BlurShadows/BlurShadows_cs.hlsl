@@ -71,7 +71,7 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    float blurRadius          = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
+    float blurRadius          = g_illuminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 1.5f );
     float samplingRadius      = blurRadius;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
@@ -119,8 +119,8 @@ void main( uint3 groupId : SV_GroupID,
                     surfaceIllumination += sampleIllumination;
 
                     // Add fully lit samples twice.
-                    if ( sampleIllumination > 0.99f )
-                        surfaceIllumination += sampleIllumination;
+                    //if ( sampleIllumination > 0.99f )
+                    //    surfaceIllumination += sampleIllumination;
                     
                     //const float weightFromIllumination = sampleIllumination * 0.5f + 0.5f; // Note: To correct the transition from black to white, which would otherwise be from black to gray.
                     
