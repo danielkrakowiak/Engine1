@@ -96,8 +96,8 @@ namespace Engine1
         void disableShaderInputs();
 
         template< typename T >
-        void copyTexture( std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, T > > destTexture, const int destMipmap,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, T > > srcTexture, const int srcMipmap );
+        void copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
+                          const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture, const int srcMipmap );
 
 		template< typename T >
 		void copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
@@ -174,20 +174,20 @@ namespace Engine1
 	}
 
     template< typename T >
-    void Direct3DRendererCore::copyTexture( std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, T > > destTexture, const int destMipmap,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, T > > srcTexture, const int srcMipmap )
+    void Direct3DRendererCore::copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
+                                            const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture, const int srcMipmap )
     {
         if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
 
         D3D11_BOX sourceRregion;
-        sourceRregion.left = 0;
-        sourceRregion.right = srcTexture->getWidth();
-        sourceRregion.top = 0;
-        sourceRregion.bottom = srcTexture->getHeight();
-        sourceRregion.front = 0;
-        sourceRregion.back = 1;
+        sourceRregion.left   = 0;
+        sourceRregion.right  = srcTexture.getWidth();
+        sourceRregion.top    = 0;
+        sourceRregion.bottom = srcTexture.getHeight();
+        sourceRregion.front  = 0;
+        sourceRregion.back   = 1;
 
-        m_deviceContext->CopySubresourceRegion( destTexture->getTextureResource().Get(), (UINT)destMipmap, 0, 0, 0, srcTexture->getTextureResource().Get(), srcMipmap, &sourceRregion );
+        m_deviceContext->CopySubresourceRegion( destTexture.getTextureResource().Get(), (UINT)destMipmap, 0, 0, 0, srcTexture.getTextureResource().Get(), srcMipmap, &sourceRregion );
     }
 
     template< typename T >

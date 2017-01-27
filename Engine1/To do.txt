@@ -527,6 +527,18 @@ Idea:
 	  - display name of currently showed render target
 	  - Add some antialiasing?
 
+	  - TO TEST: When bluring shadows - use a shadow sample if it blur-radius is similar to shadow sample blur-radius. Requires more reads, but may improve shadow mixing.
+
+	  IDEA: Have 2 textures. In one, spread minimal blur-radius samples. In other, spread maximal blur-radius samples. Then, join both textures?
+
+	  REFACTOR: I could have utulity renderer which does some operations on textures - such as min, max, spread min/max?
+
+	  PERF/QUALITY: Limit screen space or world space shadow blur? And than use that limit to reduce the number of passes required to spread values 
+	  (knowing that values are decresing while being spread). If possible...
+
+	  - Spreading soft shadow through hard shadow works pretty well, but it's a bit too much. There is this dark glow around hard shadows...
+	    How to reduce it? Faster decresing blur-radius values with number of spreading passes?
+
 	  ---------------------------------------------------------------------------
 
 	  Sources: 

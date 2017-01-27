@@ -289,6 +289,7 @@
     <ClInclude Include="GenerateMipmapMinValueVertexShader.h" />
     <ClInclude Include="GenerateReflectedRaysComputeShader.h" />
     <ClInclude Include="GenerateRefractedRaysComputeShader.h" />
+    <ClInclude Include="MergeValueComputeShader.h" />
     <ClInclude Include="MeshUtil.h" />
     <ClInclude Include="MipmapMinValueRenderer.h" />
     <ClInclude Include="Model.h" />
@@ -304,7 +305,6 @@
     <ClInclude Include="RefractionShadingComputeShader.h" />
     <ClInclude Include="RefractionShadingComputeShader2.h" />
     <ClInclude Include="ReplaceValueComputeShader.h" />
-    <ClInclude Include="ReplaceValueRenderer.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="ShadingComputeShader0.h" />
     <ClInclude Include="ShadingComputeShader2.h" />
@@ -339,6 +339,8 @@
     <ClInclude Include="SkeletonModelVertexShader.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="SpotLightParser.h" />
+    <ClInclude Include="SpreadValueComputeShader.h" />
+    <ClInclude Include="UtilityRenderer.h" />
     <ClInclude Include="StagingTexture2D.h" />
     <ClInclude Include="TextFile.h" />
     <ClInclude Include="FontLibrary.h" />
@@ -443,6 +445,7 @@
     <ClCompile Include="GenerateMipmapMinValueVertexShader.cpp" />
     <ClCompile Include="GenerateReflectedRaysComputeShader.cpp" />
     <ClCompile Include="GenerateRefractedRaysComputeShader.cpp" />
+    <ClCompile Include="MergeValueComputeShader.cpp" />
     <ClCompile Include="MeshUtil.cpp" />
     <ClCompile Include="MipmapMinValueRenderer.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -458,7 +461,6 @@
     <ClCompile Include="RefractionShadingComputeShader.cpp" />
     <ClCompile Include="RefractionShadingComputeShader2.cpp" />
     <ClCompile Include="ReplaceValueComputeShader.cpp" />
-    <ClCompile Include="ReplaceValueRenderer.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="ShadingComputeShader0.cpp" />
     <ClCompile Include="ShadingComputeShader2.cpp" />
@@ -492,6 +494,8 @@
     <ClCompile Include="SkeletonModelVertexShader.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="SpotLightParser.cpp" />
+    <ClCompile Include="SpreadValueComputeShader.cpp" />
+    <ClCompile Include="UtilityRenderer.cpp" />
     <ClCompile Include="TextFile.cpp" />
     <ClCompile Include="FontLibrary.cpp" />
     <ClCompile Include="ImageLibrary.cpp" />
@@ -890,6 +894,17 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\GenerateRefractedRaysShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\GenerateRefractedRaysShader\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="Shaders\MergeValueShader\MergeMinValue_cs.hlsl">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\MergeValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\MergeValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\MergeValueShader\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Shaders\RasterizingShadowsShader\RasterizingShadows_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -1215,6 +1230,28 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\SkeletonModelShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\SkeletonModelShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\SkeletonModelShader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\SpreadValueShader\SpreadMaxValue_cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\SpreadValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\SpreadValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\SpreadValueShader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\SpreadValueShader\SpreadMinValue_cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\SpreadValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\SpreadValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\SpreadValueShader\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="Shaders\TextShader\Text_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

@@ -44,7 +44,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
 	m_shadowMapRenderer( rendererCore ),
     m_mipmapMinValueRenderer( rendererCore ),
     m_blurShadowsRenderer( rendererCore ),
-    m_replaceValueRenderer( rendererCore ),
+    m_utilityRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_maxLevelCount( 0 )
 {}
@@ -73,7 +73,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
 	m_shadowMapRenderer.initialize( device, deviceContext );
     m_mipmapMinValueRenderer.initialize( device, deviceContext );
     m_blurShadowsRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-    m_replaceValueRenderer.initialize( device, deviceContext );
+    m_utilityRenderer.initialize( device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
@@ -359,8 +359,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         // #TODO: Should be profiled.
         // Fill illumination texture with pre-illumination data.
         m_rendererCore.copyTexture( 
-            std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getIlluminationTexture() ), 0,
-            std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getIlluminationTexture() ), 0 
+            static_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( *m_raytraceShadowRenderer.getIlluminationTexture() ), 0,
+            static_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( *m_rasterizeShadowRenderer.getIlluminationTexture() ), 0 
         );
         
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
@@ -384,13 +384,34 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
 
-        auto illuminationBlurRadiusTexture = m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture();
+        auto illuminationMinBlurRadiusTexture = m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture();
+
+        // #TODO: Create this texture only once!!! Not every frame!!!!
+        auto illuminationMaxBlurRadiusTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+            ( *m_device.Get(), illuminationMinBlurRadiusTexture->getWidth(), illuminationMinBlurRadiusTexture->getHeight(), false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
+
+        m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTexture, *illuminationMinBlurRadiusTexture, 0 );
+
+        // #TODO: Should be run for lower level mipmap to save bandwidth.
+        // Note: Low blur-radius values are not spread far, because it's useless anyways 
+        // (that shadow which has low blur-radius won't reach here). 
+        // It's better to allow other shadow to spread their blur-radius in such places.
+        //    // Note: Log used, because for higher passes this requirement should be relaxed more and more.
+        //    // Because when we spread blur-radius for far away shadows the number of step required to
+        //    // do that may vary a lot depending on the situation.
+        
+        // #TODO: Should be profiled.
+        m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 500.0f, 0.0f );
+        m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 400, 500.0f, 0 );
 
         // #TODO: Should be profiled.
-        m_replaceValueRenderer.replaceValues( illuminationBlurRadiusTexture, 999.0f, 0.0f );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 400, 500.0f, 0 );
+        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 500.0f, 0.0f );
+
+        m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );
 
         // #TODO: Should be profiled.
-        illuminationBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
+        illuminationMinBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
         //m_mipmapMinValueRenderer.generateMipmapsMinValue( illuminationBlurRadiusTexture );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
@@ -403,7 +424,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getNormalRenderTarget(),
             //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
             m_raytraceShadowRenderer.getIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
-            illuminationBlurRadiusTexture,
+            illuminationMinBlurRadiusTexture,
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -430,8 +451,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
     // Copy main shaded image to final render target.
     // Note: I have to explicitly cast textures, because otherwise the compiler fails to deduce the template parameters for the method.
     m_rendererCore.copyTexture( 
-        std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( m_finalRenderTarget ), 0, 
-        std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( m_shadingRenderer.getColorRenderTarget() ), 0 
+        static_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( *m_finalRenderTarget ), 0, 
+        static_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( *m_shadingRenderer.getColorRenderTarget() ), 0 
     );
 
     m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );

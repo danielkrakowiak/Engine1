@@ -20,8 +20,8 @@ float4 main(PixelInputType input) : SV_Target
 
     // Useful to show very high value pixels.
     //////////////////////////////////////////////////////////////////
-    //if (textureColor.r > 1.5f)
-    //    textureColor /= 50.0f;
+    if (textureColor.r > 1.5f)
+        textureColor /= 100.0f;
     //////////////////////////////////////////////////////////////////
 
 	return textureColor;
