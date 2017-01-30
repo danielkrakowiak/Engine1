@@ -1208,15 +1208,18 @@ void Application::onKeyPress( int key )
         m_renderer.setActiveViewType( Renderer::View::Preillumination );
         m_debugDisplayedMipmapLevel = 0;
     } else if ( key == InputManager::Keys::f4 ) {
-        m_renderer.setActiveViewType( Renderer::View::Illumination );
+        m_renderer.setActiveViewType( Renderer::View::HardIllumination );
         m_debugDisplayedMipmapLevel = 0;
     } else if ( key == InputManager::Keys::f5 ) {
-        m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
+        m_renderer.setActiveViewType( Renderer::View::SoftIllumination );
         m_debugDisplayedMipmapLevel = 0;
     } else if ( key == InputManager::Keys::f6 ) {
-        m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
+        m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
         m_debugDisplayedMipmapLevel = 0;
     } else if ( key == InputManager::Keys::f7 ) {
+        m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f8 ) {
         m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
         m_debugDisplayedMipmapLevel = 0;
 	} else if ( key == InputManager::Keys::f12 ) {

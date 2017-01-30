@@ -22,8 +22,9 @@ SamplerState g_pointSamplerState;
 // Input.
 Texture2D<float4> g_positionTexture               : register( t0 );
 Texture2D<float4> g_normalTexture                 : register( t1 ); 
-Texture2D<float>  g_illuminationTexture           : register( t2 ); 
-Texture2D<float>  g_illuminationBlurRadiusTexture : register( t3 );
+Texture2D<float>  g_hardIlluminationTexture       : register( t2 ); 
+Texture2D<float>  g_softIlluminationTexture       : register( t3 ); 
+Texture2D<float>  g_illuminationBlurRadiusTexture : register( t4 );
 
 // Input / Output.
 RWTexture2D<float4> g_blurredIlluminationTexture : register( u0 );
@@ -79,7 +80,7 @@ void main( uint3 groupId : SV_GroupID,
 
     if ( samplingRadius <= 0.0001f || samplingRadius > maxBlurRadius )
     {
-        surfaceIllumination = g_illuminationTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
+        surfaceIllumination = g_hardIlluminationTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
     }
     else
     {
@@ -101,9 +102,18 @@ void main( uint3 groupId : SV_GroupID,
                 //#TODO: When we sample outside of light cone - the sample should be black.
 
                 //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
-                const float  sampleIllumination = g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
+                const float  sampleHardIllumination = g_hardIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
+                const float  sampleSoftIllumination = g_softIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
                 //const float  sampleBlurRadius   = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f );
                 //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
+                
+                // #TODO: Should use blurradius in world-space, not in screen-space.
+                const float illuminationSoftness = min( 1.0f, blurRadius / 40.0f );
+                const float illuminationHardness = 1.0f - illuminationSoftness;
+
+                //const float sampleIllumination = illuminationSoftness * sampleSoftIllumination;//lerp( sampleHardIllumination, sampleSoftIllumination, illuminationSoftness );//illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
+                const float sampleIllumination = illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
+                
                 const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
 
                 float sampleWeight = 1.0f;

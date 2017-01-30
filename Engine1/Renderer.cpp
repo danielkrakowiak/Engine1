@@ -359,8 +359,13 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         // #TODO: Should be profiled.
         // Fill illumination texture with pre-illumination data.
         m_rendererCore.copyTexture( 
-            static_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( *m_raytraceShadowRenderer.getIlluminationTexture() ), 0,
+            static_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( *m_raytraceShadowRenderer.getHardIlluminationTexture() ), 0,
             static_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( *m_rasterizeShadowRenderer.getIlluminationTexture() ), 0 
+        );
+
+        m_rendererCore.copyTexture(
+            static_cast<Texture2DSpecUsage< TexUsage::Default, unsigned char >>( *m_raytraceShadowRenderer.getSoftIlluminationTexture() ), 0,
+            static_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( *m_rasterizeShadowRenderer.getIlluminationTexture() ), 0
         );
         
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
@@ -379,7 +384,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
 
-        m_raytraceShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        m_raytraceShadowRenderer.getHardIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        m_raytraceShadowRenderer.getSoftIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
@@ -402,10 +408,10 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         
         // #TODO: Should be profiled.
         m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 500.0f, 0.0f );
-        m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 400, 500.0f, 0 );
+        m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 500, 500.0f, 0 );
 
         // #TODO: Should be profiled.
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 400, 500.0f, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 50, 500.0f, 0 );
         //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 500.0f, 0.0f );
 
         m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );
@@ -423,7 +429,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getPositionRenderTarget(),
             m_deferredRenderer.getNormalRenderTarget(),
             //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-            m_raytraceShadowRenderer.getIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
+            m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
+            m_raytraceShadowRenderer.getSoftIlluminationTexture(),
             illuminationMinBlurRadiusTexture,
             *lightsCastingShadows[ lightIdx ]
         );
@@ -481,8 +488,10 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                 return std::make_tuple( true, m_deferredRenderer.getIndexOfRefractionRenderTarget(), nullptr, nullptr, nullptr, nullptr );
 			case View::Preillumination:
 				return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
-            case View::Illumination:
-                return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::HardIllumination:
+                return std::make_tuple( true, m_raytraceShadowRenderer.getHardIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::SoftIllumination:
+                return std::make_tuple( true, m_raytraceShadowRenderer.getSoftIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::BlurredIllumination:
                 return std::make_tuple( true, m_blurShadowsRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::SpotlightDepth:
@@ -570,8 +579,8 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
                 return std::make_tuple( true, m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 ), nullptr, nullptr, nullptr, nullptr );
             case View::Preillumination:
                 return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
-            case View::Illumination:
-                return std::make_tuple( true, m_raytraceShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::HardIllumination:
+                return std::make_tuple( true, m_raytraceShadowRenderer.getHardIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
         }
     }
 

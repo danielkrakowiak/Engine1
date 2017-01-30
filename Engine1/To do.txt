@@ -539,6 +539,14 @@ Idea:
 	  - Spreading soft shadow through hard shadow works pretty well, but it's a bit too much. There is this dark glow around hard shadows...
 	    How to reduce it? Faster decresing blur-radius values with number of spreading passes?
 
+		- Get rid of that blur-radius temp texture being created and destroyed every frame. But only once the technique works...
+
+		IDEA: Write shadows to two textures - one for soft shadows and one for hard shadows. Each shadow is in fact saved to both textures, lerped using blur-radius.
+		Then blur -radius for soft shadows gets spread. Then it gets combined with hard shadows blur-radius (or not?).
+		Then when sampling both textures are read an dalso lerped using blur-radius.
+
+		- TODO: Sharper shadow has to spread as well... Otherwise we get too hard edgers for shadows...
+
 	  ---------------------------------------------------------------------------
 
 	  Sources: 

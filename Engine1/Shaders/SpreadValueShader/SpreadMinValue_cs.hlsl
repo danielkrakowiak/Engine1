@@ -42,7 +42,7 @@ void main( uint3 groupId : SV_GroupID,
     // Note: min-acceptable-value is used to avoid spreading very low values accross large areas.
     // Useful in the specific case of spreading blur-radius.
     if ( newValue >= minAcceptableValue )
-        g_texture[ dispatchThreadId.xy ] = max(value, newValue - 0.2f); // Note: Test - substract 1 to limit spreading values...
+        g_texture[ dispatchThreadId.xy ] = min(value, newValue /*- 0.2f*/); // Note: Test - substract 1 to limit spreading values...
 }
 
 

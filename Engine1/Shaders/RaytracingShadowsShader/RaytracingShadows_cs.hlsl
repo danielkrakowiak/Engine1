@@ -47,7 +47,8 @@ SamplerState      g_linearSamplerState    : register( s1 );
 
 // Input / Output.
 RWTexture2D<float> g_illuminationBlurRadius : register( u0 );
-RWTexture2D<uint>  g_illumination           : register( u1 );
+RWTexture2D<uint>  g_hardIllumination       : register( u1 );
+RWTexture2D<uint>  g_softIllumination       : register( u2 );
 
 float    calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
 bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination );
@@ -121,7 +122,7 @@ void main( uint3 groupId : SV_GroupID,
 
 	// #TODO: Discard ray with zero contribution.
 
-    const uint illuminationUint = g_illumination[ dispatchThreadId.xy ];
+    //const uint illuminationUint = g_illumination[ dispatchThreadId.xy ];
 
     // IMPORTANT: Cannot quit early when pixel is already in shadow, because we need to know if a mesh changed blur radius at that pixel!!!!
     // Or maybe we can rely on blur radius from shadow map?
@@ -129,14 +130,15 @@ void main( uint3 groupId : SV_GroupID,
 	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
     if ( !any( rayOrigin ) || normalLightDot < 0.0f /*|| illuminationUint == 0*//*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) 
     { 
-        g_illumination[ dispatchThreadId.xy ] = 0;
+        g_hardIllumination[ dispatchThreadId.xy ] = 0;
+        g_softIllumination[ dispatchThreadId.xy ] = 0;
         return;
     }
 
     const float rayMaxLength = length( lightPosition - rayOrigin );
 
     // #TODO: Reading unsigned char from UAV is supported only on DirectX 11.3. 
-	float illumination = (float)illuminationUint / 255.0f;
+	float illumination = 1.0f;//(float)illuminationUint / 255.0f;
     
     // We only care about intersections closer to ray origin than the light source. #TODO: Or all of them? - alpha etc, illumination?
     float farthestHitDist = 0.0f;
@@ -152,15 +154,24 @@ void main( uint3 groupId : SV_GroupID,
         const float surfaceDistToOccluder = farthestHitDist;
         const float occluderDistToLight   = surfaceDistToLight - surfaceDistToOccluder;
         const float surfaceDistToCamera   = length( rayOrigin - cameraPosition );
-
-        const float prevBlurRadius = g_illuminationBlurRadius[ dispatchThreadId.xy ];
+        
         const float blurRadius     = calculateIlluminationBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight, surfaceDistToCamera );
 
+        const float prevBlurRadius       = g_illuminationBlurRadius[ dispatchThreadId.xy ];
+        const float prevHardIllumination = (float)g_hardIllumination[ dispatchThreadId.xy ] / 255.0f;
+        const float prevSoftIllumination = (float)g_softIllumination[ dispatchThreadId.xy ] / 255.0f;
+
+        // #TODO: I should accoutn for world-space blur-radius, not screen space blur-radius.
+        const float illuminationSoftness = min(1.0f, (blurRadius / 40.0f));
+        const float illuminationHardness = 1.0f - illuminationSoftness;
+
+        illumination = max( 0.0f, illumination ); // TODO: Needed? Can we get negative illumination after going through many semi-transparent surfaces?
+
+        // #TODO: Shouldn't I substract prevIllumination from illumination? It should get darker with each shadowing object.. 
         g_illuminationBlurRadius[ dispatchThreadId.xy ] = min( prevBlurRadius, blurRadius );
-        g_illumination[ dispatchThreadId.xy ]           = (uint)( max( 0.0f, illumination ) * 255.0f );
+        g_hardIllumination[ dispatchThreadId.xy ]       = (uint)( max(0.0f, prevHardIllumination - ( 1.0f - illumination ) * illuminationHardness ) * 255.0f );
+        g_softIllumination[ dispatchThreadId.xy ]       = (uint)( max(0.0f, prevSoftIllumination - ( 1.0f - illumination ) * illuminationSoftness ) * 255.0f );
     }
-    //rayMeshIntersect( rayOrigin, rayDir, 1, hitDist, illumination );
-    //}
 }
 
 float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )

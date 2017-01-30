@@ -62,7 +62,8 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	m_rendererCore.enableComputeShader( m_raytracingShadowsComputeShader );
 
 	// Don't have to clear, because illumination should be initialized with pre-illumination.
-	m_illuminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
+	m_hardIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
+    m_softIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
 
     // Copy pre-illumination texture as initial illumination. 
     // This is to avoid copying values inside the shader in each pass.
@@ -78,7 +79,8 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( illuminationBlurRadiusTexture );
-	unorderedAccessTargetsU1.push_back( m_illuminationTexture );
+	unorderedAccessTargetsU1.push_back( m_hardIlluminationTexture );
+    unorderedAccessTargetsU1.push_back( m_softIlluminationTexture );
 
 	m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
@@ -118,16 +120,24 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getIlluminationTexture()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getHardIlluminationTexture()
 {
-	return m_illuminationTexture;
+	return m_hardIlluminationTexture;
+}
+
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getSoftIlluminationTexture()
+{
+    return m_softIlluminationTexture;
 }
 
 void RaytraceShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
     // #TODO: Is using mipmaps? Disable them if they are not necessary.
-	m_illuminationTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
+	m_hardIlluminationTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
 		( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
+
+    m_softIlluminationTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
+        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 }
 
 void RaytraceShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
