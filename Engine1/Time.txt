@@ -342,3 +342,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 26.01.2017 - 3h - Finished ReplaceValue shader and renderer. Testing shadow intersections using Ray Tracing. Trying to spread blur-radius information from shadows to lit areas.
 27.01.2017 - 3h - Spreading blur-radius values for shadows. Spreading soft shadow through hard shadows (by spreading min/max blur-radius on different textures). Added UtilityRenderer to perform simple operations on textures such as max, min, spread, replace.
 28.01.2017 - 6h - Spreading blur-radius values for shadows. Fixing shadow leaks from hard shadows in soft shadow areas.
+30.01.2017 - 1h - Trying to clean up some calculation - storing blur radius in world space instead of screen space to avoid shadow artifacts when zooming in/out.
+31.01.2017 - 1h - Fixed basic problems with switching to world space blur radius. Samples were rejected, because their position difference in relation to central pixel was too big.

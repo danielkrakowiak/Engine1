@@ -156,7 +156,7 @@ float linearizeDepth( float depthSample )
 float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
 {
     const float baseBlurRadius = min( maxIlluminationBaseBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
-    const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
+    //const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
 
-    return blurRadius;
+    return baseBlurRadius/*blurRadius*/;
 }

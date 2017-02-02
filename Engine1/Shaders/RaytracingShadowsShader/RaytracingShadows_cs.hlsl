@@ -67,7 +67,7 @@ static const float requiredContributionTerm = 0.35f; // Discard rays which color
 
 static const float minAllowedHitDist = 0.001f;
 
-static const float maxIlluminationBaseBlurRadius = 150.0f;
+static const float maxIlluminationWorldSpaceBlurRadius = 1.0f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -162,7 +162,7 @@ void main( uint3 groupId : SV_GroupID,
         const float prevSoftIllumination = (float)g_softIllumination[ dispatchThreadId.xy ] / 255.0f;
 
         // #TODO: I should accoutn for world-space blur-radius, not screen space blur-radius.
-        const float illuminationSoftness = min(1.0f, (blurRadius / 40.0f));
+        const float illuminationSoftness = min(1.0f, (blurRadius / 1.0f));
         const float illuminationHardness = 1.0f - illuminationSoftness;
 
         illumination = max( 0.0f, illumination ); // TODO: Needed? Can we get negative illumination after going through many semi-transparent surfaces?
@@ -176,10 +176,12 @@ void main( uint3 groupId : SV_GroupID,
 
 float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
 {
-    const float baseBlurRadius = min( maxIlluminationBaseBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
-    const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
+    const float baseBlurRadius = min( maxIlluminationWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    //const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
 
-    return blurRadius;
+    // Note: If not divided by camera log2 then it's in world space...
+
+    return baseBlurRadius/*blurRadius*/;
 }
 
 bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination )

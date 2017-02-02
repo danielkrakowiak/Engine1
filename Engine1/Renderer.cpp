@@ -408,10 +408,10 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         
         // #TODO: Should be profiled.
         m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 500.0f, 0.0f );
-        m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 500, 500.0f, 0 );
+        //m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 500, 500.0f, 0 );
 
         // #TODO: Should be profiled.
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 50, 500.0f, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 50, 500.0f, 0 );
         //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 500.0f, 0.0f );
 
         m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );

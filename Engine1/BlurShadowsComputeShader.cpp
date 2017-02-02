@@ -12,7 +12,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-float BlurShadowsComputeShader::s_positionThreshold  = 0.003f;
+float BlurShadowsComputeShader::s_positionThreshold = 1.0f;//0.003f;
 
 BlurShadowsComputeShader::BlurShadowsComputeShader() {}
 

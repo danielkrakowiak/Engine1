@@ -72,8 +72,10 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    float blurRadius          = g_illuminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 1.5f );
-    float samplingRadius      = blurRadius;
+    float blurRadiusInWorldSpace  = g_illuminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 1.5f );
+    float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+    float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
+    float samplingRadius          = blurRadiusInScreenSpace;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
     float surfaceIllumination = 0.0f;
@@ -87,7 +89,7 @@ void main( uint3 groupId : SV_GroupID,
         // Note: It's impossible to tell how far samples are from each other in world space
         // by using blur radius in screen space (because it depends on camera distance from surface).
         // So we calculate blur radius in world space.
-        const float blurRadiusInWorldSpace = blurRadius * log2( distToCamera + 1.0f );
+        //const float blurRadiusInWorldSpace = blurRadius * log2( distToCamera + 1.0f );
 
         float sampleCount = 0.0f;
 
@@ -108,7 +110,7 @@ void main( uint3 groupId : SV_GroupID,
                 //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
                 
                 // #TODO: Should use blurradius in world-space, not in screen-space.
-                const float illuminationSoftness = min( 1.0f, blurRadius / 40.0f );
+                const float illuminationSoftness = min( 1.0f, blurRadiusInWorldSpace / 1.0f );
                 const float illuminationHardness = 1.0f - illuminationSoftness;
 
                 //const float sampleIllumination = illuminationSoftness * sampleSoftIllumination;//lerp( sampleHardIllumination, sampleSoftIllumination, illuminationSoftness );//illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
@@ -122,6 +124,7 @@ void main( uint3 groupId : SV_GroupID,
                 //    sampleWeight = max( 0.0f, 1.0f - abs(blurRadius - sampleBlurRadius) / blurRadius );
                 //}
 
+                // #TODO: Increase positionThreshold!! 
                 bool useSample = canUseSample( surfacePosition, samplePosition, blurRadiusInWorldSpace, positionThreshold );
 
                 if ( useSample )

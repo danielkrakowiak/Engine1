@@ -382,57 +382,6 @@ void Application::run() {
             }
         }
 
-        // Modify spot light cone angle.
-        if ( m_windowFocused && !m_sceneManager.getSelectedLights().empty() ) 
-        {
-            if ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) && !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
-            {
-                const float sensitivity = 0.0001f * (float)frameTimeMs;
-
-                float change = 0.0f;
-                if ( m_inputManager.isKeyPressed( InputManager::Keys::plus ) ) {
-                    change = sensitivity;
-                } else if ( m_inputManager.isKeyPressed( InputManager::Keys::minus ) ) {
-                    change = -sensitivity;
-                }
-
-                if ( change != 0.0f ) {
-                    for ( auto& light : m_sceneManager.getSelectedLights() ) {
-                        if ( light->getType() != Light::Type::SpotLight )
-                            continue;
-
-                        auto& spotLight = static_cast<SpotLight&>( *light );
-
-                        spotLight.setConeAngle( std::min( MathUtil::pi, std::max( 0.01f, spotLight.getConeAngle() + change ) ) );
-                    }
-
-                    modifyingScene = true;
-                }
-            }
-        }
-
-        // Modify light emitter radius.
-        if ( m_windowFocused && !m_sceneManager.getSelectedLights().empty() ) {
-            if ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) {
-                const float sensitivity = 0.01f * (float)frameTimeMs;
-
-                float change = 0.0f;
-                if ( m_inputManager.isKeyPressed( InputManager::Keys::plus ) ) {
-                    change = sensitivity;
-                } else if ( m_inputManager.isKeyPressed( InputManager::Keys::minus ) ) {
-                    change = -sensitivity;
-                }
-
-                if ( change != 0.0f ) {
-                    for ( auto& light : m_sceneManager.getSelectedLights() ) {
-                        light->setEmitterRadius( std::min( 150.0f, std::max( 0.0f, light->getEmitterRadius() + change ) ) );
-                    }
-
-                    modifyingScene = true;
-                }
-            }
-        }
-
         // Set camera to align with a spot light.
         if ( m_windowFocused && m_sceneManager.getSelectedLights().size() == 1 && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::l ) )
         {
@@ -1075,6 +1024,52 @@ void Application::onKeyPress( int key )
         }
     }
 
+    // [Shift] and ( [+] or [-] ) - Modify spot light cone angle.
+    if ( !m_sceneManager.getSelectedLights().empty() && m_inputManager.isKeyPressed( InputManager::Keys::shift ) 
+         && !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    {
+        const float sensitivity = 0.0001f;
+
+        float change = 0.0f;
+        if ( m_inputManager.isKeyPressed( InputManager::Keys::plus ) ) {
+            change = sensitivity;
+        } else if ( m_inputManager.isKeyPressed( InputManager::Keys::minus ) ) {
+            change = -sensitivity;
+        }
+
+        if ( change != 0.0f ) {
+            for ( auto& light : m_sceneManager.getSelectedLights() ) {
+                if ( light->getType() != Light::Type::SpotLight )
+                    continue;
+
+                auto& spotLight = static_cast<SpotLight&>( *light );
+
+                spotLight.setConeAngle( std::min( MathUtil::pi, std::max( 0.01f, spotLight.getConeAngle() + change ) ) );
+            }
+        }
+    }
+
+    // [Shift] and [Ctrl] and ( [+] or [-] ) - Modify light emitter radius.
+    if ( !m_sceneManager.getSelectedLights().empty() && m_inputManager.isKeyPressed( InputManager::Keys::shift ) 
+        && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    {
+        const float sensitivity = 0.005f;
+
+        float change = 0.0f;
+        if ( m_inputManager.isKeyPressed( InputManager::Keys::plus ) ) {
+            change = sensitivity;
+        } else if ( m_inputManager.isKeyPressed( InputManager::Keys::minus ) ) {
+            change = -sensitivity;
+        }
+
+        if ( change != 0.0f ) 
+        {
+            for ( auto& light : m_sceneManager.getSelectedLights() ) {
+                light->setEmitterRadius( std::min( 1.0f, std::max( 0.0f, light->getEmitterRadius() + change ) ) );
+            }
+        }
+    }
+
     // [P] and ( [+] or [-] ) - Modify shadow blur position threshold and normal threshold.
     if ( m_sceneManager.getSelectedLights().size() == 1 ) {
         if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
@@ -1082,10 +1077,6 @@ void Application::onKeyPress( int key )
             const float positionThresholdChange = 
                 ( key == InputManager::Keys::plus ) ?
                 0.001f : - 0.001f;
-
-            const float normalDotThresholdChange =
-                ( key == InputManager::Keys::plus ) ?
-                0.005f : -0.005f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
                 BlurShadowsComputeShader::s_positionThreshold += positionThresholdChange;
@@ -1303,7 +1294,7 @@ void Application::onDragAndDropFile( std::string filePath )
 		filePath = filePath.substr( 1 );
 
     // Temporarily always replace assets. Holding Ctrl is too hard...
-    const bool replaceSelected = true; //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
+    const bool replaceSelected = !m_sceneManager.getSelectedBlockActors().empty() || !m_sceneManager.getSelectedSkeletonActors().empty(); //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
     const bool invertZ         = !m_inputManager.isKeyPressed( InputManager::Keys::shift );
 
     m_sceneManager.loadAsset( filePath, replaceSelected, invertZ );

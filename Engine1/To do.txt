@@ -547,6 +547,8 @@ Idea:
 
 		- TODO: Sharper shadow has to spread as well... Otherwise we get too hard edgers for shadows...
 
+		- TODO: normalize the amount of shadow written and read from soft/hard illumination textures. Use equations from the note...
+
 	  ---------------------------------------------------------------------------
 
 	  Sources: 
