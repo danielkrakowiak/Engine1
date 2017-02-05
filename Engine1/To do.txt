@@ -539,8 +539,6 @@ Idea:
 	  - Spreading soft shadow through hard shadow works pretty well, but it's a bit too much. There is this dark glow around hard shadows...
 	    How to reduce it? Faster decresing blur-radius values with number of spreading passes?
 
-		- Get rid of that blur-radius temp texture being created and destroyed every frame. But only once the technique works...
-
 		IDEA: Write shadows to two textures - one for soft shadows and one for hard shadows. Each shadow is in fact saved to both textures, lerped using blur-radius.
 		Then blur -radius for soft shadows gets spread. Then it gets combined with hard shadows blur-radius (or not?).
 		Then when sampling both textures are read an dalso lerped using blur-radius.
@@ -549,6 +547,32 @@ Idea:
 
 		- TODO: normalize the amount of shadow written and read from soft/hard illumination textures. Use equations from the note...
 
+		* THE MOST IMPORTANT QUESTION:
+		- how to spread min blur radius so that it smoothl;y transitions and blends between objects?
+		Not use strict min, but rather some weighted min? Where higher values also increase the output?
+
+		GOOD IDEAS FOR SPREADING BLUR RADIUS:
+		- first test artifacts when using blur radius in 1/4th resolution. Can we use such lowe res texture?
+		- RESULT: Using 3rd, 4th mipmap is totally OK and improves smoothness/quality. 
+		  Using higher mipmaps leads to undesired impact of one shadow blur on a different shadow blur nearby.
+
+		- Knowing that 1/4th resolution is OK it's worth to try the basic algorithm - stepping from pixel and looking for min blur radius in cross pattern. 
+		  For comparison at least.
+
+		- first spread in radius of 4px
+		- then run compute every 4th pixel and spread once
+		- then run every 8th pixel and spread, then every 16th, 32nd, 64th, 128th, 256th, 512th. -> Logarithmic complexity.
+		  But better than mipmaping because we don't loose detail on edges. 
+		  Plus we can't really mipmap blur radius, because we have holes in the data. (except for custom mipmapping with ifs).
+		  Should also work fine, because far-reaching shadows are usueally soft and have little detail.
+		- then run every 256th, 128th, 64th, 32nd, 16th, 8th? again - to fill the gaps.
+		- in the end run every 4th, but with offset of (2,2) - that will fill pixels between our 4-spaced pixels.
+		- then run every 2nd, and again every 2nd with offset (1,1). It's done.
+		- When filling gaps, ignore neighbor samples which have value lower than dist to neighbor (passed as param to shader and depanding on the pass).
+		- When more than one sample is available - take avarage.
+
+		- Best to do the above using screen-space blur radius - easier to reject far samples.
+		  But then it could be recalculated to world-space in a separate pass - so that rejecting shadow samples is easier in "blur shadows" phase.
 	  ---------------------------------------------------------------------------
 
 	  Sources: 

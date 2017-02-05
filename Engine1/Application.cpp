@@ -1211,7 +1211,10 @@ void Application::onKeyPress( int key )
         m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
         m_debugDisplayedMipmapLevel = 0;
     } else if ( key == InputManager::Keys::f8 ) {
-        m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
+        m_renderer.setActiveViewType( Renderer::View::MinIlluminationBlurRadius );
+        m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f9 ) {
+        m_renderer.setActiveViewType( Renderer::View::MaxIlluminationBlurRadius );
         m_debugDisplayedMipmapLevel = 0;
 	} else if ( key == InputManager::Keys::f12 ) {
 		m_renderer.setActiveViewType( Renderer::View::Test );

@@ -53,7 +53,8 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > illuminationBlurRadiusTexture,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > minIlluminationBlurRadiusTexture,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > maxIlluminationBlurRadiusTexture,
 	const std::vector< std::shared_ptr< const BlockActor > >& actors
 )
 {
@@ -78,7 +79,8 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
-    unorderedAccessTargetsF1.push_back( illuminationBlurRadiusTexture );
+    unorderedAccessTargetsF1.push_back( minIlluminationBlurRadiusTexture );
+    unorderedAccessTargetsF1.push_back( maxIlluminationBlurRadiusTexture );
 	unorderedAccessTargetsU1.push_back( m_hardIlluminationTexture );
     unorderedAccessTargetsU1.push_back( m_softIlluminationTexture );
 

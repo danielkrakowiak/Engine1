@@ -41,7 +41,8 @@ namespace Engine1
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > illuminationBlurRadiusTexture,
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > minIlluminationBlurRadiusTexture,
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > maxIlluminationBlurRadiusTexture,
 			const std::vector< std::shared_ptr< const BlockActor > >& actors
 		);
 

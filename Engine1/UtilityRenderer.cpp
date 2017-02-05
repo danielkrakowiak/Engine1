@@ -140,7 +140,7 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBi
 
     for ( int i = 0; i < repeatCount; ++i ) 
     {
-        const float minAcceptableValue = logf( (float)i + 1.0f ) * 10.0f;
+        const float minAcceptableValue = logf( (float)i + 1.0f ) * 0.01f;
 
         m_spreadMinValueComputeShader->setParameters( *m_deviceContext.Get(), ignorePixelIfBelowValue, minAcceptableValue );
 

@@ -59,7 +59,8 @@ namespace Engine1
             SoftIllumination,
             BlurredIllumination,
             SpotlightDepth,
-            DistanceToOccluder,
+            MinIlluminationBlurRadius,
+            MaxIlluminationBlurRadius,
 			Test
         };
 

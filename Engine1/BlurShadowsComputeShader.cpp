@@ -85,20 +85,22 @@ void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext& deviceContext
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluderTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > minIlluminationBlurRadiusTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > maxIlluminationBlurRadiusTexture,
                                               const Light& light )
 {
     if ( !m_compiled )
         throw std::exception( "BlurShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 5;
+        const unsigned int resourceCount = 6;
         ID3D11ShaderResourceView* resources[ resourceCount ] = {
             positionTexture->getShaderResourceView(),
             normalTexture->getShaderResourceView(),
             hardIlluminationTexture->getShaderResourceView(),
             softIlluminationTexture->getShaderResourceView(),
-            distanceToOccluderTexture->getShaderResourceView()
+            minIlluminationBlurRadiusTexture->getShaderResourceView(),
+            maxIlluminationBlurRadiusTexture->getShaderResourceView(),
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -153,8 +155,8 @@ void BlurShadowsComputeShader::unsetParameters( ID3D11DeviceContext& deviceConte
         throw std::exception( "BlurShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 5 ] = { nullptr };
-    deviceContext.CSSetShaderResources( 0, 5, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 6 ] = { nullptr };
+    deviceContext.CSSetShaderResources( 0, 6, nullResources );
 
     // Unset samplers.
     ID3D11SamplerState* nullSamplers[ 2 ] = { nullptr };

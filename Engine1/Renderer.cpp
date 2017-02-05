@@ -359,15 +359,24 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         // #TODO: Should be profiled.
         // Fill illumination texture with pre-illumination data.
         m_rendererCore.copyTexture( 
-            static_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( *m_raytraceShadowRenderer.getHardIlluminationTexture() ), 0,
-            static_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( *m_rasterizeShadowRenderer.getIlluminationTexture() ), 0 
+            *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getHardIlluminationTexture() ), 0,
+            *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getIlluminationTexture() ), 0 
         );
 
         m_rendererCore.copyTexture(
-            static_cast<Texture2DSpecUsage< TexUsage::Default, unsigned char >>( *m_raytraceShadowRenderer.getSoftIlluminationTexture() ), 0,
-            static_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( *m_rasterizeShadowRenderer.getIlluminationTexture() ), 0
+            *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getSoftIlluminationTexture() ), 0,
+            *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getIlluminationTexture() ), 0
         );
-        
+
+        auto illuminationMinBlurRadiusTexture = m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture();
+        auto illuminationMaxBlurRadiusTexture = m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture();
+
+        // #TODO: Is this copy needed?
+        m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTexture, *illuminationMinBlurRadiusTexture, 0 );
+
+        // Note: Has to replace max values (untouched pixels) here - otherwise they would spread all over the texture.
+        m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 500.0f, 0.0f );
+
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
@@ -377,7 +386,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getNormalRenderTarget(),
             nullptr,
             m_rasterizeShadowRenderer.getIlluminationTexture(),
-            m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture(),
+            illuminationMinBlurRadiusTexture,
+            illuminationMaxBlurRadiusTexture,
             blockActors
         );
 
@@ -390,13 +400,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
 
-        auto illuminationMinBlurRadiusTexture = m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture();
-
-        // #TODO: Create this texture only once!!! Not every frame!!!!
-        auto illuminationMaxBlurRadiusTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
-            ( *m_device.Get(), illuminationMinBlurRadiusTexture->getWidth(), illuminationMinBlurRadiusTexture->getHeight(), false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
-
-        m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTexture, *illuminationMinBlurRadiusTexture, 0 );
+        //m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTexture, *illuminationMinBlurRadiusTexture, 0 );
 
         // #TODO: Should be run for lower level mipmap to save bandwidth.
         // Note: Low blur-radius values are not spread far, because it's useless anyways 
@@ -407,17 +411,18 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         //    // do that may vary a lot depending on the situation.
         
         // #TODO: Should be profiled.
-        m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 500.0f, 0.0f );
-        //m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 500, 500.0f, 0 );
+        //m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 500.0f, 0.0f );
+        m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 500, 500.0f, 0 );
 
         // #TODO: Should be profiled.
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 50, 500.0f, 0 );
-        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 500.0f, 0.0f );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 500, 500.0f, 0 );
+        m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 500.0f, 0.0f );
 
-        m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );
+        //m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );
 
         // #TODO: Should be profiled.
         illuminationMinBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
+        illuminationMaxBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
         //m_mipmapMinValueRenderer.generateMipmapsMinValue( illuminationBlurRadiusTexture );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
@@ -432,6 +437,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
             m_raytraceShadowRenderer.getSoftIlluminationTexture(),
             illuminationMinBlurRadiusTexture,
+            illuminationMaxBlurRadiusTexture,
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -458,8 +464,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
     // Copy main shaded image to final render target.
     // Note: I have to explicitly cast textures, because otherwise the compiler fails to deduce the template parameters for the method.
     m_rendererCore.copyTexture( 
-        static_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( *m_finalRenderTarget ), 0, 
-        static_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( *m_shadingRenderer.getColorRenderTarget() ), 0 
+        *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( m_finalRenderTarget ), 0, 
+        *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( m_shadingRenderer.getColorRenderTarget() ), 0 
     );
 
     m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
@@ -497,8 +503,10 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             case View::SpotlightDepth:
                 if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
                     return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );
-            case View::DistanceToOccluder:
-                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getIlluminationBlurRadiusTexture() );
+            case View::MinIlluminationBlurRadius:
+                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture() );
+            case View::MaxIlluminationBlurRadius:
+                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture() );
         }
     }
 

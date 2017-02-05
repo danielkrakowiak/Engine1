@@ -56,7 +56,10 @@ void RasterizeShadowRenderer::performShadowMapping(
 
     // Clear unordered access targets. #TODO: Probably not needed for shadow mapping? Every value will be written.
     m_illuminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
-    m_illuminationBlurRadiusTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 1000, 1000, 1000, 1000 ) );
+    m_minIlluminationBlurRadiusTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 1000, 1000, 1000, 1000 ) );
+
+    // #TODO: May not require clear. Will be copied from "min" texture later on...
+    m_maxIlluminationBlurRadiusTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
@@ -64,7 +67,7 @@ void RasterizeShadowRenderer::performShadowMapping(
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
-    unorderedAccessTargetsF1.push_back( m_illuminationBlurRadiusTexture );
+    unorderedAccessTargetsF1.push_back( m_minIlluminationBlurRadiusTexture );
     unorderedAccessTargetsU1.push_back( m_illuminationTexture );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
@@ -94,9 +97,14 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAc
     return m_illuminationTexture;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getIlluminationBlurRadiusTexture()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getMinIlluminationBlurRadiusTexture()
 {
-    return m_illuminationBlurRadiusTexture;
+    return m_minIlluminationBlurRadiusTexture;
+}
+
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getMaxIlluminationBlurRadiusTexture()
+{
+    return m_maxIlluminationBlurRadiusTexture;
 }
 
 void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
@@ -106,7 +114,11 @@ void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHei
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 
     // #TODO: Is using mipmaps? Disable them if they are not necessary.
-    m_illuminationBlurRadiusTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+    m_minIlluminationBlurRadiusTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
+
+    // #TODO: Is using mipmaps? Disable them if they are not necessary.
+    m_maxIlluminationBlurRadiusTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 

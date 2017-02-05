@@ -20,11 +20,12 @@ SamplerState g_linearSamplerState;
 SamplerState g_pointSamplerState;
 
 // Input.
-Texture2D<float4> g_positionTexture               : register( t0 );
-Texture2D<float4> g_normalTexture                 : register( t1 ); 
-Texture2D<float>  g_hardIlluminationTexture       : register( t2 ); 
-Texture2D<float>  g_softIlluminationTexture       : register( t3 ); 
-Texture2D<float>  g_illuminationBlurRadiusTexture : register( t4 );
+Texture2D<float4> g_positionTexture                  : register( t0 );
+Texture2D<float4> g_normalTexture                    : register( t1 ); 
+Texture2D<float>  g_hardIlluminationTexture          : register( t2 ); 
+Texture2D<float>  g_softIlluminationTexture          : register( t3 ); 
+Texture2D<float>  g_minIlluminationBlurRadiusTexture : register( t4 );
+Texture2D<float>  g_maxIlluminationBlurRadiusTexture : register( t5 );
 
 // Input / Output.
 RWTexture2D<float4> g_blurredIlluminationTexture : register( u0 );
@@ -72,11 +73,14 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    float blurRadiusInWorldSpace  = g_illuminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 1.5f );
-    float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
-    float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
-    float samplingRadius          = blurRadiusInScreenSpace;
+    float minBlurRadiusInWorldSpace  = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.5f );
+    float pixelSizeInWorldSpace      = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+    float minBlurRadiusInScreenSpace = minBlurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
+    float samplingRadius             = minBlurRadiusInScreenSpace;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
+
+    const float illuminationSoftness = min( 1.0f, minBlurRadiusInWorldSpace / 1.0f );
+    const float illuminationHardness = 1.0f - illuminationSoftness;
 
     float surfaceIllumination = 0.0f;
 
@@ -103,18 +107,20 @@ void main( uint3 groupId : SV_GroupID,
 
                 //#TODO: When we sample outside of light cone - the sample should be black.
 
+                float sampleBlurRadiusInWorldSpace  = g_maxIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 1.5f );
+                const float sampleIlluminationSoftness = min( 1.0f, sampleBlurRadiusInWorldSpace / 1.0f );
+                const float sampleIlluminationHardness = 1.0f - sampleIlluminationSoftness;
+
                 //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
                 const float  sampleHardIllumination = g_hardIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
                 const float  sampleSoftIllumination = g_softIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
                 //const float  sampleBlurRadius   = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f );
                 //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
                 
-                // #TODO: Should use blurradius in world-space, not in screen-space.
-                const float illuminationSoftness = min( 1.0f, blurRadiusInWorldSpace / 1.0f );
-                const float illuminationHardness = 1.0f - illuminationSoftness;
-
                 //const float sampleIllumination = illuminationSoftness * sampleSoftIllumination;//lerp( sampleHardIllumination, sampleSoftIllumination, illuminationSoftness );//illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
-                const float sampleIllumination = illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
+                const float sampleIllumination1 = min( 1.0f, illuminationHardness / sampleIlluminationHardness ) * sampleHardIllumination;
+                const float sampleIllumination2 = min( 1.0f, illuminationSoftness / sampleIlluminationSoftness ) * sampleSoftIllumination;
+                const float sampleIllumination = sampleSoftIllumination;// + sampleHardIllumination;//sampleIllumination1 + sampleIllumination2;
                 
                 const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
 
@@ -125,7 +131,7 @@ void main( uint3 groupId : SV_GroupID,
                 //}
 
                 // #TODO: Increase positionThreshold!! 
-                bool useSample = canUseSample( surfacePosition, samplePosition, blurRadiusInWorldSpace, positionThreshold );
+                bool useSample = /*sampleBlurRadiusInWorldSpace >= minBlurRadiusInWorldSpace &&*/ canUseSample( surfacePosition, samplePosition, minBlurRadiusInWorldSpace, positionThreshold );
 
                 if ( useSample )
                 {
