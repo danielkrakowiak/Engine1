@@ -73,10 +73,28 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    float minBlurRadiusInWorldSpace  = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.5f );
-    float pixelSizeInWorldSpace      = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
-    float minBlurRadiusInScreenSpace = minBlurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
-    float samplingRadius             = minBlurRadiusInScreenSpace;
+    ///////////////////// TEST POWER VR METHOD OF FINDING BLUR RADIUS /////////////////////////
+    /*float minBlurRadiusInWorldSpace = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
+    const float2 pixelSize3 = 8.0f * pixelSize0;
+
+    float searchRadius = 0.0f;
+    for ( searchRadius = 1.0f; searchRadius < 50.0f && minBlurRadiusInWorldSpace > 500.0f; searchRadius += 1.0f )
+    {
+        const float2 texCoordShiftTop    = float2( pixelSize3.x,                 pixelSize3.y *  searchRadius );
+        const float2 texCoordShiftBottom = float2( pixelSize3.x,                 pixelSize3.y * -searchRadius );
+        const float2 texCoordShiftLeft   = float2( pixelSize3.x * -searchRadius, pixelSize3.y );
+        const float2 texCoordShiftRight  = float2( pixelSize3.x *  searchRadius, pixelSize3.y );
+        minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftTop, 3.0f ) );
+        minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftBottom, 3.0f ) );
+        minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftLeft, 3.0f ) );
+        minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftRight, 3.0f ) );
+    }*/
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    const float minBlurRadiusInWorldSpace  = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
+    const float pixelSizeInWorldSpace      = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+    const float minBlurRadiusInScreenSpace = minBlurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
+    const float samplingRadius             = minBlurRadiusInScreenSpace;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
     const float illuminationSoftness = min( 1.0f, minBlurRadiusInWorldSpace / 1.0f );

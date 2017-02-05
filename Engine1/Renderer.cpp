@@ -42,7 +42,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_rasterizeShadowRenderer( rendererCore ),
 	m_raytraceShadowRenderer( rendererCore ),
 	m_shadowMapRenderer( rendererCore ),
-    m_mipmapMinValueRenderer( rendererCore ),
+    m_mipmapRenderer( rendererCore ),
     m_blurShadowsRenderer( rendererCore ),
     m_utilityRenderer( rendererCore ),
     m_activeViewType( View::Final ),
@@ -71,7 +71,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_rasterizeShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_shadowMapRenderer.initialize( device, deviceContext );
-    m_mipmapMinValueRenderer.initialize( device, deviceContext );
+    m_mipmapRenderer.initialize( device, deviceContext );
     m_blurShadowsRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_utilityRenderer.initialize( device, deviceContext );
 
@@ -375,7 +375,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTexture, *illuminationMinBlurRadiusTexture, 0 );
 
         // Note: Has to replace max values (untouched pixels) here - otherwise they would spread all over the texture.
-        m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 500.0f, 0.0f );
+        m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 0, 500.0f, 0.0f );
 
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
@@ -409,20 +409,22 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         //    // Note: Log used, because for higher passes this requirement should be relaxed more and more.
         //    // Because when we spread blur-radius for far away shadows the number of step required to
         //    // do that may vary a lot depending on the situation.
+
+        m_mipmapRenderer.generateMipmapsWithSampleRejection( illuminationMinBlurRadiusTexture, 500.0f, 0, 3 );
         
         // #TODO: Should be profiled.
-        //m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 500.0f, 0.0f );
-        m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 500, 500.0f, 0 );
+        //m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 0, 500.0f, 0.0f );
+        //m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 0, 500, 500.0f );
 
         // #TODO: Should be profiled.
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 500, 500.0f, 0 );
-        m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 500.0f, 0.0f );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 20, 500.0f );
+        m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 3, 500.0f, 0.0f );
 
         //m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );
 
         // #TODO: Should be profiled.
-        illuminationMinBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
-        illuminationMaxBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
+        //illuminationMinBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
+        //illuminationMaxBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
         //m_mipmapMinValueRenderer.generateMipmapsMinValue( illuminationBlurRadiusTexture );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );

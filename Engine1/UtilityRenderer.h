@@ -26,21 +26,23 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
         void replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
+                            const int mipmapLevel,
                             const float replaceFromValue,
                             const float replaceToValue );
 
         void spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture, 
+                              const int mipmapLevel,
                               const int repeatCount,
-                              const float ignorePixelIfBelowValue, 
-                              const int mipmapLevel );
+                              const float ignorePixelIfBelowValue );
 
         void spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
+                              const int mipmapLevel,
                               const int repeatCount,
-                              const float ignorePixelIfBelowValue,
-                              const int mipmapLevel );
+                              const float ignorePixelIfBelowValue );
 
         void mergeMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > texture2 );
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > texture2,
+                             const int mipmapLevel );
 
         private:
 

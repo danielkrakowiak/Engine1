@@ -11,13 +11,13 @@ struct ID3D11DeviceContext;
 
 namespace Engine1
 {
-    class GenerateMipmapMinValueVertexShader : public VertexShader
+    class GenerateMipmapVertexShader : public VertexShader
     {
 
         public:
 
-        GenerateMipmapMinValueVertexShader();
-        virtual ~GenerateMipmapMinValueVertexShader();
+        GenerateMipmapVertexShader();
+        virtual ~GenerateMipmapVertexShader();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext );
@@ -29,8 +29,8 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
         // Copying is not allowed.
-        GenerateMipmapMinValueVertexShader( const GenerateMipmapMinValueVertexShader& ) = delete;
-        GenerateMipmapMinValueVertexShader& operator=(const GenerateMipmapMinValueVertexShader&) = delete;
+        GenerateMipmapVertexShader( const GenerateMipmapVertexShader& ) = delete;
+        GenerateMipmapVertexShader& operator=(const GenerateMipmapVertexShader&) = delete;
     };
 }
 

@@ -33,6 +33,7 @@ void UtilityRenderer::initialize( ComPtr< ID3D11Device > device,
 }
 
 void UtilityRenderer::replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
+                                     const int mipmapLevel,
                                      const float replaceFromValue,
                                      const float replaceToValue )
 {
@@ -49,7 +50,7 @@ void UtilityRenderer::replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind
 
     unorderedAccessTargetsF1.push_back( texture );
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
 
     m_replaceValueComputeShader->setParameters( *m_deviceContext.Get(), replaceFromValue, replaceToValue );
 
@@ -68,9 +69,9 @@ void UtilityRenderer::replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind
 }
 
 void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture, 
+                                       const int mipmapLevel,
                                        const int repeatCount,
-                                       const float ignorePixelIfBelowValue, 
-                                       const int mipmapLevel )
+                                       const float ignorePixelIfBelowValue )
 {
     if ( !m_initialized )
         throw std::exception( "SpreadValueRenderer::spreadMaxValues - renderer has not been initialized." );
@@ -111,9 +112,9 @@ void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBi
 }
 
 void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
+                                       const int mipmapLevel,
                                        const int repeatCount,
-                                       const float ignorePixelIfBelowValue,
-                                       const int mipmapLevel )
+                                       const float ignorePixelIfBelowValue )
 {
     if ( !m_initialized )
         throw std::exception( "SpreadValueRenderer::spreadMinValues - renderer has not been initialized." );
@@ -156,7 +157,8 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBi
 }
 
 void UtilityRenderer::mergeMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > texture2 )
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > texture2,
+                                      const int mipmapLevel )
 {
     if ( !m_initialized )
         throw std::exception( "UtilityRenderer::replaceValues - renderer has not been initialized." );
@@ -171,7 +173,7 @@ void UtilityRenderer::mergeMinValues( std::shared_ptr< Texture2DSpecBind< TexBin
 
     unorderedAccessTargetsF1.push_back( texture );
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
 
     m_mergeMinValueComputeShader->setParameters( *m_deviceContext.Get(), *texture2 );
 

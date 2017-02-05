@@ -345,3 +345,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 30.01.2017 - 1h - Trying to clean up some calculation - storing blur radius in world space instead of screen space to avoid shadow artifacts when zooming in/out.
 31.01.2017 - 1h - Fixed basic problems with switching to world space blur radius. Samples were rejected, because their position difference in relation to central pixel was too big.
 04.02.2017 - 7h - Trying soft shadow blur with two blur textures - min and max. And then rejecting samples which have lower blur radius than central pixel (during blur phase). Fixed a bug in mipmap calculation for smallest mipmaps of non-square diemnsions. Thinking over new, optimized algorithm for spreading blur radius.
+05.02.2017 - 3h - Added custom mipmapping shader, which avarages only "acceptable" samples. It's used to generate mipmaps for blur radius texture.

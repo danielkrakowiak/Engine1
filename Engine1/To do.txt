@@ -559,6 +559,11 @@ Idea:
 		- Knowing that 1/4th resolution is OK it's worth to try the basic algorithm - stepping from pixel and looking for min blur radius in cross pattern. 
 		  For comparison at least.
 
+		- Add custom mipmapping algorithm which only avarages samples below certain value. Avoids untouched pixels. That only could help a lot.
+
+		- test spreading with avaraging? If samples are ok from more than one direction. Before testing smart spreading.
+
+
 		- first spread in radius of 4px
 		- then run compute every 4th pixel and spread once
 		- then run every 8th pixel and spread, then every 16th, 32nd, 64th, 128th, 256th, 512th. -> Logarithmic complexity.

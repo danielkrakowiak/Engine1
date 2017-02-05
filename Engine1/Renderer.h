@@ -14,7 +14,7 @@
 #include "RaytraceShadowRenderer.h"
 #include "RasterizeShadowRenderer.h"
 #include "ShadowMapRenderer.h"
-#include "MipmapMinValueRenderer.h"
+#include "MipmapRenderer.h"
 #include "BlurShadowsRenderer.h"
 #include "UtilityRenderer.h"
 
@@ -180,7 +180,7 @@ namespace Engine1
         RasterizeShadowRenderer             m_rasterizeShadowRenderer;
 		RaytraceShadowRenderer              m_raytraceShadowRenderer;
 		ShadowMapRenderer                   m_shadowMapRenderer;
-        MipmapMinValueRenderer              m_mipmapMinValueRenderer;
+        MipmapRenderer                      m_mipmapRenderer;
         BlurShadowsRenderer                 m_blurShadowsRenderer;
         UtilityRenderer                     m_utilityRenderer;
 

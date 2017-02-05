@@ -1,4 +1,4 @@
-#include "GenerateMipmapMinValueVertexShader.h"
+#include "GenerateMipmapVertexShader.h"
 
 #include "CombiningVertexShader.h"
 
@@ -11,11 +11,11 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-GenerateMipmapMinValueVertexShader::GenerateMipmapMinValueVertexShader() {}
+GenerateMipmapVertexShader::GenerateMipmapVertexShader() {}
 
-GenerateMipmapMinValueVertexShader::~GenerateMipmapMinValueVertexShader() {}
+GenerateMipmapVertexShader::~GenerateMipmapVertexShader() {}
 
-void GenerateMipmapMinValueVertexShader::initialize( ComPtr< ID3D11Device >& device )
+void GenerateMipmapVertexShader::initialize( ComPtr< ID3D11Device >& device )
 {
     {
         const unsigned int inputLayoutCount = 3;
@@ -51,12 +51,12 @@ void GenerateMipmapMinValueVertexShader::initialize( ComPtr< ID3D11Device >& dev
     }
 }
 
-void GenerateMipmapMinValueVertexShader::setParameters( ID3D11DeviceContext& deviceContext )
+void GenerateMipmapVertexShader::setParameters( ID3D11DeviceContext& deviceContext )
 {
     deviceContext;
 }
 
-ID3D11InputLayout& GenerateMipmapMinValueVertexShader::getInputLauout() const
+ID3D11InputLayout& GenerateMipmapVertexShader::getInputLauout() const
 {
     if ( !m_compiled ) throw std::exception( "GenerateMipmapMinValueVertexShader::getInputLauout() - Shader hasn't been compiled yet." );
 

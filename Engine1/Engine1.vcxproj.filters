@@ -361,12 +361,6 @@
     <Filter Include="Source Files\Shader\RasterizingShadows">
       <UniqueIdentifier>{d44c1ef0-eec1-4f00-9008-f1e7bf977f3d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Shader\GenerateMipmapMinValue">
-      <UniqueIdentifier>{5e388846-a3d8-43de-9df4-f15be78662af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\GenerateMipmapMinValue">
-      <UniqueIdentifier>{9e96639e-71dc-4be5-ba4a-2212ff47310b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Shader\BlurShadows">
       <UniqueIdentifier>{ad40b482-14d7-4cdf-9482-228dba83e550}</UniqueIdentifier>
     </Filter>
@@ -390,6 +384,12 @@
     </Filter>
     <Filter Include="Header Files\Shader\MergeValue">
       <UniqueIdentifier>{b784cfaf-b5dd-4c68-afb4-f65d48c5c6d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\GenerateMipmap">
+      <UniqueIdentifier>{9e96639e-71dc-4be5-ba4a-2212ff47310b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\GenerateMipmap">
+      <UniqueIdentifier>{5e388846-a3d8-43de-9df4-f15be78662af}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -829,16 +829,10 @@
       <Filter>Header Files\File</Filter>
     </ClInclude>
     <ClInclude Include="GenerateMipmapMinValueComputeShader.h">
-      <Filter>Header Files\Shader\GenerateMipmapMinValue</Filter>
-    </ClInclude>
-    <ClInclude Include="MipmapMinValueRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="GenerateMipmapMinValueVertexShader.h">
-      <Filter>Header Files\Shader\GenerateMipmapMinValue</Filter>
+      <Filter>Header Files\Shader\GenerateMipmap</Filter>
     </ClInclude>
     <ClInclude Include="GenerateMipmapMinValueFragmentShader.h">
-      <Filter>Header Files\Shader\GenerateMipmapMinValue</Filter>
+      <Filter>Header Files\Shader\GenerateMipmap</Filter>
     </ClInclude>
     <ClInclude Include="BlurShadowsComputeShader.h">
       <Filter>Header Files\Shader\BlurShadows</Filter>
@@ -857,6 +851,15 @@
     </ClInclude>
     <ClInclude Include="MergeValueComputeShader.h">
       <Filter>Header Files\Shader\MergeValue</Filter>
+    </ClInclude>
+    <ClInclude Include="MipmapRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateMipmapVertexShader.h">
+      <Filter>Header Files\Shader\GenerateMipmap</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateMipmapWithSampleRejectionFragmentShader.h">
+      <Filter>Header Files\Shader\GenerateMipmap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1263,16 +1266,10 @@
       <Filter>Source Files\File</Filter>
     </ClCompile>
     <ClCompile Include="GenerateMipmapMinValueComputeShader.cpp">
-      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
-    </ClCompile>
-    <ClCompile Include="MipmapMinValueRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="GenerateMipmapMinValueVertexShader.cpp">
-      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </ClCompile>
     <ClCompile Include="GenerateMipmapMinValueFragmentShader.cpp">
-      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </ClCompile>
     <ClCompile Include="BlurShadowsComputeShader.cpp">
       <Filter>Source Files\Shader\BlurShadows</Filter>
@@ -1294,6 +1291,15 @@
     </ClCompile>
     <ClCompile Include="MergeValueComputeShader.cpp">
       <Filter>Source Files\Shader\MergeValue</Filter>
+    </ClCompile>
+    <ClCompile Include="MipmapRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateMipmapWithSampleRejectionFragmentShader.cpp">
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateMipmapVertexShader.cpp">
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1440,15 +1446,6 @@
     <FxCompile Include="Shaders\TextureRescaleShader\TextureRescale_cs.hlsl">
       <Filter>Source Files\Shader\TextureRescale</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\GenerateMipmapMinValueShader\GenerateMipmapMinValue_cs.hlsl">
-      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\GenerateMipmapMinValueShader\GenerateMipmapMinValue_ps.hlsl">
-      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\GenerateMipmapMinValueShader\GenerateMipmapMinValue_vs.hlsl">
-      <Filter>Source Files\Shader\GenerateMipmapMinValue</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\BlurShadows\BlurShadows_cs.hlsl">
       <Filter>Source Files\Shader\BlurShadows</Filter>
     </FxCompile>
@@ -1463,6 +1460,18 @@
     </FxCompile>
     <FxCompile Include="Shaders\MergeValueShader\MergeMinValue_cs.hlsl">
       <Filter>Source Files\Shader\MergeValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmap_vs.hlsl">
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmapMinValue_cs.hlsl">
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmapMinValue_ps.hlsl">
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmapWithSampleRejection_ps.hlsl">
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

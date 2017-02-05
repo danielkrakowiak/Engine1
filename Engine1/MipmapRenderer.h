@@ -15,20 +15,25 @@ namespace Engine1
 {
     class Direct3DRendererCore;
     class GenerateMipmapMinValueComputeShader;
-    class GenerateMipmapMinValueVertexShader;
+    class GenerateMipmapVertexShader;
     class GenerateMipmapMinValueFragmentShader;
+    class GenerateMipmapWithSampleRejectionFragmentShader;
 
-    class MipmapMinValueRenderer
+    class MipmapRenderer
     {
         public:
 
-        MipmapMinValueRenderer( Direct3DRendererCore& rendererCore );
-        ~MipmapMinValueRenderer();
+        MipmapRenderer( Direct3DRendererCore& rendererCore );
+        ~MipmapRenderer();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device,
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
         void generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture );
+
+        // @param generateMipmapCount - if 0 passed, generate all mips down to 1x1.
+        void generateMipmapsWithSampleRejection( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture, 
+                                                 const float maxAcceptableValue, const int initialSrcMipmapLevel, int generateMipmapCount = 0 );
 
         private:
 
@@ -49,15 +54,16 @@ namespace Engine1
         RectangleMesh m_rectangleMesh;
 
         // Shaders.
-        std::shared_ptr< GenerateMipmapMinValueComputeShader >  m_generateMipmapMinValueComputeShader;
-        std::shared_ptr< GenerateMipmapMinValueVertexShader >   m_generateMipmapMinValueVertexShader;
-        std::shared_ptr< GenerateMipmapMinValueFragmentShader > m_generateMipmapMinValueFragmentShader;
+        std::shared_ptr< GenerateMipmapMinValueComputeShader >             m_generateMipmapMinValueComputeShader;
+        std::shared_ptr< GenerateMipmapVertexShader >                      m_generateMipmapVertexShader;
+        std::shared_ptr< GenerateMipmapMinValueFragmentShader >            m_generateMipmapMinValueFragmentShader;
+        std::shared_ptr< GenerateMipmapWithSampleRejectionFragmentShader > m_generateMipmapWithSampleRejectionFragmentShader;
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
         // Copying is not allowed.
-        MipmapMinValueRenderer( const MipmapMinValueRenderer& ) = delete;
-        MipmapMinValueRenderer& operator=( const MipmapMinValueRenderer& ) = delete;
+        MipmapRenderer( const MipmapRenderer& ) = delete;
+        MipmapRenderer& operator=( const MipmapRenderer& ) = delete;
     };
 }
 
