@@ -631,12 +631,23 @@ namespace Engine1
             {
                 for ( int x = 0; x < nextMipmapWidth; ++x ) 
                 {
+                    // Restrict pixel coords to avoid reading outside of texture.
+                    const int topRowY      = 2 * y;
+                    const int bottomRowY   = std::min( prevMipmapHeight - 1, 2 * y + 1 );
+                    const int leftColumnX  = 2 * x;
+                    const int rightColumnX = std::min( prevMipmapWidth - 1, 2 * x + 1 );
+
+                    const int topLeftIdx     = topRowY    * prevMipmapWidth + leftColumnX;
+                    const int topRightIdx    = topRowY    * prevMipmapWidth + rightColumnX;
+                    const int bottomLeftIdx  = bottomRowY * prevMipmapWidth + leftColumnX;
+                    const int bottomRightIdx = bottomRowY * prevMipmapWidth + rightColumnX;
+
                     nextMipmap[ y * nextMipmapWidth + x ] = 
                         average(
-                            prevMipmap[ ( 2 * y )     * prevMipmapWidth + 2 * x ],
-                            prevMipmap[ ( 2 * y )     * prevMipmapWidth + 2 * x + 1 ],
-                            prevMipmap[ ( 2 * y + 1 ) * prevMipmapWidth + 2 * x ],
-                            prevMipmap[ ( 2 * y + 1 ) * prevMipmapWidth + 2 * x + 1 ]
+                            prevMipmap[ topLeftIdx ],
+                            prevMipmap[ topRightIdx ],
+                            prevMipmap[ bottomLeftIdx ],
+                            prevMipmap[ bottomRightIdx ]
                         );
                 }
             }
