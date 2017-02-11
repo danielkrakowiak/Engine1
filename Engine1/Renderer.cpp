@@ -417,8 +417,29 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         //m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 0, 500, 500.0f );
 
         // #TODO: Should be profiled.
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 20, 500.0f );
+
+        // Spread data over 4 pixels.
+        
+        // 64 repeats looks nice... Optimize...
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f );
+       
+        // #TODO: Have to make all the spreads without enabling/disabling compute pipeline.
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 4, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 8, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 16, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 3, 500.0f, 32, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 2, 500.0f, 16, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 8, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 4, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 2, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 1, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 2, 500.0f, 2, 1 );
+
         m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 3, 500.0f, 0.0f );
+
+        // Generate mipmap from 3rd level to 4th level to achieve some final blur (on blur-radius texture).
+        // #TODO: We should have fully filled texture here - no need to reject any samples. Just normal mipmap generation.
+        m_mipmapRenderer.generateMipmapsWithSampleRejection( illuminationMinBlurRadiusTexture, 500.0f, 3, 1 );
 
         //m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );
 

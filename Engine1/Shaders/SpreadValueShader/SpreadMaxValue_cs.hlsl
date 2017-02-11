@@ -6,6 +6,10 @@ cbuffer ConstantBuffer
     float3 pad1;
     float  minAcceptableValue;
     float3 pad2;
+    int    spreadDistance; // Unused.
+    float3 pad3;
+    int    offset;         // Unused.
+    float3 pad4;
 };
 
 // Output.

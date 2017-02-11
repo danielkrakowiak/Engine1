@@ -6,9 +6,9 @@ cbuffer ConstantBuffer
     float3 pad1;
     float  minAcceptableValue;
     float3 pad2;
-    int    spreadDistance; // Unused.
+    int    spreadDistance; // In pixels.
     float3 pad3;
-    int    offset;         // Unused.
+    int    offset;         // In pixels (same along x and y).
     float3 pad4;
 };
 
@@ -27,7 +27,7 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const int2 texcoordInt = (int2)dispatchThreadId.xy;
+    const int2 texcoordInt = (int2)dispatchThreadId.xy * spreadDistance + offset.xx;
 
     const float value = g_texture[ texcoordInt ];
 
@@ -41,30 +41,24 @@ void main( uint3 groupId : SV_GroupID,
     // #TODO: OPTIMIZATION: Could use gather to optimize sampling.
 
     // Sampling shape:
-    //      #   #
-    //    #   #   #
+    //      # # #
     //      # * #
-    //    #   #   #
-    //      #   #
+    //      # # #
 
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  0, -1 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2( -1,  0 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  1,  0 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  0,  1 ), skipPixelIfBelowValue );
-
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2( -1, -2 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  1, -2 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2( -2, -1 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  2, -1 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2( -1,  2 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  1,  2 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2( -2,  1 ), skipPixelIfBelowValue );
-    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  2,  1 ), skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2( -spreadDistance, -spreadDistance ), skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  0,              -spreadDistance ), skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  spreadDistance, -spreadDistance ), skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2( -spreadDistance, 0 ),               skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  0,              0 ),               skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  spreadDistance, 0 ),               skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2( -spreadDistance, spreadDistance ),  skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  0,              spreadDistance ),  skipPixelIfBelowValue );
+    sampleConditionally( valueSum, weightSum, texcoordInt + int2(  spreadDistance, spreadDistance ),  skipPixelIfBelowValue );
 
     // Check if any samples were accepted - if so, avarage them.
     if ( weightSum > 0.0f ) 
     {
-        g_texture[ dispatchThreadId.xy ] = valueSum / weightSum;
+        g_texture[ texcoordInt ] = valueSum / weightSum;
     }
     
     // Note: min-acceptable-value is used to avoid spreading very low values accross large areas.
@@ -78,7 +72,7 @@ void sampleConditionally( inout float valueSum, inout float weightSum, in int2 t
     const float value = g_texture[ texcoordsInt ];
 
     // Equals zero if sample is greater than threshold.
-    const float acceptMul = saturate( maxAcceptableValue - value );
+    const float acceptMul = saturate( maxAcceptableValue - value ); 
 
     // Equals zero if sample is zero - we reject zeros because they mean samples outside of screen area.
     // And zeros don't really have to spread or be part of the avarage.

@@ -547,22 +547,18 @@ Idea:
 
 		- TODO: normalize the amount of shadow written and read from soft/hard illumination textures. Use equations from the note...
 
-		* THE MOST IMPORTANT QUESTION:
-		- how to spread min blur radius so that it smoothl;y transitions and blends between objects?
-		Not use strict min, but rather some weighted min? Where higher values also increase the output?
-
 		GOOD IDEAS FOR SPREADING BLUR RADIUS:
-		- first test artifacts when using blur radius in 1/4th resolution. Can we use such lowe res texture?
-		- RESULT: Using 3rd, 4th mipmap is totally OK and improves smoothness/quality. 
-		  Using higher mipmaps leads to undesired impact of one shadow blur on a different shadow blur nearby.
 
-		- Knowing that 1/4th resolution is OK it's worth to try the basic algorithm - stepping from pixel and looking for min blur radius in cross pattern. 
-		  For comparison at least.
+		***** USED: *********************
 
-		- Add custom mipmapping algorithm which only avarages samples below certain value. Avoids untouched pixels. That only could help a lot.
+		- generate mipmap for "blur radius" taking avarage only from non-empty samples.
+		- spread "blur radius" with avaraging of all non-empty pixels in some radius - it provides first blur of sharp egdes.
+		- first spread passes should spread 4px away to ensure that later "smart spread" will work.
+		- spread using 3rd mipmap, but than create the 4th mipmap and sample 4th. Because spreading always leaves some sharp egdes, that will smooth them.
 
-		- test spreading with avaraging? If samples are ok from more than one direction. Before testing smart spreading.
+		*********************************
 
+		- limit spreading blur radius for low values. One black patch shouldn't spread to the rest of the screen...
 
 		- first spread in radius of 4px
 		- then run compute every 4th pixel and spread once
@@ -576,9 +572,16 @@ Idea:
 		- When filling gaps, ignore neighbor samples which have value lower than dist to neighbor (passed as param to shader and depanding on the pass).
 		- When more than one sample is available - take avarage.
 
+		- BUG: When sampling during spreading blur-radius texture I accept samples from outside of screen - because thay value of 0 - they get accepted.
+
+		- SOME PROBLEM: Depending whether we look at close-up or from afar using hardcoded 4 px gives different results...
+
 		- Best to do the above using screen-space blur radius - easier to reject far samples.
 		  But then it could be recalculated to world-space in a separate pass - so that rejecting shadow samples is easier in "blur shadows" phase.
 	  ---------------------------------------------------------------------------
+
+
+
 
 	  Sources: 
 

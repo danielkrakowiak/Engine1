@@ -20,7 +20,9 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext,
                             const float skipPixelIfBelowValue,
-                            const float minAcceptableValue );
+                            const float minAcceptableValue,
+                            const int spreadDistance,
+                            const int offset );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
@@ -32,6 +34,10 @@ namespace Engine1
             float3 pad1;
             float  minAcceptableValue;
             float3 pad2;
+            int    spreadDistance;
+            float3 pad3;
+            int    offset;
+            float3 pad4;
         };
 
         // Copying is not allowed.

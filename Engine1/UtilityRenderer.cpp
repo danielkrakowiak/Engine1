@@ -15,6 +15,7 @@ UtilityRenderer::UtilityRenderer( Direct3DRendererCore& rendererCore ) :
     m_replaceValueComputeShader( std::make_shared< ReplaceValueComputeShader >() ),
     m_spreadMaxValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),
     m_spreadMinValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),
+    m_spreadSparseMinValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),
     m_mergeMinValueComputeShader( std::make_shared< MergeValueComputeShader >() )
 {}
 
@@ -98,7 +99,7 @@ void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBi
 
     for( int i = 0; i < repeatCount; ++i )
     {
-        m_spreadMaxValueComputeShader->setParameters( *m_deviceContext.Get(), ignorePixelIfBelowValue, 666.0f );
+        m_spreadMaxValueComputeShader->setParameters( *m_deviceContext.Get(), ignorePixelIfBelowValue, 666.0f, 1, 0 ); //#TODO: min spread value to be removed.
 
         m_rendererCore.compute( groupCount );
     }
@@ -114,7 +115,9 @@ void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBi
 void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
                                        const int mipmapLevel,
                                        const int repeatCount,
-                                       const float ignorePixelIfBelowValue )
+                                       const float ignorePixelIfBelowValue,
+                                       const int spreadDistance,
+                                       const int offset )
 {
     if ( !m_initialized )
         throw std::exception( "SpreadValueRenderer::spreadMinValues - renderer has not been initialized." );
@@ -131,24 +134,31 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBi
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
                                                  unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
 
-    uint3 groupCount( 
-        texture->getWidth( mipmapLevel ) / 8, 
-        texture->getHeight( mipmapLevel ) / 8, 
-        1 
+    const bool useSparseSpread = (spreadDistance > 0);
+
+    uint3 groupCount(
+        std::ceil( (float)texture->getWidth( mipmapLevel ) / (float)std::max( 1, spreadDistance ) / 8.0f ),
+        std::ceil( (float)texture->getHeight( mipmapLevel ) / (float)std::max( 1, spreadDistance ) / 8.0f ),
+        1
     );
 
-    m_rendererCore.enableComputeShader( m_spreadMinValueComputeShader );
+    // Decide which shader to use depending on spread distance.
+    auto& spreadValueShader = useSparseSpread 
+        ? m_spreadSparseMinValueComputeShader 
+        : m_spreadMinValueComputeShader;
+
+    m_rendererCore.enableComputeShader( spreadValueShader );
 
     for ( int i = 0; i < repeatCount; ++i ) 
     {
         const float minAcceptableValue = logf( (float)i + 1.0f ) * 0.01f;
 
-        m_spreadMinValueComputeShader->setParameters( *m_deviceContext.Get(), ignorePixelIfBelowValue, minAcceptableValue );
+        spreadValueShader->setParameters( *m_deviceContext.Get(), ignorePixelIfBelowValue, minAcceptableValue, spreadDistance, offset );
 
         m_rendererCore.compute( groupCount );
     }
 
-    m_spreadMinValueComputeShader->unsetParameters( *m_deviceContext.Get() );
+    spreadValueShader->unsetParameters( *m_deviceContext.Get() );
 
     // Unbind resources to avoid binding the same resource on input and output.
     m_rendererCore.disableUnorderedAccessViews();
@@ -196,5 +206,6 @@ void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
     m_replaceValueComputeShader->loadAndInitialize( "Shaders/ReplaceValueShader/ReplaceValue_cs.cso", device );
     m_spreadMaxValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadMaxValue_cs.cso", device );
     m_spreadMinValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadMinValue_cs.cso", device );
+    m_spreadSparseMinValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadSparseMinValue_cs.cso", device );
     m_mergeMinValueComputeShader->loadAndInitialize( "Shaders/MergeValueShader/MergeMinValue_cs.cso", device );
 }

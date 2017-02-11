@@ -38,7 +38,9 @@ namespace Engine1
         void spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
                               const int mipmapLevel,
                               const int repeatCount,
-                              const float ignorePixelIfBelowValue );
+                              const float ignorePixelIfBelowValue,
+                              const int spreadDistance = -1,
+                              const int offset = 0 );
 
         void mergeMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > texture2,
@@ -57,6 +59,7 @@ namespace Engine1
         std::shared_ptr< ReplaceValueComputeShader > m_replaceValueComputeShader;
         std::shared_ptr< SpreadValueComputeShader >  m_spreadMaxValueComputeShader;
         std::shared_ptr< SpreadValueComputeShader >  m_spreadMinValueComputeShader;
+        std::shared_ptr< SpreadValueComputeShader >  m_spreadSparseMinValueComputeShader;
         std::shared_ptr< MergeValueComputeShader >   m_mergeMinValueComputeShader;
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );

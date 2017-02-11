@@ -1473,5 +1473,8 @@
     <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmapWithSampleRejection_ps.hlsl">
       <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\SpreadValueShader\SpreadSparseMinValue_cs.hlsl">
+      <Filter>Source Files\Shader\SpreadValue</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

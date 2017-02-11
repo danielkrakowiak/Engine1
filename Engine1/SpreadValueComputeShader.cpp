@@ -32,7 +32,9 @@ void SpreadValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
 
 void SpreadValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
                                               const float skipPixelIfBelowValue, 
-                                              const float minAcceptableValue )
+                                              const float minAcceptableValue,
+                                              const int spreadDistance,
+                                              const int offset )
 {
     if ( !m_compiled )
         throw std::exception( "SpreadValueComputeShader::setParameters - Shader hasn't been compiled yet." );
@@ -48,6 +50,8 @@ void SpreadValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext
 
     dataPtr->skipPixelIfBelowValue = skipPixelIfBelowValue;
     dataPtr->minAcceptableValue    = minAcceptableValue;
+    dataPtr->spreadDistance        = spreadDistance;
+    dataPtr->offset                = offset;
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
