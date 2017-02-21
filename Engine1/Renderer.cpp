@@ -368,14 +368,14 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getIlluminationTexture() ), 0
         );
 
-        auto illuminationMinBlurRadiusTexture = m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture();
-        auto illuminationMaxBlurRadiusTexture = m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture();
+        auto illuminationMinBlurRadiusTextureInWorldSpace = m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture();
+        auto illuminationMaxBlurRadiusTextureInWorldSpace = m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture();
 
         // #TODO: Is this copy needed?
-        m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTexture, *illuminationMinBlurRadiusTexture, 0 );
+        m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTextureInWorldSpace, *illuminationMinBlurRadiusTextureInWorldSpace, 0 );
 
         // Note: Has to replace max values (untouched pixels) here - otherwise they would spread all over the texture.
-        m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 0, 500.0f, 0.0f );
+        m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTextureInWorldSpace, 0, 500.0f, 0.0f );
 
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
@@ -386,8 +386,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getNormalRenderTarget(),
             nullptr,
             m_rasterizeShadowRenderer.getIlluminationTexture(),
-            illuminationMinBlurRadiusTexture,
-            illuminationMaxBlurRadiusTexture,
+            illuminationMinBlurRadiusTextureInWorldSpace,
+            illuminationMaxBlurRadiusTextureInWorldSpace,
             blockActors
         );
 
@@ -410,7 +410,11 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         //    // Because when we spread blur-radius for far away shadows the number of step required to
         //    // do that may vary a lot depending on the situation.
 
-        m_mipmapRenderer.generateMipmapsWithSampleRejection( illuminationMinBlurRadiusTexture, 500.0f, 0, 3 );
+        m_mipmapRenderer.generateMipmapsWithSampleRejection( 
+            illuminationMinBlurRadiusTextureInWorldSpace, 
+            m_deferredRenderer.getPositionRenderTarget(), 
+            500.0f, 0, 3 
+        );
         
         // #TODO: Should be profiled.
         //m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 0, 500.0f, 0.0f );
@@ -420,26 +424,38 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 
         // Spread data over 4 pixels.
         
+        int totalPreviousSpread = 0;
         // 64 repeats looks nice... Optimize...
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f );
-       
+        // #TODO: IS is really needed? Maybe I should test instead of doing it theoretically correctly?
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread );
+        totalPreviousSpread += 2;
         // #TODO: Have to make all the spreads without enabling/disabling compute pipeline.
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 4, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 8, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 16, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 3, 500.0f, 32, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 2, 500.0f, 16, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 8, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 4, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 2, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 1, 500.0f, 1, 0 );
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTexture, 3, 2, 500.0f, 2, 1 );
+        // #TOOD: Number of repeats etc depends on screen resolution. Should be properly calculated...
 
-        m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTexture, 3, 500.0f, 0.0f );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 32, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 1, 0 );
+        totalPreviousSpread += 16 * 4;
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 8, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 16, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 3, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 32, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 2, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 16, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 8, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 4, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), 0, 2, 0 );
+        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), 0, 1, 0 );
+
+        m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 500.0f, 0.0f );
+
+
+        //////////////////////////////////////
+        // Note: Not needed - only to improve visualization of debug blur-radius.
+        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 0, 500.0f, 0.0f );
+        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 1, 500.0f, 0.0f );
+        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 2, 500.0f, 0.0f );
+        //////////////////////////////////////
 
         // Generate mipmap from 3rd level to 4th level to achieve some final blur (on blur-radius texture).
         // #TODO: We should have fully filled texture here - no need to reject any samples. Just normal mipmap generation.
-        m_mipmapRenderer.generateMipmapsWithSampleRejection( illuminationMinBlurRadiusTexture, 500.0f, 3, 1 );
+        //m_mipmapRenderer.generateMipmapsWithSampleRejection( illuminationMinBlurRadiusTextureInScreenSpace, 500.0f, 3, 1 );
 
         //m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );
 
@@ -447,6 +463,46 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         //illuminationMinBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
         //illuminationMaxBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
         //m_mipmapMinValueRenderer.generateMipmapsMinValue( illuminationBlurRadiusTexture );
+
+        if ( activeViewLevel.empty() ) 
+        {
+            if ( activeViewType == View::MinIlluminationBlurRadiusInScreenSpace
+                 || activeViewType == View::MaxIlluminationBlurRadiusInScreenSpace
+                 || activeViewType == View::MinIlluminationBlurRadiusInWorldSpace
+                 || activeViewType == View::MaxIlluminationBlurRadiusInWorldSpace ) 
+            {
+                // #TODO: Remove this - only for debug.
+                // Note: Not needed - only to improve visualization of debug blur-radius.
+                //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 0, 500.0f, 0.0f );
+                //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 1, 500.0f, 0.0f );
+                //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 2, 500.0f, 0.0f );
+            }
+        }
+
+        if ( activeViewLevel.empty() ) 
+        {
+            switch ( activeViewType ) {
+                case View::MinIlluminationBlurRadiusInScreenSpace:
+                    return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture() );
+                case View::MaxIlluminationBlurRadiusInScreenSpace:
+                    return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture() );
+            }
+        }
+
+        // #TODO: Should be profiled.
+       /* m_utilityRenderer.convertDistanceFromScreenSpaceToWorldSpace(
+            illuminationMinBlurRadiusTextureInScreenSpace,
+            3, camera.getPosition(),
+            m_deferredRenderer.getPositionRenderTarget()
+        );*/
+        //auto illuminationMinBlurRadiusTextureInWorldSpace = illuminationMinBlurRadiusTextureInScreenSpace;
+
+        /*m_utilityRenderer.convertDistanceFromScreenSpaceToWorldSpace(
+            illuminationMaxBlurRadiusTextureInScreenSpace,
+            3, camera.getPosition(),
+            m_deferredRenderer.getPositionRenderTarget()
+        );*/
+        //auto illuminationMaxBlurRadiusTextureInWorldSpace = illuminationMaxBlurRadiusTextureInScreenSpace;
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
@@ -459,8 +515,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
             m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
             m_raytraceShadowRenderer.getSoftIlluminationTexture(),
-            illuminationMinBlurRadiusTexture,
-            illuminationMaxBlurRadiusTexture,
+            illuminationMinBlurRadiusTextureInWorldSpace,
+            illuminationMaxBlurRadiusTextureInWorldSpace,
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -526,9 +582,9 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             case View::SpotlightDepth:
                 if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
                     return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );
-            case View::MinIlluminationBlurRadius:
+            case View::MinIlluminationBlurRadiusInWorldSpace:
                 return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture() );
-            case View::MaxIlluminationBlurRadius:
+            case View::MaxIlluminationBlurRadiusInWorldSpace:
                 return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture() );
         }
     }
@@ -1094,4 +1150,35 @@ void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Devic
 const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& Renderer::debugGetCurrentRefractiveIndexTextures()
 {
     return m_raytraceRenderer.getCurrentRefractiveIndexTextures();
+}
+
+std::string Renderer::viewToString( const View view )
+{
+    switch ( view ) {
+        case View::Final:                                    return "Final";
+        case View::Shaded:                                   return "Shaded";
+        case View::Depth:                                    return "Depth";
+        case View::Position:                                 return "Position";
+        case View::Emissive:                                 return "Emissive";
+        case View::Albedo:                                   return "Albedo";
+        case View::Normal:                                   return "Normal";
+        case View::Metalness:                                return "Metalness";
+        case View::Roughness:                                return "Roughness";
+        case View::IndexOfRefraction:                        return "IndexOfRefraction";
+        case View::RayDirections:                            return "RayDirections";
+        case View::Contribution:                             return "Contribution";
+        case View::CurrentRefractiveIndex:                   return "CurrentRefractiveIndex";
+        case View::Preillumination:                          return "Preillumination";
+        case View::HardIllumination:                         return "HardIllumination";
+        case View::SoftIllumination:                         return "SoftIllumination";
+        case View::BlurredIllumination:                      return "BlurredIllumination";
+        case View::SpotlightDepth:                           return "SpotlightDepth";
+        case View::MinIlluminationBlurRadiusInScreenSpace:   return "MinIlluminationBlurRadiusInScreenSpace";
+        case View::MaxIlluminationBlurRadiusInScreenSpace:   return "MaxIlluminationBlurRadiusInScreenSpace";
+        case View::MinIlluminationBlurRadiusInWorldSpace:    return "MinIlluminationBlurRadiusInWorldSpace";
+        case View::MaxIlluminationBlurRadiusInWorldSpace:    return "MaxIlluminationBlurRadiusInWorldSpace";
+        case View::Test:                                     return "Test";
+    }
+
+    return "";
 }

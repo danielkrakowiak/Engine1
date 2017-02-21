@@ -10,7 +10,18 @@ cbuffer ConstantBuffer
     float3 pad3;
     int    offset;         // Unused.
     float3 pad4;
+    float2 textureSize;
+    float2 pad5;
+    float3 cameraPos;
+    float  pad6;
+    float  totalSpread;
+    float3 pad7;
 };
+
+SamplerState g_samplerState;
+
+// Input.
+Texture2D< float4 > g_positionTexture : register( t0 );
 
 // Output.
 RWTexture2D<float> g_texture : register( u0 );

@@ -5,6 +5,7 @@
 #include "ReplaceValueComputeShader.h"
 #include "SpreadValueComputeShader.h"
 #include "MergeValueComputeShader.h"
+#include "ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h"
 
 using namespace Engine1;
 
@@ -16,7 +17,8 @@ UtilityRenderer::UtilityRenderer( Direct3DRendererCore& rendererCore ) :
     m_spreadMaxValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),
     m_spreadMinValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),
     m_spreadSparseMinValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),
-    m_mergeMinValueComputeShader( std::make_shared< MergeValueComputeShader >() )
+    m_mergeMinValueComputeShader( std::make_shared< MergeValueComputeShader >() ),
+    m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader( std::make_shared< ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader >() )
 {}
 
 UtilityRenderer::~UtilityRenderer()
@@ -57,7 +59,11 @@ void UtilityRenderer::replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind
 
     m_rendererCore.enableComputeShader( m_replaceValueComputeShader );
 
-    uint3 groupCount( texture->getWidth() / 8, texture->getHeight() / 8, 1 );
+    uint3 groupCount( 
+        texture->getWidth( mipmapLevel ) / 8, 
+        texture->getHeight( mipmapLevel ) / 8, 
+        1 
+    );
 
     m_rendererCore.compute( groupCount );
 
@@ -72,7 +78,8 @@ void UtilityRenderer::replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind
 void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture, 
                                        const int mipmapLevel,
                                        const int repeatCount,
-                                       const float ignorePixelIfBelowValue )
+                                       const float ignorePixelIfBelowValue,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture )
 {
     if ( !m_initialized )
         throw std::exception( "SpreadValueRenderer::spreadMaxValues - renderer has not been initialized." );
@@ -99,7 +106,16 @@ void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBi
 
     for( int i = 0; i < repeatCount; ++i )
     {
-        m_spreadMaxValueComputeShader->setParameters( *m_deviceContext.Get(), ignorePixelIfBelowValue, 666.0f, 1, 0 ); //#TODO: min spread value to be removed.
+        m_spreadMaxValueComputeShader->setParameters( 
+            *m_deviceContext.Get(), 
+            ignorePixelIfBelowValue, 
+            666.0f, 
+            0, // Unused.
+            1, 0, 
+            texture->getDimensions( mipmapLevel ), 
+            float3::ZERO, // Unused.
+            positionTexture // Unused.
+        ); //#TODO: min spread value to be removed.
 
         m_rendererCore.compute( groupCount );
     }
@@ -116,6 +132,9 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBi
                                        const int mipmapLevel,
                                        const int repeatCount,
                                        const float ignorePixelIfBelowValue,
+                                       const float3 cameraPosition,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                       const int totalPreviousSpread, 
                                        const int spreadDistance,
                                        const int offset )
 {
@@ -137,8 +156,8 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBi
     const bool useSparseSpread = (spreadDistance > 0);
 
     uint3 groupCount(
-        std::ceil( (float)texture->getWidth( mipmapLevel ) / (float)std::max( 1, spreadDistance ) / 8.0f ),
-        std::ceil( (float)texture->getHeight( mipmapLevel ) / (float)std::max( 1, spreadDistance ) / 8.0f ),
+        (unsigned int)std::ceil( (float)texture->getWidth( mipmapLevel ) / (float)std::max( 1, spreadDistance ) / 8.0f ),
+        (unsigned int)std::ceil( (float)texture->getHeight( mipmapLevel ) / (float)std::max( 1, spreadDistance ) / 8.0f ),
         1
     );
 
@@ -149,11 +168,25 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBi
 
     m_rendererCore.enableComputeShader( spreadValueShader );
 
+    int totalSpread = totalPreviousSpread;
+
     for ( int i = 0; i < repeatCount; ++i ) 
     {
         const float minAcceptableValue = logf( (float)i + 1.0f ) * 0.01f;
 
-        spreadValueShader->setParameters( *m_deviceContext.Get(), ignorePixelIfBelowValue, minAcceptableValue, spreadDistance, offset );
+        totalSpread += spreadDistance;
+
+        spreadValueShader->setParameters( 
+            *m_deviceContext.Get(), 
+            ignorePixelIfBelowValue, 
+            minAcceptableValue, 
+            totalPreviousSpread + spreadDistance,
+            spreadDistance, 
+            offset, 
+            texture->getDimensions( mipmapLevel ), 
+            cameraPosition,
+            positionTexture 
+        );
 
         m_rendererCore.compute( groupCount );
     }
@@ -189,11 +222,51 @@ void UtilityRenderer::mergeMinValues( std::shared_ptr< Texture2DSpecBind< TexBin
 
     m_rendererCore.enableComputeShader( m_mergeMinValueComputeShader );
 
-    uint3 groupCount( texture->getWidth() / 8, texture->getHeight() / 8, 1 );
+    uint3 groupCount( texture->getWidth( mipmapLevel ) / 8, texture->getHeight( mipmapLevel ) / 8, 1 );
 
     m_rendererCore.compute( groupCount );
 
     m_mergeMinValueComputeShader->unsetParameters( *m_deviceContext.Get() );
+
+    // Unbind resources to avoid binding the same resource on input and output.
+    m_rendererCore.disableUnorderedAccessViews();
+
+    m_rendererCore.disableComputePipeline();
+}
+
+void UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
+                                                                  const int mipmapLevel,
+                                                                  const float3& cameraPos,
+                                                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture )
+{
+    if ( !m_initialized )
+        throw std::exception( "UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace - renderer has not been initialized." );
+
+    m_rendererCore.disableRenderingPipeline();
+
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+
+    unorderedAccessTargetsF1.push_back( texture );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
+                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
+
+    m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader->setParameters( *m_deviceContext.Get(), cameraPos, positionTexture, texture->getDimensions( mipmapLevel ) );
+
+    m_rendererCore.enableComputeShader( m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader );
+
+    uint3 groupCount( 
+        texture->getWidth( mipmapLevel ) / 8, 
+        texture->getHeight( mipmapLevel ) / 8, 
+        1 
+    );
+
+    m_rendererCore.compute( groupCount );
+
+    m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader->unsetParameters( *m_deviceContext.Get() );
 
     // Unbind resources to avoid binding the same resource on input and output.
     m_rendererCore.disableUnorderedAccessViews();
@@ -208,4 +281,5 @@ void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
     m_spreadMinValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadMinValue_cs.cso", device );
     m_spreadSparseMinValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadSparseMinValue_cs.cso", device );
     m_mergeMinValueComputeShader->loadAndInitialize( "Shaders/MergeValueShader/MergeMinValue_cs.cso", device );
+    m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader->loadAndInitialize( "Shaders/ConvertValueFromScreenSpaceToWorldSpaceShader/ConvertDistanceFromScreenSpaceToWorldSpace_cs.cso", device );
 }

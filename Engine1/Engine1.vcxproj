@@ -269,6 +269,7 @@
     <ClInclude Include="BVHTreeBuffer.h" />
     <ClInclude Include="BVHTreeBufferParser.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h" />
     <ClInclude Include="EmissiveBlockMeshFragmentShader.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="FreeCameraParser.h" />
@@ -427,6 +428,7 @@
     <ClCompile Include="BVHTreeBuffer.cpp" />
     <ClCompile Include="BVHTreeBufferParser.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FreeCameraParser.cpp" />
     <ClCompile Include="CombiningFragmentShader.cpp" />
@@ -736,6 +738,17 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\CombiningShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\CombiningShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\CombiningShader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\ConvertValueFromScreenSpaceToWorldSpaceShader\ConvertDistanceFromScreenSpaceToWorldSpace_cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\ConvertValueFromScreenSpaceToWorldSpaceShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\ConvertValueFromScreenSpaceToWorldSpaceShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\ConvertValueFromScreenSpaceToWorldSpaceShader\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="Shaders\EdgeDetectionShader\EdgeDetection_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

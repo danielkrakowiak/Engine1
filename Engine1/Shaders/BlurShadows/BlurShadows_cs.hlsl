@@ -90,8 +90,8 @@ void main( uint3 groupId : SV_GroupID,
         minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftRight, 3.0f ) );
     }*/
     ///////////////////////////////////////////////////////////////////////////////////////////
-
-    const float minBlurRadiusInWorldSpace  = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
+    
+    const float minBlurRadiusInWorldSpace = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
     const float pixelSizeInWorldSpace      = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
     const float minBlurRadiusInScreenSpace = minBlurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
     const float samplingRadius             = minBlurRadiusInScreenSpace;
@@ -125,7 +125,7 @@ void main( uint3 groupId : SV_GroupID,
 
                 //#TODO: When we sample outside of light cone - the sample should be black.
 
-                float sampleBlurRadiusInWorldSpace  = g_maxIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 1.5f );
+                float sampleBlurRadiusInWorldSpace  = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 1.5f );
                 const float sampleIlluminationSoftness = min( 1.0f, sampleBlurRadiusInWorldSpace / 1.0f );
                 const float sampleIlluminationHardness = 1.0f - sampleIlluminationSoftness;
 
@@ -138,7 +138,7 @@ void main( uint3 groupId : SV_GroupID,
                 //const float sampleIllumination = illuminationSoftness * sampleSoftIllumination;//lerp( sampleHardIllumination, sampleSoftIllumination, illuminationSoftness );//illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
                 const float sampleIllumination1 = min( 1.0f, illuminationHardness / sampleIlluminationHardness ) * sampleHardIllumination;
                 const float sampleIllumination2 = min( 1.0f, illuminationSoftness / sampleIlluminationSoftness ) * sampleSoftIllumination;
-                const float sampleIllumination = sampleSoftIllumination;// + sampleHardIllumination;//sampleIllumination1 + sampleIllumination2;
+                const float sampleIllumination = sampleSoftIllumination;// + sampleHardIllumination;*/ //sampleIllumination1 + sampleIllumination2;
                 
                 const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
 

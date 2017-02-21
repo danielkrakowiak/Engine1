@@ -1,6 +1,7 @@
 SamplerState g_samplerState  : register( s0 );
 
 Texture2D<float> g_textureSrcMipmap : register( t0 );
+Texture2D<float> g_positionTexture  : register( t1 );
 
 cbuffer ConstantBuffer
 {
@@ -26,6 +27,8 @@ float main(PixelInputType input) : SV_Target
     const float valueTopRight    = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2(  srcPixelSizeInTexcoords.x, -srcPixelSizeInTexcoords.y ) );
     const float valueBottomLeft  = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2( -srcPixelSizeInTexcoords.x,  srcPixelSizeInTexcoords.y ) );
     const float valueBottomRight = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2(  srcPixelSizeInTexcoords.x,  srcPixelSizeInTexcoords.y ) );
+
+    //const float positionTopLeft     = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2( -srcPixelSizeInTexcoords.x, -srcPixelSizeInTexcoords.y ) );
 
     float valueSum  = 0.0f;
     float weightSum = 0.0f;

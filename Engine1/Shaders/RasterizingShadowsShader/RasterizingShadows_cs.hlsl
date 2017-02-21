@@ -37,6 +37,8 @@ static const float zNear   = 0.1f;
 static const float zFar    = 100.0f;
 static const float zRange  = zFar - zNear;
 
+static const float Pi = 3.14159265f;
+
 static const float maxIlluminationBaseBlurRadius = 80.0f;
 
 float linearizeDepth( float depthSample );
@@ -155,8 +157,12 @@ float linearizeDepth( float depthSample )
 
 float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
 {
-    const float baseBlurRadius = min( maxIlluminationBaseBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    const float blurRadiusInWorldSpace = min( maxIlluminationBaseBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
     //const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
 
-    return baseBlurRadius/*blurRadius*/;
+    //#TODO: Blur radius may have different resolution in the future? Using outputTextureSize may not be safe.
+    const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+    const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;
+
+    return blurRadiusInScreenSpace;
 }

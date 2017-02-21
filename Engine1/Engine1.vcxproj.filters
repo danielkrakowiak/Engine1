@@ -367,29 +367,41 @@
     <Filter Include="Header Files\Shader\BlurShadows">
       <UniqueIdentifier>{c8529707-0f7c-4333-9fb4-0e86a8e5791a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shader\ReplaceValue">
-      <UniqueIdentifier>{7cf89a87-1c88-434d-98fd-010807d97b9e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\ReplaceValue">
-      <UniqueIdentifier>{887dba40-9150-4a80-9248-f5da893fd4f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\SpreadValue">
-      <UniqueIdentifier>{ac469873-20f9-4511-bca8-633da842f26f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\SpreadValue">
-      <UniqueIdentifier>{c66bba5d-d6ed-4d3c-972a-5f550cc25952}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader\MergeValue">
-      <UniqueIdentifier>{24e3e6da-1767-4bba-9063-7c606a1fa5c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader\MergeValue">
-      <UniqueIdentifier>{b784cfaf-b5dd-4c68-afb4-f65d48c5c6d1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Shader\GenerateMipmap">
       <UniqueIdentifier>{9e96639e-71dc-4be5-ba4a-2212ff47310b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Shader\GenerateMipmap">
       <UniqueIdentifier>{5e388846-a3d8-43de-9df4-f15be78662af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utility">
+      <UniqueIdentifier>{9826791d-875c-406a-84d2-68dca99a45af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace">
+      <UniqueIdentifier>{f4b7ae61-fd32-4412-ae34-cd8e58d95ed5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utility\MergeValue">
+      <UniqueIdentifier>{24e3e6da-1767-4bba-9063-7c606a1fa5c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utility\SpreadValue">
+      <UniqueIdentifier>{ac469873-20f9-4511-bca8-633da842f26f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utility\ReplaceValue">
+      <UniqueIdentifier>{7cf89a87-1c88-434d-98fd-010807d97b9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Utility">
+      <UniqueIdentifier>{2d8715ed-0c76-45c6-9e97-100743eed767}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Utility\ReplaceValue">
+      <UniqueIdentifier>{887dba40-9150-4a80-9248-f5da893fd4f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Utility\SpreadValue">
+      <UniqueIdentifier>{c66bba5d-d6ed-4d3c-972a-5f550cc25952}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Utility\MergeValue">
+      <UniqueIdentifier>{b784cfaf-b5dd-4c68-afb4-f65d48c5c6d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace">
+      <UniqueIdentifier>{4e2cf4b9-819c-4ea0-be56-011cd42d27b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -841,16 +853,16 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ReplaceValueComputeShader.h">
-      <Filter>Header Files\Shader\ReplaceValue</Filter>
+      <Filter>Header Files\Shader\Utility\ReplaceValue</Filter>
     </ClInclude>
     <ClInclude Include="SpreadValueComputeShader.h">
-      <Filter>Header Files\Shader\SpreadValue</Filter>
+      <Filter>Header Files\Shader\Utility\SpreadValue</Filter>
     </ClInclude>
     <ClInclude Include="UtilityRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="MergeValueComputeShader.h">
-      <Filter>Header Files\Shader\MergeValue</Filter>
+      <Filter>Header Files\Shader\Utility\MergeValue</Filter>
     </ClInclude>
     <ClInclude Include="MipmapRenderer.h">
       <Filter>Header Files\Renderer</Filter>
@@ -860,6 +872,9 @@
     </ClInclude>
     <ClInclude Include="GenerateMipmapWithSampleRejectionFragmentShader.h">
       <Filter>Header Files\Shader\GenerateMipmap</Filter>
+    </ClInclude>
+    <ClInclude Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h">
+      <Filter>Header Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1281,16 +1296,16 @@
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="ReplaceValueComputeShader.cpp">
-      <Filter>Source Files\Shader\ReplaceValue</Filter>
+      <Filter>Source Files\Shader\Utility\ReplaceValue</Filter>
     </ClCompile>
     <ClCompile Include="SpreadValueComputeShader.cpp">
-      <Filter>Source Files\Shader\SpreadValue</Filter>
+      <Filter>Source Files\Shader\Utility\SpreadValue</Filter>
     </ClCompile>
     <ClCompile Include="UtilityRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="MergeValueComputeShader.cpp">
-      <Filter>Source Files\Shader\MergeValue</Filter>
+      <Filter>Source Files\Shader\Utility\MergeValue</Filter>
     </ClCompile>
     <ClCompile Include="MipmapRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
@@ -1300,6 +1315,9 @@
     </ClCompile>
     <ClCompile Include="GenerateMipmapVertexShader.cpp">
       <Filter>Source Files\Shader\GenerateMipmap</Filter>
+    </ClCompile>
+    <ClCompile Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.cpp">
+      <Filter>Source Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1450,16 +1468,16 @@
       <Filter>Source Files\Shader\BlurShadows</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\ReplaceValueShader\ReplaceValue_cs.hlsl">
-      <Filter>Source Files\Shader\ReplaceValue</Filter>
+      <Filter>Source Files\Shader\Utility\ReplaceValue</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SpreadValueShader\SpreadMaxValue_cs.hlsl">
-      <Filter>Source Files\Shader\SpreadValue</Filter>
+      <Filter>Source Files\Shader\Utility\SpreadValue</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SpreadValueShader\SpreadMinValue_cs.hlsl">
-      <Filter>Source Files\Shader\SpreadValue</Filter>
+      <Filter>Source Files\Shader\Utility\SpreadValue</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\MergeValueShader\MergeMinValue_cs.hlsl">
-      <Filter>Source Files\Shader\MergeValue</Filter>
+      <Filter>Source Files\Shader\Utility\MergeValue</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmap_vs.hlsl">
       <Filter>Source Files\Shader\GenerateMipmap</Filter>
@@ -1474,7 +1492,10 @@
       <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SpreadValueShader\SpreadSparseMinValue_cs.hlsl">
-      <Filter>Source Files\Shader\SpreadValue</Filter>
+      <Filter>Source Files\Shader\Utility\SpreadValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ConvertValueFromScreenSpaceToWorldSpaceShader\ConvertDistanceFromScreenSpaceToWorldSpace_cs.hlsl">
+      <Filter>Source Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

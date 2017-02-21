@@ -1,4 +1,4 @@
-#include "SpreadValueComputeShader.h"
+#include "ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h"
 
 #include "StringUtil.h"
 
@@ -9,11 +9,11 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-SpreadValueComputeShader::SpreadValueComputeShader() {}
+ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader::ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader() {}
 
-SpreadValueComputeShader::~SpreadValueComputeShader() {}
+ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader::~ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader() {}
 
-void SpreadValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader::initialize( ComPtr< ID3D11Device >& device )
 {
     {
         // Create constant buffer.
@@ -26,7 +26,8 @@ void SpreadValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
         desc.StructureByteStride = 0;
 
         HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
-        if ( result < 0 ) throw std::exception( "SpreadValueComputeShader::initialize - creating constant buffer failed." );
+        if ( result < 0 ) 
+            throw std::exception( "ConvertValueFromScreenSpaceToWorldSpaceComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
     { // Create linear sampler configuration.
@@ -48,22 +49,17 @@ void SpreadValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
         // Create the texture sampler state.
         HRESULT result = device->CreateSamplerState( &desc, m_samplerState.ReleaseAndGetAddressOf() );
         if ( result < 0 )
-            throw std::exception( "SpreadValueComputeShader::initialize - Failed to create texture sampler state." );
+            throw std::exception( "BlurShadowsComputeShader::compileFromFile - Failed to create texture sampler state." );
     }
 }
 
-void SpreadValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
-                                              const float skipPixelIfBelowValue, 
-                                              const float minAcceptableValue,
-                                              const int  totalSpread,
-                                              const int spreadDistance,
-                                              const int offset,
-                                              const int2 textureSize,
-                                              const float3 cameraPos,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture )
+void ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+                                                                          const float3& cameraPos,
+                                                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                                                          const int2 outputTextureSize )
 {
     if ( !m_compiled )
-        throw std::exception( "SpreadValueComputeShader::setParameters - Shader hasn't been compiled yet." );
+        throw std::exception( "ConvertValueFromScreenSpaceToWorldSpaceComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
         const unsigned int resourceCount = 1;
@@ -79,27 +75,22 @@ void SpreadValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext
 
     HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
     if ( result < 0 )
-        throw std::exception( "SpreadValueComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
+        throw std::exception( "ConvertValueFromScreenSpaceToWorldSpaceComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-    dataPtr->skipPixelIfBelowValue = skipPixelIfBelowValue;
-    dataPtr->minAcceptableValue    = minAcceptableValue;
-    dataPtr->spreadDistance        = spreadDistance;
-    dataPtr->offset                = offset;
-    dataPtr->textureSize           = (float2)textureSize;
-    dataPtr->cameraPos             = cameraPos;
-    dataPtr->totalSpread           = (float)totalSpread;
+    dataPtr->cameraPos         = cameraPos;
+    dataPtr->outputTextureSize = (float2)outputTextureSize;
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
     deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void SpreadValueComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
     if ( !m_compiled )
-        throw std::exception( "SpreadValueComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+        throw std::exception( "ConvertValueFromScreenSpaceToWorldSpaceComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };

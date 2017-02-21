@@ -60,12 +60,14 @@ void GenerateMipmapWithSampleRejectionFragmentShader::initialize( ComPtr< ID3D11
 
 void GenerateMipmapWithSampleRejectionFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
                                                           Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
+                                                          Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                                                           const int srcMipLevel, const float maxAcceptableValue )
 {
     { // Set input textures.
-        const unsigned int resourceCount = 1;
+        const unsigned int resourceCount = 2;
         ID3D11ShaderResourceView* resources[ resourceCount ] = {
-            texture.getShaderResourceView( srcMipLevel )
+            texture.getShaderResourceView( srcMipLevel ),
+            positionTexture.getShaderResourceView()
         };
 
         deviceContext.PSSetShaderResources( 0, resourceCount, resources );
@@ -96,8 +98,8 @@ void GenerateMipmapWithSampleRejectionFragmentShader::setParameters( ID3D11Devic
 void GenerateMipmapWithSampleRejectionFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };
-    deviceContext.PSSetShaderResources( 0, 1, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 2 ] = { nullptr };
+    deviceContext.PSSetShaderResources( 0, 2, nullResources );
 
     ID3D11SamplerState* nullSampler[ 1 ] = { nullptr };
     deviceContext.PSSetSamplers( 0, 1, nullSampler );

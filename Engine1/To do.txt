@@ -513,8 +513,8 @@ Idea:
 
 	  - add replacing blur radius at the end of raytracing to 0 for all untouched pixels.
 
-	  - [LOOKS DONE] raytracing should store dist-to-occluder nearest to light source - 
-	  - check if dist-to-ocluder is same for Shadow Mapping and RT
+	  - [LOOKS DONE] raytracing should store dist-to-occluder nearest to shaded surface - 
+	  - check if dist-to-ocluder is same for Shadow Mapping and RT - obviously it's not...
 	  - make sure blur-radius is ok in shadowed areas for Shadow Mapping - there are weird problems at shadow intersections between near and far objects.
 	  - why rasterizing shadow shader reads previous blur radius value? Is there anyvalue there before that shader is run? What's the point?
 	  - IDEA: Sample shadow map with bilinear filtering to get dist-to-occluder - that should make transitions between big pixels smoother. But be careful when to use or not bilinear sampling.
@@ -524,7 +524,6 @@ Idea:
 		Or replace pixels with initial (1000) blur radius at the end, before usign to 0.
 
 	  - some nice antialiasing of shadow could be achieved by limiting minimal blur value to let's say 1 or 2.
-	  - display name of currently showed render target
 	  - Add some antialiasing?
 
 	  - TO TEST: When bluring shadows - use a shadow sample if it blur-radius is similar to shadow sample blur-radius. Requires more reads, but may improve shadow mixing.
@@ -558,7 +557,73 @@ Idea:
 
 		*********************************
 
+		Spreading/blurring blur-radius:
+		- CAN'T MIPMAP because:
+			* that leaks blur-radius from background to foreground (and opposite)
+
+		- CAN'T SPREAD AT FULL RES because:
+			* bad performance?
+
+		MAYBE GOOD IDEA:
+		- spread shadow only to surfaces further from light source than shadowed surface (or slightly closer). Should be easy to calculate...
+		  May be a better check than comparing positions.. Accounts for light position.
+		  But still doesn't solve blur from mipmapping.
+
+		DESIRED SOLUTION:
+		- keep mipmapping so that we can work on low-res texture and get some free blur
+		- know when to use full-res blur-radius and when to use mipmap. How to know that?
+
+		How to know that something should not receive any shadow from sorrounding pixels? Should I compare distance to light source more than position itself?
+		Shadow cannot be spread on objects closer to light than shadowed surface, right? But we also store nearest distance, which could cause problem. We would also need farthest distance...
+
+		CURRENT ISSUES:
+		- how to blur something, while preserving edges? Use 9-tap filtering with position checks... Accept only samples with similar position to central pixel.
+		  Regarding blur-radius - these 9-tap could be farther away from each other to simulate more blurring without increasing number of taps.
+		  This would be the same approach as in reflections... Could work..
+		  * But why did it work before? On screenshots? Did I do some check during blurring to check if samples are ok?
+		    Maybe all shadow samples were rejected anyways, so blur radius didn't matter that much? But it still sucks to have it this way... Could cause problems anytime..
+			No.. position threshold is not enough to stop this problem. It has to be solved properly...
+
+		- IDEA: Do some spreading on full-res image first - like 4 pixels etc.
+		  This should ensure that there are samples available at both sides of edges. Should spread correctly from there..
+		  Nooo... not gonna help if we create a mipmap from this.
+
+		- when we have available blur-radius in max-resolution - let's use it instead of mipmaps - should help with blur-radius leaks and improve quality
+			* I could generate a final, full-res blur-radius texture for better debug - but it's not needed - the 'if' can be in the blur-shadows shader.
+			* NOOOO... We can't sample from full res, because we don't know when to use it. Pixel which are lit have max blur radius anyways...
+			* Hard to do, because mipmaps have samples with 1000 blur-radius. And when sampling that linearly we get very high values near egdes.
+			* other idea: When deciding which sample to use - sample position mipmap level 3 and 0 and compare - if there are bigg differences - use 0 mipamp as there is egde nearby
+		- blur radius-spreading from foreground to background and opposite - simpler to fix
+			* fix mipmap generation for blur-radius to be aware of surface position
+				> do I have to use pixel-size-in-world-space and camera-pos for this? Can we live with simple positon threshold?
+				> Nooo, not easy, beceause mipmapping cannot use position as threshold - which pixel's position would have priority there?
+			* fix spreading awarness of position - check calculations and if they even work..
+		- blur radius-spreading ugly and with low performance - incorrect limiting of spread of low values
+		- using sharp shadow samples when in soft shadow - have to fix prevois solution which required some normalization
+
+		------------------
+
+		- why high blur radius from front surface of flowers spreads to the wall? Didn't I limit it somehow using position threshold?
+		So we have to limit spreding using screen-space limits and world-space limits?
+		Maybe I should stick to world-space then, reading position texture and avoiding spreading blur radius through object egdes?
+		I don't know....
+
+		- create a couple of test scenes for shadows? Like if we pass all of them we accept the solution?
+
+		CONCLUSION: SO.. - take position in spread shader and compare it against blur-radius in world space to avoid spreading to far on the same surface or spreading
+		from foreground to background.
+
+		TO TEST: When there are values all around central sample - don't do anything - this should keep natural edges sharp...
+		Or just sample during blur-shadow from higher res mipmap if available...
+
+		How to disconnect spreading pace from number of passes? Should low blur-radius spread more slowly? Probably not, just not spread at all at some point and be ready for some blending...
+
+		- keep blur-radius in screen space until blur-shadows. 
+		  Before that run a conversion shader which recalculates screen-space-brlur-radius into world-space-blur-radius.
+		  Keeping them in screen-space facilitates rejecting low-blur-radius samples during spreading.
+
 		- limit spreading blur radius for low values. One black patch shouldn't spread to the rest of the screen...
+		  Discard samples which blur-radius is smaller than spreadDist (or sampling dist from center) in world space (or convert both to screen space?).
 
 		- first spread in radius of 4px
 		- then run compute every 4th pixel and spread once

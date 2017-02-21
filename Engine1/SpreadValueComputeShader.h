@@ -21,11 +21,17 @@ namespace Engine1
         void setParameters( ID3D11DeviceContext& deviceContext,
                             const float skipPixelIfBelowValue,
                             const float minAcceptableValue,
+                            const int  totalSpread,
                             const int spreadDistance,
-                            const int offset );
+                            const int offset,
+                            const int2 textureSize,
+                            const float3 cameraPos,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
         private:
+
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 
         __declspec( align( DIRECTX_CONSTANT_BUFFER_ALIGNMENT ) )
         struct ConstantBuffer
@@ -38,6 +44,12 @@ namespace Engine1
             float3 pad3;
             int    offset;
             float3 pad4;
+            float2 textureSize;
+            float2 pad5;
+            float3 cameraPos;
+            float  pad6;
+            float  totalSpread;
+            float3 pad7;
         };
 
         // Copying is not allowed.

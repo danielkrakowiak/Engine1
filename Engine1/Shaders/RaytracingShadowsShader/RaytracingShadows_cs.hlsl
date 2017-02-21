@@ -52,7 +52,7 @@ RWTexture2D<uint>  g_hardIllumination       : register( u2 );
 RWTexture2D<uint>  g_softIllumination       : register( u3 );
 
 float    calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
-bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination );
+bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float nearestHitDist, inout float illumination );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint actorIdx, const uint index );
@@ -67,6 +67,8 @@ float2   calcInterpolatedTexCoords( const float3 barycentricCoords, const float2
 static const float requiredContributionTerm = 0.35f; // Discard rays which color is visible in less than 5% by the camera.
 
 static const float minAllowedHitDist = 0.001f;
+
+static const float Pi = 3.14159265f;
 
 static const float maxIlluminationWorldSpaceBlurRadius = 1.0f;
 
@@ -142,17 +144,17 @@ void main( uint3 groupId : SV_GroupID,
 	float illumination = 1.0f;//(float)illuminationUint / 255.0f;
     
     // We only care about intersections closer to ray origin than the light source. #TODO: Or all of them? - alpha etc, illumination?
-    float farthestHitDist = 0.0f;
+    float nearestHitDist = 10000.0f;
 
     // #OPTIMIZATION: Could be more effective to trace ray from light to surface - because we care about the nearest to light intersection. Easier to skip other objects. 
 
     //[loop]
     //for ( uint actorIdx = 0; actorIdx < actorCount; ++actorIdx )
     //{
-    if ( rayMeshIntersect( rayOrigin, rayDir, 0, rayMaxLength, farthestHitDist, illumination ) )
+    if ( rayMeshIntersect( rayOrigin, rayDir, 0, rayMaxLength, nearestHitDist, illumination ) )
     {
         const float surfaceDistToLight    = rayMaxLength;
-        const float surfaceDistToOccluder = farthestHitDist;
+        const float surfaceDistToOccluder = nearestHitDist;
         const float occluderDistToLight   = surfaceDistToLight - surfaceDistToOccluder;
         const float surfaceDistToCamera   = length( rayOrigin - cameraPosition );
         
@@ -164,7 +166,6 @@ void main( uint3 groupId : SV_GroupID,
         const float prevHardIllumination = (float)g_hardIllumination[ dispatchThreadId.xy ] / 255.0f;
         const float prevSoftIllumination = (float)g_softIllumination[ dispatchThreadId.xy ] / 255.0f;
 
-        // #TODO: I should accoutn for world-space blur-radius, not screen space blur-radius.
         const float illuminationSoftness = min(1.0f, (blurRadius / 1.0f));
         const float illuminationHardness = 1.0f - illuminationSoftness;
 
@@ -180,15 +181,17 @@ void main( uint3 groupId : SV_GroupID,
 
 float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
 {
-    const float baseBlurRadius = min( maxIlluminationWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    const float blurRadiusInWorldSpace = min( maxIlluminationWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
     //const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
 
-    // Note: If not divided by camera log2 then it's in world space...
+    //#TODO: Blur radius may have different resolution in the future? Using outputTextureSize may not be safe.
+    //const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+    //const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;
 
-    return baseBlurRadius/*blurRadius*/;
+    return blurRadiusInWorldSpace;
 }
 
-bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float farthestHitDist, inout float illumination )
+bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float nearestHitDist, inout float illumination )
 {
     // Offset to avoid self-collision. 
     // Note: Is it useful? We still need to check against the "origin triangle" and ignore by intersection distance... Or not?
@@ -261,7 +264,7 @@ bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int ac
 						if ( dist > minAllowedHitDist && dist < maxAllowedHitDist )
 						{
                             intersected = true;
-                            farthestHitDist = max( farthestHitDist, dist );
+                            nearestHitDist = min( nearestHitDist, dist );
 
                             if ( isOpaque[ actorIdx ].x == 0.0f )
                             {

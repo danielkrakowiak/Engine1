@@ -349,3 +349,8 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 06.02.2017 - 1h - Improved sampling pattern in initial "blur radius" sprading pass - to improve smoothness on egdes. Tested generating one more mipmap of "blur radius" texture after spreading and then sampling it to improve smoothness.
 08.02.2017 - 2h - Added spreading "blur radius" at every 4th, 8th, 16th pixel etc - to improve performance.
 09.02.2017 - 2h - Fixed spreading. Testing.
+11.02.2017 - 1h - Fixed blur-radius not being spread to bottom of the screen - caused by incorrect compute shader group count calculation.
+12.02.2017 - 1h - Added a new shader to convert distance from screen-space to world-space. It will be used to convert blur-radius after spreading.
+18.02.2017 - 4h - Approach with screen-space spreading + conversion to world-space reveiled a new problem - blur-radius spreading from foreground to background. So switched to another approach - using only world-space blur-radius and calculating acceptable distance for sample from center sample.
+19.02.2017 - 6h - Fixed a surprising bug where the farthest dist to occluder were used instead of the nearest. Created a shadow test scene. Struggling to fix background to forground blur-radius leaks and other shadowing issues.
+20.02.2017 - 2h - Brainstorming on solutions to shadowing problems - uneven spreading of blur-radius and incorrect spreading on foreground objects.

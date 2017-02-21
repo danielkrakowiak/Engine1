@@ -549,6 +549,14 @@ void Application::run() {
                 frameUchar4 = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
+        { // Render current view.
+            std::stringstream ss;
+            ss << "View: " << Renderer::viewToString( m_renderer.getActiveViewType() );
+
+            if ( m_renderFps )
+                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 350.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        }
+
         { // Render profiling results.
             std::stringstream ss;
             ss << std::fixed << std::setprecision( 2 );
@@ -1028,7 +1036,7 @@ void Application::onKeyPress( int key )
     if ( !m_sceneManager.getSelectedLights().empty() && m_inputManager.isKeyPressed( InputManager::Keys::shift ) 
          && !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
     {
-        const float sensitivity = 0.0001f;
+        const float sensitivity = 0.001f;
 
         float change = 0.0f;
         if ( m_inputManager.isKeyPressed( InputManager::Keys::plus ) ) {
@@ -1211,15 +1219,21 @@ void Application::onKeyPress( int key )
         m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
         m_debugDisplayedMipmapLevel = 0;
     } else if ( key == InputManager::Keys::f8 ) {
-        m_renderer.setActiveViewType( Renderer::View::MinIlluminationBlurRadius );
+        m_renderer.setActiveViewType( Renderer::View::MinIlluminationBlurRadiusInScreenSpace );
         m_debugDisplayedMipmapLevel = 0;
     } else if ( key == InputManager::Keys::f9 ) {
-        m_renderer.setActiveViewType( Renderer::View::MaxIlluminationBlurRadius );
+        m_renderer.setActiveViewType( Renderer::View::MaxIlluminationBlurRadiusInScreenSpace );
         m_debugDisplayedMipmapLevel = 0;
-	} else if ( key == InputManager::Keys::f12 ) {
-		m_renderer.setActiveViewType( Renderer::View::Test );
+    } else if ( key == InputManager::Keys::f11 ) {
+        m_renderer.setActiveViewType( Renderer::View::MinIlluminationBlurRadiusInWorldSpace );
         m_debugDisplayedMipmapLevel = 0;
-    }
+    } else if ( key == InputManager::Keys::f12 ) {
+        m_renderer.setActiveViewType( Renderer::View::MaxIlluminationBlurRadiusInWorldSpace );
+        m_debugDisplayedMipmapLevel = 0;
+    } /*else if ( key == InputManager::Keys::f12 ) {
+        m_renderer.setActiveViewType( Renderer::View::Test );
+        m_debugDisplayedMipmapLevel = 0;
+    }*/
 
     if ( m_sceneManager.isSelectionEmpty() )
     {

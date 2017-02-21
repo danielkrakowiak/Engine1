@@ -59,10 +59,14 @@ namespace Engine1
             SoftIllumination,
             BlurredIllumination,
             SpotlightDepth,
-            MinIlluminationBlurRadius,
-            MaxIlluminationBlurRadius,
+            MinIlluminationBlurRadiusInScreenSpace,
+            MaxIlluminationBlurRadiusInScreenSpace,
+            MinIlluminationBlurRadiusInWorldSpace,
+            MaxIlluminationBlurRadiusInWorldSpace,
 			Test
         };
+
+        static std::string viewToString( const View view );
 
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
         ~Renderer();
