@@ -33,6 +33,8 @@ RWTexture2D<float4> g_blurredIlluminationTexture : register( u0 );
 float readIlluminationBlurRadius( float2 texcoords );
 
 static const float Pi = 3.14159265f;
+static const float e = 2.71828f;
+static const float positionThresholdFalloff = 0.4f;
 
 static const float maxBlurRadius = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
 
@@ -74,25 +76,56 @@ void main( uint3 groupId : SV_GroupID,
     }
 
     ///////////////////// TEST POWER VR METHOD OF FINDING BLUR RADIUS /////////////////////////
-    /*float minBlurRadiusInWorldSpace = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
-    const float2 pixelSize3 = 8.0f * pixelSize0;
+    float minBlurRadiusInWorldSpace = g_minIlluminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
 
-    float searchRadius = 0.0f;
-    for ( searchRadius = 1.0f; searchRadius < 50.0f && minBlurRadiusInWorldSpace > 500.0f; searchRadius += 1.0f )
+    const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+
+    const float2 pixelSize = pixelSize0;//float2(1.0f/1024.0f, 1.0f / 768.0f);///*pow(2.0f, mipmap) **/ pixelSize0;
+
+    const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
+    
+    float2 texCoordShift = float2(0.0f, 0.0f); // x horizontal, y - vertical.
+    
+    float valueSum = 0.0f;
+    float weightSum = 0.00001f;
+
+    //#TODO: Calculate dist from center pixel to sample and reject samples for which blur-radius is smaller than this distance.
+    //#TODO: Calculate dist to light from center pixel and accept only samples which are closer to light.
+    //#TODO: Check PowerVR method for rejecting sampled based on derivative.
+
+    // Note: Surprisingly this loop doesn't work correctly without unrolling - texcoord offset are always positive.
+    [unroll] 
+    for (float searchRadius = 1.0f; searchRadius < 200.0f /*&& weightSum < 80.0f*/; searchRadius += 4.0f)
     {
-        const float2 texCoordShiftTop    = float2( pixelSize3.x,                 pixelSize3.y *  searchRadius );
-        const float2 texCoordShiftBottom = float2( pixelSize3.x,                 pixelSize3.y * -searchRadius );
-        const float2 texCoordShiftLeft   = float2( pixelSize3.x * -searchRadius, pixelSize3.y );
-        const float2 texCoordShiftRight  = float2( pixelSize3.x *  searchRadius, pixelSize3.y );
-        minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftTop, 3.0f ) );
-        minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftBottom, 3.0f ) );
-        minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftLeft, 3.0f ) );
-        minBlurRadiusInWorldSpace = min( minBlurRadiusInWorldSpace, g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShiftRight, 3.0f ) );
-    }*/
+        texCoordShift.xy = pixelSize * searchRadius;
+
+        for ( float y = -1.0f; y <= 1.0f; y += 1.0f )
+        {
+            for ( float x = -1.0f; x <= 1.0f; x += 1.0f )
+            {
+                const float sampleBlurRadius = g_minIlluminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + float2( x * texCoordShift.x, y * texCoordShift.y ), 0.0f );
+                
+                // Weight discarding samples which have huge blur-radius (non-shadowed).
+                const float sampleWeight1 = max( 0.0f, 10.0f - sampleBlurRadius );
+
+                const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + float2( x * texCoordShift.x, y * texCoordShift.y ), 0.0f ).xyz; 
+
+                const float positionDiff = length( samplePosition - centerPosition );
+
+                const float sampleWeight2 = pow( e, -positionDiff * positionDiff / positionThreshold );
+
+                valueSum  += sampleBlurRadius * sampleWeight1 * sampleWeight2;
+                weightSum += sampleWeight1 * sampleWeight2;
+            }
+        }
+    }
+
+    minBlurRadiusInWorldSpace = valueSum / weightSum;
+
     ///////////////////////////////////////////////////////////////////////////////////////////
     
-    const float minBlurRadiusInWorldSpace = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
-    const float pixelSizeInWorldSpace      = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+    //const float minBlurRadiusInWorldSpace = g_minIlluminationBlurRadiusTexture.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
+    //const float pixelSizeInWorldSpace      = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
     const float minBlurRadiusInScreenSpace = minBlurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
     const float samplingRadius             = minBlurRadiusInScreenSpace;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
@@ -142,18 +175,22 @@ void main( uint3 groupId : SV_GroupID,
                 
                 const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
 
-                float sampleWeight = 1.0f;
+                const float positionDiff = length( samplePosition - centerPosition );
+
+                const float sampleWeight2 = pow( e, -positionDiff * positionDiff / positionThreshold );
+
+                float sampleWeight = sampleWeight2;
 
                 //if (samplePointIllumination < 0.8f ) { 
                 //    sampleWeight = max( 0.0f, 1.0f - abs(blurRadius - sampleBlurRadius) / blurRadius );
                 //}
 
                 // #TODO: Increase positionThreshold!! 
-                bool useSample = /*sampleBlurRadiusInWorldSpace >= minBlurRadiusInWorldSpace &&*/ canUseSample( surfacePosition, samplePosition, minBlurRadiusInWorldSpace, positionThreshold );
+                bool useSample = true;///*sampleBlurRadiusInWorldSpace >= minBlurRadiusInWorldSpace &&*/ canUseSample( surfacePosition, samplePosition, minBlurRadiusInWorldSpace, positionThreshold );
 
                 if ( useSample )
                 {
-                    surfaceIllumination += sampleIllumination;
+                    surfaceIllumination += sampleIllumination * sampleWeight;
 
                     // Add fully lit samples twice.
                     //if ( sampleIllumination > 0.99f )

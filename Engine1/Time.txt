@@ -354,3 +354,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 18.02.2017 - 4h - Approach with screen-space spreading + conversion to world-space reveiled a new problem - blur-radius spreading from foreground to background. So switched to another approach - using only world-space blur-radius and calculating acceptable distance for sample from center sample.
 19.02.2017 - 6h - Fixed a surprising bug where the farthest dist to occluder were used instead of the nearest. Created a shadow test scene. Struggling to fix background to forground blur-radius leaks and other shadowing issues.
 20.02.2017 - 2h - Brainstorming on solutions to shadowing problems - uneven spreading of blur-radius and incorrect spreading on foreground objects.
+21.02.2017 - 2h - Checking PowerVR method of finding blur-radius (search in 4 directions in screen-space) - trying to improve it to work for very soft shadows with smooth blending.
+22.02.2017 - 1h - Checked searching blur-radius and it worked nicely with minor, fixable glitches.

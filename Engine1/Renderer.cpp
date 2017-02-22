@@ -427,23 +427,23 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         int totalPreviousSpread = 0;
         // 64 repeats looks nice... Optimize...
         // #TODO: IS is really needed? Maybe I should test instead of doing it theoretically correctly?
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread );
-        totalPreviousSpread += 2;
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread );
+        //totalPreviousSpread += 2;
         // #TODO: Have to make all the spreads without enabling/disabling compute pipeline.
         // #TOOD: Number of repeats etc depends on screen resolution. Should be properly calculated...
 
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 32, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 1, 0 );
-        totalPreviousSpread += 16 * 4;
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 32, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 1, 0 );
+        //totalPreviousSpread += 16 * 4;
         //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 8, 0 );
         //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 16, 0 );
         //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 3, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 32, 0 );
         //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 2, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 16, 0 );
         //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 8, 0 );
         //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 4, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), 0, 2, 0 );
-        m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), 0, 1, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), 0, 2, 0 );
+        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), 0, 1, 0 );
 
-        m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 500.0f, 0.0f );
+        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 500.0f, 0.0f );
 
 
         //////////////////////////////////////
