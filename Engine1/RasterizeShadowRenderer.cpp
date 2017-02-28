@@ -58,9 +58,6 @@ void RasterizeShadowRenderer::performShadowMapping(
     m_illuminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
     m_minIlluminationBlurRadiusTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 1000, 1000, 1000, 1000 ) );
 
-    // #TODO: May not require clear. Will be copied from "min" texture later on...
-    m_maxIlluminationBlurRadiusTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
@@ -97,14 +94,9 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAc
     return m_illuminationTexture;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getMinIlluminationBlurRadiusTexture()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getDistanceToOccluder()
 {
     return m_minIlluminationBlurRadiusTexture;
-}
-
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getMaxIlluminationBlurRadiusTexture()
-{
-    return m_maxIlluminationBlurRadiusTexture;
 }
 
 void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
@@ -115,10 +107,6 @@ void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHei
 
     // #TODO: Is using mipmaps? Disable them if they are not necessary.
     m_minIlluminationBlurRadiusTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
-        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
-
-    // #TODO: Is using mipmaps? Disable them if they are not necessary.
-    m_maxIlluminationBlurRadiusTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 

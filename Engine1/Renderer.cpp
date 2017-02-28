@@ -331,6 +331,10 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
 
+    // #TODO: Remove.
+    // FOR DEBUG - Not needed normally, because whole texture gets overwritten.
+    m_blurShadowsRenderer.getIlluminationTexture()->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4::ZERO, 0 );
+
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
@@ -368,14 +372,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getIlluminationTexture() ), 0
         );
 
-        auto illuminationMinBlurRadiusTextureInWorldSpace = m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture();
-        auto illuminationMaxBlurRadiusTextureInWorldSpace = m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture();
-
-        // #TODO: Is this copy needed?
-        m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTextureInWorldSpace, *illuminationMinBlurRadiusTextureInWorldSpace, 0 );
-
-        // Note: Has to replace max values (untouched pixels) here - otherwise they would spread all over the texture.
-        m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTextureInWorldSpace, 0, 500.0f, 0.0f );
+        auto distanceToOccluder = m_rasterizeShadowRenderer.getDistanceToOccluder();
 
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
@@ -386,8 +383,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getNormalRenderTarget(),
             nullptr,
             m_rasterizeShadowRenderer.getIlluminationTexture(),
-            illuminationMinBlurRadiusTextureInWorldSpace,
-            illuminationMaxBlurRadiusTextureInWorldSpace,
+            distanceToOccluder,
             blockActors
         );
 
@@ -411,7 +407,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         //    // do that may vary a lot depending on the situation.
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
-            illuminationMinBlurRadiusTextureInWorldSpace, 
+            distanceToOccluder, 
             m_deferredRenderer.getPositionRenderTarget(), 
             500.0f, 0, 3 
         );
@@ -424,7 +420,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 
         // Spread data over 4 pixels.
         
-        int totalPreviousSpread = 0;
+        //int totalPreviousSpread = 0;
         // 64 repeats looks nice... Optimize...
         // #TODO: IS is really needed? Maybe I should test instead of doing it theoretically correctly?
         //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread );
@@ -466,10 +462,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 
         if ( activeViewLevel.empty() ) 
         {
-            if ( activeViewType == View::MinIlluminationBlurRadiusInScreenSpace
-                 || activeViewType == View::MaxIlluminationBlurRadiusInScreenSpace
-                 || activeViewType == View::MinIlluminationBlurRadiusInWorldSpace
-                 || activeViewType == View::MaxIlluminationBlurRadiusInWorldSpace ) 
+            if ( activeViewType == View::DistanceToOccluder ) 
             {
                 // #TODO: Remove this - only for debug.
                 // Note: Not needed - only to improve visualization of debug blur-radius.
@@ -482,10 +475,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         if ( activeViewLevel.empty() ) 
         {
             switch ( activeViewType ) {
-                case View::MinIlluminationBlurRadiusInScreenSpace:
-                    return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture() );
-                case View::MaxIlluminationBlurRadiusInScreenSpace:
-                    return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture() );
+                case View::DistanceToOccluder:
+                    return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getDistanceToOccluder() );
             }
         }
 
@@ -515,8 +506,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
             m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
             m_raytraceShadowRenderer.getSoftIlluminationTexture(),
-            illuminationMinBlurRadiusTextureInWorldSpace,
-            illuminationMaxBlurRadiusTextureInWorldSpace,
+            distanceToOccluder,
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -582,10 +572,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             case View::SpotlightDepth:
                 if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
                     return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );
-            case View::MinIlluminationBlurRadiusInWorldSpace:
-                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMinIlluminationBlurRadiusTexture() );
-            case View::MaxIlluminationBlurRadiusInWorldSpace:
-                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getMaxIlluminationBlurRadiusTexture() );
+            case View::DistanceToOccluder:
+                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getDistanceToOccluder() );
         }
     }
 
@@ -1173,10 +1161,7 @@ std::string Renderer::viewToString( const View view )
         case View::SoftIllumination:                         return "SoftIllumination";
         case View::BlurredIllumination:                      return "BlurredIllumination";
         case View::SpotlightDepth:                           return "SpotlightDepth";
-        case View::MinIlluminationBlurRadiusInScreenSpace:   return "MinIlluminationBlurRadiusInScreenSpace";
-        case View::MaxIlluminationBlurRadiusInScreenSpace:   return "MaxIlluminationBlurRadiusInScreenSpace";
-        case View::MinIlluminationBlurRadiusInWorldSpace:    return "MinIlluminationBlurRadiusInWorldSpace";
-        case View::MaxIlluminationBlurRadiusInWorldSpace:    return "MaxIlluminationBlurRadiusInWorldSpace";
+        case View::DistanceToOccluder:                       return "DistanceToOccluder";
         case View::Test:                                     return "Test";
     }
 

@@ -46,10 +46,9 @@ SamplerState      g_pointSamplerState     : register( s0 );
 SamplerState      g_linearSamplerState    : register( s1 );
 
 // Input / Output.
-RWTexture2D<float> g_minIlluminationBlurRadius : register( u0 );
-RWTexture2D<float> g_maxIlluminationBlurRadius : register( u1 );
-RWTexture2D<uint>  g_hardIllumination       : register( u2 );
-RWTexture2D<uint>  g_softIllumination       : register( u3 );
+RWTexture2D<float> g_distToOccluder         : register( u0 );
+RWTexture2D<uint>  g_hardIllumination       : register( u1 );
+RWTexture2D<uint>  g_softIllumination       : register( u2 );
 
 float    calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
 bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float nearestHitDist, inout float illumination );
@@ -160,8 +159,7 @@ void main( uint3 groupId : SV_GroupID,
         
         const float blurRadius     = calculateIlluminationBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight, surfaceDistToCamera );
 
-        const float prevMinBlurRadius    = g_minIlluminationBlurRadius[ dispatchThreadId.xy ];
-        const float prevMaxBlurRadius    = g_maxIlluminationBlurRadius[ dispatchThreadId.xy ];
+        const float prevDistToOccluder   = g_distToOccluder[ dispatchThreadId.xy ];
 
         const float prevHardIllumination = (float)g_hardIllumination[ dispatchThreadId.xy ] / 255.0f;
         const float prevSoftIllumination = (float)g_softIllumination[ dispatchThreadId.xy ] / 255.0f;
@@ -172,10 +170,9 @@ void main( uint3 groupId : SV_GroupID,
         illumination = max( 0.0f, illumination ); // TODO: Needed? Can we get negative illumination after going through many semi-transparent surfaces?
 
         // #TODO: Shouldn't I substract prevIllumination from illumination? It should get darker with each shadowing object.. 
-        g_minIlluminationBlurRadius[ dispatchThreadId.xy ] = min( prevMinBlurRadius, blurRadius );
-        g_maxIlluminationBlurRadius[ dispatchThreadId.xy ] = max( prevMaxBlurRadius, blurRadius );
-        g_hardIllumination[ dispatchThreadId.xy ]          = (uint)( max(0.0f, prevHardIllumination - ( 1.0f - illumination ) /** illuminationHardness*/ ) * 255.0f );
-        g_softIllumination[ dispatchThreadId.xy ]          = (uint)( max(0.0f, prevSoftIllumination - ( 1.0f - illumination ) /** illuminationSoftness*/ ) * 255.0f );
+        g_distToOccluder[ dispatchThreadId.xy ]   = min( prevDistToOccluder, surfaceDistToOccluder );
+        g_hardIllumination[ dispatchThreadId.xy ] = (uint)( max(0.0f, prevHardIllumination - ( 1.0f - illumination ) /** illuminationHardness*/ ) * 255.0f );
+        g_softIllumination[ dispatchThreadId.xy ] = (uint)( max(0.0f, prevSoftIllumination - ( 1.0f - illumination ) /** illuminationSoftness*/ ) * 255.0f );
     }
 }
 

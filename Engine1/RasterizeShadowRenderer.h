@@ -42,8 +42,7 @@ namespace Engine1
         );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getIlluminationTexture();
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         getMinIlluminationBlurRadiusTexture();
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         getMaxIlluminationBlurRadiusTexture();
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         getDistanceToOccluder();
 
         private:
 
@@ -59,10 +58,6 @@ namespace Engine1
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_illuminationTexture;
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         m_minIlluminationBlurRadiusTexture;
-
-        // Note: This texture is not a good fit here. It's not used by this shader. But I placed it here, because it's sibling of m_minIlluminationBlurRadiusTexture.
-        // #TODO: What to do with both of these textures? Store them somewhere else? In "big" Renderer?
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         m_maxIlluminationBlurRadiusTexture;
 
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

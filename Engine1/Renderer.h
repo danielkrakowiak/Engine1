@@ -59,7 +59,7 @@ namespace Engine1
             SoftIllumination,
             BlurredIllumination,
             SpotlightDepth,
-            MinIlluminationBlurRadiusInScreenSpace,
+            DistanceToOccluder,
             MaxIlluminationBlurRadiusInScreenSpace,
             MinIlluminationBlurRadiusInWorldSpace,
             MaxIlluminationBlurRadiusInWorldSpace,

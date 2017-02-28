@@ -43,14 +43,13 @@ void BlurShadowsRenderer::blurShadows( const Camera& camera,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > minIlluminationBlurRadiusTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > maxIlluminationBlurRadiusTexture,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                                        const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
     m_blurShadowsComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, 
-                                               normalTexture, hardIlluminationTexture, softIlluminationTexture, minIlluminationBlurRadiusTexture, maxIlluminationBlurRadiusTexture, light );
+                                               normalTexture, hardIlluminationTexture, softIlluminationTexture, distanceToOccluder, light );
 
     m_rendererCore.enableComputeShader( m_blurShadowsComputeShader );
 

@@ -355,4 +355,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 19.02.2017 - 6h - Fixed a surprising bug where the farthest dist to occluder were used instead of the nearest. Created a shadow test scene. Struggling to fix background to forground blur-radius leaks and other shadowing issues.
 20.02.2017 - 2h - Brainstorming on solutions to shadowing problems - uneven spreading of blur-radius and incorrect spreading on foreground objects.
 21.02.2017 - 2h - Checking PowerVR method of finding blur-radius (search in 4 directions in screen-space) - trying to improve it to work for very soft shadows with smooth blending.
-22.02.2017 - 1h - Checked searching blur-radius and it worked nicely with minor, fixable glitches.
+22.02.2017 - 1h - Checked searching blur-radius and it worked nicely with minor, fixable glitches. Switching to storing distance-to-occluder instead of blur-radius.
+23.02.2017 - 3h - Fixed important bug with distance-to-occluder: nearest dist was calculated, but the last value saved to texture was used - replaced with minimum of all values. Experimenting with many tweaks to distance-to-occluder searching, sampling patterns.
+25.02.2017 - 4h - Improved sampling pattern when searching for distance-to-occluder.

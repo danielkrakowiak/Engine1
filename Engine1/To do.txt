@@ -557,6 +557,39 @@ Idea:
 
 		*********************************
 
+		USEFUL NOTES FOR DIST-TO-OCCLUDER SEARCH:
+		- be carefull about samples pattern. Take most samples near the center, less further away. 
+		  Try to keep circular shape and avoid very specifi patterns (like cross, star) as they will always miss some data.
+		- When center sample is available, decrease search radius only to get some smoothing - we don't really need to search for anything.
+		- Or if center sample is available, we should give higher weight to samples similar to it?
+		  With no modification, sharp shadows get to blurred when cover in soft shadow.
+		- Or central sample should have very high weight and then we add other samples?
+		- be carefull, because if I take many fa samples they will have bigger impact on final result. But they have decreased impact because they are further in world space.
+		- KEEP ALL INTERNAL PARAMS SMOOTH - a bigger smooth erorr is better than smaller binary error.
+
+		IMPROVE SAMPLING PATTERN FOR ILLUMINATION - as for dist-to-occluder
+
+		- dist-to-camera should not impact the number of samples taken
+		  It can impact their distance from center pixel, but  should not increase their number.
+		  The reason is that when we zoom in, things on screen get bigger, so we don't need to take more samples to keep the same quality.
+		  We only need to spread them on larger area.
+		  * On the other hand we may need more quality when zooming in?
+
+		- or we can simply make non-linear depandancy of number of samples taken from search-radius
+		  * For large search-radius we are probably zoomed in, so not that many more samples are needed.
+		  * But when we are zoomed out, we need very few samples.
+
+		TO TEST:
+		- assymetrical weighting of samples based on dist-to-occluder
+			* sth like if center sample is sharp, decrease weight of blurred samples
+			* if center sample is blurred, treat all samples equally (or opposite)
+		- dividing illumination into two textures (sharp and blurred) and then sample a bit from each during blurring.
+
+		#TODO: Check PowerVR method for rejecting sampled based on derivative.
+
+
+		- why blurred-illumination is float4 instead of float? Could be good for future colored shadows, but now?
+
 		Spreading/blurring blur-radius:
 		- CAN'T MIPMAP because:
 			* that leaks blur-radius from background to foreground (and opposite)

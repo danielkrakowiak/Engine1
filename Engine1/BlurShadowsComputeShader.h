@@ -39,8 +39,7 @@ namespace Engine1
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > minIlluminationBlurRadiusTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > maxIlluminationBlurRadiusTexture,
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                             const Light& light );
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
@@ -60,10 +59,12 @@ namespace Engine1
             float3 pad3;
             float3 lightDirection;
             float  pad4;
+            float  lightEmitterRadius;
+            float3 pad5;
             float2 outputTextureSize;
-            float2 pad5;
+            float2 pad6;
             float  positionThreshold;
-            float3 pad6;
+            float3 pad7;
         };
 
         // Copying is not allowed.
