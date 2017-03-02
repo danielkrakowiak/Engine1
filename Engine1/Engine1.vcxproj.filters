@@ -837,9 +837,6 @@
     <ClInclude Include="RasterizingShadowsComputeShader.h">
       <Filter>Header Files\Shader\RasterizingShadows</Filter>
     </ClInclude>
-    <ClInclude Include="File.h">
-      <Filter>Header Files\File</Filter>
-    </ClInclude>
     <ClInclude Include="GenerateMipmapMinValueComputeShader.h">
       <Filter>Header Files\Shader\GenerateMipmap</Filter>
     </ClInclude>
@@ -875,6 +872,15 @@
     </ClInclude>
     <ClInclude Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h">
       <Filter>Header Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>Header Files\File</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetPathManager.h">
+      <Filter>Header Files\AssetManager</Filter>
+    </ClInclude>
+    <ClInclude Include="FileUtil.h">
+      <Filter>Header Files\File</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1277,9 +1283,6 @@
     <ClCompile Include="RasterizingShadowsComputeShader.cpp">
       <Filter>Source Files\Shader\RasterizingShadows</Filter>
     </ClCompile>
-    <ClCompile Include="File.cpp">
-      <Filter>Source Files\File</Filter>
-    </ClCompile>
     <ClCompile Include="GenerateMipmapMinValueComputeShader.cpp">
       <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </ClCompile>
@@ -1318,6 +1321,15 @@
     </ClCompile>
     <ClCompile Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem.cpp">
+      <Filter>Source Files\File</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetPathManager.cpp">
+      <Filter>Source Files\AssetManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FileUtil.cpp">
+      <Filter>Source Files\File</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-#include "File.h"
+#include "FileSystem.h"
 
 using namespace Engine1;
 
@@ -13,7 +13,7 @@ std::shared_ptr< std::vector<char> > BinaryFile::load( const std::string& path )
 	auto fileData = std::make_shared< std::vector< char > >();
 
     // Get file size.
-    const long long fileSize = File::getFileSize( path );
+    const long long fileSize = FileSystem::getFileSize( path );
 
 	// Open the file.
 	file.open( path.c_str(), std::ifstream::in | std::ifstream::binary );

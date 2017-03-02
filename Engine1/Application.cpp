@@ -33,6 +33,8 @@
 #include "BVHTree.h"
 #include "BVHTreeBuffer.h"
 
+#include "AssetPathManager.h"
+
 // Only for debugging.
 #include "BlurShadowsComputeShader.h"
 
@@ -106,9 +108,10 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	std::shared_ptr<BlockModel> lightModel;
 	try
 	{
-		BlockModelFileInfo lightModelFileInfo("Assets/Models/light_bulb.blockmodel", BlockModelFileInfo::Format::BLOCKMODEL, 0);
-		lightModel = std::static_pointer_cast<BlockModel>(m_assetManager.getOrLoad(lightModelFileInfo));
-		lightModel->loadCpuToGpu(*m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext().Get());
+        const auto path = AssetPathManager::getPathForFileName( "light_bulb.blockmodel" );
+		BlockModelFileInfo lightModelFileInfo( path, BlockModelFileInfo::Format::BLOCKMODEL, 0);
+		lightModel = std::static_pointer_cast<BlockModel>( m_assetManager.getOrLoad( lightModelFileInfo ) );
+		lightModel->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext().Get() );
 	}
 	catch (...) {}
 
@@ -236,10 +239,10 @@ void Application::run() {
 	MSG msg;
 
 	Font font( uint2(m_screenWidth, m_screenHeight) );
-	font.loadFromFile( "Assets/Fonts/consola.ttf", 35 );
+	font.loadFromFile( AssetPathManager::getPathForFileName( "consola.ttf" ), 35 );
 
     Font font2( uint2(m_screenWidth, m_screenHeight) );
-    font2.loadFromFile( "Assets/Fonts/consola.ttf", 13 );
+    font2.loadFromFile( AssetPathManager::getPathForFileName( "consola.ttf" ), 13 );
 
     // Profiling.
     const float profilingDisplayRefreshDelayMs = 200.0f;

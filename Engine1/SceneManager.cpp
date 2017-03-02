@@ -153,6 +153,9 @@ void SceneManager::saveScene( std::string path )
 
 void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, const bool invertZ )
 {
+    if ( filePath.empty() )
+        throw std::exception( "SceneManager::loadAsset - file of given name not found." );
+
     const size_t dotIndex = filePath.rfind( "." );
     if ( dotIndex == std::string::npos )
         return;

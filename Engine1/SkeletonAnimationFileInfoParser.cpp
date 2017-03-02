@@ -3,14 +3,21 @@
 #include "BinaryFile.h"
 #include "SkeletonAnimationFileInfo.h"
 
+#include "AssetPathManager.h"
+#include "FileUtil.h"
+
 using namespace Engine1;
 
 std::shared_ptr<SkeletonAnimationFileInfo> SkeletonAnimationFileInfoParser::parseBinary( std::vector<char>::const_iterator& dataIt )
 {
 	std::shared_ptr<SkeletonAnimationFileInfo> fileInfo = std::make_shared<SkeletonAnimationFileInfo>( );
 
-	const int filePathSize = BinaryFile::readInt( dataIt );
-	fileInfo->setPath( BinaryFile::readText( dataIt, filePathSize ) );
+    const int fileNameSize = BinaryFile::readInt( dataIt );
+    const auto fileName = BinaryFile::readText( dataIt, fileNameSize );
+
+    const auto filePath = AssetPathManager::getPathForFileName( fileName );
+
+	fileInfo->setPath( filePath );
 	fileInfo->setFormat( static_cast<SkeletonAnimationFileInfo::Format>( BinaryFile::readInt( dataIt ) ) );
 	fileInfo->setInvertZCoordinate( BinaryFile::readBool( dataIt ) );
 
@@ -19,8 +26,10 @@ std::shared_ptr<SkeletonAnimationFileInfo> SkeletonAnimationFileInfoParser::pars
 
 void SkeletonAnimationFileInfoParser::writeBinary( std::vector<char>& data, const SkeletonAnimationFileInfo& fileInfo )
 {
-	BinaryFile::writeInt( data, (int)fileInfo.getPath().size() );
-	BinaryFile::writeText( data, fileInfo.getPath() );
+    const auto fileName = FileUtil::getFileNameFromPath( fileInfo.getPath() );
+
+	BinaryFile::writeInt( data, (int)fileName.size() );
+	BinaryFile::writeText( data, fileName );
 	BinaryFile::writeInt( data, static_cast<int>( fileInfo.getFormat() ) );
 	BinaryFile::writeBool( data, fileInfo.getInvertZCoordinate() );
 }

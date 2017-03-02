@@ -82,9 +82,9 @@ namespace Engine1
         // Window state.
         int2 m_windowPosition;
 
-	    InputManager m_inputManager;
-        AssetManager m_assetManager;
-        SceneManager m_sceneManager;
+	    InputManager     m_inputManager;
+        AssetManager     m_assetManager;
+        SceneManager     m_sceneManager;
 
 	    Direct3DRendererCore      m_rendererCore;
         Direct3DFrameRenderer     m_frameRenderer;

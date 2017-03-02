@@ -247,6 +247,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Asset.h" />
+    <ClInclude Include="AssetPathManager.h" />
     <ClInclude Include="BinaryFile.h" />
     <ClInclude Include="BlockActor.h" />
     <ClInclude Include="BlockMesh.h" />
@@ -271,7 +272,8 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h" />
     <ClInclude Include="EmissiveBlockMeshFragmentShader.h" />
-    <ClInclude Include="File.h" />
+    <ClInclude Include="FileSystem.h" />
+    <ClInclude Include="FileUtil.h" />
     <ClInclude Include="FreeCameraParser.h" />
     <ClInclude Include="CombiningFragmentShader.h" />
     <ClInclude Include="CombiningFragmentShader2.h" />
@@ -406,6 +408,7 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Asset.cpp" />
     <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="AssetPathManager.cpp" />
     <ClCompile Include="BinaryFile.cpp" />
     <ClCompile Include="BlockActor.cpp" />
     <ClCompile Include="BlockMesh.cpp" />
@@ -429,7 +432,8 @@
     <ClCompile Include="BVHTreeBufferParser.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.cpp" />
-    <ClCompile Include="File.cpp" />
+    <ClCompile Include="FileSystem.cpp" />
+    <ClCompile Include="FileUtil.cpp" />
     <ClCompile Include="FreeCameraParser.cpp" />
     <ClCompile Include="CombiningFragmentShader.cpp" />
     <ClCompile Include="CombiningFragmentShader2.cpp" />

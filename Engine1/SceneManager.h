@@ -19,6 +19,7 @@ namespace Engine1
     class BlockActor;
     class SkeletonActor;
     class AssetManager;
+    class AssetPathManager;
     class Scene;
     class Actor;
     class BlockMesh;
@@ -47,7 +48,7 @@ namespace Engine1
         void loadScene( std::string path );
         void saveScene( std::string path );
 
-        void loadAsset( std::string filePath, const bool replaceSelected = false, const bool invertZ = true );
+        void loadAsset( std::string fileName, const bool replaceSelected = false, const bool invertZ = true );
 
         std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > >
             pickActorOrLight( const float2& targetPixel, const float screenWidth, const float screenHeight, const float fieldOfView );
