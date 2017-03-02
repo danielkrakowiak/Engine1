@@ -359,4 +359,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 23.02.2017 - 3h - Fixed important bug with distance-to-occluder: nearest dist was calculated, but the last value saved to texture was used - replaced with minimum of all values. Experimenting with many tweaks to distance-to-occluder searching, sampling patterns.
 25.02.2017 - 4h - Improved sampling pattern when searching for distance-to-occluder.
 28.02.2017 - 1h - Added AssetPathManager - to gather all asset paths and translate asset names to their absolute paths.
-02.03.2017 - 2h - Used AssetPathManager in all file parsers to identify assets by their name rather than path.
+02.03.2017 - 3h - Used AssetPathManager in all file parsers to identify assets by their name rather than path.

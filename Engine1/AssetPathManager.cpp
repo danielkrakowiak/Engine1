@@ -5,6 +5,10 @@
 
 #include <utility>
 
+#include "StringUtil.h"
+
+#include <windows.h> // Needed only for OutputDebugStringW method.
+
 using namespace Engine1;
 
 std::unordered_map< std::string, std::string > AssetPathManager::s_paths;
@@ -13,6 +17,8 @@ bool s_initialized = AssetPathManager::initialize();
 
 bool AssetPathManager::initialize()
 {
+    bool duplicatesFound = false;
+
     std::vector< std::string > filePaths = FileSystem::getAllFilesFromDirectory( "Assets" );
 
     for ( const auto& path : filePaths )
@@ -22,8 +28,21 @@ bool AssetPathManager::initialize()
         const std::string fileName = slashPos != std::string::npos 
             ? path.substr( slashPos + 1 ) : path;
 
-        s_paths.insert( std::make_pair( fileName, path ) );
+        const auto insertResult = s_paths.insert( std::make_pair( fileName, path ) );
+        
+        const auto inserted = insertResult.second;
+        if ( !inserted )
+        {
+            duplicatesFound = true;
+
+            const auto& existingPath = insertResult.first->second;
+
+            OutputDebugStringW( StringUtil::widen( "AssetPathManager::initialize - duplicated asset: \n\"" + path + "\"\n\"" + existingPath + "\"\n" ).c_str( ) );
+        }
     }
+
+    if ( duplicatesFound )
+        throw std::exception( "AssetPathManager::initialize - duplicate assets found." );
 
     return true;
 }

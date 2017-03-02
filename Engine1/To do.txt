@@ -46,6 +46,8 @@
 	- [RendererCore - refactoring] RendererCore::copyTexture method is a template, so any texture works fine when passed. 
 	  But compiler cannot deduce template parameter type and perform implicit type conversions at the same type, so it's confused and fails to compile.
 	  How to avoid having to explicitly cast textures to avoid compiler confusion? Add some methods for the most common texture types and use template version inside?
+03.02.2017
+	- [ Path ] Replace all std::string paths with std::filesystem::path - it's internally stored as std::wstring, but allows for many useful operations - such as extracting filename etc.
 
 For later ######################################################################################################################
 

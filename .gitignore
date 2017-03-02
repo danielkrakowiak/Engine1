@@ -179,3 +179,4 @@ $RECYCLE.BIN/
 /Engine1/Shaders/GenerateMipmapMinValueShader/GenerateMipmapMinValue_cs.cso
 *.idb
 *.cso
+/Engine1/Assets-old
