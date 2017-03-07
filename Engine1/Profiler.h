@@ -155,7 +155,7 @@ namespace Engine1
         // Number of queries per single event - more than 1 needed because of double or triple buffering on GPU.
         // We can't read query results at the same frame in which we issued them, because GPU renders frames with a delay.
         // Reading them in the same frame would synchronize CPU and GPU causing a performance drop.
-        static const int queryFrameCount = 6; 
+        static const int queryFrameCount = 3; 
 
         // Disjoint query tells whether GPU clock frequency has changed during the frame. If so, timestamp queries from that frame have to be ignored.
         std::array< Microsoft::WRL::ComPtr< ID3D11Query >, queryFrameCount > m_disjointQueries;

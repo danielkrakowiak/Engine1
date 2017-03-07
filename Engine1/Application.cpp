@@ -563,10 +563,10 @@ void Application::run() {
 
         { // Render some debug options.
             std::stringstream ss;
-            ss << "Use separable shadow blur: " << m_renderer.debugIsUsingSeparableShadowsBlur();
+            ss << "Use separable shadow blur: " << ( m_renderer.debugIsUsingSeparableShadowsBlur() ? "enabled" : "disabled" );
 
             if ( m_renderFps )
-                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 400.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render profiling results.
