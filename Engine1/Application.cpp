@@ -1224,6 +1224,9 @@ void Application::onKeyPress( int key )
     } else if ( key == InputManager::Keys::f8 ) {
         m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
         m_debugDisplayedMipmapLevel = 0;
+    } else if ( key == InputManager::Keys::f9 ) {
+        m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluder );
+        m_debugDisplayedMipmapLevel = 0;
     } /*else if ( key == InputManager::Keys::f12 ) {
         m_renderer.setActiveViewType( Renderer::View::Test );
         m_debugDisplayedMipmapLevel = 0;

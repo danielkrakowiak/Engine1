@@ -15,6 +15,7 @@
 #include "RasterizeShadowRenderer.h"
 #include "ShadowMapRenderer.h"
 #include "MipmapRenderer.h"
+#include "DistanceToOccluderSearchRenderer.h"
 #include "BlurShadowsRenderer.h"
 #include "UtilityRenderer.h"
 
@@ -60,6 +61,7 @@ namespace Engine1
             BlurredIllumination,
             SpotlightDepth,
             DistanceToOccluder,
+            FinalDistanceToOccluder,
             MaxIlluminationBlurRadiusInScreenSpace,
             MinIlluminationBlurRadiusInWorldSpace,
             MaxIlluminationBlurRadiusInWorldSpace,
@@ -185,6 +187,7 @@ namespace Engine1
 		RaytraceShadowRenderer              m_raytraceShadowRenderer;
 		ShadowMapRenderer                   m_shadowMapRenderer;
         MipmapRenderer                      m_mipmapRenderer;
+        DistanceToOccluderSearchRenderer    m_distanceToOccluderSearchRenderer;
         BlurShadowsRenderer                 m_blurShadowsRenderer;
         UtilityRenderer                     m_utilityRenderer;
 

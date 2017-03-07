@@ -403,6 +403,12 @@
     <Filter Include="Header Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace">
       <UniqueIdentifier>{4e2cf4b9-819c-4ea0-be56-011cd42d27b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\DistanceToOccluderSearch">
+      <UniqueIdentifier>{9e0e48e1-6e2b-4dc2-9889-00c49f73eb06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\DistanceToOccluderSearch">
+      <UniqueIdentifier>{2e56f0f2-9221-4497-aac7-8ef0763df74b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -882,6 +888,12 @@
     <ClInclude Include="FileUtil.h">
       <Filter>Header Files\File</Filter>
     </ClInclude>
+    <ClInclude Include="DistanceToOccluderSearchComputeShader.h">
+      <Filter>Header Files\Shader\DistanceToOccluderSearch</Filter>
+    </ClInclude>
+    <ClInclude Include="DistanceToOccluderSearchRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1331,6 +1343,12 @@
     <ClCompile Include="FileUtil.cpp">
       <Filter>Source Files\File</Filter>
     </ClCompile>
+    <ClCompile Include="DistanceToOccluderSearchComputeShader.cpp">
+      <Filter>Source Files\Shader\DistanceToOccluderSearch</Filter>
+    </ClCompile>
+    <ClCompile Include="DistanceToOccluderSearchRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1476,9 +1494,6 @@
     <FxCompile Include="Shaders\TextureRescaleShader\TextureRescale_cs.hlsl">
       <Filter>Source Files\Shader\TextureRescale</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\BlurShadows\BlurShadows_cs.hlsl">
-      <Filter>Source Files\Shader\BlurShadows</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\ReplaceValueShader\ReplaceValue_cs.hlsl">
       <Filter>Source Files\Shader\Utility\ReplaceValue</Filter>
     </FxCompile>
@@ -1508,6 +1523,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\ConvertValueFromScreenSpaceToWorldSpaceShader\ConvertDistanceFromScreenSpaceToWorldSpace_cs.hlsl">
       <Filter>Source Files\Shader\Utility\ConvertValueFromScreenSpaceToWorldSpace</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlurShadowsShader\BlurShadows_cs.hlsl">
+      <Filter>Source Files\Shader\BlurShadows</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\DistanceToOccluderSearchShader\DistanceToOccluderSearch_cs.hlsl">
+      <Filter>Source Files\Shader\DistanceToOccluderSearch</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

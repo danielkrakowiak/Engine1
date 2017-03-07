@@ -43,6 +43,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
 	m_raytraceShadowRenderer( rendererCore ),
 	m_shadowMapRenderer( rendererCore ),
     m_mipmapRenderer( rendererCore ),
+    m_distanceToOccluderSearchRenderer( rendererCore ),
     m_blurShadowsRenderer( rendererCore ),
     m_utilityRenderer( rendererCore ),
     m_activeViewType( View::Final ),
@@ -72,6 +73,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
 	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
 	m_shadowMapRenderer.initialize( device, deviceContext );
     m_mipmapRenderer.initialize( device, deviceContext );
+    m_distanceToOccluderSearchRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_blurShadowsRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_utilityRenderer.initialize( device, deviceContext );
 
@@ -496,6 +498,18 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         //auto illuminationMaxBlurRadiusTextureInWorldSpace = illuminationMaxBlurRadiusTextureInScreenSpace;
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
+        
+        // Distance to occluder search.
+        m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
+            camera,
+            m_deferredRenderer.getPositionRenderTarget(),
+            m_deferredRenderer.getNormalRenderTarget(),
+            distanceToOccluder,
+            *lightsCastingShadows[ lightIdx ]
+        );
+
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
         // Blur shadows.
@@ -506,7 +520,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
             m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
             m_raytraceShadowRenderer.getSoftIlluminationTexture(),
-            distanceToOccluder,
+            m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -574,6 +588,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                     return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );
             case View::DistanceToOccluder:
                 return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getDistanceToOccluder() );
+            case View::FinalDistanceToOccluder:
+                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture() );
         }
     }
 
@@ -1162,6 +1178,7 @@ std::string Renderer::viewToString( const View view )
         case View::BlurredIllumination:                      return "BlurredIllumination";
         case View::SpotlightDepth:                           return "SpotlightDepth";
         case View::DistanceToOccluder:                       return "DistanceToOccluder";
+        case View::FinalDistanceToOccluder:                       return "FinalDistanceToOccluder";
         case View::Test:                                     return "Test";
     }
 

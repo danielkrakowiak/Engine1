@@ -559,7 +559,28 @@ Idea:
 
 		*********************************
 
-		USEFUL NOTES FOR DIST-TO-OCCLUDER SEARCH:
+		DAILY TO-DO:
+		- separate pass for dist-to-occluder search
+		- rendering of results of that pass
+		- render which samples get accepted during blur-shadows
+		- 2-pass blurring of illumination
+		- perspective correction of kernels
+		- working on rejecting, weighting samples in both dist-to-occluder search and illumination blurring.
+		- adding normal threshold? or ray direction threshold?
+		- why dist-to-occluder search is no tdone in two passes?
+
+
+		IDEA: I could do a couple of passes of dist-to-occluder search, each with a bit larger search radius, but only for empty pixels. This could ensure smaller blur close to original edges.
+		Cons: Expensive, because we do all that search for pixels which are too far...
+
+		IDEA: During dist-to-occluder search weight down samples which are farther from center in screen-space and have low dist-to-occluder (sharp shadows away from center).
+		---------------------------------
+
+		USEFUL NOTES FOR DIST-TO-OCCLUDER SEARCH: -----------------------
+		- using small search area better preserves sharp shadows, but dissallows big, soft shadows
+		- using large search area blurs sharp shadows entirely if softer shadow is nearby.
+
+		older:
 		- be carefull about samples pattern. Take most samples near the center, less further away. 
 		  Try to keep circular shape and avoid very specifi patterns (like cross, star) as they will always miss some data.
 		- When center sample is available, decrease search radius only to get some smoothing - we don't really need to search for anything.
@@ -568,6 +589,7 @@ Idea:
 		- Or central sample should have very high weight and then we add other samples?
 		- be carefull, because if I take many fa samples they will have bigger impact on final result. But they have decreased impact because they are further in world space.
 		- KEEP ALL INTERNAL PARAMS SMOOTH - a bigger smooth erorr is better than smaller binary error.
+		---------------------------------------------------------------------
 
 		IMPROVE SAMPLING PATTERN FOR ILLUMINATION - as for dist-to-occluder
 

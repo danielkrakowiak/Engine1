@@ -82,6 +82,7 @@ namespace Engine1
             MipmapGenerationForPreillumination,
             MipmapGenerationForIllumination,
             MipmapMinimumValueGenerationForDistanceToOccluder,
+            DistanceToOccluderSearch,
             BlurShadows,
             Shading,
             MAX_VALUE

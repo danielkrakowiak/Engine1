@@ -85,88 +85,12 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    ///////////////////// TEST POWER VR METHOD OF FINDING BLUR RADIUS /////////////////////////
-    const float  centerIllumination   = g_hardIlluminationTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
-    const float  centerDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
-    const float3 centerPosition       = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
-    const float  centerWeight         = max( 0.0f, 500.0f - centerDistToOccluder );
+    const float distToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
 
-    const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
-
-    const float2 pixelSize = pixelSize0;//float2(1.0f/1024.0f, 1.0f / 768.0f);///*pow(2.0f, mipmap) **/ pixelSize0;
-
-    float2 texCoordShift = float2(0.0f, 0.0f); // x horizontal, y - vertical.
-    
-    float valueSum = centerDistToOccluder * centerWeight;
-    float weightSum = 0.00001f + centerWeight;
-
-    // Decrease search radius if central sample is available (is in shadow).
-    const float maxSearchRadius = lerp( 20.0f, 200.0f, min(1.0f, centerDistToOccluder / 0.5f) ) / distToCamera;
-
-    #ifdef DEBUG2 /////////////////////////////////////
-    g_blurredIlluminationTexture[ dispatchThreadId.xy ] = maxSearchRadius / 600.0f;
-    return;
-    #endif
-
-    float searchRadius = 0.0f;
-    // Note: Surprisingly this loop doesn't work correctly without unrolling - texcoord offsets are always positive.
-    [unroll(20)] 
-    for (float searchProgress = 0.0f; searchRadius <= maxSearchRadius; searchProgress += 0.05f )
-    {
-        searchRadius = lerp( 1.0f, 600.0f, pow(searchProgress, 5.0f) ) / distToCamera;
-
-        texCoordShift.xy = pixelSize * searchRadius;
-
-        // #TODO: Should not depend on search radius, because it then changes when zooming in - pointlessly.
-        const float stepCount = floor( lerp(1.5f, 8.0f, searchRadius * distToCamera / 600.0f) ); 
-        const float step = 1.0f / stepCount;
-
-        for ( float y = -1.0f; y <= 1.0f; y += step )
-        {
-            for ( float x = -1.0f; x <= 1.0f; x += step )
-            {
-                float2 texcoordShiftMul = normalize( float2( x, y ) );
-
-                #ifdef DEBUG /////////////////////////////////
-                int2 texcoordsInt = int2( (texcoords + float2( texcoordShiftMul.x * texCoordShift.x, texcoordShiftMul.y * texCoordShift.y )) * float2( 1024.0f, 768.0f ) );
-                g_blurredIlluminationTexture[ texcoordsInt ] = 500.0f;
-                #endif
-                //////////////////////////////////////////
-                
-                const float sampleDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords + float2( texcoordShiftMul.x * texCoordShift.x, texcoordShiftMul.y * texCoordShift.y ), 0.0f );
-                
-                // Weight discarding samples which are non-shadowed (huge dist-to-ccluder).
-                const float sampleWeight1 = max( 0.0f, 500.0f - sampleDistToOccluder );
-
-                // Weight discarding samples which are off-screen (zero dist-to-occluder).
-                const float sampleWeight2 = min( 1.0f, 10000.0f * sampleDistToOccluder );
-
-                const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + float2( x * texCoordShift.x, y * texCoordShift.y ), 0.0f ).xyz; 
-
-                const float positionDiff = length( samplePosition - centerPosition );
-
-                const float sampleWeight3 = pow( e, -positionDiff * positionDiff / positionThreshold );
-
-                valueSum  += sampleDistToOccluder * sampleWeight1 * sampleWeight2 * sampleWeight3;
-                weightSum += sampleWeight1 * sampleWeight2 * sampleWeight3;
-            }
-        }
-    }
-
-    float distToOccluder = valueSum / weightSum;
-
-    #ifdef DEBUG /////////////////////////////////////
-    g_blurredIlluminationTexture[ dispatchThreadId.xy ] = 500.0f;
-    return;
-    #endif
-    /////////////////////////////////////////////
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    
     //const float minBlurRadiusInWorldSpace = g_distToOccluder.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
-    //const float pixelSizeInWorldSpace      = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+    const float pixelSizeInWorldSpace               = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
     const float maxIlluminationWorldSpaceBlurRadius = 1.0f; 
-    const float distLightToOccluder = distToLight - distToOccluder;
+    const float distLightToOccluder                 = distToLight - distToOccluder;
     
     const float blurRadiusInWorldSpace = min( maxIlluminationWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
 
@@ -177,7 +101,12 @@ void main( uint3 groupId : SV_GroupID,
     //const float illuminationSoftness = min( 1.0f, minBlurRadiusInWorldSpace / 1.0f );
     //const float illuminationHardness = 1.0f - illuminationSoftness;
 
+    const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
+
     float surfaceIllumination = 0.0f;
+
+    // TEEEEEEEEEEST
+    //surfaceIllumination = g_hardIlluminationTexture.SampleLevel( g_pointSamplerState, texcoords, samplingRadius );
 
     if ( samplingRadius <= 0.0001f || samplingRadius > maxBlurRadius )
     {
@@ -193,6 +122,8 @@ void main( uint3 groupId : SV_GroupID,
         float sampleCount = 0.0f;
 
         const float samplingStep = 0.05f * samplingRadius;
+
+        const float x = 0.0f;
 
         for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
         {
