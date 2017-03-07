@@ -570,8 +570,9 @@ void Application::run() {
         }
 
         { // Render profiling results.
-            std::stringstream ss;
+            std::stringstream ss, ss2;
             ss << std::fixed << std::setprecision( 2 );
+            ss2 << std::fixed << std::setprecision( 2 );
             ss << "Profiling: \n";
             ss << "Total: " << totalFrameTimeGPU << " ms \n";
 
@@ -607,7 +608,11 @@ void Application::run() {
 
                 for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx )
                 {
-                    ss << "        Light " << lightIdx << "\n";
+                    bool display = false;
+                    ss2.str( "" ); // Clear stream.
+                    ss2.clear();   // Clear stream errors.
+
+                    ss2 << "        Light " << lightIdx << "\n";
 
                     for ( int eventType = (int)Profiler::EventTypePerStagePerLight::ShadowsMapping; eventType < (int)Profiler::EventTypePerStagePerLight::MAX_VALUE; ++eventType )
                     {
@@ -615,10 +620,17 @@ void Application::run() {
                         const std::string eventName     = Profiler::eventTypeToString( ( Profiler::EventTypePerStagePerLight )eventType );
 
                         if ( eventDuration > 0.0f )
-                            ss << "                " << eventName << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%\n";
+                        {
+                            ss2 << "                " << eventName << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%\n";
+                            display = true;
+                        }
                     }
 
-                    ss << "\n";
+                    ss2 << "\n";
+
+                    // If accumulated events duration for that light is non-zero - display it's info.
+                    if ( display )
+                        ss << ss2.str();
                 }
             }
 
