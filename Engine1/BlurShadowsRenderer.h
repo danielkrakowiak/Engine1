@@ -39,6 +39,14 @@ namespace Engine1
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                              const Light& light );
 
+        void blurShadowsHorzVert( const Camera& camera,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+                          const Light& light );
+
         /*void performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture,
@@ -64,10 +72,16 @@ namespace Engine1
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_illuminationRenderTarget;
 
+        // Extra render target used when 2-pass separable blur is run.
+        // It stores horizontally blurred illumination before the vertical pass.
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_illuminationTemporaryRenderTarget;
+
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
         std::shared_ptr< BlurShadowsComputeShader >  m_blurShadowsComputeShader;
+        std::shared_ptr< BlurShadowsComputeShader >  m_blurShadowsHorizontalComputeShader;
+        std::shared_ptr< BlurShadowsComputeShader >  m_blurShadowsVerticalComputeShader;
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 

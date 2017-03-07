@@ -84,6 +84,7 @@ namespace Engine1
             MipmapMinimumValueGenerationForDistanceToOccluder,
             DistanceToOccluderSearch,
             BlurShadows,
+            Shadows,
             Shading,
             MAX_VALUE
         };
@@ -120,6 +121,11 @@ namespace Engine1
         void beginFrameProfiling();
         void endFrameProfiling();
 
+        // Useful to pause profiling when high update rate is not needed.
+        // Begin/end event calls and are ignored in that state and getters return values for the last measured frame.
+        // Call beginFrameProfiling to resume profiling.
+        void pauseProfiling();
+
         float getEventDuration( const GlobalEventType event );
         float getEventDuration( const StageType stage, const EventTypePerStage event );
         float getEventDuration( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event );
@@ -135,6 +141,8 @@ namespace Engine1
 
         Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
+
+        bool m_profilingPaused;
 
         // Saving query results should happen to frame N, reading results from frame N - 1 
         // (so reading works even in the middle of profiling - between calls to beginFrameProfiling and endFrameProfiling)

@@ -48,6 +48,9 @@
 	  How to avoid having to explicitly cast textures to avoid compiler confusion? Add some methods for the most common texture types and use template version inside?
 03.02.2017
 	- [ Path ] Replace all std::string paths with std::filesystem::path - it's internally stored as std::wstring, but allows for many useful operations - such as extracting filename etc.
+07.03.2017
+	- [ Optimization ] Disabling rendering/compute pipelines could be easily delayed until a different pipeline is needed. Simply remove "disable" method and disable when enabling (if needed).
+	  What problems could it cause? Some problems when configuring pipelines? I could enfore that a given pipeline type is enabled by exceptions.
 
 For later ######################################################################################################################
 
@@ -560,10 +563,9 @@ Idea:
 		*********************************
 
 		DAILY TO-DO:
-		- separate pass for dist-to-occluder search
-		- rendering of results of that pass
+		- reduce update frequency of the profiler - this will improve readibilty and storing temporary results won't be needed anymore.
+
 		- render which samples get accepted during blur-shadows
-		- 2-pass blurring of illumination
 		- perspective correction of kernels
 		- working on rejecting, weighting samples in both dist-to-occluder search and illumination blurring.
 		- adding normal threshold? or ray direction threshold?

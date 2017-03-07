@@ -89,6 +89,7 @@ std::string Profiler::eventTypeToString( const EventTypePerStagePerLight eventTy
         case EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder:  return "MipmapMinimumValueGenerationForDistanceToOccluder" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::DistanceToOccluderSearch:                           return "DistanceToOccluderSearch" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::BlurShadows:                                        return "BlurShadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::Shadows:                                            return "Shadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::Shading:                                            return "Shading" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
     }
 
@@ -96,6 +97,7 @@ std::string Profiler::eventTypeToString( const EventTypePerStagePerLight eventTy
 }
 
 Profiler::Profiler() :
+    m_profilingPaused( true ),
     m_currentSubmitQueryFrameIndex( -1 ),
     m_currentSaveResultsFrameIndex( -queryFrameCount + 1 ),
     m_currentReadResultsFrameIndex( -1 )
@@ -140,11 +142,17 @@ void Profiler::initialize( ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceCo
 
 void Profiler::beginEvent( const GlobalEventType event )
 {
+    if ( m_profilingPaused )
+        return;
+
     m_deviceContext->End( m_globalEvents[ m_currentSubmitQueryFrameIndex ][ (int)event ].queryBegin.Get() );
 }
 
 void Profiler::endEvent( const GlobalEventType event )
 {
+    if ( m_profilingPaused )
+        return;
+
     m_globalEvents[ m_currentSubmitQueryFrameIndex ][ (int)event ].measured = true;
 
     m_deviceContext->End( m_globalEvents[ m_currentSubmitQueryFrameIndex ][ (int)event ].queryEnd.Get() );
@@ -152,11 +160,17 @@ void Profiler::endEvent( const GlobalEventType event )
 
 void Profiler::beginEvent( const StageType stage, const EventTypePerStage event )
 {
+    if ( m_profilingPaused )
+        return;
+
      m_deviceContext->End( m_eventsPerStage[ m_currentSubmitQueryFrameIndex ][ (int)stage ][ (int)event ].queryBegin.Get() );
 }
 
 void Profiler::endEvent( const StageType stage, const EventTypePerStage event )
 {
+    if ( m_profilingPaused )
+        return;
+
     m_eventsPerStage[ m_currentSubmitQueryFrameIndex ][ (int)stage ][ (int)event ].measured = true;
 
     m_deviceContext->End( m_eventsPerStage[ m_currentSubmitQueryFrameIndex ][ (int)stage ][ (int)event ].queryEnd.Get() );
@@ -164,6 +178,9 @@ void Profiler::endEvent( const StageType stage, const EventTypePerStage event )
 
 void Profiler::beginEvent( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event )
 {
+    if ( m_profilingPaused )
+        return;
+
     if ( lightIndex < 0 || lightIndex >= s_maxLightCount )
         return;
 
@@ -172,6 +189,9 @@ void Profiler::beginEvent( const StageType stage, const int lightIndex, const Ev
 
 void Profiler::endEvent( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event )
 {
+    if ( m_profilingPaused )
+        return;
+
     if ( lightIndex < 0 || lightIndex >= s_maxLightCount )
         return;
 
@@ -182,6 +202,8 @@ void Profiler::endEvent( const StageType stage, const int lightIndex, const Even
 
 void Profiler::beginFrameProfiling()
 {
+    m_profilingPaused = false;
+
     ++m_currentSubmitQueryFrameIndex;
     m_currentSubmitQueryFrameIndex = m_currentSubmitQueryFrameIndex % queryFrameCount;
 
@@ -195,6 +217,9 @@ void Profiler::beginFrameProfiling()
 
 void Profiler::endFrameProfiling()
 {
+    if ( m_profilingPaused )
+        return;
+
     m_deviceContext->End( m_disjointQueries[ m_currentSubmitQueryFrameIndex ].Get() );
 
     // Save the results if they are ready - otherwise ignore the queries.
@@ -262,6 +287,11 @@ void Profiler::endFrameProfiling()
 
     // Results are ready and can be read.
     m_currentReadResultsFrameIndex = m_currentSaveResultsFrameIndex;
+}
+
+void Profiler::pauseProfiling()
+{
+    m_profilingPaused = true;
 }
 
 // Negative value means that event hasn't occurred.

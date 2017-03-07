@@ -47,7 +47,8 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_blurShadowsRenderer( rendererCore ),
     m_utilityRenderer( rendererCore ),
     m_activeViewType( View::Final ),
-    m_maxLevelCount( 0 )
+    m_maxLevelCount( 0 ),
+    m_debugUseSeparableShadowsBlur( false )
 {}
 
 Renderer::~Renderer()
@@ -340,6 +341,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+
         if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight 
              && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
         )
@@ -512,17 +515,36 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
-        // Blur shadows.
-        m_blurShadowsRenderer.blurShadows(
-            camera,
-            m_deferredRenderer.getPositionRenderTarget(),
-            m_deferredRenderer.getNormalRenderTarget(),
-            //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-            m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
-            m_raytraceShadowRenderer.getSoftIlluminationTexture(),
-            m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
-            *lightsCastingShadows[ lightIdx ]
-        );
+        if ( m_debugUseSeparableShadowsBlur )
+        {
+            // Blur shadows in two passes - horizontal and vertical.
+            m_blurShadowsRenderer.blurShadowsHorzVert(
+                camera,
+                m_deferredRenderer.getPositionRenderTarget(),
+                m_deferredRenderer.getNormalRenderTarget(),
+                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getSoftIlluminationTexture(),
+                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                *lightsCastingShadows[ lightIdx ]
+            );
+        }
+        else
+        {
+            // Blur shadows in a single pass.
+            m_blurShadowsRenderer.blurShadows(
+                camera,
+                m_deferredRenderer.getPositionRenderTarget(),
+                m_deferredRenderer.getNormalRenderTarget(),
+                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getSoftIlluminationTexture(),
+                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                *lightsCastingShadows[ lightIdx ]
+            );
+        }
+
+        
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
@@ -540,6 +562,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
+
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 	}
 
     m_profiler.beginEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
@@ -1143,6 +1167,16 @@ void Renderer::setMaxLevelCount( const int levelCount )
 int Renderer::getMaxLevelCount() const
 {
     return m_maxLevelCount;
+}
+
+void Renderer::debugSetUseSeparableShadowsBlur( const bool useSeparableBlur )
+{
+    m_debugUseSeparableShadowsBlur = useSeparableBlur;
+}
+
+bool Renderer::debugIsUsingSeparableShadowsBlur()
+{
+    return m_debugUseSeparableShadowsBlur;
 }
 
 void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )

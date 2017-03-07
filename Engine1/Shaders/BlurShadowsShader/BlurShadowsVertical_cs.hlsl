@@ -123,6 +123,8 @@ void main( uint3 groupId : SV_GroupID,
 
         const float samplingStep = 0.05f * samplingRadius;
 
+        const float x = 0.0f;
+
         for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
         {
             for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 

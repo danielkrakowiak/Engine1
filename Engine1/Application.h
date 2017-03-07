@@ -130,10 +130,6 @@ namespace Engine1
         struct StageProfilingInfo
         {
             // Time in milliseconds.
-            std::array< float, (int)Profiler::EventTypePerStage::MAX_VALUE > event;
-            std::array< float, Profiler::s_maxLightCount > shadowMappingPerLight;
-            std::array< float, Profiler::s_maxLightCount > raytracingShadowsPerLight;
-            std::array< float, Profiler::s_maxLightCount > shadingPerLight;
             float shadowsTotal;
             float shadingTotal;
         };

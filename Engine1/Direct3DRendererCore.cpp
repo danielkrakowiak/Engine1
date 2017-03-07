@@ -317,7 +317,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             for ( unsigned int i = 0; i < unorderedAccessTargetsF4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
 				if ( m_currentUnorderedAccessTargetViews.size() <= (second + i) 
-                     || ((unorderedAccessTargetsF2.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( second + i ) == nullptr))
+                     || ((unorderedAccessTargetsF4.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( second + i ) == nullptr))
                      || unorderedAccessTargetsF4.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( second + i ) ) 
                 {
 					sameAsCurrent = false;
@@ -329,7 +329,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             for ( unsigned int i = 0; i < unorderedAccessTargetsU1.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
 				if ( m_currentUnorderedAccessTargetViews.size() <= (third + i) 
-                     || ((unorderedAccessTargetsF2.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( third + i ) == nullptr))
+                     || ((unorderedAccessTargetsU1.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( third + i ) == nullptr))
                      || unorderedAccessTargetsU1.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( third + i ) ) 
                 {
 					sameAsCurrent = false;
@@ -341,7 +341,7 @@ void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std:
             for ( unsigned int i = 0; i < unorderedAccessTargetsU4.size(); ++i ) {
 				// Check each pair of UAV targets at corresponding indexes.
 				if ( m_currentUnorderedAccessTargetViews.size() <= (third + i) 
-                     || ((unorderedAccessTargetsF2.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( fourth + i ) == nullptr))
+                     || ((unorderedAccessTargetsU4.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( fourth + i ) == nullptr))
                      || unorderedAccessTargetsU4.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( fourth + i ) ) {
 					sameAsCurrent = false;
 					break;

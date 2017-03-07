@@ -1530,5 +1530,7 @@
     <FxCompile Include="Shaders\DistanceToOccluderSearchShader\DistanceToOccluderSearch_cs.hlsl">
       <Filter>Source Files\Shader\DistanceToOccluderSearch</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\BlurShadowsShader\BlurShadowsHorizontal_cs.hlsl" />
+    <FxCompile Include="Shaders\BlurShadowsShader\BlurShadowsVertical_cs.hlsl" />
   </ItemGroup>
 </Project>
