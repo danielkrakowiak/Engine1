@@ -127,55 +127,52 @@ void main( uint3 groupId : SV_GroupID,
 
         for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
         {
-            for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
+            const float2 texCoordShift = float2( pixelSize0.x * x, pixelSize0.y * y );
+
+            //#TODO: When we sample outside of light cone - the sample should be black.
+
+            //float sampleDistToOccluder  = g_distToOccluder.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 1.5f );
+            //const float sampleIlluminationSoftness = min( 1.0f, sampleBlurRadiusInWorldSpace / 1.0f );
+            //const float sampleIlluminationHardness = 1.0f - sampleIlluminationSoftness;
+
+            //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
+            const float  sampleHardIllumination = g_hardIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
+            //const float  sampleSoftIllumination = g_softIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
+            //const float  sampleBlurRadius   = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f );
+            //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
+                
+            //const float sampleIllumination = illuminationSoftness * sampleSoftIllumination;//lerp( sampleHardIllumination, sampleSoftIllumination, illuminationSoftness );//illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
+            //const float sampleIllumination1 = min( 1.0f, illuminationHardness / sampleIlluminationHardness ) * sampleHardIllumination;
+            //const float sampleIllumination2 = min( 1.0f, illuminationSoftness / sampleIlluminationSoftness ) * sampleSoftIllumination;
+            const float sampleIllumination = sampleHardIllumination;// + sampleHardIllumination;*/ //sampleIllumination1 + sampleIllumination2;
+                
+            const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
+
+            const float positionDiff = length( samplePosition - centerPosition );
+
+            const float sampleWeight2 = pow( e, -positionDiff * positionDiff / positionThreshold );
+
+            float sampleWeight = sampleWeight2;
+
+            //if (samplePointIllumination < 0.8f ) { 
+            //    sampleWeight = max( 0.0f, 1.0f - abs(blurRadius - sampleBlurRadius) / blurRadius );
+            //}
+
+            // #TODO: Increase positionThreshold!! 
+            bool useSample = true;///*sampleBlurRadiusInWorldSpace >= minBlurRadiusInWorldSpace &&*/ canUseSample( surfacePosition, samplePosition, minBlurRadiusInWorldSpace, positionThreshold );
+
+            if ( useSample )
             {
-                const float2 texCoordShift = float2( pixelSize0.x * x, pixelSize0.y * y );
+                surfaceIllumination += sampleIllumination * sampleWeight;
 
-                //#TODO: When we sample outside of light cone - the sample should be black.
-
-                //float sampleDistToOccluder  = g_distToOccluder.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 1.5f );
-                //const float sampleIlluminationSoftness = min( 1.0f, sampleBlurRadiusInWorldSpace / 1.0f );
-                //const float sampleIlluminationHardness = 1.0f - sampleIlluminationSoftness;
-
-                //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
-                const float  sampleHardIllumination = g_hardIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
-                //const float  sampleSoftIllumination = g_softIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
-                //const float  sampleBlurRadius   = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f );
-                //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
-                
-                //const float sampleIllumination = illuminationSoftness * sampleSoftIllumination;//lerp( sampleHardIllumination, sampleSoftIllumination, illuminationSoftness );//illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
-                //const float sampleIllumination1 = min( 1.0f, illuminationHardness / sampleIlluminationHardness ) * sampleHardIllumination;
-                //const float sampleIllumination2 = min( 1.0f, illuminationSoftness / sampleIlluminationSoftness ) * sampleSoftIllumination;
-                const float sampleIllumination = sampleHardIllumination;// + sampleHardIllumination;*/ //sampleIllumination1 + sampleIllumination2;
-                
-                const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
-
-                const float positionDiff = length( samplePosition - centerPosition );
-
-                const float sampleWeight2 = pow( e, -positionDiff * positionDiff / positionThreshold );
-
-                float sampleWeight = sampleWeight2;
-
-                //if (samplePointIllumination < 0.8f ) { 
-                //    sampleWeight = max( 0.0f, 1.0f - abs(blurRadius - sampleBlurRadius) / blurRadius );
-                //}
-
-                // #TODO: Increase positionThreshold!! 
-                bool useSample = true;///*sampleBlurRadiusInWorldSpace >= minBlurRadiusInWorldSpace &&*/ canUseSample( surfacePosition, samplePosition, minBlurRadiusInWorldSpace, positionThreshold );
-
-                if ( useSample )
-                {
-                    surfaceIllumination += sampleIllumination * sampleWeight;
-
-                    // Add fully lit samples twice.
-                    //if ( sampleIllumination > 0.99f )
-                    //    surfaceIllumination += sampleIllumination;
+                // Add fully lit samples twice.
+                //if ( sampleIllumination > 0.99f )
+                //    surfaceIllumination += sampleIllumination;
                     
-                    //const float weightFromIllumination = sampleIllumination * 0.5f + 0.5f; // Note: To correct the transition from black to white, which would otherwise be from black to gray.
+                //const float weightFromIllumination = sampleIllumination * 0.5f + 0.5f; // Note: To correct the transition from black to white, which would otherwise be from black to gray.
                     
 
-                    sampleCount += sampleWeight;// * weightFromIllumination;// * weightFromPositionDiff;
-                }
+                sampleCount += sampleWeight;// * weightFromIllumination;// * weightFromPositionDiff;
             }
         }
 

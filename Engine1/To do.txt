@@ -563,8 +563,6 @@ Idea:
 		*********************************
 
 		DAILY TO-DO:
-		- reduce update frequency of the profiler - this will improve readibilty and storing temporary results won't be needed anymore.
-
 		- render which samples get accepted during blur-shadows
 		- perspective correction of kernels
 		- working on rejecting, weighting samples in both dist-to-occluder search and illumination blurring.
