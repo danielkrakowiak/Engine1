@@ -48,7 +48,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_utilityRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_maxLevelCount( 0 ),
-    m_debugUseSeparableShadowsBlur( false )
+    m_debugUseSeparableShadowsBlur( true )
 {}
 
 Renderer::~Renderer()

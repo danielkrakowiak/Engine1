@@ -82,7 +82,7 @@ std::string Profiler::eventTypeToString( const EventTypePerStagePerLight eventTy
 {
     switch ( eventType ) 
     {
-        case EventTypePerStagePerLight::ShadowsMapping:                                     return "Shadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::ShadowsMapping:                                     return "ShadowMapping" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::RaytracingShadows:                                  return "RaytracingShadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::MipmapGenerationForPreillumination:                 return "MipmapGenerationForPreillumination" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::MipmapGenerationForIllumination:                    return "MipmapGenerationForIllumination" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
