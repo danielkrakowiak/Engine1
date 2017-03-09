@@ -83,7 +83,8 @@ void main( uint3 groupId : SV_GroupID,
 
     const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
 
-    const float2 pixelSize = pixelSize0;//float2(1.0f/1024.0f, 1.0f / 768.0f);///*pow(2.0f, mipmap) **/ pixelSize0;
+    const float mipmap = 2.0f;
+    const float2 pixelSize = pixelSize0 * pow( 2.0f, mipmap );
 
     float2 texCoordShift = float2(0.0f, 0.0f); // x horizontal, y - vertical.
     
@@ -93,12 +94,12 @@ void main( uint3 groupId : SV_GroupID,
     // Decrease search radius if central sample is available (is in shadow).
     const float maxSearchRadius = 30.0f;//lerp( 20.0f, 200.0f, min(1.0f, centerDistToOccluder / 0.5f) ) / distToCamera;
 
-    float searchRadius = 4.0f;
+    float searchRadius = 2.0f;
 
     if (centerDistToOccluder > 1.0f && centerDistToOccluder < 500.0)
-        searchRadius = 20.0f;
+        searchRadius = 10.0f;
     else if (centerDistToOccluder > 500.0f)
-        searchRadius = 50.0f;
+        searchRadius = 25.0f;
 
     //float searchRadius = lerp( 4.0f, 100.0f, saturate( centerDistToOccluder / 10.0f ) ); /*/ distToCamera*/;
     // Note: Surprisingly this loop doesn't work correctly without unrolling - texcoord offsets are always positive.
@@ -113,9 +114,9 @@ void main( uint3 groupId : SV_GroupID,
     //    // #TODO: Should not depend on search radius, because it then changes when zooming in - pointlessly.
     //    const float stepCount = floor( lerp(1.5f, 8.0f, searchRadius * distToCamera / 600.0f) ); 
     //    const float step = 1.0f / stepCount;
-    for ( float y = -searchRadius; y <= searchRadius; y += 2.0f )
+    for ( float y = -searchRadius; y <= searchRadius; y += 4.0f )
     {
-        for ( float x = -searchRadius; x <= searchRadius; x += 2.0f )
+        for ( float x = -searchRadius; x <= searchRadius; x += 4.0f )
         {
             const float2 sampleTexcoords = texcoords + float2( x * pixelSize.x, y * pixelSize.y );
 
