@@ -409,6 +409,12 @@
     <Filter Include="Header Files\Shader\DistanceToOccluderSearch">
       <UniqueIdentifier>{2e56f0f2-9221-4497-aac7-8ef0763df74b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\ExtractBrightPixels">
+      <UniqueIdentifier>{1c7a6274-3511-494c-968c-237977da8ee8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\ExtractBrightPixels">
+      <UniqueIdentifier>{a1ccb28c-60f9-4082-95a6-48ac7932cc66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -894,6 +900,12 @@
     <ClInclude Include="DistanceToOccluderSearchRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="ExtractBrightPixelsComputeShader.h">
+      <Filter>Header Files\Shader\ExtractBrightPixels</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtractBrightPixelsRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1349,6 +1361,12 @@
     <ClCompile Include="DistanceToOccluderSearchRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="ExtractBrightPixelsComputeShader.cpp">
+      <Filter>Source Files\Shader\ExtractBrightPixels</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractBrightPixelsRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1535,6 +1553,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\BlurShadowsShader\BlurShadowsVertical_cs.hlsl">
       <Filter>Source Files\Shader\BlurShadows</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ExtractBrightPixelsShader\ExtractBrightPixels_cs.hlsl">
+      <Filter>Source Files\Shader\ExtractBrightPixels</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

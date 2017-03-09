@@ -18,6 +18,7 @@
 #include "DistanceToOccluderSearchRenderer.h"
 #include "BlurShadowsRenderer.h"
 #include "UtilityRenderer.h"
+#include "ExtractBrightPixelsRenderer.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -65,6 +66,7 @@ namespace Engine1
             MaxIlluminationBlurRadiusInScreenSpace,
             MinIlluminationBlurRadiusInWorldSpace,
             MaxIlluminationBlurRadiusInWorldSpace,
+            BloomBrightPixels,
 			Test
         };
 
@@ -167,6 +169,8 @@ namespace Engine1
                                 const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                                 const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
 
+        void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture );
+
         private:
 
         Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
@@ -180,6 +184,9 @@ namespace Engine1
         // It reduces blurring complexity from n^2 to 2n, where n is blurring kernel size.
         // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
         bool m_debugUseSeparableShadowsBlur;
+
+        // Bloom configuration.
+        float m_minBrightness;
 
         Direct3DRendererCore&     m_rendererCore;
         Profiler&                 m_profiler;
@@ -198,11 +205,13 @@ namespace Engine1
         DistanceToOccluderSearchRenderer    m_distanceToOccluderSearchRenderer;
         BlurShadowsRenderer                 m_blurShadowsRenderer;
         UtilityRenderer                     m_utilityRenderer;
+        ExtractBrightPixelsRenderer         m_extractBrightPixelsRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTarget;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_bloomRenderTarget;
 
         std::shared_ptr<const BlockMesh>  m_axisMesh;
         std::shared_ptr<const BlockModel> m_lightModel;

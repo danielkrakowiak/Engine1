@@ -274,6 +274,8 @@
     <ClInclude Include="DistanceToOccluderSearchComputeShader.h" />
     <ClInclude Include="DistanceToOccluderSearchRenderer.h" />
     <ClInclude Include="EmissiveBlockMeshFragmentShader.h" />
+    <ClInclude Include="ExtractBrightPixelsComputeShader.h" />
+    <ClInclude Include="ExtractBrightPixelsRenderer.h" />
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="FileUtil.h" />
     <ClInclude Include="FreeCameraParser.h" />
@@ -436,6 +438,8 @@
     <ClCompile Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.cpp" />
     <ClCompile Include="DistanceToOccluderSearchComputeShader.cpp" />
     <ClCompile Include="DistanceToOccluderSearchRenderer.cpp" />
+    <ClCompile Include="ExtractBrightPixelsComputeShader.cpp" />
+    <ClCompile Include="ExtractBrightPixelsRenderer.cpp" />
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="FileUtil.cpp" />
     <ClCompile Include="FreeCameraParser.cpp" />
@@ -825,6 +829,17 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\EdgeDistanceShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\EdgeDistanceShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\EdgeDistanceShader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\ExtractBrightPixelsShader\ExtractBrightPixels_cs.hlsl">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\ExtractBrightPixelsShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\ExtractBrightPixelsShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\ExtractBrightPixelsShader\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\GenerateFirstRefractedRaysShader\GenerateFirstRefractedRays_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

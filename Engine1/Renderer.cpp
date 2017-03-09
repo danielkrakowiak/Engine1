@@ -46,9 +46,11 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_distanceToOccluderSearchRenderer( rendererCore ),
     m_blurShadowsRenderer( rendererCore ),
     m_utilityRenderer( rendererCore ),
+    m_extractBrightPixelsRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_maxLevelCount( 0 ),
-    m_debugUseSeparableShadowsBlur( true )
+    m_debugUseSeparableShadowsBlur( true ),
+    m_minBrightness( 1.0f )
 {}
 
 Renderer::~Renderer()
@@ -77,6 +79,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_distanceToOccluderSearchRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_blurShadowsRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_utilityRenderer.initialize( device, deviceContext );
+    m_extractBrightPixelsRenderer.initialize( device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
@@ -211,6 +214,12 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
         = renderReflectionsRefractions( false, 1, 0, m_maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
                                         renderedViewType, m_activeViewLevel, m_activeViewType );
+
+    // Perform post-effects.
+    performBloom( m_finalRenderTarget );
+
+    if ( m_activeViewType == View::BloomBrightPixels )
+        return std::make_tuple( nullptr, nullptr, m_bloomRenderTarget, nullptr, nullptr );
 
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -1129,6 +1138,13 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
                                colorTextureFillWidth, colorTextureFillHeight );
 }
 
+void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture )
+{
+    //#TODO: Measure performance!
+
+    m_extractBrightPixelsRenderer.extractBrightPixels( colorTexture, m_bloomRenderTarget, m_minBrightness );
+}
+
 void Renderer::setActiveViewType( const View view )
 {
     m_activeViewType = view;
@@ -1183,6 +1199,9 @@ void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Devic
 {
     m_finalRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+
+    m_bloomRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
 const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& Renderer::debugGetCurrentRefractiveIndexTextures()
@@ -1212,7 +1231,8 @@ std::string Renderer::viewToString( const View view )
         case View::BlurredIllumination:                      return "BlurredIllumination";
         case View::SpotlightDepth:                           return "SpotlightDepth";
         case View::DistanceToOccluder:                       return "DistanceToOccluder";
-        case View::FinalDistanceToOccluder:                       return "FinalDistanceToOccluder";
+        case View::FinalDistanceToOccluder:                  return "FinalDistanceToOccluder";
+        case View::BloomBrightPixels:                        return "BloomBrightPixels";
         case View::Test:                                     return "Test";
     }
 
