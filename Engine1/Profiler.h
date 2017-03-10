@@ -58,6 +58,7 @@ namespace Engine1
         {
             Frame = 0,
             DeferredRendering,
+            Bloom,
             CopyFrameToFinalRenderTarget,
             MAX_VALUE
         };

@@ -577,8 +577,13 @@ void Application::run() {
             ss << "Total: " << totalFrameTimeGPU << " ms \n";
 
             // Print global events duration.
-            ss << "DeferredRendering: " << deferredRenderingTime << "ms " << ( deferredRenderingTime / totalFrameTimeGPU ) * 100.0f << "% \n";
-            ss << "CopyFrameToFinalRenderTarget: " << mainMipmapGenerationForPositionAndNormalsTime << "ms " << ( mainMipmapGenerationForPositionAndNormalsTime / totalFrameTimeGPU ) * 100.0f << "% \n";
+            for (int globalEventType = (int)Profiler::GlobalEventType::DeferredRendering; globalEventType < (int)Profiler::GlobalEventType::MAX_VALUE; ++globalEventType)
+            {
+                const std::string eventName     = Profiler::eventTypeToString( (Profiler::GlobalEventType)globalEventType );
+                const float       eventDuration = m_profiler.getEventDuration( (Profiler::GlobalEventType)globalEventType );
+
+                ss << eventName << ": " << eventDuration << "ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+            }
 
             for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, (int)m_renderer.getMaxLevelCount() + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
             {

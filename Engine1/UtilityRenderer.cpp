@@ -6,6 +6,8 @@
 #include "SpreadValueComputeShader.h"
 #include "MergeValueComputeShader.h"
 #include "ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h"
+#include "BlurValueComputeShader.h"
+#include "MergeMipmapsValueComputeShader.h"
 
 using namespace Engine1;
 
@@ -18,7 +20,9 @@ UtilityRenderer::UtilityRenderer( Direct3DRendererCore& rendererCore ) :
     m_spreadMinValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),
     m_spreadSparseMinValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),
     m_mergeMinValueComputeShader( std::make_shared< MergeValueComputeShader >() ),
-    m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader( std::make_shared< ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader >() )
+    m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader( std::make_shared< ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader >() ),
+    m_blurValueComputeShader( std::make_shared< BlurValueComputeShader >() ),
+    m_mergeMipmapsValueComputeShader( std::make_shared< MergeMipmapsValueComputeShader >() )
 {}
 
 UtilityRenderer::~UtilityRenderer()
@@ -274,6 +278,86 @@ void UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace( std::shared_pt
     m_rendererCore.disableComputePipeline();
 }
 
+void UtilityRenderer::blurValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > outputTexture,
+                                  const int outputMipmapLevel,
+                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > inputTexture,
+                                  const int inputMipmapLevel )
+{
+    if ( !m_initialized )
+        throw std::exception( "UtilityRenderer::blurValues - renderer has not been initialized." );
+
+    m_rendererCore.disableRenderingPipeline();
+
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+
+    unorderedAccessTargetsF4.push_back( outputTexture );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
+                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, outputMipmapLevel );
+
+    m_blurValueComputeShader->setParameters( *m_deviceContext.Get(), *inputTexture, inputMipmapLevel, outputTexture->getDimensions( outputMipmapLevel ) );
+
+    m_rendererCore.enableComputeShader( m_blurValueComputeShader );
+
+    uint3 groupCount( 
+        outputTexture->getWidth( outputMipmapLevel ) / 8, 
+        outputTexture->getHeight( outputMipmapLevel ) / 8, 
+        1 
+    );
+
+    m_rendererCore.compute( groupCount );
+
+    m_blurValueComputeShader->unsetParameters( *m_deviceContext.Get() );
+
+    // Unbind resources to avoid binding the same resource on input and output.
+    m_rendererCore.disableUnorderedAccessViews();
+
+    m_rendererCore.disableComputePipeline();
+}
+
+void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destinationTexture,
+                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > inputTexture,
+                                          const int firstMipmapLevel,
+                                          const int lastMipmapLevel )
+{
+    if ( !m_initialized )
+        throw std::exception( "UtilityRenderer::mergeMipmapsValues - renderer has not been initialized." );
+
+    m_rendererCore.disableRenderingPipeline();
+
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+
+    unorderedAccessTargetsF4.push_back( destinationTexture );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
+                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, 0 );
+
+    m_mergeMipmapsValueComputeShader->setParameters( *m_deviceContext.Get(), destinationTexture->getDimensions( 0 ), *inputTexture, firstMipmapLevel, lastMipmapLevel );
+
+    m_rendererCore.enableComputeShader( m_mergeMipmapsValueComputeShader );
+
+    uint3 groupCount( 
+        destinationTexture->getWidth( 0 ) / 8, 
+        destinationTexture->getHeight( 0 ) / 8, 
+        1 
+    );
+
+    m_rendererCore.compute( groupCount );
+
+    m_mergeMipmapsValueComputeShader->unsetParameters( *m_deviceContext.Get() );
+
+    // Unbind resources to avoid binding the same resource on input and output.
+    m_rendererCore.disableUnorderedAccessViews();
+
+    m_rendererCore.disableComputePipeline();
+}
+
 void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
     m_replaceValueComputeShader->loadAndInitialize( "Shaders/ReplaceValueShader/ReplaceValue_cs.cso", device );
@@ -282,4 +366,6 @@ void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
     m_spreadSparseMinValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadSparseMinValue_cs.cso", device );
     m_mergeMinValueComputeShader->loadAndInitialize( "Shaders/MergeValueShader/MergeMinValue_cs.cso", device );
     m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader->loadAndInitialize( "Shaders/ConvertValueFromScreenSpaceToWorldSpaceShader/ConvertDistanceFromScreenSpaceToWorldSpace_cs.cso", device );
+    m_blurValueComputeShader->loadAndInitialize( "Shaders/BlurValueShader/BlurValue_cs.cso", device );
+    m_mergeMipmapsValueComputeShader->loadAndInitialize( "Shaders/MergeMipmapsValueShader/MergeMipmapsValue_cs.cso", device );
 }

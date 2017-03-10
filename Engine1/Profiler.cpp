@@ -55,6 +55,7 @@ std::string Profiler::eventTypeToString( const GlobalEventType eventType )
     {
         case GlobalEventType::Frame:                        return "Frame";
         case GlobalEventType::DeferredRendering:            return "DeferredRendering";
+        case GlobalEventType::Bloom:                        return "Bloom";
         case GlobalEventType::CopyFrameToFinalRenderTarget: return "CopyFrameToFinalRenderTarget";
     }
 

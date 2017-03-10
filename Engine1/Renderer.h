@@ -211,7 +211,8 @@ namespace Engine1
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTarget;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_bloomRenderTarget;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_temporaryRenderTarget1;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_temporaryRenderTarget2;
 
         std::shared_ptr<const BlockMesh>  m_axisMesh;
         std::shared_ptr<const BlockModel> m_lightModel;

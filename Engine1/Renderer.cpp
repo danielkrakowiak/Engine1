@@ -219,7 +219,7 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
     performBloom( m_finalRenderTarget );
 
     if ( m_activeViewType == View::BloomBrightPixels )
-        return std::make_tuple( nullptr, nullptr, m_bloomRenderTarget, nullptr, nullptr );
+        return std::make_tuple( nullptr, nullptr, m_temporaryRenderTarget2, nullptr, nullptr );
 
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -1140,9 +1140,22 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
 
 void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture )
 {
-    //#TODO: Measure performance!
+    m_profiler.beginEvent( Profiler::GlobalEventType::Bloom );
 
-    m_extractBrightPixelsRenderer.extractBrightPixels( colorTexture, m_bloomRenderTarget, m_minBrightness );
+    m_extractBrightPixelsRenderer.extractBrightPixels( colorTexture, m_temporaryRenderTarget1, m_minBrightness );
+
+    m_temporaryRenderTarget1->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+    const int mipmapCount = m_temporaryRenderTarget1->getMipMapCountOnGpu();
+    const int skipLastMipmapsCount = 6;
+    const int maxMipmapLevel = std::max( 0, mipmapCount - skipLastMipmapsCount ); 
+
+    for ( int mipmapLevel = 0; mipmapLevel <= maxMipmapLevel; ++mipmapLevel )
+        m_utilityRenderer.blurValues( m_temporaryRenderTarget2, mipmapLevel, m_temporaryRenderTarget1, mipmapLevel );
+
+    m_utilityRenderer.mergeMipmapsValues( m_finalRenderTarget, m_temporaryRenderTarget2, 0, maxMipmapLevel );
+
+    m_profiler.endEvent( Profiler::GlobalEventType::Bloom );
 }
 
 void Renderer::setActiveViewType( const View view )
@@ -1200,8 +1213,11 @@ void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Devic
     m_finalRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 
-    m_bloomRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+    m_temporaryRenderTarget1 = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
+
+    m_temporaryRenderTarget2 = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
+        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
 const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& Renderer::debugGetCurrentRefractiveIndexTextures()

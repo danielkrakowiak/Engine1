@@ -264,6 +264,7 @@
     <ClInclude Include="BlockModelVertexShader.h" />
     <ClInclude Include="BlurShadowsComputeShader.h" />
     <ClInclude Include="BlurShadowsRenderer.h" />
+    <ClInclude Include="BlurValueComputeShader.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="BVHNode.h" />
     <ClInclude Include="BVHTree.h" />
@@ -297,6 +298,7 @@
     <ClInclude Include="GenerateMipmapWithSampleRejectionFragmentShader.h" />
     <ClInclude Include="GenerateReflectedRaysComputeShader.h" />
     <ClInclude Include="GenerateRefractedRaysComputeShader.h" />
+    <ClInclude Include="MergeMipmapsValueComputeShader.h" />
     <ClInclude Include="MergeValueComputeShader.h" />
     <ClInclude Include="MeshUtil.h" />
     <ClInclude Include="MipmapRenderer.h" />
@@ -429,6 +431,7 @@
     <ClCompile Include="BlockModelVertexShader.cpp" />
     <ClCompile Include="BlurShadowsComputeShader.cpp" />
     <ClCompile Include="BlurShadowsRenderer.cpp" />
+    <ClCompile Include="BlurValueComputeShader.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="BVHNode.cpp" />
     <ClCompile Include="BVHTree.cpp" />
@@ -461,6 +464,7 @@
     <ClCompile Include="GenerateMipmapWithSampleRejectionFragmentShader.cpp" />
     <ClCompile Include="GenerateReflectedRaysComputeShader.cpp" />
     <ClCompile Include="GenerateRefractedRaysComputeShader.cpp" />
+    <ClCompile Include="MergeMipmapsValueComputeShader.cpp" />
     <ClCompile Include="MergeValueComputeShader.cpp" />
     <ClCompile Include="MeshUtil.cpp" />
     <ClCompile Include="MipmapRenderer.cpp" />
@@ -703,6 +707,17 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\BlurShadowsShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\BlurShadowsShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\BlurShadowsShader\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlurValueShader\BlurValue_cs.hlsl">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\BlurValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\BlurValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\BlurValueShader\%(Filename).cso</ObjectFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
@@ -975,6 +990,17 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\GenerateRefractedRaysShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\GenerateRefractedRaysShader\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\GenerateRefractedRaysShader\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\MergeMipmapsValue\MergeMipmapsValue_cs.hlsl">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\MergeMipmapsValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\MergeMipmapsValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\MergeMipmapsValueShader\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\MergeValueShader\MergeMinValue_cs.hlsl">
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\MergeValueShader\%(Filename).cso</ObjectFileOutput>

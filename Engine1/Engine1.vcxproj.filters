@@ -268,9 +268,6 @@
     <Filter Include="Header Files\Shader\Combining">
       <UniqueIdentifier>{d5d4dc53-94bf-469a-ba6e-c6ba6d9ede94}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shader\Blur">
-      <UniqueIdentifier>{e300a0e6-95bf-4469-bd24-fcb688644fce}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Shader\EdgeDetection">
       <UniqueIdentifier>{dfa38a37-435e-4bae-9fce-a4c6343a2eca}</UniqueIdentifier>
     </Filter>
@@ -414,6 +411,18 @@
     </Filter>
     <Filter Include="Header Files\Shader\ExtractBrightPixels">
       <UniqueIdentifier>{a1ccb28c-60f9-4082-95a6-48ac7932cc66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utility\BlurValue">
+      <UniqueIdentifier>{fc8f935d-9bfc-4714-90f1-fa46b62cf821}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Utility\BlurValue">
+      <UniqueIdentifier>{8a9fc3fb-9c70-4a87-8d63-1e4b59127bca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utility\MergeMipmapsValue">
+      <UniqueIdentifier>{3f57673c-5c22-48ec-bbb3-5b73e66b1763}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Utility\MergeMipmapsValue">
+      <UniqueIdentifier>{c6e0c85a-56bf-47e2-b016-02539a38a7d5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -906,6 +915,12 @@
     <ClInclude Include="ExtractBrightPixelsRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="BlurValueComputeShader.h">
+      <Filter>Header Files\Shader\Utility\BlurValue</Filter>
+    </ClInclude>
+    <ClInclude Include="MergeMipmapsValueComputeShader.h">
+      <Filter>Header Files\Shader\Utility\MergeMipmapsValue</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1367,6 +1382,12 @@
     <ClCompile Include="ExtractBrightPixelsRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="BlurValueComputeShader.cpp">
+      <Filter>Source Files\Shader\Utility\BlurValue</Filter>
+    </ClCompile>
+    <ClCompile Include="MergeMipmapsValueComputeShader.cpp">
+      <Filter>Source Files\Shader\Utility\MergeMipmapsValue</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1556,6 +1577,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\ExtractBrightPixelsShader\ExtractBrightPixels_cs.hlsl">
       <Filter>Source Files\Shader\ExtractBrightPixels</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlurValueShader\BlurValue_cs.hlsl">
+      <Filter>Source Files\Shader\Utility\BlurValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\MergeMipmapsValue\MergeMipmapsValue_cs.hlsl">
+      <Filter>Source Files\Shader\Utility\MergeMipmapsValue</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

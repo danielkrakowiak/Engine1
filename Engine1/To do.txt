@@ -514,6 +514,14 @@ Idea:
 	  - ideas to optimize blurring using shared memory: http://shiba.hpe.cn/jiaoyanzu/WULI/%E6%96%87%E4%BB%B6/soft/directX/Introduction_to_3D_Game_Programming_with_Directx_12.pdf
 	    page 721
 
+
+	    --------------
+		BLOOM TODO:
+		- split blur into 2-passes and increase number of taps
+		- rename blur method and remove radius param.
+
+	    -----------------------------
+
 	  FINAL TODO: ---------------------------------------------------------------
 
 	  - add replacing blur radius at the end of raytracing to 0 for all untouched pixels.
@@ -579,6 +587,8 @@ Idea:
 		USEFUL NOTES FOR DIST-TO-OCCLUDER SEARCH: -----------------------
 		- using small search area better preserves sharp shadows, but dissallows big, soft shadows
 		- using large search area blurs sharp shadows entirely if softer shadow is nearby.
+
+		
 
 		older:
 		- be carefull about samples pattern. Take most samples near the center, less further away. 

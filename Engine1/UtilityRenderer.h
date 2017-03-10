@@ -15,6 +15,8 @@ namespace Engine1
     class SpreadValueComputeShader;
     class MergeValueComputeShader;
     class ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader;
+    class BlurValueComputeShader;
+    class MergeMipmapsValueComputeShader;
 
     class UtilityRenderer
     {
@@ -57,6 +59,16 @@ namespace Engine1
                                                          const float3& cameraPos,
                                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture );
 
+        void blurValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > outputTexture,
+                         const int outputMipmapLevel,
+                         const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > inputTexture,
+                         const int inputMipmapLevel );
+
+        void mergeMipmapsValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destinationTexture,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > inputTexture,
+                             const int firstMipmapLevel,
+                             const int lastMipmapLevel );
+
         private:
 
         Direct3DRendererCore& m_rendererCore;
@@ -73,6 +85,8 @@ namespace Engine1
         std::shared_ptr< SpreadValueComputeShader >                                m_spreadSparseMinValueComputeShader;
         std::shared_ptr< MergeValueComputeShader >                                 m_mergeMinValueComputeShader;
         std::shared_ptr< ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader > m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader;
+        std::shared_ptr< BlurValueComputeShader >                                  m_blurValueComputeShader;
+        std::shared_ptr< MergeMipmapsValueComputeShader >                          m_mergeMipmapsValueComputeShader;
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 

@@ -28,8 +28,8 @@ void main( uint3 groupId : SV_GroupID,
 
     const float brightness = dot( color, brightnessMult );
 
-    if ( brightness > minBrightness )
-        g_destTexture[ dispatchThreadId.xy ] = float4( color, 1.0f );
-    else
-        g_destTexture[ dispatchThreadId.xy ] = float4( 0.0f, 0.0f, 0.0f, 1.0f );
+    // Note: color with brightness of 1.
+    const float3 normalizedColor = color / max( 1.0f, brightness );
+
+    g_destTexture[ dispatchThreadId.xy ] = float4( normalizedColor * (max( 1.0f, brightness / minBrightness) - 1.0f), 1.0f );
 }

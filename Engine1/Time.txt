@@ -361,4 +361,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 28.02.2017 - 1h - Added AssetPathManager - to gather all asset paths and translate asset names to their absolute paths.
 02.03.2017 - 6h - Used AssetPathManager in all file parsers to identify assets by their name rather than path. Added checking for duplicated assets (with the same name). Renamed duplicated assets.
 07.03.2017 - 6h - Moved dist-to-occluder search to a separate pass. Added rendering of final dist-to-occluder. Added optional 2-pass (horizontal + vertical) separable shadow blur. Improved profiler display - removed redundant, temporary storage of results between updates.
-09.03.2017 - 2h - Reading on HDR and Bloom. Implementing first phase of Bloom - extracting bright pixels.
+09.03.2017 - 3h - Reading on HDR and Bloom. Implementing Bloom post-effect - extracting bright pixels and blurring them several times.
+10.03.2017 - 3h - Completed Bloom effect implementation - merged blurred mipmaps with main image. Improved display of global profiling events.
