@@ -47,9 +47,11 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_blurShadowsRenderer( rendererCore ),
     m_utilityRenderer( rendererCore ),
     m_extractBrightPixelsRenderer( rendererCore ),
+    m_toneMappingRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_maxLevelCount( 0 ),
     m_debugUseSeparableShadowsBlur( true ),
+    m_exposure( 1.0f ),
     m_minBrightness( 1.0f )
 {}
 
@@ -80,6 +82,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_blurShadowsRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_utilityRenderer.initialize( device, deviceContext );
     m_extractBrightPixelsRenderer.initialize( device, deviceContext );
+    m_toneMappingRenderer.initialize( device, deviceContext );
 
     createRenderTargets( imageWidth, imageHeight, *device.Get() );
 }
@@ -214,12 +217,16 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
         = renderReflectionsRefractions( false, 1, 0, m_maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
                                         renderedViewType, m_activeViewLevel, m_activeViewType );
-
+    
     // Perform post-effects.
-    performBloom( m_finalRenderTarget );
+    performToneMapping( m_finalRenderTarget, m_exposure );
+    
+    performBloom( m_finalRenderTarget, m_minBrightness );
 
     if ( m_activeViewType == View::BloomBrightPixels )
         return std::make_tuple( nullptr, nullptr, m_temporaryRenderTarget2, nullptr, nullptr );
+
+    
 
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
@@ -1138,11 +1145,11 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
                                colorTextureFillWidth, colorTextureFillHeight );
 }
 
-void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture )
+void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::Bloom );
 
-    m_extractBrightPixelsRenderer.extractBrightPixels( colorTexture, m_temporaryRenderTarget1, m_minBrightness );
+    m_extractBrightPixelsRenderer.extractBrightPixels( colorTexture, m_temporaryRenderTarget1, minBrightness );
 
     const int mipmapCount = m_temporaryRenderTarget1->getMipMapCountOnGpu();
     const int skipLastMipmapsCount = 6;
@@ -1157,6 +1164,15 @@ void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::Shader
     m_utilityRenderer.mergeMipmapsValues( m_finalRenderTarget, m_temporaryRenderTarget2, 0, maxMipmapLevel );
 
     m_profiler.endEvent( Profiler::GlobalEventType::Bloom );
+}
+
+void Renderer::performToneMapping( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > texture, const float exposure )
+{
+    m_profiler.beginEvent( Profiler::GlobalEventType::ToneMapping );
+
+    m_toneMappingRenderer.performToneMapping( texture, exposure );
+
+    m_profiler.endEvent( Profiler::GlobalEventType::ToneMapping );
 }
 
 void Renderer::setActiveViewType( const View view )
@@ -1207,6 +1223,16 @@ void Renderer::debugSetUseSeparableShadowsBlur( const bool useSeparableBlur )
 bool Renderer::debugIsUsingSeparableShadowsBlur()
 {
     return m_debugUseSeparableShadowsBlur;
+}
+
+float Renderer::getExposure()
+{
+    return m_exposure;
+}
+
+void Renderer::setExposure( const float exposure )
+{
+    m_exposure = std::max( -10.0f, std::min( 10.0f, exposure ) );
 }
 
 void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )

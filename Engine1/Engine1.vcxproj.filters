@@ -424,6 +424,12 @@
     <Filter Include="Header Files\Shader\Utility\MergeMipmapsValue">
       <UniqueIdentifier>{c6e0c85a-56bf-47e2-b016-02539a38a7d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\ToneMapping">
+      <UniqueIdentifier>{3bfafe9a-e5d3-4817-abcb-2217da312aca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\ToneMapping">
+      <UniqueIdentifier>{b3ef7f52-2fa4-4d5e-ae2e-fa522476e9de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -924,6 +930,12 @@
     <ClInclude Include="ResampleTextureFragmentShader.h">
       <Filter>Header Files\Shader\GenerateMipmap</Filter>
     </ClInclude>
+    <ClInclude Include="ToneMappingComputeShader.h">
+      <Filter>Header Files\Shader\ToneMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="ToneMappingRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1394,6 +1406,12 @@
     <ClCompile Include="ResampleTextureFragmentShader.cpp">
       <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </ClCompile>
+    <ClCompile Include="ToneMappingComputeShader.cpp">
+      <Filter>Source Files\Shader\ToneMapping</Filter>
+    </ClCompile>
+    <ClCompile Include="ToneMappingRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1592,6 +1610,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmap_ps.hlsl">
       <Filter>Source Files\Shader\GenerateMipmap</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ToneMappingShader\ToneMapping_cs.hlsl">
+      <Filter>Source Files\Shader\ToneMapping</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

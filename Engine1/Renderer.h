@@ -19,6 +19,7 @@
 #include "BlurShadowsRenderer.h"
 #include "UtilityRenderer.h"
 #include "ExtractBrightPixelsRenderer.h"
+#include "ToneMappingRenderer.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -112,6 +113,9 @@ namespace Engine1
         void debugSetUseSeparableShadowsBlur( const bool useSeparableBlur );
         bool debugIsUsingSeparableShadowsBlur();
 
+        float getExposure();
+        void  setExposure( const float exposure );
+
         // Temporary - for debug.
         const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& debugGetCurrentRefractiveIndexTextures();
 
@@ -169,7 +173,9 @@ namespace Engine1
                                 const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                                 const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
 
-        void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture );
+        void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness );
+
+        void performToneMapping( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > texture, const float exposure );
 
         private:
 
@@ -184,6 +190,9 @@ namespace Engine1
         // It reduces blurring complexity from n^2 to 2n, where n is blurring kernel size.
         // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
         bool m_debugUseSeparableShadowsBlur;
+
+        // Tone mapping configuration.
+        float m_exposure;
 
         // Bloom configuration.
         float m_minBrightness;
@@ -206,6 +215,7 @@ namespace Engine1
         BlurShadowsRenderer                 m_blurShadowsRenderer;
         UtilityRenderer                     m_utilityRenderer;
         ExtractBrightPixelsRenderer         m_extractBrightPixelsRenderer;
+        ToneMappingRenderer                 m_toneMappingRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );

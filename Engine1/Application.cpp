@@ -565,6 +565,10 @@ void Application::run() {
             std::stringstream ss;
             ss << "Use separable shadow blur: " << ( m_renderer.debugIsUsingSeparableShadowsBlur() ? "enabled" : "disabled" );
 
+            ss << "\n\n";
+
+            ss << "Exposure: " << m_renderer.getExposure();
+
             if ( m_renderFps )
                 frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
@@ -1170,6 +1174,17 @@ void Application::onKeyPress( int key )
         m_sceneManager.selectNext();
     else if ( key == InputManager::Keys::left )
         m_sceneManager.selectPrev();
+
+    // [E] and ( [+] or [-] ) - Change exposure.
+    if ( !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && !m_inputManager.isKeyPressed( InputManager::Keys::shift )
+         && m_inputManager.isKeyPressed( InputManager::Keys::e ) ) {
+        if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
+            const float valueChange =
+                ( key == InputManager::Keys::plus ) ? 0.05f : -0.05f;
+
+            m_renderer.setExposure( m_renderer.getExposure() + valueChange );
+        }
+    }
 
     /*static float normalThresholdChange = 0.01f;
     if ( inputManager.isKeyPressed( InputManager::Keys::ctrl ) && inputManager.isKeyPressed( InputManager::Keys::n ) )

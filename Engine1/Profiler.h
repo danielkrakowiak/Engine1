@@ -59,6 +59,7 @@ namespace Engine1
             Frame = 0,
             DeferredRendering,
             Bloom,
+            ToneMapping,
             CopyFrameToFinalRenderTarget,
             MAX_VALUE
         };

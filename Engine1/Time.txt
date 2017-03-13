@@ -344,6 +344,7 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 28.01.2017 - 6h - Spreading blur-radius values for shadows. Fixing shadow leaks from hard shadows in soft shadow areas.
 30.01.2017 - 1h - Trying to clean up some calculation - storing blur radius in world space instead of screen space to avoid shadow artifacts when zooming in/out.
 31.01.2017 - 1h - Fixed basic problems with switching to world space blur radius. Samples were rejected, because their position difference in relation to central pixel was too big.
+--- January 2017 - 19h
 04.02.2017 - 7h - Trying soft shadow blur with two blur textures - min and max. And then rejecting samples which have lower blur radius than central pixel (during blur phase). Fixed a bug in mipmap calculation for smallest mipmaps of non-square diemnsions. Thinking over new, optimized algorithm for spreading blur radius.
 05.02.2017 - 3h - Added custom mipmapping shader, which avarages only "acceptable" samples. It's used to generate mipmaps for blur radius texture.
 06.02.2017 - 1h - Improved sampling pattern in initial "blur radius" sprading pass - to improve smoothness on egdes. Tested generating one more mipmap of "blur radius" texture after spreading and then sampling it to improve smoothness.
@@ -359,8 +360,10 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 23.02.2017 - 3h - Fixed important bug with distance-to-occluder: nearest dist was calculated, but the last value saved to texture was used - replaced with minimum of all values. Experimenting with many tweaks to distance-to-occluder searching, sampling patterns.
 25.02.2017 - 4h - Improved sampling pattern when searching for distance-to-occluder.
 28.02.2017 - 1h - Added AssetPathManager - to gather all asset paths and translate asset names to their absolute paths.
+--- February 2017 - 40h
 02.03.2017 - 6h - Used AssetPathManager in all file parsers to identify assets by their name rather than path. Added checking for duplicated assets (with the same name). Renamed duplicated assets.
 07.03.2017 - 6h - Moved dist-to-occluder search to a separate pass. Added rendering of final dist-to-occluder. Added optional 2-pass (horizontal + vertical) separable shadow blur. Improved profiler display - removed redundant, temporary storage of results between updates.
 09.03.2017 - 3h - Reading on HDR and Bloom. Implementing Bloom post-effect - extracting bright pixels and blurring them several times.
 10.03.2017 - 3h - Completed Bloom effect implementation - merged blurred mipmaps with main image. Improved display of global profiling events.
 13.03.2017 - 3h - Improved Bloom effect blurring - by generating mipmaps one by one from an already blurred mipmap. Added a simple resampling shader.
+14.03.2017 - 2h - Added a simple tone mapping with manually set exposure.
