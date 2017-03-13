@@ -921,6 +921,9 @@
     <ClInclude Include="MergeMipmapsValueComputeShader.h">
       <Filter>Header Files\Shader\Utility\MergeMipmapsValue</Filter>
     </ClInclude>
+    <ClInclude Include="ResampleTextureFragmentShader.h">
+      <Filter>Header Files\Shader\GenerateMipmap</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1388,6 +1391,9 @@
     <ClCompile Include="MergeMipmapsValueComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\MergeMipmapsValue</Filter>
     </ClCompile>
+    <ClCompile Include="ResampleTextureFragmentShader.cpp">
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1583,6 +1589,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\MergeMipmapsValue\MergeMipmapsValue_cs.hlsl">
       <Filter>Source Files\Shader\Utility\MergeMipmapsValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmap_ps.hlsl">
+      <Filter>Source Files\Shader\GenerateMipmap</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

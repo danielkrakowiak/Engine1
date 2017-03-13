@@ -16,6 +16,7 @@ namespace Engine1
     class Direct3DRendererCore;
     class GenerateMipmapMinValueComputeShader;
     class GenerateMipmapVertexShader;
+	class ResampleTextureFragmentShader;
     class GenerateMipmapMinValueFragmentShader;
     class GenerateMipmapWithSampleRejectionFragmentShader;
 
@@ -28,6 +29,11 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device,
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
+
+		void resampleTexture( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, int destMipmapLevel,
+			std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, int srcMipmapLevel );
+
+		void generateMipmaps( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > texture, int startSrcMipmapLevel = 0, int generateMipmapCount = -1 );
 
         void generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture );
 
@@ -57,6 +63,7 @@ namespace Engine1
         // Shaders.
         std::shared_ptr< GenerateMipmapMinValueComputeShader >             m_generateMipmapMinValueComputeShader;
         std::shared_ptr< GenerateMipmapVertexShader >                      m_generateMipmapVertexShader;
+		std::shared_ptr< ResampleTextureFragmentShader >                    m_resampleTextureFragmentShader;
         std::shared_ptr< GenerateMipmapMinValueFragmentShader >            m_generateMipmapMinValueFragmentShader;
         std::shared_ptr< GenerateMipmapWithSampleRejectionFragmentShader > m_generateMipmapWithSampleRejectionFragmentShader;
 

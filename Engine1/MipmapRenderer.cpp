@@ -4,6 +4,7 @@
 
 #include "GenerateMipmapMinValueComputeShader.h"
 #include "GenerateMipmapVertexShader.h"
+#include "ResampleTextureFragmentShader.h"
 #include "GenerateMipmapMinValueFragmentShader.h"
 #include "GenerateMipmapWithSampleRejectionFragmentShader.h"
 
@@ -18,6 +19,7 @@ MipmapRenderer::MipmapRenderer( Direct3DRendererCore& rendererCore ) :
     m_initialized( false ),
     m_generateMipmapMinValueComputeShader( std::make_shared< GenerateMipmapMinValueComputeShader >() ),
     m_generateMipmapVertexShader( std::make_shared< GenerateMipmapVertexShader >() ),
+	m_resampleTextureFragmentShader( std::make_shared< ResampleTextureFragmentShader >() ),
     m_generateMipmapMinValueFragmentShader( std::make_shared< GenerateMipmapMinValueFragmentShader >() ),
     m_generateMipmapWithSampleRejectionFragmentShader( std::make_shared< GenerateMipmapWithSampleRejectionFragmentShader >() )
 {}
@@ -41,6 +43,81 @@ void MipmapRenderer::initialize( ComPtr< ID3D11Device > device,
     }
 
     m_initialized = true;
+}
+
+void MipmapRenderer::resampleTexture( 
+	std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, int destMipmapLevel,
+	std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, int srcMipmapLevel )
+{
+	if ( !m_initialized )
+		throw std::exception( "MipmapRenderer::resampleTexture - renderer not initialized." );
+
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+
+	renderTargetsF4.push_back( destTexture );
+
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
+	m_rendererCore.enableRenderingShaders( m_generateMipmapVertexShader, m_resampleTextureFragmentShader );
+	m_rendererCore.setViewport( (float2)destTexture->getDimensions( destMipmapLevel ) );
+	m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+
+	m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
+	m_resampleTextureFragmentShader->setParameters( *m_deviceContext.Get(), *srcTexture, srcMipmapLevel );
+
+	m_rendererCore.draw( m_rectangleMesh );
+
+	m_resampleTextureFragmentShader->unsetParameters( *m_deviceContext.Get() );
+
+	m_rendererCore.disableRenderTargetViews();
+}
+
+void MipmapRenderer::generateMipmaps( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > texture, int startSrcMipmapLevel, int generateMipmapCount )
+{
+	if ( !m_initialized )
+		throw std::exception( "MipmapRenderer::generateMipmaps - renderer not initialized." );
+
+
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+
+	renderTargetsF4.push_back( texture );
+
+	const int mipmapCount = texture->getMipMapCountOnGpu();
+
+	if ( generateMipmapCount < 0 )
+		generateMipmapCount = mipmapCount;
+
+	const int maxSrcMipmapLevel = std::min( mipmapCount - 2, startSrcMipmapLevel + generateMipmapCount );
+
+	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
+	m_rendererCore.enableBlendState( *m_blendState.Get() );
+	m_rendererCore.enableRenderingShaders( m_generateMipmapVertexShader, m_resampleTextureFragmentShader );
+
+	for ( int srcMipmapLevel = startSrcMipmapLevel; srcMipmapLevel <= maxSrcMipmapLevel; ++srcMipmapLevel )
+	{
+		const int destMipmapLevel = srcMipmapLevel + 1;
+
+		m_rendererCore.setViewport( (float2)texture->getDimensions( destMipmapLevel ) );
+
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+
+		m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
+		m_resampleTextureFragmentShader->setParameters( *m_deviceContext.Get(), *texture, srcMipmapLevel );
+
+		m_rendererCore.draw( m_rectangleMesh );
+	}
+
+	m_resampleTextureFragmentShader->unsetParameters( *m_deviceContext.Get() );
+
+	m_rendererCore.disableRenderTargetViews();
 }
 
 //void MipmapMinValueRenderer::generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture )
@@ -220,6 +297,7 @@ void MipmapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
     m_generateMipmapMinValueComputeShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmapMinValue_cs.cso", device );
     m_generateMipmapVertexShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmap_vs.cso", device );
+	m_resampleTextureFragmentShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmap_ps.cso", device );
     m_generateMipmapMinValueFragmentShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.cso", device );
     m_generateMipmapWithSampleRejectionFragmentShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmapWithSampleRejection_ps.cso", device );
 }

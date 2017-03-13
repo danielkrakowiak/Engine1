@@ -180,3 +180,6 @@ $RECYCLE.BIN/
 *.idb
 *.cso
 /Engine1/Assets-old
+/Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.hlsl
+/Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.hlsl
+/Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.hlsl

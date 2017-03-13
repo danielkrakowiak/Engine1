@@ -292,6 +292,7 @@
     <ClInclude Include="EdgeDetectionRenderer.h" />
     <ClInclude Include="EdgeDistanceComputeShader.h" />
     <ClInclude Include="GenerateFirstRefractedRaysComputeShader.h" />
+    <ClInclude Include="ResampleTextureFragmentShader.h" />
     <ClInclude Include="GenerateMipmapMinValueComputeShader.h" />
     <ClInclude Include="GenerateMipmapMinValueFragmentShader.h" />
     <ClInclude Include="GenerateMipmapVertexShader.h" />
@@ -458,6 +459,7 @@
     <ClCompile Include="EdgeDetectionRenderer.cpp" />
     <ClCompile Include="EdgeDistanceComputeShader.cpp" />
     <ClCompile Include="GenerateFirstRefractedRaysComputeShader.cpp" />
+    <ClCompile Include="ResampleTextureFragmentShader.cpp" />
     <ClCompile Include="GenerateMipmapMinValueComputeShader.cpp" />
     <ClCompile Include="GenerateMipmapMinValueFragmentShader.cpp" />
     <ClCompile Include="GenerateMipmapVertexShader.cpp" />
@@ -903,6 +905,11 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\GenerateMipmapShader\GenerateMipmap_ps.hlsl">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\GenerateMipmapShader\%(Filename).cso</ObjectFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>

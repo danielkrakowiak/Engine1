@@ -1144,14 +1144,15 @@ void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::Shader
 
     m_extractBrightPixelsRenderer.extractBrightPixels( colorTexture, m_temporaryRenderTarget1, m_minBrightness );
 
-    m_temporaryRenderTarget1->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
     const int mipmapCount = m_temporaryRenderTarget1->getMipMapCountOnGpu();
     const int skipLastMipmapsCount = 6;
     const int maxMipmapLevel = std::max( 0, mipmapCount - skipLastMipmapsCount ); 
 
-    for ( int mipmapLevel = 0; mipmapLevel <= maxMipmapLevel; ++mipmapLevel )
-        m_utilityRenderer.blurValues( m_temporaryRenderTarget2, mipmapLevel, m_temporaryRenderTarget1, mipmapLevel );
+	for (int mipmapLevel = 0; mipmapLevel <= maxMipmapLevel; ++mipmapLevel)
+	{
+		m_utilityRenderer.blurValues( m_temporaryRenderTarget2, mipmapLevel, m_temporaryRenderTarget1, mipmapLevel );
+		m_mipmapRenderer.resampleTexture( m_temporaryRenderTarget1, mipmapLevel + 1, m_temporaryRenderTarget2, mipmapLevel );
+	}
 
     m_utilityRenderer.mergeMipmapsValues( m_finalRenderTarget, m_temporaryRenderTarget2, 0, maxMipmapLevel );
 
