@@ -43,15 +43,15 @@ void BlurShadowsRenderer::initialize( int imageWidth, int imageHeight, ComPtr< I
 void BlurShadowsRenderer::blurShadows( const Camera& camera,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardShadowTexture,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softShadowTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                                        const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
     m_blurShadowsComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, 
-                                               normalTexture, hardIlluminationTexture, softIlluminationTexture, distanceToOccluder, light );
+                                               normalTexture, hardShadowTexture, softShadowTexture, distanceToOccluder, light );
 
     m_rendererCore.enableComputeShader( m_blurShadowsComputeShader );
 
@@ -61,7 +61,7 @@ void BlurShadowsRenderer::blurShadows( const Camera& camera,
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
     
-    unorderedAccessTargetsU1.push_back( m_illuminationRenderTarget );
+    unorderedAccessTargetsU1.push_back( m_shadowRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
@@ -80,8 +80,8 @@ void BlurShadowsRenderer::blurShadows( const Camera& camera,
 void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardShadowTexture,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softShadowTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                                        const Light& light )
 {
@@ -99,11 +99,11 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     { // Horizontal blurring pass.
-        unorderedAccessTargetsU1.push_back( m_illuminationTemporaryRenderTarget );
+        unorderedAccessTargetsU1.push_back( m_shadowTemporaryRenderTarget );
         m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
         m_blurShadowsHorizontalComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture,
-                                                             normalTexture, hardIlluminationTexture, softIlluminationTexture, distanceToOccluder, light );
+                                                             normalTexture, hardShadowTexture, softShadowTexture, distanceToOccluder, light );
 
         m_rendererCore.enableComputeShader( m_blurShadowsHorizontalComputeShader );
 
@@ -114,11 +114,11 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
 
     { // Vertical blurring pass.
         unorderedAccessTargetsU1.clear();
-        unorderedAccessTargetsU1.push_back( m_illuminationRenderTarget );
+        unorderedAccessTargetsU1.push_back( m_shadowRenderTarget );
         m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
         m_blurShadowsVerticalComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture,
-                                                           normalTexture, m_illuminationTemporaryRenderTarget, m_illuminationTemporaryRenderTarget, distanceToOccluder, light );
+                                                           normalTexture, m_shadowTemporaryRenderTarget, m_shadowTemporaryRenderTarget, distanceToOccluder, light );
 
         m_rendererCore.enableComputeShader( m_blurShadowsVerticalComputeShader );
 
@@ -130,17 +130,17 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
     m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > BlurShadowsRenderer::getIlluminationTexture()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > BlurShadowsRenderer::getShadowTexture()
 {
-    return m_illuminationRenderTarget;
+    return m_shadowRenderTarget;
 }
 
 void BlurShadowsRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    m_illuminationRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
+    m_shadowRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
-    m_illuminationTemporaryRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
+    m_shadowTemporaryRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 }
 

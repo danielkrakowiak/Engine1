@@ -19,7 +19,7 @@ Texture2D<float4> g_albedoTexture             : register( t1 );
 Texture2D<float>  g_metalnessTexture          : register( t2 );
 Texture2D<float>  g_roughnessTexture          : register( t3 );
 Texture2D<float4> g_normalTexture             : register( t4 ); 
-Texture2D<float>  g_illuminationTexture       : register( t5 ); 
+Texture2D<float>  g_shadowTexture       : register( t5 ); 
 
 // Input / Output.
 RWTexture2D<float4> g_colorTexture : register( u0 );
@@ -63,7 +63,7 @@ void main( uint3 groupId : SV_GroupID,
     const float3 vectorToLight       = lightPosition.xyz - surfacePosition;
     const float3 dirToLight          = normalize( vectorToLight );
 
-    const float surfaceIllumination = g_illuminationTexture.SampleLevel( g_pointSamplerState, texcoords/* + pixelSize0*/, 0.0f ); // PROBLEM: Input texture is a bit shifted compared to other image textures...
+    const float surfaceIllumination = 1.0f - g_shadowTexture.SampleLevel( g_pointSamplerState, texcoords/* + pixelSize0*/, 0.0f ); // PROBLEM: Input texture is a bit shifted compared to other image textures...
 
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );

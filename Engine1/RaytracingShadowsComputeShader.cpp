@@ -92,7 +92,7 @@ void RaytracingShadowsComputeShader::setParameters(
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
 	/*const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,*/
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preShadowTexture,
 	const std::vector< std::shared_ptr< const BlockActor > >& actors,
 	const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& defaultAlphaTexture,
 	const int outputTextureWidth, const int outputTextureHeight )
@@ -117,7 +117,7 @@ void RaytracingShadowsComputeShader::setParameters(
 
         resources[ 0 ] = rayOriginTexture.getShaderResourceView();
         resources[ 1 ] = surfaceNormalTexture.getShaderResourceView();
-        resources[ 2 ] = preIlluminationTexture ? preIlluminationTexture->getShaderResourceView() : nullptr;
+        resources[ 2 ] = preShadowTexture ? preShadowTexture->getShaderResourceView() : nullptr;
 
         for ( int actorIdx = 0; actorIdx < actors.size() && passedActorsCount < s_maxActorCount; ++actorIdx ) 
         {
@@ -181,10 +181,10 @@ void RaytracingShadowsComputeShader::setParameters(
 
         dataPtr->actorCount = passedActorsCount;
 
-        dataPtr->outputTextureSize          = float2( (float)outputTextureWidth, (float)outputTextureHeight );
-        dataPtr->lightPosition              = light.getPosition();
-        dataPtr->lightEmitterRadius         = light.getEmitterRadius();
-        dataPtr->isPreIlluminationAvailable = preIlluminationTexture ? 1 : 0;
+        dataPtr->outputTextureSize    = float2( (float)outputTextureWidth, (float)outputTextureHeight );
+        dataPtr->lightPosition        = light.getPosition();
+        dataPtr->lightEmitterRadius   = light.getEmitterRadius();
+        dataPtr->isPreShadowAvailable = preShadowTexture ? 1 : 0;
 
         if ( shadowMap ) {
             const SpotLight& spotLight = static_cast<const SpotLight&>( light );

@@ -365,5 +365,7 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 07.03.2017 - 6h - Moved dist-to-occluder search to a separate pass. Added rendering of final dist-to-occluder. Added optional 2-pass (horizontal + vertical) separable shadow blur. Improved profiler display - removed redundant, temporary storage of results between updates.
 09.03.2017 - 3h - Reading on HDR and Bloom. Implementing Bloom post-effect - extracting bright pixels and blurring them several times.
 10.03.2017 - 3h - Completed Bloom effect implementation - merged blurred mipmaps with main image. Improved display of global profiling events.
-13.03.2017 - 3h - Improved Bloom effect blurring - by generating mipmaps one by one from an already blurred mipmap. Added a simple resampling shader.
-14.03.2017 - 2h - Added a simple tone mapping with manually set exposure.
+13.03.2017 - 5h - Improved Bloom effect blurring - by generating mipmaps one by one from an already blurred mipmap. Added a simple resampling shader. Added a simple tone mapping with manually set exposure.
+14.03.2017 - 3h - Refactoring code to use "shadow" instead of "illumination" in lighting calculations.
+15.03.2017 - 1h - Refactoring.
+16.03.2017 - 1h - Refactoring.

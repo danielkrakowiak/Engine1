@@ -17,7 +17,7 @@ Texture2D<float4> g_albedoTexture            : register( t2 );
 Texture2D<float>  g_metalnessTexture         : register( t3 );
 Texture2D<float>  g_roughnessTexture         : register( t4 );
 Texture2D<float4> g_normalTexture            : register( t5 ); 
-Texture2D<float>  g_illuminationTexture      : register( t6 );
+Texture2D<float>  g_shadowTexture      : register( t6 );
 
 // Input / Output.
 RWTexture2D<float4> g_colorTexture : register( u0 );
@@ -51,11 +51,11 @@ void main( uint3 groupId : SV_GroupID,
     const float  surfaceRoughness         = g_roughnessTexture[ dispatchThreadId.xy ];
     const float3 surfaceNormal            = g_normalTexture[ dispatchThreadId.xy ].xyz;
 
-	const float surfaceIllumination = (
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_illuminationTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) ) / 4.0f;
+	const float surfaceIllumination = 1.0f - ((
+        g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
+        g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
+        g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) +
+        g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) ) / 4.0f);
     
     float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
     float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );

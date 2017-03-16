@@ -60,7 +60,7 @@ void ShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture, 
                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture, 
                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-										   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
+										   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
 										   const Light& light )
 {
     if ( !m_compiled ) throw std::exception( "ShadingComputeShader2::setParameters - Shader hasn't been compiled yet." );
@@ -74,7 +74,7 @@ void ShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
             rayHitMetalnessTexture->getShaderResourceView(),
             rayHitRoughnessTexture->getShaderResourceView(),
             rayHitNormalTexture->getShaderResourceView(),
-			illuminationTexture->getShaderResourceView()
+			shadowTexture->getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );

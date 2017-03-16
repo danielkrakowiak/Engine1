@@ -21,7 +21,7 @@ cbuffer ConstantBuffer : register( b0 )
     float    pad5;
     float    lightEmitterRadius;
     float3   pad6;
-    uint     isPreIlluminationAvailable; // 1 - available, 0 - not available.
+    uint     isPreShadowAvailable; // 1 - available, 0 - not available.
     float3   pad7;
     float4x4 shadowMapViewMatrix;
     float4x4 shadowMapProjectionMatrix;
@@ -33,7 +33,7 @@ cbuffer ConstantBuffer : register( b0 )
 Texture2D<float4> g_rayOrigins                          : register( t0 );
 Texture2D<float4> g_surfaceNormal                       : register( t1 );
 //Texture2D<float4> g_contributionTerm                  : register( t1 ); // How much of the ray color is visible by the camera. Used to avoid checking shadows for useless rays.
-Texture2D<float>  g_preIllumination                     : register( t2 );
+Texture2D<float>  g_preShadow                     : register( t2 );
 ByteAddressBuffer g_meshVertices[ MAX_ACTOR_COUNT ]     : register( t3 );
 ByteAddressBuffer g_meshTexcoords[ MAX_ACTOR_COUNT ]    : register( t4 );
 ByteAddressBuffer g_meshTriangles[ MAX_ACTOR_COUNT ]    : register( t5 );
@@ -46,12 +46,12 @@ SamplerState      g_pointSamplerState     : register( s0 );
 SamplerState      g_linearSamplerState    : register( s1 );
 
 // Input / Output.
-RWTexture2D<float> g_distToOccluder         : register( u0 );
-RWTexture2D<uint>  g_hardIllumination       : register( u1 );
-RWTexture2D<uint>  g_softIllumination       : register( u2 );
+RWTexture2D<float> g_distToOccluder   : register( u0 );
+RWTexture2D<uint>  g_hardShadow       : register( u1 ); // 1 - there is no illumination, 0 - full illumination.
+RWTexture2D<uint>  g_softShadow       : register( u2 );
 
-float    calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
-bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float nearestHitDist, inout float illumination );
+float    calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
+bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float nearestHitDist, inout float shadow );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float rayLength, const float3 boxMin, const float3 boxMax );
 bool     rayBoxIntersect( const float3 rayOrigin, const float3 rayDir, const float3 boxMin, const float3 boxMax );
 uint3    readTriangle( const uint actorIdx, const uint index );
@@ -69,7 +69,7 @@ static const float minAllowedHitDist = 0.001f;
 
 static const float Pi = 3.14159265f;
 
-static const float maxIlluminationWorldSpaceBlurRadius = 1.0f;
+static const float maxShadowWorldSpaceBlurRadius = 1.0f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -116,7 +116,6 @@ void main( uint3 groupId : SV_GroupID,
         //return;
     //}
 
-    //return; // TO TEST SHADOW MAPPING
     /////////////////////////////////////
 
 	const float3 surfaceNormal  = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
@@ -128,57 +127,56 @@ void main( uint3 groupId : SV_GroupID,
 
     // IMPORTANT: Cannot quit early when pixel is already in shadow, because we need to know if a mesh changed blur radius at that pixel!!!!
     // Or maybe we can rely on blur radius from shadow map?
-
+    
 	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
     if ( !any( rayOrigin ) || normalLightDot < 0.0f /*|| illuminationUint == 0*//*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) 
     { 
-        g_hardIllumination[ dispatchThreadId.xy ] = 0;
-        g_softIllumination[ dispatchThreadId.xy ] = 0;
+        g_hardShadow[ dispatchThreadId.xy ] = 255;
+        g_softShadow[ dispatchThreadId.xy ] = 255;
         return;
     }
 
     const float rayMaxLength = length( lightPosition - rayOrigin );
 
     // #TODO: Reading unsigned char from UAV is supported only on DirectX 11.3. 
-	float illumination = 1.0f;//(float)illuminationUint / 255.0f;
+	float shadow = 0.0f;//(float)illuminationUint / 255.0f;
     
     // We only care about intersections closer to ray origin than the light source. #TODO: Or all of them? - alpha etc, illumination?
     float nearestHitDist = 10000.0f;
 
     // #OPTIMIZATION: Could be more effective to trace ray from light to surface - because we care about the nearest to light intersection. Easier to skip other objects. 
 
-    //[loop]
-    //for ( uint actorIdx = 0; actorIdx < actorCount; ++actorIdx )
-    //{
-    if ( rayMeshIntersect( rayOrigin, rayDir, 0, rayMaxLength, nearestHitDist, illumination ) )
+
+    
+
+    if ( rayMeshIntersect( rayOrigin, rayDir, 0, rayMaxLength, nearestHitDist, shadow ) )
     {
         const float surfaceDistToLight    = rayMaxLength;
         const float surfaceDistToOccluder = nearestHitDist;
         const float occluderDistToLight   = surfaceDistToLight - surfaceDistToOccluder;
         const float surfaceDistToCamera   = length( rayOrigin - cameraPosition );
         
-        const float blurRadius     = calculateIlluminationBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight, surfaceDistToCamera );
+        const float blurRadius = calculateShadowBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight, surfaceDistToCamera );
 
-        const float prevDistToOccluder   = g_distToOccluder[ dispatchThreadId.xy ];
+        const float prevDistToOccluder = g_distToOccluder[ dispatchThreadId.xy ];
 
-        const float prevHardIllumination = (float)g_hardIllumination[ dispatchThreadId.xy ] / 255.0f;
-        const float prevSoftIllumination = (float)g_softIllumination[ dispatchThreadId.xy ] / 255.0f;
+        const float prevHardShadow = (float)g_hardShadow[ dispatchThreadId.xy ] / 255.0f;
+        const float prevSoftShadow = (float)g_softShadow[ dispatchThreadId.xy ] / 255.0f;
 
-        const float illuminationSoftness = min(1.0f, (blurRadius / 1.0f));
-        const float illuminationHardness = 1.0f - illuminationSoftness;
+        const float shadowSoftness = 0.0f;//min(1.0f, (blurRadius / 1.0f));
+        const float shadowHardness = 1.0f - shadowSoftness;
 
-        illumination = max( 0.0f, illumination ); // TODO: Needed? Can we get negative illumination after going through many semi-transparent surfaces?
+        shadow = min( 1.0f, shadow ); // Needed? Can shadow go over 1 after many intersections?
 
-        // #TODO: Shouldn't I substract prevIllumination from illumination? It should get darker with each shadowing object.. 
-        g_distToOccluder[ dispatchThreadId.xy ]   = min( prevDistToOccluder, surfaceDistToOccluder );
-        g_hardIllumination[ dispatchThreadId.xy ] = (uint)( max(0.0f, prevHardIllumination - ( 1.0f - illumination ) /** illuminationHardness*/ ) * 255.0f );
-        g_softIllumination[ dispatchThreadId.xy ] = (uint)( max(0.0f, prevSoftIllumination - ( 1.0f - illumination ) /** illuminationSoftness*/ ) * 255.0f );
+        g_distToOccluder[ dispatchThreadId.xy ] = min( prevDistToOccluder, surfaceDistToOccluder );
+        g_hardShadow[ dispatchThreadId.xy ]     = (uint)( min(1.0f, prevHardShadow + shadow * shadowHardness ) * 255.0f );
+        g_softShadow[ dispatchThreadId.xy ]     = (uint)( min(1.0f, prevSoftShadow + shadow * shadowSoftness ) * 255.0f );
     }
 }
 
-float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
+float calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
 {
-    const float blurRadiusInWorldSpace = min( maxIlluminationWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    const float blurRadiusInWorldSpace = min( maxShadowWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
     //const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
 
     //#TODO: Blur radius may have different resolution in the future? Using outputTextureSize may not be safe.
@@ -188,7 +186,7 @@ float calculateIlluminationBlurRadius( const float lightEmitterRadius, const flo
     return blurRadiusInWorldSpace;
 }
 
-bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float nearestHitDist, inout float illumination )
+bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int actorIdx, const float maxAllowedHitDist, inout float nearestHitDist, inout float shadow )
 {
     // Offset to avoid self-collision. 
     // Note: Is it useful? We still need to check against the "origin triangle" and ignore by intersection distance... Or not?
@@ -273,7 +271,7 @@ bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int ac
 
                                 const float alpha = g_alphaTexture[ actorIdx ].SampleLevel( g_linearSamplerState, hitTexCoords, 0.0f ).r;
 
-                                illumination -= alpha;
+                                shadow += alpha;
 
                                 // Note: We don't stop tracing rays now, because we need to find the closest intersection for soft shadow calculation.
 
@@ -283,7 +281,7 @@ bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const int ac
                             }
                             else
                             {
-                                illumination = 0.0f;
+                                shadow = 1.0f;
                                 //break;
 							    //illumination -= lightAmountPerSample;
 

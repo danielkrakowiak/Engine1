@@ -34,29 +34,20 @@ namespace Engine1
         void blurShadows( const Camera& camera,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardShadowTexture,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softShadowTexture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                              const Light& light );
 
         void blurShadowsHorzVert( const Camera& camera,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardShadowTexture,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softShadowTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                           const Light& light );
 
-        /*void performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
-                             const Light& light );*/
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getIlluminationTexture();
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getShadowTexture();
 
         private:
 
@@ -70,11 +61,11 @@ namespace Engine1
         // Render targets.
         int m_imageWidth, m_imageHeight;
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_illuminationRenderTarget;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_shadowRenderTarget;
 
         // Extra render target used when 2-pass separable blur is run.
         // It stores horizontally blurred illumination before the vertical pass.
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_illuminationTemporaryRenderTarget;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_shadowTemporaryRenderTarget;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

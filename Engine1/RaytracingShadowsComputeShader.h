@@ -69,7 +69,7 @@ namespace Engine1
             float        pad5;
             float        lightEmitterRadius;
             float3       pad6;
-            unsigned int isPreIlluminationAvailable; // 1 - available, 0 - not available.
+            unsigned int isPreShadowAvailable; // 1 - available, 0 - not available.
             float3       pad7;
             float44      shadowMapViewMatrix;
             float44      shadowMapProjectionMatrix;

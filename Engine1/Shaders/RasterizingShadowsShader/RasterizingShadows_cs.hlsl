@@ -28,8 +28,8 @@ SamplerState      g_pointSamplerState   : register( s0 );
 SamplerState      g_linearSamplerState  : register( s1 );
 
 // Input / Output.
-RWTexture2D<float> g_illuminationBlurRadius : register( u0 );
-RWTexture2D<uint>  g_illumination           : register( u1 );
+RWTexture2D<float> g_shadowBlurRadius : register( u0 );
+RWTexture2D<uint>  g_shadow           : register( u1 );
 
 static const float minHitDist = 0.001f;
 
@@ -39,10 +39,10 @@ static const float zRange  = zFar - zNear;
 
 static const float Pi = 3.14159265f;
 
-static const float maxIlluminationBaseBlurRadius = 80.0f;
+static const float maxShadowBlurRadius = 80.0f;
 
 float linearizeDepth( float depthSample );
-float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
+float calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -54,10 +54,6 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-
-    return; // FOR TEST
-
-
     // Note: Calculate texcoords for the pixel center.
     const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
@@ -65,20 +61,22 @@ void main( uint3 groupId : SV_GroupID,
 	const float3 rayDirBase = normalize( lightPosition - rayOrigin );
 
     // If pixel is outside of spot light's cone - ignore.
-    //if ( dot( lightDirection, -rayDirBase ) < lightConeMinDot ) {
-    //    g_illumination[ dispatchThreadId.xy ] = 255;
-    //    return;
-    //}
+    /*if ( dot( lightDirection, -rayDirBase ) < lightConeMinDot ) {
+        g_shadow[ dispatchThreadId.xy ] = 255;
+        return;
+    }*/
+
+    return; // FOR TEST
 
 	const float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
     const float normalLightDot = dot( surfaceNormal, rayDirBase );
 
-    const uint illuminationUint = g_illumination[ dispatchThreadId.xy ];
+    const uint illuminationUint = g_shadow[ dispatchThreadId.xy ];
 
 	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
     if ( !any( rayOrigin ) || normalLightDot < 0.0f /*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) { 
-        g_illumination[ dispatchThreadId.xy ] = 0;
+        g_shadow[ dispatchThreadId.xy ] = 1.0f;
         return;
     }
 
@@ -116,18 +114,18 @@ void main( uint3 groupId : SV_GroupID,
             const float rayOriginDistToOccluder = max( 0.0f, rayOriginDistToLight - occluderDistToLight );
             const float rayOriginDistToCamera   = length( rayOrigin - cameraPosition );
 
-            //const float prevBlurRadius = g_illuminationBlurRadius[ dispatchThreadId.xy ];
-            const float blurRadius     = calculateIlluminationBlurRadius( lightEmitterRadius, rayOriginDistToOccluder, occluderDistToLight, rayOriginDistToCamera );
+            //const float prevBlurRadius = g_shadowBlurRadius[ dispatchThreadId.xy ];
+            const float blurRadius = calculateShadowBlurRadius( lightEmitterRadius, rayOriginDistToOccluder, occluderDistToLight, rayOriginDistToCamera );
 
-            g_illuminationBlurRadius[ dispatchThreadId.xy ] = /*min( prevBlurRadius, */blurRadius; //);
-            g_illumination[ dispatchThreadId.xy ]           = 0;
+            g_shadowBlurRadius[ dispatchThreadId.xy ] = /*min( prevBlurRadius, */blurRadius; //);
+            g_shadow[ dispatchThreadId.xy ]           = 255;
             return;
         }
     }
     else
     {
         // Note: Outside of spot light cone - keep it lit until later to avoid artefacts during shadow blurring.
-        g_illumination[ dispatchThreadId.xy ] = 255;
+        g_shadow[ dispatchThreadId.xy ] = 0;
         return;
     }
 }
@@ -155,9 +153,9 @@ float linearizeDepth( float depthSample )
     return linearDepth;
 }
 
-float calculateIlluminationBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
+float calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
 {
-    const float blurRadiusInWorldSpace = min( maxIlluminationBaseBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    const float blurRadiusInWorldSpace = min( maxShadowBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
     //const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
 
     //#TODO: Blur radius may have different resolution in the future? Using outputTextureSize may not be safe.

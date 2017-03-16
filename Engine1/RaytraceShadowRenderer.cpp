@@ -62,8 +62,8 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	m_rendererCore.enableComputeShader( m_raytracingShadowsComputeShader );
 
 	// Don't have to clear, because illumination should be initialized with pre-illumination.
-	m_hardIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
-    m_softIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
+	//m_hardIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
+    //m_softIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
 
     // Copy pre-illumination texture as initial illumination. 
     // This is to avoid copying values inside the shader in each pass.
@@ -120,12 +120,12 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getHardIlluminationTexture()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getHardShadowTexture()
 {
 	return m_hardIlluminationTexture;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getSoftIlluminationTexture()
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RaytraceShadowRenderer::getSoftShadowTexture()
 {
     return m_softIlluminationTexture;
 }

@@ -83,7 +83,7 @@ void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, co
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture, 
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-										  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > illuminationTexture,
+										  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
 									      const Light& light )
 {
     if ( !m_compiled ) 
@@ -97,7 +97,7 @@ void ShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, co
             metalnessTexture->getShaderResourceView(),
             roughnessTexture->getShaderResourceView(),
             normalTexture->getShaderResourceView(),
-			illuminationTexture->getShaderResourceView()
+			shadowTexture->getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );

@@ -522,6 +522,18 @@ Idea:
 
 	    -----------------------------
 
+		###############
+
+
+		- is initial hard/soft shadow texture in raytracing shadows filled with preShadow?
+
+		###############
+
+	BUGS:
+	- there seems to be a bug in reflections hsading - it uses illumination from sorrounding pixels even if they are far away rom the center pixel. 
+	  This causes bright glow around lit objects in the normally dark background.
+
+
 	  FINAL TODO: ---------------------------------------------------------------
 
 	  - add replacing blur radius at the end of raytracing to 0 for all untouched pixels.

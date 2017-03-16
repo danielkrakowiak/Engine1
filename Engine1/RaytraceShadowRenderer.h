@@ -45,8 +45,8 @@ namespace Engine1
 			const std::vector< std::shared_ptr< const BlockActor > >& actors
 		);
 
-		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getHardIlluminationTexture();
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getSoftIlluminationTexture();
+		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getHardShadowTexture();
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getSoftShadowTexture();
 
 	private:
 

@@ -352,7 +352,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 
     // #TODO: Remove.
     // FOR DEBUG - Not needed normally, because whole texture gets overwritten.
-    m_blurShadowsRenderer.getIlluminationTexture()->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4::ZERO, 0 );
+    m_blurShadowsRenderer.getShadowTexture()->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 1.0f ), 0 );
 
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
@@ -376,21 +376,21 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
 
             //#TODO: Should not generate all mipmaps. Maybe only two or three...
-            m_rasterizeShadowRenderer.getIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+            m_rasterizeShadowRenderer.getShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
             m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         }
 
         // #TODO: Should be profiled.
-        // Fill illumination texture with pre-illumination data.
+        // Fill shadow texture with pre-shadow data.
         m_rendererCore.copyTexture( 
-            *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getHardIlluminationTexture() ), 0,
-            *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getIlluminationTexture() ), 0 
+            *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getHardShadowTexture() ), 0,
+            *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0 
         );
 
         m_rendererCore.copyTexture(
-            *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getSoftIlluminationTexture() ), 0,
-            *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getIlluminationTexture() ), 0
+            *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getSoftShadowTexture() ), 0,
+            *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0
         );
 
         auto distanceToOccluder = m_rasterizeShadowRenderer.getDistanceToOccluder();
@@ -403,7 +403,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getPositionRenderTarget(),
             m_deferredRenderer.getNormalRenderTarget(),
             nullptr,
-            m_rasterizeShadowRenderer.getIlluminationTexture(),
+            m_rasterizeShadowRenderer.getShadowTexture(),
             distanceToOccluder,
             blockActors
         );
@@ -411,8 +411,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
 
-        m_raytraceShadowRenderer.getHardIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        m_raytraceShadowRenderer.getSoftIlluminationTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        m_raytraceShadowRenderer.getHardShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        m_raytraceShadowRenderer.getSoftShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
@@ -539,8 +539,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                 m_deferredRenderer.getPositionRenderTarget(),
                 m_deferredRenderer.getNormalRenderTarget(),
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftIlluminationTexture(),
+                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getSoftShadowTexture(),
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -553,8 +553,8 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                 m_deferredRenderer.getPositionRenderTarget(),
                 m_deferredRenderer.getNormalRenderTarget(),
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardIlluminationTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftIlluminationTexture(),
+                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getSoftShadowTexture(),
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -573,7 +573,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             m_deferredRenderer.getMetalnessRenderTarget(),
 			m_deferredRenderer.getRoughnessRenderTarget(), 
             m_deferredRenderer.getNormalRenderTarget(), 
-            m_blurShadowsRenderer.getIlluminationTexture(), 
+            m_blurShadowsRenderer.getShadowTexture(), 
             *lightsCastingShadows[ lightIdx ] 
         );
 
@@ -616,13 +616,13 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             case View::IndexOfRefraction:
                 return std::make_tuple( true, m_deferredRenderer.getIndexOfRefractionRenderTarget(), nullptr, nullptr, nullptr, nullptr );
 			case View::Preillumination:
-				return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+				return std::make_tuple( true, m_rasterizeShadowRenderer.getShadowTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::HardIllumination:
-                return std::make_tuple( true, m_raytraceShadowRenderer.getHardIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+                return std::make_tuple( true, m_raytraceShadowRenderer.getHardShadowTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::SoftIllumination:
-                return std::make_tuple( true, m_raytraceShadowRenderer.getSoftIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+                return std::make_tuple( true, m_raytraceShadowRenderer.getSoftShadowTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::BlurredIllumination:
-                return std::make_tuple( true, m_blurShadowsRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+                return std::make_tuple( true, m_blurShadowsRenderer.getShadowTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::SpotlightDepth:
                 if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
                     return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );
@@ -709,9 +709,9 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
             case View::CurrentRefractiveIndex:
                 return std::make_tuple( true, m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 ), nullptr, nullptr, nullptr, nullptr );
             case View::Preillumination:
-                return std::make_tuple( true, m_rasterizeShadowRenderer.getIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+                return std::make_tuple( true, m_rasterizeShadowRenderer.getShadowTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::HardIllumination:
-                return std::make_tuple( true, m_raytraceShadowRenderer.getHardIlluminationTexture(), nullptr, nullptr, nullptr, nullptr );
+                return std::make_tuple( true, m_raytraceShadowRenderer.getHardShadowTexture(), nullptr, nullptr, nullptr, nullptr );
         }
     }
 
@@ -812,7 +812,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
 			m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
-			m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
+			m_rasterizeShadowRenderer.getShadowTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
 			*lightsCastingShadows[ lightIdx ] 
 		);
 
@@ -936,7 +936,7 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 			m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
 			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
-			m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
+			m_rasterizeShadowRenderer.getShadowTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
 			*lightsCastingShadows[ lightIdx ]
 		);
 
@@ -1033,7 +1033,7 @@ void Renderer::renderReflections( const int level, const Camera& camera,
             m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-            m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
+            m_rasterizeShadowRenderer.getShadowTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
             *light
             );
     }
@@ -1118,7 +1118,7 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
             m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-            m_rasterizeShadowRenderer.getIlluminationTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
+            m_rasterizeShadowRenderer.getShadowTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
             *light
             );
     }
