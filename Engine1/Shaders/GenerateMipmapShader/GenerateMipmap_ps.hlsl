@@ -19,7 +19,7 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_Target
 {
-	const float4 values = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord );
+	const float4 values = g_textureSrcMipmap.SampleLevel( g_samplerState, input.texCoord, 0.0f );
     
     return values;
 }

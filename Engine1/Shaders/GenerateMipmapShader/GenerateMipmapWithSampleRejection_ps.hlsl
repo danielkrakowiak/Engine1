@@ -23,10 +23,10 @@ struct PixelInputType
 float main(PixelInputType input) : SV_Target
 {
     // #TODO: Can it be optimized with gather?
-    const float valueTopLeft     = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2( -srcPixelSizeInTexcoords.x, -srcPixelSizeInTexcoords.y ) );
-    const float valueTopRight    = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2(  srcPixelSizeInTexcoords.x, -srcPixelSizeInTexcoords.y ) );
-    const float valueBottomLeft  = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2( -srcPixelSizeInTexcoords.x,  srcPixelSizeInTexcoords.y ) );
-    const float valueBottomRight = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2(  srcPixelSizeInTexcoords.x,  srcPixelSizeInTexcoords.y ) );
+    const float valueTopLeft     = g_textureSrcMipmap.SampleLevel( g_samplerState, input.texCoord + float2( -srcPixelSizeInTexcoords.x, -srcPixelSizeInTexcoords.y ), 0.0f );
+    const float valueTopRight    = g_textureSrcMipmap.SampleLevel( g_samplerState, input.texCoord + float2(  srcPixelSizeInTexcoords.x, -srcPixelSizeInTexcoords.y ), 0.0f );
+    const float valueBottomLeft  = g_textureSrcMipmap.SampleLevel( g_samplerState, input.texCoord + float2( -srcPixelSizeInTexcoords.x,  srcPixelSizeInTexcoords.y ), 0.0f );
+    const float valueBottomRight = g_textureSrcMipmap.SampleLevel( g_samplerState, input.texCoord + float2(  srcPixelSizeInTexcoords.x,  srcPixelSizeInTexcoords.y ), 0.0f );
 
     //const float positionTopLeft     = g_textureSrcMipmap.Sample( g_samplerState, input.texCoord + float2( -srcPixelSizeInTexcoords.x, -srcPixelSizeInTexcoords.y ) );
 
