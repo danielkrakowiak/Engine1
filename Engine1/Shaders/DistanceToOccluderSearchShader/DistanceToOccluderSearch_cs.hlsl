@@ -97,9 +97,9 @@ void main( uint3 groupId : SV_GroupID,
     float searchRadius = 2.0f;
 
     if (centerDistToOccluder > 1.0f && centerDistToOccluder < 500.0)
-        searchRadius = 10.0f;
+        searchRadius = 10.0f / mipmap;
     else if (centerDistToOccluder > 500.0f)
-        searchRadius = 25.0f;
+        searchRadius = 25.0f / mipmap;
 
     //float searchRadius = lerp( 4.0f, 100.0f, saturate( centerDistToOccluder / 10.0f ) ); /*/ distToCamera*/;
     // Note: Surprisingly this loop doesn't work correctly without unrolling - texcoord offsets are always positive.
@@ -114,24 +114,28 @@ void main( uint3 groupId : SV_GroupID,
     //    // #TODO: Should not depend on search radius, because it then changes when zooming in - pointlessly.
     //    const float stepCount = floor( lerp(1.5f, 8.0f, searchRadius * distToCamera / 600.0f) ); 
     //    const float step = 1.0f / stepCount;
-    for ( float y = -searchRadius; y <= searchRadius; y += 4.0f )
+    for ( float y = -searchRadius; y <= searchRadius; y += 1.0f )
     {
-        for ( float x = -searchRadius; x <= searchRadius; x += 4.0f )
+        for ( float x = -searchRadius; x <= searchRadius; x += 1.0f )
         {
             const float2 sampleTexcoords = texcoords + float2( x * pixelSize.x, y * pixelSize.y );
 
-            const float sampleDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f );
+            const float sampleDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, sampleTexcoords, mipmap );
 
             // Weight discarding samples which are non-shadowed (huge dist-to-ccluder).
-            const float sampleWeight1 = saturate( 500.0f - sampleDistToOccluder );
+            /*const*/ float sampleWeight1 = 1.0f;//saturate( 500.0f - sampleDistToOccluder );
+			if ( sampleDistToOccluder > 999.0f)
+				sampleWeight1 = 0.0f;
 
             // Weight discarding samples which are off-screen (zero dist-to-occluder).
-            const float sampleWeight2 = saturate( 10000.0f * sampleDistToOccluder );
+            /*const*/ float sampleWeight2 = 1.0f;//saturate( 10000.0f * sampleDistToOccluder );
+			if ( sampleDistToOccluder < 0.0001f)
+				sampleWeight2 = 0.0f;
 
             const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
             const float positionDiff = length( samplePosition - centerPosition );
 
-            const float sampleWeight3 = pow( e, -positionDiff * positionDiff / positionThreshold );
+            const float sampleWeight3 = 1.0f;//pow( e, -positionDiff * positionDiff / positionThreshold );
 
             valueSum  += sampleDistToOccluder * sampleWeight1 * sampleWeight2 * sampleWeight3;
             weightSum += sampleWeight1 * sampleWeight2 * sampleWeight3;
