@@ -163,7 +163,7 @@ void main( uint3 groupId : SV_GroupID,
         const float prevHardShadow = (float)g_hardShadow[ dispatchThreadId.xy ] / 255.0f;
         const float prevSoftShadow = (float)g_softShadow[ dispatchThreadId.xy ] / 255.0f;
 
-        const float shadowSoftness = 0.0f;//min(1.0f, (blurRadius / 1.0f));
+        const float shadowSoftness = min(1.0f, (blurRadius / 1.0f));
         const float shadowHardness = 1.0f - shadowSoftness;
 
         shadow = min( 1.0f, shadow ); // Needed? Can shadow go over 1 after many intersections?

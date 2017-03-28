@@ -541,6 +541,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getSoftShadowTexture(),
+                distanceToOccluder,
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -555,6 +556,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getSoftShadowTexture(),
+                distanceToOccluder,
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );

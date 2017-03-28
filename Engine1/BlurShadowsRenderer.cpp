@@ -46,12 +46,13 @@ void BlurShadowsRenderer::blurShadows( const Camera& camera,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardShadowTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softShadowTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
                                        const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
     m_blurShadowsComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture, 
-                                               normalTexture, hardShadowTexture, softShadowTexture, distanceToOccluder, light );
+                                               normalTexture, hardShadowTexture, softShadowTexture, distanceToOccluder, finalDistanceToOccluder, light );
 
     m_rendererCore.enableComputeShader( m_blurShadowsComputeShader );
 
@@ -83,6 +84,7 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardShadowTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softShadowTexture,
                                        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
                                        const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
@@ -103,7 +105,7 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
         m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
         m_blurShadowsHorizontalComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture,
-                                                             normalTexture, hardShadowTexture, softShadowTexture, distanceToOccluder, light );
+                                                             normalTexture, hardShadowTexture, softShadowTexture, distanceToOccluder, finalDistanceToOccluder, light );
 
         m_rendererCore.enableComputeShader( m_blurShadowsHorizontalComputeShader );
 
@@ -118,7 +120,7 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
         m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
         m_blurShadowsVerticalComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture,
-                                                           normalTexture, m_shadowTemporaryRenderTarget, m_shadowTemporaryRenderTarget, distanceToOccluder, light );
+                                                           normalTexture, m_shadowTemporaryRenderTarget, m_shadowTemporaryRenderTarget, distanceToOccluder, finalDistanceToOccluder, light );
 
         m_rendererCore.enableComputeShader( m_blurShadowsVerticalComputeShader );
 

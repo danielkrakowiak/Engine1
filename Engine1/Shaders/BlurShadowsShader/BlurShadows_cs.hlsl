@@ -25,11 +25,12 @@ SamplerState g_linearSamplerState;
 SamplerState g_pointSamplerState;
 
 // Input.
-Texture2D<float4> g_positionTexture   : register( t0 );
-Texture2D<float4> g_normalTexture     : register( t1 ); 
-Texture2D<float>  g_hardShadowTexture : register( t2 ); 
-Texture2D<float>  g_softShadowTexture : register( t3 ); 
-Texture2D<float>  g_distToOccluder    : register( t4 );
+Texture2D<float4> g_positionTexture            : register( t0 );
+Texture2D<float4> g_normalTexture              : register( t1 ); 
+Texture2D<float>  g_hardShadowTexture          : register( t2 ); 
+Texture2D<float>  g_softShadowTexture          : register( t3 ); 
+Texture2D<float>  g_distToOccluderTexture      : register( t4 );
+Texture2D<float>  g_finalDistToOccluderTexture : register( t5 );
 
 // Input / Output.
 RWTexture2D<float4> g_blurredShadowTexture : register( u0 );
@@ -83,7 +84,7 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    const float distToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
+    const float distToOccluder = g_finalDistToOccluderTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
 
     //const float minBlurRadiusInWorldSpace = g_distToOccluder.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
     const float pixelSizeInWorldSpace   = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);

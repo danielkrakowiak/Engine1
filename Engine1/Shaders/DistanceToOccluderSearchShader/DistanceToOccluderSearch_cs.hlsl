@@ -78,6 +78,7 @@ void main( uint3 groupId : SV_GroupID,
     }
 
     const float  centerDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
+
     const float3 centerPosition       = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
     const float  centerWeight         = saturate( 500.0f - centerDistToOccluder );
 

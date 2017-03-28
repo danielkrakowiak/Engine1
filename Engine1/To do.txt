@@ -726,6 +726,19 @@ Idea:
 
 
 
+	  NEW TODO:
+
+	  SHADOWS: ----------------------------------------
+	  - maybe i should sample original dist-to-occluder texture instead of the final-dist-to-occluder?
+	  - or it's mipmap... Because my shadow softness ratio is affected by that and maybe it shouln't be.
+
+	  REFLECTIONS: -----------------------------
+	  - fix the bug with reflection glow
+	  - add dist calculation from sorrounding pixels
+	  - add multipliers to textures... But may restrict some multipliers to 1, because some textures cannot emmit light.. And for some textures it makes no sense to have a multiplier?
+
+
+
 
 	  Sources: 
 
