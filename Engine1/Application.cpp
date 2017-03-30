@@ -953,8 +953,10 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
             std::wstring pathW( pathBufferW.data(), charCount - 1 );
             std::string path = StringUtil::narrow( pathW );
 
+			const bool replaceAssets = (fileCount == 1);
+
             try {
-                windowsMessageReceiver->onDragAndDropFile( path );
+                windowsMessageReceiver->onDragAndDropFile( path, replaceAssets );
             } catch ( ... ) {}
         }
 			
@@ -1329,7 +1331,7 @@ void Application::onMouseButtonPress( int button )
     }
 }
 
-void Application::onDragAndDropFile( std::string filePath )
+void Application::onDragAndDropFile( std::string filePath, bool replaceSelected )
 {
 	std::string currentPath;
 	{
@@ -1350,8 +1352,8 @@ void Application::onDragAndDropFile( std::string filePath )
 		filePath = filePath.substr( 1 );
 
     // Temporarily always replace assets. Holding Ctrl is too hard...
-    const bool replaceSelected = !m_sceneManager.getSelectedBlockActors().empty() || !m_sceneManager.getSelectedSkeletonActors().empty(); //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
-    const bool invertZ         = !m_inputManager.isKeyPressed( InputManager::Keys::shift );
+    replaceSelected    &= m_sceneManager.getSelectedBlockActors().size() == 1 || m_sceneManager.getSelectedSkeletonActors().size() == 1; //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
+    const bool invertZ = !m_inputManager.isKeyPressed( InputManager::Keys::shift );
 
     m_sceneManager.loadAsset( filePath, replaceSelected, invertZ );
 

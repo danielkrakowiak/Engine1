@@ -64,7 +64,7 @@ namespace Engine1
 	    void onFocusChange( bool windowFocused );
         void onKeyPress( int key );
         void onMouseButtonPress( int button );
-	    void onDragAndDropFile( std::string filePath );
+	    void onDragAndDropFile( std::string filePath, bool replaceSelected );
 
         int2 screenPosToWindowPos( int2 screenPos ) const;
 
