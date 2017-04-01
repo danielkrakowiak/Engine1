@@ -836,6 +836,15 @@ void Renderer::renderFirstReflections( const Camera& camera,
 
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::CombiningWithMainImage );
 
+    auto rayHitDistanceTexture = m_raytraceRenderer.getRayHitDistanceTexture( 0 );
+
+    //#TODO: Should be profiled separately.
+    m_mipmapRenderer.generateMipmapsWithSampleRejection(
+        rayHitDistanceTexture,
+        m_deferredRenderer.getPositionRenderTarget(),
+        500.0f, 0, 5
+    );
+
     // Combine main image with reflections.
     m_combiningRenderer.combine( m_finalRenderTarget, 
                                  m_shadingRenderer.getColorRenderTarget(), 

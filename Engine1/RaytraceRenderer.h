@@ -62,16 +62,16 @@ namespace Engine1
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
                                             const std::vector< std::shared_ptr< const BlockActor > >& actors );
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >        getRayOriginsTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >        getRayDirectionsTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >        getRayHitPositionTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >         getRayHitDistanceTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >        getRayHitEmissiveTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >        getRayHitAlbedoTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > getRayHitMetalnessTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > getRayHitRoughnessTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > getRayHitRefractiveIndexTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >        getRayHitNormalTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayOriginsTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayDirectionsTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayHitPositionTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > getRayHitDistanceTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >             getRayHitEmissiveTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >             getRayHitAlbedoTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >      getRayHitMetalnessTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >      getRayHitRoughnessTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >      getRayHitRefractiveIndexTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayHitNormalTexture( int level );
         
         const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& getCurrentRefractiveIndexTextures();
 
@@ -123,17 +123,17 @@ namespace Engine1
 
         static const int maxRenderTargetCount;
 
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        m_rayOriginsTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        m_rayDirectionsTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        m_rayHitPositionTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > > >         m_rayHitDistanceTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >        m_rayHitEmissiveTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >        m_rayHitAlbedoTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > m_rayHitMetalnessTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > m_rayHitRoughnessTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > m_rayHitRefractiveIndexTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >        m_rayHitNormalTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > > m_currentRefractiveIndexTextures;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayOriginsTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayDirectionsTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayHitPositionTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > > m_rayHitDistanceTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >             m_rayHitEmissiveTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >             m_rayHitAlbedoTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_rayHitMetalnessTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_rayHitRoughnessTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_rayHitRefractiveIndexTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayHitNormalTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_currentRefractiveIndexTextures;
 
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 

@@ -102,11 +102,48 @@ float4 main(PixelInputType input) : SV_Target
     if ( depth > maxDepth )
         return float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
-    float hitDistance = /*min( maxHitDistance,*/ g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );// );
+    //#TODO: Select mipmap based on central hitDistance - maybe a log of what we need - the rest through avaraging.
+    // Why reflection doesn't blur through edges?
+    // Check linear/point sampling.
+    // Avarage pixels from some region.
+    float hitDistance = 0.0f;
+    {
+        const float mipmap = 5.0f;
+        const float2 pixelSize0 = 1.0f / imageSize;
+        const float2 pixelSize  = pixelSize0 * pow( 2.0f, mipmap );
+
+        float sampleWeightSum = 0.0f;
+
+        float searchRadius = 5.0f;
+
+        for ( float y = -searchRadius; y <= searchRadius; y += 1.0f )
+        {
+            for ( float x = -searchRadius; x <= searchRadius; x += 1.0f )
+            {
+                const float2 sampleTexcoords = input.texCoord + float2( x * pixelSize.x, y * pixelSize.y );
+
+                const float sampleHitDistance = g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, mipmap );
+
+                // Weight discarding samples for which ray didn't hit anything (huge hit-distance).
+                /*const*/ float sampleWeight1 = 1.0f;//saturate( 500.0f - sampleDistToOccluder );
+			    if ( sampleHitDistance > maxHitDistance)
+				    sampleWeight1 = 0.0f;
+
+                hitDistance += sampleHitDistance * sampleWeight1;
+                sampleWeightSum += sampleWeight1;
+            }
+        }
+
+        hitDistance /= sampleWeightSum;
+        //#TODO: Not yet working as expected...
+        // If all samples were rejected - use max hit-distance.
+        if (sampleWeightSum < 0.0001f)
+            hitDistance = 20.0f;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    float distanceCloseSampleCount = 0.0f;
+    /*float distanceCloseSampleCount = 0.0f;
     float distanceTotalSampleCount = 0.0f;
 
     float maxNeighborHitDistance = 0.0f;
@@ -128,14 +165,14 @@ float4 main(PixelInputType input) : SV_Target
         }
     }
 
-    // Start blending out only when there is less than 50% of near depth samples.
+     Start blending out only when there is less than 50% of near depth samples.
     distanceTotalSampleCount /= 2.0f;
     distanceCloseSampleCount = min( distanceCloseSampleCount, distanceTotalSampleCount );
 
     if ( hitDistance > 100.0f )
-        hitDistance = lerp( 30.0f, maxNeighborHitDistance, distanceCloseSampleCount / distanceTotalSampleCount );
+        hitDistance = lerp( 30.0f, maxNeighborHitDistance, distanceCloseSampleCount / distanceTotalSampleCount );*/
 
-    ///////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
 
     //if ( hitDistance > maxHitDistance )
     //    return float4( 0.0f, 0.0f, 0.0f, 0.0f );

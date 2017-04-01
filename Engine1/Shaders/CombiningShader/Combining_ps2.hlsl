@@ -101,38 +101,38 @@ float4 main(PixelInputType input) : SV_Target
     if ( depth > maxDepth )
         return float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
-    float hitDistance = /*min( maxHitDistance,*/ g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );// );
+    float hitDistance = /*min( maxHitDistance,*/ g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 5.0f );// );
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    float distanceCloseSampleCount = 0.0f;
-    float distanceTotalSampleCount = 0.0f;
+    //float distanceCloseSampleCount = 0.0f;
+    //float distanceTotalSampleCount = 0.0f;
 
-    float maxNeighborHitDistance = 0.0f;
+    //float maxNeighborHitDistance = 0.0f;
 
-    float2 pixelSize5 = ( 1.0f / imageSize ) * 3.0f;
-    for ( float x = -6.0f; x <= 6.0f; x += 1.0f )
-    {
-        for ( float y = -6.0f; y <= 6.0f; y += 1.0f )
-        {
-            distanceTotalSampleCount += 1.0f;
+    //float2 pixelSize5 = ( 1.0f / imageSize ) * 3.0f;
+    //for ( float x = -6.0f; x <= 6.0f; x += 1.0f )
+    //{
+    //    for ( float y = -6.0f; y <= 6.0f; y += 1.0f )
+    //    {
+    //        distanceTotalSampleCount += 1.0f;
 
-            float tempHitDistance = g_hitDistanceTexture.SampleLevel( g_pointSamplerState, input.texCoord + float2( x * pixelSize5.x, y * pixelSize5.y ), 0.0f );
+    //        float tempHitDistance = g_hitDistanceTexture.SampleLevel( g_pointSamplerState, input.texCoord + float2( x * pixelSize5.x, y * pixelSize5.y ), 0.0f );
 
-            if ( tempHitDistance < 100.0f )
-            {
-                maxNeighborHitDistance = max( maxNeighborHitDistance, tempHitDistance );
-                distanceCloseSampleCount += 1.0f;
-            }
-        }
-    }
+    //        if ( tempHitDistance < 100.0f )
+    //        {
+    //            maxNeighborHitDistance = max( maxNeighborHitDistance, tempHitDistance );
+    //            distanceCloseSampleCount += 1.0f;
+    //        }
+    //    }
+    //}
 
-    // Start blending out only when there is less than 50% of near depth samples.
-    distanceTotalSampleCount /= 2.0f;
-    distanceCloseSampleCount = min( distanceCloseSampleCount, distanceTotalSampleCount );
+    //// Start blending out only when there is less than 50% of near depth samples.
+    //distanceTotalSampleCount /= 2.0f;
+    //distanceCloseSampleCount = min( distanceCloseSampleCount, distanceTotalSampleCount );
 
-    if ( hitDistance > 100.0f )
-        hitDistance = lerp( 30.0f, maxNeighborHitDistance, distanceCloseSampleCount / distanceTotalSampleCount );
+    //if ( hitDistance > 100.0f )
+    //    hitDistance = lerp( 30.0f, maxNeighborHitDistance, distanceCloseSampleCount / distanceTotalSampleCount );
 
     ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -73,9 +73,9 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
                                          ( device, imageWidth, imageHeight, false, true, false,
                                            DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
-        m_rayHitDistanceTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > >
-                                         ( device, imageWidth, imageHeight, false, true, false,
-                                           DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT ) );
+        m_rayHitDistanceTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+                                         ( device, imageWidth, imageHeight, false, true, true,
+                                           DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT ) );
 
         m_rayHitEmissiveTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >
                                          ( device, imageWidth, imageHeight, false, true, false,
@@ -545,7 +545,7 @@ RaytraceRenderer::getRayHitPositionTexture( int level )
     return m_rayHitPositionTexture.at( level );
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float > > 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > 
 RaytraceRenderer::getRayHitDistanceTexture( int level )
 {
     return m_rayHitDistanceTexture.at( level );

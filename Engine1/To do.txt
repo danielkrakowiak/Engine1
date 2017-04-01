@@ -739,8 +739,11 @@ Idea:
 	  But good weighting equation is needed and it probably should be one way -> only soft samples are weighted down when center is hard...
 
 	  REFLECTIONS: -----------------------------
+	  - like in dist-to-occluder search - space samples further when center dist is high, or if found no samples whatever... Or check higher mipmaps?
+	  - reenable position check when taking samples from reflection image - could also be a reason for glow around objects
 	  - fix the bug with reflection glow
 	  - add dist calculation from sorrounding pixels
+	  - what to do when we are far from meaningfull samples and we get huge hit-dist - if we get too large or too small hit-dist then there will be visible boundary in reflections...
 	  - add multipliers to textures... But may restrict some multipliers to 1, because some textures cannot emmit light.. And for some textures it makes no sense to have a multiplier?
 
 
