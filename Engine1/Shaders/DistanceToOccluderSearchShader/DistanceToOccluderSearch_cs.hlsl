@@ -85,6 +85,7 @@ void main( uint3 groupId : SV_GroupID,
     const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
 
     const float mipmap = 2.0f;
+    const float samplingMipmap = /*0.0f*/mipmap;
     const float2 pixelSize = pixelSize0 * pow( 2.0f, mipmap );
 
     float2 texCoordShift = float2(0.0f, 0.0f); // x horizontal, y - vertical.
@@ -95,12 +96,24 @@ void main( uint3 groupId : SV_GroupID,
     // Decrease search radius if central sample is available (is in shadow).
     const float maxSearchRadius = 30.0f;//lerp( 20.0f, 200.0f, min(1.0f, centerDistToOccluder / 0.5f) ) / distToCamera;
 
-    float searchRadius = 2.0f;
+    float searchRadius = 1.0f;
 
-    if (centerDistToOccluder > 1.0f && centerDistToOccluder < 500.0)
-        searchRadius = 10.0f / mipmap;
+    if (centerDistToOccluder >= 0.1f && centerDistToOccluder < 0.3f)
+        searchRadius = 2.0f / (mipmap + 1.0f);
+    else if (centerDistToOccluder >= 0.3f && centerDistToOccluder < 0.6f)
+        searchRadius = 2.5f / (mipmap + 1.0f);
+    else if (centerDistToOccluder >= 0.6f && centerDistToOccluder < 0.9f)
+        searchRadius = 3.0f / (mipmap + 1.0f);
+    else if (centerDistToOccluder >= 0.9f && centerDistToOccluder < 1.2f)
+        searchRadius = 3.5f / (mipmap + 1.0f);
+    else if (centerDistToOccluder >= 1.2f && centerDistToOccluder < 1.5f)
+        searchRadius = 4.0f / (mipmap + 1.0f);
+    else if (centerDistToOccluder >= 1.5f && centerDistToOccluder < 2.0f)
+        searchRadius = 5.0f / (mipmap + 1.0f);
+    else if (centerDistToOccluder >= 0.9f && centerDistToOccluder < 500.0f)
+        searchRadius = 10.0f / (mipmap + 1.0f);
     else if (centerDistToOccluder > 500.0f)
-        searchRadius = 25.0f / mipmap;
+        searchRadius = 25.0f / (mipmap + 1.0f);
 
     //float searchRadius = lerp( 4.0f, 100.0f, saturate( centerDistToOccluder / 10.0f ) ); /*/ distToCamera*/;
     // Note: Surprisingly this loop doesn't work correctly without unrolling - texcoord offsets are always positive.
@@ -121,7 +134,11 @@ void main( uint3 groupId : SV_GroupID,
         {
             const float2 sampleTexcoords = texcoords + float2( x * pixelSize.x, y * pixelSize.y );
 
-            const float sampleDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, sampleTexcoords, mipmap );
+            /*const*/ float sampleDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, sampleTexcoords, samplingMipmap );
+
+            // TEST: Avoid avaraging neighbor samples which are much softer than the central pixel.
+            if (sampleDistToOccluder > 1.2f * centerDistToOccluder)
+                sampleDistToOccluder = 1.2f * centerDistToOccluder;
 
             // Weight discarding samples which are non-shadowed (huge dist-to-ccluder).
             /*const*/ float sampleWeight1 = 1.0f;//saturate( 500.0f - sampleDistToOccluder );
@@ -138,44 +155,15 @@ void main( uint3 groupId : SV_GroupID,
 
             const float sampleWeight3 = 1.0f;//pow( e, -positionDiff * positionDiff / positionThreshold );
 
-            valueSum  += sampleDistToOccluder * sampleWeight1 * sampleWeight2 * sampleWeight3;
-            weightSum += sampleWeight1 * sampleWeight2 * sampleWeight3;
+            // TEST: The more sample differs from the central one, the less weight it gets.
+            const float distDiff = max(0.0f, sampleDistToOccluder - centerDistToOccluder);
+            const float distThreshold = 1.0f;
+            const float sampleWeight4 = 1.0f;//pow( e, -distDiff * distDiff / distThreshold );
+
+            valueSum  += sampleDistToOccluder * sampleWeight1 * sampleWeight2 * sampleWeight3 * sampleWeight4;
+            weightSum += sampleWeight1 * sampleWeight2 * sampleWeight3 * sampleWeight4;
         }
     }
-
-        //for ( float y = -1.0f; y <= 1.0f; y += 0.1f/*step*/ )
-        //{
-        //    for ( float x = -1.0f; x <= 1.0f; x += 0.1f/*step*/ )
-        //    {
-        //        float2 texcoordShiftMul = normalize( float2( x, y ) );
-
-        //        const float2 sampleTexcoords = texcoords + float2( texcoordShiftMul.x * texCoordShift.x, texcoordShiftMul.y * texCoordShift.y );
-
-        //        #ifdef DEBUG /////////////////////////////////
-        //        int2 texcoordsInt = int2( sampleTexcoords * float2( 1024.0f, 768.0f ) );
-        //        g_blurredIlluminationTexture[ texcoordsInt ] = 500.0f;
-        //        #endif
-        //        //////////////////////////////////////////
-        //        
-        //        const float sampleDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f );
-        //        
-        //        // Weight discarding samples which are non-shadowed (huge dist-to-ccluder).
-        //        const float sampleWeight1 = saturate( 500.0f - sampleDistToOccluder );
-
-        //        // Weight discarding samples which are off-screen (zero dist-to-occluder).
-        //        const float sampleWeight2 = saturate( 10000.0f * sampleDistToOccluder );
-
-        //        const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
-
-        //        const float positionDiff = length( samplePosition - centerPosition );
-
-        //        const float sampleWeight3 = pow( e, -positionDiff * positionDiff / positionThreshold );
-
-        //        valueSum  += sampleDistToOccluder * sampleWeight1;// * sampleWeight2 * sampleWeight3;
-        //        weightSum += sampleWeight1;// * sampleWeight2 * sampleWeight3;
-        //    }
-        //}
-    //}
 
     const float distToOccluder = valueSum / weightSum;
 

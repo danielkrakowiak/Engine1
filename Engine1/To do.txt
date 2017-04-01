@@ -732,6 +732,12 @@ Idea:
 	  - maybe i should sample original dist-to-occluder texture instead of the final-dist-to-occluder?
 	  - or it's mipmap... Because my shadow softness ratio is affected by that and maybe it shouln't be.
 
+	  FIX: Fix 4-pixel stripes in shadows by first  performing 4-pixel wide neighbor search-for-occluder dist. Separate pass. Then another pass can jump 4 pixels at a time or maybe use a lower mipmap?
+
+
+	  - during dist-to-occluder-search: weighting samples similar to center higher improves quality when shadows overlap (and transparent shadow over hard shadow etc).
+	  But good weighting equation is needed and it probably should be one way -> only soft samples are weighted down when center is hard...
+
 	  REFLECTIONS: -----------------------------
 	  - fix the bug with reflection glow
 	  - add dist calculation from sorrounding pixels

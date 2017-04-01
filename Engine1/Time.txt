@@ -369,3 +369,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 14.03.2017 - 3h - Refactoring code to use "shadow" instead of "illumination" in lighting calculations.
 15.03.2017 - 1h - Refactoring.
 16.03.2017 - 1h - Refactoring.
+28.03.2017 - 2h - Trying to improve shadow quality when soft/hard shadows intersect or shadow from a semi-transparent object intersects with hard shaow.
