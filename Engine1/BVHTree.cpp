@@ -2,6 +2,8 @@
 
 #include "BlockMesh.h"
 
+#include <algorithm>
+
 using namespace Engine1;
 
 BVHTree::BVHTree( const BlockMesh& mesh )
@@ -107,13 +109,14 @@ std::unique_ptr< BVHNode > BVHTree::recursiveBuild( std::vector< TriangleBoundin
         float splitPosStop  = trianglesMax.getData()[ axis ];
 
 		// Bounding box side along this axis is too short, we must move to a different axis.
-		if ( fabsf( splitPosStop - splitPosStart ) < 0.0001f)
+		if ( fabsf( splitPosStop - splitPosStart ) < 0.01f)
 			continue;
 
 		// Binning: Try splitting at a uniform sampling (at equidistantly spaced planes) that gets smaller the deeper we go:
 		// size of "sampling grid": 1024 (depth 0), 512 (depth 1), etc
 		// each bin has size "step"
-		const float splitPosStep = (splitPosStop - splitPosStart) / (1024.0f / (depth + 1.0f));
+		const float minPosStep = 0.01f; // Note: Min step is 1 cm.
+		const float splitPosStep = std::max( minPosStep, (splitPosStop - splitPosStart) / (1024.0f / (depth + 1.0f)) );
 
 		// Try to split on different positions and check which gives minimal cost.
 		for ( float testSplitPos = splitPosStart + splitPosStep; testSplitPos < splitPosStop - splitPosStep; testSplitPos += splitPosStep ) {

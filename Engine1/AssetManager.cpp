@@ -76,6 +76,8 @@ void AssetManager::load( const FileInfo& fileInfo )
 	}
 
 	try {
+		OutputDebugStringW( StringUtil::widen( "AssetManager::load - reading and parsing \"" + fileInfo.getPath( ) + "\"\n" ).c_str( ) );
+
 		std::shared_ptr<Asset> asset = createFromFile( fileInfo );
 
         { // Load sub-assets or wait for the sub-assets to be loaded and swap empty sub-assets with loaded sub-assets.
@@ -93,10 +95,16 @@ void AssetManager::load( const FileInfo& fileInfo )
 			std::lock_guard<std::mutex> loadedAssetsLock( m_loadedAssetsMutex );
 			m_loadedAssets.insert( std::make_pair( id, asset ) );
 		}
+
+		OutputDebugStringW( StringUtil::widen( "AssetManager::load - read and parsed \"" + fileInfo.getPath( ) + "\"\n" ).c_str( ) );
+
 	} catch ( .../*std::exception& ex*/ ) {
 		// If asset failed to load - remove it from assets.
 		std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
 		m_assets.erase( id );
+
+		OutputDebugStringW( StringUtil::widen( "AssetManager::load - failed to read or parse \"" + fileInfo.getPath( ) + "\"\n" ).c_str( ) );
+
 		// Re-throw the exception.
 		throw;
 	}
