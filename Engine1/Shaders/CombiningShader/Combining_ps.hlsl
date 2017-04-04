@@ -122,15 +122,23 @@ float4 main(PixelInputType input) : SV_Target
             {
                 const float2 sampleTexcoords = input.texCoord + float2( x * pixelSize.x, y * pixelSize.y );
 
-                const float sampleHitDistance = g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, mipmap );
+                const float sampleHitDistance = g_hitDistanceTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, mipmap );
 
-                // Weight discarding samples for which ray didn't hit anything (huge hit-distance).
-                /*const*/ float sampleWeight1 = 1.0f;//saturate( 500.0f - sampleDistToOccluder );
-			    if ( sampleHitDistance > maxHitDistance)
-				    sampleWeight1 = 0.0f;
+                // Weight decreasing importance of samples further from the pixel.
+                const float sampleWeight1 = pow(1.0f - (length(searchRadius) / sqrt(searchRadius*searchRadius * 2.0f)), 4.0f);
 
-                hitDistance += sampleHitDistance * sampleWeight1;
-                sampleWeightSum += sampleWeight1;
+                // Weight diminishing importance of samples hitting the sky if any other samples are available.
+                const float sampleWeight2 = 1.0f - saturate(sampleHitDistance / 200.0f);
+			    //if ( sampleHitDistance > maxHitDistance)
+				//    sampleWeight1 = 0.0f;
+
+                // Weight discarding samples which are off-screen (zero dist-to-occluder).
+                /*const*/ float sampleWeight3 = 1.0f;//saturate( 10000.0f * sampleDistToOccluder );
+			    if ( sampleHitDistance < 0.0001f)
+				    sampleWeight3 = 0.0f;
+
+                hitDistance += sampleHitDistance * sampleWeight1 * sampleWeight2 * sampleWeight3;
+                sampleWeightSum += sampleWeight1 * sampleWeight2 * sampleWeight3;
             }
         }
 
@@ -138,7 +146,7 @@ float4 main(PixelInputType input) : SV_Target
         //#TODO: Not yet working as expected...
         // If all samples were rejected - use max hit-distance.
         if (sampleWeightSum < 0.0001f)
-            hitDistance = 20.0f;
+            hitDistance = 200.0f;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////

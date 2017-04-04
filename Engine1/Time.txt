@@ -371,3 +371,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 16.03.2017 - 1h - Refactoring.
 28.03.2017 - 2h - Trying to improve shadow quality when soft/hard shadows intersect or shadow from a semi-transparent object intersects with hard shaow.
 01.04.2017 - 4h - Trying to fix falsly sharp edges in reflections by adding hit-dist-search - averaging hit-dist from neighbor pixels.
+
+04.04.2017 - 1h - Improving hit-distance calculation for reflections. Weighting samples to ensure smooth transitions and correct blur level.

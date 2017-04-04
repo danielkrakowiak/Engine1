@@ -739,6 +739,9 @@ Idea:
 	  But good weighting equation is needed and it probably should be one way -> only soft samples are weighted down when center is hard...
 
 	  REFLECTIONS: -----------------------------
+	  - CHECK THE PAPER!!!!
+	  - render debug hit-distance - and it's mipmaps. Maybe we can blur it to help? Especially if not making any other tests on hit-dist samples...
+	  - hit-distance search radius should depend on pixel size in world-space (depth) etc... Otherwise avaraged hit-distance changes when zooming-in or out. 
 	  - like in dist-to-occluder search - space samples further when center dist is high, or if found no samples whatever... Or check higher mipmaps?
 	  - reenable position check when taking samples from reflection image - could also be a reason for glow around objects
 	  - fix the bug with reflection glow
