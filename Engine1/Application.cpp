@@ -729,6 +729,13 @@ void Application::run() {
                 ss << "\nBlurShadowsComputeShader::s_positionThreshold: " << BlurShadowsComputeShader::s_positionThreshold;
             }
 
+            if ( m_sceneManager.isSelectionEmpty() )
+            {
+                ss << "\nCombiningFragmentShader::s_positionDiffMul: "         << CombiningFragmentShader::s_positionDiffMul;
+                ss << "\nCombiningFragmentShader::s_normalDiffMul: "           << CombiningFragmentShader::s_normalDiffMul;
+                ss << "\nCombiningFragmentShader::s_positionNormalThreshold: " << CombiningFragmentShader::s_positionNormalThreshold;
+            }
+
             if ( m_renderText )
                 frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 120.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
@@ -1119,6 +1126,22 @@ void Application::onKeyPress( int key )
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
                 BlurShadowsComputeShader::s_positionThreshold += positionThresholdChange;
+        }
+    }
+
+    // [P/N/T] and ( [+] or [-] ) - Modify reflection dist-search position diff mul, normal diff mul or position/normal threshold.
+    if ( m_sceneManager.isSelectionEmpty() ) {
+        if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
+            const float change =
+                ( key == InputManager::Keys::plus ) ?
+                0.001f : -0.001f;
+
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
+                CombiningFragmentShader::s_positionDiffMul += change;
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::n ) )
+                CombiningFragmentShader::s_normalDiffMul += change;
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) )
+                CombiningFragmentShader::s_positionNormalThreshold += change;
         }
     }
 

@@ -18,6 +18,10 @@ namespace Engine1
     {
         public:
 
+        static float s_positionDiffMul;
+        static float s_normalDiffMul;
+        static float s_positionNormalThreshold;
+
         CombiningFragmentShader();
         virtual ~CombiningFragmentShader();
 
@@ -52,6 +56,12 @@ namespace Engine1
             float2 contributionTextureFillSize;
             float2 srcTextureFillSize;
             float2 padding4;
+            float  positionDiffMul;
+            float3 pad5;
+            float  normalDiffMul;
+            float3 pad6;
+            float  positionNormalThreshold;
+            float3 pad7;
         };
 
         int m_resourceCount;

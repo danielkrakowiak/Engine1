@@ -373,3 +373,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 01.04.2017 - 4h - Trying to fix falsly sharp edges in reflections by adding hit-dist-search - averaging hit-dist from neighbor pixels.
 
 04.04.2017 - 1h - Improving hit-distance calculation for reflections. Weighting samples to ensure smooth transitions and correct blur level.
+05.04.2017 - 2h - Adding hit-dist samples weighting based on position/normal difference between sample and the center pixel.

@@ -20,6 +20,12 @@ cbuffer ConstantBuffer
     float2 contributionTextureFillSize;
     float2 srcTextureFillSize;
     float2 pad4;
+    float  positionDiffMul;
+    float3 pad5;
+    float  normalDiffMul;
+    float3 pad6;
+    float  positionNormalThreshold;
+    float3 pad7;
 };
 
 struct PixelInputType
@@ -39,6 +45,7 @@ static const float zFar  = 1000.0f;
 
 static const float Pi     = 3.14159265f;
 static const float PiHalf = 1.570796325f;
+static const float e      = 2.71828f;
 
 static const float maxDepth = 200.0f;
 static const float maxHitDistance = 200.0f; // Should be less than the initial ray length. 
@@ -102,19 +109,22 @@ float4 main(PixelInputType input) : SV_Target
     if ( depth > maxDepth )
         return float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
+    const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
+    const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
+
     //#TODO: Select mipmap based on central hitDistance - maybe a log of what we need - the rest through avaraging.
     // Why reflection doesn't blur through edges?
     // Check linear/point sampling.
     // Avarage pixels from some region.
     float hitDistance = 0.0f;
     {
-        const float mipmap = 5.0f;
+        const float mipmap = 2.0f;
         const float2 pixelSize0 = 1.0f / imageSize;
         const float2 pixelSize  = pixelSize0 * pow( 2.0f, mipmap );
 
         float sampleWeightSum = 0.0f;
 
-        float searchRadius = 5.0f;
+        float searchRadius = 10.0f;
 
         for ( float y = -searchRadius; y <= searchRadius; y += 1.0f )
         {
@@ -125,28 +135,36 @@ float4 main(PixelInputType input) : SV_Target
                 const float sampleHitDistance = g_hitDistanceTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, mipmap );
 
                 // Weight decreasing importance of samples further from the pixel.
-                const float sampleWeight1 = pow(1.0f - (length(searchRadius) / sqrt(searchRadius*searchRadius * 2.0f)), 4.0f);
+                const float sampleWeight1 = 1.0f;//pow(1.0f - (length(searchRadius) / sqrt(searchRadius*searchRadius * 2.0f)), 4.0f);
+
+                // Weight depanding of difference in position between center and the sample.
+                const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
+                const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
+                const float  positionDiff   = length( samplePosition - centerPosition );
+                const float  normalDiff     = 1.0f - dot(centerNormal, sampleNormal);
+                const float  power          = -( positionDiffMul * positionDiff * positionDiff + normalDiffMul * normalDiff ) / positionNormalThreshold;
+                const float  sampleWeight2  = pow( e, power );
 
                 // Weight diminishing importance of samples hitting the sky if any other samples are available.
-                const float sampleWeight2 = 1.0f - saturate(sampleHitDistance / 200.0f);
+                const float sampleWeight3 = 1.0f;//1.0f - saturate(sampleHitDistance / 200.0f);
 			    //if ( sampleHitDistance > maxHitDistance)
 				//    sampleWeight1 = 0.0f;
 
                 // Weight discarding samples which are off-screen (zero dist-to-occluder).
-                /*const*/ float sampleWeight3 = 1.0f;//saturate( 10000.0f * sampleDistToOccluder );
+                /*const*/ float sampleWeight4 = 1.0f;//saturate( 10000.0f * sampleDistToOccluder );
 			    if ( sampleHitDistance < 0.0001f)
-				    sampleWeight3 = 0.0f;
+				    sampleWeight4 = 0.0f;
 
-                hitDistance += sampleHitDistance * sampleWeight1 * sampleWeight2 * sampleWeight3;
-                sampleWeightSum += sampleWeight1 * sampleWeight2 * sampleWeight3;
+                hitDistance += sampleHitDistance * sampleWeight1 * sampleWeight2 * sampleWeight3 * sampleWeight4;
+                sampleWeightSum += sampleWeight1 * sampleWeight2 * sampleWeight3 * sampleWeight4;
             }
         }
 
         hitDistance /= sampleWeightSum;
         //#TODO: Not yet working as expected...
         // If all samples were rejected - use max hit-distance.
-        if (sampleWeightSum < 0.0001f)
-            hitDistance = 200.0f;
+        //if (sampleWeightSum < 0.0001f)
+        //    hitDistance = 200.0f;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -198,8 +216,8 @@ float4 main(PixelInputType input) : SV_Target
 
     //const float samplingLevel2 = 0.0f;//min( 4.0f, samplingLevel1 );
 
-    const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
-    const float3 centerPosition = g_positionTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
+    //const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
+    //const float3 centerPosition = g_positionTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
 
     const float3 contributionTerm = g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).rgb;
     
