@@ -22,7 +22,7 @@ PixelOutputType main( PixelInputType input )
 {
 	PixelOutputType output;
     
-    output.emissive = float4( 1.0f, 0.8f, 0.0f, 0.35f );
+    output.emissive = float4( 1.0f, 0.8f, 0.0f, 0.05f );
 
 	return output;
 }

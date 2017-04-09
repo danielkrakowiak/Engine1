@@ -37,6 +37,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_shadingRenderer( rendererCore ),
     m_reflectionRefractionShadingRenderer( rendererCore ),
     m_edgeDetectionRenderer( rendererCore ),
+    m_hitDistanceSearchRenderer( rendererCore ),
     m_combiningRenderer( rendererCore ),
     m_textureRescaleRenderer( rendererCore ),
     m_rasterizeShadowRenderer( rendererCore ),
@@ -72,6 +73,7 @@ void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device
     m_shadingRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_reflectionRefractionShadingRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_edgeDetectionRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
+    m_hitDistanceSearchRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
     m_combiningRenderer.initialize( device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
     m_rasterizeShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
@@ -267,7 +269,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
     if ( m_axisMesh )
         m_deferredRenderer.render( *m_axisMesh, float43::IDENTITY, viewMatrix );
 
-    float4 actorSelectionEmissiveColor( 0.5f, 0.5f, 0.0f, 1.0f );
+    float4 actorSelectionEmissiveColor( 0.1f, 0.1f, 0.0f, 1.0f );
 
     // Render actors in the scene.
     const std::unordered_set< std::shared_ptr<Actor> >& actors = scene.getActors();
@@ -714,6 +716,10 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
                 return std::make_tuple( true, m_rasterizeShadowRenderer.getShadowTexture(), nullptr, nullptr, nullptr, nullptr );
             case View::HardIllumination:
                 return std::make_tuple( true, m_raytraceShadowRenderer.getHardShadowTexture(), nullptr, nullptr, nullptr, nullptr );
+            case View::HitDistance:
+                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ) );
+            case View::FinalHitDistance:
+                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_hitDistanceSearchRenderer.getFinalHitDistanceTexture() );
         }
     }
 
@@ -845,6 +851,14 @@ void Renderer::renderFirstReflections( const Camera& camera,
         500.0f, 0, 5
     );
 
+    // Search for hit distance.
+    m_hitDistanceSearchRenderer.performHitDistanceSearch(
+        camera, 
+        m_deferredRenderer.getPositionRenderTarget(), 
+        m_deferredRenderer.getNormalRenderTarget(), 
+        rayHitDistanceTexture 
+    );
+
     // Combine main image with reflections.
     m_combiningRenderer.combine( m_finalRenderTarget, 
                                  m_shadingRenderer.getColorRenderTarget(), 
@@ -852,7 +866,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
                                  m_deferredRenderer.getNormalRenderTarget(), 
                                  m_deferredRenderer.getPositionRenderTarget(), 
                                  m_deferredRenderer.getDepthRenderTarget(), 
-                                 m_raytraceRenderer.getRayHitDistanceTexture( 0 ),
+                                 m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
                                  camera.getPosition(),
                                  contributionTextureFillWidth, contributionTextureFillHeight,
                                  colorTextureFillWidth, colorTextureFillHeight );
@@ -1287,6 +1301,8 @@ std::string Renderer::viewToString( const View view )
         case View::DistanceToOccluder:                       return "DistanceToOccluder";
         case View::FinalDistanceToOccluder:                  return "FinalDistanceToOccluder";
         case View::BloomBrightPixels:                        return "BloomBrightPixels";
+        case View::HitDistance:                              return "HitDistance";
+        case View::FinalHitDistance:                         return "FinalHitDistance";
         case View::Test:                                     return "Test";
     }
 

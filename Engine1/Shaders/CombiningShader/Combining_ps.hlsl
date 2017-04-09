@@ -35,11 +35,6 @@ struct PixelInputType
 	float2 texCoord : TEXCOORD1;
 };
 
-// Position threshold needs to be larger when we sample with larger radius (oversampling ratio). Same for normal threshold.
-// Some object id buffer would be useful to reject samples from different objects. It's impossible now to tell whether we hit the same object when sampling radius is big.
-
-// Wanted sampling level should decrease with distance to the pixel - because roughness in screen-space decreaes (and sampling radius).
-
 static const float zNear = 0.1f;
 static const float zFar  = 1000.0f;
 
@@ -48,7 +43,7 @@ static const float PiHalf = 1.570796325f;
 static const float e      = 2.71828f;
 
 static const float maxDepth = 200.0f;
-static const float maxHitDistance = 200.0f; // Should be less than the initial ray length. 
+static const float maxHitDistance = 50.0f; // Should be less than the initial ray length. 
 
 static const float hitDistanceBlendIn  = 20.0f; // Should be less than the initial ray length.
 static const float hitDistanceBlendOut = 200.0f; // Should be less than the initial ray length. 
@@ -56,54 +51,11 @@ static const float hitDistanceBlendOut = 200.0f; // Should be less than the init
 static const float blurRadiusFadeMin = 50.0f;
 static const float blurRadiusFadeMax = 100.0f;
 
-// Idea: Could check which level normal differs from highest level normal to learn how far from the edge center pixel is.
-// IDEA: Could use depth to decide the maximum sampling level. It's because when we are very close to the object, there is more flat surface on the screen.
-// IDEA: When depth is below 1 - skip taking log2 from it. log2 is too steep below 1. Use depth directly or something else.
-
-// IMPORTANT: Only normals and position of the reflecting surface matter (because they influence the direction and shape of ray cone) when accepting/rejecting samples. What's seen by rays is irrelevant.
-
-// IDEA: Select reflection mipmap based on ray distance. If distance is high, we don't care if reflection blurs over the edges? Probably we still care...
-
-// IDEA: Always first check ray distance of neighboring pixels to decide the sampling radius. But the problem is that sampling radius could be different in each direction.
-
-// IDEA: Maybe instead of box shaped sampling, use circle shaped sampling with different radius in each direction and different number of samples in each direction. Quite costly, but may give nice quality.
-
-// IDEA: Sample low-res mipmap of ray distance to check if there is any object around, despite center ray distance being so high.
-//       That should cause enough blurring near the edges to forget about the problem.
-//       Tested - doesn't work, because difference in depth are so big that edges stay sharp as knife anyways. Plus normal mapping causes some depth values to be really high even in the middle of objects.
-
-// If I sample only the highest reflection mipmap there is no color bleeding over the edges. If we're checking normals and positions...
-
-// We can actually sample low level reflection mipmaps and it still looks good. We should maybe blur them a bit first in a separate pass. Or use 3x3 sampling here.
-
-// How come reflections are not bleeding through the edges even when sampling low-level mipmaps? They actually do for rougher surfaces.
-
-// Size of the object and reflected object on screen depends linearly on camera to object distance and reflective surface to object distance.
-
-// Using smaller sampling radius works only to compansate for camera moving away from surface. It's because ( 1 / depth ) is not a linear function and it gets more linear only for larger depth values. 
-// It has more impact for low depth values, rather than high depth values. Wait, but pixel sizes on screen also don't change linearly with depth...
-// Maybe it's because properly blurred "mipmap" would look sharper at closer distance, but mipmaps don't look sharper, because they were made to be seen from distance. Artifacts of linear sampling etc?
-
-// CURRENT ISSUES:
-// - perceived blur changed when moving camera closer/farther to the reflective surface. Should be the same. Only the distance from the reflective surface to the object should changed perceived blur.
-
 float linearizeDepth( float depthSample );
 float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal );
 
 float4 main(PixelInputType input) : SV_Target
 {
- //   const float3 contributionTermyyyyyyyy = float3( 0.5f, 0.5f, 0.5f ); //g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).rgb;
-    
- //   float4 reflectionColoryyyyyy = float4( 0.0f, 0.0f, 0.0f, 1.0f );
-
- //   reflectionColoryyyyyy.rgb += g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord * srcTextureFillSize / imageSize, 0.0f ).rgb;
- //   float3 outputColoryyyyy = contributionTermyyyyyyyy * reflectionColoryyyyyy.rgb;
-	//return float4( outputColoryyyyy, 1.0f );
-
-
-    //////////////////////////////////
-
-
     const float depth = linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ) ); // Have to account for fov tanges?
 
     if ( depth > maxDepth )
@@ -112,96 +64,7 @@ float4 main(PixelInputType input) : SV_Target
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
 
-    //#TODO: Select mipmap based on central hitDistance - maybe a log of what we need - the rest through avaraging.
-    // Why reflection doesn't blur through edges?
-    // Check linear/point sampling.
-    // Avarage pixels from some region.
-    float hitDistance = 0.0f;
-    {
-        const float mipmap = 2.0f;
-        const float2 pixelSize0 = 1.0f / imageSize;
-        const float2 pixelSize  = pixelSize0 * pow( 2.0f, mipmap );
-
-        float sampleWeightSum = 0.0f;
-
-        float searchRadius = 10.0f;
-
-        for ( float y = -searchRadius; y <= searchRadius; y += 1.0f )
-        {
-            for ( float x = -searchRadius; x <= searchRadius; x += 1.0f )
-            {
-                const float2 sampleTexcoords = input.texCoord + float2( x * pixelSize.x, y * pixelSize.y );
-
-                const float sampleHitDistance = g_hitDistanceTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, mipmap );
-
-                // Weight decreasing importance of samples further from the pixel.
-                const float sampleWeight1 = 1.0f;//pow(1.0f - (length(searchRadius) / sqrt(searchRadius*searchRadius * 2.0f)), 4.0f);
-
-                // Weight depanding of difference in position between center and the sample.
-                const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
-                const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
-                const float  positionDiff   = length( samplePosition - centerPosition );
-                const float  normalDiff     = 1.0f - dot(centerNormal, sampleNormal);
-                const float  power          = -( positionDiffMul * positionDiff * positionDiff + normalDiffMul * normalDiff ) / positionNormalThreshold;
-                const float  sampleWeight2  = pow( e, power );
-
-                // Weight diminishing importance of samples hitting the sky if any other samples are available.
-                const float sampleWeight3 = 1.0f;//1.0f - saturate(sampleHitDistance / 200.0f);
-			    //if ( sampleHitDistance > maxHitDistance)
-				//    sampleWeight1 = 0.0f;
-
-                // Weight discarding samples which are off-screen (zero dist-to-occluder).
-                /*const*/ float sampleWeight4 = 1.0f;//saturate( 10000.0f * sampleDistToOccluder );
-			    if ( sampleHitDistance < 0.0001f)
-				    sampleWeight4 = 0.0f;
-
-                hitDistance += sampleHitDistance * sampleWeight1 * sampleWeight2 * sampleWeight3 * sampleWeight4;
-                sampleWeightSum += sampleWeight1 * sampleWeight2 * sampleWeight3 * sampleWeight4;
-            }
-        }
-
-        hitDistance /= sampleWeightSum;
-        //#TODO: Not yet working as expected...
-        // If all samples were rejected - use max hit-distance.
-        //if (sampleWeightSum < 0.0001f)
-        //    hitDistance = 200.0f;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-
-    /*float distanceCloseSampleCount = 0.0f;
-    float distanceTotalSampleCount = 0.0f;
-
-    float maxNeighborHitDistance = 0.0f;
-
-    float2 pixelSize5 = ( 1.0f / imageSize ) * 3.0f;
-    for ( float x = -6.0f; x <= 6.0f; x += 1.0f )
-    {
-        for ( float y = -6.0f; y <= 6.0f; y += 1.0f )
-        {
-            distanceTotalSampleCount += 1.0f;
-
-            float tempHitDistance = g_hitDistanceTexture.SampleLevel( g_pointSamplerState, input.texCoord + float2( x * pixelSize5.x, y * pixelSize5.y ), 0.0f );
-
-            if ( tempHitDistance < 100.0f )
-            {
-                maxNeighborHitDistance = max( maxNeighborHitDistance, tempHitDistance );
-                distanceCloseSampleCount += 1.0f;
-            }
-        }
-    }
-
-     Start blending out only when there is less than 50% of near depth samples.
-    distanceTotalSampleCount /= 2.0f;
-    distanceCloseSampleCount = min( distanceCloseSampleCount, distanceTotalSampleCount );
-
-    if ( hitDistance > 100.0f )
-        hitDistance = lerp( 30.0f, maxNeighborHitDistance, distanceCloseSampleCount / distanceTotalSampleCount );*/
-
-    /////////////////////////////////////////////////////////////////////////////////////
-
-    //if ( hitDistance > maxHitDistance )
-    //    return float4( 0.0f, 0.0f, 0.0f, 0.0f );
+    const float hitDistance = g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
 
     const float roughnessMult = 75.0f;
     const float roughness = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
@@ -224,35 +87,6 @@ float4 main(PixelInputType input) : SV_Target
     float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 
     const int2 texCoordsInt = (int2)( imageSize * input.texCoord );
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //// TODO: generate up to 4th mipmap and sample it instead of full res.
-    //const float hitDistance = min( maxHitDistance, g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ) );
-
-    //// Check if the ray hit anything.
-    ////if ( hitDistance > maxHitDistance )
-    ////    return float4( 0.0f, 0.0f, 0.0f, 0.0f );
-
-    //const float roughness = 2.5f;
-    //const float coneRadius = hitDistance * roughness;// * tan( roughness * PiHalf );
-
-    //const float samplingLevel0 = max( 0.0f, log2( coneRadius ) );
-
-    //const float depth = max( 0.0f, linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ) ) ); // Have to account for fov tanges?
-
-    //// Decreased by one from the real wanted level.
-    //const float samplingLevel1 = depth > 1.0f 
-    //    ? min( 8.0f, samplingLevel0 / log2( depth ) )
-    //    : min( 8.0f, samplingLevel0 /       depth ); 
-
-    //const int2 texCoordsInt = (int2)( g_imageSize * input.texCoord );
-
-    //const float samplingLevel2 = min( 4.0f, samplingLevel1 );
-    
-    //float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 0.5f );
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     if ( /*samplingLevel2 <= 0.0001f*/ samplingRadius <= 0.0001f )
     {
@@ -346,3 +180,41 @@ float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal )
 {
     return incidentRay - 2.0f * surfaceNormal * dot( surfaceNormal, incidentRay );
 }
+
+// ----------------------------------------------------------------------------------
+
+// Position threshold needs to be larger when we sample with larger radius (oversampling ratio). Same for normal threshold.
+// Some object id buffer would be useful to reject samples from different objects. It's impossible now to tell whether we hit the same object when sampling radius is big.
+
+// Wanted sampling level should decrease with distance to the pixel - because roughness in screen-space decreaes (and sampling radius).
+
+// Idea: Could check which level normal differs from highest level normal to learn how far from the edge center pixel is.
+// IDEA: Could use depth to decide the maximum sampling level. It's because when we are very close to the object, there is more flat surface on the screen.
+// IDEA: When depth is below 1 - skip taking log2 from it. log2 is too steep below 1. Use depth directly or something else.
+
+// IMPORTANT: Only normals and position of the reflecting surface matter (because they influence the direction and shape of ray cone) when accepting/rejecting samples. What's seen by rays is irrelevant.
+
+// IDEA: Select reflection mipmap based on ray distance. If distance is high, we don't care if reflection blurs over the edges? Probably we still care...
+
+// IDEA: Always first check ray distance of neighboring pixels to decide the sampling radius. But the problem is that sampling radius could be different in each direction.
+
+// IDEA: Maybe instead of box shaped sampling, use circle shaped sampling with different radius in each direction and different number of samples in each direction. Quite costly, but may give nice quality.
+
+// IDEA: Sample low-res mipmap of ray distance to check if there is any object around, despite center ray distance being so high.
+//       That should cause enough blurring near the edges to forget about the problem.
+//       Tested - doesn't work, because difference in depth are so big that edges stay sharp as knife anyways. Plus normal mapping causes some depth values to be really high even in the middle of objects.
+
+// If I sample only the highest reflection mipmap there is no color bleeding over the edges. If we're checking normals and positions...
+
+// We can actually sample low level reflection mipmaps and it still looks good. We should maybe blur them a bit first in a separate pass. Or use 3x3 sampling here.
+
+// How come reflections are not bleeding through the edges even when sampling low-level mipmaps? They actually do for rougher surfaces.
+
+// Size of the object and reflected object on screen depends linearly on camera to object distance and reflective surface to object distance.
+
+// Using smaller sampling radius works only to compansate for camera moving away from surface. It's because ( 1 / depth ) is not a linear function and it gets more linear only for larger depth values. 
+// It has more impact for low depth values, rather than high depth values. Wait, but pixel sizes on screen also don't change linearly with depth...
+// Maybe it's because properly blurred "mipmap" would look sharper at closer distance, but mipmaps don't look sharper, because they were made to be seen from distance. Artifacts of linear sampling etc?
+
+// CURRENT ISSUES:
+// - perceived blur changed when moving camera closer/farther to the reflective surface. Should be the same. Only the distance from the reflective surface to the object should changed perceived blur.

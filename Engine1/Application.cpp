@@ -1134,7 +1134,7 @@ void Application::onKeyPress( int key )
         if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
             const float change =
                 ( key == InputManager::Keys::plus ) ?
-                0.001f : -0.001f;
+                0.005f : -0.005f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
                 CombiningFragmentShader::s_positionDiffMul += change;
@@ -1229,73 +1229,91 @@ void Application::onKeyPress( int key )
             combiningRenderer.setPositionThreshold( combiningRenderer.getPositionThreshold() - positionThresholdChange );
     }*/
 
-    if ( key == InputManager::Keys::tilde ) {
-        m_renderer.setActiveViewType( Renderer::View::Final );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::one ) {
-        m_renderer.setActiveViewType( Renderer::View::Shaded );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::two ) {
-        m_renderer.setActiveViewType( Renderer::View::Depth );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::three ) {
-        m_renderer.setActiveViewType( Renderer::View::Position );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::four ) {
-        m_renderer.setActiveViewType( Renderer::View::Emissive );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::five ) {
-        m_renderer.setActiveViewType( Renderer::View::Albedo );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::six ) {
-        m_renderer.setActiveViewType( Renderer::View::Normal );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::seven ) {
-        m_renderer.setActiveViewType( Renderer::View::Metalness );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::eight ) {
-        m_renderer.setActiveViewType( Renderer::View::Roughness );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::nine ) {
-        m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::zero ) {
-        m_renderer.setActiveViewType( Renderer::View::RayDirections );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f1 ) {
-        m_renderer.setActiveViewType( Renderer::View::Contribution );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f2 ) {
-        m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f3 ) {
-        m_renderer.setActiveViewType( Renderer::View::Preillumination );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f4 ) {
-        m_renderer.setActiveViewType( Renderer::View::HardIllumination );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f5 ) {
-        m_renderer.setActiveViewType( Renderer::View::SoftIllumination );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f6 ) {
-        m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f7 ) {
-        m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f8 ) {
-        m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f9 ) {
-        m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluder );
-        m_debugDisplayedMipmapLevel = 0;
-    } else if ( key == InputManager::Keys::f11 ) {
-        m_renderer.setActiveViewType( Renderer::View::BloomBrightPixels );
-        m_debugDisplayedMipmapLevel = 0;
-    } /*else if ( key == InputManager::Keys::f12 ) {
-        m_renderer.setActiveViewType( Renderer::View::Test );
-        m_debugDisplayedMipmapLevel = 0;
-    }*/
+    const bool rKeyPressed = m_inputManager.isKeyPressed( InputManager::Keys::r );
+    const bool sKeyPressed = m_inputManager.isKeyPressed( InputManager::Keys::s );
+
+    if ( !rKeyPressed && !sKeyPressed )
+    {
+        if ( key == InputManager::Keys::tilde ) {
+            m_renderer.setActiveViewType( Renderer::View::Final );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::one ) {
+            m_renderer.setActiveViewType( Renderer::View::Shaded );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::two ) {
+            m_renderer.setActiveViewType( Renderer::View::Depth );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::three ) {
+            m_renderer.setActiveViewType( Renderer::View::Position );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::four ) {
+            m_renderer.setActiveViewType( Renderer::View::Emissive );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::five ) {
+            m_renderer.setActiveViewType( Renderer::View::Albedo );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::six ) {
+            m_renderer.setActiveViewType( Renderer::View::Normal );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::seven ) {
+            m_renderer.setActiveViewType( Renderer::View::Metalness );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::eight ) {
+            m_renderer.setActiveViewType( Renderer::View::Roughness );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::nine ) {
+            m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f1 ) {
+            m_renderer.setActiveViewType( Renderer::View::RayDirections );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f2 ) {
+            m_renderer.setActiveViewType( Renderer::View::Contribution );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f3 ) {
+            m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f4 ) {
+            m_renderer.setActiveViewType( Renderer::View::BloomBrightPixels );
+            m_debugDisplayedMipmapLevel = 0;
+        }
+    }
+    else if ( sKeyPressed )
+    {
+        if ( key == InputManager::Keys::one ) {
+            m_renderer.setActiveViewType( Renderer::View::Preillumination );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::two ) {
+            m_renderer.setActiveViewType( Renderer::View::HardIllumination );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::three ) {
+            m_renderer.setActiveViewType( Renderer::View::SoftIllumination );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::four ) {
+            m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::five ) {
+            m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::six ) {
+            m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::seven ) {
+            m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluder );
+            m_debugDisplayedMipmapLevel = 0;
+        }
+    }
+    else if ( rKeyPressed ) 
+    {
+        if ( key == InputManager::Keys::one ) {
+            m_renderer.setActiveViewType( Renderer::View::HitDistance );
+            m_debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::two ) {
+            m_renderer.setActiveViewType( Renderer::View::FinalHitDistance );
+            m_debugDisplayedMipmapLevel = 0;
+        }
+    }
+
 
     if ( m_sceneManager.isSelectionEmpty() )
     {

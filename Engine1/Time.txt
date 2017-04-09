@@ -368,9 +368,11 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 13.03.2017 - 5h - Improved Bloom effect blurring - by generating mipmaps one by one from an already blurred mipmap. Added a simple resampling shader. Added a simple tone mapping with manually set exposure.
 14.03.2017 - 3h - Refactoring code to use "shadow" instead of "illumination" in lighting calculations.
 15.03.2017 - 1h - Refactoring.
-16.03.2017 - 1h - Refactoring.
+16.03.2017 - 1h - Refactoring. 
 28.03.2017 - 2h - Trying to improve shadow quality when soft/hard shadows intersect or shadow from a semi-transparent object intersects with hard shaow.
 01.04.2017 - 4h - Trying to fix falsly sharp edges in reflections by adding hit-dist-search - averaging hit-dist from neighbor pixels.
 
 04.04.2017 - 1h - Improving hit-distance calculation for reflections. Weighting samples to ensure smooth transitions and correct blur level.
 05.04.2017 - 2h - Adding hit-dist samples weighting based on position/normal difference between sample and the center pixel.
+08.04.2017 - 1h - Improving reflections.
+09.04.2017 - 3h - Split combining renderer/shader into hit-distance-search and combining renderers/shaders. Added debug rendering of hit-dist and final-hit-dist. Added common shader utils file, which can be included in other shaders.

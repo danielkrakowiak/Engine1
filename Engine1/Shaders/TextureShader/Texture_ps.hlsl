@@ -18,10 +18,10 @@ float4 main(PixelInputType input) : SV_Target
 {
 	float4 textureColor = albedoTexture.Sample( samplerState, input.texCoord );
 
-    // Useful to show very high value pixels.
     //////////////////////////////////////////////////////////////////
-    //if (textureColor.r > 1.5f)
-    //    textureColor /= 100.0f;
+    // Debug: Display single-channel textures darkened - because they probably contain distance data (high values).
+    if (textureColor.g + textureColor.b < 0.0001f)
+        textureColor /= 10.0f;
     //////////////////////////////////////////////////////////////////
 
 	return textureColor;

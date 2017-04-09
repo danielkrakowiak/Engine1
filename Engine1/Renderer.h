@@ -9,6 +9,7 @@
 #include "ShadingRenderer.h"
 #include "ReflectionRefractionShadingRenderer.h"
 #include "EdgeDetectionRenderer.h"
+#include "HitDistanceSearchRenderer.h"
 #include "CombiningRenderer.h"
 #include "TextureRescaleRenderer.h"
 #include "RaytraceShadowRenderer.h"
@@ -68,6 +69,8 @@ namespace Engine1
             MinIlluminationBlurRadiusInWorldSpace,
             MaxIlluminationBlurRadiusInWorldSpace,
             BloomBrightPixels,
+            HitDistance,
+            FinalHitDistance,
 			Test
         };
 
@@ -205,6 +208,7 @@ namespace Engine1
         ShadingRenderer                     m_shadingRenderer;
         ReflectionRefractionShadingRenderer m_reflectionRefractionShadingRenderer;
         EdgeDetectionRenderer               m_edgeDetectionRenderer;
+        HitDistanceSearchRenderer           m_hitDistanceSearchRenderer;
         CombiningRenderer                   m_combiningRenderer;
         TextureRescaleRenderer              m_textureRescaleRenderer;
         RasterizeShadowRenderer             m_rasterizeShadowRenderer;

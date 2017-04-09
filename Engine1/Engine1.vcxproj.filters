@@ -430,6 +430,15 @@
     <Filter Include="Header Files\Shader\ToneMapping">
       <UniqueIdentifier>{b3ef7f52-2fa4-4d5e-ae2e-fa522476e9de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\HitDistanceSearch">
+      <UniqueIdentifier>{f8e8c579-86ce-447f-a34b-74790d5ac714}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\HitDistanceSearch">
+      <UniqueIdentifier>{cd7ec478-55c3-46df-8388-9c64a5b0983a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utils">
+      <UniqueIdentifier>{b9e46b03-6c71-45f8-8b08-a38c232c7369}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -936,6 +945,12 @@
     <ClInclude Include="ToneMappingRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="HitDistanceSearchComputeShader.h">
+      <Filter>Header Files\Shader\HitDistanceSearch</Filter>
+    </ClInclude>
+    <ClInclude Include="HitDistanceSearchRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1412,6 +1427,12 @@
     <ClCompile Include="ToneMappingRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="HitDistanceSearchComputeShader.cpp">
+      <Filter>Source Files\Shader\HitDistanceSearch</Filter>
+    </ClCompile>
+    <ClCompile Include="HitDistanceSearchRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1613,6 +1634,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\ToneMappingShader\ToneMapping_cs.hlsl">
       <Filter>Source Files\Shader\ToneMapping</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\HitDistanceSearchShader\HitDistanceSearch_cs.hlsl">
+      <Filter>Source Files\Shader\HitDistanceSearch</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Utils\SampleWeighting.hlsl">
+      <Filter>Source Files\Shader\Utils</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
