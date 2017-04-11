@@ -1,5 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+#include "Utils\SampleWeighting.hlsl"
+
 cbuffer ConstantBuffer : register( b0 )
 {
     float3 cameraPos;
@@ -33,7 +35,7 @@ Texture2D<float>  g_distToOccluder  : register( t2 );
 RWTexture2D<float> g_finalDistToOccluder : register( u0 );
 
 static const float Pi = 3.14159265f;
-static const float e = 2.71828f;
+//static const float e = 2.71828f;
 static const float positionThresholdFalloff = 0.4f;
 
 // SV_GroupID - group id in the whole computation.
@@ -145,10 +147,8 @@ void main( uint3 groupId : SV_GroupID,
 			if ( sampleDistToOccluder > 999.0f)
 				sampleWeight1 = 0.0f;
 
-            // Weight discarding samples which are off-screen (zero dist-to-occluder).
-            /*const*/ float sampleWeight2 = 1.0f;//saturate( 10000.0f * sampleDistToOccluder );
-			if ( sampleDistToOccluder < 0.0001f)
-				sampleWeight2 = 0.0f;
+			// Discard samples which are off-screen (zero dist-to-occluder).
+            const float sampleWeight2 = getSampleWeightGreaterThan( sampleDistToOccluder, 0.0f );
 
             const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
             const float positionDiff = length( samplePosition - centerPosition );

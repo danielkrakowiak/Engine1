@@ -1,3 +1,6 @@
+
+#include "Utils\SampleWeighting.hlsl"
+
 Texture2D<float4> g_colorTexture          : register( t0 );
 Texture2D<float4> g_contributionTermRoughnessTexture : register( t1 );
 Texture2D<float4> g_normalTexture         : register( t2 );
@@ -40,7 +43,7 @@ static const float zFar  = 1000.0f;
 
 static const float Pi     = 3.14159265f;
 static const float PiHalf = 1.570796325f;
-static const float e      = 2.71828f;
+//static const float e      = 2.71828f;
 
 static const float maxDepth = 200.0f;
 static const float maxHitDistance = 50.0f; // Should be less than the initial ray length. 

@@ -21,7 +21,7 @@ float4 main(PixelInputType input) : SV_Target
     //////////////////////////////////////////////////////////////////
     // Debug: Display single-channel textures darkened - because they probably contain distance data (high values).
     if (textureColor.g + textureColor.b < 0.0001f)
-        textureColor /= 10.0f;
+        textureColor /= 5.0f;
     //////////////////////////////////////////////////////////////////
 
 	return textureColor;

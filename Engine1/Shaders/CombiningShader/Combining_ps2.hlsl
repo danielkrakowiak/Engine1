@@ -1,3 +1,6 @@
+
+#include "Utils\SampleWeighting.hlsl"
+
 Texture2D<float4> g_colorTexture          : register( t0 );
 Texture2D<float4> g_contributionTermRoughnessTexture : register( t1 );
 Texture2D<float4> g_normalTexture         : register( t2 );

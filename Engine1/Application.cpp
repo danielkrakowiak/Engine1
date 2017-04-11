@@ -37,6 +37,7 @@
 
 // Only for debugging.
 #include "BlurShadowsComputeShader.h"
+#include "HitDistanceSearchComputeShader.h"
 
 using namespace Engine1;
 
@@ -731,9 +732,12 @@ void Application::run() {
 
             if ( m_sceneManager.isSelectionEmpty() )
             {
-                ss << "\nCombiningFragmentShader::s_positionDiffMul: "         << CombiningFragmentShader::s_positionDiffMul;
-                ss << "\nCombiningFragmentShader::s_normalDiffMul: "           << CombiningFragmentShader::s_normalDiffMul;
-                ss << "\nCombiningFragmentShader::s_positionNormalThreshold: " << CombiningFragmentShader::s_positionNormalThreshold;
+                ss << "\nCombiningFragmentShader::s_positionDiffMul: "                << CombiningFragmentShader::s_positionDiffMul;
+                ss << "\nCombiningFragmentShader::s_normalDiffMul: "                  << CombiningFragmentShader::s_normalDiffMul;
+                ss << "\nCombiningFragmentShader::s_positionNormalThreshold: "        << CombiningFragmentShader::s_positionNormalThreshold;
+                ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "         << HitDistanceSearchComputeShader::s_positionDiffMul;
+                ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "           << HitDistanceSearchComputeShader::s_normalDiffMul;
+                ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: " << HitDistanceSearchComputeShader::s_positionNormalThreshold;
             }
 
             if ( m_renderText )
@@ -1137,11 +1141,20 @@ void Application::onKeyPress( int key )
                 0.005f : -0.005f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
-                CombiningFragmentShader::s_positionDiffMul += change;
+            {
+                HitDistanceSearchComputeShader::s_positionDiffMul += change; 
+                return;
+            }
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::n ) )
-                CombiningFragmentShader::s_normalDiffMul += change;
+            {
+                HitDistanceSearchComputeShader::s_normalDiffMul += change; 
+                return;
+            }
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) )
-                CombiningFragmentShader::s_positionNormalThreshold += change;
+            {
+                HitDistanceSearchComputeShader::s_positionNormalThreshold += change; 
+                return;
+            }
         }
     }
 

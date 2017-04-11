@@ -83,14 +83,18 @@ void main( uint3 groupId : SV_GroupID,
     // Check linear/point sampling.
     // Avarage pixels from some region.
 
+    
+
     const float  mipmap      = 2.0f;
     const float2 pixelSize   = pixelSize0 * pow( 2.0f, mipmap );
 
     float sampleWeightSum = 0.0f;
 
-    float searchRadius = 2.0f;
+    float searchRadius = 45.0f;
 
     float hitDistance = 0.0f;
+
+    const float centerHitDistance = min( maxHitDistance, g_hitDistanceTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f/*mipmap*/ ) );
 
     for ( float y = -searchRadius; y <= searchRadius; y += 1.0f )
     {
@@ -98,18 +102,25 @@ void main( uint3 groupId : SV_GroupID,
         {
             const float2 sampleTexcoords = texcoords + float2( x * pixelSize.x, y * pixelSize.y );
 
-            const float sampleHitDistance = min( maxHitDistance, g_hitDistanceTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, mipmap ) );
+            const float sampleHitDistance = min( centerHitDistance/*maxHitDistance*/, g_hitDistanceTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, mipmap ) );
 
             // Weight decreasing importance of samples further from the pixel.
             const float sampleWeight1 = 1.0f;//pow(1.0f - (length(searchRadius) / sqrt(searchRadius*searchRadius * 2.0f)), 4.0f);
 
-            // Weight depanding of difference in position between center and the sample.
+            // Weight depanding on difference in position/normal between center and the sample.
             const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
             const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
+
+
             const float  positionDiff   = length( samplePosition - centerPosition );
             const float  normalDiff     = 1.0f - dot(centerNormal, sampleNormal);
-            const float  power          = -( positionDiffMul * positionDiff * positionDiff + normalDiffMul * normalDiff ) / positionNormalThreshold;
-            const float  sampleWeight2  = pow( e, power );
+            //const float  power          = -( positionDiffMul * positionDiff * positionDiff + normalDiffMul * normalDiff ) / positionNormalThreshold;
+            //const float  sampleWeight2  = pow( e, power );
+            const float samplesHitDistDiff = max( 0.0f, sampleHitDistance - centerHitDistance );
+
+            //const float samplesPosNormDiff = positionDiffMul * positionDiff * positionDiff + normalDiffMul * normalDiff;
+            const float samplesPosNormDiff = positionDiffMul * samplesHitDistDiff * samplesHitDistDiff /*+ normalDiffMul * normalDiff*/;
+            const float sampleWeight2 = 1.0f - positionDiffMul * ( sampleHitDistance / centerHitDistance );//max(0.0f, 1.0f - (positionDiffMul * samplesHitDistDiff));//getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
             // Weight diminishing importance of samples hitting the sky if any other samples are available.
             const float sampleWeight3 = 1.0f;//1.0f - saturate(sampleHitDistance / 200.0f);
