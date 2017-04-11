@@ -45,30 +45,30 @@ uint3 readTriangle( const uint index, ByteAddressBuffer meshTriangles )
 {
     const uint address = index * 12; // 12 = 3 components * 4 bytes.
 
-    return uint3(
-        asuint( meshTriangles.Load( address ) ),
-        asuint( meshTriangles.Load( address + 4 ) ),
-        asuint( meshTriangles.Load( address + 8 ) ) 
-    );
+    return meshTriangles.Load3( address );
 }
 
 float3x3 readVerticesPos( const uint3 vertices_index, ByteAddressBuffer meshVertices ) 
 {
     const uint3 address = vertices_index * 12; // 12 = 3 components * 4 bytes.
 
+    const uint3 vertexData1 = meshVertices.Load3( address.x );
+    const uint3 vertexData2 = meshVertices.Load3( address.y );
+    const uint3 vertexData3 = meshVertices.Load3( address.z );
+
     return float3x3(
         // Vertex 1.
-        asfloat( meshVertices.Load( address.x ) ),
-        asfloat( meshVertices.Load( address.x + 4 ) ),
-        asfloat( meshVertices.Load( address.x + 8 ) ),
+        asfloat( vertexData1.x ),
+        asfloat( vertexData1.y ),
+        asfloat( vertexData1.z ),
         // Vertex 2.
-        asfloat( meshVertices.Load( address.y ) ),
-        asfloat( meshVertices.Load( address.y + 4 ) ),
-        asfloat( meshVertices.Load( address.y + 8 ) ),
+        asfloat( vertexData2.x ),
+        asfloat( vertexData2.y ),
+        asfloat( vertexData2.z ),
         // Vertex 3.
-        asfloat( meshVertices.Load( address.z ) ),
-        asfloat( meshVertices.Load( address.z + 4 ) ),
-        asfloat( meshVertices.Load( address.z + 8 ) )
+        asfloat( vertexData3.x ),
+        asfloat( vertexData3.y ),
+        asfloat( vertexData3.z )
     );
 }
 
@@ -76,19 +76,23 @@ float3x3 readVerticesNormals( const uint3 vertices_index, ByteAddressBuffer mesh
 {
     const uint3 address = vertices_index * 12; // 12 = 3 components * 4 bytes.
 
+    const uint3 normalData1 = meshNormals.Load3( address.x );
+    const uint3 normalData2 = meshNormals.Load3( address.y );
+    const uint3 normalData3 = meshNormals.Load3( address.z );
+
     return float3x3(
         // Vertex 1.
-        asfloat( meshNormals.Load( address.x ) ),
-        asfloat( meshNormals.Load( address.x + 4 ) ),
-        asfloat( meshNormals.Load( address.x + 8 ) ),
+        asfloat( normalData1.x ),
+        asfloat( normalData1.y ),
+        asfloat( normalData1.z ),
         // Vertex 2.
-        asfloat( meshNormals.Load( address.y ) ),
-        asfloat( meshNormals.Load( address.y + 4 ) ),
-        asfloat( meshNormals.Load( address.y + 8 ) ),
+        asfloat( normalData2.x ),
+        asfloat( normalData2.y ),
+        asfloat( normalData2.z ),
         // Vertex 3.
-        asfloat( meshNormals.Load( address.z ) ),
-        asfloat( meshNormals.Load( address.z + 4 ) ),
-        asfloat( meshNormals.Load( address.z + 8 ) )
+        asfloat( normalData3.x ),
+        asfloat( normalData3.y ),
+        asfloat( normalData3.z )
     );
 }
 
@@ -96,19 +100,23 @@ float3x3 readVerticesTangents(const uint3 vertices_index, ByteAddressBuffer mesh
 {
     const uint3 address = vertices_index * 12; // 12 = 3 components * 4 bytes.
 
+    const uint3 tangentData1 = meshTangents.Load3( address.x );
+    const uint3 tangentData2 = meshTangents.Load3( address.y );
+    const uint3 tangentData3 = meshTangents.Load3( address.z );
+
     return float3x3(
         // Vertex 1.
-        asfloat( meshTangents.Load(address.x)),
-        asfloat( meshTangents.Load(address.x + 4)),
-        asfloat( meshTangents.Load(address.x + 8)),
+        asfloat( tangentData1.x ),
+        asfloat( tangentData1.y ),
+        asfloat( tangentData1.z ),
         // Vertex 2.
-        asfloat( meshTangents.Load(address.y)),
-        asfloat( meshTangents.Load(address.y + 4)),
-        asfloat( meshTangents.Load(address.y + 8)),
+        asfloat( tangentData2.x ),
+        asfloat( tangentData2.y ),
+        asfloat( tangentData2.z ),
         // Vertex 3.
-        asfloat( meshTangents.Load(address.z)),
-        asfloat( meshTangents.Load(address.z + 4)),
-        asfloat( meshTangents.Load(address.z + 8))
+        asfloat( tangentData3.x ),
+        asfloat( tangentData3.y ),
+        asfloat( tangentData3.z )
     );
 }
 
@@ -116,15 +124,19 @@ float2x3 readVerticesTexCoords( const uint3 vertices_index, ByteAddressBuffer me
 {
     const uint3 address = vertices_index * 8; // 8 = 2 components * 4 bytes.
 
+    const uint2 texcoordsData1 = meshTexcoords.Load2( address.x );
+    const uint2 texcoordsData2 = meshTexcoords.Load2( address.y );
+    const uint2 texcoordsData3 = meshTexcoords.Load2( address.z );
+
     return float2x3(
         // row 0 - U coord - vertex 1, 2, 3.
-        asfloat( meshTexcoords.Load(address.x)),
-        asfloat( meshTexcoords.Load(address.y)),
-        asfloat( meshTexcoords.Load(address.z)),
+        asfloat( texcoordsData1.x ),
+        asfloat( texcoordsData2.x ),
+        asfloat( texcoordsData3.x ),
         // row 1 - V coord - vertex 1, 2, 3.
-        asfloat( meshTexcoords.Load(address.x + 4)),
-        asfloat( meshTexcoords.Load(address.y + 4)),
-        asfloat( meshTexcoords.Load(address.z + 4))
+        asfloat( texcoordsData1.y ),
+        asfloat( texcoordsData2.y ),
+        asfloat( texcoordsData3.y )
     );
 }
 
