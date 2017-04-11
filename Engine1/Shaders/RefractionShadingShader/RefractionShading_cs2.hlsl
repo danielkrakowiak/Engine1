@@ -1,5 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+#include "Common\Utils.hlsl"
+
 cbuffer ConstantBuffer : register( b0 )
 {
     float3 cameraPos;
@@ -19,10 +21,6 @@ Texture2D<float4> g_prevContributionTermRoughnessTexture : register( t6 );
 
 // Output.
 RWTexture2D<float4> g_contributionTermRoughnessTexture : register( u0 ); 
-
-float calculateReflectionTerm( float3 incidentRay, float3 surfaceNormal, float refractionIndex1, float refractionIndex2 );
-
-static const float3 dielectricSpecularColor = float3( 0.04f, 0.04f, 0.04f );
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -55,32 +53,10 @@ void main( uint3 groupId : SV_GroupID,
         surfaceNormal = -surfaceNormal;
 
     // Calculate how much of the incoming reflection light is visible from the ray origin (at current light bounce level).
-    const float refractionTerm = ( 1.0f - surfaceAlpha ) * ( 1.0f - calculateReflectionTerm( -dirToCamera, surfaceNormal, 1.0f, 1.3f ) );
+    const float refractionTerm = ( 1.0f - surfaceAlpha ) * ( 1.0f - calculateRefractionTerm( -dirToCamera, surfaceNormal, 1.0f, 1.3f ) );
 
     const float4 prevContributionTermRoughness = g_prevContributionTermRoughnessTexture[ dispatchThreadId.xy ];
 
     // Calculate how much of the incoming reflection light is visible at the camera (after all the light bounces).
     g_contributionTermRoughnessTexture[ dispatchThreadId.xy ] = float4( prevContributionTermRoughness.rgb * refractionTerm, min( 1.0f, prevContributionTermRoughness.a + surfaceRoughness ) );
-}
-
-// Schlick Approximation.
-float calculateReflectionTerm( float3 incidentRay, float3 surfaceNormal, float refractionIndex1, float refractionIndex2 )
-{
-    float r0 = (refractionIndex1 - refractionIndex2) / (refractionIndex1 + refractionIndex2);
-    r0 *= r0;
-    float cosX = -dot( surfaceNormal, incidentRay );
-    if ( refractionIndex1 > refractionIndex2 )
-    {
-        const float n = refractionIndex1 / refractionIndex2;
-        const float sinT2 = n * n * ( 1.0f - cosX * cosX );
-
-        if ( sinT2 > 1.0f )
-            return 1.0f; // Total internal reflection.
-
-        cosX = sqrt( 1.0f - sinT2 );
-    }
-
-    const float x = 1.0f - cosX;
-
-    return r0 + (1.0f - r0) * x * x * x * x * x;
 }

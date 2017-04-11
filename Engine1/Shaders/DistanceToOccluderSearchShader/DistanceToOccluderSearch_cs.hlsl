@@ -1,6 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
-#include "Utils\SampleWeighting.hlsl"
+#include "Common\Constants.hlsl"
+#include "Common\SampleWeighting.hlsl"
 
 cbuffer ConstantBuffer : register( b0 )
 {
@@ -20,9 +21,6 @@ cbuffer ConstantBuffer : register( b0 )
     float3 pad7;
 };
 
-//#define DEBUG
-//#define DEBUG2
-
 SamplerState g_linearSamplerState;
 SamplerState g_pointSamplerState;
 
@@ -33,10 +31,6 @@ Texture2D<float>  g_distToOccluder  : register( t2 );
 
 // Input / Output.
 RWTexture2D<float> g_finalDistToOccluder : register( u0 );
-
-static const float Pi = 3.14159265f;
-//static const float e = 2.71828f;
-static const float positionThresholdFalloff = 0.4f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.

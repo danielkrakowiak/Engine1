@@ -1,5 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+#include "Common\Constants.hlsl"
+
 cbuffer ConstantBuffer : register( b0 )
 {
     float3 cameraPos;
@@ -34,12 +36,6 @@ Texture2D<float>  g_finalDistToOccluderTexture : register( t5 );
 
 // Input / Output.
 RWTexture2D<float4> g_blurredShadowTexture : register( u0 );
-
-float readIlluminationBlurRadius( float2 texcoords );
-
-static const float Pi = 3.14159265f;
-static const float e = 2.71828f;
-static const float positionThresholdFalloff = 0.4f;
 
 static const float maxBlurRadius = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
 

@@ -1,5 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+#include "Common\Constants.hlsl"
+
 cbuffer ConstantBuffer
 {
     float3 cameraPos;
@@ -15,8 +17,6 @@ Texture2D< float4 > g_positionTexture : register( t0 );
 
 // Input / Output.
 RWTexture2D< float > g_texture : register( u0 );
-
-static const float Pi = 3.14159265f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.

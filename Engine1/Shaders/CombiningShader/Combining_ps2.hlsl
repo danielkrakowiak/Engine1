@@ -1,5 +1,7 @@
 
-#include "Utils\SampleWeighting.hlsl"
+#include "Common\Constants.hlsl"
+#include "Common\Utils.hlsl"
+#include "Common\SampleWeighting.hlsl"
 
 Texture2D<float4> g_colorTexture          : register( t0 );
 Texture2D<float4> g_contributionTermRoughnessTexture : register( t1 );
@@ -31,60 +33,8 @@ struct PixelInputType
 	float2 texCoord : TEXCOORD1;
 };
 
-
-// Position threshold needs to be larger when we sample with larger radius (oversampling ratio). Same for normal threshold.
-// Some object id buffer would be useful to reject samples from different objects. It's impossible now to tell whether we hit the same object when sampling radius is big.
-
-// Wanted sampling level should decrease with distance to the pixel - because roughness in screen-space decreaes (and sampling radius).
-
-static const float zNear = 0.1f;
-static const float zFar  = 1000.0f;
-
-static const float Pi     = 3.14159265f;
-static const float PiHalf = 1.570796325f;
-
 static const float maxDepth = 200.0f;
 static const float maxHitDistance = 200.0f; // Should be less than the initial ray length. 
-
-static const float hitDistanceBlendIn  = 20.0f; // Should be less than the initial ray length.
-static const float hitDistanceBlendOut = 200.0f; // Should be less than the initial ray length. 
-
-static const float blurRadiusFadeMin = 50.0f;
-static const float blurRadiusFadeMax = 100.0f;
-
-// Idea: Could check which level normal differs from highest level normal to learn how far from the edge center pixel is.
-// IDEA: Could use depth to decide the maximum sampling level. It's because when we are very close to the object, there is more flat surface on the screen.
-// IDEA: When depth is below 1 - skip taking log2 from it. log2 is too steep below 1. Use depth directly or something else.
-
-// IMPORTANT: Only normals and position of the reflecting surface matter (because they influence the direction and shape of ray cone) when accepting/rejecting samples. What's seen by rays is irrelevant.
-
-// IDEA: Select reflection mipmap based on ray distance. If distance is high, we don't care if reflection blurs over the edges? Probably we still care...
-
-// IDEA: Always first check ray distance of neighboring pixels to decide the sampling radius. But the problem is that sampling radius could be different in each direction.
-
-// IDEA: Maybe instead of box shaped sampling, use circle shaped sampling with different radius in each direction and different number of samples in each direction. Quite costly, but may give nice quality.
-
-// IDEA: Sample low-res mipmap of ray distance to check if there is any object around, despite center ray distance being so high.
-//       That should cause enough blurring near the edges to forget about the problem.
-//       Tested - doesn't work, because difference in depth are so big that edges stay sharp as knife anyways. Plus normal mapping causes some depth values to be really high even in the middle of objects.
-
-// If I sample only the highest reflection mipmap there is no color bleeding over the edges. If we're checking normals and positions...
-
-// We can actually sample low level reflection mipmaps and it still looks good. We should maybe blur them a bit first in a separate pass. Or use 3x3 sampling here.
-
-// How come reflections are not bleeding through the edges even when sampling low-level mipmaps? They actually do for rougher surfaces.
-
-// Size of the object and reflected object on screen depends linearly on camera to object distance and reflective surface to object distance.
-
-// Using smaller sampling radius works only to compansate for camera moving away from surface. It's because ( 1 / depth ) is not a linear function and it gets more linear only for larger depth values. 
-// It has more impact for low depth values, rather than high depth values. Wait, but pixel sizes on screen also don't change linearly with depth...
-// Maybe it's because properly blurred "mipmap" would look sharper at closer distance, but mipmaps don't look sharper, because they were made to be seen from distance. Artifacts of linear sampling etc?
-
-// CURRENT ISSUES:
-// - perceived blur changed when moving camera closer/farther to the reflective surface. Should be the same. Only the distance from the reflective surface to the object should changed perceived blur.
-
-float linearizeDepth( float depthSample );
-float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal );
 
 float4 main(PixelInputType input) : SV_Target
 {
@@ -99,7 +49,7 @@ float4 main(PixelInputType input) : SV_Target
 
     //////////////////////////////////
 
-    const float depth = linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ) ); // Have to account for fov tanges?
+    const float depth = linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ), zNear, zFar ); // Have to account for fov tanges?
 
     if ( depth > maxDepth )
         return float4( 0.0f, 0.0f, 0.0f, 0.0f );
@@ -271,16 +221,38 @@ float4 main(PixelInputType input) : SV_Target
 	return float4( outputColor, 1.0f );
 }
 
-float linearizeDepth( float depthSample )
-{
-    depthSample = 2.0 * depthSample - 1.0;
-    float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthSample * (zFar - zNear));
+// Position threshold needs to be larger when we sample with larger radius (oversampling ratio). Same for normal threshold.
+// Some object id buffer would be useful to reject samples from different objects. It's impossible now to tell whether we hit the same object when sampling radius is big.
 
-    return zLinear;
-}
+// Wanted sampling level should decrease with distance to the pixel - because roughness in screen-space decreaes (and sampling radius).
 
-// Reflects the vector which represents an incident ray hitting a surface.
-float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal )
-{
-    return incidentRay - 2.0f * surfaceNormal * dot( surfaceNormal, incidentRay );
-}
+// Idea: Could check which level normal differs from highest level normal to learn how far from the edge center pixel is.
+// IDEA: Could use depth to decide the maximum sampling level. It's because when we are very close to the object, there is more flat surface on the screen.
+// IDEA: When depth is below 1 - skip taking log2 from it. log2 is too steep below 1. Use depth directly or something else.
+
+// IMPORTANT: Only normals and position of the reflecting surface matter (because they influence the direction and shape of ray cone) when accepting/rejecting samples. What's seen by rays is irrelevant.
+
+// IDEA: Select reflection mipmap based on ray distance. If distance is high, we don't care if reflection blurs over the edges? Probably we still care...
+
+// IDEA: Always first check ray distance of neighboring pixels to decide the sampling radius. But the problem is that sampling radius could be different in each direction.
+
+// IDEA: Maybe instead of box shaped sampling, use circle shaped sampling with different radius in each direction and different number of samples in each direction. Quite costly, but may give nice quality.
+
+// IDEA: Sample low-res mipmap of ray distance to check if there is any object around, despite center ray distance being so high.
+//       That should cause enough blurring near the edges to forget about the problem.
+//       Tested - doesn't work, because difference in depth are so big that edges stay sharp as knife anyways. Plus normal mapping causes some depth values to be really high even in the middle of objects.
+
+// If I sample only the highest reflection mipmap there is no color bleeding over the edges. If we're checking normals and positions...
+
+// We can actually sample low level reflection mipmaps and it still looks good. We should maybe blur them a bit first in a separate pass. Or use 3x3 sampling here.
+
+// How come reflections are not bleeding through the edges even when sampling low-level mipmaps? They actually do for rougher surfaces.
+
+// Size of the object and reflected object on screen depends linearly on camera to object distance and reflective surface to object distance.
+
+// Using smaller sampling radius works only to compansate for camera moving away from surface. It's because ( 1 / depth ) is not a linear function and it gets more linear only for larger depth values. 
+// It has more impact for low depth values, rather than high depth values. Wait, but pixel sizes on screen also don't change linearly with depth...
+// Maybe it's because properly blurred "mipmap" would look sharper at closer distance, but mipmaps don't look sharper, because they were made to be seen from distance. Artifacts of linear sampling etc?
+
+// CURRENT ISSUES:
+// - perceived blur changed when moving camera closer/farther to the reflective surface. Should be the same. Only the distance from the reflective surface to the object should changed perceived blur.

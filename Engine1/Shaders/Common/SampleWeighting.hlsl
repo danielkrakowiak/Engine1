@@ -1,5 +1,5 @@
-static const float epsilon = 0.0001f;
-static const float e       = 2.71828f;
+
+#include "Common\Constants.hlsl"
 
 // Returns 1 if sample value is below given threshold, returns 0 otherwise.
 float getSampleWeightLowerThan( const float sample, const float threshold )

@@ -436,7 +436,7 @@
     <Filter Include="Header Files\Shader\HitDistanceSearch">
       <UniqueIdentifier>{cd7ec478-55c3-46df-8388-9c64a5b0983a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shader\Utils">
+    <Filter Include="Source Files\Shader\Common">
       <UniqueIdentifier>{b9e46b03-6c71-45f8-8b08-a38c232c7369}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -1638,8 +1638,17 @@
     <FxCompile Include="Shaders\HitDistanceSearchShader\HitDistanceSearch_cs.hlsl">
       <Filter>Source Files\Shader\HitDistanceSearch</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Utils\SampleWeighting.hlsl">
-      <Filter>Source Files\Shader\Utils</Filter>
+    <FxCompile Include="Shaders\Common\SampleWeighting.hlsl">
+      <Filter>Source Files\Shader\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Common\Constants.hlsl">
+      <Filter>Source Files\Shader\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Common\Utils.hlsl">
+      <Filter>Source Files\Shader\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Common\RaytracingUtils.hlsl">
+      <Filter>Source Files\Shader\Common</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

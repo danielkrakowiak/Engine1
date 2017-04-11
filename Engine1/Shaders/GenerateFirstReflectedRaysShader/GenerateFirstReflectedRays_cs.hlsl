@@ -1,5 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+#include "Common\Utils.hlsl"
+
 SamplerState g_linearSamplerState : register( s0 );
 
 cbuffer ConstantBuffer
@@ -28,29 +30,7 @@ Texture2D<float4> g_contributionTerm : register( t3 ); // How much of the ray co
 RWTexture2D<float4> g_rayOrigin    : register( u0 );
 RWTexture2D<float4> g_rayDirection : register( u1 );
 
-static const float zNear = 0.1f;
-static const float zFar  = 1000.0f;
-
 static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
-
-float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal );
-float linearizeDepth( float depthSample );
-
-// pixelPos in range (0,0; screen width, screen height) counting from the top-left corner of the viewport.
-float3 getPrimaryRayDirection( float2 pixelPos )
-{
-    // cameraPos - camera position in world space.
-    // viewportCenter - viewport plane center in world space.
-    // viewportUp - viewport up vector in world space. It's length equals half of height of the viewport plane.
-    // viewportRight - viewport right vector in world space. It's length equals half of width of the viewport plane.
-    // viewportSizeHalf - viewport dimensions in pixels divided by 2.
-
-    const float2 pixelShift = (pixelPos - viewportSizeHalf + float2(0.5f, 0.5f)) / viewportSizeHalf; // In range (-1;1)
-
-	const float3 pixelPosWorld = viewportCenter + viewportRight * pixelShift.x - viewportUp * pixelShift.y;
-	
-    return normalize( pixelPosWorld - cameraPos );
-}
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -78,7 +58,7 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    const float3 primaryRayDir = getPrimaryRayDirection( pixelPos );
+    const float3 primaryRayDir = getPrimaryRayDirection( pixelPos, cameraPos, viewportSizeHalf, viewportCenter, viewportRight, viewportUp );
 
     float3 surfaceNormal = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
@@ -94,25 +74,3 @@ void main( uint3 groupId : SV_GroupID,
     g_rayOrigin[ dispatchThreadId.xy ]    = float4( secondaryRayOrigin, 0.0f );
     g_rayDirection[ dispatchThreadId.xy ] = float4( secondaryRayDir, 0.0f );
 }
-
-// Reflects the vector which represents an incident ray hitting a surface.
-float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal )
-{
-    return incidentRay - 2.0f * surfaceNormal * dot( surfaceNormal, incidentRay );
-}
-
-//refractiveIndex = refractiveIndex1(incident) / refractiveIndex2(refracted)
-//return false if there is no refraction
-
-// TODO: use struct to return bool + float3
-// bool calcRefractedRay(const Vec3& incidentRay, const Vec3& surfaceNormal, float refractiveIndex, Vec3* refractedRay);
-
-float linearizeDepth( float depthSample )
-{
-    depthSample = 2.0 * depthSample - 1.0;
-    float zLinear = 2.0 * zNear * zFar / ( zFar + zNear - depthSample * ( zFar - zNear ) );
-
-    return zLinear;
-}
-
-

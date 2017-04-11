@@ -1,5 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+#include "Common\Utils.hlsl"
+
 SamplerState g_linearSamplerState : register( s0 );
 
 cbuffer ConstantBuffer
@@ -25,13 +27,8 @@ RWTexture2D<float4> g_rayOrigin           : register( u0 );
 RWTexture2D<float4> g_rayDirection        : register( u1 );
 RWTexture2D<float>  g_nextRefractiveIndex : register( u2 ); // Refractive index of the generated rays.
 
-static const float zNear = 0.1f;
-static const float zFar  = 1000.0f;
-
 static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
 static const float refractiveIndexMul = 2.0f;
-
-float3 calcRefractedRay( float3 incidentRay, float3 surfaceNormal, float refractiveIndex );
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -66,7 +63,7 @@ void main( uint3 groupId : SV_GroupID,
     const bool frontHit = dot(rayDir, surfaceNormal) < 0.0f;
     
     const float currentRefractiveIndex = 1.0f + g_currentRefractiveIndex[ dispatchThreadId.xy ] * refractiveIndexMul;
-    float refractiveIndex;
+    float refractiveIndex = 1.0f;
 
     if ( frontHit ) {
         g_nextRefractiveIndex[ dispatchThreadId.xy ] = surfaceRefractiveIndexNorm;
@@ -81,7 +78,7 @@ void main( uint3 groupId : SV_GroupID,
 
         refractiveIndex = currentRefractiveIndex / prevRefractiveIndex;
 
-        surfaceNormal = -surfaceNormal;
+        surfaceNormal = -surfaceNormal; 
     }
 
     const float3 secondaryRayDir    = calcRefractedRay( rayDir, surfaceNormal, refractiveIndex );
@@ -89,20 +86,5 @@ void main( uint3 groupId : SV_GroupID,
 
     g_rayOrigin[ dispatchThreadId.xy ]    = float4( secondaryRayOrigin, 0.0f );
     g_rayDirection[ dispatchThreadId.xy ] = float4( secondaryRayDir, 0.0f );
-}
-
-// Returns refracted ray or zero vector if there is no refraction.
-// refractiveIndex = refractiveIndex1(incident) / refractiveIndex2(refracted)
-float3 calcRefractedRay( float3 incidentRay, float3 surfaceNormal, float refractiveIndex )
-{
-	const float cosI  = -dot( surfaceNormal, incidentRay );
-	const float sinT2 = ( refractiveIndex * refractiveIndex ) * ( 1.0f - cosI * cosI );
-	
-    if ( sinT2 > 1.0f ) 
-        return float3( 0.0f, 0.0f, 0.0f ); // Deactivate the ray.
-
-	const float cosT = sqrt( 1.0f - sinT2 );
-	
-	return refractiveIndex * incidentRay + ( refractiveIndex * cosI - cosT ) * surfaceNormal;
 }
 

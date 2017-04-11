@@ -1,5 +1,7 @@
 
-#include "Utils\SampleWeighting.hlsl"
+#include "Common\Constants.hlsl"
+#include "Common\Utils.hlsl"
+#include "Common\SampleWeighting.hlsl"
 
 Texture2D<float4> g_colorTexture          : register( t0 );
 Texture2D<float4> g_contributionTermRoughnessTexture : register( t1 );
@@ -38,28 +40,12 @@ struct PixelInputType
 	float2 texCoord : TEXCOORD1;
 };
 
-static const float zNear = 0.1f;
-static const float zFar  = 1000.0f;
-
-static const float Pi     = 3.14159265f;
-static const float PiHalf = 1.570796325f;
-//static const float e      = 2.71828f;
-
 static const float maxDepth = 200.0f;
 static const float maxHitDistance = 50.0f; // Should be less than the initial ray length. 
 
-static const float hitDistanceBlendIn  = 20.0f; // Should be less than the initial ray length.
-static const float hitDistanceBlendOut = 200.0f; // Should be less than the initial ray length. 
-
-static const float blurRadiusFadeMin = 50.0f;
-static const float blurRadiusFadeMax = 100.0f;
-
-float linearizeDepth( float depthSample );
-float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal );
-
 float4 main(PixelInputType input) : SV_Target
 {
-    const float depth = linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ) ); // Have to account for fov tanges?
+    const float depth = linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ), zNear, zFar ); // Have to account for fov tanges?
 
     if ( depth > maxDepth )
         return float4( 0.0f, 0.0f, 0.0f, 0.0f );
@@ -168,20 +154,6 @@ float4 main(PixelInputType input) : SV_Target
 
     float3 outputColor = contributionTerm * reflectionColor.rgb;
 	return float4( outputColor, 1.0f );
-}
-
-float linearizeDepth( float depthSample )
-{
-    depthSample = 2.0 * depthSample - 1.0;
-    float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthSample * (zFar - zNear));
-
-    return zLinear;
-}
-
-// Reflects the vector which represents an incident ray hitting a surface.
-float3 calcReflectedRay( float3 incidentRay, float3 surfaceNormal )
-{
-    return incidentRay - 2.0f * surfaceNormal * dot( surfaceNormal, incidentRay );
 }
 
 // ----------------------------------------------------------------------------------

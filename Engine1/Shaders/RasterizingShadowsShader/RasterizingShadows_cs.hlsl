@@ -1,5 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+#include "Common\Utils.hlsl"
+
 cbuffer ConstantBuffer : register( b0 )
 {
     float2   outputTextureSize;
@@ -33,15 +35,12 @@ RWTexture2D<uint>  g_shadow           : register( u1 );
 
 static const float minHitDist = 0.001f;
 
-static const float zNear   = 0.1f;
-static const float zFar    = 100.0f;
-static const float zRange  = zFar - zNear;
-
-static const float Pi = 3.14159265f;
+//#TODO: Be carefull, zNear, zFar for shadows seem to be set differently than for all the rest of the code.
+static const float zNearShadow   = 0.1f;
+static const float zFarShadow    = 100.0f;
 
 static const float maxShadowBlurRadius = 80.0f;
 
-float linearizeDepth( float depthSample );
 float calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
 
 // SV_GroupID - group id in the whole computation.
@@ -109,7 +108,7 @@ void main( uint3 groupId : SV_GroupID,
 
             const float  viewRayToDepthScale = dot( lightDirection, -rayDirBase );
 
-            const float occluderDistToLight     = linearizeDepth( shadowMapDepth ) / viewRayToDepthScale;
+            const float occluderDistToLight     = linearizeDepth( shadowMapDepth, zNearShadow, zFarShadow ) / viewRayToDepthScale;
             const float rayOriginDistToLight    = length( lightPosition - rayOrigin );
             const float rayOriginDistToOccluder = max( 0.0f, rayOriginDistToLight - occluderDistToLight );
             const float rayOriginDistToCamera   = length( rayOrigin - cameraPosition );
@@ -128,29 +127,6 @@ void main( uint3 groupId : SV_GroupID,
         g_shadow[ dispatchThreadId.xy ] = 0;
         return;
     }
-}
-
-float linearizeDepth( float depthSample )
-{
-    //depthSample = 2.0 * depthSample - 1.0;
-    //float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthSample * (zFar - zNear));
-    
-    //float zLinear = depthSample / (zFar - depthSample * zRange);
-    //const float zLinear = (zNear * zFar) / (zFar - depthSample * zRange);
-    
-    const float projectionA = zFar / zRange;
-    const float projectionB = (-zFar * zNear) / zRange;
-
-    /*return float44(
-		xScale, 0.0f, 0.0f, 0.0f,
-		0.0f, yScale, 0.0f, 0.0f,
-		0.0f, 0.0f, zFar / ( zFar - zNear ), 1.0f,
-		0.0f, 0.0f, -zNear*zFar / ( zFar - zNear ), 0.0f
-		);*/
-    
-    const float linearDepth = projectionB / (depthSample - projectionA);
-
-    return linearDepth;
 }
 
 float calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )

@@ -377,3 +377,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 08.04.2017 - 1h - Improving reflections.
 09.04.2017 - 3h - Split combining renderer/shader into hit-distance-search and combining renderers/shaders. Added debug rendering of hit-dist and final-hit-dist. Added common shader utils file, which can be included in other shaders.
 10.04.2017 - 2h - Refactoring shaders. Experimenting with hit-distance sample weighting.
+11.04.2017 - 2h - Refactoring shaders.
