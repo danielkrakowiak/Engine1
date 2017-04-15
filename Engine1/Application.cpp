@@ -499,7 +499,7 @@ void Application::run() {
             }
             else if ( frameFloat ) 
             {
-                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)frameFloat->getWidth(), (float)frameFloat->getHeight(), false, m_debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
                     debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
