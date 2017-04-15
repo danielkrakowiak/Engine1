@@ -23,13 +23,15 @@ HitDistanceSearchRenderer::~HitDistanceSearchRenderer()
 void HitDistanceSearchRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device,
                                                    ComPtr< ID3D11DeviceContext > deviceContext )
 {
-    this->m_device = device;
-    this->m_deviceContext = deviceContext;
+    m_device = device;
+    m_deviceContext = deviceContext;
 
-    this->m_imageWidth = imageWidth;
-    this->m_imageHeight = imageHeight;
+    const int imageSizeDivider = 4;
 
-    createRenderTargets( imageWidth, imageHeight, *device.Get() );
+    m_imageWidth  = imageWidth / imageSizeDivider;
+    m_imageHeight = imageHeight / imageSizeDivider;
+
+    createRenderTargets( m_imageWidth, m_imageHeight, *device.Get() );
 
     loadAndCompileShaders( device );
 
@@ -43,8 +45,9 @@ void HitDistanceSearchRenderer::performHitDistanceSearch( const Camera& camera,
 {
     m_rendererCore.disableRenderingPipeline();
 
-    m_hitDistanceSearchComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture,
-                                                            normalTexture, hitDistance );
+    m_hitDistanceSearchComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), 
+                                                     int2(m_imageWidth, m_imageHeight),
+                                                     positionTexture, normalTexture, hitDistance );
 
     m_rendererCore.enableComputeShader( m_hitDistanceSearchComputeShader );
 
@@ -58,10 +61,7 @@ void HitDistanceSearchRenderer::performHitDistanceSearch( const Camera& camera,
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-    const int imageWidth = positionTexture->getWidth();
-    const int imageHeight = positionTexture->getHeight();
-
-    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
 
     m_rendererCore.compute( groupCount );
 

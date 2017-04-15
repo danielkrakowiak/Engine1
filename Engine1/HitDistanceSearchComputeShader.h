@@ -31,7 +31,7 @@ namespace Engine1
         virtual ~HitDistanceSearchComputeShader();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
+        void setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos, const int2 outputTextureDimensions,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder );
@@ -49,14 +49,16 @@ namespace Engine1
             float  pad1;
             float2 outputTextureSize;
             float2 pad2;
+            float2 inputTextureSize;
+            float2 pad3;
             float  positionThreshold;
-            float3 pad3;
-            float  positionDiffMul;
             float3 pad4;
-            float  normalDiffMul;
+            float  positionDiffMul;
             float3 pad5;
-            float  positionNormalThreshold;
+            float  normalDiffMul;
             float3 pad6;
+            float  positionNormalThreshold;
+            float3 pad7;
         };
 
         // Copying is not allowed.

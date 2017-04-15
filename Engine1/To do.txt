@@ -740,33 +740,22 @@ Idea:
 
 	  REFLECTIONS: -----------------------------
 
-	  - IDEA: To avoid leaking high values over small ones - weight samples asynchronously - accept lower samples if center is high, reject high values if center is low. Or simply min/max samples based on center etc.
+	  - during hit-dist search can sample between mipmaps... To smooth things out
 
 	  - use thresholds, rejecting samples in combining shader as in hit-dist-search - otherwise the glow will appear
-	  - maybe finally check that include statement for shaders and add some methods for weighting samples - they'd be shared by shaders.
-	  
+
 	  - add some Settings class to store settings (const and non-const) for Rendering algorithms.
 
+	  - Perform hit-distance search at half-res or quarter-res - should be fine and even improve quality
 
-	  GOOD IDEA: Limit max-hit-distance when considering reflection blur - max 100m iis fine. Noone will notice differences in blur above 100m anyways.
-	  - how to use linear interpolation in sampler, when there are high hit-dist values in the texture?
-		- should I clamp hit-distance values when raytracing? Probably not, because new rays are generated from it.
-		- can I somehow clamp during sampling?
-		- manual interpolation? Slow...
-		- clamp hit-distance on higher mipmaps?
-		- oooor maybe do nothing? Clampin after sampling may be fine...
-	  - CHECK THE PAPER!!!!
-	  - render debug hit-distance - and it's mipmaps. Maybe we can blur it to help? Especially if not making any other tests on hit-dist samples...
+	  - can we avoid sampling the same regions when sampling higher mipmaps? Because we sample the center area a couple of times... Or maybe that's fine?
+	  - do we need position and normal check in hit-dist search? Maybe we need them more for higher levels of reflection/refraction.
+
 	  - hit-distance search radius should depend on pixel size in world-space (depth) etc... Otherwise avaraged hit-distance changes when zooming-in or out. 
-	  - like in dist-to-occluder search - space samples further when center dist is high, or if found no samples whatever... Or check higher mipmaps?
 	  - reenable position check when taking samples from reflection image - could also be a reason for glow around objects
-	  - fix the bug with reflection glow
-	  - add dist calculation from sorrounding pixels
-	  - what to do when we are far from meaningfull samples and we get huge hit-dist - if we get too large or too small hit-dist then there will be visible boundary in reflections...
+	  
+	  
 	  - add multipliers to textures... But may restrict some multipliers to 1, because some textures cannot emmit light.. And for some textures it makes no sense to have a multiplier?
-
-
-
 
 	  Sources: 
 

@@ -9,14 +9,16 @@ cbuffer ConstantBuffer : register( b0 )
     float  pad1;
     float2 outputTextureSize;
     float2 pad2;
+    float2 inputTextureSize;
+    float2 pad3;
     float  positionThreshold;
-    float3 pad3;
-    float  positionDiffMul;
     float3 pad4;
-    float  normalDiffMul;
+    float  positionDiffMul;
     float3 pad5;
-    float  positionNormalThreshold;
+    float  normalDiffMul;
     float3 pad6;
+    float  positionNormalThreshold;
+    float3 pad7;
 };
 
 SamplerState g_linearSamplerState;
@@ -51,10 +53,10 @@ void main( uint3 groupId : SV_GroupID,
     // Note: Calculate texcoords for the pixel center.
     const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
-    const float2 pixelSize0 = 1.0f / outputTextureSize;
+    const float2 inputPixelSize0 = 1.0f / inputTextureSize;
 
-    const float3 centerPosition     = g_positionTexture[ dispatchThreadId.xy ].xyz;
-    const float3 centerNormal       = g_normalTexture[ dispatchThreadId.xy ].xyz;
+    const float3 centerPosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0 ).xyz;
+    const float3 centerNormal       = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0 ).xyz;
 
     const float3 vectorToCamera = cameraPos - centerPosition;
     const float3 dirToCamera    = normalize( vectorToCamera );
@@ -74,14 +76,14 @@ void main( uint3 groupId : SV_GroupID,
     do
     {
         // #TODO: If only mipmap increases by one - could be optimized through multiplication by 2 instead of calculating power.
-        const float2 pixelSize = pixelSize0 * pow( 2.0f, mipmap );
+        const float2 inputPixelSize = inputPixelSize0 * pow( 2.0f, mipmap );
 
         const float searchRadius = 5.0f;
         for ( float y = -searchRadius; y <= searchRadius; y += 1.0f )
         {
             for ( float x = -searchRadius; x <= searchRadius; x += 1.0f )
             {
-                const float2 sampleTexcoords = texcoords + float2( x * pixelSize.x, y * pixelSize.y );
+                const float2 sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y * inputPixelSize.y );
 
                 float sampleHitDistance = 0.0f;
                 float sampleWeight      = 0.0f;

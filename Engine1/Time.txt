@@ -379,4 +379,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 10.04.2017 - 2h - Refactoring shaders. Experimenting with hit-distance sample weighting.
 11.04.2017 - 2h - Refactoring shaders.
 12.04.2017 - 1h - Improving reflections - hit-dist spreading accross edges.
-15.04.2017 - 1h - Improving reflections - spread hit-distance using do-while loop, starting with small search-radius, increasing sampled mipmap if no usable samples were found. The solution retains small details and spread hit-distance over large screen areas. 
+15.04.2017 - 2h - Improving reflections - spread hit-distance using do-while loop, starting with small search-radius, increasing sampled mipmap if no usable samples were found. The solution retains small details and spread hit-distance over large screen areas. Added performing hit-dist-search at lower resolution.

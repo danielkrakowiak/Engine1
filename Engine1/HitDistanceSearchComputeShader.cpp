@@ -82,7 +82,7 @@ void HitDistanceSearchComputeShader::initialize( ComPtr< ID3D11Device >& device 
     }
 }
 
-void HitDistanceSearchComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
+void HitDistanceSearchComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos, const int2 outputTextureDimensions,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder )
@@ -112,7 +112,8 @@ void HitDistanceSearchComputeShader::setParameters( ID3D11DeviceContext& deviceC
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
         dataPtr->cameraPos               = cameraPos;
-        dataPtr->outputTextureSize       = float2( (float)positionTexture->getWidth(), (float)positionTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
+        dataPtr->outputTextureSize       = (float2)outputTextureDimensions;
+        dataPtr->inputTextureSize        = (float2)distanceToOccluder->getDimensions();
         dataPtr->positionDiffMul         = s_positionDiffMul;
         dataPtr->normalDiffMul           = s_normalDiffMul;
         dataPtr->positionNormalThreshold = s_positionNormalThreshold;
