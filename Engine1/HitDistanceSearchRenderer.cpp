@@ -26,7 +26,7 @@ void HitDistanceSearchRenderer::initialize( int imageWidth, int imageHeight, Com
     m_device = device;
     m_deviceContext = deviceContext;
 
-    const int imageSizeDivider = 4;
+    const int imageSizeDivider = 6;
 
     m_imageWidth  = imageWidth / imageSizeDivider;
     m_imageHeight = imageHeight / imageSizeDivider;

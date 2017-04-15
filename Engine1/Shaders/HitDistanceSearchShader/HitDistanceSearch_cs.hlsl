@@ -35,7 +35,7 @@ RWTexture2D<float> g_finalDistToOccluder : register( u0 );
 static const float maxHitDistance = 50.0f; // Should be less than the initial ray length. 
 
 void sampleWeightedHitDistance( 
-    const SamplerState samplerState, const float2 texcoords, const float mipmap, 
+    const float2 texcoords, const float mipmap, 
     const float2 centerTexcoords, const float centerSampleValue, const float3 centerPosition, const float3 centerNormal, 
     out float sampleValue, out float sampleWeight 
 );
@@ -62,26 +62,28 @@ void main( uint3 groupId : SV_GroupID,
     const float3 dirToCamera    = normalize( vectorToCamera );
     const float  distToCamera   = length( vectorToCamera );
 
-    //#TODO: Select mipmap based on central hitDistance - maybe a log of what we need - the rest through avaraging.
-    // Why reflection doesn't blur through edges?
-    // Check linear/point sampling.
-    // Avarage pixels from some region.
-
     const float centerHitDistance = min( maxHitDistance, g_hitDistanceTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ) );
     
-    float mipmap          = 2.0f;
-    float hitDistance     = 0.0f;
-    float sampleWeightSum = 0.0001f;
+    float mipmap            = 4.0f;
+    float mipmapInt         = 4.0f;
+    float tempHitDistance   = 0.0f;
+    float hitDistance       = 0.0f;
+    float sampleWeightSum   = 0.0001f;
+    float searchRadius      = 16.0f;
+    float searchStep        = 1.0f;
 
     do
     {
-        // #TODO: If only mipmap increases by one - could be optimized through multiplication by 2 instead of calculating power.
-        const float2 inputPixelSize = inputPixelSize0 * pow( 2.0f, mipmap );
+        mipmapInt       = floor( mipmap );
+        tempHitDistance = 0.0;
+        sampleWeightSum = 0.0;
 
-        const float searchRadius = 5.0f;
-        for ( float y = -searchRadius; y <= searchRadius; y += 1.0f )
+        // #TODO: If only mipmap increases by one - could be optimized through multiplication by 2 instead of calculating power.
+        const float2 inputPixelSize = inputPixelSize0 * pow( 2.0f, mipmapInt );
+
+        for ( float y = -searchRadius; y <= searchRadius; y += searchStep )
         {
-            for ( float x = -searchRadius; x <= searchRadius; x += 1.0f )
+            for ( float x = -searchRadius; x <= searchRadius; x += searchStep )
             {
                 const float2 sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y * inputPixelSize.y );
 
@@ -89,31 +91,35 @@ void main( uint3 groupId : SV_GroupID,
                 float sampleWeight      = 0.0f;
 
                 sampleWeightedHitDistance( 
-                    g_pointSamplerState, sampleTexcoords, mipmap, 
+                    sampleTexcoords, mipmapInt, 
                     texcoords, centerHitDistance, centerPosition, centerNormal, 
                     sampleHitDistance, sampleWeight 
                 );
 
-                hitDistance     += min( maxHitDistance, sampleHitDistance ) * sampleWeight;
+                tempHitDistance += min( maxHitDistance, sampleHitDistance ) * sampleWeight;
                 sampleWeightSum += sampleWeight;
             }
         }
 
-        mipmap += 1.0;
+        mipmap       -= 0.5;
+        searchRadius -= 2.0;
 
-    } while ( mipmap <= 6.0 && sampleWeightSum < 0.001f );
+        // Note: The idea is to blend loop passes on top of each other. The more sharp hit-dist data blended on top of the blurrier one.
+        // This should ensure smooth transitioning between nearby areas.
+        if ( sampleWeightSum > 0.001 )
+            hitDistance = lerp( hitDistance, tempHitDistance / sampleWeightSum, 0.25 );
 
-    hitDistance /= sampleWeightSum;
+    } while ( mipmap >= 2.0 && sampleWeightSum > 0.001f );
 
     g_finalDistToOccluder[ dispatchThreadId.xy ] = hitDistance;
 }
 
 void sampleWeightedHitDistance( 
-    const SamplerState samplerState, const float2 texcoords, const float mipmap, 
+    const float2 texcoords, const float mipmap, 
     const float2 centerTexcoords, const float centerSampleValue, const float3 centerPosition, const float3 centerNormal, 
     out float sampleValue, out float sampleWeight )
 {
-    sampleValue = /*min( maxHitDistance, */g_hitDistanceTexture.SampleLevel( samplerState, texcoords, mipmap ) /*)*/;
+    sampleValue = /*min( maxHitDistance, */g_hitDistanceTexture.SampleLevel( g_linearSamplerState, texcoords, mipmap ) /*)*/;
 
     // Weight depanding on difference in position/normal between center and the sample.
     const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 

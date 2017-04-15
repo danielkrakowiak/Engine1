@@ -740,6 +740,8 @@ Idea:
 
 	  REFLECTIONS: -----------------------------
 
+	  - Center texcoord doesn't really point to pixel center on input texture. It points to center in output texture. This can cause problems.
+
 	  - during hit-dist search can sample between mipmaps... To smooth things out
 
 	  - use thresholds, rejecting samples in combining shader as in hit-dist-search - otherwise the glow will appear

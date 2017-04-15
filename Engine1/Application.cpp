@@ -741,7 +741,7 @@ void Application::run() {
             }
 
             if ( m_renderText )
-                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 120.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 60.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render camera state.
@@ -1406,7 +1406,7 @@ void Application::onDragAndDropFile( std::string filePath, bool replaceSelected 
 		filePath = filePath.substr( 1 );
 
     // Temporarily always replace assets. Holding Ctrl is too hard...
-    replaceSelected    &= m_sceneManager.getSelectedBlockActors().size() == 1 || m_sceneManager.getSelectedSkeletonActors().size() == 1; //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
+    //replaceSelected    &= m_sceneManager.getSelectedBlockActors().size() == 1 || m_sceneManager.getSelectedSkeletonActors().size() == 1; //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
     const bool invertZ = !m_inputManager.isKeyPressed( InputManager::Keys::shift );
 
     m_sceneManager.loadAsset( filePath, replaceSelected, invertZ );

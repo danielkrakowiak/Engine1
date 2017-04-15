@@ -50,7 +50,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_extractBrightPixelsRenderer( rendererCore ),
     m_toneMappingRenderer( rendererCore ),
     m_activeViewType( View::Final ),
-    m_maxLevelCount( 0 ),
+    m_maxLevelCount( 1 ),
     m_debugUseSeparableShadowsBlur( true ),
     m_exposure( 1.0f ),
     m_minBrightness( 1.0f )
