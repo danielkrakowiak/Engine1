@@ -848,7 +848,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
         rayHitDistanceTexture,
         m_deferredRenderer.getPositionRenderTarget(),
-        500.0f, 0, 5
+        500.0f, 0, 0
     );
 
     // Search for hit distance.
