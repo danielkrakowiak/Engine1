@@ -47,21 +47,23 @@ namespace Engine1
         struct ConstantBuffer
         {
             float  normalThreshold;
-            float3 padding1;
+            float3 pad1;
             float  positionThresholdSquare;
-            float3 padding2;
+            float3 pad2;
             float3 cameraPosition;
-            float  padding3;
+            float  pad3;
             float2 imageSize;
+            float2 pad4;
             float2 contributionTextureFillSize;
+            float2 pad5;
             float2 srcTextureFillSize;
-            float2 padding4;
+            float2 pad6;
             float  positionDiffMul;
-            float3 pad5;
-            float  normalDiffMul;
-            float3 pad6;
-            float  positionNormalThreshold;
             float3 pad7;
+            float  normalDiffMul;
+            float3 pad8;
+            float  positionNormalThreshold;
+            float3 pad9;
         };
 
         int m_resourceCount;

@@ -18,6 +18,10 @@ namespace Engine1
     {
         public:
 
+        static float s_positionDiffMul;
+        static float s_normalDiffMul;
+        static float s_positionNormalThreshold;
+
         CombiningFragmentShader2();
         virtual ~CombiningFragmentShader2();
 
@@ -43,13 +47,21 @@ namespace Engine1
         struct ConstantBuffer
         {
             float  normalThreshold;
-            float3 padding1;
+            float3 pad1;
             float  positionThresholdSquare;
-            float3 padding2;
+            float3 pad2;
             float2 imageSize;
+            float2 pad3;
             float2 contributionTextureFillSize;
+            float2 pad4;
             float2 srcTextureFillSize;
-            float2 padding3;
+            float2 pad5;
+            float  positionDiffMul;
+            float3 pad6;
+            float  normalDiffMul;
+            float3 pad7;
+            float  positionNormalThreshold;
+            float3 pad8;
         };
 
         int m_resourceCount;

@@ -11,6 +11,10 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
+float CombiningFragmentShader2::s_positionDiffMul = 1.0f;
+float CombiningFragmentShader2::s_normalDiffMul = 1.0f;
+float CombiningFragmentShader2::s_positionNormalThreshold = 1.0f;
+
 CombiningFragmentShader2::CombiningFragmentShader2() :
 m_resourceCount( 0 )
 {}
@@ -120,6 +124,10 @@ void CombiningFragmentShader2::setParameters( ID3D11DeviceContext& deviceContext
     dataPtr->imageSize                   = float2( (float)srcTexture->getWidth(), (float)srcTexture->getHeight() );
     dataPtr->contributionTextureFillSize = float2( (float)contributionTextureFilledWidth, (float)contributionTextureFilledHeight );
     dataPtr->srcTextureFillSize          = float2( (float)srcTextureFilledWidth, (float)srcTextureFilledHeight );
+
+    dataPtr->positionDiffMul         = s_positionDiffMul;
+    dataPtr->normalDiffMul           = s_normalDiffMul;
+    dataPtr->positionNormalThreshold = s_positionNormalThreshold;
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

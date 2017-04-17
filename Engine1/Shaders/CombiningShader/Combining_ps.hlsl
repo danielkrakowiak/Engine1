@@ -22,15 +22,17 @@ cbuffer ConstantBuffer
     float3 cameraPosition;
     float  pad3;
     float2 imageSize;
-    float2 contributionTextureFillSize;
-    float2 srcTextureFillSize;
     float2 pad4;
+    float2 contributionTextureFillSize;
+    float2 pad5;
+    float2 srcTextureFillSize;
+    float2 pad6;
     float  positionDiffMul;
-    float3 pad5;
-    float  normalDiffMul;
-    float3 pad6;
-    float  positionNormalThreshold;
     float3 pad7;
+    float  normalDiffMul;
+    float3 pad8;
+    float  positionNormalThreshold;
+    float3 pad9;
 };
 
 struct PixelInputType
@@ -63,7 +65,7 @@ float4 main(PixelInputType input) : SV_Target
 
     //float samplingMipmapTest = log2( blurRadius );
 
-    float samplingRadius      = min( 1.0f, blurRadius );
+    float samplingRadius      = min( 1.0f, blurRadius ) * 0.5f;
     float samplingMipmapLevel = log2( blurRadius );
 
     //const float samplingLevel2 = 0.0f;//min( 4.0f, samplingLevel1 );
@@ -86,27 +88,15 @@ float4 main(PixelInputType input) : SV_Target
         //const float samplingRadius = pow( 2.0f, samplingLevel1 - samplingLevel2 );
         const float samplingStep = 1.0f;//max( 1.0f, floor( sqrt( samplingRadius ) ) );
 
-        // Sample highest resolution mipmap to get precise normal at the center pixel.
-        //const float3 centerNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
-        //const float3 centerPosition = g_positionTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
+        const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
+        const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
 
         float2 pixelSize0 = ( 1.0f / imageSize );
         float2 pixelSize = pixelSize0 * (float)pow( 2, samplingMipmapLevel );
 
-        // Always use highest resolution center pixel sample to avoid black pixels.
-        float sampleCount = 0.0f;
+        float  sampleWeightSum = 0.0001;
+        float3 sampleSum       = 0.0;
 
-        const float2 centerTexCoords = input.texCoord;
-
-        //float x = 0.0f;
-        //float y = 0.0f;
-
-        // Note: Sample more sparsly when large sampling radius is used to avoid taking too many samples and decreasing performance.
-        // Usually large sampling radius is caused by zooming on an object or very high roughness, to skipping some samples causes no problem then.
-
-        // #TODO: What if sampling radius < 1 - step always equals to 1... makes no sense..?
-        // Shouldn't this loop be hardcoded from -1 to 1 with step size of 1? Only pixel size would differ...
-        // IMPORTANT: Maybe the whole loop can be unrolled?
         for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep ) 
         {
             for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
@@ -116,40 +106,37 @@ float4 main(PixelInputType input) : SV_Target
                 // TODO: How does it relate to sampling level?
                 //const float neighborMaxAllowedDistFromCenter = sqrt(positionThresholdSquare) * sqrt(x*x + y*y) /** depth*/;
 
-                const float2 texCoordShift = float2( pixelSize.x * x, pixelSize.y * y );
+                const float2 sampleTexcoords = input.texCoord + float2( x * pixelSize.x, y * pixelSize.y );
 
-                //const int2   texCoordsInt2 = (int2)( g_imageSize * (float2(0.5f, 0.5f) + texCoordShift) );
+                const float3 sampleValue = g_colorTexture.SampleLevel( g_linearSamplerState, sampleTexcoords/** srcTextureFillSize / imageSize*/, samplingMipmapLevel ).rgb;
 
-                //if ( abs(texCoordsInt.x - texCoordsInt2.x) <= 1 || abs(texCoordsInt.y - texCoordsInt2.y) <= 1 )
-                //    return float4(1.0f, 0.0f, 0.0f, 0.15f);
+                const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
+                const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
 
-                //const float  neighborDistToEdge = (float)g_edgeDistanceTexture.Load( int3( texCoordsInt2, 0 ) );
+                const float  positionDiff       = length( samplePosition - centerPosition );
+                const float  normalDiff         = 1.0f - dot( sampleNormal, centerNormal );
+                const float  samplesPosNormDiff = positionDiffMul * positionDiff + normalDiffMul * normalDiff; // #TODO: Square pos and normal diffs?
+                
+                const float  sampleWeight1 = getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
-                // Sample lower res normal to get possibly blurred or sharp normal at neighbor pixel.
-                //const float3 neightborNormal   = normalize( g_normalTexture.SampleLevel( g_pointSamplerState, centerTexCoords + texCoordShift, samplingMipmapLevel ).xyz );
-                //const float3 neightborPosition = g_positionTexture.SampleLevel( g_linearSamplerState, centerTexCoords + texCoordShift, samplingMipmapLevel ).xyz;
-                    
-                //const float  normalsDot = dot( centerNormal, neightborNormal );
-                //const float3 positionDiff = centerPosition - neightborPosition;
+                // Discard samples which are off-screen (zero value).
+                // #TODO: Can falsy reject completaly black pixels - probably ignorable as they don't appear too often in real life.
+                const float sampleWeight2 = getSampleWeightGreaterThan( sampleValue.r + sampleValue.g + sampleValue.b, 0.0f );
 
-                //if ( /*dot( positionDiff, positionDiff )*/ length( positionDiff ) < neighborMaxAllowedDistFromCenter && normalsDot > normalThreshold ) 
-                //{
-                    // For test.
-                    //const float neighborWeight = max( 0.0f, samplingRadius - sqrt(x*x + y*y) );
+                const float sampleWeight = /*sampleWeight1 **/ sampleWeight2;
+                
 
-                    reflectionColor.rgb += /*neighborWeight **/ g_colorTexture.SampleLevel( g_linearSamplerState, (centerTexCoords + texCoordShift * 0.5f)  * srcTextureFillSize / imageSize, samplingMipmapLevel /*samplingLevel2*/ ).rgb;
-                    
-                    sampleCount += /*neighborWeight;*/ 1.0f;
-                //}
+                sampleSum       += sampleValue * sampleWeight;
+                sampleWeightSum += sampleWeight;
             }
         }
 
-        if ( sampleCount > 0 ) {
-            // Divide summed color by the number of samples.
-            reflectionColor.rgb /= sampleCount;
-        } else {
+        //if ( sampleCount > 0 ) {
+        //    // Divide summed color by the number of samples.
+        reflectionColor.rgb = sampleSum / sampleWeightSum;
+        /*} else {
             reflectionColor.rgb += g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord * srcTextureFillSize / imageSize, 0.0f ).rgb;
-        }
+        }*/
     }
 
     float3 outputColor = contributionTerm * reflectionColor.rgb;

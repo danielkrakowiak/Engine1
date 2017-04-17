@@ -21,9 +21,17 @@ cbuffer ConstantBuffer
     float  positionThresholdSquare;
     float3 pad2;
     float2 imageSize;
+    float2 pad3;
     float2 contributionTextureFillSize;
-    float2 srcTextureFillSize;
     float2 pad4;
+    float2 srcTextureFillSize;
+    float2 pad5;
+    float  positionDiffMul;
+    float3 pad6;
+    float  normalDiffMul;
+    float3 pad7;
+    float  positionNormalThreshold;
+    float3 pad8;
 };
 
 struct PixelInputType
