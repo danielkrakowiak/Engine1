@@ -269,7 +269,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
     if ( m_axisMesh )
         m_deferredRenderer.render( *m_axisMesh, float43::IDENTITY, viewMatrix );
 
-    float4 actorSelectionEmissiveColor( 0.1f, 0.1f, 0.0f, 1.0f );
+    float4 actorSelectionEmissiveColor( 0.2f, 0.2f, 0.0f, 1.0f );
 
     // Render actors in the scene.
     const std::unordered_set< std::shared_ptr<Actor> >& actors = scene.getActors();

@@ -735,6 +735,9 @@ void Application::run() {
                 ss << "\nCombiningFragmentShader::s_positionDiffMul: "                << CombiningFragmentShader::s_positionDiffMul;
                 ss << "\nCombiningFragmentShader::s_normalDiffMul: "                  << CombiningFragmentShader::s_normalDiffMul;
                 ss << "\nCombiningFragmentShader::s_positionNormalThreshold: "        << CombiningFragmentShader::s_positionNormalThreshold;
+                ss << "\nCombiningFragmentShader2::s_positionDiffMul: "               << CombiningFragmentShader2::s_positionDiffMul;
+                ss << "\nCombiningFragmentShader2::s_normalDiffMul: "                 << CombiningFragmentShader2::s_normalDiffMul;
+                ss << "\nCombiningFragmentShader2::s_positionNormalThreshold: "       << CombiningFragmentShader2::s_positionNormalThreshold;
                 ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "         << HitDistanceSearchComputeShader::s_positionDiffMul;
                 ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "           << HitDistanceSearchComputeShader::s_normalDiffMul;
                 ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: " << HitDistanceSearchComputeShader::s_positionNormalThreshold;
@@ -1133,8 +1136,8 @@ void Application::onKeyPress( int key )
         }
     }
 
-    // [P/N/T] and ( [+] or [-] ) - Modify reflection dist-search position diff mul, normal diff mul or position/normal threshold.
-    if ( m_sceneManager.isSelectionEmpty() ) {
+    // [R] and [P/N/T] and ( [+] or [-] ) - Modify reflection dist-search position diff mul, normal diff mul or position/normal threshold.
+    if ( m_sceneManager.isSelectionEmpty() && m_inputManager.isKeyPressed( InputManager::Keys::r ) ) {
         if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
             const float change =
                 ( key == InputManager::Keys::plus ) ?
@@ -1153,6 +1156,29 @@ void Application::onKeyPress( int key )
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) )
             {
                 HitDistanceSearchComputeShader::s_positionNormalThreshold += change; 
+                return;
+            }
+        }
+    }
+
+    // [C] and [P/N/T] and ( [+] or [-] ) - Modify combining shader position diff mul, normal diff mul or position/normal threshold.
+    if ( m_sceneManager.isSelectionEmpty() && m_inputManager.isKeyPressed( InputManager::Keys::c ) ) {
+        if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
+            const float change =
+                ( key == InputManager::Keys::plus ) ?
+                0.005f : -0.005f;
+
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) ) {
+                CombiningFragmentShader::s_positionDiffMul  += change;
+                CombiningFragmentShader2::s_positionDiffMul += change;
+                return;
+            } else if ( m_inputManager.isKeyPressed( InputManager::Keys::n ) ) {
+                CombiningFragmentShader::s_normalDiffMul  += change;
+                CombiningFragmentShader2::s_normalDiffMul += change;
+                return;
+            } else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) {
+                CombiningFragmentShader::s_positionNormalThreshold  += change;
+                CombiningFragmentShader2::s_positionNormalThreshold += change;
                 return;
             }
         }

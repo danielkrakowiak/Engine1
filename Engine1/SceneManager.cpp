@@ -1,6 +1,7 @@
 #include "SceneManager.h"
 
 #include <algorithm>
+#include <functional>
 
 #include "AssetManager.h"
 
@@ -20,6 +21,7 @@
 #include "MathUtil.h"
 #include "ModelUtil.h"
 #include "StringUtil.h"
+#include "FileUtil.h"
 
 #include "PointLight.h"
 #include "SpotLight.h"
@@ -609,100 +611,139 @@ void SceneManager::mergeSelectedActors()
         if ( !mergedModel->isInGpuMemory() )
             mergedModel->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
 
+        // Create a name for the merged model.
+        std::string mergedFullName = "merged";
+        for (auto& model : models )
+        {
+            auto modelName = FileUtil::getFileNameFromPath( model->getFileInfo().getPath() );
+
+            // Remove file extension from name.
+            modelName = modelName.substr( 0, modelName.rfind(".blockmodel") );
+
+            mergedFullName += "_" + modelName;
+        }
+
+        std::string mergedHashedName = "merged_" + std::to_string( std::hash< std::string >{}( mergedFullName ) );
+
+        auto firstModelPath = models.front()->getFileInfo().getPath();
+        auto firstModelName = FileUtil::getFileNameFromPath( firstModelPath );
+        auto folderName     = StringUtil::replaceSubstring( firstModelPath, firstModelName, "" );
+        folderName = StringUtil::replaceSubstring( folderName, "Assets\\Models\\", "" );
+        folderName = StringUtil::replaceAllSubstrings( folderName, "\\", "" );
+
         { // Save merged model, mesh and textures to files.
-            std::string meshPath = "Assets/Meshes/merged.obj";
-            std::string meshPath2 = "Assets/Meshes/merged.blockmesh";
-            std::string texturePath = "Assets/Textures/merged";
+            std::string mergedMeshPath    = "Assets\\Meshes\\" + folderName + "\\" + mergedHashedName + ".obj";
+            std::string mergedMeshPath2   = "Assets\\Meshes\\" + folderName + "\\" + mergedHashedName + ".blockmesh";
+            std::string mergedTexturePath = "Assets\\Textures\\" + folderName + "\\" + mergedHashedName;
+            std::string mergedModelPath   = "Assets\\Models\\" + folderName + "\\" + mergedHashedName + ".blockmodel";
 
-            if ( mergedModel->getMesh() ) {
-                mergedModel->getMesh()->saveToFile( meshPath, BlockMeshFileInfo::Format::OBJ );
-                mergedModel->getMesh()->saveToFile( meshPath2, BlockMeshFileInfo::Format::BLOCKMESH );
-
-                mergedModel->getMesh()->getFileInfo().setPath( meshPath );
-                mergedModel->getMesh()->getFileInfo().setFormat( BlockMeshFileInfo::Format::OBJ );
+            if ( mergedModel->getMesh() ) 
+            {
+                mergedModel->getMesh()->getFileInfo().setPath( mergedMeshPath2 );
+                mergedModel->getMesh()->getFileInfo().setFormat( BlockMeshFileInfo::Format::BLOCKMESH );
                 mergedModel->getMesh()->getFileInfo().setIndexInFile( 0 );
+
+                mergedModel->getMesh()->saveToFile( mergedMeshPath, BlockMeshFileInfo::Format::OBJ );
+                mergedModel->getMesh()->saveToFile( mergedMeshPath2, BlockMeshFileInfo::Format::BLOCKMESH );
             }
 
             int textureIndex = 0;
-            for ( auto& texture : mergedModel->getAlphaTextures() ) {
-                std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_AL.tiff";
-                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
+            for ( auto& texture : mergedModel->getAlphaTextures() ) 
+            {
+                std::string path = mergedTexturePath + "_" + std::to_string( textureIndex++ ) + "_AL.tiff";
 
                 texture.getTexture()->getFileInfo().setPath( path );
                 texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
                 texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
+
+                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
             }
 
             textureIndex = 0;
-            for ( auto& texture : mergedModel->getEmissiveTextures() ) {
-                std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_E.png";
+            for ( auto& texture : mergedModel->getEmissiveTextures() ) 
+            {
+                std::string path = mergedTexturePath + "_" + std::to_string( textureIndex++ ) + "_E.png";
+                
+                texture.getTexture()->getFileInfo().setPath( path );
+                texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::PNG );
+                texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR4 );
+
                 texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::PNG );
+            }
+
+            textureIndex = 0;
+            for ( auto& texture : mergedModel->getAlbedoTextures() ) 
+            {
+                std::string path = mergedTexturePath + "_" + std::to_string( textureIndex++ ) + "_A.png";
 
                 texture.getTexture()->getFileInfo().setPath( path );
                 texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::PNG );
                 texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR4 );
+
+                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::PNG );
             }
 
             textureIndex = 0;
-            for ( auto& texture : mergedModel->getAlbedoTextures() ) {
-                std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_A.png";
-                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::PNG );
+            for ( auto& texture : mergedModel->getMetalnessTextures() ) 
+            {
+                std::string path = mergedTexturePath + "_" + std::to_string( textureIndex++ ) + "_M.tiff";
+                
+                texture.getTexture()->getFileInfo().setPath( path );
+                texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
+                texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
 
+                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
+            }
+
+            textureIndex = 0;
+            for ( auto& texture : mergedModel->getRoughnessTextures() ) 
+            {
+                std::string path = mergedTexturePath + "_" + std::to_string( textureIndex++ ) + "_R.tiff";
+                
+                texture.getTexture()->getFileInfo().setPath( path );
+                texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
+                texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
+
+                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
+            }
+
+            textureIndex = 0;
+            for ( auto& texture : mergedModel->getNormalTextures() ) 
+            {
+                std::string path = mergedTexturePath + "_" + std::to_string( textureIndex++ ) + "_N.png";
+                
                 texture.getTexture()->getFileInfo().setPath( path );
                 texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::PNG );
                 texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR4 );
-            }
 
-            textureIndex = 0;
-            for ( auto& texture : mergedModel->getMetalnessTextures() ) {
-                std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_M.tiff";
-                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
-
-                texture.getTexture()->getFileInfo().setPath( path );
-                texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
-                texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
-            }
-
-            textureIndex = 0;
-            for ( auto& texture : mergedModel->getRoughnessTextures() ) {
-                std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_R.tiff";
-                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
-
-                texture.getTexture()->getFileInfo().setPath( path );
-                texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
-                texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
-            }
-
-            textureIndex = 0;
-            for ( auto& texture : mergedModel->getNormalTextures() ) {
-                std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_N.png";
                 texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::PNG );
-
-                texture.getTexture()->getFileInfo().setPath( path );
-                texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::PNG );
-                texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR4 );
             }
 
             textureIndex = 0;
-            for ( auto& texture : mergedModel->getRefractiveIndexTextures() ) {
-                std::string path = texturePath + "_" + std::to_string( textureIndex++ ) + "_I.tiff";
-                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
-
+            for ( auto& texture : mergedModel->getRefractiveIndexTextures() ) 
+            {
+                std::string path = mergedTexturePath + "_" + std::to_string( textureIndex++ ) + "_I.tiff";
+                
                 texture.getTexture()->getFileInfo().setPath( path );
                 texture.getTexture()->getFileInfo().setFormat( Texture2DFileInfo::Format::TIFF );
                 texture.getTexture()->getFileInfo().setPixelType( Texture2DFileInfo::PixelType::UCHAR );
+
+                texture.getTexture()->saveToFile( path, Texture2DFileInfo::Format::TIFF );
             }
 
-            mergedModel->saveToFile( "Assets/Models/merged.blockmodel" );
+            // Set file info for the merged model, so the scene knows in which file it's stored.
+            BlockModelFileInfo mergedModelFileInfo( mergedModelPath, BlockModelFileInfo::Format::BLOCKMODEL, 0 );
+            mergedModel->setFileInfo( mergedModelFileInfo );
+
+            mergedModel->saveToFile( mergedModelPath );
         }
 
-        float43 pose( float43::IDENTITY );
-        pose.setTranslation( m_camera.getPosition() );
+        const auto& pose = m_selectedBlockActors.front()->getPose();
 
         // Add new actor to the scene.
-        m_selectedBlockActors.clear();
-        m_selectedBlockActors.push_back( std::make_shared< BlockActor >( mergedModel, pose ) );
-        m_scene->addActor( m_selectedBlockActors[ 0 ] );
+        //m_selectedBlockActors.clear();
+        auto newActor = std::make_shared< BlockActor >( mergedModel, pose );
+        m_scene->addActor( newActor );
     } catch ( std::exception& e ) {
         OutputDebugStringW( StringUtil::widen( e.what() + std::string( "\n" ) ).c_str() );
     }
