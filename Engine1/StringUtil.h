@@ -20,6 +20,9 @@ namespace Engine1
 
         std::string toUppercase( const std::string& str );
 
+        std::string replaceSubstring( const std::string& str, const std::string& from, const std::string& to );
+        std::string replaceAllSubstrings( const std::string& str, const std::string& from, const std::string& to );
+
         extern std::locale locale;
         extern const std::string localeName;
 

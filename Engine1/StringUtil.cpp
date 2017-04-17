@@ -86,3 +86,32 @@ std::string StringUtil::toUppercase( const std::string& str ) {
 
 	return narrow(wstrUppercase);
 }
+
+std::string StringUtil::replaceSubstring( const std::string& str, const std::string& from, const std::string& to )
+{
+    const size_t idx = str.find( from );
+
+    if ( idx == std::string::npos )
+        return str;
+
+    return str.substr( 0, idx ) + to + str.substr( idx + from.size() );
+}
+
+std::string StringUtil::replaceAllSubstrings( const std::string& str, const std::string& from, const std::string& to )
+{
+    std::string result = str;
+    size_t      idx    = 0;
+
+    do
+    {
+        idx = result.find( from );
+
+        if ( idx == std::string::npos )
+            return result;
+
+        result = result.substr( 0, idx ) + to + result.substr( idx + from.size() );
+    } 
+    while( true );
+
+    return result;
+}
