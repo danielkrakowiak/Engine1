@@ -64,54 +64,82 @@ void main( uint3 groupId : SV_GroupID,
 
     const float centerHitDistance = min( maxHitDistance, g_hitDistanceTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ) );
     
-    float mipmap            = 4.0f;
-    float mipmapInt         = 4.0f;
-    float tempHitDistance   = 0.0f;
+    float mipmap            = 2.0f;
+    float mipmapInt         = 0.0f;
     float hitDistance       = 0.0f;
     float sampleWeightSum   = 0.0001f;
-    float searchRadius      = 16.0f;
+    float searchRadiusSqr   = 0.0f;
+    float minSearchRadius   = 2.0;
+    float maxSearchRadius   = 80.0;
+    float searchRadius      = minSearchRadius;
     float searchStep        = 1.0f;
+    float searchRadiusStep  = 1.0f;
 
-    do
+    // #TODO: Increase searchRadiusStep, so that searchRadius increase accelerates. Because we need less precision further from center.
+    //    - problem: it doesn't work. Probably because compiler cannot predict how many times to unroll the loop - help it with [unroll(x)] ? - slooow?
+    // #TODO: Increase mipmap for greater searchRadius. 
+    
+    //[unroll(126)]
+    for ( searchRadius; searchRadius <= maxSearchRadius; searchRadius += searchRadiusStep )
     {
+        //searchRadiusStep += 0.01;
+
         mipmapInt       = floor( mipmap );
-        tempHitDistance = 0.0;
-        sampleWeightSum = 0.0;
+        //sampleWeightSum = 0.0;
+        searchRadiusSqr = searchRadius * searchRadius;
 
         // #TODO: If only mipmap increases by one - could be optimized through multiplication by 2 instead of calculating power.
         const float2 inputPixelSize = inputPixelSize0 * pow( 2.0f, mipmapInt );
 
-        for ( float y = -searchRadius; y <= searchRadius; y += searchStep )
+        for ( float x = -searchRadius; x <= searchRadius; x += searchStep )
         {
-            for ( float x = -searchRadius; x <= searchRadius; x += searchStep )
-            {
-                const float2 sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y * inputPixelSize.y );
+            const float y1 = sqrt( searchRadiusSqr - x*x );
+            const float y2 = -y1;
 
-                float sampleHitDistance = 0.0f;
-                float sampleWeight      = 0.0f;
+            const float loopProgress = (searchRadius - minSearchRadius) / (maxSearchRadius - minSearchRadius);
+            const float weightPower = 0.2 - loopProgress * 0.2; // 
+            //const float weightPower = 0.3 // works fine, but should be almost zero for further values.
+            const float weightFromRadius = max(0.00001, 1.0 - pow( (searchRadius - minSearchRadius) / (maxSearchRadius - minSearchRadius), weightPower) );
 
-                sampleWeightedHitDistance( 
-                    sampleTexcoords, mipmapInt, 
-                    texcoords, centerHitDistance, centerPosition, centerNormal, 
-                    sampleHitDistance, sampleWeight 
-                );
+            // First sample.
+            float2 sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y1 * inputPixelSize.y );
 
-                tempHitDistance += min( maxHitDistance, sampleHitDistance ) * sampleWeight;
-                sampleWeightSum += sampleWeight;
-            }
+            float sampleHitDistance = 0.0f;
+            float sampleWeight      = 0.0f;
+
+            sampleWeightedHitDistance( 
+                sampleTexcoords, mipmap/*mipmapInt*/, 
+                texcoords, centerHitDistance, centerPosition, centerNormal, 
+                sampleHitDistance, sampleWeight 
+            );
+
+            hitDistance += min( maxHitDistance, sampleHitDistance ) * sampleWeight * weightFromRadius;
+            sampleWeightSum += sampleWeight * weightFromRadius;
+
+            // Second sample.
+            sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y2 * inputPixelSize.y );
+
+            sampleWeightedHitDistance( 
+                sampleTexcoords, mipmap/*mipmapInt*/, 
+                texcoords, centerHitDistance, centerPosition, centerNormal, 
+                sampleHitDistance, sampleWeight 
+            );
+
+            hitDistance += min( maxHitDistance, sampleHitDistance ) * sampleWeight * weightFromRadius;
+            sampleWeightSum += sampleWeight * weightFromRadius;
         }
 
-        mipmap       -= 0.5;
-        searchRadius -= 2.0;
+        //mipmap           += 0.00001;
+        //searchRadiusStep += 0.01f;
+        //searchRadius     += searchRadiusStep; // Add + (mipmap - startMipmap) - to increase the increase-rate...
 
         // Note: The idea is to blend loop passes on top of each other. The more sharp hit-dist data blended on top of the blurrier one.
         // This should ensure smooth transitioning between nearby areas.
-        if ( sampleWeightSum > 0.001 )
-            hitDistance = lerp( hitDistance, tempHitDistance / sampleWeightSum, 0.25 );
+        //if ( sampleWeightSum > 0.001 )
+        //    hitDistance = lerp( hitDistance, tempHitDistance / sampleWeightSum, 0.25 );
+    }
 
-    } while ( mipmap >= 2.0 && sampleWeightSum > 0.001f );
-
-    g_finalDistToOccluder[ dispatchThreadId.xy ] = hitDistance;
+    g_finalDistToOccluder[ dispatchThreadId.xy ] = hitDistance / sampleWeightSum;
 }
 
 void sampleWeightedHitDistance( 
@@ -119,7 +147,7 @@ void sampleWeightedHitDistance(
     const float2 centerTexcoords, const float centerSampleValue, const float3 centerPosition, const float3 centerNormal, 
     out float sampleValue, out float sampleWeight )
 {
-    sampleValue = /*min( maxHitDistance, */g_hitDistanceTexture.SampleLevel( g_linearSamplerState, texcoords, mipmap ) /*)*/;
+    sampleValue = /*min( maxHitDistance, */g_hitDistanceTexture.SampleLevel( g_pointSamplerState, texcoords, mipmap ) /*)*/;
 
     // Weight depanding on difference in position/normal between center and the sample.
     const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 

@@ -26,7 +26,7 @@ void HitDistanceSearchRenderer::initialize( int imageWidth, int imageHeight, Com
     m_device = device;
     m_deviceContext = deviceContext;
 
-    const int imageSizeDivider = 6;
+    const int imageSizeDivider = 4;
 
     m_imageWidth  = imageWidth / imageSizeDivider;
     m_imageHeight = imageHeight / imageSizeDivider;
@@ -61,7 +61,11 @@ void HitDistanceSearchRenderer::performHitDistanceSearch( const Camera& camera,
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
-    uint3 groupCount( m_imageWidth / 16, m_imageHeight / 16, 1 );
+    uint3 groupCount( 
+        (int)ceil( (float)m_imageWidth / 16.0f ), 
+        (int)ceil( (float)m_imageHeight / 16.0f ), 
+        1 
+    );
 
     m_rendererCore.compute( groupCount );
 

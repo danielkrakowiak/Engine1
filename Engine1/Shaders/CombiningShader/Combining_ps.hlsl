@@ -123,7 +123,7 @@ float4 main(PixelInputType input) : SV_Target
                 // #TODO: Can falsy reject completaly black pixels - probably ignorable as they don't appear too often in real life.
                 const float sampleWeight2 = getSampleWeightGreaterThan( sampleValue.r + sampleValue.g + sampleValue.b, 0.0f );
 
-                const float sampleWeight = /*sampleWeight1 **/ sampleWeight2;
+                const float sampleWeight = 1.0/*sampleWeight1 **/ /*sampleWeight2*/;
                 
 
                 sampleSum       += sampleValue * sampleWeight;

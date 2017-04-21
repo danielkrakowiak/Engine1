@@ -380,4 +380,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 11.04.2017 - 2h - Refactoring shaders.
 12.04.2017 - 1h - Improving reflections - hit-dist spreading accross edges.
 15.04.2017 - 4h - Improving reflections - spread hit-distance using do-while loop, starting with small search-radius, increasing sampled mipmap if no usable samples were found. The solution retains small details and spread hit-distance over large screen areas. Added performing hit-dist-search at lower resolution. Added hit-dist blending of low-res hit-dist search results with higher-res hit-dist results.
-16.04.2017 - 2h - Improving reflections. Improving merging models - auto generating names for merged assets and placing them in good folders.
+16.04.2017 - 4h - Improving reflections. Improving merging models - auto generating names for merged assets and placing them in good folders. Optimizing Sponza scene.
+21.04.2017 - 2h - Improving reflections - improved hit-dist-search. Finally achieved smooth, circular spread.
