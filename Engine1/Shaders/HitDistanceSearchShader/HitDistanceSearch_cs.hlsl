@@ -64,20 +64,23 @@ void main( uint3 groupId : SV_GroupID,
 
     const float centerHitDistance = min( maxHitDistance, g_hitDistanceTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ) );
     
-    float mipmap            = 2.0f;
+    float mipmap            = 4.0f;//2.0
     float mipmapInt         = 0.0f;
     float hitDistance       = 0.0f;
     float sampleWeightSum   = 0.0001f;
     float searchRadiusSqr   = 0.0f;
-    float minSearchRadius   = 2.0;
-    float maxSearchRadius   = 80.0;
+    float minSearchRadius   = 1.0;
+    float maxSearchRadius   = 40.0;//80.0
     float searchRadius      = minSearchRadius;
     float searchStep        = 1.0f;
-    float searchRadiusStep  = 1.0f;
+    float searchRadiusStep  = 0.5f;
 
-    // #TODO: Increase searchRadiusStep, so that searchRadius increase accelerates. Because we need less precision further from center.
-    //    - problem: it doesn't work. Probably because compiler cannot predict how many times to unroll the loop - help it with [unroll(x)] ? - slooow?
-    // #TODO: Increase mipmap for greater searchRadius. 
+    // #TODO: The problem with quality/visible artifacts in final-hit-dist is when only samples along one line 
+    // (from center to outer circle) give meaningfull results. 
+    // The number of gathered samples is small and so high variance appears in form of artifacts. 
+    // One solution: Step non-linearly on x - more slowly on x near -searchRadius/+searchRadius, because it causes quick jumps in y value at this points.
+    // Use some mapping of linear scale to non-linear scale. link: https://www.cg.tuwien.ac.at/research/theses/matkovic/node36.html
+    // Or check 1 / smoothstep etc.
     
     //[unroll(126)]
     for ( searchRadius; searchRadius <= maxSearchRadius; searchRadius += searchRadiusStep )
@@ -91,15 +94,19 @@ void main( uint3 groupId : SV_GroupID,
         // #TODO: If only mipmap increases by one - could be optimized through multiplication by 2 instead of calculating power.
         const float2 inputPixelSize = inputPixelSize0 * pow( 2.0f, mipmapInt );
 
-        for ( float x = -searchRadius; x <= searchRadius; x += searchStep )
+        for ( float i = -searchRadius; i <= searchRadius; i += searchStep )
         {
+            // Step over circumference of a circle.
+            // Increase x non-linearly to ensure smaller steps in left/right part of the circle
+            // where y changes the fastest (to ensure uniform sampling over circumference rather than uniform over x or y). 
+            const float x = smoothstep(-searchRadius, searchRadius, i) * 2.0*searchRadius - searchRadius;
+
             const float y1 = sqrt( searchRadiusSqr - x*x );
             const float y2 = -y1;
 
             const float loopProgress = (searchRadius - minSearchRadius) / (maxSearchRadius - minSearchRadius);
-            const float weightPower = 0.2 - loopProgress * 0.2; // 
-            //const float weightPower = 0.3 // works fine, but should be almost zero for further values.
-            const float weightFromRadius = max(0.00001, 1.0 - pow( (searchRadius - minSearchRadius) / (maxSearchRadius - minSearchRadius), weightPower) );
+            const float weightPower = 0.2 - loopProgress * 0.2;
+            const float weightFromRadius = max(0.00001, 1.0 - pow( loopProgress, weightPower) );
 
             // First sample.
             float2 sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y1 * inputPixelSize.y );
@@ -108,7 +115,7 @@ void main( uint3 groupId : SV_GroupID,
             float sampleWeight      = 0.0f;
 
             sampleWeightedHitDistance( 
-                sampleTexcoords, mipmap/*mipmapInt*/, 
+                sampleTexcoords, mipmapInt/*mipmapInt*/, 
                 texcoords, centerHitDistance, centerPosition, centerNormal, 
                 sampleHitDistance, sampleWeight 
             );
@@ -120,7 +127,7 @@ void main( uint3 groupId : SV_GroupID,
             sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y2 * inputPixelSize.y );
 
             sampleWeightedHitDistance( 
-                sampleTexcoords, mipmap/*mipmapInt*/, 
+                sampleTexcoords, mipmapInt/*mipmapInt*/, 
                 texcoords, centerHitDistance, centerPosition, centerNormal, 
                 sampleHitDistance, sampleWeight 
             );
