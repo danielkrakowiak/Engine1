@@ -50,6 +50,9 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
+    // Debug.
+    //const float2 screenCenterTexcoords = float2(0.5, 0.5);
+
     // Note: Calculate texcoords for the pixel center.
     const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
@@ -72,8 +75,8 @@ void main( uint3 groupId : SV_GroupID,
     float minSearchRadius   = 1.0;
     float maxSearchRadius   = 40.0;//80.0
     float searchRadius      = minSearchRadius;
-    float searchStep        = 1.0f;
-    float searchRadiusStep  = 0.5f;
+    float searchStep        = 0.25;//1.0f;
+    float searchRadiusStep  = 0.1;//0.5f;
 
     // #TODO: The problem with quality/visible artifacts in final-hit-dist is when only samples along one line 
     // (from center to outer circle) give meaningfull results. 
@@ -81,6 +84,12 @@ void main( uint3 groupId : SV_GroupID,
     // One solution: Step non-linearly on x - more slowly on x near -searchRadius/+searchRadius, because it causes quick jumps in y value at this points.
     // Use some mapping of linear scale to non-linear scale. link: https://www.cg.tuwien.ac.at/research/theses/matkovic/node36.html
     // Or check 1 / smoothstep etc.
+
+    // #TODO: Blur radius is too high. Things are too blurred. Or maybe too blurred where they don't need to.
+
+    // #TODO: If we sample over whole screen we could do box sampling. It's just a shame that we cannot easily decrease precision, mipmap etc... Or can we?
+
+    //# DONE: Some samples had weights of 50 etc. Clamped to <0, 1>.
     
     //[unroll(126)]
     for ( searchRadius; searchRadius <= maxSearchRadius; searchRadius += searchRadiusStep )
@@ -104,12 +113,19 @@ void main( uint3 groupId : SV_GroupID,
             const float y1 = sqrt( searchRadiusSqr - x*x );
             const float y2 = -y1;
 
+            // Lower the weight of samples, which are far from center in screen-space 
+            // (to fucus on near samples if they are available, or on far samples if they are the only ones available).
             const float loopProgress = (searchRadius - minSearchRadius) / (maxSearchRadius - minSearchRadius);
-            const float weightPower = 0.2 - loopProgress * 0.2;
-            const float weightFromRadius = max(0.00001, 1.0 - pow( loopProgress, weightPower) );
+            // Option 1
+            //const float weightPower = 0.2 - loopProgress * 0.2;
+            //const float weightFromRadius = max(0.00001, 1.0 - pow( loopProgress, weightPower) );
+            // Option 2
+            const float gaussThreshold = 0.005;
+            const float weightPower = - loopProgress * loopProgress / gaussThreshold;
+            const float weightFromRadius = clamp( pow( e, weightPower ), 0.00001, 1.0 );
 
             // First sample.
-            float2 sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y1 * inputPixelSize.y );
+            float2 sampleTexcoords = texcoords/*screenCenterTexcoords*/ + float2( x * inputPixelSize.x, y1 * inputPixelSize.y );
 
             float sampleHitDistance = 0.0f;
             float sampleWeight      = 0.0f;
@@ -120,11 +136,18 @@ void main( uint3 groupId : SV_GroupID,
                 sampleHitDistance, sampleWeight 
             );
 
-            hitDistance += min( maxHitDistance, sampleHitDistance ) * sampleWeight * weightFromRadius;
+            // Debug.
+            /*if (length(sampleTexcoords - texcoords) < 0.002)
+            {
+                g_finalDistToOccluder[ dispatchThreadId.xy ] = sampleWeight * weightFromRadius;
+                return;
+            }*/
+
+            hitDistance     += min( maxHitDistance, sampleHitDistance ) * sampleWeight * weightFromRadius;
             sampleWeightSum += sampleWeight * weightFromRadius;
 
             // Second sample.
-            sampleTexcoords = texcoords + float2( x * inputPixelSize.x, y2 * inputPixelSize.y );
+            sampleTexcoords = texcoords/*screenCenterTexcoords*/ + float2( x * inputPixelSize.x, y2 * inputPixelSize.y );
 
             sampleWeightedHitDistance( 
                 sampleTexcoords, mipmapInt/*mipmapInt*/, 
@@ -132,7 +155,14 @@ void main( uint3 groupId : SV_GroupID,
                 sampleHitDistance, sampleWeight 
             );
 
-            hitDistance += min( maxHitDistance, sampleHitDistance ) * sampleWeight * weightFromRadius;
+            // Debug.
+            /*if (length(sampleTexcoords - texcoords) < 0.002)
+            {
+                g_finalDistToOccluder[ dispatchThreadId.xy ] = sampleWeight * weightFromRadius;
+                return;
+            }*/
+
+            hitDistance     += min( maxHitDistance, sampleHitDistance ) * sampleWeight * weightFromRadius;
             sampleWeightSum += sampleWeight * weightFromRadius;
         }
 
@@ -154,7 +184,7 @@ void sampleWeightedHitDistance(
     const float2 centerTexcoords, const float centerSampleValue, const float3 centerPosition, const float3 centerNormal, 
     out float sampleValue, out float sampleWeight )
 {
-    sampleValue = /*min( maxHitDistance, */g_hitDistanceTexture.SampleLevel( g_pointSamplerState, texcoords, mipmap ) /*)*/;
+    sampleValue = min( maxHitDistance, g_hitDistanceTexture.SampleLevel( g_pointSamplerState, texcoords, mipmap ) );
 
     // Weight depanding on difference in position/normal between center and the sample.
     const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
@@ -172,17 +202,12 @@ void sampleWeightedHitDistance(
     const float sampleWeight1 = 1.0f;//1.0f - positionDiffMul * ( sampleHitDistance / centerHitDistance );//max(0.0f, 1.0f - (positionDiffMul * samplesHitDistDiff));//getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
     // Weight diminishing importance of samples hitting the sky if any other samples are available.
-    const float sampleWeight2 = max( 0.0f, maxHitDistance - sampleValue );
+    const float sampleWeight2 = clamp( maxHitDistance - sampleValue, 0.00001, 1.0 );
 	//if ( sampleHitDistance > maxHitDistance)
 	//    sampleWeight1 = 0.0f;
 
     // Discard samples which are off-screen (zero dist-to-occluder).
-    const float sampleWeight3 = getSampleWeightGreaterThan( sampleValue, 0.0f );
+    const float sampleWeight3 = getSampleWeightGreaterThan( sampleValue, 0.0 );
 
-    // Lower the weight of samples, which are far from center in screen-space 
-    // (to fucus on near samples if they are available, or on far samples if they are the only ones available).
-    const float texcoordDiff = length(centerTexcoords - texcoords);
-    const float sampleWeight4 = 1.0f - (texcoordDiff * texcoordDiff);
-
-    sampleWeight = sampleWeight1 * sampleWeight2 * sampleWeight3 * sampleWeight4;
+    sampleWeight = sampleWeight1 * sampleWeight2 * sampleWeight3;
 }

@@ -383,3 +383,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 16.04.2017 - 4h - Improving reflections. Improving merging models - auto generating names for merged assets and placing them in good folders. Optimizing Sponza scene.
 21.04.2017 - 2h - Improving reflections - improved hit-dist-search. Finally achieved smooth, circular spread.
 25.04.2017 - 2h - Improving reflections - significantly improved hit-dist-search result smoothness by ensuring uniform sampling over circumference of the sampling circles. Improved performance by sampling higher mipmaps.
+26.04.2017 - 2h - Improving relfections - Fixed hit-dist weighting for samples with hit-dist higher than max-hit-dist - clamped to <0, 1>. Improved weighting based on search-radius to reduce blur while preserving large search radius.
