@@ -845,10 +845,12 @@ void Renderer::renderFirstReflections( const Camera& camera,
     auto rayHitDistanceTexture = m_raytraceRenderer.getRayHitDistanceTexture( 0 );
 
     //#TODO: Should be profiled separately.
+    
+    //#TODO: Fill pixels for which all samples were rejected with max value.
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
         rayHitDistanceTexture,
         m_deferredRenderer.getPositionRenderTarget(),
-        500.0f, 0, 0
+        50.0f, 0, 0
     );
 
     // Search for hit distance.

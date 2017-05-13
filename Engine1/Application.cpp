@@ -62,6 +62,7 @@ Application::Application() :
 	m_screenWidth( 1024 /*1920*/ ),
 	m_screenHeight( 768 /*1080*/ ),
 	m_verticalSync( false ),
+    m_limitFPS( false ),
 	m_displayFrequency( 60 ),
 	m_screenColorDepth( 32 ),
 	m_zBufferDepth( 32 ),
@@ -732,19 +733,20 @@ void Application::run() {
 
             if ( m_sceneManager.isSelectionEmpty() )
             {
-                ss << "\nCombiningFragmentShader::s_positionDiffMul: "                << CombiningFragmentShader::s_positionDiffMul;
-                ss << "\nCombiningFragmentShader::s_normalDiffMul: "                  << CombiningFragmentShader::s_normalDiffMul;
-                ss << "\nCombiningFragmentShader::s_positionNormalThreshold: "        << CombiningFragmentShader::s_positionNormalThreshold;
-                ss << "\nCombiningFragmentShader2::s_positionDiffMul: "               << CombiningFragmentShader2::s_positionDiffMul;
-                ss << "\nCombiningFragmentShader2::s_normalDiffMul: "                 << CombiningFragmentShader2::s_normalDiffMul;
-                ss << "\nCombiningFragmentShader2::s_positionNormalThreshold: "       << CombiningFragmentShader2::s_positionNormalThreshold;
-                ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "         << HitDistanceSearchComputeShader::s_positionDiffMul;
-                ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "           << HitDistanceSearchComputeShader::s_normalDiffMul;
-                ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: " << HitDistanceSearchComputeShader::s_positionNormalThreshold;
+                ss << "\nCombiningFragmentShader::s_positionDiffMul: "                       << CombiningFragmentShader::s_positionDiffMul;
+                ss << "\nCombiningFragmentShader::s_normalDiffMul: "                         << CombiningFragmentShader::s_normalDiffMul;
+                ss << "\nCombiningFragmentShader::s_positionNormalThreshold: "               << CombiningFragmentShader::s_positionNormalThreshold;
+                ss << "\nCombiningFragmentShader2::s_positionDiffMul: "                      << CombiningFragmentShader2::s_positionDiffMul;
+                ss << "\nCombiningFragmentShader2::s_normalDiffMul: "                        << CombiningFragmentShader2::s_normalDiffMul;
+                ss << "\nCombiningFragmentShader2::s_positionNormalThreshold: "              << CombiningFragmentShader2::s_positionNormalThreshold;
+                ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "                << HitDistanceSearchComputeShader::s_positionDiffMul;
+                ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "                  << HitDistanceSearchComputeShader::s_normalDiffMul;
+                ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: "        << HitDistanceSearchComputeShader::s_positionNormalThreshold;
+                ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance;
             }
 
             if ( m_renderText )
-                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 60.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 20.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render camera state.
@@ -794,6 +796,16 @@ void Application::run() {
 
 		Timer frameEndTime;
 		frameTimeMs = Timer::getElapsedTime( frameEndTime, frameStartTime );
+
+        if (m_limitFPS)
+        {
+            const double targetFrameTimeMs = 1000.0 / 10.0;
+            const long sleepTime = (long)std::max( 0.0, targetFrameTimeMs - frameTimeMs );
+            std::this_thread::sleep_for( std::chrono::milliseconds(sleepTime) );
+
+            Timer frameDelayedEndTime;
+            frameTimeMs = Timer::getElapsedTime( frameDelayedEndTime, frameStartTime );
+        }
 	}
 }
 
@@ -1000,7 +1012,9 @@ void Application::onMove( int newPosX, int newPosY )
 
 void Application::onFocusChange( bool windowFocused )
 {
-	this->m_windowFocused = windowFocused;
+	m_windowFocused = windowFocused;
+
+    m_limitFPS = !windowFocused;
 }
 
 void Application::onKeyPress( int key )
@@ -1156,6 +1170,10 @@ void Application::onKeyPress( int key )
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) )
             {
                 HitDistanceSearchComputeShader::s_positionNormalThreshold += change; 
+                return;
+            }
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) ) {
+                HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance += change;
                 return;
             }
         }
@@ -1432,8 +1450,10 @@ void Application::onDragAndDropFile( std::string filePath, bool replaceSelected 
 		filePath = filePath.substr( 1 );
 
     // Temporarily always replace assets. Holding Ctrl is too hard...
-    //replaceSelected    &= m_sceneManager.getSelectedBlockActors().size() == 1 || m_sceneManager.getSelectedSkeletonActors().size() == 1; //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
-    const bool invertZ = !m_inputManager.isKeyPressed( InputManager::Keys::shift );
+    replaceSelected    &= m_sceneManager.getSelectedBlockActors().size() >= 1 || m_sceneManager.getSelectedSkeletonActors().size() >= 1; //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
+    const bool invertZ = true;//!m_inputManager.isKeyPressed( InputManager::Keys::shift );
+    const bool invertVertexWindingOrder = true;
+    const bool invertUVs = false;
 
     m_sceneManager.loadAsset( filePath, replaceSelected, invertZ );
 

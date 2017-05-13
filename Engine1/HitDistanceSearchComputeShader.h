@@ -26,6 +26,7 @@ namespace Engine1
         static float s_positionDiffMul;
         static float s_normalDiffMul;
         static float s_positionNormalThreshold;
+        static float s_minSampleWeightBasedOnDistance;
 
         HitDistanceSearchComputeShader();
         virtual ~HitDistanceSearchComputeShader();
@@ -59,6 +60,8 @@ namespace Engine1
             float3 pad6;
             float  positionNormalThreshold;
             float3 pad7;
+            float  minSampleWeightBasedOnDistance;
+            float3 pad8;
         };
 
         // Copying is not allowed.

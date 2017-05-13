@@ -95,6 +95,7 @@ namespace Engine1
 	    int  m_screenWidth;
         int  m_screenHeight;
 	    bool m_verticalSync;
+        bool m_limitFPS;
 	    int  m_displayFrequency;
 	    char m_screenColorDepth;
 	    char m_zBufferDepth;

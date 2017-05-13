@@ -740,6 +740,37 @@ Idea:
 
 	  REFLECTIONS: -----------------------------
 
+
+	  - add limting FPS when app is not in focus - already added a member for that
+
+
+	  ------------- VERY, VERY IMPORTANT !!!!      ------------------------
+
+	  - maybe sum weights related with distance separately and than square this weight or use smoothstep to ensure more smooth transition from near to far distances.
+
+	  - We don't need to search hit-distance over the whole screen.
+	  - That's actually incorrect as some objects would impact perceived roughness on completaly unrelated objects...
+	  - The only thing we need is to balance transition between objects/sky and near object/far object on their edges.
+	  - With some tweaking - it can be done.
+	  - One way is to clamp weights for sky (far samples) samples - and limit them to 0.05 or so...
+	  - Make "sort of Gaussian blur" when weighting normal samples - so that they fade further from center and blend smoothly with sky.
+	  - Account for distance when calculating search radius?
+	  - Can be optimized using two pass blur? Maybe, maybe later? Needed?
+
+	  - How much generating mipmap matters? Rejecting samples? Having holes in mipmaps? Do we fill these holes when generating mipmaps?
+
+
+
+
+	  ----------------------------------------------------------------------
+
+
+
+
+
+
+	  - IMPORTANT: Maybe very important - clamp hit-dist values before creating mipmaps. Otherwise values interpolated on textures will be too high...
+
 	  - play with hit-dist weighting based on screen-space diff.
 	  - account for distance to camera in hit-dist-search - should impact search area
 

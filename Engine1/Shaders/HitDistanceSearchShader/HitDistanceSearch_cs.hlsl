@@ -19,6 +19,8 @@ cbuffer ConstantBuffer : register( b0 )
     float3 pad6;
     float  positionNormalThreshold;
     float3 pad7;
+    float  minSampleWeightBasedOnDistance;
+    float3 pad8;
 };
 
 SamplerState g_linearSamplerState;
@@ -67,16 +69,15 @@ void main( uint3 groupId : SV_GroupID,
 
     const float centerHitDistance = min( maxHitDistance, g_hitDistanceTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ) );
     
-    float mipmap            = 4.0f;//2.0
+    float mipmap            = 2.0f;//2.0
     float mipmapInt         = 0.0f;
     float hitDistance       = 0.0f;
     float sampleWeightSum   = 0.0001f;
     float searchRadiusSqr   = 0.0f;
-    float minSearchRadius   = 1.0;
-    float maxSearchRadius   = 40.0;//80.0
-    float searchRadius      = minSearchRadius;
-    float searchStep        = 0.25;//1.0f;
-    float searchRadiusStep  = 0.1;//0.5f;
+    float searchRadius      = 10.0;// / max(1.0, distToCamera);
+    float maxSearchRadius   = 100.0f;
+    float searchStep        = 1.0f;// / max(1.0, distToCamera);
+    float searchRadiusStep  = 0.5f;
 
     // #TODO: The problem with quality/visible artifacts in final-hit-dist is when only samples along one line 
     // (from center to outer circle) give meaningfull results. 
@@ -92,40 +93,28 @@ void main( uint3 groupId : SV_GroupID,
     //# DONE: Some samples had weights of 50 etc. Clamped to <0, 1>.
     
     //[unroll(126)]
-    for ( searchRadius; searchRadius <= maxSearchRadius; searchRadius += searchRadiusStep )
+    float2 samplePixel;
+    for ( samplePixel.y = -searchRadius; samplePixel.y <= searchRadius; samplePixel.y += searchStep )
     {
-        //searchRadiusStep += 0.01;
-
-        mipmapInt       = floor( mipmap );
-        //sampleWeightSum = 0.0;
-        searchRadiusSqr = searchRadius * searchRadius;
-
-        // #TODO: If only mipmap increases by one - could be optimized through multiplication by 2 instead of calculating power.
-        const float2 inputPixelSize = inputPixelSize0 * pow( 2.0f, mipmapInt );
-
-        for ( float i = -searchRadius; i <= searchRadius; i += searchStep )
+        for ( samplePixel.x = -searchRadius; samplePixel.x <= searchRadius; samplePixel.x += searchStep )
         {
-            // Step over circumference of a circle.
-            // Increase x non-linearly to ensure smaller steps in left/right part of the circle
-            // where y changes the fastest (to ensure uniform sampling over circumference rather than uniform over x or y). 
-            const float x = smoothstep(-searchRadius, searchRadius, i) * 2.0*searchRadius - searchRadius;
+            mipmapInt       = floor( mipmap );
 
-            const float y1 = sqrt( searchRadiusSqr - x*x );
-            const float y2 = -y1;
+            // #TODO: If only mipmap increases by one - could be optimized through multiplication by 2 instead of calculating power.
+            const float2 inputPixelSize = inputPixelSize0 * pow( 2.0f, mipmapInt );
 
             // Lower the weight of samples, which are far from center in screen-space 
             // (to fucus on near samples if they are available, or on far samples if they are the only ones available).
-            const float loopProgress = (searchRadius - minSearchRadius) / (maxSearchRadius - minSearchRadius);
+            const float sampleDistFromCenter = saturate(length(samplePixel) / maxSearchRadius);
             // Option 1
             //const float weightPower = 0.2 - loopProgress * 0.2;
             //const float weightFromRadius = max(0.00001, 1.0 - pow( loopProgress, weightPower) );
             // Option 2
             const float gaussThreshold = 0.005;
-            const float weightPower = - loopProgress * loopProgress / gaussThreshold;
+            const float weightPower = - sampleDistFromCenter * sampleDistFromCenter / gaussThreshold;
             const float weightFromRadius = clamp( pow( e, weightPower ), 0.00001, 1.0 );
 
-            // First sample.
-            float2 sampleTexcoords = texcoords/*screenCenterTexcoords*/ + float2( x * inputPixelSize.x, y1 * inputPixelSize.y );
+            float2 sampleTexcoords = texcoords + float2( samplePixel * inputPixelSize );
 
             float sampleHitDistance = 0.0f;
             float sampleWeight      = 0.0f;
@@ -136,44 +125,9 @@ void main( uint3 groupId : SV_GroupID,
                 sampleHitDistance, sampleWeight 
             );
 
-            // Debug.
-            /*if (length(sampleTexcoords - texcoords) < 0.002)
-            {
-                g_finalDistToOccluder[ dispatchThreadId.xy ] = sampleWeight * weightFromRadius;
-                return;
-            }*/
-
-            hitDistance     += min( maxHitDistance, sampleHitDistance ) * sampleWeight * weightFromRadius;
-            sampleWeightSum += sampleWeight * weightFromRadius;
-
-            // Second sample.
-            sampleTexcoords = texcoords/*screenCenterTexcoords*/ + float2( x * inputPixelSize.x, y2 * inputPixelSize.y );
-
-            sampleWeightedHitDistance( 
-                sampleTexcoords, mipmapInt/*mipmapInt*/, 
-                texcoords, centerHitDistance, centerPosition, centerNormal, 
-                sampleHitDistance, sampleWeight 
-            );
-
-            // Debug.
-            /*if (length(sampleTexcoords - texcoords) < 0.002)
-            {
-                g_finalDistToOccluder[ dispatchThreadId.xy ] = sampleWeight * weightFromRadius;
-                return;
-            }*/
-
             hitDistance     += min( maxHitDistance, sampleHitDistance ) * sampleWeight * weightFromRadius;
             sampleWeightSum += sampleWeight * weightFromRadius;
         }
-
-        //mipmap           += 0.00001;
-        //searchRadiusStep += 0.01f;
-        //searchRadius     += searchRadiusStep; // Add + (mipmap - startMipmap) - to increase the increase-rate...
-
-        // Note: The idea is to blend loop passes on top of each other. The more sharp hit-dist data blended on top of the blurrier one.
-        // This should ensure smooth transitioning between nearby areas.
-        //if ( sampleWeightSum > 0.001 )
-        //    hitDistance = lerp( hitDistance, tempHitDistance / sampleWeightSum, 0.25 );
     }
 
     g_finalDistToOccluder[ dispatchThreadId.xy ] = hitDistance / sampleWeightSum;
@@ -202,7 +156,7 @@ void sampleWeightedHitDistance(
     const float sampleWeight1 = 1.0f;//1.0f - positionDiffMul * ( sampleHitDistance / centerHitDistance );//max(0.0f, 1.0f - (positionDiffMul * samplesHitDistDiff));//getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
     // Weight diminishing importance of samples hitting the sky if any other samples are available.
-    const float sampleWeight2 = clamp( maxHitDistance - sampleValue, 0.00001, 1.0 );
+    const float sampleWeight2 = clamp( maxHitDistance - sampleValue, minSampleWeightBasedOnDistance/*0.00001*/, 1.0 );
 	//if ( sampleHitDistance > maxHitDistance)
 	//    sampleWeight1 = 0.0f;
 

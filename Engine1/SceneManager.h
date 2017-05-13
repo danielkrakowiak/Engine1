@@ -48,7 +48,7 @@ namespace Engine1
         void loadScene( std::string path );
         void saveScene( std::string path );
 
-        void loadAsset( std::string fileName, const bool replaceSelected = false, const bool invertZ = true );
+        void loadAsset( std::string fileName, const bool replaceSelected = false, const bool invertZ = true, const bool invertVertexWindingOrder = true, const bool invertUVs = true );
 
         std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > >
             pickActorOrLight( const float2& targetPixel, const float screenWidth, const float screenHeight, const float fieldOfView );

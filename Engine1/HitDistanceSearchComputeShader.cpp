@@ -12,9 +12,10 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-float HitDistanceSearchComputeShader::s_positionDiffMul         = 1.0f;
-float HitDistanceSearchComputeShader::s_normalDiffMul           = 1.0f;
-float HitDistanceSearchComputeShader::s_positionNormalThreshold = 1.0f;
+float HitDistanceSearchComputeShader::s_positionDiffMul                = 1.0f;
+float HitDistanceSearchComputeShader::s_normalDiffMul                  = 1.0f;
+float HitDistanceSearchComputeShader::s_positionNormalThreshold        = 1.0f;
+float HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance = 0.08f;
 
 HitDistanceSearchComputeShader::HitDistanceSearchComputeShader() {}
 
@@ -111,12 +112,13 @@ void HitDistanceSearchComputeShader::setParameters( ID3D11DeviceContext& deviceC
 
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-        dataPtr->cameraPos               = cameraPos;
-        dataPtr->outputTextureSize       = (float2)outputTextureDimensions;
-        dataPtr->inputTextureSize        = (float2)distanceToOccluder->getDimensions();
-        dataPtr->positionDiffMul         = s_positionDiffMul;
-        dataPtr->normalDiffMul           = s_normalDiffMul;
-        dataPtr->positionNormalThreshold = s_positionNormalThreshold;
+        dataPtr->cameraPos                      = cameraPos;
+        dataPtr->outputTextureSize              = (float2)outputTextureDimensions;
+        dataPtr->inputTextureSize               = (float2)distanceToOccluder->getDimensions();
+        dataPtr->positionDiffMul                = s_positionDiffMul;
+        dataPtr->normalDiffMul                  = s_normalDiffMul;
+        dataPtr->positionNormalThreshold        = s_positionNormalThreshold;
+        dataPtr->minSampleWeightBasedOnDistance = s_minSampleWeightBasedOnDistance;
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

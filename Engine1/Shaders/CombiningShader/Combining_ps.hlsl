@@ -91,6 +91,12 @@ float4 main(PixelInputType input) : SV_Target
         const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
         const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
 
+        // FOR TEST - TO INCREASE QUALITY:
+        samplingMipmapLevel /= 2.0;
+        //samplingStep /= 2.0;
+        samplingRadius *= 4.0;
+        ///////////////////////////////////
+
         float2 pixelSize0 = ( 1.0f / imageSize );
         float2 pixelSize = pixelSize0 * (float)pow( 2, samplingMipmapLevel );
 
