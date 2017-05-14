@@ -102,14 +102,14 @@ namespace Engine1
 		template< typename T >
 		void copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
 					      const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
-						  const int x = 0, const int y = 0, int width = 0, int height = 0 );
+						  const int2 coords = int2( 0, 0 ), int2 dimensions = int2( -1, -1 ) );
 
         template< typename T >
         void copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture );
 
         template< typename T >
         void copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture,
-                          const int x, const int y, const int width, const int height );
+                          const int2 coords, const int2 dimensions );
 
         private:
 
@@ -150,34 +150,49 @@ namespace Engine1
 	template< typename T >
 	void Direct3DRendererCore::copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
 											const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
-											const int x, const int y, int width, int height )
+											const int2 coords, int2 dimensions )
 	{
-		if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
-
-        if ( width == 0 && height == 0 ) {
-            width  = srcTexture.getWidth();
-            height = srcTexture.getHeight();
+		if ( !m_deviceContext ) {
+            throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
         }
 
-		if ( x < 0 || y < 0 || width < 0 || height < 0 || x + width > srcTexture.getWidth() || y + height > srcTexture.getHeight() )
+        if ( dimensions.x == -1 && dimensions.y == -1 ) {
+            dimensions = srcTexture.getDimensions();
+        }
+
+		if ( coords.x < 0 ||
+             coords.y < 0 ||
+             dimensions.x < 0 ||
+             dimensions.y < 0 ||
+             coords.x + dimensions.x > srcTexture.getWidth() ||
+             coords.y + dimensions.y > srcTexture.getHeight() )
+        {
 			throw std::exception( "Direct3DRendererCore::copyTexture - given fragment exceeds boundaries of the source/destination texture." );
+        }
 
 		D3D11_BOX sourceRregion;
-		sourceRregion.left   = x;
-		sourceRregion.right  = x + width;
-		sourceRregion.top    = y;
-		sourceRregion.bottom = y + height;
+		sourceRregion.left   = coords.x;
+		sourceRregion.right  = coords.x + dimensions.x;
+		sourceRregion.top    = coords.y;
+		sourceRregion.bottom = coords.y + dimensions.y;
 		sourceRregion.front  = 0;
 		sourceRregion.back   = 1;
 
-		m_deviceContext->CopySubresourceRegion( destTexture.getTextureResource().Get(), 0, x, y, 0, srcTexture.getTextureResource().Get(), 0, &sourceRregion );
+		m_deviceContext->CopySubresourceRegion( 
+            destTexture.getTextureResource().Get(), 0, 
+            coords.x, coords.y, 0, 
+            srcTexture.getTextureResource().Get(), 0,
+            &sourceRregion 
+        );
 	}
 
     template< typename T >
     void Direct3DRendererCore::copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
                                             const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture, const int srcMipmap )
     {
-        if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+        if ( !m_deviceContext ) {
+            throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+        }
 
         D3D11_BOX sourceRregion;
         sourceRregion.left   = 0;
@@ -187,35 +202,57 @@ namespace Engine1
         sourceRregion.front  = 0;
         sourceRregion.back   = 1;
 
-        m_deviceContext->CopySubresourceRegion( destTexture.getTextureResource().Get(), (UINT)destMipmap, 0, 0, 0, srcTexture.getTextureResource().Get(), srcMipmap, &sourceRregion );
+        m_deviceContext->CopySubresourceRegion( 
+            destTexture.getTextureResource().Get(), 
+            (UINT)destMipmap, 0, 0, 0, 
+            srcTexture.getTextureResource().Get(), 
+            srcMipmap, 
+            &sourceRregion 
+        );
     }
 
     template< typename T >
     void Direct3DRendererCore::copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture )
     {
-        if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+        if ( !m_deviceContext ) {
+            throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+        }
 
         m_deviceContext->CopyResource( destTexture.getTextureResource().Get(), srcTexture.getTextureResource().Get() );
     }
 
     template< typename T >
     void Direct3DRendererCore::copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture,
-                                            const int x, const int y, const int width, const int height )
+                                            const int2 coords, const int2 dimensions )
     {
-        if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+        if ( !m_deviceContext ) {
+            throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
+        }
 
-        if ( x < 0 || y < 0 || width < 0 || height < 0 || x + width > srcTexture.getWidth() || y + height > srcTexture.getHeight() )
+        if ( coords.x < 0 || 
+             coords.y < 0 || 
+             dimensions.x < 0 || 
+             dimensions.y < 0 || 
+             coords.x + dimensions.x > srcTexture.getWidth() || 
+             coords.y + dimensions.y > srcTexture.getHeight() )
+        {
             throw std::exception( "Direct3DRendererCore::copyTexture - given fragment exceeds boundaries of the source/destination texture." );
+        }
 
         D3D11_BOX sourceRregion;
-        sourceRregion.left   = x;
-        sourceRregion.right  = x + width;
-        sourceRregion.top    = y;
-        sourceRregion.bottom = y + height;
+        sourceRregion.left   = coords.x;
+        sourceRregion.right  = coords.x + dimensions.x;
+        sourceRregion.top    = coords.y;
+        sourceRregion.bottom = coords.y + dimensions.y;
         sourceRregion.front  = 0;
         sourceRregion.back   = 1;
 
-        m_deviceContext->CopySubresourceRegion( destTexture.getTextureResource().Get(), 0, x, y, 0, srcTexture.getTextureResource().Get(), 0, &sourceRregion );
+        m_deviceContext->CopySubresourceRegion( 
+            destTexture.getTextureResource().Get(), 0, 
+            coords.x, coords.y, 0, 
+            srcTexture.getTextureResource().Get(), 0, 
+            &sourceRregion 
+        );
     }
 }
 

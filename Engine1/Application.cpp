@@ -59,8 +59,7 @@ Application::Application() :
 	m_deviceContext( nullptr ),
     m_windowPosition( 0, 0 ),
 	m_fullscreen( false ),
-	m_screenWidth( 1024 /*1920*/ ),
-	m_screenHeight( 768 /*1080*/ ),
+	m_screenDimensions( 1024 /*1920*/, 768 /*1080*/ ),
 	m_verticalSync( false ),
     m_limitFPS( false ),
 	m_displayFrequency( 60 ),
@@ -89,15 +88,15 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
     const int parallelThreadCount = std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1;
 
-	m_frameRenderer.initialize( m_windowHandle, m_screenWidth, m_screenHeight, m_fullscreen, m_verticalSync );
+	m_frameRenderer.initialize( m_windowHandle, m_screenDimensions.x, m_screenDimensions.y, m_fullscreen, m_verticalSync );
 	m_rendererCore.initialize( *m_frameRenderer.getDeviceContext( ).Get() );
     m_assetManager.initialize( parallelThreadCount, parallelThreadCount, m_frameRenderer.getDevice() );
     m_profiler.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
 
     m_sceneManager.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
 
-    createDebugFrames( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice() );
-    createUcharDisplayFrame( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice() );
+    createDebugFrames( m_screenDimensions.x, m_screenDimensions.y, m_frameRenderer.getDevice() );
+    createUcharDisplayFrame( m_screenDimensions.x, m_screenDimensions.y, m_frameRenderer.getDevice() );
 
     // Load 'axises' model.
     //BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, false, false, false );
@@ -117,7 +116,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	}
 	catch (...) {}
 
-    m_renderer.initialize( m_screenWidth, m_screenHeight, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
+    m_renderer.initialize( m_screenDimensions.x, m_screenDimensions.y, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
 
 	m_initialized = true;
 }
@@ -168,12 +167,12 @@ void Application::setupWindow() {
 	if ( m_fullscreen ) {
 		DEVMODE screen = { 0 };
 
-		screen.dmSize = sizeof( DEVMODE );
-		screen.dmPelsWidth = m_screenWidth;
-		screen.dmPelsHeight = m_screenHeight;
-		screen.dmBitsPerPel = m_screenColorDepth;
+		screen.dmSize             = sizeof( DEVMODE );
+		screen.dmPelsWidth        = m_screenDimensions.x;
+		screen.dmPelsHeight       = m_screenDimensions.y;
+		screen.dmBitsPerPel       = m_screenColorDepth;
 		screen.dmDisplayFrequency = m_displayFrequency;
-		screen.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
+		screen.dmFields           = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
 
 		ChangeDisplaySettings( &screen, CDS_FULLSCREEN );
 
@@ -184,15 +183,15 @@ void Application::setupWindow() {
 
 	DWORD exStyle = WS_EX_ACCEPTFILES; // Allow drag&drop files.
 
-    int windowWidth = m_screenWidth;
-    int windowHeight = m_screenHeight;
+    int windowWidth  = m_screenDimensions.x;
+    int windowHeight = m_screenDimensions.y;
     if ( !m_fullscreen )
     {
         RECT windowArea;
         windowArea.left   = 0;
         windowArea.top    = 0;
-        windowArea.right  = m_screenWidth;
-        windowArea.bottom = m_screenHeight;
+        windowArea.right  = m_screenDimensions.x;
+        windowArea.bottom = m_screenDimensions.y;
 
         // Calculate the required window dimensions to accommodate the desried client area.
         AdjustWindowRect( &windowArea, style, false );
@@ -240,10 +239,10 @@ void Application::run() {
 	bool run = true;
 	MSG msg;
 
-	Font font( uint2(m_screenWidth, m_screenHeight) );
+	Font font( m_screenDimensions );
 	font.loadFromFile( AssetPathManager::getPathForFileName( "consola.ttf" ), 35 );
 
-    Font font2( uint2(m_screenWidth, m_screenHeight) );
+    Font font2( m_screenDimensions );
     font2.loadFromFile( AssetPathManager::getPathForFileName( "consola.ttf" ), 13 );
 
     // Profiling.
@@ -471,44 +470,44 @@ void Application::run() {
         {
             if ( frameUchar ) 
             {
-                m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, 0, 0, frameUchar->getWidth(), frameUchar->getHeight() );
-		        m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
+                m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, int2( 0, 0 ), frameUchar->getDimensions() );
+		        m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed(0) ) 
-                    debugDisplayTextureValue( *frameUchar, mousePos.x, mousePos.y );
+                    debugDisplayTextureValue( *frameUchar, mousePos );
             } 
             else if ( frameUchar4 )
             {
                 if ( m_debugRenderAlpha )
-		            m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
+		            m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
                 else
-                    m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
+                    m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *frameUchar4, mousePos.x, mousePos.y );
+                    debugDisplayTextureValue( *frameUchar4, mousePos );
             } 
             else if ( frameFloat4 )
             {
-                m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *frameFloat4, mousePos.x, mousePos.y );
+                    debugDisplayTextureValue( *frameFloat4, mousePos );
             }
             else if ( frameFloat2 )
             {
-                m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
             }
             else if ( frameFloat ) 
             {
-                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, false, m_debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *frameFloat, mousePos.x, mousePos.y );
+                    debugDisplayTextureValue( *frameFloat, mousePos );
             }
 
             if ( m_inputManager.isMouseButtonPressed( 0 ) && m_renderer.getActiveViewType() == Renderer::View::CurrentRefractiveIndex )
             {
-                debugDisplayTexturesValue( m_renderer.debugGetCurrentRefractiveIndexTextures(), mousePos.x, mousePos.y );
+                debugDisplayTexturesValue( m_renderer.debugGetCurrentRefractiveIndexTextures(), mousePos );
             }
         }
         catch( ... )
@@ -784,7 +783,7 @@ void Application::run() {
         //deferredRenderer.disableRenderTargets();
 
         if ( frameUchar4 )
-            m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight, true );
+            m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, true );
 
 		m_frameRenderer.displayFrame();
 
@@ -809,58 +808,76 @@ void Application::run() {
 	}
 }
 
-void Application::debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y )
+void Application::debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int2 screenCoords )
 {
-    m_rendererCore.copyTexture( *m_debugFrameU1, texture, x, y, 1, 1 );
-    m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions(0) / (float2)m_screenDimensions;
+    const int2   textureCoords            = (int2)((float2)screenCoords * textureToScreenSizeRatio);
 
-    const unsigned char pixelColor = m_debugFrameU1->getPixel( x, y );
+    m_rendererCore.copyTexture( *m_debugFrameU1, texture, textureCoords, int2::ONE );
+    m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
+
+    const unsigned char pixelColor = m_debugFrameU1->getPixel( textureCoords );
 
     const float floatVal = (float)pixelColor / 255.0f;
     setWindowTitle( "uchar: " + std::to_string( pixelColor ) + ", float: " + std::to_string( floatVal ) + ", ior: " + std::to_string( 1.0f + floatVal * 2.0f ) );
 }
 
-void Application::debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y )
+void Application::debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int2 screenCoords )
 {
-    m_rendererCore.copyTexture( *m_debugFrameU4, texture, x, y, 1, 1 );
-    m_debugFrameU4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)m_screenDimensions;
+    const int2   textureCoords            = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    const uchar4 pixelColor = m_debugFrameU4->getPixel( x, y );
+    m_rendererCore.copyTexture( *m_debugFrameU4, texture, textureCoords, int2::ONE );
+    m_debugFrameU4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
+
+    const uchar4 pixelColor = m_debugFrameU4->getPixel( textureCoords );
 
     const float4 floatVal = float4( (float4)pixelColor / 255.0f );
     setWindowTitle( "uchar: (" + std::to_string( pixelColor.x ) + ", " + std::to_string( pixelColor.y ) + ", " + std::to_string( pixelColor.z ) + ", " + std::to_string( pixelColor.w ) + ")"
                     + ", float: (" + std::to_string( floatVal.x ) + ", " + std::to_string( floatVal.y ) + ", " + std::to_string( floatVal.z ) + ", " + std::to_string( floatVal.w ) + ")" );
 }
 
-void Application::debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y )
+void Application::debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int2 screenCoords )
 {
-    m_rendererCore.copyTexture( *m_debugFrameF1, texture, x, y, 1, 1 );
-    m_debugFrameF1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)m_screenDimensions;
+    const int2   textureCoords            = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    const float pixelColor = m_debugFrameF1->getPixel( x, y );
+    m_rendererCore.copyTexture( *m_debugFrameF1, texture, textureCoords, int2::ONE );
+    m_debugFrameF1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
+
+    const float pixelColor = m_debugFrameF1->getPixel( textureCoords );
 
     setWindowTitle( "float: " + std::to_string( pixelColor ) );
 }
 
-void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int x, const int y )
+void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int2 screenCoords )
 {
-    m_rendererCore.copyTexture( *m_debugFrameF4, texture, x, y, 1, 1 );
-    m_debugFrameF4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)m_screenDimensions;
+    const int2   textureCoords            = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    const float4 pixelColor = m_debugFrameF4->getPixel( x, y );
+    m_rendererCore.copyTexture( *m_debugFrameF4, texture, textureCoords, int2::ONE );
+    m_debugFrameF4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
+
+    const float4 pixelColor = m_debugFrameF4->getPixel( textureCoords );
 
     setWindowTitle( "float: (" + std::to_string( pixelColor.x ) + ", " + std::to_string( pixelColor.y ) + ", " + std::to_string( pixelColor.z ) + ", " + std::to_string( pixelColor.w ) + ")" );
 }
 
-void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y )
+void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int2 screenCoords )
 {
+    if (textures.empty())
+        return;
+
+    const float2 textureToScreenSizeRatio = (float2)textures[0]->getDimensions( 0 ) / (float2)m_screenDimensions;
+    const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
+
     std::string debugString = "ior: ";
 
     for ( auto& texture : textures ) {
-        m_rendererCore.copyTexture( *m_debugFrameU1, *texture, x, y, 1, 1 );
-        m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), x, y, 1, 1 );
+        m_rendererCore.copyTexture( *m_debugFrameU1, *texture, textureCoords, int2::ONE );
+        m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
-        const unsigned char pixelColor = m_debugFrameU1->getPixel( x, y );
+        const unsigned char pixelColor = m_debugFrameU1->getPixel( textureCoords );
         const float floatVal = (float)pixelColor / 255.0f;
 
         debugString += std::to_string( 1.0f + floatVal * 2.0f ) + " -> ";
@@ -1402,7 +1419,7 @@ void Application::onMouseButtonPress( int button )
 
         std::shared_ptr< Actor > pickedActor;
         std::shared_ptr< Light > pickedLight;
-        std::tie( pickedActor, pickedLight ) = m_sceneManager.pickActorOrLight( float2( (float)mousePos.x, (float)mousePos.y ), (float)m_screenWidth, (float)m_screenHeight, fieldOfView );
+        std::tie( pickedActor, pickedLight ) = m_sceneManager.pickActorOrLight( float2( (float)mousePos.x, (float)mousePos.y ), (float)m_screenDimensions.x, (float)m_screenDimensions.y, fieldOfView );
 
         if ( pickedActor )
         {

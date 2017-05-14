@@ -19,11 +19,11 @@ namespace Engine1
         void loadGpuToCpu( ID3D11DeviceContext& deviceContext );
 
         // Loads a fragment of the texture. 
-        // @param x, y - left top x, y coordinates.
-        // @param width, height - width, height of the fragment to be loaded.
-        void loadGpuToCpu( ID3D11DeviceContext& deviceContext, int x, int y, int width, int height );
+        // @param coords - left top x, y coordinates (in pixels).
+        // @param dimensions - width, height of the fragment to be loaded.
+        void loadGpuToCpu( ID3D11DeviceContext& deviceContext, const int2 coords, const int2 dimensions );
 
-        PixelType getPixel( int x, int y ) const;
+        PixelType getPixel( const int2 coords ) const;
 
         int getBytesPerPixel() const;
 
@@ -129,13 +129,21 @@ namespace Engine1
 
     template< typename PixelType >
     void StagingTexture2D< PixelType >
-        ::loadGpuToCpu( ID3D11DeviceContext& deviceContext, int x, int y, int width, int height )
+        ::loadGpuToCpu( ID3D11DeviceContext& deviceContext, const int2 coords, const int2 dimensions )
     {
-        if ( !m_texture )
+        if ( !m_texture ) {
             throw std::exception( "StagingTexture2D::loadGpuToCpu - texture not initialized." );
+        }
 
-        if ( x < 0 || y < 0 || width < 0 || height < 0 || x + width > getWidth() || y + height > getHeight() )
+        if ( coords.x < 0 ||
+             coords.y < 0 ||
+             dimensions.x < 0 ||
+             dimensions.y < 0 ||
+             coords.x + dimensions.x > getWidth() ||
+             coords.y + dimensions.y > getHeight() )
+        {
             throw std::exception( "StagingTexture2D::loadGpuToCpu - given fragment exceeds boundaries of the texture." );
+        }
 
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -144,12 +152,12 @@ namespace Engine1
 
         m_data.resize( getWidth() * getHeight() );
 
-        const int maxX = x + width;
-        const int maxY = y + height;
+        const int maxX = coords.x + dimensions.x;
+        const int maxY = coords.y + dimensions.y;
         
-        for ( int cY = y; cY < maxY; ++cY ) {
-            const int dataShift = ( cY * getWidth() + x ) * getBytesPerPixel();
-            std::memcpy( (char*)m_data.data() + dataShift, (char*)mappedResource.pData + dataShift, width * getBytesPerPixel() );
+        for ( int cY = coords.y; cY < maxY; ++cY ) {
+            const int dataShift = ( cY * getWidth() + coords.x ) * getBytesPerPixel();
+            std::memcpy( (char*)m_data.data() + dataShift, (char*)mappedResource.pData + dataShift, dimensions.x * getBytesPerPixel() );
         }
 
         deviceContext.Unmap( m_texture.Get(), 0 );
@@ -157,12 +165,17 @@ namespace Engine1
 
     template< typename PixelType >
     PixelType StagingTexture2D< PixelType >
-        ::getPixel( int x, int y ) const
+        ::getPixel( const int2 coords ) const
     {
-        if ( x < 0 || y < 0 || x >= getWidth() || y >= getHeight() )
+        if ( coords.x < 0 ||
+             coords.y < 0 ||
+             coords.x >= getWidth() ||
+             coords.y >= getHeight() )
+        {
             throw std::exception( "StagingTexture2D::getPixel - coordinates are out of bounds." );
+        }
 
-        return m_data[ y * getWidth() + x ];
+        return m_data[ coords.y * getWidth() + coords.x ];
     }
 
     template< typename PixelType >

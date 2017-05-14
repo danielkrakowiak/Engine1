@@ -746,6 +746,8 @@ Idea:
 
 	  ------------- VERY, VERY IMPORTANT !!!!      ------------------------
 
+	  - near hit-distance gets too blurred with the sky - and reflection is too blurred... Maybe weight sky depending on the original hit-dist?
+
 	  - maybe sum weights related with distance separately and than square this weight or use smoothstep to ensure more smooth transition from near to far distances.
 
 	  - We don't need to search hit-distance over the whole screen.

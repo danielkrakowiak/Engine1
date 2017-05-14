@@ -370,8 +370,8 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 15.03.2017 - 1h - Refactoring.
 16.03.2017 - 1h - Refactoring. 
 28.03.2017 - 2h - Trying to improve shadow quality when soft/hard shadows intersect or shadow from a semi-transparent object intersects with hard shaow.
+--- March 2017 - 30h
 01.04.2017 - 4h - Trying to fix falsly sharp edges in reflections by adding hit-dist-search - averaging hit-dist from neighbor pixels.
-
 04.04.2017 - 1h - Improving hit-distance calculation for reflections. Weighting samples to ensure smooth transitions and correct blur level.
 05.04.2017 - 2h - Adding hit-dist samples weighting based on position/normal difference between sample and the center pixel.
 08.04.2017 - 1h - Improving reflections.
@@ -384,5 +384,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 21.04.2017 - 2h - Improving reflections - improved hit-dist-search. Finally achieved smooth, circular spread.
 25.04.2017 - 2h - Improving reflections - significantly improved hit-dist-search result smoothness by ensuring uniform sampling over circumference of the sampling circles. Improved performance by sampling higher mipmaps.
 26.04.2017 - 2h - Improving relfections - Fixed hit-dist weighting for samples with hit-dist higher than max-hit-dist - clamped to <0, 1>. Improved weighting based on search-radius to reduce blur while preserving large search radius.
-
+--- April 2017 - 30h
 13.05.2017 - 1h - Improving relfections - simplifying hit-distance search significantly - no need to search samples on the other side of the screen - it's enough to just ensure nice edge transition through proper weighting of sky (far) samples. Added limiting FPS when window is not focused (to unload GPU and CPU).
+14.05.2017 - 3h - Added two-way cast operators between float2/3 and int/2/3. Fixed debug sampling textures (by clicking on a pixel) which are smaller than screen. Refactored Application class a bit.

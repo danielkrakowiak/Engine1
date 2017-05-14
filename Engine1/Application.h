@@ -33,8 +33,7 @@ namespace Engine1
 
 	    bool isFullscreen() { return m_fullscreen; }
 
-	    int getScreenWidth() { return m_screenWidth; }
-	    int getScreenHeight() { return m_screenHeight; }
+	    int2 getScreenDimensions() { return m_screenDimensions; }
 	    int getDisplayFrequency() { return m_displayFrequency; }
 	    int getScreenColorDepth() { return m_screenColorDepth; }
 	    int getZBufferDepth() { return m_zBufferDepth; }
@@ -68,11 +67,11 @@ namespace Engine1
 
         int2 screenPosToWindowPos( int2 screenPos ) const;
 
-        void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int x, const int y );
-        void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int x, const int y );
-        void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int x, const int y );
-        void debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int x, const int y );
-        void debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int x, const int y );
+        void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int2 screenCoords );
+        void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int2 screenCoords );
+        void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int2 screenCoords );
+        void debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int2 screenCoords );
+        void debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int2 screenCoords );
 
 	    // Basic application handles.
 	    HINSTANCE m_applicationInstance;
@@ -92,8 +91,7 @@ namespace Engine1
         Profiler                  m_profiler;
 
 	    bool m_fullscreen;
-	    int  m_screenWidth;
-        int  m_screenHeight;
+	    int2 m_screenDimensions;
 	    bool m_verticalSync;
         bool m_limitFPS;
 	    int  m_displayFrequency;

@@ -87,14 +87,14 @@ namespace Engine1
     class Font
     {
         public:
-        Font( uint2 targetScreenSize ) : 
+        Font( int2 targetScreenSize ) : 
             m_targetScreenSize( targetScreenSize ), 
             m_face( nullptr ), 
             m_loaded( false ), 
             m_path( "" ), 
             m_size( 0 ) {}
 
-        Font( uint2 targetScreenSize, std::string path, unsigned int size ) :
+        Font( int2 targetScreenSize, std::string path, unsigned int size ) :
             m_targetScreenSize( targetScreenSize ),
             m_face( nullptr ),
             m_loaded( false ),
@@ -112,7 +112,7 @@ namespace Engine1
         private:
 
         bool  m_loaded;
-        uint2 m_targetScreenSize;
+        int2 m_targetScreenSize;
 
         FT_Face      m_face;
         std::string  m_path;
