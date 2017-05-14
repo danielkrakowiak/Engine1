@@ -155,7 +155,7 @@ void sampleWeightedHitDistance(
     const float samplesPosNormDiff = positionDiffMul * samplesHitDistDiff * samplesHitDistDiff /*+ normalDiffMul * normalDiff*/;
     const float sampleWeight1 = 1.0f;//1.0f - positionDiffMul * ( sampleHitDistance / centerHitDistance );//max(0.0f, 1.0f - (positionDiffMul * samplesHitDistDiff));//getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
-    // TEST - to avoid blurring small values (into larger values).
+    // To avoid blurring small values (into larger values) - needed when object touches the reflective surface.
     const float minSampleWeightBasedOnDistance2 = lerp( 0.0000001, minSampleWeightBasedOnDistance, saturate(centerSampleValue) );
 
     // Weight diminishing importance of samples hitting the sky if any other samples are available.

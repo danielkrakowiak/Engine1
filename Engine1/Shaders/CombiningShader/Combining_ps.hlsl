@@ -114,6 +114,10 @@ float4 main(PixelInputType input) : SV_Target
 
                 const float2 sampleTexcoords = input.texCoord + float2( x * pixelSize.x, y * pixelSize.y );
 
+                // Skip pixels which are off-screen.
+                if (any(saturate(sampleTexcoords) != sampleTexcoords))
+                    continue;
+
                 const float3 sampleValue = g_colorTexture.SampleLevel( g_linearSamplerState, sampleTexcoords/** srcTextureFillSize / imageSize*/, samplingMipmapLevel ).rgb;
 
                 const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
@@ -125,12 +129,7 @@ float4 main(PixelInputType input) : SV_Target
                 
                 const float  sampleWeight1 = getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
-                // Discard samples which are off-screen (zero value).
-                // #TODO: Can falsy reject completaly black pixels - probably ignorable as they don't appear too often in real life.
-                const float sampleWeight2 = getSampleWeightGreaterThan( sampleValue.r + sampleValue.g + sampleValue.b, 0.0f );
-
-                const float sampleWeight = 1.0/*sampleWeight1 **/ /*sampleWeight2*/;
-                
+                const float sampleWeight = sampleWeight1;
 
                 sampleSum       += sampleValue * sampleWeight;
                 sampleWeightSum += sampleWeight;

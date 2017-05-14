@@ -738,13 +738,11 @@ Idea:
 	  - during dist-to-occluder-search: weighting samples similar to center higher improves quality when shadows overlap (and transparent shadow over hard shadow etc).
 	  But good weighting equation is needed and it probably should be one way -> only soft samples are weighted down when center is hard...
 
-	  REFLECTIONS: -----------------------------
-
-
-	  - add limting FPS when app is not in focus - already added a member for that
 
 
 	  ------------- VERY, VERY IMPORTANT !!!!      ------------------------
+
+	  - what causes that small stripes near object edges? It's related to weighting of samples based on position/normal and pixel size propably.. 
 
 	  - near hit-distance gets too blurred with the sky - and reflection is too blurred... Maybe weight sky depending on the original hit-dist?
 
@@ -762,13 +760,7 @@ Idea:
 	  - How much generating mipmap matters? Rejecting samples? Having holes in mipmaps? Do we fill these holes when generating mipmaps?
 
 
-
-
 	  ----------------------------------------------------------------------
-
-
-
-
 
 
 	  - IMPORTANT: Maybe very important - clamp hit-dist values before creating mipmaps. Otherwise values interpolated on textures will be too high...
