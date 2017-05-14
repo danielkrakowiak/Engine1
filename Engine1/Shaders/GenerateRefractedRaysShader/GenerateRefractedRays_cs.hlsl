@@ -29,6 +29,7 @@ RWTexture2D<float>  g_nextRefractiveIndex : register( u2 ); // Refractive index 
 
 static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
 static const float refractiveIndexMul = 2.0f;
+static const float rayOriginOffset = 0.0001f; // Used to move refracted ray origin along the ray direction to avoid self-collisions.
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -82,7 +83,7 @@ void main( uint3 groupId : SV_GroupID,
     }
 
     const float3 secondaryRayDir    = calcRefractedRay( rayDir, surfaceNormal, refractiveIndex );
-    const float3 secondaryRayOrigin = surfacePosition + secondaryRayDir * 0.01f; // Modify ray origin to avoid self-collisions.
+    const float3 secondaryRayOrigin = surfacePosition + secondaryRayDir * rayOriginOffset; // Modify ray origin to avoid self-collisions.
 
     g_rayOrigin[ dispatchThreadId.xy ]    = float4( secondaryRayOrigin, 0.0f );
     g_rayDirection[ dispatchThreadId.xy ] = float4( secondaryRayDir, 0.0f );

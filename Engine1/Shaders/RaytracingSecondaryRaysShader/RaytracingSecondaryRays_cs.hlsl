@@ -46,7 +46,7 @@ RWTexture2D<uint>   g_hitIndexOfRefraction : register( u5 );
 RWTexture2D<uint4>  g_hitEmissive          : register( u6 );
 RWTexture2D<uint4>  g_hitAlbedoAlpha       : register( u7 );
 
-static const float minHitDist = 0.001f;
+static const float minHitDist = 0.0001f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.

@@ -155,10 +155,11 @@ void sampleWeightedHitDistance(
     const float samplesPosNormDiff = positionDiffMul * samplesHitDistDiff * samplesHitDistDiff /*+ normalDiffMul * normalDiff*/;
     const float sampleWeight1 = 1.0f;//1.0f - positionDiffMul * ( sampleHitDistance / centerHitDistance );//max(0.0f, 1.0f - (positionDiffMul * samplesHitDistDiff));//getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
+    // TEST - to avoid blurring small values (into larger values).
+    const float minSampleWeightBasedOnDistance2 = lerp( 0.0000001, minSampleWeightBasedOnDistance, saturate(centerSampleValue) );
+
     // Weight diminishing importance of samples hitting the sky if any other samples are available.
-    const float sampleWeight2 = clamp( maxHitDistance - sampleValue, minSampleWeightBasedOnDistance/*0.00001*/, 1.0 );
-	//if ( sampleHitDistance > maxHitDistance)
-	//    sampleWeight1 = 0.0f;
+    const float sampleWeight2 = clamp( maxHitDistance - sampleValue, minSampleWeightBasedOnDistance2/*0.00001*/, 1.0 );
 
     // Discard samples which are off-screen (zero dist-to-occluder).
     const float sampleWeight3 = getSampleWeightGreaterThan( sampleValue, 0.0 );

@@ -22,6 +22,7 @@ RWTexture2D<float4> g_rayOrigin    : register( u0 );
 RWTexture2D<float4> g_rayDirection : register( u1 );
 
 static const float requiredContributionTerm = 0.35f; // Discard rays which color is visible in less than 5% by the camera.
+static const float rayOriginOffset = 0.0001f; // Used to move reflected ray origin along the ray direction to avoid self-collisions.
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -58,7 +59,7 @@ void main( uint3 groupId : SV_GroupID,
     }
 
     const float3 secondaryRayDir    = calcReflectedRay( rayDir, surfaceNormal );
-    const float3 secondaryRayOrigin = surfacePosition + secondaryRayDir * 0.01f; // Modify ray origin to avoid self-collisions.
+    const float3 secondaryRayOrigin = surfacePosition + secondaryRayDir * rayOriginOffset; // Modify ray origin to avoid self-collisions.
 
     g_rayOrigin[ dispatchThreadId.xy ]    = float4( secondaryRayOrigin, 0.0f );
     g_rayDirection[ dispatchThreadId.xy ] = float4( secondaryRayDir, 0.0f );
