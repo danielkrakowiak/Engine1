@@ -4,6 +4,8 @@
 
 namespace Engine1
 {
+    class int2;
+
     class float2
     {
 
@@ -121,6 +123,8 @@ namespace Engine1
             x *= lengthInverse;
             y *= lengthInverse;
         }
+
+        explicit operator int2() const;
     };
 
     float2 operator * (const float value, const float2& vec);

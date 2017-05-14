@@ -8,6 +8,7 @@
 namespace Engine1
 {
     class float4;
+    class int3;
 
     class float3
     {
@@ -163,6 +164,8 @@ namespace Engine1
         }
 
         void rotate( const float3& rotationAngles );
+
+        explicit operator int3() const;
     };
 
     float  dot( const float3& vec1, const float3& vec2 );

@@ -13,6 +13,7 @@ namespace Engine1
         int2_type y;
 
         static const int2 ZERO;
+        static const int2 ONE;
 
         int2() {}
         int2( const int2& a ) : x( a.x ), y( a.y ) {}
