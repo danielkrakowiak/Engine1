@@ -732,20 +732,20 @@ void Application::run() {
 
             if ( m_sceneManager.isSelectionEmpty() )
             {
-                ss << "\nCombiningFragmentShader::s_positionDiffMul: "                       << CombiningFragmentShader::s_positionDiffMul;
-                ss << "\nCombiningFragmentShader::s_normalDiffMul: "                         << CombiningFragmentShader::s_normalDiffMul;
-                ss << "\nCombiningFragmentShader::s_positionNormalThreshold: "               << CombiningFragmentShader::s_positionNormalThreshold;
-                ss << "\nCombiningFragmentShader2::s_positionDiffMul: "                      << CombiningFragmentShader2::s_positionDiffMul;
-                ss << "\nCombiningFragmentShader2::s_normalDiffMul: "                        << CombiningFragmentShader2::s_normalDiffMul;
-                ss << "\nCombiningFragmentShader2::s_positionNormalThreshold: "              << CombiningFragmentShader2::s_positionNormalThreshold;
-                ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "                << HitDistanceSearchComputeShader::s_positionDiffMul;
-                ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "                  << HitDistanceSearchComputeShader::s_normalDiffMul;
-                ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: "        << HitDistanceSearchComputeShader::s_positionNormalThreshold;
-                ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance;
+                ss << "\nCombiningFragmentShader::s_positionDiffMul: "                       << CombiningFragmentShader::s_positionDiffMul << " [C + P]";
+                ss << "\nCombiningFragmentShader::s_normalDiffMul: "                         << CombiningFragmentShader::s_normalDiffMul << " [C + N]";
+                ss << "\nCombiningFragmentShader::s_positionNormalThreshold: "               << CombiningFragmentShader::s_positionNormalThreshold << " [C + T]";
+                ss << "\nCombiningFragmentShader2::s_positionDiffMul: "                      << CombiningFragmentShader2::s_positionDiffMul << " [C + P]";
+                ss << "\nCombiningFragmentShader2::s_normalDiffMul: "                        << CombiningFragmentShader2::s_normalDiffMul << " [C + N]";
+                ss << "\nCombiningFragmentShader2::s_positionNormalThreshold: "              << CombiningFragmentShader2::s_positionNormalThreshold << " [C + T]";
+                ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "                << HitDistanceSearchComputeShader::s_positionDiffMul << " [R + P]";
+                ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "                  << HitDistanceSearchComputeShader::s_normalDiffMul << " [R + N]";
+                ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: "        << HitDistanceSearchComputeShader::s_positionNormalThreshold << " [R + T]";
+                ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance << " [R + W]";;
             }
 
             if ( m_renderText )
-                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 20.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render camera state.
@@ -1167,12 +1167,13 @@ void Application::onKeyPress( int key )
         }
     }
 
-    // [R] and [P/N/T] and ( [+] or [-] ) - Modify reflection dist-search position diff mul, normal diff mul or position/normal threshold.
+    // [R] and [P/N/T/W] and ( [+] or [-] ) - Modify reflection dist-search position diff mul, 
+    // normal diff mul or position/normal threshold or "min sample weight based on distance".
     if ( m_sceneManager.isSelectionEmpty() && m_inputManager.isKeyPressed( InputManager::Keys::r ) ) {
         if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
             const float change =
                 ( key == InputManager::Keys::plus ) ?
-                0.005f : -0.005f;
+                0.05f : -0.05f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
             {
@@ -1201,7 +1202,7 @@ void Application::onKeyPress( int key )
         if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
             const float change =
                 ( key == InputManager::Keys::plus ) ?
-                0.005f : -0.005f;
+                0.1f : -0.05f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) ) {
                 CombiningFragmentShader::s_positionDiffMul  += change;

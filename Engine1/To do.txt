@@ -740,32 +740,43 @@ Idea:
 
 
 
-	  ------------- VERY, VERY IMPORTANT !!!!      ------------------------
+	  //////////////////////////////// REFLECTIONS/ REFRACTIONS //////////////////////////////////////
+	  ////////////////////////////////////////////////////////////////////////////////////////////////
 
-	  - what causes that small stripes near object edges? It's related to weighting of samples based on position/normal and pixel size propably.. 
+	  - NOTES REGARDING ARTEFACTS IN REFLECTIONS NEAR OBJECT EDGES:
+		- the artifacts come from two sources: accepting samples which are too different from the center one (in terms of positions/normals etc)
+		  and from avaraging of colors caused by using higher mipmaps - even in the center pixel.
+		- artefacts got fixed by rejecting samples based on position/normal and by rejecting center pixel automatically.
+		- the only visible artefacts right now are from too high specular highlight in reflections - fixing specular should fix that.
+		- To fight that we can:
+		  1) use smaller mipmap levels (and more samples) - that would reduce color bleeding from mipmapping (used now), expensive, but simple
+		  2) rejecting samples in a smarter way, knowing somehow if they contain artefacts from mipmapping (probably some radius from center can be calculated) 
+		  3) generating mipmaps for positions/normals and sampling them at the same level (with the same sampler) as color to deduce if they contain artefacts from mipmapping (is it expensive?)
+		  4) Spread our samples more from the center (than exaclty the size of the pixel) - thus reducing mipmap artefacts - but may cause an effect of duplication of reflections... worth a try.. 
 
-	  - near hit-distance gets too blurred with the sky - and reflection is too blurred... Maybe weight sky depending on the original hit-dist?
+	  - NOTES REGARDING HIT-DIST-SEARCH for reflections:
+	  	- We don't need to search hit-distance over the whole screen.
+		- That's actually incorrect as some objects would impact perceived roughness on completaly unrelated objects...
+		- The only thing we need is to balance transition between objects/sky and near object/far object on their edges.
+		- One way is to clamp weights for sky (far samples) samples - and limit them to 0.05 or so instead of giving them 0 weight (which requires to get some value from elsewhere in the screen)
+		- Make "sort of Gaussian blur" when weighting normal samples - so that they fade further from center and blend smoothly with sky.
+		- How much generating mipmap matters? Rejecting samples? Having holes in mipmaps? Do we fill these holes when generating mipmaps?
+		  How eraly should we clamp distance values? Seems like early clamping is a good idea.
+		  (My guess: clamp hit-dist values before creating mipmaps. Otherwise values interpolated on textures will be too high...)
 
-	  - maybe sum weights related with distance separately and than square this weight or use smoothstep to ensure more smooth transition from near to far distances.
+		- #TODO: Find good pos-mul, normal-mul and threshold for rejecting samples.
+		- #TODO: Should account for distance when calculating search radius - further regions blur smaller screen areas
+		- #TODO: Can be optimized using two pass blur? Maybe, maybe later? Needed?
+		- #TODO: Doing reflections in half-resolution? Especially raytracing?
 
-	  - We don't need to search hit-distance over the whole screen.
-	  - That's actually incorrect as some objects would impact perceived roughness on completaly unrelated objects...
-	  - The only thing we need is to balance transition between objects/sky and near object/far object on their edges.
-	  - With some tweaking - it can be done.
-	  - One way is to clamp weights for sky (far samples) samples - and limit them to 0.05 or so...
-	  - Make "sort of Gaussian blur" when weighting normal samples - so that they fade further from center and blend smoothly with sky.
-	  - Account for distance when calculating search radius?
-	  - Can be optimized using two pass blur? Maybe, maybe later? Needed?
-
-	  - How much generating mipmap matters? Rejecting samples? Having holes in mipmaps? Do we fill these holes when generating mipmaps?
-
-
+		CURRENT PROBLEMS:
+		- I use more samples with lower level mipamps to avoid mipmapping artefacts (colors blurred over object edges) - but it's expensive - maybe could be improved.
+		- small values of hit-distance get too blurred with the sky (far samples) - and reflection is too blurred when object touches the reflective surface... 
+		  Maybe weight sky depending on the original hit-dist (before blur)? - DONE - Improves, but not perfect. Works within the object, but not on the outside.
+		  Could look for min hit-dist in sorrounding pixels before deciding on how to weight sky (far) samples.
 	  ----------------------------------------------------------------------
 
 
-	  - IMPORTANT: Maybe very important - clamp hit-dist values before creating mipmaps. Otherwise values interpolated on textures will be too high...
-
-	  - play with hit-dist weighting based on screen-space diff.
 	  - account for distance to camera in hit-dist-search - should impact search area
 
 	  - MINOR: Center texcoord doesn't really point to pixel center on input texture. It points to center in output texture. This can cause problems.

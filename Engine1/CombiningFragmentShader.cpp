@@ -11,9 +11,9 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-float CombiningFragmentShader::s_positionDiffMul = 1.0f;
-float CombiningFragmentShader::s_normalDiffMul = 1.0f;
-float CombiningFragmentShader::s_positionNormalThreshold = 1.0f;
+float CombiningFragmentShader::s_positionDiffMul = 6.0f;
+float CombiningFragmentShader::s_normalDiffMul = 3.0f;
+float CombiningFragmentShader::s_positionNormalThreshold = 0.3f;
 
 CombiningFragmentShader::CombiningFragmentShader() :
 m_resourceCount( 0 )
