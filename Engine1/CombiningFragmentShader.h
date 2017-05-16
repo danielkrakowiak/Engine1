@@ -48,22 +48,20 @@ namespace Engine1
         {
             float  normalThreshold;
             float3 pad1;
-            float  positionThresholdSquare;
-            float3 pad2;
             float3 cameraPosition;
-            float  pad3;
+            float  pad2;
             float2 imageSize;
-            float2 pad4;
+            float2 pad3;
             float2 contributionTextureFillSize;
-            float2 pad5;
+            float2 pad4;
             float2 srcTextureFillSize;
-            float2 pad6;
+            float2 pad5;
             float  positionDiffMul;
-            float3 pad7;
+            float3 pad6;
             float  normalDiffMul;
-            float3 pad8;
+            float3 pad7;
             float  positionNormalThreshold;
-            float3 pad9;
+            float3 pad8;
         };
 
         int m_resourceCount;

@@ -776,6 +776,11 @@ Idea:
 		  Could look for min hit-dist in sorrounding pixels before deciding on how to weight sky (far) samples.
 	  ----------------------------------------------------------------------
 
+	  NEXT:
+	  - make combining shader 2 same as n. 1
+	  - account for depth in hit-dist-search
+	  - account for ray-length in next hit-dist-search?
+
 
 	  - account for distance to camera in hit-dist-search - should impact search area
 

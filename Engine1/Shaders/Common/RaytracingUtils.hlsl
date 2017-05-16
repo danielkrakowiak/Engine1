@@ -147,10 +147,10 @@ bool rayTriangleIntersect( const float3 rayOrigin, const float3 rayDir, const fl
 	const float dot3 = dot( rayDir, cross( vertices[2] - rayOrigin, vertices[0] - rayOrigin ));
 
     // Without backface culling:
-    //return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );
+    return ( ( dot1 < 0 && dot2 < 0 && dot3 < 0 ) || ( dot1 > 0 && dot2 > 0 && dot3 > 0 ) );
 
     // With backface culling:
-    return (dot1 < 0 && dot2 < 0 && dot3 < 0);
+    //return (dot1 < 0 && dot2 < 0 && dot3 < 0);
 }
 
 float calcDistToTriangle( const float3 rayOrigin, const float3 rayDir, const float3x3 vertices )

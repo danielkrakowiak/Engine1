@@ -17,22 +17,20 @@ cbuffer ConstantBuffer
 {
     float  normalThreshold;
     float3 pad1;
-    float  positionThresholdSquare;
-    float3 pad2;
     float3 cameraPosition;
-    float  pad3;
+    float  pad2;
     float2 imageSize;
-    float2 pad4;
+    float2 pad3;
     float2 contributionTextureFillSize;
-    float2 pad5;
+    float2 pad4;
     float2 srcTextureFillSize;
-    float2 pad6;
+    float2 pad5;
     float  positionDiffMul;
-    float3 pad7;
+    float3 pad6;
     float  normalDiffMul;
-    float3 pad8;
+    float3 pad7;
     float  positionNormalThreshold;
-    float3 pad9;
+    float3 pad8;
 };
 
 struct PixelInputType
@@ -55,8 +53,8 @@ float4 main(PixelInputType input) : SV_Target
     const float hitDistance = g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
 
     const float roughnessMult = 75.0f;
-    const float roughness = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
-    float blurRadius = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( depth + 1.0f ) );// * tan( roughness * PiHalf );
+    const float roughness     = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
+    float       blurRadius    = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( depth + 1.0f ) );// * tan( roughness * PiHalf );
 
     float samplingRadius      = min( 1.0f, blurRadius ) * 0.5f;
     float samplingMipmapLevel = log2( blurRadius );
@@ -76,7 +74,7 @@ float4 main(PixelInputType input) : SV_Target
     }
     else
     {
-        const float samplingStep = 1.0f;//max( 1.0f, floor( sqrt( samplingRadius ) ) );
+        const float samplingStep = 1.0f;
 
         const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
         const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
@@ -131,6 +129,7 @@ float4 main(PixelInputType input) : SV_Target
         reflectionColor.rgb = sampleSum / sampleWeightSum;
     }
 
-    float3 outputColor = contributionTerm * reflectionColor.rgb;
+    const float3 outputColor = contributionTerm * reflectionColor.rgb;
+
 	return float4( outputColor, 1.0f );
 }

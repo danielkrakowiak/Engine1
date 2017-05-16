@@ -120,7 +120,6 @@ void CombiningFragmentShader2::setParameters( ID3D11DeviceContext& deviceContext
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
     dataPtr->normalThreshold             = normalThreshold;
-    dataPtr->positionThresholdSquare     = positionThreshold * positionThreshold;
     dataPtr->imageSize                   = float2( (float)srcTexture->getWidth(), (float)srcTexture->getHeight() );
     dataPtr->contributionTextureFillSize = float2( (float)contributionTextureFilledWidth, (float)contributionTextureFilledHeight );
     dataPtr->srcTextureFillSize          = float2( (float)srcTextureFilledWidth, (float)srcTextureFilledHeight );
