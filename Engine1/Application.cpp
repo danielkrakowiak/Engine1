@@ -118,6 +118,8 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
     m_renderer.initialize( m_screenDimensions.x, m_screenDimensions.y, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
 
+    m_controlPanel.initialize( m_frameRenderer.getDevice(), m_screenDimensions );
+
 	m_initialized = true;
 }
 
@@ -278,7 +280,8 @@ void Application::run() {
 			TranslateMessage( &msg );
 			DispatchMessage( &msg );
 
-			if ( WM_QUIT == msg.message ) run = false;
+			if ( WM_QUIT == msg.message ) 
+                run = false;
 		}
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -785,6 +788,8 @@ void Application::run() {
         if ( frameUchar4 )
             m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, true );
 
+        m_controlPanel.draw();
+
 		m_frameRenderer.displayFrame();
 
         m_profiler.endEvent( Profiler::GlobalEventType::Frame );
@@ -891,7 +896,16 @@ void Application::setWindowTitle( const std::string& title )
     SetWindowText( m_windowHandle, StringUtil::widen( title ).c_str() );
 }
 
-LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
+LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) 
+{
+    if (windowsMessageReceiver)
+    {
+        const int result = windowsMessageReceiver->m_controlPanel.processInput( hWnd, msg, wParam, lParam );
+
+        if ( result )
+            return 0; // Message handled by the Control Panel.
+    }
+
 	switch (msg) {
 	case WM_CREATE:
 		SetTimer(hWnd, inputTimerId, inputTimerInterval, 0);

@@ -13,6 +13,8 @@
 
 #include "AssetManager.h"
 
+#include "ControlPanel.h"
+
 #include "StagingTexture2D.h"
 
 namespace Engine1
@@ -89,6 +91,8 @@ namespace Engine1
         Direct3DFrameRenderer     m_frameRenderer;
         Renderer                  m_renderer;
         Profiler                  m_profiler;
+
+        ControlPanel m_controlPanel;
 
 	    bool m_fullscreen;
 	    int2 m_screenDimensions;
