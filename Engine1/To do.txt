@@ -777,9 +777,11 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - make combining shader 2 same as n. 1
+	  - but before: roughness mult for textures or models - otherwise testing is too hard...
 	  - account for depth in hit-dist-search
+	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
 	  - account for ray-length in next hit-dist-search?
+	  - how to blur further layers reflections/refractions? Because higher layer sharp edges kill the feeling of roughness from the first layer.
 
 
 	  - account for distance to camera in hit-dist-search - should impact search area

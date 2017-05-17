@@ -29,6 +29,8 @@ namespace Engine1
 
         float3( const float4& a );
 
+        explicit float3( const float v ) : x( v ), y( v ), z( v ) {}
+
         float3& operator = (const float3& vec)
         {
             x = vec.x;

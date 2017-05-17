@@ -394,44 +394,44 @@ std::string ModelUtil::getDescription( const BlockModel& model, const bool print
     else
         text += "model: \n";
 
-    if ( model.getAlphaTexturesCount() > 0 )
-         text += "alpha: " + std::to_string( model.getAlphaTexturesCount() ) + "\n";
+    if ( !model.getAlphaTextures().empty() )
+         text += "alpha: " + std::to_string( model.getAlphaTextures().size() ) + "\n";
 
     for ( auto& modelTexture : model.getAlphaTextures() )
         text += TextureUtil::getDescription( *modelTexture.getTexture(), printPath, printDimensions );
 
-    if ( model.getEmissiveTexturesCount() > 0 )
-        text += "emissive: " + std::to_string( model.getEmissiveTexturesCount() ) + "\n";
+    if ( !model.getEmissiveTextures().empty() )
+        text += "emissive: " + std::to_string( model.getEmissiveTextures().size() ) + "\n";
 
     for ( auto& modelTexture : model.getEmissiveTextures() )
         text += TextureUtil::getDescription( *modelTexture.getTexture(), printPath, printDimensions );
 
-    if ( model.getAlbedoTexturesCount() > 0 )
-        text += "albedo: " + std::to_string( model.getAlbedoTexturesCount() ) + "\n";
+    if ( !model.getAlbedoTextures().empty() )
+        text += "albedo: " + std::to_string( model.getAlbedoTextures().size() ) + "\n";
 
     for ( auto& modelTexture : model.getAlbedoTextures() )
         text += TextureUtil::getDescription( *modelTexture.getTexture(), printPath, printDimensions );
 
-    if ( model.getMetalnessTexturesCount() > 0 )
-        text += "metalness: " + std::to_string( model.getMetalnessTexturesCount() ) + "\n";
+    if ( !model.getMetalnessTextures().empty() )
+        text += "metalness: " + std::to_string( model.getMetalnessTextures().size() ) + "\n";
 
     for ( auto& modelTexture : model.getMetalnessTextures() )
         text += TextureUtil::getDescription( *modelTexture.getTexture(), printPath, printDimensions );
 
-    if ( model.getRoughnessTexturesCount() > 0 )
-        text += "roughness: " + std::to_string( model.getRoughnessTexturesCount() ) + "\n";
+    if ( !model.getRoughnessTextures().empty() )
+        text += "roughness: " + std::to_string( model.getRoughnessTextures().size() ) + "\n";
 
     for ( auto& modelTexture : model.getRoughnessTextures() )
         text += TextureUtil::getDescription( *modelTexture.getTexture(), printPath, printDimensions );
 
-    if ( model.getNormalTexturesCount() > 0 )
-        text += "normal: " + std::to_string( model.getNormalTexturesCount() ) + "\n";
+    if ( !model.getNormalTextures().empty() )
+        text += "normal: " + std::to_string( model.getNormalTextures().size() ) + "\n";
 
     for ( auto& modelTexture : model.getNormalTextures() )
         text += TextureUtil::getDescription( *modelTexture.getTexture(), printPath, printDimensions );
 
-    if ( model.getRefractiveIndexTexturesCount() > 0 )
-        text += "normal: " + std::to_string( model.getRefractiveIndexTexturesCount() ) + "\n";
+    if ( !model.getRefractiveIndexTextures().empty() )
+        text += "normal: " + std::to_string( model.getRefractiveIndexTextures().size() ) + "\n";
 
     for ( auto& modelTexture : model.getRefractiveIndexTextures() )
         text += TextureUtil::getDescription( *modelTexture.getTexture(), printPath, printDimensions );

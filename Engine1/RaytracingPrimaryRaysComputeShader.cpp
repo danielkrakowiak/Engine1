@@ -62,12 +62,12 @@ void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& dev
                                                         const BlockMesh& mesh, const float43& worldMatrix, 
                                                         const float3 boundingBoxMin, 
                                                         const float3 boundingBoxMax,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture )
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture, const float3& emissiveMul,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture, const float3& albedoMul,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture, const float3& normalMul,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture, const float metalnessMul,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture, const float roughnessMul,
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul )
 {
     if ( !m_compiled ) throw std::exception( "RaytracingPrimaryRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 
@@ -102,11 +102,17 @@ void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& dev
 
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-        dataPtr->rayOrigin      = rayOrigin;
-        dataPtr->localToWorldMatrix = float44( worldMatrix ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
-        dataPtr->worldToLocalMatrix = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
-        dataPtr->boundingBoxMin = boundingBoxMin;
-        dataPtr->boundingBoxMax = boundingBoxMax;
+        dataPtr->rayOrigin            = rayOrigin;
+        dataPtr->localToWorldMatrix   = float44( worldMatrix ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
+        dataPtr->worldToLocalMatrix   = float44( worldMatrix.getScaleOrientationTranslationInverse() ).getTranspose(); // Transpose from row-major to column-major to fit each column in one register.
+        dataPtr->boundingBoxMin       = boundingBoxMin;
+        dataPtr->boundingBoxMax       = boundingBoxMax;
+        dataPtr->emissiveMul          = emissiveMul;
+        dataPtr->albedoMul            = albedoMul;
+        dataPtr->normalMul            = normalMul;
+        dataPtr->metalnessMul         = metalnessMul;
+        dataPtr->roughnessMul         = roughnessMul;
+        dataPtr->indexOfRefractionMul = indexOfRefractionMul;
 
         // Padding.
         dataPtr->pad1 = 0.0f;

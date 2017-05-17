@@ -169,40 +169,6 @@ int Model::getTextureCount( const TextureType type ) const
     throw std::exception( "Model::getTextureCount - there is no such texture type." );
 }
 
-int Model::getAlphaTexturesCount( ) const {
-	return (int)m_alphaTextures.size();
-}
-
-int Model::getEmissiveTexturesCount() const
-{
-    return (int)m_emissiveTextures.size();
-}
-
-int Model::getAlbedoTexturesCount() const
-{
-    return (int)m_albedoTextures.size();
-}
-
-int Model::getMetalnessTexturesCount() const
-{
-    return (int)m_metalnessTextures.size();
-}
-
-int Model::getRoughnessTexturesCount() const
-{
-    return (int)m_roughnessTextures.size();
-}
-
-int Model::getNormalTexturesCount() const
-{
-    return (int)m_normalTextures.size();
-}
-
-int Model::getRefractiveIndexTexturesCount() const
-{
-    return (int)m_refractiveIndexTextures.size();
-}
-
 std::vector< std::tuple< std::shared_ptr< Asset >, int > > Model::getTextures( const TextureType type ) const
 {
     std::vector< std::tuple< std::shared_ptr< Asset >, int > > textures;
@@ -248,39 +214,74 @@ std::vector< std::tuple< std::shared_ptr< Asset >, int > > Model::getTextures( c
     throw std::exception( "Model::getTextures - there is no such texture type." );
 }
 
-std::vector< ModelTexture2D< unsigned char > > Model::getAlphaTextures( ) const 
+const std::vector< ModelTexture2D< unsigned char > >& Model::getAlphaTextures( ) const 
 {
-	return std::vector< ModelTexture2D< unsigned char > >( m_alphaTextures.begin( ), m_alphaTextures.end( ) );
+	return m_alphaTextures;
 }
 
-std::vector< ModelTexture2D< uchar4 > > Model::getEmissiveTextures() const
+std::vector< ModelTexture2D< unsigned char > >& Model::getAlphaTextures()
 {
-    return std::vector< ModelTexture2D< uchar4 > >( m_emissiveTextures.begin(), m_emissiveTextures.end() );
+    return m_alphaTextures;
 }
 
-std::vector< ModelTexture2D< uchar4 > > Model::getAlbedoTextures() const
+const std::vector< ModelTexture2D< uchar4 > >& Model::getEmissiveTextures() const
 {
-    return std::vector< ModelTexture2D< uchar4 > >( m_albedoTextures.begin(), m_albedoTextures.end() );
+    return m_emissiveTextures;
 }
 
-std::vector< ModelTexture2D< unsigned char > > Model::getMetalnessTextures() const
+std::vector< ModelTexture2D< uchar4 > >& Model::getEmissiveTextures()
 {
-    return std::vector< ModelTexture2D< unsigned char > >( m_metalnessTextures.begin(), m_metalnessTextures.end() );
+    return m_emissiveTextures;
 }
 
-std::vector< ModelTexture2D< unsigned char > > Model::getRoughnessTextures() const
+const std::vector< ModelTexture2D< uchar4 > >& Model::getAlbedoTextures() const
 {
-    return std::vector< ModelTexture2D< unsigned char > >( m_roughnessTextures.begin(), m_roughnessTextures.end() );
+    return m_albedoTextures;
 }
 
-std::vector< ModelTexture2D< uchar4 > > Model::getNormalTextures() const
+std::vector< ModelTexture2D< uchar4 > >& Model::getAlbedoTextures()
 {
-    return std::vector< ModelTexture2D< uchar4 > >( m_normalTextures.begin(), m_normalTextures.end() );
+    return m_albedoTextures;
 }
 
-std::vector< ModelTexture2D< unsigned char > > Model::getRefractiveIndexTextures() const
+const std::vector< ModelTexture2D< unsigned char > >& Model::getMetalnessTextures() const
 {
-    return std::vector< ModelTexture2D< unsigned char > >( m_refractiveIndexTextures.begin(), m_refractiveIndexTextures.end() );
+    return m_metalnessTextures;
+}
+
+std::vector< ModelTexture2D< unsigned char > >& Model::getMetalnessTextures()
+{
+    return m_metalnessTextures;
+}
+
+const std::vector< ModelTexture2D< unsigned char > >& Model::getRoughnessTextures() const
+{
+    return m_roughnessTextures;
+}
+
+std::vector< ModelTexture2D< unsigned char > >& Model::getRoughnessTextures()
+{
+    return m_roughnessTextures;
+}
+
+const std::vector< ModelTexture2D< uchar4 > >& Model::getNormalTextures() const
+{
+    return m_normalTextures;
+}
+
+std::vector< ModelTexture2D< uchar4 > >& Model::getNormalTextures()
+{
+    return m_normalTextures;
+}
+
+const std::vector< ModelTexture2D< unsigned char > >& Model::getRefractiveIndexTextures() const
+{
+    return m_refractiveIndexTextures;
+}
+
+std::vector< ModelTexture2D< unsigned char > >& Model::getRefractiveIndexTextures()
+{
+    return m_refractiveIndexTextures;
 }
 
 std::tuple< std::shared_ptr< Asset >, int > Model::getTexture( const TextureType type, int index ) const
@@ -326,53 +327,3 @@ std::tuple< std::shared_ptr< Asset >, int > Model::getTexture( const TextureType
 
     throw std::exception( "Model::getTexture - there is no such texture type." );
 }
-
-ModelTexture2D< unsigned char > Model::getAlphaTexture( int index ) const 
-{
-	if ( index >= (int)m_alphaTextures.size() ) throw std::exception( "Model::getAlphaTexture: Trying to access texture at non-existing index" );
-
-	return m_alphaTextures.at( index );
-}
-
-ModelTexture2D< uchar4 > Model::getEmissiveTexture( int index ) const 
-{
-	if ( index >= (int)m_emissiveTextures.size() ) throw std::exception( "Model::getEmissionTexture: Trying to access texture at non-existing index" );
-
-	return m_emissiveTextures.at( index );
-}
-
-ModelTexture2D< uchar4 > Model::getAlbedoTexture( int index ) const 
-{
-	if ( index >= (int)m_albedoTextures.size() ) throw std::exception( "Model::getAlbedoTexture: Trying to access texture at non-existing index" );
-
-	return m_albedoTextures.at( index );
-}
-
-ModelTexture2D< unsigned char > Model::getMetalnessTexture( int index ) const 
-{
-	if ( index >= (int)m_metalnessTextures.size() ) throw std::exception( "Model::getMetalnessTexture: Trying to access texture at non-existing index" );
-
-	return m_metalnessTextures.at( index );
-}
-
-ModelTexture2D< unsigned char > Model::getRoughnessTexture( int index ) const 
-{
-	if ( index >= (int)m_roughnessTextures.size( ) ) throw std::exception( "Model::getRoughnessTexture: Trying to access texture at non-existing index" );
-
-	return m_roughnessTextures.at( index );
-}
-
-ModelTexture2D< uchar4 > Model::getNormalTexture( int index ) const 
-{
-	if ( index >= (int)m_normalTextures.size( ) ) throw std::exception( "Model::getNormalTexture: Trying to access texture at non-existing index" );
-
-	return m_normalTextures.at( index );
-}
-
-ModelTexture2D< unsigned char > Model::getRefractiveIndexTexture( int index ) const 
-{
-	if ( index >= (int)m_refractiveIndexTextures.size( ) ) throw std::exception( "Model::getIndexOfRefractionTexture: Trying to access texture at non-existing index" );
-
-	return m_refractiveIndexTextures.at( index );
-}
-

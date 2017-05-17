@@ -56,6 +56,8 @@ void ReplaceValueComputeShader::setParameters( ID3D11DeviceContext& deviceContex
 
 void ReplaceValueComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
 {
+    deviceContext;
+
     if ( !m_compiled ) 
         throw std::exception( "ReplaceValueComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 }

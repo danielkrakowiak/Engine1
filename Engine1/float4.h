@@ -25,6 +25,8 @@ namespace Engine1
 
         float4( const float3& a, float w );
 
+        explicit float4( const float v ) : x( v ), y( v ), z( v ), w( v ) {}
+
         static int size()
         {
             return 4;

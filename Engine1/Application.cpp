@@ -1178,21 +1178,17 @@ void Application::onKeyPress( int key )
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
             {
                 HitDistanceSearchComputeShader::s_positionDiffMul += change; 
-                return;
             }
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::n ) )
             {
                 HitDistanceSearchComputeShader::s_normalDiffMul += change; 
-                return;
             }
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) )
             {
                 HitDistanceSearchComputeShader::s_positionNormalThreshold += change; 
-                return;
             }
             else if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) ) {
                 HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance += change;
-                return;
             }
         }
     }
@@ -1207,15 +1203,33 @@ void Application::onKeyPress( int key )
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) ) {
                 CombiningFragmentShader::s_positionDiffMul  += change;
                 CombiningFragmentShader2::s_positionDiffMul += change;
-                return;
             } else if ( m_inputManager.isKeyPressed( InputManager::Keys::n ) ) {
                 CombiningFragmentShader::s_normalDiffMul  += change;
                 CombiningFragmentShader2::s_normalDiffMul += change;
-                return;
             } else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) {
                 CombiningFragmentShader::s_positionNormalThreshold  += change;
                 CombiningFragmentShader2::s_positionNormalThreshold += change;
-                return;
+            }
+        }
+    }
+
+    // [C] and [A] and ( [+] or [-] ) - Modify selected model albedo multiplier.
+    if ( m_sceneManager.getSelectedBlockActors().size() >= 1 && m_inputManager.isKeyPressed( InputManager::Keys::c ) ) {
+        if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
+            const float change =
+                ( key == InputManager::Keys::plus ) ?
+                0.05f : -0.05f;
+
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::a ) ) {
+                auto& blockActors = m_sceneManager.getSelectedBlockActors();
+                for ( auto blockActor : blockActors )
+                {
+                    if ( !blockActor->getModel()->getAlbedoTextures().empty() )
+                    {
+                        const float4 mul = blockActor->getModel()->getAlbedoTextures()[ 0 ].getColorMultiplier();
+                        blockActor->getModel()->getAlbedoTextures()[ 0 ].setColorMultiplier( mul + float4( change ) );
+                    }
+                }
             }
         }
     }

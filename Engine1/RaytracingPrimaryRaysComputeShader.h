@@ -35,12 +35,12 @@ namespace Engine1
                             const BlockMesh& mesh, const float43& worldMatrix, 
                             const float3 boundingBoxMin, 
                             const float3 boundingBoxMax,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture );
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture, const float3& emissiveMul,
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture, const float3& albedoMul,
+                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture, const float3& normalMul,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture, const float metalnessMul,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture, const float roughnessMul,
+                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul );
 
         void unsetParameters( ID3D11DeviceContext& deviceContext );
 
@@ -57,6 +57,20 @@ namespace Engine1
             float   pad2;
             float3  boundingBoxMax;
             float   pad3;
+            float   alphaMul;
+            float3  pad4;
+            float3  emissiveMul;
+            float   pad5;
+            float3  albedoMul;
+            float   pad6;
+            float3  normalMul;
+            float   pad7;
+            float   metalnessMul;
+            float3  pad8;
+            float   roughnessMul;
+            float3  pad9;
+            float   indexOfRefractionMul;
+            float3  pad10;
         };
 
         Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;

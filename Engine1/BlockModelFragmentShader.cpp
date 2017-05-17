@@ -55,16 +55,16 @@ void BlockModelFragmentShader::initialize( ComPtr< ID3D11Device >& device )
             throw std::exception( "BlockModelFragmentShader::compileFromFile - creating constant buffer failed" );
     }
 }
-
+ 
 void BlockModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture,
-                            const float4& extraEmissive )
+                                              const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture, const float alphaMul,
+                                              const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture, const float3& emissiveMul,
+                                              const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture, const float3& albedoMul,
+                                              const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture, const float3& normalMul,
+                                              const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture, const float metalnessMul,
+                                              const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture, const float roughnessMul,
+                                              const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul,
+                                              const float4& extraEmissive )
 {
     const int resourceCount = 7;
 	ID3D11ShaderResourceView* textureResource[ resourceCount ] = 
@@ -89,7 +89,14 @@ void BlockModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext
 
     dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-    dataPtr->extraEmissive = extraEmissive;
+    dataPtr->alphaMul             = alphaMul;
+    dataPtr->emissiveMul          = emissiveMul;
+    dataPtr->albedoMul            = albedoMul;
+    dataPtr->normalMul            = normalMul;
+    dataPtr->metalnessMul         = metalnessMul;
+    dataPtr->roughnessMul         = roughnessMul;
+    dataPtr->indexOfRefractionMul = indexOfRefractionMul;
+    dataPtr->extraEmissive        = extraEmissive;
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

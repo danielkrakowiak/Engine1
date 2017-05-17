@@ -221,29 +221,48 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 	}
 
 	{ // Configure and set shaders.
+        const float  alphaMul             = !model.getAlphaTextures().empty()           ? model.getAlphaTextures()[ 0 ].getColorMultiplier().x           : 1.0f;
+        const float3 emissiveMul          = !model.getEmissiveTextures().empty()        ? model.getEmissiveTextures()[ 0 ].getColorMultiplier()          : float3::ONE;
+        const float3 albedoMul            = !model.getAlbedoTextures().empty()          ? model.getAlbedoTextures()[ 0 ].getColorMultiplier()            : float3::ONE;
+        const float3 normalMul            = !model.getNormalTextures().empty()          ? model.getNormalTextures()[ 0 ].getColorMultiplier()            : float3::ONE;
+        const float  metalnessMul         = !model.getMetalnessTextures().empty()       ? model.getMetalnessTextures()[ 0 ].getColorMultiplier().x       : 1.0f;
+        const float  roughnessMul         = !model.getRoughnessTextures().empty()       ? model.getRoughnessTextures()[ 0 ].getColorMultiplier().x       : 1.0f;
+        const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 1.0f;
+
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
-            = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
+            = !model.getAlphaTextures().empty() ? *model.getAlphaTextures()[ 0 ].getTexture() : *m_defaultAlphaTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = model.getEmissiveTexturesCount() > 0 ? *model.getEmissiveTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
+            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *m_defaultEmissiveTexture;
 
 	    const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
-            = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *m_defaultAlbedoTexture;
+            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *m_defaultAlbedoTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
-            = model.getNormalTexturesCount() > 0 ? *model.getNormalTexture( 0 ).getTexture() : *m_defaultNormalTexture;
+            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *m_defaultNormalTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
-            = model.getMetalnessTexturesCount() > 0 ? *model.getMetalnessTexture( 0 ).getTexture() : *m_defaultMetalnessTexture;
+            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *m_defaultMetalnessTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
-            = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *m_defaultRoughnessTexture;
+            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *m_defaultRoughnessTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = model.getRefractiveIndexTexturesCount() > 0 ? *model.getRefractiveIndexTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
+            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *m_defaultIndexOfRefractionTexture;
 
 		m_blockModelVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix );
-		m_blockModelFragmentShader->setParameters( *m_deviceContext.Get( ), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );
+
+		m_blockModelFragmentShader->setParameters( 
+            *m_deviceContext.Get( ), 
+            alphaTexture, alphaMul,
+            emissiveTexture, emissiveMul,
+            albedoTexture, albedoMul,
+            normalTexture, normalMul,
+            metalnessTexture, metalnessMul,
+            roughnessTexture, roughnessMul,
+            indexOfRefractionTexture, indexOfRefractionMul,
+            extraEmissive 
+        );
 
 		m_rendererCore.enableRenderingShaders( m_blockModelVertexShader, m_blockModelFragmentShader );
 	}
@@ -282,26 +301,34 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
 	}
 
 	{ // Configure and set shaders.
+        const float  alphaMul             = !model.getAlphaTextures().empty()           ? model.getAlphaTextures()[ 0 ].getColorMultiplier().x           : 1.0f;
+        const float3 emissiveMul          = !model.getEmissiveTextures().empty()        ? model.getEmissiveTextures()[ 0 ].getColorMultiplier()          : float3::ONE;
+        const float3 albedoMul            = !model.getAlbedoTextures().empty()          ? model.getAlbedoTextures()[ 0 ].getColorMultiplier()            : float3::ONE;
+        const float3 normalMul            = !model.getNormalTextures().empty()          ? model.getNormalTextures()[ 0 ].getColorMultiplier()            : float3::ONE;
+        const float  metalnessMul         = !model.getMetalnessTextures().empty()       ? model.getMetalnessTextures()[ 0 ].getColorMultiplier().x       : 1.0f;
+        const float  roughnessMul         = !model.getRoughnessTextures().empty()       ? model.getRoughnessTextures()[ 0 ].getColorMultiplier().x       : 1.0f;
+        const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 1.0f;
+
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
-            = model.getAlphaTexturesCount() > 0 ? *model.getAlphaTexture( 0 ).getTexture() : *m_defaultAlphaTexture;
+            = !model.getAlphaTextures().empty() ? *model.getAlphaTextures()[ 0 ].getTexture() : *m_defaultAlphaTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = model.getEmissiveTexturesCount() > 0 ? *model.getEmissiveTexture( 0 ).getTexture() : *m_defaultEmissiveTexture;
+            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *m_defaultEmissiveTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
-            = model.getAlbedoTexturesCount() > 0 ? *model.getAlbedoTexture( 0 ).getTexture() : *m_defaultAlbedoTexture;
+            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *m_defaultAlbedoTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
-            = model.getNormalTexturesCount() > 0 ? *model.getNormalTexture( 0 ).getTexture() : *m_defaultNormalTexture;
+            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *m_defaultNormalTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
-            = model.getMetalnessTexturesCount() > 0 ? *model.getMetalnessTexture( 0 ).getTexture() : *m_defaultMetalnessTexture;
+            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *m_defaultMetalnessTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
-            = model.getRoughnessTexturesCount() > 0 ? *model.getRoughnessTexture( 0 ).getTexture() : *m_defaultRoughnessTexture;
+            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *m_defaultRoughnessTexture;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = model.getRefractiveIndexTexturesCount() > 0 ? *model.getRefractiveIndexTexture( 0 ).getTexture() : *m_defaultIndexOfRefractionTexture;
+            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *m_defaultIndexOfRefractionTexture;
 
 		m_skeletonModelVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
 		m_skeletonModelFragmentShader->setParameters( *m_deviceContext.Get(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );

@@ -127,7 +127,9 @@ void RaytracingShadowsComputeShader::setParameters(
 
             const auto& mesh = *actor->getModel()->getMesh();
 
-            const auto& alphaTexture = actor->getModel()->getAlphaTexturesCount() > 0 ? *actor->getModel()->getAlphaTexture( 0 ).getTexture() : defaultAlphaTexture;
+            const auto& alphaTexture = !actor->getModel()->getAlphaTextures().empty() 
+                ? *actor->getModel()->getAlphaTextures()[ 0 ].getTexture() 
+                : defaultAlphaTexture;
 
             const int resourceBaseIndex = lightRelatedResourceCount + passedActorsCount * meshRelatedResourceCount;
             
@@ -165,8 +167,11 @@ void RaytracingShadowsComputeShader::setParameters(
             if ( !actor || !actor->getModel() || !actor->getModel()->getMesh() )
                 continue;
 
-            const auto& alphaTexture = actor->getModel()->getAlphaTexturesCount() > 0 ? *actor->getModel()->getAlphaTexture( 0 ).getTexture() : defaultAlphaTexture;
-            const bool  isOpaque     = alphaTexture.getWidth() * alphaTexture.getHeight() == 1 && alphaTexture.isInCpuMemory() && alphaTexture.getData()[ 0 ] == 255;
+            const auto& alphaTexture = !actor->getModel()->getAlphaTextures().empty() 
+                ? *actor->getModel()->getAlphaTextures()[ 0 ].getTexture() 
+                : defaultAlphaTexture;
+
+            const bool  isOpaque = alphaTexture.getWidth() * alphaTexture.getHeight() == 1 && alphaTexture.isInCpuMemory() && alphaTexture.getData()[ 0 ] == 255;
 
             const BoundingBox& boundingBox = actor->getModel()->getMesh()->getBoundingBox();
 

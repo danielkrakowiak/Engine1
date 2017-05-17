@@ -22,6 +22,8 @@ namespace Engine1
 
         float2( float x, float y ) : x( x ), y( y ) {}
 
+        explicit float2( const float v ) : x( v ), y( v ) {}
+
         static int size()
         {
             return 2;

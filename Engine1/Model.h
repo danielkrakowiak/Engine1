@@ -60,33 +60,25 @@ namespace Engine1
         void removeAllRefractiveIndexTextures();
 
         int getTextureCount( const TextureType type ) const;
-        int getAlphaTexturesCount() const;
-        int getEmissiveTexturesCount() const;
-        int getAlbedoTexturesCount() const;
-        int getMetalnessTexturesCount() const;
-        int getRoughnessTexturesCount() const;
-        int getNormalTexturesCount() const;
-        int getRefractiveIndexTexturesCount() const;
 
         std::vector< std::tuple< std::shared_ptr< Asset >, int > > getTextures( const TextureType type ) const;
-        std::vector< ModelTexture2D< unsigned char > > getAlphaTextures() const;
-        std::vector< ModelTexture2D< uchar4 > >        getEmissiveTextures() const;
-        std::vector< ModelTexture2D< uchar4 > >	       getAlbedoTextures() const;
-        std::vector< ModelTexture2D< unsigned char > > getMetalnessTextures() const;
-        std::vector< ModelTexture2D< unsigned char > > getRoughnessTextures() const;
-        std::vector< ModelTexture2D< uchar4 > >	       getNormalTextures() const;
-        std::vector< ModelTexture2D< unsigned char > > getRefractiveIndexTextures() const;
+        const std::vector< ModelTexture2D< unsigned char > >&  getAlphaTextures() const;
+              std::vector< ModelTexture2D< unsigned char > >&  getAlphaTextures();
+        const std::vector< ModelTexture2D< uchar4 > >&         getEmissiveTextures() const;
+              std::vector< ModelTexture2D< uchar4 > >&         getEmissiveTextures();
+        const std::vector< ModelTexture2D< uchar4 > >&	       getAlbedoTextures() const;
+              std::vector< ModelTexture2D< uchar4 > >&	       getAlbedoTextures();
+        const std::vector< ModelTexture2D< unsigned char > >&  getMetalnessTextures() const;
+              std::vector< ModelTexture2D< unsigned char > >&  getMetalnessTextures();
+        const std::vector< ModelTexture2D< unsigned char > >&  getRoughnessTextures() const;
+              std::vector< ModelTexture2D< unsigned char > >&  getRoughnessTextures();
+        const std::vector< ModelTexture2D< uchar4 > >&	       getNormalTextures() const;
+              std::vector< ModelTexture2D< uchar4 > >&	       getNormalTextures();
+        const std::vector< ModelTexture2D< unsigned char > >&  getRefractiveIndexTextures() const;
+              std::vector< ModelTexture2D< unsigned char > >&  getRefractiveIndexTextures();
 
         // Returns a texture and its texcoord set index.
         std::tuple< std::shared_ptr< Asset >, int > getTexture( const TextureType type, int index = 0 ) const;
-
-        ModelTexture2D< unsigned char > getAlphaTexture( int index = 0 ) const;
-        ModelTexture2D< uchar4 >        getEmissiveTexture( int index = 0 ) const;
-        ModelTexture2D< uchar4 >		getAlbedoTexture( int index = 0 ) const;
-        ModelTexture2D< unsigned char >	getMetalnessTexture( int index = 0 ) const;
-        ModelTexture2D< unsigned char >	getRoughnessTexture( int index = 0 ) const;
-        ModelTexture2D< uchar4 >		getNormalTexture( int index = 0 ) const;
-        ModelTexture2D< unsigned char >	getRefractiveIndexTexture( int index = 0 ) const;
 
         protected:
 

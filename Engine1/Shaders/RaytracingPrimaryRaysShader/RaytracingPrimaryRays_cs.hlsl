@@ -12,6 +12,20 @@ cbuffer ConstantBuffer : register( b0 )
     float    pad2;
     float3   boundingBoxMax; // In local space.
     float    pad3;
+    float    alphaMul;
+    float3   pad4;
+    float3   emissiveMul;
+    float    pad5;
+    float3   albedoMul;
+    float    pad6;
+    float3   normalMul;
+    float    pad7;
+    float    metalnessMul;
+    float3   pad8;
+    float    roughnessMul;
+    float3   pad9;
+    float    indexOfRefractionMul;
+    float3   pad10;
 };
 
 // Input.
@@ -166,17 +180,17 @@ void main( uint3 groupId : SV_GroupID,
                     normalize(hitNormal)
                 );
 			
-                const float3 normalFromMap = (g_normalTexture.SampleLevel(g_samplerState, hitTexCoords, 0.0f).rgb - 0.5f) * 2.0f;
+                const float3 normalFromMap = (g_normalTexture.SampleLevel(g_samplerState, hitTexCoords, 0.0f).rgb * normalMul - 0.5f) * 2.0f;
                 hitNormal = normalize(mul(normalFromMap, tangentToWorldMatrix));
 
                 g_hitPosition[ dispatchThreadId.xy ]          = float4( rayOrigin + rayDir * hitDist, 0.0f );
                 g_hitDistance[ dispatchThreadId.xy ]          = hitDist;
                 g_hitNormal[ dispatchThreadId.xy ]            = float4( hitNormal, 0.0f ); //TODO: use normal map as well.
-                g_hitEmissive[ dispatchThreadId.xy ]          = uint4( g_emissiveTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
-                g_hitAlbedo[ dispatchThreadId.xy ]            = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ) * 255.0f );
-                g_hitMetalness[ dispatchThreadId.xy ]         = uint( g_metalnessTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );   
-                g_hitRoughness[ dispatchThreadId.xy ]         = uint( g_roughnessTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );    
-                g_hitIndexOfRefraction[ dispatchThreadId.xy ] = uint( g_indexOfRefractionTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * 255.0f );   
+                g_hitEmissive[ dispatchThreadId.xy ]          = uint4( g_emissiveTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).rgb * emissiveMul * 255.0f, 0 );
+                g_hitAlbedo[ dispatchThreadId.xy ]            = uint4( g_albedoTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).rgb * albedoMul * 255.0f, 0 );
+                g_hitMetalness[ dispatchThreadId.xy ]         = uint( g_metalnessTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * metalnessMul * 255.0f );   
+                g_hitRoughness[ dispatchThreadId.xy ]         = uint( g_roughnessTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * roughnessMul * 255.0f );    
+                g_hitIndexOfRefraction[ dispatchThreadId.xy ] = uint( g_indexOfRefractionTexture.SampleLevel( g_samplerState, hitTexCoords, 0.0f ).r * indexOfRefractionMul * 255.0f );   
             }
         }
     }

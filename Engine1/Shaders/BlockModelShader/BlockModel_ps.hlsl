@@ -10,7 +10,21 @@ SamplerState samplerState;
 
 cbuffer ConstantBuffer
 {
-	float4 extraEmissive;
+    float  alphaMul;
+    float3 pad1;
+    float3 emissiveMul;
+    float  pad2;
+    float3 albedoMul;
+    float  pad3;
+    float3 normalMul;
+    float  pad4;
+    float  metalnessMul;
+    float3 pad5;
+    float  roughnessMul;
+    float3 pad6;
+    float  indexOfRefractionMul;
+    float3 pad7;
+    float4 extraEmissive;
 };
 
 struct PixelInputType
@@ -36,14 +50,13 @@ struct PixelOutputType
 
 PixelOutputType main( PixelInputType input )
 {
-    float  alphaColor  = alphaTexture.Sample( samplerState, input.texCoord ).r;
-    float4 albedoColor = albedoTexture.Sample( samplerState, input.texCoord );
-
 	PixelOutputType output;
 
-    output.position    = float4( input.positionWorld, 0.0f );
-    output.emissive    = emissiveTexture.Sample( samplerState, input.texCoord ) + extraEmissive;
-	output.albedoAlpha = float4( albedoColor.rgb, alphaColor );
+    output.position        = float4( input.positionWorld, 0.0f );
+    output.emissive.rgb    = emissiveTexture.Sample( samplerState, input.texCoord ).rgb * emissiveMul + extraEmissive.rgb;
+    output.emissive.a      = 0.0f;
+	output.albedoAlpha.rgb = albedoTexture.Sample( samplerState, input.texCoord ).rgb * albedoMul;
+    output.albedoAlpha.a   = alphaTexture.Sample( samplerState, input.texCoord ).r * alphaMul;
 
     float3x3 tangentToWorldMatrix = float3x3( 
         normalize( input.tangent ),
@@ -51,12 +64,12 @@ PixelOutputType main( PixelInputType input )
         normalize( input.normal )
     );
 			
-	const float3 normalFromMap = ( normalTexture.Sample( samplerState, input.texCoord ).rgb - 0.5f ) * 2.0f;
+	const float3 normalFromMap = ( normalTexture.Sample( samplerState, input.texCoord ).rgb * normalMul - 0.5f ) * 2.0f;
 	output.normal = float4( normalize( mul( normalFromMap, tangentToWorldMatrix ) ), 0.0f );
 
-    output.metalness         = metalnessTexture.Sample( samplerState, input.texCoord ).r;
-    output.roughness         = roughnessTexture.Sample( samplerState, input.texCoord ).r;
-    output.indexOfRefraction = indexOfRefractionTexture.Sample( samplerState, input.texCoord ).r;
+    output.metalness         = metalnessTexture.Sample( samplerState, input.texCoord ).r * metalnessMul;
+    output.roughness         = roughnessTexture.Sample( samplerState, input.texCoord ).r * roughnessMul;
+    output.indexOfRefraction = indexOfRefractionTexture.Sample( samplerState, input.texCoord ).r * indexOfRefractionMul;
 
 	return output;
 }

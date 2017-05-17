@@ -15,6 +15,8 @@ MergeValueComputeShader::~MergeValueComputeShader() {}
 
 void MergeValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
 {
+    device;
+
     //{
     //    // Create constant buffer.
     //    D3D11_BUFFER_DESC desc;
