@@ -23,6 +23,10 @@ namespace Engine1
 
         void draw();
 
+        static void TW_CALL onNextLevelReflection( void *clientData );
+        static void TW_CALL onNextLevelRefraction( void *clientData );
+        static void TW_CALL onPrevLevel( void *clientData );
+
         private:
 
         Microsoft::WRL::ComPtr< ID3D11Device > m_device;

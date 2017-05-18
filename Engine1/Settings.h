@@ -1,13 +1,15 @@
 #pragma once
 
 #include "int2.h"
+#include <vector>
 
 namespace Engine1
 {
     class Settings
     {
-        // Only Application class can modify the settings.
+        // Only Application and ControlPanel classes can modify the settings.
         friend class Application;
+        friend class ControlPanel;
 
         public:
 
@@ -43,20 +45,34 @@ namespace Engine1
         {
             struct Shadows
             {
+                // Debug option to enable/disable blurring shadows in two passes - horizontal and vertical.
+                // It reduces blurring complexity from n^2 to 2n, where n is blurring kernel size.
+                // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
                 bool useSeparableShadowBlur;
             } shadows;
 
             struct ReflectionsRefractions
             {
                 int maxLevel; // 0 - no reflections or refractions.
+                // true - reflection, false - refraction. Number of elements defines the current view level.
+                std::vector< bool > activeView; 
             } reflectionsRefractions;
         } rendering;
 
         private:
 
-        void setDefault();
+        // Use this method to modify settings - it marks settings as changed.
+        // Note: A bit wasteful - calling it many times causes recalculation 
+        // of settings each time - because when we modify them we can also read them and they need to be up-to-date.
+        static Settings& modify();
 
+        static void setDefault();
+        static void onChanged();
+
+        // These should not be changed from outside of this class - even by friend classes.
+        // Instead "modify()" method should be used to change settings.
         static Settings s_settings;
+        static bool     s_modified;
     };
 
     // A global, shortcut method to get settings more easily.

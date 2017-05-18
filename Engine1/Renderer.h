@@ -107,15 +107,7 @@ namespace Engine1
 
         void                       setActiveViewType( const View view );
         View                       getActiveViewType() const;
-        void                       activateNextViewLevel( const bool reflection );
-        void                       activatePrevViewLevel();
-        const std::vector< bool >& getActiveViewLevel() const;
-        void                       setMaxLevelCount( const int levelCount );
-        int                        getMaxLevelCount() const;
         
-        void debugSetUseSeparableShadowsBlur( const bool useSeparableBlur );
-        bool debugIsUsingSeparableShadowsBlur();
-
         float getExposure();
         void  setExposure( const float exposure );
 
@@ -185,14 +177,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
 
-        View              m_activeViewType;
-        std::vector<bool> m_activeViewLevel; // Empty - main image. true - reflection, false - refraction.
-        int               m_maxLevelCount;
-
-        // Debug option to enable/disable blurring shadows in two passes - horizontal and vertical.
-        // It reduces blurring complexity from n^2 to 2n, where n is blurring kernel size.
-        // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
-        bool m_debugUseSeparableShadowsBlur;
+        View m_activeViewType;
 
         // Tone mapping configuration.
         float m_exposure;

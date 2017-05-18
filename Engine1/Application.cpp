@@ -516,7 +516,7 @@ void Application::run() {
                 deferredRenderingTime                         = m_profiler.getEventDuration( Profiler::GlobalEventType::DeferredRendering );
                 mainMipmapGenerationForPositionAndNormalsTime = m_profiler.getEventDuration( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
 
-                for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, (int)m_renderer.getMaxLevelCount() + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
+                for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
                 {
                     stageProfilingInfo[ stage ].shadowsTotal = 0.0f;
                     stageProfilingInfo[ stage ].shadingTotal = 0.0f;
@@ -555,7 +555,7 @@ void Application::run() {
 
         { // Render some debug options.
             std::stringstream ss;
-            ss << "Use separable shadow blur: " << ( m_renderer.debugIsUsingSeparableShadowsBlur() ? "enabled" : "disabled" );
+            ss << "Use separable shadow blur: " << ( settings().rendering.shadows.useSeparableShadowBlur ? "enabled" : "disabled" );
 
             ss << "\n\n";
 
@@ -581,7 +581,7 @@ void Application::run() {
                 ss << eventName << ": " << eventDuration << "ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
             }
 
-            for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, (int)m_renderer.getMaxLevelCount() + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
+            for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
             {
                 // Print stage name.
                 const std::string stageName = Profiler::stageTypeToString( (Profiler::StageType)stage );
@@ -1033,7 +1033,7 @@ void Application::onFocusChange( bool windowFocused )
 {
 	m_windowFocused = windowFocused;
 
-    Settings::s_settings.main.limitFPS = !windowFocused;
+    Settings::modify().main.limitFPS = !windowFocused;
 }
 
 void Application::onKeyPress( int key )
@@ -1041,12 +1041,12 @@ void Application::onKeyPress( int key )
     // [\] - Hide/show text.
     if ( key == InputManager::Keys::backslash )
     {
-        Settings::s_settings.debug.renderText = !settings().debug.renderText;
+        Settings::modify().debug.renderText = !settings().debug.renderText;
     }
 
     // [/] - Hide/show FPS counter.
     if ( key == InputManager::Keys::slash ) {
-        Settings::s_settings.debug.renderFps = !settings().debug.renderFps;
+        Settings::modify().debug.renderFps = !settings().debug.renderFps;
     }
 
     // [ L + P ] - Add point light.
@@ -1261,21 +1261,21 @@ void Application::onKeyPress( int key )
 
     // [Enter] - Render alpha.
     if ( key == InputManager::Keys::enter )
-        Settings::s_settings.debug.debugRenderAlpha = !settings().debug.debugRenderAlpha;
+        Settings::modify().debug.debugRenderAlpha = !settings().debug.debugRenderAlpha;
 
     // [Page up/Page down] - Switch displayed mipmap.
     if ( key == InputManager::Keys::pageUp )
-        Settings::s_settings.debug.debugDisplayedMipmapLevel = std::max( 0, settings().debug.debugDisplayedMipmapLevel - 1 );
+        Settings::modify().debug.debugDisplayedMipmapLevel = std::max( 0, settings().debug.debugDisplayedMipmapLevel - 1 );
     else if ( key == InputManager::Keys::pageDown )
-        Settings::s_settings.debug.debugDisplayedMipmapLevel = settings().debug.debugDisplayedMipmapLevel + 1;
+        Settings::modify().debug.debugDisplayedMipmapLevel = settings().debug.debugDisplayedMipmapLevel + 1;
 
     // [Backspace] - Render in wireframe mode.
     if ( key == InputManager::Keys::backspace )
-        Settings::s_settings.debug.debugWireframeMode = !settings().debug.debugWireframeMode;
+        Settings::modify().debug.debugWireframeMode = !settings().debug.debugWireframeMode;
 
     // [Caps Lock] - Enable slowmotion mode.
     if ( key == InputManager::Keys::capsLock )
-        Settings::s_settings.debug.slowmotionMode = !settings().debug.slowmotionMode;
+        Settings::modify().debug.slowmotionMode = !settings().debug.slowmotionMode;
 
     // [Ctrl + B] - Rebuild bounding box and BVH.
     if ( key == InputManager::Keys::b && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
@@ -1283,7 +1283,7 @@ void Application::onKeyPress( int key )
 
     // [Spacebar] - Enable/disable snapping when rotating/translating actors.
     if ( key == InputManager::Keys::spacebar )
-        Settings::s_settings.debug.snappingMode = !settings().debug.snappingMode;
+        Settings::modify().debug.snappingMode = !settings().debug.snappingMode;
 
     // [left/right] - Select next/prev actor or light.
     if ( key == InputManager::Keys::right )
@@ -1327,99 +1327,98 @@ void Application::onKeyPress( int key )
     {
         if ( key == InputManager::Keys::tilde ) {
             m_renderer.setActiveViewType( Renderer::View::Final );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::one ) {
             m_renderer.setActiveViewType( Renderer::View::Shaded );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::two ) {
             m_renderer.setActiveViewType( Renderer::View::Depth );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::three ) {
             m_renderer.setActiveViewType( Renderer::View::Position );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::four ) {
             m_renderer.setActiveViewType( Renderer::View::Emissive );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::five ) {
             m_renderer.setActiveViewType( Renderer::View::Albedo );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::six ) {
             m_renderer.setActiveViewType( Renderer::View::Normal );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::seven ) {
             m_renderer.setActiveViewType( Renderer::View::Metalness );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::eight ) {
             m_renderer.setActiveViewType( Renderer::View::Roughness );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::nine ) {
             m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f1 ) {
             m_renderer.setActiveViewType( Renderer::View::RayDirections );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f2 ) {
             m_renderer.setActiveViewType( Renderer::View::Contribution );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f3 ) {
             m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f4 ) {
             m_renderer.setActiveViewType( Renderer::View::BloomBrightPixels );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }
     }
     else if ( sKeyPressed )
     {
         if ( key == InputManager::Keys::one ) {
             m_renderer.setActiveViewType( Renderer::View::Preillumination );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::two ) {
             m_renderer.setActiveViewType( Renderer::View::HardIllumination );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::three ) {
             m_renderer.setActiveViewType( Renderer::View::SoftIllumination );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::four ) {
             m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::five ) {
             m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::six ) {
             m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::seven ) {
             m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluder );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }
     }
     else if ( rKeyPressed ) 
     {
         if ( key == InputManager::Keys::one ) {
             m_renderer.setActiveViewType( Renderer::View::HitDistance );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::two ) {
             m_renderer.setActiveViewType( Renderer::View::FinalHitDistance );
-            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }
     }
-
 
     if ( m_sceneManager.isSelectionEmpty() )
     {
         if ( key == InputManager::Keys::up && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
-            m_renderer.setMaxLevelCount( std::min( 10, m_renderer.getMaxLevelCount() + 1 ) );
+            Settings::modify().rendering.reflectionsRefractions.maxLevel++;
         else if ( key == InputManager::Keys::down && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
-            m_renderer.setMaxLevelCount( std::max( 0, m_renderer.getMaxLevelCount() - 1 ) );
+            Settings::modify().rendering.reflectionsRefractions.maxLevel--;
         else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
-            m_renderer.activateNextViewLevel( true );
+            Settings::modify().rendering.reflectionsRefractions.activeView.push_back( true );
         else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::t ) )
-            m_renderer.activateNextViewLevel( false );
-        else if ( key == InputManager::Keys::minus )
-            m_renderer.activatePrevViewLevel();
+            Settings::modify().rendering.reflectionsRefractions.activeView.push_back( false );
+        else if ( key == InputManager::Keys::minus && !Settings::modify().rendering.reflectionsRefractions.activeView.empty() )
+            Settings::modify().rendering.reflectionsRefractions.activeView.pop_back();
         else if ( key == InputManager::Keys::b )
-            m_renderer.debugSetUseSeparableShadowsBlur( !m_renderer.debugIsUsingSeparableShadowsBlur() );
+            Settings::modify().rendering.shadows.useSeparableShadowBlur = !settings().rendering.shadows.useSeparableShadowBlur;
     }
 }
 

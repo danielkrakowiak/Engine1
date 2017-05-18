@@ -25,6 +25,8 @@
 
 #include "StringUtil.h"
 
+#include "Settings.h"
+
 using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
@@ -50,8 +52,6 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_extractBrightPixelsRenderer( rendererCore ),
     m_toneMappingRenderer( rendererCore ),
     m_activeViewType( View::Final ),
-    m_maxLevelCount( 1 ),
-    m_debugUseSeparableShadowsBlur( true ),
     m_exposure( 1.0f ),
     m_minBrightness( 1.0f )
 {}
@@ -199,7 +199,7 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
     }
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) 
-        = renderMainImage( scene, camera, lightsCastingShadows, lightsNotCastingShadows, m_activeViewLevel, m_activeViewType, wireframeMode,
+        = renderMainImage( scene, camera, lightsCastingShadows, lightsNotCastingShadows, settings().rendering.reflectionsRefractions.activeView, m_activeViewType, wireframeMode,
                            selectedBlockActors, selectedSkeletonActors, selectedLights, selectionVolumeMesh );
     
     if ( frameReceived )
@@ -210,15 +210,15 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
     std::vector< bool > renderedViewType;
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( true, 1, 0, m_maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-                                        renderedViewType, m_activeViewLevel, m_activeViewType );
+        = renderReflectionsRefractions( true, 1, 0, settings().rendering.reflectionsRefractions.maxLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
+                                        renderedViewType, settings().rendering.reflectionsRefractions.activeView, m_activeViewType );
 
     if ( frameReceived )
         return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
 
     std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( false, 1, 0, m_maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-                                        renderedViewType, m_activeViewLevel, m_activeViewType );
+        = renderReflectionsRefractions( false, 1, 0, settings().rendering.reflectionsRefractions.maxLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
+                                        renderedViewType, settings().rendering.reflectionsRefractions.activeView, m_activeViewType );
     
     // Perform post-effects.
     performToneMapping( m_finalRenderTarget, m_exposure );
@@ -533,7 +533,7 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
-        if ( m_debugUseSeparableShadowsBlur )
+        if ( settings().rendering.shadows.useSeparableShadowBlur )
         {
             // Blur shadows in two passes - horizontal and vertical.
             m_blurShadowsRenderer.blurShadowsHorzVert(
@@ -1210,46 +1210,6 @@ void Renderer::setActiveViewType( const View view )
 Renderer::View Renderer::getActiveViewType() const
 {
     return m_activeViewType;
-}
-
-void Renderer::activateNextViewLevel( const bool reflection )
-{
-    if ( m_activeViewLevel.size() < m_maxLevelCount )
-        m_activeViewLevel.push_back( reflection );
-}
-
-void Renderer::activatePrevViewLevel()
-{
-    if ( !m_activeViewLevel.empty() )
-        m_activeViewLevel.pop_back();
-}
-
-const std::vector< bool >& Renderer::getActiveViewLevel() const
-{
-    return m_activeViewLevel;
-}
-
-void Renderer::setMaxLevelCount( const int levelCount )
-{
-    m_maxLevelCount = std::max( 0, levelCount );
-
-    if ( m_activeViewLevel.size() >= m_maxLevelCount )
-        m_activeViewLevel.resize( m_maxLevelCount );
-}
-
-int Renderer::getMaxLevelCount() const
-{
-    return m_maxLevelCount;
-}
-
-void Renderer::debugSetUseSeparableShadowsBlur( const bool useSeparableBlur )
-{
-    m_debugUseSeparableShadowsBlur = useSeparableBlur;
-}
-
-bool Renderer::debugIsUsingSeparableShadowsBlur()
-{
-    return m_debugUseSeparableShadowsBlur;
 }
 
 float Renderer::getExposure()

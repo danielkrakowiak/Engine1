@@ -1,8 +1,11 @@
 #include "Settings.h"
 
+#include <algorithm>
+
 using namespace Engine1;
 
 Settings Settings::s_settings;
+bool     Settings::s_modified = false;
 
 const Settings& Engine1::settings()
 {
@@ -19,28 +22,58 @@ Settings::~Settings()
 
 const Settings& Settings::get() 
 { 
+    if (s_modified)
+        onChanged();
+
     return s_settings; 
+}
+
+Settings& Settings::modify()
+{
+    if ( s_modified )
+        onChanged();
+
+    s_modified = true;
+
+    return s_settings;
 }
 
 void Settings::setDefault()
 {
-    main.fullscreen       = false;
-    main.screenDimensions = int2( 1024 /*1920*/, 768 /*1080*/ );
-    main.verticalSync     = false;
-    main.limitFPS         = false;
-    main.displayFrequency = 60;
-    main.screenColorDepth = 32;
-    main.zBufferDepth     = 32;
+    s_settings.main.fullscreen       = false;
+    s_settings.main.screenDimensions = int2( 1024 /*1920*/, 768 /*1080*/ );
+    s_settings.main.verticalSync     = false;
+    s_settings.main.limitFPS         = false;
+    s_settings.main.displayFrequency = 60;
+    s_settings.main.screenColorDepth = 32;
+    s_settings.main.zBufferDepth     = 32;
 
-    debug.debugRenderAlpha          = false;
-    debug.debugWireframeMode        = false;
-    debug.debugDisplayedMipmapLevel = 0;
-    debug.renderText                = true;
-    debug.renderFps                 = true;
-    debug.slowmotionMode            = false;
-    debug.snappingMode              = false;
+    s_settings.debug.debugRenderAlpha          = false;
+    s_settings.debug.debugWireframeMode        = false;
+    s_settings.debug.debugDisplayedMipmapLevel = 0;
+    s_settings.debug.renderText                = true;
+    s_settings.debug.renderFps                 = true;
+    s_settings.debug.slowmotionMode            = false;
+    s_settings.debug.snappingMode              = false;
 
-    rendering.shadows.useSeparableShadowBlur = true;
+    s_settings.rendering.shadows.useSeparableShadowBlur = true;
 
-    rendering.reflectionsRefractions.maxLevel = 1;
+    s_settings.rendering.reflectionsRefractions.maxLevel = 1;
+}
+
+void Settings::onChanged()
+{
+    // Active-level should not exceed max-level.
+    while ( s_settings.rendering.reflectionsRefractions.activeView.size() > s_settings.rendering.reflectionsRefractions.maxLevel )
+        s_settings.rendering.reflectionsRefractions.activeView.pop_back();
+
+    // Max-level has to be >= 0.
+    s_settings.rendering.reflectionsRefractions.maxLevel
+        = std::max( 0, s_settings.rendering.reflectionsRefractions.maxLevel );
+
+    // Max-level has to be <= 5.
+    s_settings.rendering.reflectionsRefractions.maxLevel
+        = std::min( 5, s_settings.rendering.reflectionsRefractions.maxLevel );
+
+    s_modified = false;
 }
