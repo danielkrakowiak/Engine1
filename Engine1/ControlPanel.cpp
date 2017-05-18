@@ -23,6 +23,8 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device, c
     TwWindowSize( windowDimensions.x, windowDimensions.y );
 
     tweakBar = TwNewBar("main");
+
+    //TwAddVarRW( tweakBar, "Use separable shadow blur", TW_TYPE_BOOL8,  )
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

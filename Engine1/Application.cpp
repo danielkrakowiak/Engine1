@@ -39,6 +39,8 @@
 #include "BlurShadowsComputeShader.h"
 #include "HitDistanceSearchComputeShader.h"
 
+#include "Settings.h"
+
 using namespace Engine1;
 
 Application* Application::windowsMessageReceiver = nullptr;
@@ -58,21 +60,7 @@ Application::Application() :
 	m_windowHandle( nullptr ),
 	m_deviceContext( nullptr ),
     m_windowPosition( 0, 0 ),
-	m_fullscreen( false ),
-	m_screenDimensions( 1024 /*1920*/, 768 /*1080*/ ),
-	m_verticalSync( false ),
-    m_limitFPS( false ),
-	m_displayFrequency( 60 ),
-	m_screenColorDepth( 32 ),
-	m_zBufferDepth( 32 ),
 	m_windowFocused( false ),
-    m_debugRenderAlpha( false ),
-    m_debugDisplayedMipmapLevel( 0 ),
-    m_debugWireframeMode( false ),
-    m_renderText( true ),
-    m_renderFps( true ),
-    m_slowmotionMode( false ),
-    m_snappingMode( false ),
     m_assetManager(),
     m_sceneManager( m_assetManager )
 {
@@ -88,15 +76,15 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
     const int parallelThreadCount = std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1;
 
-	m_frameRenderer.initialize( m_windowHandle, m_screenDimensions.x, m_screenDimensions.y, m_fullscreen, m_verticalSync );
+	m_frameRenderer.initialize( m_windowHandle, settings().main.screenDimensions.x, settings().main.screenDimensions.y, settings().main.fullscreen, settings().main.verticalSync );
 	m_rendererCore.initialize( *m_frameRenderer.getDeviceContext( ).Get() );
     m_assetManager.initialize( parallelThreadCount, parallelThreadCount, m_frameRenderer.getDevice() );
     m_profiler.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
 
     m_sceneManager.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
 
-    createDebugFrames( m_screenDimensions.x, m_screenDimensions.y, m_frameRenderer.getDevice() );
-    createUcharDisplayFrame( m_screenDimensions.x, m_screenDimensions.y, m_frameRenderer.getDevice() );
+    createDebugFrames( settings().main.screenDimensions.x, settings().main.screenDimensions.y, m_frameRenderer.getDevice() );
+    createUcharDisplayFrame( settings().main.screenDimensions.x, settings().main.screenDimensions.y, m_frameRenderer.getDevice() );
 
     // Load 'axises' model.
     //BlockMeshFileInfo axisMeshFileInfo( "Assets/Meshes/dx-coordinate-axises.obj", BlockMeshFileInfo::Format::OBJ, 0, false, false, false );
@@ -116,9 +104,9 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	}
 	catch (...) {}
 
-    m_renderer.initialize( m_screenDimensions.x, m_screenDimensions.y, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
+    m_renderer.initialize( settings().main.screenDimensions.x, settings().main.screenDimensions.y, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
 
-    m_controlPanel.initialize( m_frameRenderer.getDevice(), m_screenDimensions );
+    m_controlPanel.initialize( m_frameRenderer.getDevice(), settings().main.screenDimensions );
 
 	m_initialized = true;
 }
@@ -166,14 +154,14 @@ void Application::setupWindow() {
 	wc.cbWndExtra = 0;
 	RegisterClassEx( &wc );
 
-	if ( m_fullscreen ) {
+	if ( settings().main.fullscreen ) {
 		DEVMODE screen = { 0 };
 
 		screen.dmSize             = sizeof( DEVMODE );
-		screen.dmPelsWidth        = m_screenDimensions.x;
-		screen.dmPelsHeight       = m_screenDimensions.y;
-		screen.dmBitsPerPel       = m_screenColorDepth;
-		screen.dmDisplayFrequency = m_displayFrequency;
+		screen.dmPelsWidth        = settings().main.screenDimensions.x;
+		screen.dmPelsHeight       = settings().main.screenDimensions.y;
+		screen.dmBitsPerPel       = settings().main.screenColorDepth;
+		screen.dmDisplayFrequency = settings().main.displayFrequency;
 		screen.dmFields           = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
 
 		ChangeDisplaySettings( &screen, CDS_FULLSCREEN );
@@ -185,15 +173,15 @@ void Application::setupWindow() {
 
 	DWORD exStyle = WS_EX_ACCEPTFILES; // Allow drag&drop files.
 
-    int windowWidth  = m_screenDimensions.x;
-    int windowHeight = m_screenDimensions.y;
-    if ( !m_fullscreen )
+    int windowWidth  = settings().main.screenDimensions.x;
+    int windowHeight = settings().main.screenDimensions.y;
+    if ( !settings().main.fullscreen )
     {
         RECT windowArea;
         windowArea.left   = 0;
         windowArea.top    = 0;
-        windowArea.right  = m_screenDimensions.x;
-        windowArea.bottom = m_screenDimensions.y;
+        windowArea.right  = settings().main.screenDimensions.x;
+        windowArea.bottom = settings().main.screenDimensions.y;
 
         // Calculate the required window dimensions to accommodate the desried client area.
         AdjustWindowRect( &windowArea, style, false );
@@ -211,13 +199,13 @@ void Application::setupWindow() {
 		sizeof( PIXELFORMATDESCRIPTOR ),
 		1,
 		PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER, PFD_TYPE_RGBA,
-		(BYTE)m_screenColorDepth,
+		(BYTE)settings().main.screenColorDepth,
 		0, 0, 0, 0, 0, 0,
 		0,
 		0,
 		0,
 		0, 0, 0, 0,
-		(BYTE)m_zBufferDepth,
+		(BYTE)settings().main.zBufferDepth,
 		0,
 		0,
 		PFD_MAIN_PLANE,
@@ -241,10 +229,10 @@ void Application::run() {
 	bool run = true;
 	MSG msg;
 
-	Font font( m_screenDimensions );
+	Font font( settings().main.screenDimensions );
 	font.loadFromFile( AssetPathManager::getPathForFileName( "consola.ttf" ), 35 );
 
-    Font font2( m_screenDimensions );
+    Font font2( settings().main.screenDimensions );
     font2.loadFromFile( AssetPathManager::getPathForFileName( "consola.ttf" ), 13 );
 
     // Profiling.
@@ -301,10 +289,10 @@ void Application::run() {
                 // Move along horizontal and vertical axes added together.
                 float mouseTotalMove = (float)(mouseMove.x - mouseMove.y);
 
-                if ( m_snappingMode )
+                if ( settings().debug.snappingMode )
                 {
-                    const float rotationSnapAngleDegrees = m_slowmotionMode ? 1.0f : 5.0f;
-                    const float translationSnapDist      = m_slowmotionMode ? 0.01f : 0.1f;
+                    const float rotationSnapAngleDegrees = settings().debug.slowmotionMode ? 1.0f : 5.0f;
+                    const float translationSnapDist      = settings().debug.slowmotionMode ? 0.01f : 0.1f;
 
                     if ( fabs( mouseTotalMove ) > 1.0f )
                     {
@@ -332,8 +320,8 @@ void Application::run() {
                 }
                 else
                 {
-                    const float translationSensitivity = m_slowmotionMode ? 0.00001f : 0.0002f;
-                    const float rotationSensitivity    = m_slowmotionMode ? 0.00001f : 0.0001f;
+                    const float translationSensitivity = settings().debug.slowmotionMode ? 0.00001f : 0.0002f;
+                    const float rotationSensitivity    = settings().debug.slowmotionMode ? 0.00001f : 0.0001f;
 
                     if ( m_inputManager.isKeyPressed( InputManager::Keys::r ) ) 
                     {
@@ -361,8 +349,8 @@ void Application::run() {
             // Translate / rotate the selected light.
             if ( m_windowFocused && !m_sceneManager.getSelectedLights().empty() ) 
             {
-                const float   translationSensitivity = m_slowmotionMode ? 0.00005f : 0.0002f;
-                const float   rotationSensitivity    = m_slowmotionMode ? 0.00001f : 0.0001f;
+                const float   translationSensitivity = settings().debug.slowmotionMode ? 0.00005f : 0.0002f;
+                const float   rotationSensitivity    = settings().debug.slowmotionMode ? 0.00001f : 0.0001f;
                 const int2    mouseMove              = m_inputManager.getMouseMove();
 
                 float mouseTotalMove = (float)(mouseMove.x - mouseMove.y);
@@ -417,8 +405,8 @@ void Application::run() {
             // Update the camera.
             if ( m_windowFocused && !modifyingScene && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) 
             { 
-                const float cameraRotationSensitivity = m_slowmotionMode ? 0.00002f : 0.0001f;
-                const float acceleration              = m_slowmotionMode ? 0.02f : 0.25f;
+                const float cameraRotationSensitivity = settings().debug.slowmotionMode ? 0.00002f : 0.0001f;
+                const float acceleration              = settings().debug.slowmotionMode ? 0.02f : 0.25f;
 
                 if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) )      m_sceneManager.getCamera().accelerateForward( (float)frameTimeMs * acceleration );
                 else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_sceneManager.getCamera().accelerateReverse( (float)frameTimeMs * acceleration );
@@ -464,7 +452,7 @@ void Application::run() {
             m_renderer.renderShadowMaps( m_sceneManager.getScene() );
 
         std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-            = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), m_debugWireframeMode, m_sceneManager.getSelectedBlockActors(),
+            = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), settings().debug.debugWireframeMode, m_sceneManager.getSelectedBlockActors(),
                                       m_sceneManager.getSelectedSkeletonActors(), m_sceneManager.getSelectedLights(), m_sceneManager.getSelectionVolumeMesh() );
 
         const int2 mousePos = m_inputManager.getMousePos();
@@ -474,35 +462,35 @@ void Application::run() {
             if ( frameUchar ) 
             {
                 m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, int2( 0, 0 ), frameUchar->getDimensions() );
-		        m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
+		        m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed(0) ) 
                     debugDisplayTextureValue( *frameUchar, mousePos );
             } 
             else if ( frameUchar4 )
             {
-                if ( m_debugRenderAlpha )
-		            m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
+                if ( settings().debug.debugRenderAlpha )
+		            m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
                 else
-                    m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
+                    m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
                     debugDisplayTextureValue( *frameUchar4, mousePos );
             } 
             else if ( frameFloat4 )
             {
-                m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
                     debugDisplayTextureValue( *frameFloat4, mousePos );
             }
             else if ( frameFloat2 )
             {
-                m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
             }
             else if ( frameFloat ) 
             {
-                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, false, m_debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
                     debugDisplayTextureValue( *frameFloat, mousePos );
@@ -553,7 +541,7 @@ void Application::run() {
             std::stringstream ss;
             ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
             
-            if ( m_renderFps )
+            if ( settings().debug.renderFps )
                 frameUchar4 = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
@@ -561,7 +549,7 @@ void Application::run() {
             std::stringstream ss;
             ss << "View: " << Renderer::viewToString( m_renderer.getActiveViewType() );
 
-            if ( m_renderFps )
+            if ( settings().debug.renderFps )
                 frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 350.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
@@ -573,7 +561,7 @@ void Application::run() {
 
             ss << "Exposure: " << m_renderer.getExposure();
 
-            if ( m_renderFps )
+            if ( settings().debug.renderFps )
                 frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
@@ -647,7 +635,7 @@ void Application::run() {
                 }
             }
 
-            if ( m_renderText )
+            if ( settings().debug.renderText )
                 frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
@@ -747,7 +735,7 @@ void Application::run() {
                 ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance << " [R + W]";;
             }
 
-            if ( m_renderText )
+            if ( settings().debug.renderText )
                 frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
@@ -786,7 +774,7 @@ void Application::run() {
         //deferredRenderer.disableRenderTargets();
 
         if ( frameUchar4 )
-            m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)m_screenDimensions.x, (float)m_screenDimensions.y, true );
+            m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, true );
 
         m_controlPanel.draw();
 
@@ -801,7 +789,7 @@ void Application::run() {
 		Timer frameEndTime;
 		frameTimeMs = Timer::getElapsedTime( frameEndTime, frameStartTime );
 
-        if (m_limitFPS)
+        if (settings().main.limitFPS)
         {
             const double targetFrameTimeMs = 1000.0 / 10.0;
             const long sleepTime = (long)std::max( 0.0, targetFrameTimeMs - frameTimeMs );
@@ -815,7 +803,7 @@ void Application::run() {
 
 void Application::debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int2 screenCoords )
 {
-    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions(0) / (float2)m_screenDimensions;
+    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions(0) / (float2)settings().main.screenDimensions;
     const int2   textureCoords            = (int2)((float2)screenCoords * textureToScreenSizeRatio);
 
     m_rendererCore.copyTexture( *m_debugFrameU1, texture, textureCoords, int2::ONE );
@@ -829,7 +817,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< unsigned cha
 
 void Application::debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int2 screenCoords )
 {
-    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)m_screenDimensions;
+    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords            = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
     m_rendererCore.copyTexture( *m_debugFrameU4, texture, textureCoords, int2::ONE );
@@ -844,7 +832,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& te
 
 void Application::debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int2 screenCoords )
 {
-    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)m_screenDimensions;
+    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords            = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
     m_rendererCore.copyTexture( *m_debugFrameF1, texture, textureCoords, int2::ONE );
@@ -857,7 +845,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< float >& tex
 
 void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int2 screenCoords )
 {
-    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)m_screenDimensions;
+    const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords            = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
     m_rendererCore.copyTexture( *m_debugFrameF4, texture, textureCoords, int2::ONE );
@@ -873,7 +861,7 @@ void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr<
     if (textures.empty())
         return;
 
-    const float2 textureToScreenSizeRatio = (float2)textures[0]->getDimensions( 0 ) / (float2)m_screenDimensions;
+    const float2 textureToScreenSizeRatio = (float2)textures[0]->getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
     std::string debugString = "ior: ";
@@ -1045,7 +1033,7 @@ void Application::onFocusChange( bool windowFocused )
 {
 	m_windowFocused = windowFocused;
 
-    m_limitFPS = !windowFocused;
+    Settings::s_settings.main.limitFPS = !windowFocused;
 }
 
 void Application::onKeyPress( int key )
@@ -1053,12 +1041,12 @@ void Application::onKeyPress( int key )
     // [\] - Hide/show text.
     if ( key == InputManager::Keys::backslash )
     {
-        m_renderText = !m_renderText;
+        Settings::s_settings.debug.renderText = !settings().debug.renderText;
     }
 
     // [/] - Hide/show FPS counter.
     if ( key == InputManager::Keys::slash ) {
-        m_renderFps = !m_renderFps;
+        Settings::s_settings.debug.renderFps = !settings().debug.renderFps;
     }
 
     // [ L + P ] - Add point light.
@@ -1273,21 +1261,21 @@ void Application::onKeyPress( int key )
 
     // [Enter] - Render alpha.
     if ( key == InputManager::Keys::enter )
-        m_debugRenderAlpha = !m_debugRenderAlpha;
+        Settings::s_settings.debug.debugRenderAlpha = !settings().debug.debugRenderAlpha;
 
     // [Page up/Page down] - Switch displayed mipmap.
     if ( key == InputManager::Keys::pageUp )
-        m_debugDisplayedMipmapLevel = std::max( 0, m_debugDisplayedMipmapLevel - 1 );
+        Settings::s_settings.debug.debugDisplayedMipmapLevel = std::max( 0, settings().debug.debugDisplayedMipmapLevel - 1 );
     else if ( key == InputManager::Keys::pageDown )
-        m_debugDisplayedMipmapLevel = m_debugDisplayedMipmapLevel + 1;
+        Settings::s_settings.debug.debugDisplayedMipmapLevel = settings().debug.debugDisplayedMipmapLevel + 1;
 
     // [Backspace] - Render in wireframe mode.
     if ( key == InputManager::Keys::backspace )
-        m_debugWireframeMode = !m_debugWireframeMode;
+        Settings::s_settings.debug.debugWireframeMode = !settings().debug.debugWireframeMode;
 
     // [Caps Lock] - Enable slowmotion mode.
     if ( key == InputManager::Keys::capsLock )
-        m_slowmotionMode = !m_slowmotionMode;
+        Settings::s_settings.debug.slowmotionMode = !settings().debug.slowmotionMode;
 
     // [Ctrl + B] - Rebuild bounding box and BVH.
     if ( key == InputManager::Keys::b && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
@@ -1295,7 +1283,7 @@ void Application::onKeyPress( int key )
 
     // [Spacebar] - Enable/disable snapping when rotating/translating actors.
     if ( key == InputManager::Keys::spacebar )
-        m_snappingMode = !m_snappingMode;
+        Settings::s_settings.debug.snappingMode = !settings().debug.snappingMode;
 
     // [left/right] - Select next/prev actor or light.
     if ( key == InputManager::Keys::right )
@@ -1339,81 +1327,81 @@ void Application::onKeyPress( int key )
     {
         if ( key == InputManager::Keys::tilde ) {
             m_renderer.setActiveViewType( Renderer::View::Final );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::one ) {
             m_renderer.setActiveViewType( Renderer::View::Shaded );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::two ) {
             m_renderer.setActiveViewType( Renderer::View::Depth );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::three ) {
             m_renderer.setActiveViewType( Renderer::View::Position );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::four ) {
             m_renderer.setActiveViewType( Renderer::View::Emissive );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::five ) {
             m_renderer.setActiveViewType( Renderer::View::Albedo );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::six ) {
             m_renderer.setActiveViewType( Renderer::View::Normal );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::seven ) {
             m_renderer.setActiveViewType( Renderer::View::Metalness );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::eight ) {
             m_renderer.setActiveViewType( Renderer::View::Roughness );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::nine ) {
             m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f1 ) {
             m_renderer.setActiveViewType( Renderer::View::RayDirections );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f2 ) {
             m_renderer.setActiveViewType( Renderer::View::Contribution );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f3 ) {
             m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f4 ) {
             m_renderer.setActiveViewType( Renderer::View::BloomBrightPixels );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         }
     }
     else if ( sKeyPressed )
     {
         if ( key == InputManager::Keys::one ) {
             m_renderer.setActiveViewType( Renderer::View::Preillumination );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::two ) {
             m_renderer.setActiveViewType( Renderer::View::HardIllumination );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::three ) {
             m_renderer.setActiveViewType( Renderer::View::SoftIllumination );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::four ) {
             m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::five ) {
             m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::six ) {
             m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::seven ) {
             m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluder );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         }
     }
     else if ( rKeyPressed ) 
     {
         if ( key == InputManager::Keys::one ) {
             m_renderer.setActiveViewType( Renderer::View::HitDistance );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::two ) {
             m_renderer.setActiveViewType( Renderer::View::FinalHitDistance );
-            m_debugDisplayedMipmapLevel = 0;
+            Settings::s_settings.debug.debugDisplayedMipmapLevel = 0;
         }
     }
 
@@ -1448,7 +1436,7 @@ void Application::onMouseButtonPress( int button )
 
         std::shared_ptr< Actor > pickedActor;
         std::shared_ptr< Light > pickedLight;
-        std::tie( pickedActor, pickedLight ) = m_sceneManager.pickActorOrLight( float2( (float)mousePos.x, (float)mousePos.y ), (float)m_screenDimensions.x, (float)m_screenDimensions.y, fieldOfView );
+        std::tie( pickedActor, pickedLight ) = m_sceneManager.pickActorOrLight( float2( (float)mousePos.x, (float)mousePos.y ), (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, fieldOfView );
 
         if ( pickedActor )
         {

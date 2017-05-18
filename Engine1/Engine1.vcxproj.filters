@@ -439,6 +439,12 @@
     <Filter Include="Source Files\Shader\Common">
       <UniqueIdentifier>{b9e46b03-6c71-45f8-8b08-a38c232c7369}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Settings">
+      <UniqueIdentifier>{b3254e63-ea04-4728-8e5b-06db850d42ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Settings">
+      <UniqueIdentifier>{1d034e61-d4cc-4143-bcbd-59b30aabcad9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -954,6 +960,9 @@
     <ClInclude Include="ControlPanel.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Header Files\Settings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1438,6 +1447,9 @@
     </ClCompile>
     <ClCompile Include="ControlPanel.cpp">
       <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files\Settings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

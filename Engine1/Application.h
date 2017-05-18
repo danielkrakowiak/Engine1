@@ -33,13 +33,6 @@ namespace Engine1
 	    void show();
 	    void run();
 
-	    bool isFullscreen() { return m_fullscreen; }
-
-	    int2 getScreenDimensions() { return m_screenDimensions; }
-	    int getDisplayFrequency() { return m_displayFrequency; }
-	    int getScreenColorDepth() { return m_screenColorDepth; }
-	    int getZBufferDepth() { return m_zBufferDepth; }
-
         void setWindowTitle( const std::string& title );
 
     private:
@@ -94,24 +87,7 @@ namespace Engine1
 
         ControlPanel m_controlPanel;
 
-	    bool m_fullscreen;
-	    int2 m_screenDimensions;
-	    bool m_verticalSync;
-        bool m_limitFPS;
-	    int  m_displayFrequency;
-	    char m_screenColorDepth;
-	    char m_zBufferDepth;
-
 	    bool m_windowFocused;
-
-        bool m_debugRenderAlpha;
-        bool m_debugWireframeMode;
-        int  m_debugDisplayedMipmapLevel;
-        bool m_renderText;
-        bool m_renderFps;
-
-        bool m_slowmotionMode;
-        bool m_snappingMode;
 
         std::shared_ptr< StagingTexture2D< unsigned char > > m_debugFrameU1;
         std::shared_ptr< StagingTexture2D< uchar4 > >        m_debugFrameU4;
