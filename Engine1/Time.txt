@@ -389,4 +389,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 14.05.2017 - 4h - Added two-way cast operators between float2/3 and int/2/3. Fixed debug sampling textures (by clicking on a pixel) which are smaller than screen. Refactored Application class a bit. Improved hit-dist-search by decreasing blur of very small values (which should remain small) sorrounded by high-value samples. Such small values occur at pixels where reflected objects touches the reflective surface. Fixed rejecting off-screen samples when combining/blurring reflection image.
 16.05.2017 - 6h - Removed halo around objects in reflection - caused by accepting wrong samples (reflected off different objects) and by blurring from mipmapping (so even center pixel was affected, when sampling higher mipmaps). Applied fixes from CombiningShader to CombiningShader2.
 17.05.2017 - 6h - Added color multipliers for textures (per model). Refactored Model class. Added AntTweakBar. Added Settings class to replace settings scattered all over the code.
-18.05.2017 - 2h - Working on Settings class and refactoring.
+18.05.2017 - 4h - Working on Settings class and refactoring, handler on settings change, adding new settings, color multipliers etc.
+19.05.2017 - 1h - Refactoring, adding color multipliers to Control Panel.

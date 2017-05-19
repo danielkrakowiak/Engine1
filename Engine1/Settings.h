@@ -1,6 +1,7 @@
 #pragma once
 
 #include "int2.h"
+#include "float3.h"
 #include <vector>
 
 namespace Engine1
@@ -39,6 +40,12 @@ namespace Engine1
 
             bool slowmotionMode;
             bool snappingMode;
+
+            float3 emissiveMul;
+            float3 albedoMul;
+            float metalnessMul;
+            float roughnessMul;
+            float refractiveIndexMul;
         } debug;
 
         struct Rendering 

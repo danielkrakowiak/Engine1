@@ -32,6 +32,13 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device, c
     TwAddButton( tweakBar, "Next - reflection", ControlPanel::onNextLevelReflection, nullptr, "" );
     TwAddButton( tweakBar, "Next - transmission", ControlPanel::onNextLevelReflection, nullptr, "" );
     TwAddButton( tweakBar, "Back", ControlPanel::onPrevLevel, nullptr, "" );
+
+    TwAddVarRW( tweakBar, "Emissive mul", TW_TYPE_COLOR3F, &Settings::s_settings.debug.emissiveMul, "" );
+    TwAddVarRW( tweakBar, "Albedo mul", TW_TYPE_COLOR3F, &Settings::s_settings.debug.albedoMul, "" );
+    TwAddVarRW( tweakBar, "Metalness mul", TW_TYPE_FLOAT, &Settings::s_settings.debug.metalnessMul, "min=0 max=1 step=0.01 precision=2" );
+    TwAddVarRW( tweakBar, "Roughness mul", TW_TYPE_FLOAT, &Settings::s_settings.debug.roughnessMul, "min=0 max=1 step=0.01 precision=2" );
+    TwAddVarRW( tweakBar, "Refractive index mul", TW_TYPE_FLOAT, &Settings::s_settings.debug.refractiveIndexMul, "min=1 max=2.5 step=0.01 precision=2" );
+
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

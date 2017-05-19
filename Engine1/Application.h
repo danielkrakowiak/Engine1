@@ -23,6 +23,7 @@ namespace Engine1
     class Actor;
     class BlockActor;
     class SkeletonActor;
+    class Model;
 
     class Application {
     public:
@@ -59,6 +60,11 @@ namespace Engine1
         void onKeyPress( int key );
         void onMouseButtonPress( int button );
 	    void onDragAndDropFile( std::string filePath, bool replaceSelected );
+
+        bool onFrame( const double frameTimeMs, const bool lockCursor ); // returns: modifyingScene
+        void onSelectionChanged();
+        void setTextureMultipliersInSettingsFromModel( const Model& model );
+        void setModelTextureMultipliersFromSettings( Model& model );
 
         int2 screenPosToWindowPos( int2 screenPos ) const;
 

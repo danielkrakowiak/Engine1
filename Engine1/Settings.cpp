@@ -56,6 +56,12 @@ void Settings::setDefault()
     s_settings.debug.slowmotionMode            = false;
     s_settings.debug.snappingMode              = false;
 
+    s_settings.debug.emissiveMul        = float3::ONE;
+    s_settings.debug.albedoMul          = float3::ONE;
+    s_settings.debug.metalnessMul       = 1.0f;
+    s_settings.debug.roughnessMul       = 1.0f;
+    s_settings.debug.refractiveIndexMul = 1.0f;
+
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 
     s_settings.rendering.reflectionsRefractions.maxLevel = 1;
