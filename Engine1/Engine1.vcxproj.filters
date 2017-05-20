@@ -1587,9 +1587,6 @@
     <FxCompile Include="Shaders\TextureShader\Texture_ps.hlsl">
       <Filter>Source Files\Shader\Texture</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\TextureShader\Texture_ps2.hlsl">
-      <Filter>Source Files\Shader\Texture</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\TextureShader\Texture_vs.hlsl">
       <Filter>Source Files\Shader\Texture</Filter>
     </FxCompile>
@@ -1667,6 +1664,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\Common\RaytracingUtils.hlsl">
       <Filter>Source Files\Shader\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShader\Texture_SingleChannel_ps.hlsl">
+      <Filter>Source Files\Shader\Texture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShader\Texture_Alpha_ps.hlsl">
+      <Filter>Source Files\Shader\Texture</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

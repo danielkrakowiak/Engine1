@@ -8,15 +8,15 @@ struct PixelInputType
 	float2 texCoord : TEXCOORD1;
 };
 
-float4 main(PixelInputType input) : SV_Target
+float3 main(PixelInputType input) : SV_Target
 {
-	float4 color = colorTexture.Sample( samplerState, input.texCoord );
+	float color = colorTexture.Sample( samplerState, input.texCoord ).r;
 
     //////////////////////////////////////////////////////////////////
     // Debug: Display single-channel textures darkened - because they probably contain distance data (high values).
-    if (color.g + color.b < 0.0001f)
-        color /= 5.0f;
+    //if (color.g + color.b < 0.0001f)
+    //    color /= 5.0f;
     //////////////////////////////////////////////////////////////////
 
-	return color;
+	return color.rrr;
 }

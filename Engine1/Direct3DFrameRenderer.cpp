@@ -29,6 +29,7 @@ Direct3DFrameRenderer::Direct3DFrameRenderer( Direct3DRendererCore& rendererCore
     m_textureVertexShader( std::make_shared<TextureVertexShader>() ),
     m_textureFragmentShader( std::make_shared<TextureFragmentShader>() ),
     m_textureAlphaFragmentShader( std::make_shared<TextureFragmentShader>() ),
+    m_textureSingleChannelFragmentShader( std::make_shared<TextureFragmentShader>() ),
     m_textVertexShader( std::make_shared<TextVertexShader>() ),
     m_textFragmentShader( std::make_shared<TextFragmentShader>() )
 {
@@ -362,7 +363,8 @@ void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& devic
 {
 	m_textureVertexShader->loadAndInitialize( "Shaders/TextureShader/Texture_vs.cso", device );
 	m_textureFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_ps.cso", device );
-    m_textureAlphaFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_ps2.cso", device );
+    m_textureAlphaFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_Alpha_ps.cso", device );
+    m_textureSingleChannelFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_SingleChannel_ps.cso", device );
 
 	m_textVertexShader->loadAndInitialize( "Shaders/TextShader/Text_vs.cso", device );
 	m_textFragmentShader->loadAndInitialize( "Shaders/TextShader/Text_ps.cso", device );
@@ -390,9 +392,9 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 
 	{ // Configure and enable shaders.
 		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
-		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
+		m_textureSingleChannelFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
 
-		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureSingleChannelFragmentShader );
 	}
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
@@ -400,7 +402,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 
 	m_rendererCore.draw( rectangleMesh );
 
-	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
+    m_textureSingleChannelFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
@@ -531,9 +533,9 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 
 	{ // Configure and enable shaders.
 		m_textureVertexShader->setParameters( *m_deviceContext.Get(), posX, posY, relativeWidth, relativeHeight );
-		m_textureFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
+        m_textureSingleChannelFragmentShader->setParameters( *m_deviceContext.Get(), texture, mipmapLevel );
 
-		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureFragmentShader );
+		m_rendererCore.enableRenderingShaders( m_textureVertexShader, m_textureSingleChannelFragmentShader );
 	}
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
@@ -541,7 +543,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 
 	m_rendererCore.draw( rectangleMesh );
 
-	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
+    m_textureSingleChannelFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )

@@ -103,6 +103,7 @@ namespace Engine1
         std::shared_ptr<TextureVertexShader>   m_textureVertexShader;
         std::shared_ptr<TextureFragmentShader> m_textureFragmentShader;
         std::shared_ptr<TextureFragmentShader> m_textureAlphaFragmentShader;
+        std::shared_ptr<TextureFragmentShader> m_textureSingleChannelFragmentShader;
         std::shared_ptr<TextVertexShader>      m_textVertexShader;
         std::shared_ptr<TextFragmentShader>    m_textFragmentShader;
 

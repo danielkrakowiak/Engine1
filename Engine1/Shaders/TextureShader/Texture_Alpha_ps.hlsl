@@ -1,4 +1,4 @@
-Texture2D albedoTexture;
+Texture2D colorTexture;
 SamplerState samplerState;
 
 struct PixelInputType
@@ -10,7 +10,7 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_Target
 {
-	float4 textureColor = float4( albedoTexture.Sample( samplerState, input.texCoord ).aaa, 1.0f );
+	float4 color = float4( colorTexture.Sample( samplerState, input.texCoord ).aaa, 1.0f );
 
-	return textureColor;
+	return color;
 }
