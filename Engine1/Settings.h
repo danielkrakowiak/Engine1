@@ -41,11 +41,12 @@ namespace Engine1
             bool slowmotionMode;
             bool snappingMode;
 
+            float  alphaMul;
             float3 emissiveMul;
             float3 albedoMul;
-            float metalnessMul;
-            float roughnessMul;
-            float refractiveIndexMul;
+            float  metalnessMul;
+            float  roughnessMul;
+            float  refractiveIndexMul;
         } debug;
 
         struct Rendering 

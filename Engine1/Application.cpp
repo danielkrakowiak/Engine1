@@ -1547,11 +1547,15 @@ void Application::onSelectionChanged()
 
 void Application::setTextureMultipliersInSettingsFromModel( const Model& model )
 {
+    auto& alphaTextures           = model.getAlphaTextures();
     auto& emissiveTextures        = model.getEmissiveTextures();
     auto& albedoTextures          = model.getAlbedoTextures();
     auto& metalnessTextures       = model.getMetalnessTextures();
     auto& roughnessTextures       = model.getRoughnessTextures();
     auto& refractiveIndexTextures = model.getRefractiveIndexTextures();
+
+    if ( !alphaTextures.empty() )
+        Settings::modify().debug.alphaMul = alphaTextures[ 0 ].getColorMultiplier().x;
 
     if ( !emissiveTextures.empty() )
         Settings::modify().debug.emissiveMul = emissiveTextures[ 0 ].getColorMultiplier();
@@ -1571,11 +1575,15 @@ void Application::setTextureMultipliersInSettingsFromModel( const Model& model )
 
 void Application::setModelTextureMultipliersFromSettings( Model& model )
 {
+    auto& alphaTextures           = model.getAlphaTextures();
     auto& emissiveTextures        = model.getEmissiveTextures();
     auto& albedoTextures          = model.getAlbedoTextures();
     auto& metalnessTextures       = model.getMetalnessTextures();
     auto& roughnessTextures       = model.getRoughnessTextures();
     auto& refractiveIndexTextures = model.getRefractiveIndexTextures();
+
+    if ( !alphaTextures.empty() )
+        alphaTextures[ 0 ].setColorMultiplier( float4( settings().debug.alphaMul ) );
 
     if ( !emissiveTextures.empty() )
         emissiveTextures[ 0 ].setColorMultiplier( float4( settings().debug.emissiveMul, 0.0f ) );
