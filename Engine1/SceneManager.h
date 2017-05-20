@@ -84,7 +84,7 @@ namespace Engine1
         void enableDisableCastingShadowsForSelected();
 
         void cloneInstancesOfSelectedActors();
-        void cloneSelectedActors();
+        void cloneSelectedActorsAndLights();
 
         void recreateSelectionVolumeMesh();
         void recalculateSelectionVolume();

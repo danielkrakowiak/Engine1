@@ -31,6 +31,13 @@ SpotLight::SpotLight() :
     m_coneAngle( 0.5f )
 {}
 
+SpotLight::SpotLight( const SpotLight& light ) :
+    Light( light ),
+    m_direction( light.m_direction ),
+    m_coneAngle( light.m_coneAngle )
+{
+}
+
 SpotLight::SpotLight( const float3& position, const float3& direction, const float coneAngle, const float3& color ) :
     Light( position, color ),
     m_direction( direction ),

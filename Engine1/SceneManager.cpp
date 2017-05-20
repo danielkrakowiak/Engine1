@@ -1121,23 +1121,34 @@ void SceneManager::cloneInstancesOfSelectedActors()
     m_selectedSkeletonActors = std::move( newSkeletonActors );
 }
 
-void SceneManager::cloneSelectedActors()
+void SceneManager::cloneSelectedActorsAndLights()
 {
     std::vector< std::shared_ptr< BlockActor > >    newBlockActors;
     std::vector< std::shared_ptr< SkeletonActor > > newSkeletonActors;
     newBlockActors.reserve( m_selectedBlockActors.size() );
     newSkeletonActors.reserve( m_selectedSkeletonActors.size() );
 
-    for ( auto& actor : m_selectedBlockActors ) {
+    for ( auto& actor : m_selectedBlockActors ) 
+    {
         newBlockActors.push_back( std::make_shared< BlockActor >( *actor ) ); // Clone the actor.
         newBlockActors.back()->setModel( std::make_shared< BlockModel >( *actor->getModel() ) ); // Clone it's model.
         m_scene->addActor( newBlockActors.back() );
     }
 
-    for ( auto& actor : m_selectedSkeletonActors ) {
+    for ( auto& actor : m_selectedSkeletonActors ) 
+    {
         newSkeletonActors.push_back( std::make_shared< SkeletonActor >( *actor ) ); // Clone the actor.
         newSkeletonActors.back()->setModel( std::make_shared< SkeletonModel >( *actor->getModel() ) ); // Clone it's model.
         m_scene->addActor( newSkeletonActors.back() );
+    }
+
+    for ( auto& light : m_selectedLights )
+    {
+        if ( light->getType() == Light::Type::PointLight ) {
+            m_scene->addLight( std::make_shared< PointLight >( static_cast< PointLight& >( *light ) ) );
+        } else if ( light->getType() == Light::Type::SpotLight ) {
+            m_scene->addLight( std::make_shared< SpotLight >( static_cast< SpotLight& >( *light ) ) );
+        }
     }
 }
 

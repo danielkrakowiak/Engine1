@@ -10,6 +10,14 @@ Light::Light() :
     m_emitterRadius( 0.0f )
 {}
 
+Light::Light( const Light& light ) :
+    m_enabled( light.m_enabled ),
+    m_castingShadows( light.m_castingShadows ),
+    m_position( light.m_position ),
+    m_color( light.m_color ),
+    m_emitterRadius( light.m_emitterRadius )
+{}
+
 Light::Light( const float3& position, const float3& color, const bool enabled, const bool castingShadows, const float emitterRadius ) :
     m_enabled( enabled ),
     m_castingShadows( castingShadows ),

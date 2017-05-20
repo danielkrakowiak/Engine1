@@ -31,6 +31,7 @@ namespace Engine1
         protected:
 
         Light();
+        Light( const Light& light );
         Light( const float3& position, const float3& color, const bool enabled = true, const bool castingShadows = true, const float emitterRadius = 0.0f );
         ~Light();
 

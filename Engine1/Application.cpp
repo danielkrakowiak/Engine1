@@ -529,7 +529,7 @@ void Application::run() {
             ss << "Selected: " << selectedVertexCount << " verts / " << selectedTriangleCount << " tris " << selectedMeshesCount << " actors \n";
             ss << "Scene:    " << totalVertexCount    << " verts / " << totalTriangleCount    << " tris " << totalActors         << " actors \n";
 
-            if ( selectedMeshesCount == 1 )
+            if ( selectedMeshesCount >= 1 )
             {
                 std::string modelPath, meshPath;
                 int bvhNodes = 0, bvhNodesExtents = 0, bvhTriangles = 0;
@@ -571,7 +571,7 @@ void Application::run() {
                 ss << "BVH nodes: " << bvhNodes << ", extents: " << bvhNodesExtents << " triangles: " << bvhTriangles;
             }
 
-            if ( selectedLightsCount == 1 && selectedMeshesCount == 0 )
+            if ( selectedLightsCount >= 1 && selectedMeshesCount == 0 )
             {
                 auto& light = m_sceneManager.getSelectedLights().front();
 
@@ -987,7 +987,7 @@ void Application::onKeyPress( int key )
     if ( !m_sceneManager.getSelectedLights().empty() && m_inputManager.isKeyPressed( InputManager::Keys::shift ) 
          && !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
     {
-        const float sensitivity = 0.001f;
+        const float sensitivity = 0.01f;
 
         float change = 0.0f;
         if ( m_inputManager.isKeyPressed( InputManager::Keys::plus ) ) {
@@ -997,7 +997,8 @@ void Application::onKeyPress( int key )
         }
 
         if ( change != 0.0f ) {
-            for ( auto& light : m_sceneManager.getSelectedLights() ) {
+            for ( auto& light : m_sceneManager.getSelectedLights() ) 
+            {
                 if ( light->getType() != Light::Type::SpotLight )
                     continue;
 
@@ -1124,9 +1125,9 @@ void Application::onKeyPress( int key )
     if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) 
         m_sceneManager.cloneInstancesOfSelectedActors();
 
-    // [Ctrl + C] - Clone the actors and clone their models.
+    // [Ctrl + C] - Clone the actors and clone their models or clone light sources.
     if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
-        m_sceneManager.cloneSelectedActors();
+        m_sceneManager.cloneSelectedActorsAndLights();
 
     // [Ctrl + M] - Merge selected actors/models/meshes etc.
     if ( key == InputManager::Keys::m && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 

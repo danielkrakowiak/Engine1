@@ -24,6 +24,7 @@ namespace Engine1
         static std::shared_ptr< SpotLight > createFromMemory( std::vector< char >::const_iterator& dataIt );
 
         SpotLight();
+        SpotLight( const SpotLight& light );
         SpotLight( const float3& position, const float3& direction, const float coneAngle, const float3& color = float3( 1.0f, 0.9f, 0.75f ) );
         ~SpotLight();
 

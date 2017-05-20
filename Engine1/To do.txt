@@ -777,6 +777,10 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+	  - select all lights
+	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
+	  - why copying lights disables/enables shadow casting? Fix before commit...
+	  - accoutn for alpha mul in shadow calculations...
 	  - copying light sources on Ctrl + C
 	  - fix display on single-channel texutres - get rid of that darkening - use different shader?
 	  - option to invert-z, invert vertex-order, invert-uvs and re-save the mesh... Add to Tweak bar and shortcut
@@ -787,6 +791,7 @@ Idea:
 	  - account for ray-length in next hit-dist-search?
 	  - how to blur further layers reflections/refractions? Because higher layer sharp edges kill the feeling of roughness from the first layer.
 	  - mipmapping for reflections/refractions
+	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
 
 
 	  - account for distance to camera in hit-dist-search - should impact search area
