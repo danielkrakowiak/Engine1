@@ -28,8 +28,9 @@ RWTexture2D<float4> g_rayDirection        : register( u1 );
 RWTexture2D<float>  g_nextRefractiveIndex : register( u2 ); // Refractive index of the generated rays.
 
 static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
-static const float refractiveIndexMul = 2.0f;
 static const float rayOriginOffset = 0.0001f; // Used to move refracted ray origin along the ray direction to avoid self-collisions.
+static const float refractiveIndexMin = 1.0f;
+static const float refractiveIndexMax = 3.0f;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -47,7 +48,7 @@ void main( uint3 groupId : SV_GroupID,
     const float3 surfacePosition            = g_surfacePosition.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
     const float  surfaceRoughness           = g_surfaceRoughness.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
     const float  surfaceRefractiveIndexNorm = g_surfaceRefractiveIndex.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
-    const float  surfaceRefractiveIndex     = 1.0f + surfaceRefractiveIndexNorm * refractiveIndexMul;
+    const float  surfaceRefractiveIndex     = lerp( refractiveIndexMin, refractiveIndexMax, surfaceRefractiveIndexNorm );
     const float3 contributionTerm           = g_contributionTerm.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 
     // TODO: Could be otpimized to check only roughness (not position). Roughness buffer needs to be filled with maximal value at the beginning of each frame.
@@ -63,7 +64,7 @@ void main( uint3 groupId : SV_GroupID,
 
     const bool frontHit = dot(rayDir, surfaceNormal) < 0.0f;
     
-    const float currentRefractiveIndex = 1.0f + g_currentRefractiveIndex[ dispatchThreadId.xy ] * refractiveIndexMul;
+    const float currentRefractiveIndex = lerp( refractiveIndexMin, refractiveIndexMax, g_currentRefractiveIndex[ dispatchThreadId.xy ] );
     float refractiveIndex = 1.0f;
 
     if ( frontHit ) {
@@ -73,7 +74,7 @@ void main( uint3 groupId : SV_GroupID,
 
     } else {
         const float prevRefractiveIndexNorm = g_prevRefractiveIndex[ dispatchThreadId.xy ];
-        const float prevRefractiveIndex = 1.0f + prevRefractiveIndexNorm * refractiveIndexMul;
+        const float prevRefractiveIndex = lerp( refractiveIndexMin, refractiveIndexMax, prevRefractiveIndexNorm );
 
         g_nextRefractiveIndex[ dispatchThreadId.xy ] = prevRefractiveIndexNorm; //prevRefractiveIndex; // Temporary. From lack of better idea.
 
