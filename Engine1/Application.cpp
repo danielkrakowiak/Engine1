@@ -275,60 +275,98 @@ void Application::run() {
 
         modifyingScene = onFrame( frameTimeMs, lockCursor );
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >         frameUchar4;
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >         frameFloat4;
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > >        frameFloat2;
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
-
         m_renderer.clear();
 
         if ( modifyingScene )
             m_renderer.renderShadowMaps( m_sceneManager.getScene() );
 
-        std::tie( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-            = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), settings().debug.debugWireframeMode, m_sceneManager.getSelectedBlockActors(),
+        Renderer::Output output;
+        output = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), settings().debug.debugWireframeMode, m_sceneManager.getSelectedBlockActors(),
                                       m_sceneManager.getSelectedSkeletonActors(), m_sceneManager.getSelectedLights(), m_sceneManager.getSelectionVolumeMesh() );
 
         const int2 mousePos = m_inputManager.getMousePos();
 
         try 
         {
-            if ( frameUchar ) 
+            if ( output.ucharImage ) 
             {
-                m_rendererCore.copyTexture( *ucharDisplayFrame, *frameUchar, int2( 0, 0 ), frameUchar->getDimensions() );
-		        m_frameRenderer.renderTexture( *ucharDisplayFrame, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
+                m_rendererCore.copyTexture( 
+                    *ucharDisplayFrame, *output.ucharImage, 
+                    int2( 0, 0 ), output.ucharImage->getDimensions() 
+                );
+
+		        m_frameRenderer.renderTexture( 
+                    *ucharDisplayFrame, 0.0f, 0.0f, 
+                    (float)settings().main.screenDimensions.x, 
+                    (float)settings().main.screenDimensions.y, 
+                    false, 
+                    settings().debug.debugDisplayedMipmapLevel 
+                );
 
                 if ( m_inputManager.isMouseButtonPressed(0) ) 
-                    debugDisplayTextureValue( *frameUchar, mousePos );
+                    debugDisplayTextureValue( *output.ucharImage, mousePos );
             } 
-            else if ( frameUchar4 )
+            else if ( output.uchar4Image )
             {
                 if ( settings().debug.debugRenderAlpha )
-		            m_frameRenderer.renderTextureAlpha( *frameUchar4, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
+                {
+		            m_frameRenderer.renderTextureAlpha( 
+                        *output.uchar4Image, 0.0f, 0.0f, 
+                        (float)settings().main.screenDimensions.x, 
+                        (float)settings().main.screenDimensions.y, 
+                        false, 
+                        settings().debug.debugDisplayedMipmapLevel 
+                    );
+                }
                 else
-                    m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
+                {
+                    m_frameRenderer.renderTexture( 
+                        *output.uchar4Image, 0.0f, 0.0f, 
+                        (float)settings().main.screenDimensions.x, 
+                        (float)settings().main.screenDimensions.y, 
+                        false, 
+                        settings().debug.debugDisplayedMipmapLevel 
+                    );
+                }
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *frameUchar4, mousePos );
+                    debugDisplayTextureValue( *output.uchar4Image, mousePos );
             } 
-            else if ( frameFloat4 )
+            else if ( output.float4Image )
             {
-                m_frameRenderer.renderTexture( *frameFloat4, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( 
+                    *output.float4Image, 0.0f, 0.0f, 
+                    (float)settings().main.screenDimensions.x, 
+                    (float)settings().main.screenDimensions.y, 
+                    false, 
+                    settings().debug.debugDisplayedMipmapLevel 
+                );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *frameFloat4, mousePos );
+                    debugDisplayTextureValue( *output.float4Image, mousePos );
             }
-            else if ( frameFloat2 )
+            else if ( output.float2Image )
             {
-                m_frameRenderer.renderTexture( *frameFloat2, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( 
+                    *output.float2Image, 0.0f, 0.0f, 
+                    (float)settings().main.screenDimensions.x, 
+                    (float)settings().main.screenDimensions.y, 
+                    false, 
+                    settings().debug.debugDisplayedMipmapLevel 
+                );
             }
-            else if ( frameFloat ) 
+            else if ( output.floatImage ) 
             {
-                m_frameRenderer.renderTexture( *frameFloat, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, false, settings().debug.debugDisplayedMipmapLevel );
+                m_frameRenderer.renderTexture( 
+                    *output.floatImage, 0.0f, 0.0f, 
+                    (float)settings().main.screenDimensions.x, 
+                    (float)settings().main.screenDimensions.y, 
+                    false, 
+                    settings().debug.debugDisplayedMipmapLevel 
+                );
 
                 if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *frameFloat, mousePos );
+                    debugDisplayTextureValue( *output.floatImage, mousePos );
             }
 
             if ( m_inputManager.isMouseButtonPressed( 0 ) && m_renderer.getActiveViewType() == Renderer::View::CurrentRefractiveIndex )
@@ -377,7 +415,7 @@ void Application::run() {
             ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
             
             if ( settings().debug.renderFps )
-                frameUchar4 = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output.uchar4Image = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render current view.
@@ -385,7 +423,7 @@ void Application::run() {
             ss << "View: " << Renderer::viewToString( m_renderer.getActiveViewType() );
 
             if ( settings().debug.renderFps )
-                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 350.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output.uchar4Image = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 350.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render some debug options.
@@ -397,7 +435,7 @@ void Application::run() {
             ss << "Exposure: " << m_renderer.getExposure();
 
             if ( settings().debug.renderFps )
-                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output.uchar4Image = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render profiling results.
@@ -471,7 +509,7 @@ void Application::run() {
             }
 
             if ( settings().debug.renderText )
-                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output.uchar4Image = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render scene stats and selection stats.
@@ -571,7 +609,7 @@ void Application::run() {
             }
 
             if ( settings().debug.renderText )
-                frameUchar4 = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output.uchar4Image = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render camera state.
@@ -608,8 +646,8 @@ void Application::run() {
         // TODO: Should  be refactored somehow. Such method should not be called here.
         //deferredRenderer.disableRenderTargets();
 
-        if ( frameUchar4 )
-            m_frameRenderer.renderTexture( *frameUchar4, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, true );
+        if ( output.uchar4Image )
+            m_frameRenderer.renderTexture( *output.uchar4Image, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, true );
 
         m_controlPanel.draw();
 

@@ -149,28 +149,16 @@ void Renderer::renderShadowMaps( const Scene& scene )
     m_shadowMapRenderer.disableRenderTarget();
 }
 
-std::tuple< 
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-Renderer::renderScene( const Scene& scene, const Camera& camera,
-                       const bool wireframeMode,
-                       const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
-                       const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-                       const std::vector< std::shared_ptr< Light > >& selectedLights,
-                       const std::shared_ptr< BlockMesh > selectionVolumeMesh )
+Renderer::Output Renderer::renderScene( 
+    const Scene& scene, const Camera& camera,
+    const bool wireframeMode,
+    const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
+    const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
+    const std::vector< std::shared_ptr< Light > >& selectedLights,
+    const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
     // Render shadow maps. #TODO: Should NOT be done every frame.
     //renderShadowMaps( scene );
-
-    bool frameReceived = false;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >         frameUchar4;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >         frameFloat4;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > >        frameFloat2;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
 
     const std::unordered_set< std::shared_ptr< Actor > >& actors = scene.getActors();
 
@@ -198,27 +186,36 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
             blockActors.push_back( std::static_pointer_cast< BlockActor >( actor ) );
     }
 
-    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat ) 
-        = renderMainImage( scene, camera, lightsCastingShadows, lightsNotCastingShadows, settings().rendering.reflectionsRefractions.activeView, m_activeViewType, wireframeMode,
-                           selectedBlockActors, selectedSkeletonActors, selectedLights, selectionVolumeMesh );
+    Output output; 
+    output = renderMainImage( 
+        scene, camera, lightsCastingShadows, lightsNotCastingShadows, 
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType, wireframeMode,
+        selectedBlockActors, selectedSkeletonActors, selectedLights, selectionVolumeMesh 
+    );
     
-    if ( frameReceived )
-        return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
-
-    //OutputDebugStringW( StringUtil::widen( "------------------- \n\n\n" ).c_str() );
+    if ( !output.isEmpty() )
+        return output;
 
     std::vector< bool > renderedViewType;
 
-    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( true, 1, 0, settings().rendering.reflectionsRefractions.maxLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-                                        renderedViewType, settings().rendering.reflectionsRefractions.activeView, m_activeViewType );
+    output = renderReflectionsRefractions( 
+        true, 1, 0, 
+        settings().rendering.reflectionsRefractions.maxLevel, 
+        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
+        renderedViewType, 
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType 
+    );
 
-    if ( frameReceived )
-        return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
+    if ( !output.isEmpty() )
+        return output;
 
-    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( false, 1, 0, settings().rendering.reflectionsRefractions.maxLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-                                        renderedViewType, settings().rendering.reflectionsRefractions.activeView, m_activeViewType );
+    output = renderReflectionsRefractions( 
+        false, 1, 0, 
+        settings().rendering.reflectionsRefractions.maxLevel, 
+        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
+        renderedViewType, 
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType 
+    );
     
     // Perform post-effects.
     performToneMapping( m_finalRenderTarget, m_exposure );
@@ -226,14 +223,20 @@ Renderer::renderScene( const Scene& scene, const Camera& camera,
     performBloom( m_finalRenderTarget, m_minBrightness );
 
     if ( m_activeViewType == View::BloomBrightPixels )
-        return std::make_tuple( nullptr, nullptr, m_temporaryRenderTarget2, nullptr, nullptr );
+    {
+        Output output;
+        output.float4Image = m_temporaryRenderTarget2;
 
-    
+        return output;
+    }
 
-    if ( frameReceived )
-        return std::make_tuple( frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
+    if ( !output.isEmpty() )
+        return output;
 
-    return std::make_tuple( nullptr, nullptr, m_finalRenderTarget, nullptr, nullptr );
+    Output finalOutput;
+    finalOutput.float4Image = m_finalRenderTarget;
+
+    return finalOutput;
 }
 
 std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >
@@ -244,22 +247,16 @@ Renderer::renderText( const std::string& text, Font& font, float2 position, floa
     return m_deferredRenderer.getAlbedoRenderTarget();
 }
 
-std::tuple< 
-bool,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-Renderer::renderMainImage( const Scene& scene, const Camera& camera, 
-                           const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                           const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-                           const std::vector< bool >& activeViewLevel, const View activeViewType, 
-                           const bool wireframeMode,
-                           const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
-                           const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-                           const std::vector< std::shared_ptr< Light > >& selectedLights,
-                           const std::shared_ptr< BlockMesh > selectionVolumeMesh )
+Renderer::Output Renderer::renderMainImage( 
+    const Scene& scene, const Camera& camera, 
+    const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+    const std::vector< bool >& activeViewLevel, const View activeViewType,
+    const bool wireframeMode,
+    const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
+    const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
+    const std::vector< std::shared_ptr< Light > >& selectedLights,
+    const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
     float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
 
@@ -419,104 +416,30 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
 
-        //m_rendererCore.copyTexture( *illuminationMaxBlurRadiusTexture, *illuminationMinBlurRadiusTexture, 0 );
-
-        // #TODO: Should be run for lower level mipmap to save bandwidth.
-        // Note: Low blur-radius values are not spread far, because it's useless anyways 
-        // (that shadow which has low blur-radius won't reach here). 
-        // It's better to allow other shadow to spread their blur-radius in such places.
-        //    // Note: Log used, because for higher passes this requirement should be relaxed more and more.
-        //    // Because when we spread blur-radius for far away shadows the number of step required to
-        //    // do that may vary a lot depending on the situation.
-
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluder, 
             m_deferredRenderer.getPositionRenderTarget(), 
             500.0f, 0, 3 
         );
         
-        // #TODO: Should be profiled.
-        //m_utilityRenderer.replaceValues( illuminationMaxBlurRadiusTexture, 0, 500.0f, 0.0f );
-        //m_utilityRenderer.spreadMaxValues( illuminationMaxBlurRadiusTexture, 0, 500, 500.0f );
-
-        // #TODO: Should be profiled.
-
-        // Spread data over 4 pixels.
-        
-        //int totalPreviousSpread = 0;
-        // 64 repeats looks nice... Optimize...
-        // #TODO: IS is really needed? Maybe I should test instead of doing it theoretically correctly?
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread );
-        //totalPreviousSpread += 2;
-        // #TODO: Have to make all the spreads without enabling/disabling compute pipeline.
-        // #TOOD: Number of repeats etc depends on screen resolution. Should be properly calculated...
-
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 32, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 1, 0 );
-        //totalPreviousSpread += 16 * 4;
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 8, 0 );
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 16, 0 );
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 3, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 32, 0 );
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 2, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 16, 0 );
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 8, 0 );
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), totalPreviousSpread, 4, 0 );
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), 0, 2, 0 );
-        //m_utilityRenderer.spreadMinValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 1, 500.0f, camera.getPosition(), m_deferredRenderer.getPositionRenderTarget(), 0, 1, 0 );
-
-        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 3, 500.0f, 0.0f );
-
-
-        //////////////////////////////////////
-        // Note: Not needed - only to improve visualization of debug blur-radius.
-        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 0, 500.0f, 0.0f );
-        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 1, 500.0f, 0.0f );
-        //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 2, 500.0f, 0.0f );
-        //////////////////////////////////////
-
-        // Generate mipmap from 3rd level to 4th level to achieve some final blur (on blur-radius texture).
-        // #TODO: We should have fully filled texture here - no need to reject any samples. Just normal mipmap generation.
-        //m_mipmapRenderer.generateMipmapsWithSampleRejection( illuminationMinBlurRadiusTextureInScreenSpace, 500.0f, 3, 1 );
-
-        //m_utilityRenderer.mergeMinValues( illuminationMinBlurRadiusTexture, illuminationMaxBlurRadiusTexture );
-
-        // #TODO: Should be profiled.
-        //illuminationMinBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
-        //illuminationMaxBlurRadiusTexture->generateMipMapsOnGpu( *m_deviceContext.Get() ); // FOR TEST.
-        //m_mipmapMinValueRenderer.generateMipmapsMinValue( illuminationBlurRadiusTexture );
-
-        if ( activeViewLevel.empty() ) 
-        {
-            if ( activeViewType == View::DistanceToOccluder ) 
-            {
-                // #TODO: Remove this - only for debug.
-                // Note: Not needed - only to improve visualization of debug blur-radius.
-                //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 0, 500.0f, 0.0f );
-                //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 1, 500.0f, 0.0f );
-                //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 2, 500.0f, 0.0f );
-            }
-        }
-
         if ( activeViewLevel.empty() ) 
         {
             switch ( activeViewType ) {
                 case View::DistanceToOccluder:
-                    return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getDistanceToOccluder() );
+                {
+                    // #TODO: Remove this - only for debug.
+                    // Note: Not needed - only to improve visualization of debug blur-radius.
+                    //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 0, 500.0f, 0.0f );
+                    //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 1, 500.0f, 0.0f );
+                    //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 2, 500.0f, 0.0f );
+
+                    Output output;
+                    output.floatImage = m_rasterizeShadowRenderer.getDistanceToOccluder();
+
+                    return output;
+                }
             }
         }
-
-        // #TODO: Should be profiled.
-       /* m_utilityRenderer.convertDistanceFromScreenSpaceToWorldSpace(
-            illuminationMinBlurRadiusTextureInScreenSpace,
-            3, camera.getPosition(),
-            m_deferredRenderer.getPositionRenderTarget()
-        );*/
-        //auto illuminationMinBlurRadiusTextureInWorldSpace = illuminationMinBlurRadiusTextureInScreenSpace;
-
-        /*m_utilityRenderer.convertDistanceFromScreenSpaceToWorldSpace(
-            illuminationMaxBlurRadiusTextureInScreenSpace,
-            3, camera.getPosition(),
-            m_deferredRenderer.getPositionRenderTarget()
-        );*/
-        //auto illuminationMaxBlurRadiusTextureInWorldSpace = illuminationMaxBlurRadiusTextureInScreenSpace;
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
@@ -564,8 +487,6 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
             );
         }
 
-        
-
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
@@ -599,64 +520,78 @@ Renderer::renderMainImage( const Scene& scene, const Camera& camera,
 
     if ( activeViewLevel.empty() )
     {
+        Output output;
+
         switch ( activeViewType )
         {
             case View::Shaded: 
-                return std::make_tuple( true, nullptr, nullptr, m_shadingRenderer.getColorRenderTarget(), nullptr, nullptr );
+                output.float4Image = m_shadingRenderer.getColorRenderTarget(); 
+                break;
             case View::Depth: 
-                return std::make_tuple( true, nullptr, m_deferredRenderer.getDepthRenderTarget(), nullptr, nullptr, nullptr );
+                output.uchar4Image = m_deferredRenderer.getDepthRenderTarget(); 
+                break;
             case View::Position: 
-                return std::make_tuple( true, nullptr, nullptr, m_deferredRenderer.getPositionRenderTarget(), nullptr, nullptr );
+                output.float4Image = m_deferredRenderer.getPositionRenderTarget();
+                break;
             case View::Emissive: 
-                return std::make_tuple( true, nullptr, m_deferredRenderer.getEmissiveRenderTarget(), nullptr, nullptr, nullptr );
+                output.uchar4Image = m_deferredRenderer.getEmissiveRenderTarget();
+                break;
             case View::Albedo: 
-                return std::make_tuple( true, nullptr, m_deferredRenderer.getAlbedoRenderTarget(), nullptr, nullptr, nullptr );
+                output.uchar4Image = m_deferredRenderer.getAlbedoRenderTarget();
+                break;
             case View::Normal:
-                return std::make_tuple( true, nullptr, nullptr, m_deferredRenderer.getNormalRenderTarget(), nullptr, nullptr );
+                output.float4Image = m_deferredRenderer.getNormalRenderTarget();
+                break;
             case View::Metalness:
-                return std::make_tuple( true, m_deferredRenderer.getMetalnessRenderTarget(), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_deferredRenderer.getMetalnessRenderTarget();
+                break;
             case View::Roughness:
-                return std::make_tuple( true, m_deferredRenderer.getRoughnessRenderTarget(), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_deferredRenderer.getRoughnessRenderTarget();
+                break;
             case View::IndexOfRefraction:
-                return std::make_tuple( true, m_deferredRenderer.getIndexOfRefractionRenderTarget(), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_deferredRenderer.getIndexOfRefractionRenderTarget();
+                break;
 			case View::Preillumination:
-				return std::make_tuple( true, m_rasterizeShadowRenderer.getShadowTexture(), nullptr, nullptr, nullptr, nullptr );
+				output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
+                break;
             case View::HardIllumination:
-                return std::make_tuple( true, m_raytraceShadowRenderer.getHardShadowTexture(), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
+                break;
             case View::SoftIllumination:
-                return std::make_tuple( true, m_raytraceShadowRenderer.getSoftShadowTexture(), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_raytraceShadowRenderer.getSoftShadowTexture();
+                break;
             case View::BlurredIllumination:
-                return std::make_tuple( true, m_blurShadowsRenderer.getShadowTexture(), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_blurShadowsRenderer.getShadowTexture();
+                break;
             case View::SpotlightDepth:
                 if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
-                    return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap() );
+                    output.floatImage = std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap();
+                break;
             case View::DistanceToOccluder:
-                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_rasterizeShadowRenderer.getDistanceToOccluder() );
+                output.floatImage = m_rasterizeShadowRenderer.getDistanceToOccluder();
+                break;
             case View::FinalDistanceToOccluder:
-                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture() );
+                output.floatImage = m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture();
+                break;
         }
+
+        return output;
     }
 
-    return std::make_tuple( false, nullptr, nullptr, nullptr, nullptr, nullptr );
+    return Output();
 }
 
-std::tuple<
-bool,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
-                                        const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
-                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                        const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-                                        std::vector< bool >& renderedViewLevel,
-                                        const std::vector< bool >& activeViewLevel,
-                                        const View activeViewType )
+Renderer::Output Renderer::renderReflectionsRefractions( 
+    const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
+    const std::vector< std::shared_ptr< const BlockActor > >& blockActors,
+    const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+    std::vector< bool >& renderedViewLevel,
+    const std::vector< bool >& activeViewLevel,
+    const View activeViewType )
 {
     if ( level > maxLevelCount )
-        return std::make_tuple( false, nullptr, nullptr, nullptr, nullptr, nullptr );
+        return Output();
 
     bool frameReceived = false;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
@@ -688,58 +623,82 @@ Renderer::renderReflectionsRefractions( const bool reflectionFirst, const int le
 
     if ( renderedViewLevel == activeViewLevel )
     {
+        Output output;
+
         switch ( activeViewType )
         {
             case View::Shaded: 
-                return std::make_tuple( true, nullptr, nullptr, m_shadingRenderer.getColorRenderTarget(), nullptr, nullptr );
+                output.float4Image = m_shadingRenderer.getColorRenderTarget();
+                break;
             case View::Position: 
-                return std::make_tuple( true, nullptr, nullptr, m_raytraceRenderer.getRayHitPositionTexture( level - 1 ), nullptr, nullptr );
+                output.float4Image = m_raytraceRenderer.getRayHitPositionTexture( level - 1 );
+                break;
             case View::Emissive: 
-                return std::make_tuple( true, nullptr, m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ), nullptr, nullptr, nullptr );
+                output.uchar4Image = m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 );
+                break;
             case View::Albedo: 
-                return std::make_tuple( true, nullptr, m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ), nullptr, nullptr, nullptr );
+                output.uchar4Image = m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 );
+                break;
             case View::Normal:
-                return std::make_tuple( true, nullptr, nullptr, m_raytraceRenderer.getRayHitNormalTexture( level - 1 ), nullptr, nullptr );
+                output.float4Image = m_raytraceRenderer.getRayHitNormalTexture( level - 1 );
+                break;
             case View::Metalness:
-                return std::make_tuple( true, m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 );
+                break;
             case View::Roughness:
-                return std::make_tuple( true, m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 );
+                break;
             case View::IndexOfRefraction:
-                return std::make_tuple( true, m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 ), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 );
+                break;
             case View::RayDirections: 
-                return std::make_tuple( true, nullptr, nullptr, m_raytraceRenderer.getRayDirectionsTexture( level - 1 ), nullptr, nullptr );
+                output.float4Image = m_raytraceRenderer.getRayDirectionsTexture( level - 1 );
+                break;
             case View::Contribution: 
-                return std::make_tuple( true, nullptr, m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), nullptr, nullptr, nullptr );
+                output.uchar4Image = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
+                break;
             case View::CurrentRefractiveIndex:
-                return std::make_tuple( true, m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 ), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 );
+                break;
             case View::Preillumination:
-                return std::make_tuple( true, m_rasterizeShadowRenderer.getShadowTexture(), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
+                break;
             case View::HardIllumination:
-                return std::make_tuple( true, m_raytraceShadowRenderer.getHardShadowTexture(), nullptr, nullptr, nullptr, nullptr );
+                output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
+                break;
             case View::HitDistance:
-                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ) );
+                output.floatImage = m_raytraceRenderer.getRayHitDistanceTexture( level - 1 );
+                break;
             case View::FinalHitDistance:
-                return std::make_tuple( true, nullptr, nullptr, nullptr, nullptr, m_hitDistanceSearchRenderer.getFinalHitDistanceTexture() );
+                output.floatImage = m_hitDistanceSearchRenderer.getFinalHitDistanceTexture();
+                break;
         }
+
+        return output;
     }
 
-    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( true, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, renderedViewLevel, activeViewLevel, activeViewType );
+    Output output;
+    output = renderReflectionsRefractions( 
+        true, level + 1, refractionLevel + (int)(!reflectionFirst), 
+        maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
+        renderedViewLevel, activeViewLevel, activeViewType 
+    );
 
-    if ( frameReceived )
-        return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
+    if ( !output.isEmpty() )
+        return output;
 
-    std::tie( frameReceived, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat )
-        = renderReflectionsRefractions( false, level + 1, refractionLevel + (int)(!reflectionFirst), maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, renderedViewLevel, activeViewLevel, activeViewType );
+    output = renderReflectionsRefractions( 
+        false, level + 1, refractionLevel + (int)(!reflectionFirst), 
+        maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
+        renderedViewLevel, activeViewLevel, activeViewType 
+    );
 
-    if ( frameReceived )
-        return std::make_tuple( true, frameUchar, frameUchar4, frameFloat4, frameFloat2, frameFloat );
-
-    //OutputDebugStringW( StringUtil::widen( "\n" ).c_str() );
+    if ( !output.isEmpty() )
+        return output;
 
     renderedViewLevel.pop_back();
 
-    return std::make_tuple( false, nullptr, nullptr, nullptr, nullptr, nullptr );
+    return Output();
 }
 
 void Renderer::renderFirstReflections( const Camera& camera, 

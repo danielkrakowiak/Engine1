@@ -76,6 +76,20 @@ namespace Engine1
 
         static std::string viewToString( const View view );
 
+        struct Output
+        {
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > ucharImage;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >        uchar4Image;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >        float4Image;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >        float2Image;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >        floatImage;
+
+            bool isEmpty()
+            {
+                return !ucharImage && !uchar4Image && !float4Image && !float2Image && !floatImage;
+            }
+        };
+
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
         ~Renderer();
 
@@ -89,24 +103,20 @@ namespace Engine1
 
 		void renderShadowMaps( const Scene& scene );
 
-        std::tuple< 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > >
-        renderScene( const Scene& scene, const Camera& camera,
-                     const bool wireframeMode,
-                     const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
-                     const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-                     const std::vector< std::shared_ptr< Light > >& selectedLights,
-                     const std::shared_ptr< BlockMesh > selectionVolumeMesh );
+        Output renderScene( 
+            const Scene& scene, const Camera& camera,
+            const bool wireframeMode,
+            const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
+            const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
+            const std::vector< std::shared_ptr< Light > >& selectedLights,
+            const std::shared_ptr< BlockMesh > selectionVolumeMesh 
+        );
 
         std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >
         renderText( const std::string& text, Font& font, float2 position, float4 color );
 
-        void                       setActiveViewType( const View view );
-        View                       getActiveViewType() const;
+        void setActiveViewType( const View view );
+        View getActiveViewType() const;
         
         float getExposure();
         void  setExposure( const float exposure );
@@ -116,57 +126,55 @@ namespace Engine1
 
         private:
 
-        std::tuple< 
-        bool,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-        renderMainImage( const Scene& scene, const Camera& camera, 
-                         const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                         const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-                         const std::vector< bool >& activeViewLevel, const View activeViewType,
-                         const bool wireframeMode,
-                         const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
-                         const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-                         const std::vector< std::shared_ptr< Light > >& selectedLights,
-                         const std::shared_ptr< BlockMesh > selectionVolumeMesh );
+        Output renderMainImage( 
+            const Scene& scene, const Camera& camera, 
+            const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+            const std::vector< bool >& activeViewLevel, const View activeViewType,
+            const bool wireframeMode,
+            const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
+            const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
+            const std::vector< std::shared_ptr< Light > >& selectedLights,
+            const std::shared_ptr< BlockMesh > selectionVolumeMesh 
+        );
 
-        std::tuple<
-        bool,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >,
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > > > 
-        renderReflectionsRefractions( const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
-                                      const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
-                                      const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                      const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-                                      std::vector< bool >& renderedViewLevel,
-                                      const std::vector< bool >& activeViewLevel,
-                                      const View activeViewType );
+        Output renderReflectionsRefractions( 
+            const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
+            const std::vector< std::shared_ptr< const BlockActor > >& blockActors,
+            const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+            std::vector< bool >& renderedViewLevel,
+            const std::vector< bool >& activeViewLevel,
+            const View activeViewType 
+        );
 
-        void renderFirstReflections( const Camera& camera, 
-                                     const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
-                                     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
+        void renderFirstReflections( 
+            const Camera& camera, 
+            const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+            const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows 
+        );
 
-        void renderFirstRefractions( const Camera& camera, 
-                                     const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
-                                     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
+        void renderFirstRefractions( 
+            const Camera& camera, 
+            const std::vector< std::shared_ptr< const BlockActor > >& blockActors,
+            const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows 
+        );
 
-        void renderReflections( const int level, const Camera& camera, 
-                                const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
-                                const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
+        void renderReflections( 
+            const int level, const Camera& camera, 
+            const std::vector< std::shared_ptr< const BlockActor > >& blockActors,
+            const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows 
+        );
         
-        void renderRefractions( const int level, const int refractionLevel, const Camera& camera, 
-                                const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
-                                const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows );
+        void renderRefractions( 
+            const int level, const int refractionLevel, const Camera& camera, 
+            const std::vector< std::shared_ptr< const BlockActor > >& blockActors,
+            const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows 
+        );
 
         void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness );
 

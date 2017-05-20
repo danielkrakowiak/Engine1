@@ -777,11 +777,15 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - but before: roughness mult for textures or models - otherwise testing is too hard...
+	  - refractiveIndex mul should be accounted for when generating new rays
+	  - option to invert-z, invert vertex-order, invert-uvs and re-save the mesh... Add to Tweak bar and shortcut
+	  - check error in bloom causing black boxes - office scene has a camera set up showing this
+	  - debug high specular highlights - should they be that bright - try clamping for test?
 	  - account for depth in hit-dist-search
 	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
 	  - account for ray-length in next hit-dist-search?
 	  - how to blur further layers reflections/refractions? Because higher layer sharp edges kill the feeling of roughness from the first layer.
+	  - mipmapping for reflections/refractions
 
 
 	  - account for distance to camera in hit-dist-search - should impact search area
