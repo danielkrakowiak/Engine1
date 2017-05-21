@@ -130,6 +130,11 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAc
     return m_softIlluminationTexture;
 }
 
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RaytraceShadowRenderer::getDistanceToOccluder()
+{
+    return m_distanceToOccluderTexture;
+}
+
 void RaytraceShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
     // #TODO: Is using mipmaps? Disable them if they are not necessary.
@@ -138,6 +143,9 @@ void RaytraceShadowRenderer::createComputeTargets( int imageWidth, int imageHeig
 
     m_softIlluminationTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
+
+    m_distanceToOccluderTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 
 void RaytraceShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )

@@ -777,7 +777,6 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - accoutn for alpha mul in shadow calculations...
 	  - reenable shadows in reflections/refractions
 	  - option to invert-z, invert vertex-order, invert-uvs and re-save the mesh... Add to Tweak bar and shortcut
 	  - check error in bloom causing black boxes - office scene has a camera set up showing this

@@ -362,27 +362,27 @@ Renderer::Output Renderer::renderMainImage(
              && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
         )
         {
-            m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+            //m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
 
-            m_rasterizeShadowRenderer.performShadowMapping(
-                camera.getPosition(),
-                lightsCastingShadows[ lightIdx ],
-                m_deferredRenderer.getPositionRenderTarget(),
-                m_deferredRenderer.getNormalRenderTarget()
-            );
+            //m_rasterizeShadowRenderer.performShadowMapping(
+            //    camera.getPosition(),
+            //    lightsCastingShadows[ lightIdx ],
+            //    m_deferredRenderer.getPositionRenderTarget(),
+            //    m_deferredRenderer.getNormalRenderTarget()
+            //);
 
-            m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-            m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
+            //m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+            //m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
 
-            //#TODO: Should not generate all mipmaps. Maybe only two or three...
-            m_rasterizeShadowRenderer.getShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+            ////#TODO: Should not generate all mipmaps. Maybe only two or three...
+            //m_rasterizeShadowRenderer.getShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-            m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
+            //m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         }
 
         // #TODO: Should be profiled.
         // Fill shadow texture with pre-shadow data.
-        m_rendererCore.copyTexture( 
+        /*m_rendererCore.copyTexture( 
             *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getHardShadowTexture() ), 0,
             *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0 
         );
@@ -390,9 +390,16 @@ Renderer::Output Renderer::renderMainImage(
         m_rendererCore.copyTexture(
             *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getSoftShadowTexture() ), 0,
             *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0
-        );
+        );*/
 
         auto distanceToOccluder = m_rasterizeShadowRenderer.getDistanceToOccluder();
+
+        // Clear shadow raytracing render targets.
+        // Note: Same thing is done in rasterize-shadow-renderer - take care to avoid duplication of actions.
+        // #TODO: Should be profiled.
+        m_raytraceShadowRenderer.getHardShadowTexture()->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+        m_raytraceShadowRenderer.getSoftShadowTexture()->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+        m_raytraceShadowRenderer.getDistanceToOccluder()->clearRenderTargetView( *m_deviceContext.Get(), float4( 1000.0f ) );
 
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
