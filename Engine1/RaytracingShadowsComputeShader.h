@@ -75,6 +75,7 @@ namespace Engine1
             float44      shadowMapProjectionMatrix;
             float3       cameraPosition;
             float        pad8;
+            float4       alphaMul[ s_maxActorCount ]; // (2nd, 3rd, 4th components are padding).
 		};
 
         int m_resourceCount;

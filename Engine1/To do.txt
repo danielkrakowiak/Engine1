@@ -777,12 +777,8 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - select all lights
-	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
-	  - why copying lights disables/enables shadow casting? Fix before commit...
 	  - accoutn for alpha mul in shadow calculations...
-	  - copying light sources on Ctrl + C
-	  - fix display on single-channel texutres - get rid of that darkening - use different shader?
+	  - reenable shadows in reflections/refractions
 	  - option to invert-z, invert vertex-order, invert-uvs and re-save the mesh... Add to Tweak bar and shortcut
 	  - check error in bloom causing black boxes - office scene has a camera set up showing this
 	  - debug high specular highlights - should they be that bright - try clamping for test?
@@ -793,27 +789,13 @@ Idea:
 	  - mipmapping for reflections/refractions
 	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
 
+	  NEXT-MINOR:
+	  - select all lights
+	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
 
-	  - account for distance to camera in hit-dist-search - should impact search area
+	  -----------------------------
 
 	  - MINOR: Center texcoord doesn't really point to pixel center on input texture. It points to center in output texture. This can cause problems.
-
-	  - DOESN'T HELP MUCH: during hit-dist search can sample between mipmaps... To smooth things out
-
-	  - use thresholds, rejecting samples in combining shader as in hit-dist-search - otherwise the glow will appear
-
-	  - add some Settings class to store settings (const and non-const) for Rendering algorithms.
-
-	  - Perform hit-distance search at half-res or quarter-res - should be fine and even improve quality
-
-	  - can we avoid sampling the same regions when sampling higher mipmaps? Because we sample the center area a couple of times... Or maybe that's fine?
-	  - do we need position and normal check in hit-dist search? Maybe we need them more for higher levels of reflection/refraction.
-
-	  - hit-distance search radius should depend on pixel size in world-space (depth) etc... Otherwise avaraged hit-distance changes when zooming-in or out. 
-	  - reenable position check when taking samples from reflection image - could also be a reason for glow around objects
-	  
-	  
-	  - add multipliers to textures... But may restrict some multipliers to 1, because some textures cannot emmit light.. And for some textures it makes no sense to have a multiplier?
 
 	  Sources: 
 

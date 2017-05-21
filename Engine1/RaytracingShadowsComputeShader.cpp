@@ -180,6 +180,7 @@ void RaytracingShadowsComputeShader::setParameters(
             dataPtr->boundingBoxMin[ passedActorsCount ]     = float4( boundingBox.getMin(), 0.0f );
             dataPtr->boundingBoxMax[ passedActorsCount ]     = float4( boundingBox.getMax(), 0.0f );
             dataPtr->isOpaque[ passedActorsCount ]           = isOpaque ? float4::ONE : float4::ZERO;
+            dataPtr->alphaMul[ passedActorsCount ]           = !actor->getModel()->getAlphaTextures().empty() ? actor->getModel()->getAlphaTextures()[ 0 ].getColorMultiplier() : float4::ONE;
 
             ++passedActorsCount;
         }

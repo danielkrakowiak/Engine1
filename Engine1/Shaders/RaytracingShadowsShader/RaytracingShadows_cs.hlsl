@@ -27,6 +27,7 @@ cbuffer ConstantBuffer : register( b0 )
     float4x4 shadowMapProjectionMatrix;
     float3   cameraPosition;
     float    pad8;
+    float4   alphaMul; // (2nd, 3rd, 4th components are padding).
 };
 
 // Input.
@@ -258,7 +259,7 @@ bool rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const float 
 							    const float2x3 verticesTexCoords = readVerticesTexCoords( trianglee, g_meshTexcoords );
 							    const float2   hitTexCoords      = calcInterpolatedTexCoords( hitBarycentricCoords, verticesTexCoords );
 
-                                const float alpha = g_alphaTexture.SampleLevel( g_linearSamplerState, hitTexCoords, 0.0f ).r;
+                                const float alpha = g_alphaTexture.SampleLevel( g_linearSamplerState, hitTexCoords, 0.0f ).r * alphaMul.r;
 
                                 shadow += alpha;
 
