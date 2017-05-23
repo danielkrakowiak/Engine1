@@ -37,14 +37,14 @@ namespace Engine1
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
-        void generateAndTracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
+        void generateAndTracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         void generateAndTraceFirstReflectedRays( const Camera& camera, 
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                            const std::vector< std::shared_ptr< const BlockActor > >& actors );
+                                            const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         void generateAndTraceFirstRefractedRays( const Camera& camera, 
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
@@ -52,15 +52,15 @@ namespace Engine1
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                            const std::vector< std::shared_ptr< const BlockActor > >& actors );
+                                            const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         void generateAndTraceReflectedRays( const int level,
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                            const std::vector< std::shared_ptr< const BlockActor > >& actors );
+                                            const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         void generateAndTraceRefractedRays( const int level, const int refractionLevel,
                                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                            const std::vector< std::shared_ptr< const BlockActor > >& actors );
+                                            const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayOriginsTexture( int level );
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayDirectionsTexture( int level );
@@ -107,9 +107,9 @@ namespace Engine1
                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture );
 
-        void tracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors );
+        void tracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< BlockActor > >& actors );
 
-        void traceSecondaryRays( int level, const std::vector< std::shared_ptr< const BlockActor > >& actors );
+        void traceSecondaryRays( int level, const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         Direct3DRendererCore& m_rendererCore;
 

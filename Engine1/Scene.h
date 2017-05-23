@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <vector>
 #include <memory>
 
 namespace Engine1
@@ -31,7 +32,9 @@ namespace Engine1
         void removeAllLights( );
 
         const std::unordered_set< std::shared_ptr<Actor> >& getActors() const;
+        std::vector< std::shared_ptr<Actor> >               getActorsVec() const;
         const std::unordered_set< std::shared_ptr<Light> >& getLights( ) const;
+        std::vector< std::shared_ptr<Light> >               getLightsVec( ) const;
 
         void saveToFile( const std::string& path ) const;
 

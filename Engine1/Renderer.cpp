@@ -24,6 +24,7 @@
 #include "StagingTexture2D.h"
 
 #include "StringUtil.h"
+#include "SceneUtil.h"
 
 #include "Settings.h"
 
@@ -160,31 +161,11 @@ Renderer::Output Renderer::renderScene(
     // Render shadow maps. #TODO: Should NOT be done every frame.
     //renderShadowMaps( scene );
 
-    const std::unordered_set< std::shared_ptr< Actor > >& actors = scene.getActors();
-
-    const std::unordered_set< std::shared_ptr<Light> >& sceneLights = scene.getLights();
-    const std::vector< std::shared_ptr< Light > >       lights( sceneLights.begin(), sceneLights.end() );
-    
-    std::vector< std::shared_ptr< Light > > lightsCastingShadows;
-    std::vector< std::shared_ptr< Light > > lightsNotCastingShadows;
-    lightsCastingShadows.reserve( lights.size() );
-    lightsNotCastingShadows.reserve( lights.size() );
-
-    for ( auto& light : lights ) {
-        if ( light->isEnabled() && !light->isCastingShadows() )
-            lightsNotCastingShadows.push_back( light );
-        else if ( light->isEnabled() && light->isCastingShadows() )
-            lightsCastingShadows.push_back( light );
-    }
-
-    // Gather block actors.
-    std::vector< std::shared_ptr< const BlockActor > > blockActors;
-    blockActors.reserve( actors.size() );
-    for ( const std::shared_ptr< Actor > actor : actors ) 
-    {
-        if ( actor->getType() == Actor::Type::BlockActor )
-            blockActors.push_back( std::static_pointer_cast< BlockActor >( actor ) );
-    }
+    const auto& actors                  = scene.getActorsVec();
+    const auto& lights                  = scene.getLightsVec();
+    const auto  lightsCastingShadows    = SceneUtil::filterLightsByShadowCasting( lights, true );
+    const auto  lightsNotCastingShadows = SceneUtil::filterLightsByShadowCasting( lights, false );
+    const auto  blockActors             = SceneUtil::filterActorsByType< BlockActor >( actors );
 
     Output output; 
     output = renderMainImage( 
@@ -590,7 +571,7 @@ Renderer::Output Renderer::renderMainImage(
 
 Renderer::Output Renderer::renderReflectionsRefractions( 
     const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
-    const std::vector< std::shared_ptr< const BlockActor > >& blockActors,
+    const std::vector< std::shared_ptr< BlockActor > >& blockActors,
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
     std::vector< bool >& renderedViewLevel,
@@ -709,7 +690,7 @@ Renderer::Output Renderer::renderReflectionsRefractions(
 }
 
 void Renderer::renderFirstReflections( const Camera& camera, 
-                                       const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                       const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                                        const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
@@ -843,7 +824,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
 }
 
 void Renderer::renderFirstRefractions( const Camera& camera, 
-                                       const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                       const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                                        const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
@@ -967,7 +948,7 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 }
 
 void Renderer::renderReflections( const int level, const Camera& camera, 
-                                  const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                  const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                   const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                                   const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
@@ -1053,7 +1034,7 @@ void Renderer::renderReflections( const int level, const Camera& camera,
 }
 
 void Renderer::renderRefractions( const int level, const int refractionLevel, const Camera& camera, 
-                                  const std::vector< std::shared_ptr< const BlockActor > >& blockActors, 
+                                  const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                   const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                                   const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {

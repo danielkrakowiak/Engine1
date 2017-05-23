@@ -107,7 +107,7 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
     }
 }
 
-void RaytraceRenderer::generateAndTracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors )
+void RaytraceRenderer::generateAndTracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -148,7 +148,7 @@ void RaytraceRenderer::generateAndTraceFirstReflectedRays( const Camera& camera,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                                           const std::vector< std::shared_ptr< const BlockActor > >& actors )
+                                                           const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -165,7 +165,7 @@ void RaytraceRenderer::generateAndTraceFirstRefractedRays( const Camera& camera,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
                                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                                           const std::vector< std::shared_ptr< const BlockActor > >& actors )
+                                                           const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -178,7 +178,7 @@ void RaytraceRenderer::generateAndTraceFirstRefractedRays( const Camera& camera,
 
 void RaytraceRenderer::generateAndTraceReflectedRays( const int level,
                                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                                      const std::vector< std::shared_ptr< const BlockActor > >& actors )
+                                                      const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -196,7 +196,7 @@ void RaytraceRenderer::generateAndTraceReflectedRays( const int level,
 
 void RaytraceRenderer::generateAndTraceRefractedRays( const int level, const int refractionLevel,
                                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                                      const std::vector< std::shared_ptr< const BlockActor > >& actors )
+                                                      const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -376,7 +376,7 @@ void RaytraceRenderer::generateRefractedRays( int level, const int refractionLev
     m_rendererCore.disableUnorderedAccessViews();
 }
 
-void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< const BlockActor > >& actors )
+void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.enableComputeShader( m_raytracingPrimaryRaysComputeShader );
 
@@ -468,7 +468,7 @@ void RaytraceRenderer::tracePrimaryRays( const Camera& camera, const std::vector
     m_raytracingPrimaryRaysComputeShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::shared_ptr< const BlockActor > >& actors )
+void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.enableComputeShader( m_raytracingSecondaryRaysComputeShader );
 

@@ -77,9 +77,19 @@ const std::unordered_set< std::shared_ptr<Actor> >& Scene::getActors( ) const
     return m_actors;
 }
 
+std::vector< std::shared_ptr<Actor> > Scene::getActorsVec() const
+{
+    return std::vector< std::shared_ptr<Actor> >( m_actors.begin(), m_actors.end() );
+}
+
 const std::unordered_set< std::shared_ptr<Light> >& Scene::getLights() const
 {
     return m_lights;
+}
+
+std::vector< std::shared_ptr<Light> > Scene::getLightsVec( ) const
+{
+    return std::vector< std::shared_ptr<Light> >( m_lights.begin(), m_lights.end() );
 }
 
 

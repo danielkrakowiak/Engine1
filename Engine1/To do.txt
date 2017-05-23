@@ -777,6 +777,8 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+	  - split rendering into smaller parts... more managable...
+	  - Refactor: No render target should be in the renderers themselves. All Render targets should be in main renderer.
 	  - reenable shadows in reflections/refractions
 	  - option to invert-z, invert vertex-order, invert-uvs and re-save the mesh... Add to Tweak bar and shortcut
 	  - check error in bloom causing black boxes - office scene has a camera set up showing this
