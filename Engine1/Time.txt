@@ -392,4 +392,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 18.05.2017 - 4h - Working on Settings class and refactoring, handler on settings change, adding new settings, color multipliers etc.
 19.05.2017 - 1h - Refactoring, adding color multipliers to Control Panel.
 20.05.2017 - 3h - Refactoring, added alpha multiplier, copying light sources, fixed display of single-channel textures. Experimenting with large area lights combined of many, smaller lights.
-23.05.2017 - 1h - Refactoring of Renderer. Added SceneUtil class.
+23.05.2017 - 2h - Refactoring of Renderer. Added SceneUtil class. Refactoring SceneManager, added Selection class.
+24.05.2017 - 1h - Refactoring of SceneManager.

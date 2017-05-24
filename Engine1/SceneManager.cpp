@@ -57,19 +57,19 @@ Scene& SceneManager::getScene()
     return *m_scene;
 }
 
-std::vector< std::shared_ptr< Light > >& SceneManager::getSelectedLights()
+const std::vector< std::shared_ptr< Light > >& SceneManager::getSelectedLights()
 {
-    return m_selectedLights;
+    return m_selection.getLights();
 }
 
-std::vector< std::shared_ptr< BlockActor > >& SceneManager::getSelectedBlockActors()
+const std::vector< std::shared_ptr< BlockActor > >& SceneManager::getSelectedBlockActors()
 {
-    return m_selectedBlockActors;
+    return m_selection.getBlockActors();
 }
 
-std::vector< std::shared_ptr< SkeletonActor > >& SceneManager::getSelectedSkeletonActors()
+const std::vector< std::shared_ptr< SkeletonActor > >& SceneManager::getSelectedSkeletonActors()
 {
-    return m_selectedSkeletonActors;
+    return m_selection.getSkeletonActors();
 }
 
 std::shared_ptr< BlockMesh > SceneManager::getSelectionVolumeMesh()
@@ -253,17 +253,24 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
 
                 if ( replaceSelected ) {
                     // Replace a mesh of an existing model.
-                    if ( m_selectedBlockActors.size() == 1 && m_selectedBlockActors[ 0 ]->getModel() ) {
-                        m_selectedBlockActors[ 0 ]->getModel()->setMesh( mesh );
-
-                        break; // If replacing a mesh - read only the one with index 0 in file.
+                    for ( auto& actor : m_selection.getBlockActors() )
+                    {
+                        if ( actor->getModel() ) 
+                            actor->getModel()->setMesh( mesh );
                     }
-                } else {
+
+                    break; // If replacing a mesh - read only the one with index 0 in file.
+                } 
+                else 
+                {
                     // Add new actor to the scene.
-                    m_selectedBlockActors.clear();
-                    m_selectedBlockActors.push_back( std::make_shared< BlockActor >( std::make_shared< BlockModel >(), pose ) );
-                    m_selectedBlockActors[ 0 ]->getModel()->setMesh( mesh );
-                    m_scene->addActor( m_selectedBlockActors[ 0 ] );
+                    auto& newActor = std::make_shared< BlockActor >( std::make_shared< BlockModel >(), pose );
+                    newActor->getModel()->setMesh( mesh );
+
+                    m_scene->addActor( newActor );
+
+                    m_selection.clear();
+                    m_selection.add( newActor );
                 }
 
                 // Save mesh to .blockmesh format for future use.
@@ -284,7 +291,8 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
         // So the file has to be re-parsed for each mesh it contains. Not a big problem normally, because only one mesh should be in a single file.
 
         // We try to parse meshes with increasing index in file until it fails.
-        for ( int indexInFile = 0; true; ++indexInFile ) {
+        for ( int indexInFile = 0; true; ++indexInFile ) 
+        {
             try {
                 SkeletonMeshFileInfo fileInfo( filePath, format, 0, invertZ, invertZ, invertZ ); // Note: Convert to right hand coord system.
                 std::shared_ptr<SkeletonMesh> mesh = std::static_pointer_cast<SkeletonMesh>( m_assetManager.getOrLoad( fileInfo ) );
@@ -293,11 +301,12 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
 
                 // #TODO: add replacing mesh? How to deal with non-matching animation?
                 // Add new actor to the scene.
-                m_selectedSkeletonActors.clear();
-                m_selectedSkeletonActors.push_back( std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>(), pose ) );
-                m_selectedSkeletonActors[ 0 ]->getModel()->setMesh( mesh );
-                m_selectedSkeletonActors[ 0 ]->resetSkeletonPose();
-                m_scene->addActor( m_selectedSkeletonActors[ 0 ] );
+                auto& newActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>(), pose );
+                newActor->getModel()->setMesh( mesh );
+                newActor->resetSkeletonPose();
+
+                m_scene->addActor( newActor );
+                m_selection.clear();
             } catch ( ... ) {
                 break;
             }
@@ -337,14 +346,14 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 >>( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            for ( auto& actor : m_selectedBlockActors ) {
+            for ( auto& actor : m_selection.getBlockActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllAlbedoTextures();
 
                 actor->getModel()->addAlbedoTexture( modelTexture );
             }
 
-            for ( auto& actor : m_selectedSkeletonActors ) {
+            for ( auto& actor : m_selection.getSkeletonActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllAlbedoTextures();
 
@@ -354,14 +363,14 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char >>( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            for ( auto& actor : m_selectedBlockActors ) {
+            for ( auto& actor : m_selection.getBlockActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllAlphaTextures();
 
                 actor->getModel()->addAlphaTexture( modelTexture );
             }
 
-            for ( auto& actor : m_selectedSkeletonActors ) {
+            for ( auto& actor : m_selection.getSkeletonActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllAlphaTextures();
 
@@ -371,14 +380,14 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char >>( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            for ( auto& actor : m_selectedBlockActors ) {
+            for ( auto& actor : m_selection.getBlockActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllMetalnessTextures();
 
                 actor->getModel()->addMetalnessTexture( modelTexture );
             }
 
-            for ( auto& actor : m_selectedSkeletonActors ) {
+            for ( auto& actor : m_selection.getSkeletonActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllMetalnessTextures();
 
@@ -388,14 +397,14 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 >>( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            for ( auto& actor : m_selectedBlockActors ) {
+            for ( auto& actor : m_selection.getBlockActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllNormalTextures();
 
                 actor->getModel()->addNormalTexture( modelTexture );
             }
 
-            for ( auto& actor : m_selectedSkeletonActors ) {
+            for ( auto& actor : m_selection.getSkeletonActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllNormalTextures();
 
@@ -405,14 +414,14 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char >>( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            for ( auto& actor : m_selectedBlockActors ) {
+            for ( auto& actor : m_selection.getBlockActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllRoughnessTextures();
 
                 actor->getModel()->addRoughnessTexture( modelTexture );
             }
 
-            for ( auto& actor : m_selectedSkeletonActors ) {
+            for ( auto& actor : m_selection.getSkeletonActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllRoughnessTextures();
 
@@ -422,14 +431,14 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 >>( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
-            for ( auto& actor : m_selectedBlockActors ) {
+            for ( auto& actor : m_selection.getBlockActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllEmissiveTextures();
 
                 actor->getModel()->addEmissiveTexture( modelTexture );
             }
 
-            for ( auto& actor : m_selectedSkeletonActors ) {
+            for ( auto& actor : m_selection.getSkeletonActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllEmissiveTextures();
 
@@ -439,14 +448,14 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char >>( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
-            for ( auto& actor : m_selectedBlockActors ) {
+            for ( auto& actor : m_selection.getBlockActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllRefractiveIndexTextures();
 
                 actor->getModel()->addRefractiveIndexTexture( modelTexture );
             }
 
-            for ( auto& actor : m_selectedSkeletonActors ) {
+            for ( auto& actor : m_selection.getSkeletonActors() ) {
                 if ( replaceSelected )
                     actor->getModel()->removeAllRefractiveIndexTextures();
 
@@ -469,9 +478,11 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             model->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
 
         // Add new actor to the scene.
-        m_selectedBlockActors.clear();
-        m_selectedBlockActors.push_back( std::make_shared<BlockActor>( model, pose ) );
-        m_scene->addActor( m_selectedBlockActors[ 0 ] );
+        auto& newActor = std::make_shared< BlockActor >( model, pose );
+        m_scene->addActor( newActor );
+
+        m_selection.clear();
+        m_selection.add( newActor );
     }
 
     if ( isSkeletonModel ) {
@@ -481,13 +492,15 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             model->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
 
         // Add new actor to the scene.
-        m_selectedSkeletonActors.clear();
-        m_selectedSkeletonActors.push_back( std::make_shared<SkeletonActor>( model, pose ) );
-        m_scene->addActor( m_selectedSkeletonActors[ 0 ] );
+        auto& newActor = std::make_shared< SkeletonActor >( model, pose );
+        m_scene->addActor( newActor );
+
+        m_selection.clear();
+        m_selection.add( newActor );
     }
 
     if ( isAnimation ) {
-        for ( auto& actor : m_selectedSkeletonActors ) {
+        for ( auto& actor : m_selection.getSkeletonActors() ) {
             if ( actor->getModel() && actor->getModel()->getMesh() ) {
                 SkeletonMeshFileInfo&     referenceMeshFileInfo = actor->getModel()->getMesh()->getFileInfo();
                 SkeletonAnimationFileInfo fileInfo( filePath, SkeletonAnimationFileInfo::Format::XAF, referenceMeshFileInfo, false );
@@ -500,11 +513,21 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
         }
     }
 
-    if ( ( isBlockMesh || isTexture ) && m_selectedBlockActors.size() == 1 && m_selectedBlockActors[ 0 ]->getModel() && m_selectedBlockActors[ 0 ]->getModel()->isInCpuMemory() )
-        m_selectedBlockActors[ 0 ]->getModel()->saveToFile( "Assets/Models/new.blockmodel" );
+    if ( ( isBlockMesh || isTexture ) && m_selection.containsOnlyOneBlockActor() )
+    {
+        auto& actor = m_selection.getBlockActors()[ 0 ];
+        
+        if ( actor->getModel() && actor->getModel()->isInCpuMemory() )
+            actor->getModel()->saveToFile( "Assets/Models/new.blockmodel" );
+    }
 
-    if ( ( isSkeletonMesh || isTexture ) && m_selectedSkeletonActors.size() == 1 && m_selectedSkeletonActors[ 0 ]->getModel() && m_selectedSkeletonActors[ 0 ]->getModel()->isInCpuMemory() )
-        m_selectedSkeletonActors[ 0 ]->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
+    if ( ( isSkeletonMesh || isTexture ) && m_selection.containsOnlyOneSkeletonActor() )
+    {
+        auto& actor = m_selection.getBlockActors()[ 0 ];
+
+        if ( actor->getModel() && actor->getModel()->isInCpuMemory() )
+            actor->getModel()->saveToFile( "Assets/Models/new.skeletonmodel" );
+    }
 
     if ( isScene ) {
         loadScene( filePath );
@@ -592,9 +615,9 @@ void SceneManager::mergeSelectedActors()
 {
     try {
         std::vector< std::shared_ptr< BlockModel > > models;
-        models.reserve( m_selectedBlockActors.size() );
+        models.reserve( m_selection.getBlockActors().size() );
 
-        for ( auto& actor : m_selectedBlockActors )
+        for ( auto& actor : m_selection.getBlockActors() )
             models.push_back( actor->getModel() );
 
         std::shared_ptr< BlockModel > mergedModel = ModelUtil::mergeModels( models, *m_device.Get() );
@@ -738,7 +761,7 @@ void SceneManager::mergeSelectedActors()
             mergedModel->saveToFile( mergedModelPath );
         }
 
-        const auto& pose = m_selectedBlockActors.front()->getPose();
+        const auto& pose = m_selection.getBlockActors().front()->getPose();
 
         // Add new actor to the scene.
         //m_selectedBlockActors.clear();
@@ -751,7 +774,7 @@ void SceneManager::mergeSelectedActors()
 
 void SceneManager::saveSelectedModels()
 {
-    for ( auto& actor : m_selectedBlockActors ) {
+    for ( auto& actor : m_selection.getBlockActors() ) {
         const std::shared_ptr< BlockModel > model = actor->getModel();
         if ( model ) {
             std::string path = model->getFileInfo().getPath();
@@ -775,7 +798,8 @@ std::tuple< int, int > SceneManager::getSelectedActorsVertexAndTriangleCount()
     int vertexCount = 0;
     int triangleCount = 0;
 
-    for ( const auto& actor : m_selectedBlockActors ) {
+    for ( const auto& actor : m_selection.getBlockActors() ) 
+    {
         if ( !actor->getModel() || !actor->getModel()->getMesh() )
             continue;
 
@@ -783,7 +807,8 @@ std::tuple< int, int > SceneManager::getSelectedActorsVertexAndTriangleCount()
         triangleCount += (int)actor->getModel()->getMesh()->getTriangles().size();
     }
 
-    for ( const auto& actor : m_selectedSkeletonActors ) {
+    for ( const auto& actor : m_selection.getSkeletonActors() ) 
+    {
         if ( !actor->getModel() || !actor->getModel()->getMesh() )
             continue;
 
@@ -850,24 +875,27 @@ void SceneManager::addSpotLight()
 
 void SceneManager::modifySelectedLightsColor( float3 colorChange )
 {
-    for ( auto& light : m_selectedLights )
+    const auto& selectedLights = m_selection.getLights();
+    for ( auto& light : selectedLights )
         light->setColor( max( float3::ZERO, light->getColor() + colorChange ) );
 }
 
 void SceneManager::enableDisableSelectedLights()
 {
-    if ( m_selectedLights.empty() ) 
+    const auto& selectedLights = m_selection.getLights();
+
+    if ( selectedLights.empty() ) 
         return;
 
-    const bool enable = !m_selectedLights[ 0 ]->isEnabled();
+    const bool enable = !selectedLights[ 0 ]->isEnabled();
 
-    for ( auto& light : m_selectedLights )
+    for ( auto& light : selectedLights )
         light->setEnabled( enable );
 }
 
 void SceneManager::saveSceneOrSelectedModels()
 {
-    if ( m_selectedBlockActors.empty() && m_selectedSkeletonActors.empty() ) 
+    if ( m_selection.isEmpty() || m_selection.containsOnlyLights() ) 
     {
         if ( m_scene && !m_scenePath.empty() )
             saveScene( m_scenePath );
@@ -883,106 +911,69 @@ void SceneManager::saveSceneOrSelectedModels()
 
 bool SceneManager::isSelectionEmpty()
 {
-    return m_selectedBlockActors.empty() && m_selectedSkeletonActors.empty() && m_selectedLights.empty();
+    return m_selection.isEmpty();
 }
 
 void SceneManager::selectAll()
 {
-    m_selectedBlockActors.clear();
-    m_selectedSkeletonActors.clear();
-    m_selectedLights.clear();
-
-    for ( auto& actor : m_scene->getActors() ) {
-        if ( actor->getType() == Actor::Type::BlockActor )
-            m_selectedBlockActors.push_back( std::dynamic_pointer_cast<BlockActor>( actor ) );
-        else if ( actor->getType() == Actor::Type::SkeletonActor )
-            m_selectedSkeletonActors.push_back( std::dynamic_pointer_cast<SkeletonActor>( actor ) );
-    }
-
-    for ( auto& light : m_scene->getLights() )
-        m_selectedLights.push_back( light );
+    m_selection.replace( m_scene->getActorsVec() );
+    m_selection.replace( m_scene->getLightsVec() );
 }
 
 void SceneManager::clearSelection()
 {
-    m_selectedBlockActors.clear();
-    m_selectedSkeletonActors.clear();
-    m_selectedLights.clear();
+    m_selection.clear();
 }
 
-bool SceneManager::isActorSelected( std::shared_ptr< Actor > actor )
+bool SceneManager::isActorSelected( const std::shared_ptr< Actor >& actor )
 {
-    if ( actor->getType() == Actor::Type::BlockActor )
-        return std::find( m_selectedBlockActors.begin(), m_selectedBlockActors.end(), actor ) != m_selectedBlockActors.end();
-    else
-        return std::find( m_selectedSkeletonActors.begin(), m_selectedSkeletonActors.end(), actor ) != m_selectedSkeletonActors.end();
+    return m_selection.contains( actor );
 }
 
-void SceneManager::selectActor( std::shared_ptr< Actor > actor )
+void SceneManager::selectActor( const std::shared_ptr< Actor >& actor )
 {
-    if ( !isActorSelected( actor ) )
-    {
-        if ( actor->getType() == Actor::Type::BlockActor )
-            m_selectedBlockActors.push_back( std::static_pointer_cast< BlockActor >( actor ) );
-        else
-            m_selectedSkeletonActors.push_back( std::static_pointer_cast< SkeletonActor >( actor ) );
-    }
+    const bool selected = m_selection.add( actor );
 
-    recalculateSelectionVolume();
+    if ( selected )
+        recalculateSelectionVolume();
 }
 
-void SceneManager::unselectActor( std::shared_ptr< Actor > actor )
+void SceneManager::unselectActor( const std::shared_ptr< Actor >& actor )
 {
-    if ( actor->getType() == Actor::Type::BlockActor )
-    {
-        const auto& it = std::find( m_selectedBlockActors.begin(), m_selectedBlockActors.end(), actor );
+    const bool unselected = m_selection.remove( actor );
 
-        if ( it != m_selectedBlockActors.end() )
-            m_selectedBlockActors.erase( it );
-    }
-    else
-    {
-        const auto& it = std::find( m_selectedSkeletonActors.begin(), m_selectedSkeletonActors.end(), actor );
-
-        if ( it != m_selectedSkeletonActors.end() )
-            m_selectedSkeletonActors.erase( it );
-    }
-
-    recalculateSelectionVolume();
+    if ( unselected )
+        recalculateSelectionVolume();
 }
 
-bool SceneManager::isLightSelected( std::shared_ptr< Light > light )
+bool SceneManager::isLightSelected( const std::shared_ptr< Light >& light )
 {
-    return std::find( m_selectedLights.begin(), m_selectedLights.end(), light ) != m_selectedLights.end();
+    return m_selection.contains( light );
 }
 
-void SceneManager::selectLight( std::shared_ptr< Light > light )
+void SceneManager::selectLight( const std::shared_ptr< Light >& light )
 {
-    if ( !isLightSelected( light ) )
-        m_selectedLights.push_back( light );
+    m_selection.add( light );
 }
 
-void SceneManager::unselectLight( std::shared_ptr< Light > light )
+void SceneManager::unselectLight( const std::shared_ptr< Light >& light )
 {
-    const auto& it = std::find( m_selectedLights.begin(), m_selectedLights.end(), light );
-
-    if ( it != m_selectedLights.end() )
-        m_selectedLights.erase( it );
+    m_selection.remove( light );
 }
 
 void SceneManager::selectNext()
 {
-    // #TODO: Shoudl fix - it fails in many cases.
+    // #TODO: Should fix - it fails in many cases.
 
     std::shared_ptr< Actor > selectedActor;
     std::shared_ptr< Light > selectedLight;
 
-    if ( m_selectedBlockActors.size() == 1 && m_selectedSkeletonActors.empty() && m_selectedLights.empty() )
-        selectedActor = m_selectedBlockActors[ 0 ];
-    else if ( m_selectedSkeletonActors.size() == 1 && m_selectedBlockActors.empty() && m_selectedLights.empty() )
-        selectedActor = m_selectedSkeletonActors[ 0 ];
-    else if ( m_selectedLights.size() == 1 && m_selectedBlockActors.empty() && m_selectedSkeletonActors.empty() )
-        selectedLight = m_selectedLights[ 0 ];
+    if ( m_selection.containsOnlyOneBlockActor() )
+        selectedActor = m_selection.getBlockActors()[ 0 ];
+    else if (  m_selection.containsOnlyOneSkeletonActor() )
+        selectedActor = m_selection.getSkeletonActors()[ 0 ];
+    else if ( m_selection.containsOnlyOneLight() )
+        selectedLight = m_selection.getLights()[ 0 ];
 
     if ( selectedActor )
     {
@@ -996,10 +987,7 @@ void SceneManager::selectNext()
 
         clearSelection();
 
-        if ( selectedActor->getType() == Actor::Type::BlockActor )
-            m_selectedBlockActors.push_back( std::static_pointer_cast< BlockActor >( *it ) );
-        else if ( selectedActor->getType() == Actor::Type::SkeletonActor )
-            m_selectedSkeletonActors.push_back( std::static_pointer_cast< SkeletonActor >( *it ) );
+        m_selection.add( selectedActor );
     }
     else if ( selectedLight )
     {
@@ -1013,7 +1001,7 @@ void SceneManager::selectNext()
 
         clearSelection();
 
-        m_selectedLights.push_back( *it );
+        m_selection.add( selectedLight );
     }
 }
 
@@ -1024,12 +1012,12 @@ void SceneManager::selectPrev()
     std::shared_ptr< Actor > selectedActor;
     std::shared_ptr< Light > selectedLight;
 
-    if ( m_selectedBlockActors.size() == 1 && m_selectedSkeletonActors.empty() && m_selectedLights.empty() )
-        selectedActor = m_selectedBlockActors[ 0 ];
-    else if ( m_selectedSkeletonActors.size() == 1 && m_selectedBlockActors.empty() && m_selectedLights.empty() )
-        selectedActor = m_selectedSkeletonActors[ 0 ];
-    else if ( m_selectedLights.size() == 1 && m_selectedBlockActors.empty() && m_selectedSkeletonActors.empty() )
-        selectedLight = m_selectedLights[ 0 ];
+    if ( m_selection.containsOnlyOneBlockActor() )
+        selectedActor = m_selection.getBlockActors().front();
+    else if ( m_selection.containsOnlyOneSkeletonActor() )
+        selectedActor = m_selection.getSkeletonActors().front();
+    else if ( m_selection.containsOnlyOneLight() )
+        selectedLight = m_selection.getLights().front();
 
     if ( selectedActor ) 
     {
@@ -1043,10 +1031,12 @@ void SceneManager::selectPrev()
         clearSelection();
 
         if ( selectedActor->getType() == Actor::Type::BlockActor )
-            m_selectedBlockActors.push_back( std::static_pointer_cast<BlockActor>( *it ) );
+            m_selection.add( std::static_pointer_cast<BlockActor>( *it ) );
         else if ( selectedActor->getType() == Actor::Type::SkeletonActor )
-            m_selectedSkeletonActors.push_back( std::static_pointer_cast<SkeletonActor>( *it ) );
-    } else if ( selectedLight ) {
+            m_selection.add( std::static_pointer_cast<SkeletonActor>( *it ) );
+    } 
+    else if ( selectedLight ) 
+    {
         auto it = m_scene->getLights().find( selectedLight );
 
         if ( it == m_scene->getLights().begin() )
@@ -1056,93 +1046,87 @@ void SceneManager::selectPrev()
 
         clearSelection();
 
-        m_selectedLights.push_back( *it );
+        m_selection.add( *it );
     }
 }
 
 void SceneManager::deleteSelected()
 {
-    for ( auto& actor : m_selectedBlockActors )
+    for ( auto& actor : m_selection.getActors() )
         m_scene->removeActor( actor );
 
-    for ( auto& actor : m_selectedSkeletonActors )
-        m_scene->removeActor( actor );
-
-    for ( auto& light : m_selectedLights ) {
+    for ( auto& light : m_selection.getLights() )
         m_scene->removeLight( light );
-    }
 
-    m_selectedBlockActors.clear();
-    m_selectedSkeletonActors.clear();
-    m_selectedLights.clear();
+    m_selection.clear();
 }
 
 void SceneManager::enableDisableCastingShadowsForSelected()
 {
     bool castShadows = true;
 
-    if ( !m_selectedBlockActors.empty() )
-        castShadows = !m_selectedBlockActors[ 0 ]->isCastingShadows();
-    else if ( !m_selectedSkeletonActors.empty() )
-        castShadows = !m_selectedSkeletonActors[ 0 ]->isCastingShadows();
-    else if ( !m_selectedLights.empty() )
-        castShadows = !m_selectedLights[ 0 ]->isCastingShadows();
+    if ( !m_selection.getBlockActors().empty() )
+        castShadows = !m_selection.getBlockActors().front()->isCastingShadows();
+    else if ( !m_selection.getSkeletonActors().empty() )
+        castShadows = !m_selection.getSkeletonActors().front()->isCastingShadows();
+    else if ( !m_selection.getLights().empty() )
+        castShadows = !m_selection.getLights().front()->isCastingShadows();
 
-    for ( auto& actor : m_selectedBlockActors )
+    for ( auto& actor : m_selection.getActors() )
         actor->setCastingShadows( castShadows );
 
-    for ( auto& actor : m_selectedSkeletonActors )
-        actor->setCastingShadows( castShadows );
-
-    for ( auto& light : m_selectedLights ) {
+    for ( auto& light : m_selection.getLights() )
         light->setCastingShadows( castShadows );
-    }
 }
 
 void SceneManager::cloneInstancesOfSelectedActors()
 {
     std::vector< std::shared_ptr< BlockActor > >    newBlockActors;
     std::vector< std::shared_ptr< SkeletonActor > > newSkeletonActors;
-    newBlockActors.reserve( m_selectedBlockActors.size() );
-    newSkeletonActors.reserve( m_selectedSkeletonActors.size() );
+    newBlockActors.reserve( m_selection.getBlockActors().size() );
+    newSkeletonActors.reserve( m_selection.getSkeletonActors().size() );
 
-    for ( auto& actor : m_selectedBlockActors ) {
-        newBlockActors.push_back( std::make_shared< BlockActor >( *actor ) ); // Clone the actor.
+    for ( auto& actor : m_selection.getBlockActors() ) 
+    {
+        // Clone the actor.
+        newBlockActors.push_back( std::make_shared< BlockActor >( *actor ) ); 
         m_scene->addActor( newBlockActors.back() );
     }
 
-    for ( auto& actor : m_selectedSkeletonActors ) {
-        newSkeletonActors.push_back( std::make_shared< SkeletonActor >( *actor ) ); // Clone the actor.
+    for ( auto& actor : m_selection.getSkeletonActors() ) 
+    {
+        // Clone the actor.
+        newSkeletonActors.push_back( std::make_shared< SkeletonActor >( *actor ) ); 
         m_scene->addActor( newSkeletonActors.back() );
     }
 
     // Select new actors.
-    m_selectedBlockActors = std::move( newBlockActors );
-    m_selectedSkeletonActors = std::move( newSkeletonActors );
+    m_selection.add( newBlockActors );
+    m_selection.add( newSkeletonActors );
 }
 
 void SceneManager::cloneSelectedActorsAndLights()
 {
     std::vector< std::shared_ptr< BlockActor > >    newBlockActors;
     std::vector< std::shared_ptr< SkeletonActor > > newSkeletonActors;
-    newBlockActors.reserve( m_selectedBlockActors.size() );
-    newSkeletonActors.reserve( m_selectedSkeletonActors.size() );
+    newBlockActors.reserve( m_selection.getBlockActors().size() );
+    newSkeletonActors.reserve( m_selection.getSkeletonActors().size() );
 
-    for ( auto& actor : m_selectedBlockActors ) 
+    for ( auto& actor : m_selection.getBlockActors() ) 
     {
         newBlockActors.push_back( std::make_shared< BlockActor >( *actor ) ); // Clone the actor.
         newBlockActors.back()->setModel( std::make_shared< BlockModel >( *actor->getModel() ) ); // Clone it's model.
         m_scene->addActor( newBlockActors.back() );
     }
 
-    for ( auto& actor : m_selectedSkeletonActors ) 
+    for ( auto& actor : m_selection.getSkeletonActors() ) 
     {
         newSkeletonActors.push_back( std::make_shared< SkeletonActor >( *actor ) ); // Clone the actor.
         newSkeletonActors.back()->setModel( std::make_shared< SkeletonModel >( *actor->getModel() ) ); // Clone it's model.
         m_scene->addActor( newSkeletonActors.back() );
     }
 
-    for ( auto& light : m_selectedLights )
+    for ( auto& light : m_selection.getLights() )
     {
         if ( light->getType() == Light::Type::PointLight ) {
             m_scene->addLight( std::make_shared< PointLight >( static_cast< PointLight& >( *light ) ) );
@@ -1205,7 +1189,7 @@ void SceneManager::recalculateSelectionVolume()
     float3 worldMin( FLT_MAX, FLT_MAX, FLT_MAX );
     float3 worldMax( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
-    for ( auto& actor : m_selectedBlockActors ) 
+    for ( auto& actor : m_selection.getBlockActors() ) 
     {
         if ( !actor->getModel() || !actor->getModel()->getMesh() )
             continue;
@@ -1245,7 +1229,7 @@ void SceneManager::selectAllInsideSelectionVolume()
             const BoundingBox bbBoxWorld = MathUtil::boundingBoxLocalToWorld( bbBoxLocal, blockActor->getPose() );
 
             if ( MathUtil::intersectBoundingBoxes( m_selectionVolume, bbBoxWorld ) )
-                m_selectedBlockActors.push_back( blockActor );
+                m_selection.add( blockActor );
         }
         else if ( actor->getType() == Actor::Type::SkeletonActor )
         {
@@ -1258,14 +1242,14 @@ void SceneManager::selectAllInsideSelectionVolume()
             const BoundingBox bbBoxWorld = MathUtil::boundingBoxLocalToWorld( bbBoxLocal, skeletonActor->getPose() );
 
             if ( MathUtil::intersectBoundingBoxes( m_selectionVolume, bbBoxWorld ) )
-                m_selectedSkeletonActors.push_back( skeletonActor );
+                m_selection.add( skeletonActor );
         }
     }
 }
 
 void SceneManager::rebuildBoundingBoxAndBVH()
 {
-    for ( auto& actor : m_selectedBlockActors ) 
+    for ( auto& actor : m_selection.getBlockActors() ) 
     {
         if ( !actor->getModel() || !actor->getModel()->getMesh() )
             continue;

@@ -10,6 +10,8 @@
 
 #include "Texture2DGeneric.h"
 
+#include "Selection.h"
+
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 
@@ -36,9 +38,9 @@ namespace Engine1
         FreeCamera& getCamera();
         Scene&     getScene();
 
-        std::vector< std::shared_ptr< Light > >&         getSelectedLights();
-        std::vector< std::shared_ptr< BlockActor > >&    getSelectedBlockActors();
-        std::vector< std::shared_ptr< SkeletonActor > >& getSelectedSkeletonActors();
+        const std::vector< std::shared_ptr< Light > >&         getSelectedLights();
+        const std::vector< std::shared_ptr< BlockActor > >&    getSelectedBlockActors();
+        const std::vector< std::shared_ptr< SkeletonActor > >& getSelectedSkeletonActors();
 
         std::shared_ptr< BlockMesh > getSelectionVolumeMesh();
 
@@ -70,12 +72,12 @@ namespace Engine1
         bool isSelectionEmpty();
         void selectAll();
         void clearSelection();
-        bool isActorSelected( std::shared_ptr< Actor > actor );
-        void selectActor( std::shared_ptr< Actor > actor );
-        void unselectActor( std::shared_ptr< Actor > actor );
-        bool isLightSelected( std::shared_ptr< Light > light );
-        void selectLight( std::shared_ptr< Light > light );
-        void unselectLight( std::shared_ptr< Light > light );
+        bool isActorSelected( const std::shared_ptr< Actor >& actor );
+        void selectActor( const std::shared_ptr< Actor >& actor );
+        void unselectActor( const std::shared_ptr< Actor >& actor );
+        bool isLightSelected( const std::shared_ptr< Light >& light );
+        void selectLight( const std::shared_ptr< Light >& light );
+        void unselectLight( const std::shared_ptr< Light >& light );
         void selectNext();
         void selectPrev();
 
@@ -106,9 +108,7 @@ namespace Engine1
         std::string m_scenePath;
         std::shared_ptr< Scene > m_scene;
 
-        std::vector< std::shared_ptr< Light > >         m_selectedLights;
-        std::vector< std::shared_ptr< BlockActor > >    m_selectedBlockActors;
-        std::vector< std::shared_ptr< SkeletonActor > > m_selectedSkeletonActors;
+        Selection m_selection;
 
         BoundingBox                   m_selectionVolume;
         std::shared_ptr< BlockMesh > m_selectionVolumeMesh;

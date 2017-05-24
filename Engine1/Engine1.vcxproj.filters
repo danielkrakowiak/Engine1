@@ -966,6 +966,9 @@
     <ClInclude Include="SceneUtil.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Selection.h">
+      <Filter>Header Files\SceneManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1456,6 +1459,9 @@
     </ClCompile>
     <ClCompile Include="SceneUtil.cpp">
       <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Selection.cpp">
+      <Filter>Source Files\SceneManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

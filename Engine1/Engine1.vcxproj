@@ -321,6 +321,7 @@
     <ClInclude Include="ReplaceValueComputeShader.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneUtil.h" />
+    <ClInclude Include="Selection.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="ShadingComputeShader0.h" />
     <ClInclude Include="ShadingComputeShader2.h" />
@@ -495,6 +496,7 @@
     <ClCompile Include="ReplaceValueComputeShader.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneUtil.cpp" />
+    <ClCompile Include="Selection.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="ShadingComputeShader0.cpp" />
     <ClCompile Include="ShadingComputeShader2.cpp" />
