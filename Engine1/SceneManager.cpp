@@ -57,6 +57,11 @@ Scene& SceneManager::getScene()
     return *m_scene;
 }
 
+const Selection& SceneManager::getSelection()
+{
+    return m_selection;
+}
+
 const std::vector< std::shared_ptr< Light > >& SceneManager::getSelectedLights()
 {
     return m_selection.getLights();

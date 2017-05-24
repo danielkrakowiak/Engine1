@@ -281,8 +281,13 @@ void Application::run() {
             m_renderer.renderShadowMaps( m_sceneManager.getScene() );
 
         Renderer::Output output;
-        output = m_renderer.renderScene( m_sceneManager.getScene(), m_sceneManager.getCamera(), settings().debug.debugWireframeMode, m_sceneManager.getSelectedBlockActors(),
-                                      m_sceneManager.getSelectedSkeletonActors(), m_sceneManager.getSelectedLights(), m_sceneManager.getSelectionVolumeMesh() );
+        output = m_renderer.renderScene( 
+            m_sceneManager.getScene(), 
+            m_sceneManager.getCamera(), 
+            settings().debug.debugWireframeMode, 
+            m_sceneManager.getSelection(), 
+            m_sceneManager.getSelectionVolumeMesh() 
+        );
 
         const int2 mousePos = m_inputManager.getMousePos();
 

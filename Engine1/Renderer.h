@@ -39,6 +39,7 @@ namespace Engine1
     class SkeletonModel;
     class SkeletonActor;
     class Light;
+    class Selection;
 
     class Renderer
     {
@@ -106,9 +107,7 @@ namespace Engine1
         Output renderScene( 
             const Scene& scene, const Camera& camera,
             const bool wireframeMode,
-            const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
-            const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-            const std::vector< std::shared_ptr< Light > >& selectedLights,
+            const Selection& selection,
             const std::shared_ptr< BlockMesh > selectionVolumeMesh 
         );
 
@@ -132,9 +131,7 @@ namespace Engine1
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
             const std::vector< bool >& activeViewLevel, const View activeViewType,
             const bool wireframeMode,
-            const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
-            const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-            const std::vector< std::shared_ptr< Light > >& selectedLights,
+            const Selection& selection,
             const std::shared_ptr< BlockMesh > selectionVolumeMesh 
         );
 

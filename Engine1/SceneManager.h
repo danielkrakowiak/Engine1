@@ -38,6 +38,7 @@ namespace Engine1
         FreeCamera& getCamera();
         Scene&     getScene();
 
+        const Selection&                                       getSelection();
         const std::vector< std::shared_ptr< Light > >&         getSelectedLights();
         const std::vector< std::shared_ptr< BlockActor > >&    getSelectedBlockActors();
         const std::vector< std::shared_ptr< SkeletonActor > >& getSelectedSkeletonActors();

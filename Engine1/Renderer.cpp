@@ -25,6 +25,7 @@
 
 #include "StringUtil.h"
 #include "SceneUtil.h"
+#include "Selection.h"
 
 #include "Settings.h"
 
@@ -153,9 +154,7 @@ void Renderer::renderShadowMaps( const Scene& scene )
 Renderer::Output Renderer::renderScene( 
     const Scene& scene, const Camera& camera,
     const bool wireframeMode,
-    const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
-    const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-    const std::vector< std::shared_ptr< Light > >& selectedLights,
+    const Selection& selection,
     const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
     // Render shadow maps. #TODO: Should NOT be done every frame.
@@ -171,7 +170,7 @@ Renderer::Output Renderer::renderScene(
     output = renderMainImage( 
         scene, camera, lightsCastingShadows, lightsNotCastingShadows, 
         settings().rendering.reflectionsRefractions.activeView, m_activeViewType, wireframeMode,
-        selectedBlockActors, selectedSkeletonActors, selectedLights, selectionVolumeMesh 
+        selection, selectionVolumeMesh 
     );
     
     if ( !output.isEmpty() )
@@ -234,9 +233,7 @@ Renderer::Output Renderer::renderMainImage(
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
     const std::vector< bool >& activeViewLevel, const View activeViewType,
     const bool wireframeMode,
-    const std::vector< std::shared_ptr< BlockActor > >& selectedBlockActors,
-    const std::vector< std::shared_ptr< SkeletonActor > >& selectedSkeletonActors,
-    const std::vector< std::shared_ptr< Light > >& selectedLights,
+    const Selection& selection,
     const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
     float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
@@ -257,7 +254,7 @@ Renderer::Output Renderer::renderMainImage(
             const std::shared_ptr<BlockActor> blockActor = std::static_pointer_cast<BlockActor>(actor);
             const std::shared_ptr<BlockModel> blockModel = blockActor->getModel();
 
-            const bool isSelected = std::find( selectedBlockActors.begin(), selectedBlockActors.end(), blockActor ) != selectedBlockActors.end();
+            const bool isSelected = selection.contains( blockActor );
 
             if ( blockModel->isInGpuMemory() )
                 m_deferredRenderer.render( *blockModel, blockActor->getPose(), viewMatrix, isSelected ? actorSelectionEmissiveColor : float4::ZERO, wireframeMode );
@@ -268,7 +265,7 @@ Renderer::Output Renderer::renderMainImage(
             const std::shared_ptr<SkeletonActor> skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
             const std::shared_ptr<SkeletonModel> skeletonModel = skeletonActor->getModel();
 
-            const bool isSelected = std::find( selectedSkeletonActors.begin(), selectedSkeletonActors.end(), skeletonActor ) != selectedSkeletonActors.end();
+            const bool isSelected = selection.contains( skeletonActor );
 
             if ( skeletonModel->isInGpuMemory() )
                 m_deferredRenderer.render( *skeletonModel, skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose(), isSelected ? actorSelectionEmissiveColor : float4::ZERO, wireframeMode );
@@ -286,7 +283,7 @@ Renderer::Output Renderer::renderMainImage(
         float43 lightPose( float43::IDENTITY );
         for ( const auto& light : scene.getLights() ) 
         {
-            const bool isSelected = std::find( selectedLights.begin(), selectedLights.end(), light ) != selectedLights.end();
+            const bool isSelected = selection.contains( light );
 
             lightPose.setTranslation( light->getPosition() );
             float4 extraEmissive = isSelected ? lightSelectionEmissiveColor : ( light->isEnabled() ? float4::ZERO : lightDisabledEmissiveColor );
