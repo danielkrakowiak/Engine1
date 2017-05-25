@@ -295,6 +295,7 @@
     <ClInclude Include="GenerateFirstRefractedRaysComputeShader.h" />
     <ClInclude Include="HitDistanceSearchComputeShader.h" />
     <ClInclude Include="HitDistanceSearchRenderer.h" />
+    <ClInclude Include="RenderTargetManager.h" />
     <ClInclude Include="ResampleTextureFragmentShader.h" />
     <ClInclude Include="GenerateMipmapMinValueComputeShader.h" />
     <ClInclude Include="GenerateMipmapMinValueFragmentShader.h" />
@@ -470,6 +471,7 @@
     <ClCompile Include="GenerateFirstRefractedRaysComputeShader.cpp" />
     <ClCompile Include="HitDistanceSearchComputeShader.cpp" />
     <ClCompile Include="HitDistanceSearchRenderer.cpp" />
+    <ClCompile Include="RenderTargetManager.cpp" />
     <ClCompile Include="ResampleTextureFragmentShader.cpp" />
     <ClCompile Include="GenerateMipmapMinValueComputeShader.cpp" />
     <ClCompile Include="GenerateMipmapMinValueFragmentShader.cpp" />

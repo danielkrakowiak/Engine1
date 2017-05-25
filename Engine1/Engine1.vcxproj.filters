@@ -445,6 +445,12 @@
     <Filter Include="Source Files\Settings">
       <UniqueIdentifier>{1d034e61-d4cc-4143-bcbd-59b30aabcad9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\RenderTargetManager">
+      <UniqueIdentifier>{9c91a9b6-ab42-4126-a9ed-7489d1f5b5db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RenderTargetManager">
+      <UniqueIdentifier>{54fe07db-eb44-43e7-a0c4-53bc4b783309}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -969,6 +975,9 @@
     <ClInclude Include="Selection.h">
       <Filter>Header Files\SceneManager</Filter>
     </ClInclude>
+    <ClInclude Include="RenderTargetManager.h">
+      <Filter>Header Files\RenderTargetManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1462,6 +1471,9 @@
     </ClCompile>
     <ClCompile Include="Selection.cpp">
       <Filter>Source Files\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTargetManager.cpp">
+      <Filter>Source Files\RenderTargetManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

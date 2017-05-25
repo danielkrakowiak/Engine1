@@ -394,3 +394,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 20.05.2017 - 3h - Refactoring, added alpha multiplier, copying light sources, fixed display of single-channel textures. Experimenting with large area lights combined of many, smaller lights.
 23.05.2017 - 2h - Refactoring of Renderer. Added SceneUtil class. Refactoring SceneManager, added Selection class.
 24.05.2017 - 1h - Refactoring of SceneManager.
+25.05.2017 - 1h - Thinking over how to refactor Renderer. Added RenderTargetManager class.

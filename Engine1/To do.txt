@@ -777,6 +777,14 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+	  - add RenderTargetManager? A class which would store a bunch of rendertargets and give them at request.
+	    It would mark them as used and report a lack of render targets of given type or exceeding some given limit.
+		This way we could simply get render targets we need in Renderer without worrying about creating them or whether we use them efficently.
+		Once finished using, a RT is returned to the Manager. How about passing RT from memthod to method?
+		Can I use shared_ptr counter to keep track of RT? Like if it's more than 1 it's taken.
+		How to deal with half-res (or double-res??) textures etc? Use mipmaps, but request full res textures?
+		Can also have a feature to provide name for the RT when getting it to rename it in DirectX.
+
 	  - split rendering into smaller parts... more managable...
 	  - Refactor: No render target should be in the renderers themselves. All Render targets should be in main renderer.
 	  - reenable shadows in reflections/refractions
