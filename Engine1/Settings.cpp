@@ -1,6 +1,7 @@
 #include "Settings.h"
 
 #include <algorithm>
+#include "MathUtil.h"
 
 using namespace Engine1;
 
@@ -62,6 +63,9 @@ void Settings::setDefault()
     s_settings.debug.metalnessMul       = 1.0f;
     s_settings.debug.roughnessMul       = 1.0f;
     s_settings.debug.refractiveIndexMul = 1.0f;
+
+    s_settings.rendering.fieldOfViewDegress = 70.0f;
+    s_settings.rendering.exposure           = 0.0f;
 
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 

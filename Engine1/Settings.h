@@ -51,6 +51,9 @@ namespace Engine1
 
         struct Rendering 
         {
+            float fieldOfViewDegress;
+            float exposure;
+
             struct Shadows
             {
                 // Debug option to enable/disable blurring shadows in two passes - horizontal and vertical.

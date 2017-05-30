@@ -1391,7 +1391,11 @@ bool Application::onFrame( const double frameTimeMs, const bool lockCursor )
     bool modifyingScene = false;
 
     { // Bunch of stupid code to be moved elsewhere.
-      // Translate / rotate the selected actors.
+
+        // Set renderer exposure from settings.
+        m_renderer.setExposure( settings().rendering.exposure );
+
+        // Translate / rotate the selected actors.
         if ( m_windowFocused && ( !m_sceneManager.getSelectedBlockActors().empty() || !m_sceneManager.getSelectedSkeletonActors().empty() ) ) {
             const int2 mouseMove = m_inputManager.getMouseMove();
 
@@ -1498,6 +1502,11 @@ bool Application::onFrame( const double frameTimeMs, const bool lockCursor )
                 m_sceneManager.getCamera().setPosition( spotLight.getPosition() );
                 m_sceneManager.getCamera().setDirection( spotLight.getDirection() );
             }
+        }
+        else
+        {
+            // Update camera FOV from settings.
+            m_sceneManager.getCamera().setFieldOfView( MathUtil::degreesToRadians( settings().rendering.fieldOfViewDegress ) );
         }
 
         // Update the camera.

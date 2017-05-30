@@ -271,7 +271,7 @@ Renderer::Output Renderer::renderSceneImage(
     defferedRenderTargets.depth           = m_renderTargetManager.getRenderTargetDepth( m_imageDimensions );
 
     Direct3DDeferredRenderer::Settings defferedSettings;
-    defferedSettings.fieldOfView     = MathUtil::pi / 4.0f;//camera.getFieldOfView();
+    defferedSettings.fieldOfView     = camera.getFieldOfView();
     defferedSettings.imageDimensions = (float2)m_imageDimensions;
     defferedSettings.wireframeMode   = wireframeMode;
     defferedSettings.zNear           = 0.1f;

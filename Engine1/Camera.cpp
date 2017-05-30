@@ -1,6 +1,7 @@
 #include "Camera.h"
 
 #include "MathUtil.h"
+#include "Settings.h"
 
 using namespace Engine1;
 
@@ -8,7 +9,7 @@ Camera::Camera() :
     m_position( float3::ZERO ),
     m_direction( 0.0f, 0.0f, 1.0f ),
     m_up( 0.0f, 1.0f, 0.0f ),
-    m_fieldOfView( MathUtil::pi / 4.0f )
+    m_fieldOfView( MathUtil::degreesToRadians( settings().rendering.fieldOfViewDegress ) )
 {}
 
 Camera::Camera( float3 position, float3 direction, float3 up, float fieldOfView ) :

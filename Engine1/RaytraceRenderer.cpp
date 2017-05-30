@@ -119,7 +119,7 @@ void RaytraceRenderer::generateAndTracePrimaryRays( const Camera& camera, const 
 
 void RaytraceRenderer::generatePrimaryRays( const Camera& camera )
 {
-    const float fieldOfView      = (float)MathUtil::pi / 4.0f;
+    const float fieldOfView      = camera.getFieldOfView();
     const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
     const float2 viewportSize    = float2( (float)m_imageWidth, (float)m_imageHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
@@ -222,7 +222,7 @@ void RaytraceRenderer::generateFirstReflectedRays( const Camera& camera,
     const int outputTextureWidth = m_rayOriginsTexture.at( 0 )->getWidth();
     const int outputTextureHeight = m_rayOriginsTexture.at( 0 )->getHeight();
 
-    const float fieldOfView      = (float)MathUtil::pi / 4.0f;
+    const float fieldOfView      = camera.getFieldOfView();
     const float screenAspect     = (float)outputTextureWidth / (float)outputTextureHeight;
     const float2 viewportSize    = float2( (float)outputTextureWidth, (float)outputTextureHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
@@ -260,7 +260,7 @@ void RaytraceRenderer::generateFirstRefractedRays( const Camera& camera,
     const int outputTextureWidth = m_rayOriginsTexture.at( 0 )->getWidth();
     const int outputTextureHeight = m_rayOriginsTexture.at( 0 )->getHeight();
 
-    const float fieldOfView      = (float)MathUtil::pi / 4.0f;
+    const float fieldOfView      = camera.getFieldOfView();
     const float screenAspect     = (float)outputTextureWidth / (float)outputTextureHeight;
     const float2 viewportSize    = float2( (float)outputTextureWidth, (float)outputTextureHeight );
     const float3 viewportUp      = camera.getUp() * tan( fieldOfView * 0.5f );
