@@ -38,30 +38,107 @@ namespace Engine1
 
         public:
 
+        struct RenderTargets
+        {
+            RenderTargets() :
+                position( nullptr ),
+                emissive( nullptr ),
+                albedo( nullptr ),
+                metalness( nullptr ),
+                roughness( nullptr ),
+                normal( nullptr ),
+                refractiveIndex( nullptr ),
+                depth( nullptr )
+            {}
+
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        position;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        emissive;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        albedo;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > metalness;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > roughness;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        normal;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > refractiveIndex;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >        depth;
+        };
+
+        struct Settings
+        {
+            Settings() :
+                fieldOfView( 0.0f ),
+                imageDimensions( 0.0f, 0.0f ),
+                zNear( 0.0f ),
+                zFar( 0.0f ),
+                wireframeMode( false )
+            {}
+
+            float  fieldOfView;
+            float2 imageDimensions;
+            float  zNear;
+            float  zFar;
+            bool   wireframeMode;
+        };
+
         Direct3DDeferredRenderer( Direct3DRendererCore& rendererCore );
         ~Direct3DDeferredRenderer();
 
-        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
-        void clearRenderTargets( float4 color, float depth );
         void disableRenderTargets();
 
-        void render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode = false );
-        void renderEmissive( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode = false );
-        void render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const bool wireframeMode = false );
-        void render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive = float4::ZERO, const bool wireframeMode = false );
-        void render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive = float4::ZERO, const bool wireframeMode = false );
-        void render( const std::string& text, Font& font, float2 position, float4 color );
+        void render( 
+            const RenderTargets& renderTargets, 
+            const Settings& renderSettings, 
+            const BlockMesh& mesh, 
+            const float43& worldMatrix, 
+            const float44& viewMatrix 
+        );
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > >        getPositionRenderTarget();
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > >        getEmissiveRenderTarget();
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > >        getAlbedoRenderTarget();
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > getMetalnessRenderTarget();
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > getRoughnessRenderTarget();
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > >        getNormalRenderTarget();
-        std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > getIndexOfRefractionRenderTarget();
-        std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > >        getDepthRenderTarget();
+        void renderEmissive( 
+            const RenderTargets& renderTargets, 
+            const Settings& renderSettings, 
+            const BlockMesh& mesh, 
+            const float43& worldMatrix, 
+            const float44& viewMatrix 
+        );
+
+        void render( 
+            const RenderTargets& renderTargets, 
+            const Settings& renderSettings, 
+            const SkeletonMesh& mesh, 
+            const float43& worldMatrix, 
+            const float44& viewMatrix, 
+            const SkeletonPose& poseInSkeletonSpace 
+        );
+
+        void render( 
+            const RenderTargets& renderTargets, 
+            const Settings& renderSettings, 
+            const BlockModel& model, 
+            const float43& worldMatrix, 
+            const float44& viewMatrix, 
+            const float4& extraEmissive = float4::ZERO 
+        );
+
+        void render( 
+            const RenderTargets& renderTargets, 
+            const Settings& renderSettings, 
+            const SkeletonModel& model, 
+            const float43& worldMatrix, 
+            const float44& viewMatrix, 
+            const SkeletonPose& poseInSkeletonSpace, 
+            const float4& extraEmissive = float4::ZERO 
+        );
+
+        // #TODO: Should be moved to a separate renderer.
+        void render( 
+            const RenderTargets& renderTargets, 
+            const Settings& renderSettings, 
+            const std::string& text, 
+            Font& font, 
+            float2 position, 
+            float4 color 
+        );
 
         private:
 
@@ -87,36 +164,20 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTransparentMeshRendering( ID3D11Device& device );
         Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTextRendering( ID3D11Device& device );
 
-        // Render targets.
-        int m_imageWidth, m_imageHeight;
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >        m_positionRenderTarget;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >        m_emissiveRenderTarget;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >        m_albedoRenderTarget;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > m_metalnessRenderTarget;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > m_roughnessRenderTarget;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >        m_normalRenderTarget;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > > m_indexOfRefractionRenderTarget;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >        m_depthRenderTarget;
-
-        void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
-
-        // Projection matrices.
-        float44 m_perspectiveProjectionMatrix;
-        float44 m_orthographicProjectionMatrix;
-
         // Shaders.
-        std::shared_ptr<BlockMeshVertexShader>        m_blockMeshVertexShader;
-        std::shared_ptr<BlockMeshFragmentShader>      m_blockMeshFragmentShader;
-        std::shared_ptr<BlockMeshFragmentShader>      m_blockMeshEmissiveFragmentShader;
-        std::shared_ptr<SkeletonMeshVertexShader>     m_skeletonMeshVertexShader;
-        std::shared_ptr<SkeletonMeshFragmentShader>   m_skeletonMeshFragmentShader;
-        std::shared_ptr<BlockModelVertexShader>	      m_blockModelVertexShader;
-        std::shared_ptr<BlockModelFragmentShader>	  m_blockModelFragmentShader;
-        std::shared_ptr<SkeletonModelVertexShader>    m_skeletonModelVertexShader;
-        std::shared_ptr<SkeletonModelFragmentShader>  m_skeletonModelFragmentShader;
-        std::shared_ptr<TextVertexShader>             m_textVertexShader;
-        std::shared_ptr<TextFragmentShader>           m_textFragmentShader;
+        BlockMeshVertexShader        m_blockMeshVertexShader;
+        BlockMeshFragmentShader      m_blockMeshFragmentShader;
+        BlockMeshFragmentShader      m_blockMeshEmissiveFragmentShader;
+        SkeletonMeshVertexShader     m_skeletonMeshVertexShader;
+        SkeletonMeshFragmentShader   m_skeletonMeshFragmentShader;
+        BlockModelVertexShader	     m_blockModelVertexShader;
+        BlockModelFragmentShader	 m_blockModelFragmentShader;
+        SkeletonModelVertexShader    m_skeletonModelVertexShader;
+        SkeletonModelFragmentShader  m_skeletonModelFragmentShader;
+        TextVertexShader             m_textVertexShader;
+        TextFragmentShader           m_textFragmentShader;
+
+        void enableRenderTargets( const RenderTargets& renderTargets );
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 

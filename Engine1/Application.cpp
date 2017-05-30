@@ -104,7 +104,13 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	}
 	catch (...) {}
 
-    m_renderer.initialize( settings().main.screenDimensions.x, settings().main.screenDimensions.y, m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext(), nullptr /*axisMesh*/, lightModel );
+    m_renderer.initialize( 
+        settings().main.screenDimensions, 
+        m_frameRenderer.getDevice(), 
+        m_frameRenderer.getDeviceContext(), 
+        nullptr /*axisMesh*/, 
+        lightModel 
+    );
 
     m_controlPanel.initialize( m_frameRenderer.getDevice(), settings().main.screenDimensions );
 
@@ -415,12 +421,16 @@ void Application::run() {
 
         }
 
+        // Drop references to render targets before starting text rendering.
+        // (reference counting of render taregts).
+        output.reset();
+
         { // Render FPS.
             std::stringstream ss;
             ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
             
             if ( settings().debug.renderFps )
-                output.uchar4Image = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render current view.
@@ -428,7 +438,7 @@ void Application::run() {
             ss << "View: " << Renderer::viewToString( m_renderer.getActiveViewType() );
 
             if ( settings().debug.renderFps )
-                output.uchar4Image = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 350.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 350.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render some debug options.
@@ -440,7 +450,7 @@ void Application::run() {
             ss << "Exposure: " << m_renderer.getExposure();
 
             if ( settings().debug.renderFps )
-                output.uchar4Image = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render profiling results.
@@ -514,7 +524,7 @@ void Application::run() {
             }
 
             if ( settings().debug.renderText )
-                output.uchar4Image = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render scene stats and selection stats.
@@ -614,7 +624,7 @@ void Application::run() {
             }
 
             if ( settings().debug.renderText )
-                output.uchar4Image = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render camera state.

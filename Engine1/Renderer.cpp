@@ -61,34 +61,38 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
 Renderer::~Renderer()
 {}
 
-void Renderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext, 
+void Renderer::initialize( const int2 imageDimensions, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext, 
                          std::shared_ptr<const BlockMesh> axisMesh, std::shared_ptr<const BlockModel> lightModel )
 {
-    this->m_device        = device;
-    this->m_deviceContext = deviceContext;
+    m_device        = device;
+    m_deviceContext = deviceContext;
 
-    this->m_axisMesh = axisMesh;
-    this->m_lightModel = lightModel;
+    m_axisMesh   = axisMesh;
+    m_lightModel = lightModel;
 
-	m_deferredRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-    m_raytraceRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-    m_shadingRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-    m_reflectionRefractionShadingRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-    m_edgeDetectionRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-    m_hitDistanceSearchRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
+    m_imageDimensions = imageDimensions;
+
+    m_renderTargetManager.initialize( *device.Get(), imageDimensions );
+
+	m_deferredRenderer.initialize( device, deviceContext );
+    m_raytraceRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+    m_shadingRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+    m_reflectionRefractionShadingRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+    m_edgeDetectionRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+    m_hitDistanceSearchRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_combiningRenderer.initialize( device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
-    m_rasterizeShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-	m_raytraceShadowRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
+    m_rasterizeShadowRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+	m_raytraceShadowRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
 	m_shadowMapRenderer.initialize( device, deviceContext );
     m_mipmapRenderer.initialize( device, deviceContext );
-    m_distanceToOccluderSearchRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
-    m_blurShadowsRenderer.initialize( imageWidth, imageHeight, device, deviceContext );
+    m_distanceToOccluderSearchRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+    m_blurShadowsRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_utilityRenderer.initialize( device, deviceContext );
     m_extractBrightPixelsRenderer.initialize( device, deviceContext );
     m_toneMappingRenderer.initialize( device, deviceContext );
 
-    createRenderTargets( imageWidth, imageHeight, *device.Get() );
+    createRenderTargets( imageDimensions.x, imageDimensions.y, *device.Get() );
 }
 
 // Should be called at the beginning of each frame, before calling renderScene(). 
@@ -96,12 +100,15 @@ void Renderer::clear()
 {
     // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
     // Be careful when changing!
-    m_deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 1.0f ), 1.0f ); 
+    //m_deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 1.0f ), 1.0f ); 
+
 }
 
 void Renderer::clear2()
 {
-    m_deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 0.0f ), 1.0f ); 
+    // #TODO: Ugly - clearing some random render targets - find a more elegant way to clean render targets.
+    m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions )->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions )->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
 }
 
 void Renderer::renderShadowMaps( const Scene& scene )
@@ -167,7 +174,7 @@ Renderer::Output Renderer::renderScene(
     const auto  blockActors             = SceneUtil::filterActorsByType< BlockActor >( actors );
 
     Output output; 
-    output = renderMainImage( 
+    output = renderSceneImage( 
         scene, camera, lightsCastingShadows, lightsNotCastingShadows, 
         settings().rendering.reflectionsRefractions.activeView, m_activeViewType, wireframeMode,
         selection, selectionVolumeMesh 
@@ -176,26 +183,26 @@ Renderer::Output Renderer::renderScene(
     if ( !output.isEmpty() )
         return output;
 
-    std::vector< bool > renderedViewType;
+    /*std::vector< bool > renderedViewType;
 
-    output = renderReflectionsRefractions( 
-        true, 1, 0, 
-        settings().rendering.reflectionsRefractions.maxLevel, 
-        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        renderedViewType, 
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType 
+    output = renderReflectionsRefractions(
+        true, 1, 0,
+        settings().rendering.reflectionsRefractions.maxLevel,
+        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
+        renderedViewType,
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType, deferred
     );
 
     if ( !output.isEmpty() )
         return output;
 
-    output = renderReflectionsRefractions( 
-        false, 1, 0, 
-        settings().rendering.reflectionsRefractions.maxLevel, 
-        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        renderedViewType, 
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType 
-    );
+    output = renderReflectionsRefractions(
+        false, 1, 0,
+        settings().rendering.reflectionsRefractions.maxLevel,
+        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
+        renderedViewType,
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType
+    );*/
     
     // Perform post-effects.
     performToneMapping( m_finalRenderTarget, m_exposure );
@@ -204,7 +211,7 @@ Renderer::Output Renderer::renderScene(
 
     if ( m_activeViewType == View::BloomBrightPixels )
     {
-        Output output;
+        output.reset();
         output.float4Image = m_temporaryRenderTarget2;
 
         return output;
@@ -219,15 +226,32 @@ Renderer::Output Renderer::renderScene(
     return finalOutput;
 }
 
-std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >
-Renderer::renderText( const std::string& text, Font& font, float2 position, float4 color )
+Renderer::Output Renderer::renderText( 
+    const std::string& text, 
+    Font& font, 
+    float2 position, 
+    float4 color )
 {
-    m_deferredRenderer.render( text, font, position, color );
+    Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
+    defferedRenderTargets.albedo = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
+    defferedRenderTargets.normal = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
 
-    return m_deferredRenderer.getAlbedoRenderTarget();
+    Direct3DDeferredRenderer::Settings defferedSettings;
+    defferedSettings.fieldOfView     = 0.0f; // Not used.
+    defferedSettings.imageDimensions = (float2)m_imageDimensions;
+    defferedSettings.wireframeMode   = false;
+    defferedSettings.zNear           = 0.1f;
+    defferedSettings.zFar            = 1000.0f;
+
+    m_deferredRenderer.render( defferedRenderTargets, defferedSettings, text, font, position, color );
+
+    Renderer::Output output;
+    output.uchar4Image = defferedRenderTargets.albedo;
+
+    return output;
 }
 
-Renderer::Output Renderer::renderMainImage( 
+Renderer::Output Renderer::renderSceneImage( 
     const Scene& scene, const Camera& camera, 
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
@@ -236,41 +260,103 @@ Renderer::Output Renderer::renderMainImage(
     const Selection& selection,
     const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
-    float44 viewMatrix = MathUtil::lookAtTransformation( camera.getLookAtPoint(), camera.getPosition(), camera.getUp() );
+    Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
+    defferedRenderTargets.position        = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+    defferedRenderTargets.emissive        = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
+    defferedRenderTargets.albedo          = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
+    defferedRenderTargets.metalness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+    defferedRenderTargets.roughness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+    defferedRenderTargets.normal          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+    defferedRenderTargets.refractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+    defferedRenderTargets.depth           = m_renderTargetManager.getRenderTargetDepth( m_imageDimensions );
+
+    Direct3DDeferredRenderer::Settings defferedSettings;
+    defferedSettings.fieldOfView     = MathUtil::pi / 4.0f;//camera.getFieldOfView();
+    defferedSettings.imageDimensions = (float2)m_imageDimensions;
+    defferedSettings.wireframeMode   = wireframeMode;
+    defferedSettings.zNear           = 0.1f;
+    defferedSettings.zFar            = 1000.0f;
+
+    // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
+    // Be careful when changing!
+    defferedRenderTargets.position->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    defferedRenderTargets.emissive->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    defferedRenderTargets.albedo->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    defferedRenderTargets.metalness->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    defferedRenderTargets.roughness->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    defferedRenderTargets.normal->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    defferedRenderTargets.refractiveIndex->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    defferedRenderTargets.depth->clearDepthStencilView( *m_deviceContext.Get(), true, 1.0f, false, 0 );
+
+    float44 viewMatrix = MathUtil::lookAtTransformation( 
+        camera.getLookAtPoint(), 
+        camera.getPosition(), 
+        camera.getUp() 
+    );
 
     m_profiler.beginEvent( Profiler::GlobalEventType::DeferredRendering );
 
     // Render 'axises' model.
     if ( m_axisMesh )
-        m_deferredRenderer.render( *m_axisMesh, float43::IDENTITY, viewMatrix );
+    {
+        m_deferredRenderer.render( 
+            defferedRenderTargets, 
+            defferedSettings, 
+            *m_axisMesh, 
+            float43::IDENTITY, 
+            viewMatrix 
+        );
+    }
 
-    float4 actorSelectionEmissiveColor( 0.2f, 0.2f, 0.0f, 1.0f );
+    float4 actorSelectionEmissiveColor( 0.1f, 0.1f, 0.0f, 1.0f );
 
     // Render actors in the scene.
     const std::unordered_set< std::shared_ptr<Actor> >& actors = scene.getActors();
     for ( const std::shared_ptr<Actor> actor : actors ) 
     {
-        if ( actor->getType() == Actor::Type::BlockActor ) {
-            const std::shared_ptr<BlockActor> blockActor = std::static_pointer_cast<BlockActor>(actor);
-            const std::shared_ptr<BlockModel> blockModel = blockActor->getModel();
+        if ( actor->getType() == Actor::Type::BlockActor ) 
+        {
+            const auto& blockActor = std::static_pointer_cast<BlockActor>(actor);
+            const auto& blockModel = blockActor->getModel();
 
             const bool isSelected = selection.contains( blockActor );
 
-            if ( blockModel->isInGpuMemory() )
-                m_deferredRenderer.render( *blockModel, blockActor->getPose(), viewMatrix, isSelected ? actorSelectionEmissiveColor : float4::ZERO, wireframeMode );
-            else if ( blockModel->getMesh() && blockModel->getMesh()->isInGpuMemory() )
-                m_deferredRenderer.render( *blockModel->getMesh(), blockActor->getPose(), viewMatrix, wireframeMode );
+            if ( !blockModel->isInGpuMemory() )
+                continue;
 
-        } else if ( actor->getType() == Actor::Type::SkeletonActor ) {
-            const std::shared_ptr<SkeletonActor> skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
-            const std::shared_ptr<SkeletonModel> skeletonModel = skeletonActor->getModel();
+            const float4 extraEmissive = isSelected ? actorSelectionEmissiveColor : float4::ZERO;
+                
+            m_deferredRenderer.render( 
+                defferedRenderTargets,
+                defferedSettings,
+                *blockModel, 
+                blockActor->getPose(), 
+                viewMatrix, 
+                extraEmissive
+            );
+
+        } 
+        else if ( actor->getType() == Actor::Type::SkeletonActor ) 
+        {
+            const auto& skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
+            const auto& skeletonModel = skeletonActor->getModel();
 
             const bool isSelected = selection.contains( skeletonActor );
 
             if ( skeletonModel->isInGpuMemory() )
-                m_deferredRenderer.render( *skeletonModel, skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose(), isSelected ? actorSelectionEmissiveColor : float4::ZERO, wireframeMode );
-            else if ( skeletonModel->getMesh() && skeletonModel->getMesh()->isInGpuMemory() )
-                m_deferredRenderer.render( *skeletonModel->getMesh(), skeletonActor->getPose(), viewMatrix, skeletonActor->getSkeletonPose(), wireframeMode );
+                continue;
+
+            const float4 extraEmissive = isSelected ? actorSelectionEmissiveColor : float4::ZERO;
+
+            m_deferredRenderer.render( 
+                defferedRenderTargets,
+                defferedSettings,
+                *skeletonModel, 
+                skeletonActor->getPose(), 
+                viewMatrix, 
+                skeletonActor->getSkeletonPose(), 
+                extraEmissive
+            );
         }
     }
 
@@ -286,50 +372,68 @@ Renderer::Output Renderer::renderMainImage(
             const bool isSelected = selection.contains( light );
 
             lightPose.setTranslation( light->getPosition() );
-            float4 extraEmissive = isSelected ? lightSelectionEmissiveColor : ( light->isEnabled() ? float4::ZERO : lightDisabledEmissiveColor );
-            m_deferredRenderer.render( *m_lightModel, lightPose, viewMatrix, extraEmissive );
+
+            float4 extraEmissive = isSelected ?
+                lightSelectionEmissiveColor :
+                ( light->isEnabled() ? float4::ZERO : lightDisabledEmissiveColor );
+
+            m_deferredRenderer.render( 
+                defferedRenderTargets,
+                defferedSettings, 
+                *m_lightModel, 
+                lightPose, 
+                viewMatrix, 
+                extraEmissive 
+            );
         }
     }
 
     // Render selection volume.
     if ( selectionVolumeMesh )
-        m_deferredRenderer.renderEmissive( *selectionVolumeMesh, float43::IDENTITY, viewMatrix, false );
+    {
+        m_deferredRenderer.renderEmissive( 
+            defferedRenderTargets,
+            defferedSettings, 
+            *selectionVolumeMesh, 
+            float43::IDENTITY, 
+            viewMatrix
+        );
+    }
 
     m_profiler.endEvent( Profiler::GlobalEventType::DeferredRendering );
-
-	// Gather block actors.
-	std::vector< std::shared_ptr< const BlockActor > > blockActors;
-	blockActors.reserve( actors.size() );
-	for ( const std::shared_ptr< Actor > actor : actors )
-	{
-		if ( actor->getType() == Actor::Type::BlockActor )
-			blockActors.push_back( std::static_pointer_cast<BlockActor>(actor) );
-	}
-
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
 
+    // #TODO: Do we need these mipmaps? I don't think so anymore...
     // Generate mipmaps for normal and position g-buffers.
-    m_deferredRenderer.getNormalRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-    m_deferredRenderer.getPositionRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    defferedRenderTargets.normal->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    defferedRenderTargets.position->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( m_deferredRenderer.getEmissiveRenderTarget() );
+    m_shadingRenderer.performShading( defferedRenderTargets.emissive );
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
 
-    m_shadingRenderer.performShadingNoShadows( camera, m_deferredRenderer.getPositionRenderTarget(),
-                                               m_deferredRenderer.getAlbedoRenderTarget(), m_deferredRenderer.getMetalnessRenderTarget(),
-                                               m_deferredRenderer.getRoughnessRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), lightsNotCastingShadows );
+    m_shadingRenderer.performShadingNoShadows( 
+        camera, 
+        defferedRenderTargets.position,
+        defferedRenderTargets.albedo, 
+        defferedRenderTargets.metalness,
+        defferedRenderTargets.roughness, 
+        defferedRenderTargets.normal, 
+        lightsNotCastingShadows 
+    );
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
 
+    const auto blockActors = SceneUtil::filterActorsByType< BlockActor >( scene.getActorsVec() );
+
     // #TODO: Remove.
     // FOR DEBUG - Not needed normally, because whole texture gets overwritten.
-    m_blurShadowsRenderer.getShadowTexture()->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 1.0f ), 0 );
+    m_blurShadowsRenderer.getShadowTexture()->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4::ZERO, 0 );
 
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
@@ -370,25 +474,17 @@ Renderer::Output Renderer::renderMainImage(
             *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0
         );*/
 
-        auto distanceToOccluder = m_rasterizeShadowRenderer.getDistanceToOccluder();
-
-        // Clear shadow raytracing render targets.
-        // Note: Same thing is done in rasterize-shadow-renderer - take care to avoid duplication of actions.
-        // #TODO: Should be profiled.
-        m_raytraceShadowRenderer.getHardShadowTexture()->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-        m_raytraceShadowRenderer.getSoftShadowTexture()->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-        m_raytraceShadowRenderer.getDistanceToOccluder()->clearRenderTargetView( *m_deviceContext.Get(), float4( 1000.0f ) );
+        //auto distanceToOccluder = m_rasterizeShadowRenderer.getDistanceToOccluder();
 
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
             camera.getPosition(),
             lightsCastingShadows[ lightIdx ],
-            m_deferredRenderer.getPositionRenderTarget(),
-            m_deferredRenderer.getNormalRenderTarget(),
+            defferedRenderTargets.position,
+            defferedRenderTargets.normal,
             nullptr,
-            m_rasterizeShadowRenderer.getShadowTexture(),
-            distanceToOccluder,
+            //m_rasterizeShadowRenderer.getShadowTexture(),
             blockActors
         );
 
@@ -402,8 +498,8 @@ Renderer::Output Renderer::renderMainImage(
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
-            distanceToOccluder, 
-            m_deferredRenderer.getPositionRenderTarget(), 
+            m_raytraceShadowRenderer.getDistanceToOccluder(), 
+            defferedRenderTargets.position, 
             500.0f, 0, 3 
         );
         
@@ -432,9 +528,9 @@ Renderer::Output Renderer::renderMainImage(
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            m_deferredRenderer.getPositionRenderTarget(),
-            m_deferredRenderer.getNormalRenderTarget(),
-            distanceToOccluder,
+            defferedRenderTargets.position,
+            defferedRenderTargets.normal,
+            m_raytraceShadowRenderer.getDistanceToOccluder(),
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -446,12 +542,12 @@ Renderer::Output Renderer::renderMainImage(
             // Blur shadows in two passes - horizontal and vertical.
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
-                m_deferredRenderer.getPositionRenderTarget(),
-                m_deferredRenderer.getNormalRenderTarget(),
+                defferedRenderTargets.position,
+                defferedRenderTargets.normal,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getSoftShadowTexture(),
-                distanceToOccluder,
+                m_raytraceShadowRenderer.getDistanceToOccluder(),
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -461,12 +557,12 @@ Renderer::Output Renderer::renderMainImage(
             // Blur shadows in a single pass.
             m_blurShadowsRenderer.blurShadows(
                 camera,
-                m_deferredRenderer.getPositionRenderTarget(),
-                m_deferredRenderer.getNormalRenderTarget(),
+                defferedRenderTargets.position,
+                defferedRenderTargets.normal,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getSoftShadowTexture(),
-                distanceToOccluder,
+                m_raytraceShadowRenderer.getDistanceToOccluder(),
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -478,11 +574,11 @@ Renderer::Output Renderer::renderMainImage(
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( 
             camera, 
-            m_deferredRenderer.getPositionRenderTarget(),
-			m_deferredRenderer.getAlbedoRenderTarget(), 
-            m_deferredRenderer.getMetalnessRenderTarget(),
-			m_deferredRenderer.getRoughnessRenderTarget(), 
-            m_deferredRenderer.getNormalRenderTarget(), 
+            defferedRenderTargets.position,
+			defferedRenderTargets.albedo, 
+            defferedRenderTargets.metalness,
+			defferedRenderTargets.roughness, 
+            defferedRenderTargets.normal, 
             m_blurShadowsRenderer.getShadowTexture(), 
             *lightsCastingShadows[ lightIdx ] 
         );
@@ -503,67 +599,88 @@ Renderer::Output Renderer::renderMainImage(
 
     m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
 
+    Output output;
+
     if ( activeViewLevel.empty() )
     {
-        Output output;
-
         switch ( activeViewType )
         {
-            case View::Shaded: 
-                output.float4Image = m_shadingRenderer.getColorRenderTarget(); 
-                break;
+            case View::Shaded:
+                output.float4Image = m_shadingRenderer.getColorRenderTarget();
+                return output;
             case View::Depth: 
-                output.uchar4Image = m_deferredRenderer.getDepthRenderTarget(); 
-                break;
+                output.uchar4Image = defferedRenderTargets.depth; 
+                return output;
             case View::Position: 
-                output.float4Image = m_deferredRenderer.getPositionRenderTarget();
-                break;
+                output.float4Image = defferedRenderTargets.position;
+                return output;
             case View::Emissive: 
-                output.uchar4Image = m_deferredRenderer.getEmissiveRenderTarget();
-                break;
+                output.uchar4Image = defferedRenderTargets.emissive;
+                return output;
             case View::Albedo: 
-                output.uchar4Image = m_deferredRenderer.getAlbedoRenderTarget();
-                break;
+                output.uchar4Image = defferedRenderTargets.albedo;
+                return output;
             case View::Normal:
-                output.float4Image = m_deferredRenderer.getNormalRenderTarget();
-                break;
+                output.float4Image = defferedRenderTargets.normal;
+                return output;
             case View::Metalness:
-                output.ucharImage = m_deferredRenderer.getMetalnessRenderTarget();
-                break;
+                output.ucharImage = defferedRenderTargets.metalness;
+                return output;
             case View::Roughness:
-                output.ucharImage = m_deferredRenderer.getRoughnessRenderTarget();
-                break;
+                output.ucharImage = defferedRenderTargets.roughness;
+                return output;
             case View::IndexOfRefraction:
-                output.ucharImage = m_deferredRenderer.getIndexOfRefractionRenderTarget();
-                break;
+                output.ucharImage = defferedRenderTargets.refractiveIndex;
+                return output;
 			case View::Preillumination:
 				output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
-                break;
+                return output;
             case View::HardIllumination:
                 output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
-                break;
+                return output;
             case View::SoftIllumination:
                 output.ucharImage = m_raytraceShadowRenderer.getSoftShadowTexture();
-                break;
+                return output;
             case View::BlurredIllumination:
                 output.ucharImage = m_blurShadowsRenderer.getShadowTexture();
-                break;
+                return output;
             case View::SpotlightDepth:
                 if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
                     output.floatImage = std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap();
-                break;
+                return output;
             case View::DistanceToOccluder:
                 output.floatImage = m_rasterizeShadowRenderer.getDistanceToOccluder();
-                break;
+                return output;
             case View::FinalDistanceToOccluder:
                 output.floatImage = m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture();
-                break;
+                return output;
         }
-
-        return output;
     }
 
-    return Output();
+    std::vector< bool > renderedViewType;
+
+    output = renderReflectionsRefractions(
+        true, 1, 0,
+        settings().rendering.reflectionsRefractions.maxLevel,
+        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
+        renderedViewType,
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType, 
+        defferedRenderTargets
+    );
+
+    if ( !output.isEmpty() )
+        return output;
+
+    output = renderReflectionsRefractions(
+        false, 1, 0,
+        settings().rendering.reflectionsRefractions.maxLevel,
+        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
+        renderedViewType,
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType, 
+        defferedRenderTargets
+    );
+
+    return output;
 }
 
 Renderer::Output Renderer::renderReflectionsRefractions( 
@@ -573,12 +690,12 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
     std::vector< bool >& renderedViewLevel,
     const std::vector< bool >& activeViewLevel,
-    const View activeViewType )
+    const View activeViewType,
+    const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets )
 {
     if ( level > maxLevelCount )
         return Output();
 
-    bool frameReceived = false;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >         frameUchar4;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >         frameFloat4;
@@ -592,18 +709,18 @@ Renderer::Output Renderer::renderReflectionsRefractions(
         //OutputDebugStringW( StringUtil::widen( "Reflection - " + std::to_string( level ) + "\n" ).c_str() );
 
         if ( level == 1 )
-            renderFirstReflections( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
+            renderFirstReflections( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, deferredRenderTargets );
         else
-            renderReflections( level, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
+            renderReflections( level, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, deferredRenderTargets.depth );
     }
     else 
     {
         //OutputDebugStringW( StringUtil::widen( "Refraction - " + std::to_string( level ) + "\n" ).c_str() );
 
         if ( level == 1 )
-            renderFirstRefractions( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
+            renderFirstRefractions( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, deferredRenderTargets );
         else
-            renderRefractions( level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
+            renderRefractions( level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, deferredRenderTargets.depth );
     }
 
     if ( renderedViewLevel == activeViewLevel )
@@ -662,11 +779,14 @@ Renderer::Output Renderer::renderReflectionsRefractions(
         return output;
     }
 
+    //#TODO: We can clear some deferred render targets here if level 1 is finished.
+    // Only has to keep depth.
+
     Output output;
     output = renderReflectionsRefractions( 
         true, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        renderedViewLevel, activeViewLevel, activeViewType 
+        renderedViewLevel, activeViewLevel, activeViewType, deferredRenderTargets
     );
 
     if ( !output.isEmpty() )
@@ -675,7 +795,7 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     output = renderReflectionsRefractions( 
         false, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        renderedViewLevel, activeViewLevel, activeViewType 
+        renderedViewLevel, activeViewLevel, activeViewType, deferredRenderTargets
     );
 
     if ( !output.isEmpty() )
@@ -689,20 +809,33 @@ Renderer::Output Renderer::renderReflectionsRefractions(
 void Renderer::renderFirstReflections( const Camera& camera, 
                                        const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
+                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+                                       const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets )
 {
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
     // Perform reflection shading.
-    m_reflectionRefractionShadingRenderer.performFirstReflectionShading( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(), m_deferredRenderer.getAlbedoRenderTarget(),
-                                                                  m_deferredRenderer.getMetalnessRenderTarget(), m_deferredRenderer.getRoughnessRenderTarget() );
+    m_reflectionRefractionShadingRenderer.performFirstReflectionShading( 
+        camera, 
+        deferredRenderTargets.position, 
+        deferredRenderTargets.normal, 
+        deferredRenderTargets.albedo,
+        deferredRenderTargets.metalness, 
+        deferredRenderTargets.roughness 
+    );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::Raytracing );
 
     // Perform ray tracing.
-    m_raytraceRenderer.generateAndTraceFirstReflectedRays( camera, m_deferredRenderer.getPositionRenderTarget(), m_deferredRenderer.getNormalRenderTarget(),
-                                                            m_deferredRenderer.getRoughnessRenderTarget(), m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), blockActors );
+    m_raytraceRenderer.generateAndTraceFirstReflectedRays( 
+        camera, 
+        deferredRenderTargets.position, 
+        deferredRenderTargets.normal,
+        deferredRenderTargets.roughness, 
+        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
+        blockActors 
+    );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::Raytracing );
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
@@ -714,13 +847,15 @@ void Renderer::renderFirstReflections( const Camera& camera,
 
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ShadingNoShadows );
 
-    m_shadingRenderer.performShadingNoShadows( m_raytraceRenderer.getRayOriginsTexture( 0 ), 
-                                               m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
-                                               lightsNotCastingShadows );
+    m_shadingRenderer.performShadingNoShadows( 
+        m_raytraceRenderer.getRayOriginsTexture( 0 ), 
+        m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+        m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
+        m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
+        m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
+        m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
+        lightsNotCastingShadows 
+    );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ShadingNoShadows );
 
@@ -778,8 +913,8 @@ void Renderer::renderFirstReflections( const Camera& camera,
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
-    const int contributionTextureFillWidth  = m_deferredRenderer.getPositionRenderTarget()->getWidth();
-    const int contributionTextureFillHeight = m_deferredRenderer.getPositionRenderTarget()->getHeight();
+    const int contributionTextureFillWidth  = deferredRenderTargets.position->getWidth();
+    const int contributionTextureFillHeight = deferredRenderTargets.position->getHeight();
 
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
@@ -793,29 +928,33 @@ void Renderer::renderFirstReflections( const Camera& camera,
     //#TODO: Fill pixels for which all samples were rejected with max value.
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
         rayHitDistanceTexture,
-        m_deferredRenderer.getPositionRenderTarget(),
+        deferredRenderTargets.position,
         50.0f, 0, 0
     );
 
     // Search for hit distance.
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
         camera, 
-        m_deferredRenderer.getPositionRenderTarget(), 
-        m_deferredRenderer.getNormalRenderTarget(), 
+        deferredRenderTargets.position, 
+        deferredRenderTargets.normal, 
         rayHitDistanceTexture 
     );
 
     // Combine main image with reflections.
-    m_combiningRenderer.combine( m_finalRenderTarget, 
-                                 m_shadingRenderer.getColorRenderTarget(), 
-                                 m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-                                 m_deferredRenderer.getNormalRenderTarget(), 
-                                 m_deferredRenderer.getPositionRenderTarget(), 
-                                 m_deferredRenderer.getDepthRenderTarget(), 
-                                 m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-                                 camera.getPosition(),
-                                 contributionTextureFillWidth, contributionTextureFillHeight,
-                                 colorTextureFillWidth, colorTextureFillHeight );
+    m_combiningRenderer.combine( 
+        m_finalRenderTarget, 
+        m_shadingRenderer.getColorRenderTarget(), 
+        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
+        deferredRenderTargets.normal, 
+        deferredRenderTargets.position, 
+        deferredRenderTargets.depth, 
+        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+        camera.getPosition(),
+        contributionTextureFillWidth, 
+        contributionTextureFillHeight,
+        colorTextureFillWidth, 
+        colorTextureFillHeight 
+    );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::CombiningWithMainImage );
 }
@@ -823,29 +962,34 @@ void Renderer::renderFirstReflections( const Camera& camera,
 void Renderer::renderFirstRefractions( const Camera& camera, 
                                        const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
+                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+                                       const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets )
 {
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
     // Perform refraction shading.
-    m_reflectionRefractionShadingRenderer.performFirstRefractionShading( camera, 
-                                                                       m_deferredRenderer.getPositionRenderTarget(), 
-                                                                       m_deferredRenderer.getNormalRenderTarget(), 
-                                                                       m_deferredRenderer.getAlbedoRenderTarget(),
-                                                                       m_deferredRenderer.getMetalnessRenderTarget(), 
-                                                                       m_deferredRenderer.getRoughnessRenderTarget() );
+    m_reflectionRefractionShadingRenderer.performFirstRefractionShading( 
+        camera, 
+        deferredRenderTargets.position,
+        deferredRenderTargets.normal,
+        deferredRenderTargets.albedo,
+        deferredRenderTargets.metalness,
+        deferredRenderTargets.roughness 
+    );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::Raytracing );
 
     // Perform ray tracing.
-    m_raytraceRenderer.generateAndTraceFirstRefractedRays( camera, 
-                                                         m_deferredRenderer.getPositionRenderTarget(), 
-                                                         m_deferredRenderer.getNormalRenderTarget(),
-                                                         m_deferredRenderer.getRoughnessRenderTarget(), 
-                                                         m_deferredRenderer.getIndexOfRefractionRenderTarget(),
-                                                         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-                                                         blockActors );
+    m_raytraceRenderer.generateAndTraceFirstRefractedRays( 
+        camera, 
+        deferredRenderTargets.position,
+        deferredRenderTargets.normal,
+        deferredRenderTargets.roughness,
+        deferredRenderTargets.refractiveIndex,
+        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
+        blockActors 
+    );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::Raytracing );
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
@@ -857,13 +1001,15 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ShadingNoShadows );
 
-    m_shadingRenderer.performShadingNoShadows( m_raytraceRenderer.getRayOriginsTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
-                                               m_raytraceRenderer.getRayHitNormalTexture( 0 ),
-                                               lightsNotCastingShadows );
+    m_shadingRenderer.performShadingNoShadows( 
+        m_raytraceRenderer.getRayOriginsTexture( 0 ),
+        m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+        m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
+        m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
+        m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
+        m_raytraceRenderer.getRayHitNormalTexture( 0 ),
+        lightsNotCastingShadows 
+    );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ShadingNoShadows );
 
@@ -921,8 +1067,8 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
-    const int contributionTextureFillWidth  = m_deferredRenderer.getPositionRenderTarget()->getWidth();
-    const int contributionTextureFillHeight = m_deferredRenderer.getPositionRenderTarget()->getHeight();
+    const int contributionTextureFillWidth  = deferredRenderTargets.position->getWidth();
+    const int contributionTextureFillHeight = deferredRenderTargets.position->getHeight();
 
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
@@ -930,24 +1076,28 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
 
     // Combine main image with refractions.
-    m_combiningRenderer.combine( m_finalRenderTarget, 
-                               m_shadingRenderer.getColorRenderTarget(), 
-                               m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-                               m_deferredRenderer.getNormalRenderTarget(), 
-                               m_deferredRenderer.getPositionRenderTarget(), 
-                               m_deferredRenderer.getDepthRenderTarget(), 
-                               m_raytraceRenderer.getRayHitDistanceTexture( 0 ),
-                               camera.getPosition(),
-                               contributionTextureFillWidth, contributionTextureFillHeight,
-                               colorTextureFillWidth, colorTextureFillHeight );
+    m_combiningRenderer.combine( 
+        m_finalRenderTarget, 
+        m_shadingRenderer.getColorRenderTarget(),
+        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
+        deferredRenderTargets.normal,
+        deferredRenderTargets.position,
+        deferredRenderTargets.depth,
+        m_raytraceRenderer.getRayHitDistanceTexture( 0 ),
+        camera.getPosition(),
+        contributionTextureFillWidth, contributionTextureFillHeight,
+        colorTextureFillWidth, colorTextureFillHeight 
+    );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
 }
 
-void Renderer::renderReflections( const int level, const Camera& camera, 
-                                  const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
-                                  const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                  const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
+void Renderer::renderReflections( 
+    const int level, const Camera& camera, 
+    const std::vector< std::shared_ptr< BlockActor > >& blockActors,
+    const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+    const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget )
 {
 
     m_reflectionRefractionShadingRenderer.performReflectionShading( level - 1, 
@@ -1023,17 +1173,19 @@ void Renderer::renderReflections( const int level, const Camera& camera,
                                m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
                                m_raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
                                m_raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
-                               m_deferredRenderer.getDepthRenderTarget(), 
+                               deferredDepthRenderTarget, 
                                m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ),
                                camera.getPosition(),
                                contributionTextureFillWidth, contributionTextureFillHeight,
                                colorTextureFillWidth, colorTextureFillHeight );
 }
 
-void Renderer::renderRefractions( const int level, const int refractionLevel, const Camera& camera, 
-                                  const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
-                                  const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                  const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
+void Renderer::renderRefractions( 
+    const int level, const int refractionLevel, const Camera& camera, 
+    const std::vector< std::shared_ptr< BlockActor > >& blockActors,
+    const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
+    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+    const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget )
 {
     m_reflectionRefractionShadingRenderer.performRefractionShading( level - 1, 
                                                                   m_raytraceRenderer.getRayOriginsTexture( level - 2 ), 
@@ -1109,7 +1261,7 @@ void Renderer::renderRefractions( const int level, const int refractionLevel, co
                                m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
                                m_raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
                                m_raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
-                               m_deferredRenderer.getDepthRenderTarget(), 
+                               deferredDepthRenderTarget, 
                                m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ),
                                camera.getPosition(),
                                contributionTextureFillWidth, contributionTextureFillHeight,

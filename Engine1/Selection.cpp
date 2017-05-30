@@ -61,7 +61,7 @@ bool Selection::add( const std::shared_ptr< Light >& light )
     return true;
 }
 
-bool Selection::add( const const std::vector< std::shared_ptr< Light > >& lights )
+bool Selection::add( const std::vector< std::shared_ptr< Light > >& lights )
 {
     bool added = false;
 

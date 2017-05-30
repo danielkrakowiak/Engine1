@@ -140,10 +140,10 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAc
 void BlurShadowsRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
     m_shadowRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 
     m_shadowTemporaryRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 }
 
 void BlurShadowsRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )

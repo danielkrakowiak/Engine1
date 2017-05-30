@@ -40,9 +40,8 @@ namespace Engine1
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > distanceToOccluder,
-			const std::vector< std::shared_ptr< const BlockActor > >& actors
+            //const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
+			const std::vector< std::shared_ptr< BlockActor > >& actors
 		);
 
 		std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getHardShadowTexture();

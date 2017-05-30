@@ -777,6 +777,10 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+	  - Set FOV to 60 degress - now it's 45 and it's ugly.
+
+	  - how to clear render targets properly? If they get returned as a result.. when should they be cleared?
+
 	  - add RenderTargetManager? A class which would store a bunch of rendertargets and give them at request.
 	    It would mark them as used and report a lack of render targets of given type or exceeding some given limit.
 		This way we could simply get render targets we need in Renderer without worrying about creating them or whether we use them efficently.
@@ -784,6 +788,9 @@ Idea:
 		Can I use shared_ptr counter to keep track of RT? Like if it's more than 1 it's taken.
 		How to deal with half-res (or double-res??) textures etc? Use mipmaps, but request full res textures?
 		Can also have a feature to provide name for the RT when getting it to rename it in DirectX.
+
+		- rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
+		  Only to albedo...
 
 	  - split rendering into smaller parts... more managable...
 	  - Refactor: No render target should be in the renderers themselves. All Render targets should be in main renderer.
@@ -801,6 +808,7 @@ Idea:
 	  NEXT-MINOR:
 	  - select all lights
 	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
+	  - colored shadows
 
 	  -----------------------------
 

@@ -21,6 +21,7 @@
 #include "UtilityRenderer.h"
 #include "ExtractBrightPixelsRenderer.h"
 #include "ToneMappingRenderer.h"
+#include "RenderTargetManager.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -89,12 +90,21 @@ namespace Engine1
             {
                 return !ucharImage && !uchar4Image && !float4Image && !float2Image && !floatImage;
             }
+
+            void reset()
+            {
+                ucharImage  = nullptr;
+                uchar4Image = nullptr;
+                float4Image = nullptr;
+                float2Image = nullptr;
+                floatImage  = nullptr;
+            }
         };
 
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
         ~Renderer();
 
-        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
+        void initialize( const int2 imageDimensions, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
                          std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
 
         // Should be called at the beginning of each frame, before calling renderScene(). 
@@ -111,8 +121,12 @@ namespace Engine1
             const std::shared_ptr< BlockMesh > selectionVolumeMesh 
         );
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >
-        renderText( const std::string& text, Font& font, float2 position, float4 color );
+        Renderer::Output renderText( 
+            const std::string& text, 
+            Font& font, 
+            float2 position, 
+            float4 color
+        );
 
         void setActiveViewType( const View view );
         View getActiveViewType() const;
@@ -125,7 +139,7 @@ namespace Engine1
 
         private:
 
-        Output renderMainImage( 
+        Output renderSceneImage( 
             const Scene& scene, const Camera& camera, 
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
@@ -142,35 +156,40 @@ namespace Engine1
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
             std::vector< bool >& renderedViewLevel,
             const std::vector< bool >& activeViewLevel,
-            const View activeViewType 
+            const View activeViewType,
+            const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets
         );
 
         void renderFirstReflections( 
             const Camera& camera, 
             const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows 
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+            const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets
         );
 
         void renderFirstRefractions( 
             const Camera& camera, 
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows 
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+            const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets
         );
 
         void renderReflections( 
             const int level, const Camera& camera, 
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows 
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+            const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget
         );
         
         void renderRefractions( 
             const int level, const int refractionLevel, const Camera& camera, 
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows 
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
+            const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget
         );
 
         void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness );
@@ -184,6 +203,8 @@ namespace Engine1
 
         View m_activeViewType;
 
+        int2 m_imageDimensions;
+
         // Tone mapping configuration.
         float m_exposure;
 
@@ -192,6 +213,7 @@ namespace Engine1
 
         Direct3DRendererCore&     m_rendererCore;
         Profiler&                 m_profiler;
+        RenderTargetManager       m_renderTargetManager;
 
         Direct3DDeferredRenderer            m_deferredRenderer;
         RaytraceRenderer                    m_raytraceRenderer;

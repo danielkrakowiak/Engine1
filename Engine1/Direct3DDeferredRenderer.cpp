@@ -11,9 +11,6 @@
 
 #include "SkeletonPose.h"
 
-//#include "RenderTargeTexture2D.h"
-//#include "RenderTargetDepthTexture2D.h"
-
 #include "Font.h"
 
 #include <d3d11.h>
@@ -24,55 +21,25 @@ using Microsoft::WRL::ComPtr;
 
 Direct3DDeferredRenderer::Direct3DDeferredRenderer( Direct3DRendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
-    m_initialized( false ),
-    m_imageWidth( 0 ),
-    m_imageHeight( 0 ),
-    m_blockMeshVertexShader( std::make_shared<BlockMeshVertexShader>() ),
-    m_blockMeshFragmentShader( std::make_shared<BlockMeshFragmentShader>() ),
-    m_blockMeshEmissiveFragmentShader( std::make_shared<BlockMeshFragmentShader>() ),
-    m_skeletonMeshVertexShader( std::make_shared<SkeletonMeshVertexShader>() ),
-    m_skeletonMeshFragmentShader( std::make_shared<SkeletonMeshFragmentShader>() ),
-    m_blockModelVertexShader( std::make_shared<BlockModelVertexShader>() ),
-    m_blockModelFragmentShader( std::make_shared<BlockModelFragmentShader>() ),
-    m_skeletonModelVertexShader( std::make_shared<SkeletonModelVertexShader>() ),
-    m_skeletonModelFragmentShader( std::make_shared<SkeletonModelFragmentShader>() ),
-    m_textVertexShader( std::make_shared<TextVertexShader>() ),
-    m_textFragmentShader( std::make_shared<TextFragmentShader>() )
+    m_initialized( false )
 {}
 
 Direct3DDeferredRenderer::~Direct3DDeferredRenderer()
 {}
 
-void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext )
+void Direct3DDeferredRenderer::initialize( 
+    ComPtr< ID3D11Device > device, 
+    ComPtr< ID3D11DeviceContext > deviceContext )
 {
-
 	this->m_device = device;
 	this->m_deviceContext = deviceContext;
 
-	this->m_imageWidth = imageWidth;
-	this->m_imageHeight = imageHeight;
-
-	// Initialize rasterizer state.
-	m_rasterizerState          = createRasterizerState( *device.Get() );
-    m_wireframeRasterizerState = createWireframeRasterizerState( *device.Get() );
-	// Initialize depth stencil state.
-	m_depthStencilState = createDepthStencilState( *device.Get() );
-	// Initialize blend states.
+	m_rasterizerState                       = createRasterizerState( *device.Get() );
+    m_wireframeRasterizerState              = createWireframeRasterizerState( *device.Get() );
+	m_depthStencilState                     = createDepthStencilState( *device.Get() );
 	m_blendStateForMeshRendering            = createBlendStateForMeshRendering( *device.Get() );
     m_blendStateForTransparentMeshRendering = createBlendStateForTransparentMeshRendering( *device.Get() );
 	m_blendStateForTextRendering            = createBlendStateForTextRendering( *device.Get() );
-
-	createRenderTargets( imageWidth, imageHeight, *device.Get() );
-
-	{ // Initialize projection matrices.
-		const float fieldOfView  = (float)MathUtil::pi / 4.0f;
-		const float screenAspect = (float)imageWidth / (float)imageHeight;
-		const float zNear        = 0.1f;
-		const float zFar         = 1000.0f;
-
-		m_perspectiveProjectionMatrix = MathUtil::perspectiveProjectionTransformation( fieldOfView, screenAspect, zNear, zFar );
-		m_orthographicProjectionMatrix = MathUtil::orthographicProjectionTransformation( (float)imageWidth, (float)imageHeight, zNear, zFar );
-	}
 
 	loadAndCompileShaders( device );
 
@@ -81,37 +48,44 @@ void Direct3DDeferredRenderer::initialize( int imageWidth, int imageHeight, ComP
 	m_initialized = true;
 }
 
-void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode )
+void Direct3DDeferredRenderer::render( 
+    const RenderTargets& renderTargets, 
+    const Settings& settings, 
+    const BlockMesh& mesh, 
+    const float43& worldMatrix, 
+    const float44& viewMatrix )
 {
-	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
+	if ( !m_initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
-    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
+    const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation( 
+        settings.fieldOfView, 
+        settings.imageDimensions.x / settings.imageDimensions.y, 
+        settings.zNear, 
+        settings.zFar 
+    );
 
-	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+    m_rendererCore.setViewport( settings.imageDimensions );
 
-        renderTargetsF4.push_back( m_normalRenderTarget );
-        renderTargetsF4.push_back( m_positionRenderTarget );
-        renderTargetsU1.push_back( m_metalnessRenderTarget );
-        renderTargetsU1.push_back( m_roughnessRenderTarget );
-        renderTargetsU1.push_back( m_indexOfRefractionRenderTarget );
-        renderTargetsU4.push_back( m_emissiveRenderTarget );
-        renderTargetsU4.push_back( m_albedoRenderTarget );
+    // Enable render targets.
+    enableRenderTargets( renderTargets );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
-	}
+	// Configure and set shaders.
+    m_blockMeshVertexShader.setParameters(
+        *m_deviceContext.Get(),
+        worldMatrix,
+        viewMatrix,
+        projectionMatrix
+    );
 
-	{ // Configure and set shaders.
-		m_blockMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix );
+    m_rendererCore.enableRenderingShaders(
+        m_blockMeshVertexShader, m_blockMeshFragmentShader
+    );
 
-		m_rendererCore.enableRenderingShaders( m_blockMeshVertexShader, m_blockMeshFragmentShader );
-	}
+	m_rendererCore.enableRasterizerState( 
+        settings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() 
+    );
 
-	m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
 	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
 	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
@@ -119,37 +93,39 @@ void Direct3DDeferredRenderer::render( const BlockMesh& mesh, const float43& wor
 	m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::renderEmissive( const BlockMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const bool wireframeMode )
+void Direct3DDeferredRenderer::renderEmissive( 
+    const RenderTargets& renderTargets, 
+    const Settings& settings, 
+    const BlockMesh& mesh, 
+    const float43& worldMatrix, 
+    const float44& viewMatrix )
 {
-    if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::renderEmissive - renderer not initialized." );
+    if ( !m_initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::renderEmissive - renderer not initialized." );
 
-    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
+    const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation(
+        settings.fieldOfView,
+        settings.imageDimensions.x / settings.imageDimensions.y,
+        settings.zNear, 
+        settings.zFar
+    );
 
-    { // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+    m_rendererCore.setViewport( settings.imageDimensions );
 
-        renderTargetsF4.push_back( m_normalRenderTarget );
-        renderTargetsF4.push_back( m_positionRenderTarget );
-        renderTargetsU1.push_back( m_metalnessRenderTarget );
-        renderTargetsU1.push_back( m_roughnessRenderTarget );
-        renderTargetsU1.push_back( m_indexOfRefractionRenderTarget );
-        renderTargetsU4.push_back( m_emissiveRenderTarget );
-        renderTargetsU4.push_back( m_albedoRenderTarget );
+    // Enable render targets.
+    enableRenderTargets( renderTargets );
 
-        m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
-    }
+    // Configure and set shaders.
+    m_blockMeshVertexShader.setParameters( 
+        *m_deviceContext.Get(), worldMatrix, viewMatrix, projectionMatrix 
+    );
 
-    { // Configure and set shaders.
-        m_blockMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix );
+    m_rendererCore.enableRenderingShaders( m_blockMeshVertexShader, m_blockMeshEmissiveFragmentShader );
 
-        m_rendererCore.enableRenderingShaders( m_blockMeshVertexShader, m_blockMeshEmissiveFragmentShader );
-    }
+    m_rendererCore.enableRasterizerState( 
+        settings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() 
+    );
 
-    m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
     m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
     m_rendererCore.enableBlendState( *m_blendStateForTransparentMeshRendering.Get() );
 
@@ -157,37 +133,45 @@ void Direct3DDeferredRenderer::renderEmissive( const BlockMesh& mesh, const floa
     m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const bool wireframeMode )
+void Direct3DDeferredRenderer::render( 
+    const RenderTargets& renderTargets, 
+    const Settings& settings, 
+    const SkeletonMesh& mesh, 
+    const float43& worldMatrix, 
+    const float44& viewMatrix, 
+    const SkeletonPose& poseInSkeletonSpace )
 {
-	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
+	if ( !m_initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
-    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
+    const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation(
+        settings.fieldOfView,
+        settings.imageDimensions.x / settings.imageDimensions.y,
+        settings.zNear,
+        settings.zFar
+    );
 
-	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+    m_rendererCore.setViewport( settings.imageDimensions );
 
-        renderTargetsF4.push_back( m_normalRenderTarget );
-        renderTargetsF4.push_back( m_positionRenderTarget );
-        renderTargetsU1.push_back( m_metalnessRenderTarget );
-        renderTargetsU1.push_back( m_roughnessRenderTarget );
-        renderTargetsU1.push_back( m_indexOfRefractionRenderTarget );
-        renderTargetsU4.push_back( m_emissiveRenderTarget );
-        renderTargetsU4.push_back( m_albedoRenderTarget );
+    // Enable render targets.
+    enableRenderTargets( renderTargets );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
-	}
+	// Configure and set shaders.
+    m_skeletonMeshVertexShader.setParameters(
+        *m_deviceContext.Get(),
+        worldMatrix,
+        viewMatrix,
+        projectionMatrix,
+        mesh,
+        poseInSkeletonSpace
+    );
 
-	{ // Configure and set shaders.
-		m_skeletonMeshVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix, mesh, poseInSkeletonSpace );
+    m_rendererCore.enableRenderingShaders( m_skeletonMeshVertexShader, m_skeletonMeshFragmentShader );
 
-		m_rendererCore.enableRenderingShaders( m_skeletonMeshVertexShader, m_skeletonMeshFragmentShader );
-	}
+	m_rendererCore.enableRasterizerState( 
+        settings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() 
+    );
 
-	m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
 	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
 	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
@@ -195,30 +179,31 @@ void Direct3DDeferredRenderer::render( const SkeletonMesh& mesh, const float43& 
 	m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& worldMatrix, const float44& viewMatrix, const float4& extraEmissive, const bool wireframeMode )
+void Direct3DDeferredRenderer::render( 
+    const RenderTargets& renderTargets, 
+    const Settings& settings, 
+    const BlockModel& model, 
+    const float43& worldMatrix, 
+    const float44& viewMatrix, 
+    const float4& extraEmissive )
 {
-	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
-    if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
+	if ( !m_initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
-    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
+    if ( !model.getMesh( ) ) 
+        throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
 
-	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+    const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation(
+        settings.fieldOfView,
+        settings.imageDimensions.x / settings.imageDimensions.y,
+        settings.zNear,
+        settings.zFar
+    );
 
-        renderTargetsF4.push_back( m_normalRenderTarget );
-        renderTargetsF4.push_back( m_positionRenderTarget );
-        renderTargetsU1.push_back( m_metalnessRenderTarget );
-        renderTargetsU1.push_back( m_roughnessRenderTarget );
-        renderTargetsU1.push_back( m_indexOfRefractionRenderTarget );
-        renderTargetsU4.push_back( m_emissiveRenderTarget );
-        renderTargetsU4.push_back( m_albedoRenderTarget );
+    m_rendererCore.setViewport( settings.imageDimensions );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
-	}
+    // Enable render targets.
+    enableRenderTargets( renderTargets );
 
 	{ // Configure and set shaders.
         const float  alphaMul             = !model.getAlphaTextures().empty()           ? model.getAlphaTextures()[ 0 ].getColorMultiplier().x           : 1.0f;
@@ -250,9 +235,9 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
             = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *m_defaultIndexOfRefractionTexture;
 
-		m_blockModelVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix );
+		m_blockModelVertexShader.setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, projectionMatrix );
 
-		m_blockModelFragmentShader->setParameters( 
+		m_blockModelFragmentShader.setParameters( 
             *m_deviceContext.Get( ), 
             alphaTexture, alphaMul,
             emissiveTexture, emissiveMul,
@@ -267,7 +252,7 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 		m_rendererCore.enableRenderingShaders( m_blockModelVertexShader, m_blockModelFragmentShader );
 	}
 
-	m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
+	m_rendererCore.enableRasterizerState( settings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
 	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
 	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
@@ -275,30 +260,32 @@ void Direct3DDeferredRenderer::render( const BlockModel& model, const float43& w
 	m_rendererCore.draw( *model.getMesh().get() );
 }
 
-void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43& worldMatrix, const float44& viewMatrix, const SkeletonPose& poseInSkeletonSpace, const float4& extraEmissive, const bool wireframeMode )
+void Direct3DDeferredRenderer::render( 
+    const RenderTargets& renderTargets, 
+    const Settings& settings, 
+    const SkeletonModel& model, 
+    const float43& worldMatrix, 
+    const float44& viewMatrix, 
+    const SkeletonPose& poseInSkeletonSpace, 
+    const float4& extraEmissive )
 {
-	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
-	if ( !model.getMesh( ) ) throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
+	if ( !m_initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::render - renderer not initialized." );
 
-    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
+	if ( !model.getMesh( ) ) 
+        throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
 
-	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+    const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation(
+        settings.fieldOfView,
+        settings.imageDimensions.x / settings.imageDimensions.y,
+        settings.zNear,
+        settings.zFar
+    );
 
-        renderTargetsF4.push_back( m_normalRenderTarget );
-        renderTargetsF4.push_back( m_positionRenderTarget );
-        renderTargetsU1.push_back( m_metalnessRenderTarget );
-        renderTargetsU1.push_back( m_roughnessRenderTarget );
-        renderTargetsU1.push_back( m_indexOfRefractionRenderTarget );
-        renderTargetsU4.push_back( m_emissiveRenderTarget );
-        renderTargetsU4.push_back( m_albedoRenderTarget );
+    m_rendererCore.setViewport( settings.imageDimensions );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
-	}
+    // Enable render targets.
+    enableRenderTargets( renderTargets );
 
 	{ // Configure and set shaders.
         const float  alphaMul             = !model.getAlphaTextures().empty()           ? model.getAlphaTextures()[ 0 ].getColorMultiplier().x           : 1.0f;
@@ -330,13 +317,13 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
             = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *m_defaultIndexOfRefractionTexture;
 
-		m_skeletonModelVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_perspectiveProjectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
-		m_skeletonModelFragmentShader->setParameters( *m_deviceContext.Get(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );
+		m_skeletonModelVertexShader.setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, projectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
+		m_skeletonModelFragmentShader.setParameters( *m_deviceContext.Get(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );
 
 		m_rendererCore.enableRenderingShaders( m_skeletonModelVertexShader, m_skeletonModelFragmentShader );
 	}
 
-	m_rendererCore.enableRasterizerState( wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
+	m_rendererCore.enableRasterizerState( settings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
 	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
 	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
@@ -344,11 +331,25 @@ void Direct3DDeferredRenderer::render( const SkeletonModel& model, const float43
 	m_rendererCore.draw( *model.getMesh().get() );
 }
 
-void Direct3DDeferredRenderer::render( const std::string& text, Font& font, float2 position, float4 color )
+void Direct3DDeferredRenderer::render( 
+    const RenderTargets& renderTargets, 
+    const Settings& settings, 
+    const std::string& text, 
+    Font& font, 
+    float2 position, 
+    float4 color )
 {
-	if ( !m_initialized ) throw std::exception( "Direct3DDeferredRenderer::renders - renderer not initialized." );
+	if ( !m_initialized ) 
+        throw std::exception( "Direct3DDeferredRenderer::renders - renderer not initialized." );
 
-    m_rendererCore.setViewport( float2( (float)m_imageWidth, (float)m_imageHeight ) );
+    const float44 projectionMatrix = MathUtil::orthographicProjectionTransformation( 
+        settings.imageDimensions.x, 
+        settings.imageDimensions.y, 
+        settings.zNear, 
+        settings.zFar 
+    );
+
+    m_rendererCore.setViewport( settings.imageDimensions );
 
     color; // Unused.
 
@@ -359,10 +360,10 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
 
-        renderTargetsF4.push_back( m_normalRenderTarget );
-        renderTargetsU4.push_back( m_albedoRenderTarget );
+        renderTargetsF4.push_back( renderTargets.normal );
+        renderTargetsU4.push_back( renderTargets.albedo );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, m_depthRenderTarget );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, renderTargets.depth );
 	}
 
 	m_rendererCore.enableRenderingShaders( m_textVertexShader, m_textFragmentShader );
@@ -390,8 +391,8 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
 				worldMatrix.setTranslation( float3( pos.x + character->getPos().x, pos.y + character->getPos().y, 0.0f ) );
 
 				// Configure the shaders.
-				m_textVertexShader->setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, m_orthographicProjectionMatrix );
-				m_textFragmentShader->setParameters( *m_deviceContext.Get( ), character->getTextureResource( ) );
+				m_textVertexShader.setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, projectionMatrix );
+				m_textFragmentShader.setParameters( *m_deviceContext.Get( ), character->getTextureResource( ) );
 
 				// Draw the character.
 				m_rendererCore.draw( *character );
@@ -401,70 +402,6 @@ void Direct3DDeferredRenderer::render( const std::string& text, Font& font, floa
 			}
 		}
 	}
-}
-
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > > Direct3DDeferredRenderer::getPositionRenderTarget()
-{
-	if ( !m_initialized ) 
-        throw std::exception( "Direct3DDeferredRenderer::getPositionRenderTarget - renderer not initialized." );
-
-	return m_positionRenderTarget;
-}
-
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > Direct3DDeferredRenderer::getEmissiveRenderTarget()
-{
-	if ( !m_initialized ) 
-        throw std::exception( "Direct3DDeferredRenderer::getEmissiveRenderTarget - renderer not initialized." );
-
-	return m_emissiveRenderTarget;
-}
-
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, uchar4 > > Direct3DDeferredRenderer::getAlbedoRenderTarget()
-{
-	if ( !m_initialized ) 
-        throw std::exception( "Direct3DDeferredRenderer::getAlbedoRenderTarget - renderer not initialized." );
-
-	return m_albedoRenderTarget;
-}
-
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > Direct3DDeferredRenderer::getMetalnessRenderTarget()
-{
-	if ( !m_initialized ) 
-        throw std::exception( "Direct3DDeferredRenderer::getMetalnessRenderTarget - renderer not initialized." );
-
-	return m_metalnessRenderTarget;
-}
-
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > Direct3DDeferredRenderer::getRoughnessRenderTarget()
-{
-	if ( !m_initialized ) 
-        throw std::exception( "Direct3DDeferredRenderer::getRoughnessRenderTarget - renderer not initialized." );
-
-	return m_roughnessRenderTarget;
-}
-
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, float4 > > Direct3DDeferredRenderer::getNormalRenderTarget()
-{
-	if ( !m_initialized ) 
-        throw std::exception( "Direct3DDeferredRenderer::getNormalRenderTarget - renderer not initialized." );
-
-	return m_normalRenderTarget;
-}
-
-std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_ShaderResource, unsigned char > > Direct3DDeferredRenderer::getIndexOfRefractionRenderTarget()
-{
-	if ( !m_initialized ) 
-        throw std::exception( "Direct3DDeferredRenderer::getIndexOfRefractionRenderTarget - renderer not initialized." );
-
-	return m_indexOfRefractionRenderTarget;
-}
-
-std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > > Direct3DDeferredRenderer::getDepthRenderTarget()
-{
-	if ( !m_initialized ) 
-        throw std::exception( "Direct3DDeferredRenderer::getRenderTarget - renderer not initialized." );
-
-	return m_depthRenderTarget;
 }
 
 ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( ID3D11Device& device )
@@ -638,70 +575,54 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRender
 	return blendState;
 }
 
-void Direct3DDeferredRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
-{
-	// Create render targets.
-    m_positionRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
-
-    m_emissiveRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
-
-    m_albedoRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, uchar4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
-
-    m_metalnessRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_roughnessRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_normalRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, float4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
-
-    m_indexOfRefractionRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-	// Create depth render target.
-	m_depthRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS );
-}
-
-void Direct3DDeferredRenderer::clearRenderTargets( float4 color, float depth )
-{
-    m_positionRenderTarget->clearRenderTargetView( *m_deviceContext.Get( ), color );
-    m_emissiveRenderTarget->clearRenderTargetView( *m_deviceContext.Get( ), color );
-	m_albedoRenderTarget->clearRenderTargetView( *m_deviceContext.Get( ), color );
-    m_metalnessRenderTarget->clearRenderTargetView( *m_deviceContext.Get( ), color );
-    m_roughnessRenderTarget->clearRenderTargetView( *m_deviceContext.Get( ), color );
-    m_normalRenderTarget->clearRenderTargetView( *m_deviceContext.Get( ), color );
-    m_indexOfRefractionRenderTarget->clearRenderTargetView( *m_deviceContext.Get( ), color );
-
-	m_depthRenderTarget->clearDepthStencilView( *m_deviceContext.Get( ), true, depth, true, 0 );
-}
-
 void Direct3DDeferredRenderer::disableRenderTargets()
 {
     m_rendererCore.disableRenderTargetViews();
 }
 
+void Direct3DDeferredRenderer::enableRenderTargets( const RenderTargets& renderTargets )
+{
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+
+    renderTargetsF4.push_back( renderTargets.normal );
+    renderTargetsF4.push_back( renderTargets.position );
+    renderTargetsU1.push_back( renderTargets.metalness );
+    renderTargetsU1.push_back( renderTargets.roughness );
+    renderTargetsU1.push_back( renderTargets.refractiveIndex );
+    renderTargetsU4.push_back( renderTargets.emissive );
+    renderTargetsU4.push_back( renderTargets.albedo );
+
+    m_rendererCore.enableRenderTargets(
+        renderTargetsF1,
+        renderTargetsF2,
+        renderTargetsF4,
+        renderTargetsU1,
+        renderTargetsU4,
+        renderTargets.depth
+    );
+}
+
 void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_blockMeshVertexShader->loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
-    m_blockMeshFragmentShader->loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_ps.cso", device );
-    m_blockMeshEmissiveFragmentShader->loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_ps_emissive.cso", device );
+	m_blockMeshVertexShader.loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
+    m_blockMeshFragmentShader.loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_ps.cso", device );
+    m_blockMeshEmissiveFragmentShader.loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_ps_emissive.cso", device );
 
-	m_skeletonMeshVertexShader->loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
-	m_skeletonMeshFragmentShader->loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_ps.cso", device );
+	m_skeletonMeshVertexShader.loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
+	m_skeletonMeshFragmentShader.loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_ps.cso", device );
 
-	m_blockModelVertexShader->loadAndInitialize( "Shaders/BlockModelShader/BlockModel_vs.cso", device );
-	m_blockModelFragmentShader->loadAndInitialize( "Shaders/BlockModelShader/BlockModel_ps.cso", device );
+	m_blockModelVertexShader.loadAndInitialize( "Shaders/BlockModelShader/BlockModel_vs.cso", device );
+	m_blockModelFragmentShader.loadAndInitialize( "Shaders/BlockModelShader/BlockModel_ps.cso", device );
 
-	m_skeletonModelVertexShader->loadAndInitialize( "Shaders/SkeletonModelShader/SkeletonModel_vs.cso", device );
-	m_skeletonModelFragmentShader->loadAndInitialize( "Shaders/SkeletonModelShader/SkeletonModel_ps.cso", device );
+	m_skeletonModelVertexShader.loadAndInitialize( "Shaders/SkeletonModelShader/SkeletonModel_vs.cso", device );
+	m_skeletonModelFragmentShader.loadAndInitialize( "Shaders/SkeletonModelShader/SkeletonModel_ps.cso", device );
 
-	m_textVertexShader->loadAndInitialize( "Shaders/TextShader/Text_vs.cso", device );
-	m_textFragmentShader->loadAndInitialize( "Shaders/TextShader/Text_ps.cso", device );
+	m_textVertexShader.loadAndInitialize( "Shaders/TextShader/Text_vs.cso", device );
+	m_textFragmentShader.loadAndInitialize( "Shaders/TextShader/Text_ps.cso", device );
 }
 
 void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )

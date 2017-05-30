@@ -40,7 +40,7 @@ namespace Engine1
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
 			/*const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,*/
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
+            //const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
 			const std::vector< std::shared_ptr< const BlockActor > >& actors,
 			const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& defaultAlphaTexture,
 			const int outputTextureWidth, const int outputTextureHeight );

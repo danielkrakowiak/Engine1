@@ -74,8 +74,17 @@ namespace Engine1
         void disableRenderTargetViews();
         void disableUnorderedAccessViews();
 
+        // #TODO: Remove version with shared_ptr.
         void enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader );
+
+        void enableRenderingShaders( const VertexShader& vertexShader );
+        void enableRenderingShaders( const VertexShader& vertexShader, const FragmentShader& fragmentShader );
+
+        // #TODO: Remove version with shared_ptr.
         void enableComputeShader( std::shared_ptr<const ComputeShader> computeShader );
+
+        void enableComputeShader( const ComputeShader& computeShader );
+
         void disableRenderingShaders();
         void disableComputeShaders();
 
@@ -118,9 +127,10 @@ namespace Engine1
         bool m_graphicsShaderEnabled;
         bool m_computeShaderEnabled;
 
-        std::weak_ptr< const VertexShader >   m_currentVertexShader;
-        std::weak_ptr< const FragmentShader > m_currentFragmentShader;
-        std::weak_ptr< const ComputeShader >  m_currentComputeShader;
+        // Used only for comparison.
+        const VertexShader*   m_currentVertexShader;
+        const FragmentShader* m_currentFragmentShader;
+        const ComputeShader*  m_currentComputeShader;
 
         float2 viewportDimensions;
         float2 viewportTopLeft;

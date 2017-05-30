@@ -61,49 +61,87 @@ void Direct3DRendererCore::disableComputePipeline()
 
 void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader )
 {
-	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableRenderingShaders - renderer not initialized." );
-    if ( !vertexShader ) throw std::exception( "Direct3DRendererCore::enableRenderingShaders - passed vertex shader is nullptr." );
+    //#TODO: To be removed after Renderer refactor.
+
+    if ( fragmentShader )
+	    enableRenderingShaders( *vertexShader, *fragmentShader );
+    else
+        enableRenderingShaders( *vertexShader );
+}
+
+void Direct3DRendererCore::enableRenderingShaders( const VertexShader& vertexShader )
+{
+    if ( !m_deviceContext )
+        throw std::exception( "Direct3DRendererCore::enableRenderingShaders - renderer not initialized." );
 
     disableComputeShaders();
 
-	// Check if currently set vertex shader is the same as the one to be enabled - do nothing then. 
-	if ( m_currentVertexShader.expired() || !m_currentVertexShader.lock()->isSame( *vertexShader ) ) 
-	{
-		m_deviceContext->IASetInputLayout( &vertexShader->getInputLauout() );
-		m_deviceContext->VSSetShader( &vertexShader->getShader(), nullptr, 0 );
+    // Check if currently set vertex shader is the same as the one to be enabled - do nothing then. 
+    if ( m_currentVertexShader != &vertexShader ) {
+        m_deviceContext->IASetInputLayout( &vertexShader.getInputLauout() );
+        m_deviceContext->VSSetShader( &vertexShader.getShader(), nullptr, 0 );
 
-        m_currentVertexShader = vertexShader;
-	}
+        m_currentVertexShader = &vertexShader;
+    }
 
-	// Check if currently set fragment shader is the same as the one to be enabled - do nothing then.
-	if ( !m_currentFragmentShader.expired() && !fragmentShader )
-	{
-		m_deviceContext->PSSetShader( nullptr, nullptr, 0 );
+    // Disable fragment shader.
+    if ( m_currentFragmentShader )
+    {
+        m_deviceContext->PSSetShader( nullptr, nullptr, 0 );
 
-		m_currentFragmentShader.reset();
-	}
-	else if ( m_currentFragmentShader.expired() || !m_currentFragmentShader.lock()->isSame( *fragmentShader ) ) 
-	{
-		m_deviceContext->PSSetShader( fragmentShader ? &fragmentShader->getShader() : nullptr, nullptr, 0 );
+        m_currentFragmentShader = nullptr;
+    }
 
-        m_currentFragmentShader = fragmentShader;
-	}
+    m_graphicsShaderEnabled = true;
+}
+
+void Direct3DRendererCore::enableRenderingShaders( const VertexShader& vertexShader, const FragmentShader& fragmentShader )
+{
+    if ( !m_deviceContext )
+        throw std::exception( "Direct3DRendererCore::enableRenderingShaders - renderer not initialized." );
+
+    disableComputeShaders();
+
+    // Check if currently set vertex shader is the same as the one to be enabled - do nothing then. 
+    if ( m_currentVertexShader != &vertexShader ) 
+    {
+        m_deviceContext->IASetInputLayout( &vertexShader.getInputLauout() );
+        m_deviceContext->VSSetShader( &vertexShader.getShader(), nullptr, 0 );
+
+        m_currentVertexShader = &vertexShader;
+    }
+
+    // Check if currently set fragment shader is the same as the one to be enabled - do nothing then.
+    if ( m_currentFragmentShader != &fragmentShader ) 
+    {
+        m_deviceContext->PSSetShader( &fragmentShader.getShader(), nullptr, 0 );
+
+        m_currentFragmentShader = &fragmentShader;
+    }
 
     m_graphicsShaderEnabled = true;
 }
 
 void Direct3DRendererCore::enableComputeShader( std::shared_ptr<const ComputeShader> computeShader )
 {
-    if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableComputeShader - renderer not initialized." );
-    if ( !computeShader ) throw std::exception( "Direct3DRendererCore::enableComputeShader - passed shader is nullptr." );
+    //#TODO: To be removed after Renderer refactor.
+
+    enableComputeShader( *computeShader );
+}
+
+void Direct3DRendererCore::enableComputeShader( const ComputeShader& computeShader )
+{
+    if ( !m_deviceContext ) 
+        throw std::exception( "Direct3DRendererCore::enableComputeShader - renderer not initialized." );
 
     disableRenderingShaders();
 
     // Check if currently set compute shader is the same as the one to be enabled - do nothing then. 
-    if ( m_currentComputeShader.expired() || !m_currentComputeShader.lock()->isSame( *computeShader ) ) {
-        m_deviceContext->CSSetShader( &computeShader->getShader(), nullptr, 0 );
+    if ( m_currentComputeShader != &computeShader ) 
+    {
+        m_deviceContext->CSSetShader( &computeShader.getShader(), nullptr, 0 );
 
-        m_currentComputeShader = computeShader;
+        m_currentComputeShader = &computeShader;
     }
 
     m_computeShaderEnabled = true;
@@ -111,13 +149,14 @@ void Direct3DRendererCore::enableComputeShader( std::shared_ptr<const ComputeSha
 
 void Direct3DRendererCore::disableRenderingShaders()
 {
-    if ( m_graphicsShaderEnabled ) {
+    if ( m_graphicsShaderEnabled ) 
+    {
         m_deviceContext->IASetInputLayout( nullptr );
         m_deviceContext->VSSetShader( nullptr, nullptr, 0 );
         m_deviceContext->PSSetShader( nullptr, nullptr, 0 );
         
-        m_currentVertexShader.reset();
-        m_currentFragmentShader.reset();
+        m_currentVertexShader   = nullptr;
+        m_currentFragmentShader = nullptr;
 
         m_graphicsShaderEnabled = false;
     }
@@ -125,9 +164,11 @@ void Direct3DRendererCore::disableRenderingShaders()
 
 void Direct3DRendererCore::disableComputeShaders()
 {
-    if ( m_computeShaderEnabled ) {
+    if ( m_computeShaderEnabled ) 
+    {
         m_deviceContext->CSSetShader( nullptr, nullptr, 0 );
-        m_currentComputeShader.reset();
+
+        m_currentComputeShader = nullptr;
 
         m_computeShaderEnabled = false;
     }

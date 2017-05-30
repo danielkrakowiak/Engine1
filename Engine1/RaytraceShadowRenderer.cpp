@@ -52,9 +52,8 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > distanceToOccluder,
-	const std::vector< std::shared_ptr< const BlockActor > >& actors
+    //const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
+	const std::vector< std::shared_ptr< BlockActor > >& actors
 )
 {
 	m_rendererCore.disableRenderingPipeline();
@@ -64,6 +63,10 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	// Don't have to clear, because illumination should be initialized with pre-illumination.
 	//m_hardIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
     //m_softIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
+
+    m_hardIlluminationTexture->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    m_softIlluminationTexture->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    m_distanceToOccluderTexture->clearRenderTargetView( *m_deviceContext.Get(), float4( 1000.0f ) );
 
     // Copy pre-illumination texture as initial illumination. 
     // This is to avoid copying values inside the shader in each pass.
@@ -78,7 +81,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
-    unorderedAccessTargetsF1.push_back( distanceToOccluder );
+    unorderedAccessTargetsF1.push_back( m_distanceToOccluderTexture );
 	unorderedAccessTargetsU1.push_back( m_hardIlluminationTexture );
     unorderedAccessTargetsU1.push_back( m_softIlluminationTexture );
 
@@ -106,7 +109,16 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
         }
 
 		m_raytracingShadowsComputeShader->setParameters( 
-			*m_deviceContext.Get(), cameraPos, *light, *rayOriginTexture, *surfaceNormalTexture, preIlluminationTexture, actorsToPass, *m_defaultAlphaTexture, imageWidth, imageHeight 
+			*m_deviceContext.Get(), 
+            cameraPos, 
+            *light, 
+            *rayOriginTexture, 
+            *surfaceNormalTexture, 
+            /*preIlluminationTexture, */
+            actorsToPass, 
+            *m_defaultAlphaTexture, 
+            imageWidth, 
+            imageHeight 
 		);
 
 		m_rendererCore.compute( groupCount );

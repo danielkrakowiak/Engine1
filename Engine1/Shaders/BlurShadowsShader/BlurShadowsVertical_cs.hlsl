@@ -35,7 +35,7 @@ Texture2D<float>  g_distToOccluderTexture      : register( t4 );
 Texture2D<float>  g_finalDistToOccluderTexture : register( t5 );
 
 // Input / Output.
-RWTexture2D<float4> g_blurredShadowTexture : register( u0 );
+RWTexture2D<uint> g_blurredShadowTexture : register( u0 );
 
 static const float maxBlurRadius = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
 
@@ -177,7 +177,7 @@ void main( uint3 groupId : SV_GroupID,
         surfaceShadow /= sampleCount;
     }
 
-    g_blurredShadowTexture[ dispatchThreadId.xy ] = surfaceShadow;
+    g_blurredShadowTexture[ dispatchThreadId.xy ] = (int)(255.0 * surfaceShadow);;
 }
 
 bool canUseSample( const float3 blurCenterPosition, const float3 samplePosition, const float blurRadiusInWorldSpace, const float positionThreshold )
