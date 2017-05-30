@@ -877,14 +877,14 @@ void Renderer::renderFirstReflections( const Camera& camera,
         m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
-		//m_raytraceShadowRenderer.generateAndTraceShadowRays( 
-		//	lightsCastingShadows[ lightIdx ], 
-		//	m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
-		//	m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
-		//	m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-  //          //nullptr, //#TODO: Should I use a pre-illumination?
-		//	blockActors 
-		//);
+		m_raytraceShadowRenderer.generateAndTraceShadowRays( 
+			lightsCastingShadows[ lightIdx ], 
+			m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
+			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
+			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
+            //nullptr, //#TODO: Should I use a pre-illumination?
+			blockActors 
+		);
 
         m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );

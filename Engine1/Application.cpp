@@ -1319,8 +1319,7 @@ void Application::onMouseButtonPress( int button )
         int2 mousePos = m_inputManager.getMousePos();
         mousePos -= m_windowPosition; 
 
-        // TODO: FOV shouldn't be hardcoded.
-        const float fieldOfView = (float)MathUtil::pi / 4.0f;
+        const float fieldOfView = m_sceneManager.getCamera().getFieldOfView();
 
         std::shared_ptr< Actor > pickedActor;
         std::shared_ptr< Light > pickedLight;
