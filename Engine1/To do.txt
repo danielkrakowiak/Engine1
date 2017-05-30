@@ -777,6 +777,7 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+	  - fix turning on/off the lights
 
 		- rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
 		  Only to albedo...
