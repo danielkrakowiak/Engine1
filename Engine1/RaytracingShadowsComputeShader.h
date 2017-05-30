@@ -35,7 +35,6 @@ namespace Engine1
 
 		void setParameters( 
 			ID3D11DeviceContext& deviceContext,
-            const float3& cameraPos,
 			const Light& light,
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
 			const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
@@ -73,8 +72,6 @@ namespace Engine1
             float3       pad7;
             float44      shadowMapViewMatrix;
             float44      shadowMapProjectionMatrix;
-            float3       cameraPosition;
-            float        pad8;
             float4       alphaMul[ s_maxActorCount ]; // (2nd, 3rd, 4th components are padding).
 		};
 

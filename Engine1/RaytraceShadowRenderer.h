@@ -35,7 +35,6 @@ namespace Engine1
 		);
 
 		void generateAndTraceShadowRays(
-            const float3& cameraPos,
 			const std::shared_ptr< Light > light,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,

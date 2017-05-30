@@ -479,7 +479,6 @@ Renderer::Output Renderer::renderSceneImage(
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
-            camera.getPosition(),
             lightsCastingShadows[ lightIdx ],
             defferedRenderTargets.position,
             defferedRenderTargets.normal,
@@ -844,7 +843,6 @@ void Renderer::renderFirstReflections( const Camera& camera,
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
-
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows( 
@@ -864,17 +862,17 @@ void Renderer::renderFirstReflections( const Camera& camera,
 	{
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
 
-        if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight
-             && std::static_pointer_cast<SpotLight>( lightsCastingShadows[ lightIdx ] )->getShadowMap()
-        ) 
-        {
-            m_rasterizeShadowRenderer.performShadowMapping(
-                camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
-                lightsCastingShadows[ lightIdx ],
-                m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-                m_raytraceRenderer.getRayHitNormalTexture( 0 )
-            );
-        }
+        //if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight
+        //     && std::static_pointer_cast<SpotLight>( lightsCastingShadows[ lightIdx ] )->getShadowMap()
+        //) 
+        //{
+        //    m_rasterizeShadowRenderer.performShadowMapping(
+        //        camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
+        //        lightsCastingShadows[ lightIdx ],
+        //        m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+        //        m_raytraceRenderer.getRayHitNormalTexture( 0 )
+        //    );
+        //}
 
         m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
@@ -884,7 +882,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
 		//	m_raytraceRenderer.getRayHitPositionTexture( 0 ), 
 		//	m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
 		//	m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-  //          nullptr, //#TODO: Should I use a pre-illumination?
+  //          //nullptr, //#TODO: Should I use a pre-illumination?
 		//	blockActors 
 		//);
 

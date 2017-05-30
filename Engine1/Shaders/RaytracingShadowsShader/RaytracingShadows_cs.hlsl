@@ -25,8 +25,6 @@ cbuffer ConstantBuffer : register( b0 )
     float3   pad7;
     float4x4 shadowMapViewMatrix;
     float4x4 shadowMapProjectionMatrix;
-    float3   cameraPosition;
-    float    pad8;
     float4   alphaMul; // (2nd, 3rd, 4th components are padding).
 };
 
@@ -51,7 +49,7 @@ RWTexture2D<float> g_distToOccluder   : register( u0 );
 RWTexture2D<uint>  g_hardShadow       : register( u1 ); // 1 - there is no illumination, 0 - full illumination.
 RWTexture2D<uint>  g_softShadow       : register( u2 );
 
-float    calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera );
+float    calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder );
 bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const float maxAllowedHitDist, inout float nearestHitDist, inout float shadow );
 
 
@@ -136,17 +134,13 @@ void main( uint3 groupId : SV_GroupID,
 
     // #OPTIMIZATION: Could be more effective to trace ray from light to surface - because we care about the nearest to light intersection. Easier to skip other objects. 
 
-
-    
-
     if ( rayMeshIntersect( rayOrigin, rayDir, rayMaxLength, nearestHitDist, shadow ) )
     {
         const float surfaceDistToLight    = rayMaxLength;
         const float surfaceDistToOccluder = nearestHitDist;
         const float occluderDistToLight   = surfaceDistToLight - surfaceDistToOccluder;
-        const float surfaceDistToCamera   = length( rayOrigin - cameraPosition );
         
-        const float blurRadius = calculateShadowBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight, surfaceDistToCamera );
+        const float blurRadius = calculateShadowBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight );
 
         const float prevDistToOccluder = g_distToOccluder[ dispatchThreadId.xy ];
 
@@ -164,14 +158,10 @@ void main( uint3 groupId : SV_GroupID,
     }
 }
 
-float calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder, const float distToCamera )
+// Returns blur radius in world space.
+float calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder )
 {
     const float blurRadiusInWorldSpace = min( maxShadowWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
-    //const float blurRadius     = baseBlurRadius / log2( distToCamera + 1.0f );
-
-    //#TODO: Blur radius may have different resolution in the future? Using outputTextureSize may not be safe.
-    //const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
-    //const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;
 
     return blurRadiusInWorldSpace;
 }

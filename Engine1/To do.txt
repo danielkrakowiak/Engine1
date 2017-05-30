@@ -777,20 +777,11 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - Set FOV to 60 degress - now it's 45 and it's ugly.
-
-	  - how to clear render targets properly? If they get returned as a result.. when should they be cleared?
-
-	  - add RenderTargetManager? A class which would store a bunch of rendertargets and give them at request.
-	    It would mark them as used and report a lack of render targets of given type or exceeding some given limit.
-		This way we could simply get render targets we need in Renderer without worrying about creating them or whether we use them efficently.
-		Once finished using, a RT is returned to the Manager. How about passing RT from memthod to method?
-		Can I use shared_ptr counter to keep track of RT? Like if it's more than 1 it's taken.
-		How to deal with half-res (or double-res??) textures etc? Use mipmaps, but request full res textures?
-		Can also have a feature to provide name for the RT when getting it to rename it in DirectX.
 
 		- rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
 		  Only to albedo...
+
+	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
 	  - split rendering into smaller parts... more managable...
 	  - Refactor: No render target should be in the renderers themselves. All Render targets should be in main renderer.
@@ -809,6 +800,13 @@ Idea:
 	  - select all lights
 	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
 	  - colored shadows
+	  - feature to provide name for the RT when getting it from Render Target Manager - to rename it in DirectX.
+
+	  FUTURE IMPORTANT:
+	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.
+	    This way you avoid blending shadows with very different blur radius - increasing quality. Test varius thresholds to divide shadows into two channels.
+	  - How to hanlde cases where a big glass window cast shadow over the whole room? It should not destroy the whole solution. It's usually very bright shadow - can this characteristic be used somehow?
+		
 
 	  -----------------------------
 

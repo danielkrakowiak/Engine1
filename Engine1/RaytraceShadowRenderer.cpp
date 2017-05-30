@@ -47,7 +47,6 @@ void RaytraceShadowRenderer::initialize(
 }
 
 void RaytraceShadowRenderer::generateAndTraceShadowRays(
-    const float3& cameraPos,
 	const std::shared_ptr< Light > light,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
@@ -110,7 +109,6 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 		m_raytracingShadowsComputeShader->setParameters( 
 			*m_deviceContext.Get(), 
-            cameraPos, 
             *light, 
             *rayOriginTexture, 
             *surfaceNormalTexture, 
