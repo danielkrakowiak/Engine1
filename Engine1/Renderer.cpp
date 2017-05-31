@@ -169,8 +169,9 @@ Renderer::Output Renderer::renderScene(
 
     const auto& actors                  = scene.getActorsVec();
     const auto& lights                  = scene.getLightsVec();
-    const auto  lightsCastingShadows    = SceneUtil::filterLightsByShadowCasting( lights, true );
-    const auto  lightsNotCastingShadows = SceneUtil::filterLightsByShadowCasting( lights, false );
+    const auto  lightsEnabled           = SceneUtil::filterLightsByState( lights, true );
+    const auto  lightsCastingShadows    = SceneUtil::filterLightsByShadowCasting( lightsEnabled, true );
+    const auto  lightsNotCastingShadows = SceneUtil::filterLightsByShadowCasting( lightsEnabled, false );
     const auto  blockActors             = SceneUtil::filterActorsByType< BlockActor >( actors );
 
     Output output; 

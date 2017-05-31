@@ -7,6 +7,21 @@
 
 using namespace Engine1;
 
+std::vector< std::shared_ptr< Light > > SceneUtil::filterLightsByState( const std::vector< std::shared_ptr< Light > >& lights, const bool enabled )
+{
+    std::vector< std::shared_ptr< Light > > filteredLights;
+    filteredLights.reserve( lights.size() );
+
+    for ( auto& light : lights ) {
+        if ( light->isEnabled() == enabled )
+            filteredLights.push_back( light );
+    }
+
+    filteredLights.shrink_to_fit();
+
+    return filteredLights;
+}
+
 std::vector< std::shared_ptr< Light > > SceneUtil::filterLightsByShadowCasting( const std::vector< std::shared_ptr< Light > >& lights, const bool castShadows )
 {
     std::vector< std::shared_ptr< Light > > filteredLights;

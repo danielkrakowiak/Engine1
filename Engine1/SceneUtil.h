@@ -13,6 +13,7 @@ namespace Engine1
     {
         public:
 
+        static std::vector< std::shared_ptr< Light > > filterLightsByState( const std::vector< std::shared_ptr< Light > >& lights, const bool enabled );
         static std::vector< std::shared_ptr< Light > > filterLightsByShadowCasting( const std::vector< std::shared_ptr< Light > >& lights, const bool castShadows );
         static std::vector< std::shared_ptr< Light > > filterLightsByType( const std::vector< std::shared_ptr< Light > >& lights, const Light::Type type );
 
