@@ -25,7 +25,7 @@ Texture2D<float>  g_currentRefractiveIndex : register( t7 ); // Refractive index
 // Output.
 RWTexture2D<float4> g_rayOrigin           : register( u0 );
 RWTexture2D<float4> g_rayDirection        : register( u1 );
-RWTexture2D<float>  g_nextRefractiveIndex : register( u2 ); // Refractive index of the generated rays.
+RWTexture2D<uint >  g_nextRefractiveIndex : register( u2 ); // Refractive index of the generated rays.
 
 static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
 static const float rayOriginOffset = 0.0001f; // Used to move refracted ray origin along the ray direction to avoid self-collisions.
@@ -68,7 +68,7 @@ void main( uint3 groupId : SV_GroupID,
     float refractiveIndex = 1.0f;
 
     if ( frontHit ) {
-        g_nextRefractiveIndex[ dispatchThreadId.xy ] = surfaceRefractiveIndexNorm;
+        g_nextRefractiveIndex[ dispatchThreadId.xy ] = (uint)(surfaceRefractiveIndexNorm * 255.0);
 
         refractiveIndex = currentRefractiveIndex / surfaceRefractiveIndex;
 
@@ -76,7 +76,7 @@ void main( uint3 groupId : SV_GroupID,
         const float prevRefractiveIndexNorm = g_prevRefractiveIndex[ dispatchThreadId.xy ];
         const float prevRefractiveIndex = lerp( refractiveIndexMin, refractiveIndexMax, prevRefractiveIndexNorm );
 
-        g_nextRefractiveIndex[ dispatchThreadId.xy ] = prevRefractiveIndexNorm; //prevRefractiveIndex; // Temporary. From lack of better idea.
+        g_nextRefractiveIndex[ dispatchThreadId.xy ] = (uint)(prevRefractiveIndexNorm * 255.0); //prevRefractiveIndex; // Temporary. From lack of better idea.
 
         refractiveIndex = currentRefractiveIndex / prevRefractiveIndex;
 

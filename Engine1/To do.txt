@@ -779,12 +779,13 @@ Idea:
 	  NEXT:
 	  - fix turning on/off the lights
 
+	  - add shadows to first-refraction
+
 		- rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
 		  Only to albedo...
 
 	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
-	  - split rendering into smaller parts... more managable...
 	  - Refactor: No render target should be in the renderers themselves. All Render targets should be in main renderer.
 	  - reenable shadows in reflections/refractions
 	  - option to invert-z, invert vertex-order, invert-uvs and re-save the mesh... Add to Tweak bar and shortcut

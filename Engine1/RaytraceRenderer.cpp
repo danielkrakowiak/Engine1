@@ -103,7 +103,7 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
 
         m_currentRefractiveIndexTextures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
                                                   ( device, imageWidth, imageHeight, false, true, false,
-                                                    DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM ) );
+                                                    DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM ) );
     }
 }
 

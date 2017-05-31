@@ -30,7 +30,7 @@ Texture2D<float4> g_contributionTerm       : register( t4 ); // How much of the 
 // Output.
 RWTexture2D<float4> g_rayOrigin           : register( u0 );
 RWTexture2D<float4> g_rayDirection        : register( u1 );
-RWTexture2D<float>  g_nextRefractiveIndex : register( u2 ); // Refractive index of the generated rays.
+RWTexture2D<uint>   g_nextRefractiveIndex : register( u2 ); // Refractive index of the generated rays.
 
 static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
 static const float refractiveIndexMin = 1.0f;
@@ -74,9 +74,9 @@ void main( uint3 groupId : SV_GroupID,
     const float prevRefractiveIndexNorm = 0.0f;
 
     if ( frontHit ) {
-        g_nextRefractiveIndex[ dispatchThreadId.xy ] = surfaceRefractiveIndexNorm;
+        g_nextRefractiveIndex[ dispatchThreadId.xy ] = (uint)(surfaceRefractiveIndexNorm * 255.0);
     } else {
-        g_nextRefractiveIndex[ dispatchThreadId.xy ] = prevRefractiveIndexNorm; // Temporary. From lack of better idea.
+        g_nextRefractiveIndex[ dispatchThreadId.xy ] = (uint)(prevRefractiveIndexNorm * 255.0); // Temporary. From lack of better idea.
         
         surfaceNormal = -surfaceNormal;
     }

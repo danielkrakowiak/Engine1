@@ -16,7 +16,7 @@ Texture2D<float>  g_metalnessTexture                   : register( t3 );
 Texture2D<float>  g_roughnessTexture                   : register( t4 );
 
 // Output.
-RWTexture2D<float4> g_contributionTermRoughnessTexture : register( u0 ); 
+RWTexture2D<uint4> g_contributionTermRoughnessTexture : register( u0 ); 
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -49,5 +49,5 @@ void main( uint3 groupId : SV_GroupID,
     const float3 reflectionTerm = calculateReflectionTerm( surfaceSpecularColor, surfaceNormal, dirToCamera );
 
     // Calculate how much of the incoming reflection light is visible at the camera (after all the light bounces).
-    g_contributionTermRoughnessTexture[ dispatchThreadId.xy ] = float4( reflectionTerm, min( 1.0f, surfaceRoughness ) );
+    g_contributionTermRoughnessTexture[ dispatchThreadId.xy ] = (uint4)(float4( reflectionTerm, min( 1.0f, surfaceRoughness ) ) * 255.0);
 }
