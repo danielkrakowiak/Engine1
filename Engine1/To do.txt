@@ -777,7 +777,8 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - fix turning on/off the lights
+	  - add play/stop/reset animation
+	  - add some structure (templated?) to store keyframes, playback stop/play info, speed mult etc..
 
 	  - add shadows to first-refraction
 
@@ -797,6 +798,9 @@ Idea:
 	  - how to blur further layers reflections/refractions? Because higher layer sharp edges kill the feeling of roughness from the first layer.
 	  - mipmapping for reflections/refractions
 	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
+
+	  FUN:
+	  - some code to move light sources or object in circles - or maybe remeber the move made by mouse... - but smoothed using smoothstep
 
 	  NEXT-MINOR:
 	  - select all lights

@@ -116,11 +116,13 @@ bool Selection::remove( const std::shared_ptr< Actor >& actor )
     if ( !actor )
         return false;
 
-    auto it = std::find( m_actors.begin(), m_actors.end(), actor );
-    if ( it != m_actors.end() )
-        m_actors.erase( it );
-    else
-        return false;
+    {
+        auto it = std::find( m_actors.begin(), m_actors.end(), actor );
+        if ( it != m_actors.end() )
+            m_actors.erase( it );
+        else
+            return false;
+    }
 
     if ( actor->getType() == Actor::Type::BlockActor )
     {
@@ -143,11 +145,13 @@ bool Selection::remove( const std::shared_ptr< Light >& light )
     if ( !light )
         return false;
 
-    auto it = std::find( m_lights.begin(), m_lights.end(), light );
-    if ( it != m_lights.end() )
-        m_lights.erase( it );
-    else
-        return false;
+    {
+        auto it = std::find( m_lights.begin(), m_lights.end(), light );
+        if ( it != m_lights.end() )
+            m_lights.erase( it );
+        else
+            return false;
+    }
 
     if ( light->getType() == Light::Type::PointLight ) 
     {

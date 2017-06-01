@@ -451,6 +451,12 @@
     <Filter Include="Source Files\RenderTargetManager">
       <UniqueIdentifier>{54fe07db-eb44-43e7-a0c4-53bc4b783309}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Animator">
+      <UniqueIdentifier>{e96300f4-a22d-447d-b616-f849ceae344c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animator">
+      <UniqueIdentifier>{af22374d-3ee0-4ae6-b459-24f14c098b30}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -978,6 +984,9 @@
     <ClInclude Include="RenderTargetManager.h">
       <Filter>Header Files\RenderTargetManager</Filter>
     </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>Header Files\Animator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1474,6 +1483,9 @@
     </ClCompile>
     <ClCompile Include="RenderTargetManager.cpp">
       <Filter>Source Files\RenderTargetManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Animator.cpp">
+      <Filter>Source Files\Animator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

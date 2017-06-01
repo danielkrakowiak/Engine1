@@ -38,6 +38,8 @@ namespace Engine1
 
         void setShadowMap( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > shadowMap );
 
+        void setInterpolated( const Light& light1, const Light& light2, float ratio ) override;
+
         float3 getDirection() const;
         float  getConeAngle() const;
 

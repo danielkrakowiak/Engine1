@@ -3,6 +3,7 @@
 #include "SpotLightParser.h"
 #include "BinaryFile.h"
 
+#include <algorithm>
 #include "MathUtil.h"
 
 using namespace Engine1;
@@ -79,6 +80,29 @@ void SpotLight::setConeAngle( const float coneAngle )
 void SpotLight::setShadowMap( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > shadowMap )
 {
     m_shadowMap = shadowMap;
+}
+
+void SpotLight::setInterpolated( const Light& light1, const Light& light2, float ratio )
+{
+    ratio = std::min( 1.0f, std::max( 0.0f, ratio ) );
+
+    Light::setInterpolated( light1, light2, ratio );
+
+    if ( light1.getType() != Light::Type::SpotLight || light2.getType() != Light::Type::SpotLight )
+        return;
+
+    auto& spotlight1 = static_cast< const SpotLight& >( light1 );
+    auto& spotlight2 = static_cast< const SpotLight& >( light2 );
+
+    // Transform directions into rotation matrices and then into quaternions, 
+    // then slerp between quaternions, turn result into rotation matrix and take direction from it (3rd row).
+    m_direction = float33( quat::slerp( 
+        quat( MathUtil::directionToRotationMatrix( spotlight1.m_direction ) ),
+        quat( MathUtil::directionToRotationMatrix( spotlight2.m_direction ) ),
+        ratio
+    ) ).getRow3();
+
+    m_coneAngle = MathUtil::lerp( spotlight1.m_coneAngle, spotlight2.m_coneAngle, ratio );
 }
 
 float3 SpotLight::getDirection() const

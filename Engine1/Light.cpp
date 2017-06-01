@@ -1,5 +1,8 @@
 #include "Light.h"
 
+#include <algorithm>
+#include "MathUtil.h"
+
 using namespace Engine1;
 
 Light::Light() :
@@ -52,6 +55,15 @@ void Light::setColor( const float3& color )
 void Light::setEmitterRadius( const float emitterRadius )
 {
     m_emitterRadius = emitterRadius;
+}
+
+void Light::setInterpolated( const Light& light1, const Light& light2, float ratio )
+{
+    ratio = std::min( 1.0f, std::max( 0.0f, ratio ) );
+
+    m_position      = MathUtil::lerp( light1.m_position, light2.m_position, ratio );
+    m_color         = MathUtil::lerp( light1.m_color, light2.m_color, ratio );
+    m_emitterRadius = MathUtil::lerp( light1.m_emitterRadius, light2.m_emitterRadius, ratio );
 }
 
 bool Light::isEnabled() const

@@ -51,6 +51,9 @@ namespace Engine1
 
         float sign( const float x );
 
+        template< typename T >
+        T lerp( const T& value1, const T& value2, float ratio );
+
         float44 lookAtTransformation( float3 at, float3 eye, float3 up );
 
         float44 perspectiveProjectionTransformation( float fovY, float aspect, float zNear, float zFar );
@@ -60,6 +63,9 @@ namespace Engine1
         float33 anglesToRotationMatrix( const float3& rot );
 
         float3 rotationMatrixToAngles( const float33& mat );
+
+        // Creates an orthogonal rotation matrix with given direction as 3rd row (z-axis).
+        float33 directionToRotationMatrix( const float3& direction );
 
         // Returns <min, max> of the bounding box.
         BoundingBox calculateBoundingBox( const std::vector<float3>& vertices );
@@ -82,5 +88,16 @@ namespace Engine1
         BoundingBox boundingBoxLocalToWorld( const BoundingBox& bboxInLocalSpace, const float43& bboxPose );
 
         bool intersectBoundingBoxes( const BoundingBox& bbBox1, const BoundingBox& bbBox2 );
+    }
+
+    template< typename T >
+    T MathUtil::lerp( const T& value1, const T& value2, float ratio )
+    {
+        if (ratio <= 0.0f)
+            return value1;
+        else if (ratio >= 1.0f)
+            return value2;
+        else
+            return value1 * ratio + value2 * (1.0f - ratio);
     }
 }

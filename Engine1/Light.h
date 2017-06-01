@@ -22,6 +22,8 @@ namespace Engine1
         void setColor( const float3& color );
         void setEmitterRadius( const float emitterRadius );
 
+        virtual void setInterpolated( const Light& light1, const Light& light2, float ratio );
+
         bool   isEnabled() const;
         bool   isCastingShadows() const;
         float3 getPosition() const;

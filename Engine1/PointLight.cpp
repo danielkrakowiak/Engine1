@@ -3,6 +3,9 @@
 #include "PointLightParser.h"
 #include "BinaryFile.h"
 
+#include <algorithm>
+#include "MathUtil.h"
+
 using namespace Engine1;
 
 std::shared_ptr<PointLight> PointLight::createFromFile( const std::string& path )

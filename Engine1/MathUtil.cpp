@@ -172,6 +172,30 @@ float3 MathUtil::rotationMatrixToAngles( const float33& mat ) {
 	return rot;
 }
 
+float33 MathUtil::directionToRotationMatrix( const float3& direction )
+{
+    // #TODO: Test if it works correctly.
+
+    const float3 up( 0.0f, 1.0f, 0.0f );
+    const float3 right( 1.0f, 0.0f, 0.0f );
+
+    float33 mat;
+    if ( fabs( dot( direction, up ) ) < 0.95f )
+    {
+        mat.setRow1( cross( up, direction ) );
+        mat.setRow2( cross( direction, mat.getRow1() ) );
+    }
+    else
+    {
+        mat.setRow2( cross( direction, right ) );
+        mat.setRow1( cross( mat.getRow2(), direction ) );
+    }
+
+    mat.setRow3( direction );
+
+    return mat;
+}
+
 BoundingBox MathUtil::calculateBoundingBox( const std::vector< float3 >& vertices )
 {
     // Note: Could be optimized if needed.
