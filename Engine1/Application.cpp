@@ -1144,6 +1144,14 @@ void Application::onKeyPress( int key )
         m_animator.addKeyframe( spotlight );
     }
 
+    // [Space] - Play/pause animation on a spot light.
+    if ( key == InputManager::Keys::spacebar && m_sceneManager.getSelection().containsOnlyOneSpotLight() ) 
+    {
+        std::shared_ptr< SpotLight > spotlight = m_sceneManager.getSelection().getSpotLights().front();
+
+        m_animator.playPause( spotlight );
+    }
+
     // [Shift + C] - Clone the actors, but share their models with the original actors.
     if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) 
         m_sceneManager.cloneInstancesOfSelectedActors();

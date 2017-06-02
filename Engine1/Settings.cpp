@@ -42,7 +42,7 @@ Settings& Settings::modify()
 void Settings::setDefault()
 {
     s_settings.main.fullscreen       = false;
-    s_settings.main.screenDimensions = int2( /*1024*/ 1920, /*768*/ 1080 );
+    s_settings.main.screenDimensions = int2( 1024 /*1920*/, 768 /*1080*/ );
     s_settings.main.verticalSync     = false;
     s_settings.main.limitFPS         = false;
     s_settings.main.displayFrequency = 60;

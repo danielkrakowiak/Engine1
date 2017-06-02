@@ -18,10 +18,15 @@ namespace Engine1
         Animator();
         ~Animator();
 
-        void update( const float timeDelta );
+        void update( float timeDelta );
 
         // Negative time is treated as last keyframe time + 1 second (or 0 if there are no keyframes yet).
         void addKeyframe( std::shared_ptr< SpotLight >& light, float time = -1.0f );
+
+        void playPause( std::shared_ptr< SpotLight >& light );
+
+        float getSpeedMultiplier( std::shared_ptr< SpotLight >& light ) const;
+        void  setSpeedMultiplier( std::shared_ptr< SpotLight >& light, const float speedMultiplier );
 
         // Deletes key frames for objects which got deleted (ref count = 0)
         void removeKeyframesForDeletedObjects();
@@ -35,16 +40,19 @@ namespace Engine1
             bool  enabled;
             int   lastUsedKeyframe;
             float speedMultiplier;
-            //#TODO: Add playback dir.
+            float currentPlaybackTime;
+            float currentPlaybackDirection; // Equals 1 or -1.
+            bool  smoothstep;
 
             Animation() : 
-                enabled(true),
+                enabled(false),
                 lastUsedKeyframe(0),
-                speedMultiplier(0.05f)
+                speedMultiplier(1.0f),
+                currentPlaybackTime(0.0f),
+                currentPlaybackDirection(1.0f),
+                smoothstep(false)
             {}
         };
-
-        float m_time;
 
         // #WARNING: Using weak_ptr in the map is potentially dangerous
         // as weak_ptr changes over time and that may influence the way it's sorted inside the map.

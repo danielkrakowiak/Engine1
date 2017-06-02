@@ -101,6 +101,7 @@ void SpotLight::setInterpolated( const Light& light1, const Light& light2, float
         quat( MathUtil::directionToRotationMatrix( spotlight2.m_direction ) ),
         ratio
     ) ).getRow3();
+    m_direction.normalize();
 
     m_coneAngle = MathUtil::lerp( spotlight1.m_coneAngle, spotlight2.m_coneAngle, ratio );
 }
