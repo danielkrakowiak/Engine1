@@ -54,6 +54,8 @@ namespace Engine1
         template< typename T >
         T lerp( const T& value1, const T& value2, float ratio );
 
+        float smoothstep( float value );
+
         float44 lookAtTransformation( float3 at, float3 eye, float3 up );
 
         float44 perspectiveProjectionTransformation( float fovY, float aspect, float zNear, float zFar );

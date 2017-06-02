@@ -80,6 +80,13 @@ float MathUtil::sign( const float x )
     return (float)((x > 0) - (x < 0));
 }
 
+float MathUtil::smoothstep( float value )
+{
+    value = std::min( 1.0f, std::max( 0.0f, value ) );
+
+    return value * value * (3.0f - 2.0f * value);
+}
+
 float44 MathUtil::lookAtTransformation( float3 at, float3 eye, float3 up ) {
 	float3 zaxis = at - eye;
 	zaxis.normalize( );

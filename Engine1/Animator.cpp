@@ -1,7 +1,6 @@
 #include "Animator.h"
 
-#include "PointLight.h"
-#include "SpotLight.h"
+#include "MathUtil.h"
 
 using namespace Engine1;
 
@@ -21,15 +20,16 @@ void Animator::update( const float timeDelta )
 
     for ( auto& lightKeyframes : spotlightsKeyframes )
     {
-        // Skip lights with 0 or 1 keyframes.
-        if ( lightKeyframes.second.size() <= 1 )
+        auto& lightWeakPtr = lightKeyframes.first;
+        auto& animation    = lightKeyframes.second;
+        auto& keyframes    = animation.keyframes;
+
+        // Skip lights with 0 or 1 keyframes or the ones with animation disabled.
+        if ( keyframes.size() <= 1 || !animation.enabled)
             continue;
 
-        auto& lightWeakPtr = lightKeyframes.first;
-        auto& keyframes    = lightKeyframes.second;
-
         const float animDuration = std::get< 1 >( keyframes.back() );
-        const float wrappedTime  = fmod( m_time, animDuration );
+        const float wrappedTime  = fmod( m_time * animation.speedMultiplier, animDuration );
 
         int playKeyframeIndex = 0;
 
@@ -61,7 +61,8 @@ void Animator::update( const float timeDelta )
 
         // Interpolate the keyframes.
         const float ratio = (wrappedTime - time1) / (time2 - time1);
-        light->setInterpolated( light1, light2, ratio );
+        const float smoothRatio = MathUtil::smoothstep(ratio);
+        light->setInterpolated( light1, light2, smoothRatio );
     }
 }
 
@@ -70,8 +71,9 @@ void Animator::addKeyframe( std::shared_ptr< SpotLight >& light, float time )
     std::weak_ptr< SpotLight > lightWeakPtr = light; // #TODO: Created weak_ptr may be too different to match the one in the map... Check...
 
     // Insert or find the key.
-    auto  result    = spotlightsKeyframes.insert( std::make_pair( lightWeakPtr, std::vector< std::tuple< SpotLight, float > >() ) );
-    auto& keyframes = result.first->second;
+    auto  result    = spotlightsKeyframes.insert( std::make_pair( lightWeakPtr, Animation() ) );
+    auto& animation = result.first->second;
+    auto& keyframes = animation.keyframes;
 
     if ( time < 0.0f && !keyframes.empty() )
         time = std::get< 1 >( keyframes.back() ) + 1.0f;

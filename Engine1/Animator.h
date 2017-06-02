@@ -4,6 +4,9 @@
 #include <map>
 #include <vector>
 
+#include "PointLight.h"
+#include "SpotLight.h"
+
 namespace Engine1
 {
     class SpotLight;
@@ -25,6 +28,22 @@ namespace Engine1
 
         private:
 
+        struct Animation
+        {
+            std::vector< std::tuple< SpotLight, float > > keyframes;
+
+            bool  enabled;
+            int   lastUsedKeyframe;
+            float speedMultiplier;
+            //#TODO: Add playback dir.
+
+            Animation() : 
+                enabled(true),
+                lastUsedKeyframe(0),
+                speedMultiplier(0.05f)
+            {}
+        };
+
         float m_time;
 
         // #WARNING: Using weak_ptr in the map is potentially dangerous
@@ -32,7 +51,7 @@ namespace Engine1
         // #TODO: Think how to overcome this problem. Use raw data ptr as key?
         std::map< 
             std::weak_ptr< SpotLight >, 
-            std::vector< std::tuple< SpotLight, float > >,
+            Animation,
             std::owner_less< std::weak_ptr< SpotLight > >
         > spotlightsKeyframes;
     };
