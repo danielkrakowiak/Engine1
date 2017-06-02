@@ -100,6 +100,6 @@ namespace Engine1
         else if (ratio >= 1.0f)
             return value2;
         else
-            return value1 * ratio + value2 * (1.0f - ratio);
+            return value1 * (1.0f - ratio) + value2 * ratio;
     }
 }

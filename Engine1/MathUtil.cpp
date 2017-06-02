@@ -190,15 +190,20 @@ float33 MathUtil::directionToRotationMatrix( const float3& direction )
     if ( fabs( dot( direction, up ) ) < 0.95f )
     {
         mat.setRow1( cross( up, direction ) );
+        mat.modifyRow1().normalize();
         mat.setRow2( cross( direction, mat.getRow1() ) );
+        mat.modifyRow2().normalize();
     }
     else
     {
         mat.setRow2( cross( direction, right ) );
+        mat.modifyRow2().normalize();
         mat.setRow1( cross( mat.getRow2(), direction ) );
+        mat.modifyRow1().normalize();
     }
 
     mat.setRow3( direction );
+    mat.modifyRow3().normalize();
 
     return mat;
 }
