@@ -9,6 +9,8 @@ cbuffer ConstantBuffer : register( b0 )
 // Input / Output.
 RWTexture2D<float4> g_texture : register( u0 );
 
+float3 tonemap(float3 col);
+
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
 // SV_DispatchThreadID - thread id in the whole computation.
@@ -21,7 +23,17 @@ void main( uint3 groupId : SV_GroupID,
 {
     const float3 color = g_texture[ dispatchThreadId.xy ].rgb;
 
-    const float3 outputColor  = color * pow( 2.0f, exposure );
+    const float3 outputColor  = tonemap( color * exposure );
 
     g_texture[ dispatchThreadId.xy ] = float4( outputColor, 1.0f );
+}
+
+float3 tonemap(float3 color)
+{
+    // Jim Hejl and Richard Burgess-Dawson tonemapping.
+    // Source: http://filmicworlds.com/blog/filmic-tonemapping-operators/
+
+	const float3 x = max( 0.0, color - 0.004 );
+
+	return (x * (6.2 * x + 0.5)) / ( x * (6.2 * x + 1.7) + 0.06);
 }
