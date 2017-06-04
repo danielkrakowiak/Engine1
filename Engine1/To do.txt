@@ -777,8 +777,24 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - add play/stop/reset animation
-	  - add some structure (templated?) to store keyframes, playback stop/play info, speed mult etc..
+
+	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
+
+	  - in shading_cs2.hlsl I somehow sample shadow texture 4 times - is it something old? Why I am doing it? Remove?
+
+	  - saving color multipliers
+	  - code to re-save all assets? to run after file format is changed
+	  - maybe storing file version at the beginning? Where?
+
+	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
+
+	  Shading Notes:
+	  - Fresnel should use dot(N,V) right? Because Unreal article uses dot(V,H) - why, why light pos would matter in Fresnel? Ask on Warsztat?
+	  - Divide by Pi at the end?
+	  - What about Ks and Kd in shading?
+
+	  - saving color multipliers - simply add them at the end of model "file/stream".
+	  - also save object size before data - when serializing? And then fill missing data with defaults..
 
 	  - add shadows to first-refraction
 
@@ -799,14 +815,12 @@ Idea:
 	  - mipmapping for reflections/refractions
 	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
 
-	  FUN:
-	  - some code to move light sources or object in circles - or maybe remeber the move made by mouse... - but smoothed using smoothstep
-
 	  NEXT-MINOR:
 	  - select all lights
 	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
 	  - colored shadows
 	  - feature to provide name for the RT when getting it from Render Target Manager - to rename it in DirectX.
+	  - light attenutation
 
 	  FUTURE IMPORTANT:
 	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.

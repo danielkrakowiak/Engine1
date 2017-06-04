@@ -402,3 +402,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 --- May 2017 - 42h
 01.06.2017 - 2h - Working on Animator.
 02.06.2017 - 4h - Working on Animator - fixed bugs, added bi-directional playback, play/pause. 
+03.06.2017 - 6h - Reviewed PBR shading, fixed a potential bug in Fresnel calculation. Replaced ugly tonemapping with filmic tonemapping - fixed problems with too bright specular highligths and overly high contrast.
+04.06.2017 - 7h - Added project decription on GitHub. Made some nice screenshots. Refactored shading calculations and moved them to a separate file. Fixed fresnel calculations. Learned a lot about microfacet shading model.

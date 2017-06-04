@@ -103,44 +103,4 @@ float calculateRefractionTerm( float3 incidentRay, float3 surfaceNormal, float r
     return r0 + (1.0f - r0) * x * x * x * x * x;
 }
 
-float3 calculateDiffuseOutputColor( float3 surfaceDiffuseColor, float3 surfaceNormal, float3 lightColor, float3 dirToLight )
-{
-    return max( 0.0f, dot( dirToLight, surfaceNormal ) ) * surfaceDiffuseColor * lightColor;
-}
-
-// Schlick Approximation.
-float3 calculateFresnel( float3 specularColor, float3 dirToLight, float3 halfDir )
-{
-    return specularColor + (( 1.0f - specularColor ) * pow( 1.0f - max( 0.0f, dot( dirToLight, halfDir )), 5.0f ));
-}
-
-float3 calculateSpecularOutputColor( float3 surfaceSpecularColor, float surfaceRoughness, float3 surfaceNormal, float3 lightColor, float3 dirToLight, float3 dirToCamera )
-{
-    // Source: https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-
-    float3 halfDir = normalize( dirToLight + dirToCamera );
-
-    // Normal distribution function term.
-    const float a = surfaceRoughness * surfaceRoughness;
-    const float aSqr = a * a;
-    const float normalHalfDot = saturate( dot( surfaceNormal, halfDir ) );
-    const float b = ( normalHalfDot * normalHalfDot * ( aSqr - 1.0f ) + 1.0f );
-    const float normalDistribution = aSqr / ( /*Pi **/ b * b );
-
-    // Specular geometric attenuation term.
-    const float k = (( surfaceRoughness + 1.0f ) * ( surfaceRoughness + 1.0f )) / 8.0f;
-    const float normalViewDot = saturate( dot( surfaceNormal, dirToCamera ) );
-    const float gv = normalViewDot / ( normalViewDot * ( 1.0f - k ) + k );
-    const float normalLightDot = saturate( dot( surfaceNormal, dirToLight ) );
-    const float gl = normalLightDot / ( normalLightDot * ( 1.0f - k ) + k );
-    const float geometricAttenuation = gv * gl;
-
-    // Fresnel term. Schlick Approximation.
-    const float3 fresnel = surfaceSpecularColor + (( 1.0f - surfaceSpecularColor ) * pow( 1.0f - max( 0.0f, dot( dirToCamera, halfDir )), 5.0f ));
-
-    const float3 specular = ( normalDistribution * fresnel * geometricAttenuation ) / ( 4.0f * ( normalLightDot * normalViewDot ) );
-
-    return max( 0.0f, specular * normalLightDot * surfaceSpecularColor * lightColor );
-}
-
 #endif

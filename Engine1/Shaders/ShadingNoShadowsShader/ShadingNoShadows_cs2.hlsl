@@ -1,6 +1,6 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
-#include "Common\Utils.hlsl"
+#include "Common\Shading.hlsl"
 
 #define MAX_POINT_LIGHT_COUNT 50
 
@@ -43,10 +43,10 @@ void main( uint3 groupId : SV_GroupID,
     const float  surfaceRoughness = g_roughnessTexture[ dispatchThreadId.xy ];
     const float3 surfaceNormal    = g_normalTexture[ dispatchThreadId.xy ].xyz;
 
-    float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
-    float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
+    const float3 surfaceDiffuseColor     = calculateSurfaceDiffuseColor( surfaceAlpha, surfaceAlbedo, surfaceMetalness );
+    const float3 surfaceBaseReflectivity = calculateSurfaceBaseReflectivity( surfaceAlpha, surfaceAlbedo, surfaceMetalness );
 
-    float4 outputColor = float4( 0.0f, 0.0f, 0.0f, 0.0f ); //float4( surfaceEmissive, 1.0f );
+    float4 outputColor = float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
     const float3 dirToCamera = normalize( rayOrigin - surfacePosition );
 
@@ -54,8 +54,8 @@ void main( uint3 groupId : SV_GroupID,
     {
         const float3 dirToLight = normalize( pointLightPositions[ i ].xyz - surfacePosition );
 
-        outputColor.rgb += calculateDiffuseOutputColor( surfaceDiffuseColor, surfaceNormal, pointLightColors[ i ].rgb, dirToLight );
-        outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, pointLightColors[ i ].rgb, dirToLight, dirToCamera );
+        outputColor.rgb += calculateSurfaceLighting( pointLightColors[ i ].rgb, surfaceNormal, dirToLight, dirToCamera,
+                                                     surfaceDiffuseColor, surfaceBaseReflectivity, surfaceMetalness, surfaceRoughness );
     }
 
     g_colorTexture[ dispatchThreadId.xy ] += outputColor;

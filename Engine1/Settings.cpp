@@ -65,7 +65,7 @@ void Settings::setDefault()
     s_settings.debug.refractiveIndexMul = 1.0f;
 
     s_settings.rendering.fieldOfViewDegress = 70.0f;
-    s_settings.rendering.exposure           = 0.0f;
+    s_settings.rendering.exposure           = 0.5f;
 
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 

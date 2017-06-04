@@ -1707,5 +1707,8 @@
     <FxCompile Include="Shaders\TextureShader\Texture_Alpha_ps.hlsl">
       <Filter>Source Files\Shader\Texture</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\Common\Shading.hlsl">
+      <Filter>Source Files\Shader\Common</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

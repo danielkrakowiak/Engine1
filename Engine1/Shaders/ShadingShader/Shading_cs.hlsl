@@ -1,6 +1,6 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
-#include "Common\Utils.hlsl"
+#include "Common\Shading.hlsl"
 
 cbuffer ConstantBuffer : register( b0 )
 {
@@ -57,13 +57,13 @@ void main( uint3 groupId : SV_GroupID,
 
     const float surfaceIllumination = 1.0f - g_shadowTexture.SampleLevel( g_pointSamplerState, texcoords/* + pixelSize0*/, 0.0f ); // PROBLEM: Input texture is a bit shifted compared to other image textures...
 
-    float3 surfaceDiffuseColor  = surfaceAlpha * (1.0f - surfaceMetalness) * surfaceAlbedo;
-    float3 surfaceSpecularColor = surfaceAlpha * lerp( dielectricSpecularColor, surfaceAlbedo, surfaceMetalness );
+    const float3 surfaceDiffuseColor     = calculateSurfaceDiffuseColor( surfaceAlpha, surfaceAlbedo, surfaceMetalness );
+    const float3 surfaceBaseReflectivity = calculateSurfaceBaseReflectivity( surfaceAlpha, surfaceAlbedo, surfaceMetalness );
 
-    float4 outputColor = float4( 0.0f, 0.0f, 0.0f, 0.0f );//float4( surfaceEmissive, 1.0f );
+    float4 outputColor = float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
-    outputColor.rgb += calculateDiffuseOutputColor( surfaceDiffuseColor, surfaceNormal, lightColor.rgb * surfaceIllumination, dirToLight );
-    outputColor.rgb += calculateSpecularOutputColor( surfaceSpecularColor, surfaceRoughness, surfaceNormal, lightColor.rgb * surfaceIllumination, dirToLight, dirToCamera );
+    outputColor.rgb += calculateSurfaceLighting( lightColor.rgb * surfaceIllumination, surfaceNormal, dirToLight, dirToCamera,
+                                                 surfaceDiffuseColor, surfaceBaseReflectivity, surfaceMetalness, surfaceRoughness );
 
     g_colorTexture[ dispatchThreadId.xy ] += outputColor;
 }
