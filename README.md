@@ -2,7 +2,7 @@
 
 ![alt text](https://warsztat.gd/screens/147d87ff0736e81737c7bff66a782c21.png)
 
-The project's aim is to create a renderer which almost matches Path Tracing in quality, while generating noiseless images hundreds times faster. 
+The aim of this project is to create a renderer which almost matches Path Tracing in quality, while generating noiseless images hundreds times faster. 
 Instead of tracing thousands of rays per pixel to get soft shadows and diffuse reflections, it uses "inteligent" blur in screen space. 
 It also uses standard Deferred Rendering for rasterizing main image. One of the project's fundamental rules is that everything is dynamic - nothing is baked.
 
