@@ -51,6 +51,28 @@ void ShadingComputeShader2::initialize( ComPtr< ID3D11Device >& device )
         HRESULT result = device->CreateSamplerState( &desc, m_linearSamplerState.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "RaytracingSecondaryRaysComputeShader::compileFromFile - Failed to create texture sampler state." );
     }
+
+    { // Create point sampler configuration.
+        D3D11_SAMPLER_DESC desc;
+        desc.Filter           = D3D11_FILTER_MIN_MAG_MIP_POINT;
+        desc.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+        desc.MipLODBias       = 0.0f;
+        desc.MaxAnisotropy    = 1;
+        desc.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
+        desc.BorderColor[ 0 ] = 0;
+        desc.BorderColor[ 1 ] = 0;
+        desc.BorderColor[ 2 ] = 0;
+        desc.BorderColor[ 3 ] = 0;
+        desc.MinLOD           = 0;
+        desc.MaxLOD           = D3D11_FLOAT32_MAX;
+
+        // Create the texture sampler state.
+        HRESULT result = device->CreateSamplerState( &desc, m_pointSamplerState.ReleaseAndGetAddressOf() );
+        if ( result < 0 )
+            throw std::exception( "ShadingComputeShader::compileFromFile - Failed to create texture sampler state." );
+    }
 }
 
 void ShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext, 
@@ -99,7 +121,8 @@ void ShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
     }
 
     { // Set texture sampler.
-        deviceContext.CSSetSamplers( 0, 1, m_linearSamplerState.GetAddressOf() );
+        ID3D11SamplerState* samplers[] = { m_linearSamplerState.Get(), m_pointSamplerState.Get() };
+        deviceContext.CSSetSamplers( 0, 2, samplers );
     }
 }
 
@@ -112,6 +135,6 @@ void ShadingComputeShader2::unsetParameters( ID3D11DeviceContext& deviceContext 
     deviceContext.CSSetShaderResources( 0, 7, nullResources );
 
     // Unset samplers.
-    ID3D11SamplerState* nullSamplers[ 1 ] = { nullptr };
-    deviceContext.CSSetSamplers( 0, 1, nullSamplers );
+    ID3D11SamplerState* nullSamplers[ 2 ] = { nullptr };
+    deviceContext.CSSetSamplers( 0, 2, nullSamplers );
 }

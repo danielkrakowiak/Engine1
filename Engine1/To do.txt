@@ -778,28 +778,24 @@ Idea:
 
 	  NEXT:
 
-	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
-
 	  - in shading_cs2.hlsl I somehow sample shadow texture 4 times - is it something old? Why I am doing it? Remove?
+
+	  - setting default texture from control panel - to metalness, roughness (defaults should be maxed out).
 
 	  - saving color multipliers
 	  - code to re-save all assets? to run after file format is changed
 	  - maybe storing file version at the beginning? Where?
 
-	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
+	  - add debug view before bloom, tonemapping? To see if a problem comes from which postprocess.
 
-	  Shading Notes:
-	  - Fresnel should use dot(N,V) right? Because Unreal article uses dot(V,H) - why, why light pos would matter in Fresnel? Ask on Warsztat?
-	  - Divide by Pi at the end?
-	  - What about Ks and Kd in shading?
+	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
 
 	  - saving color multipliers - simply add them at the end of model "file/stream".
 	  - also save object size before data - when serializing? And then fill missing data with defaults..
 
 	  - add shadows to first-refraction
 
-		- rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
-		  Only to albedo...
+	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
 
 	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
@@ -807,13 +803,17 @@ Idea:
 	  - reenable shadows in reflections/refractions
 	  - option to invert-z, invert vertex-order, invert-uvs and re-save the mesh... Add to Tweak bar and shortcut
 	  - check error in bloom causing black boxes - office scene has a camera set up showing this
-	  - debug high specular highlights - should they be that bright - try clamping for test?
-	  - account for depth in hit-dist-search
-	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
-	  - account for ray-length in next hit-dist-search?
 	  - how to blur further layers reflections/refractions? Because higher layer sharp edges kill the feeling of roughness from the first layer.
 	  - mipmapping for reflections/refractions
 	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
+
+	  IMPORTANT-BUT-CAN-WAIT:
+	  - account for ray-length in next hit-dist-search?
+	  - account for depth in hit-dist-search
+	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
+
+	  - rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
+		  Only to albedo...
 
 	  NEXT-MINOR:
 	  - select all lights

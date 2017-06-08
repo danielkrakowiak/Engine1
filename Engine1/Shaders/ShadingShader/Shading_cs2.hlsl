@@ -11,6 +11,7 @@ cbuffer ConstantBuffer : register( b0 )
 };
 
 SamplerState g_linearSamplerState;
+SamplerState g_pointSamplerState;
 
 // Input.
 Texture2D<float4> g_rayOriginTexture         : register( t0 );
@@ -36,7 +37,6 @@ void main( uint3 groupId : SV_GroupID,
 {
 	// Note: Calculate texcoords for the pixel center.
     const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
-    const float2 outputTextureHalfPixelSize = 1.0f / outputTextureSize; // Should be illumination texture size?
 
     const float3 rayOrigin                = g_rayOriginTexture[ dispatchThreadId.xy ].xyz;
     const float3 surfacePosition          = g_positionTexture[ dispatchThreadId.xy ].xyz;
@@ -46,11 +46,7 @@ void main( uint3 groupId : SV_GroupID,
     const float  surfaceRoughness         = g_roughnessTexture[ dispatchThreadId.xy ];
     const float3 surfaceNormal            = g_normalTexture[ dispatchThreadId.xy ].xyz;
 
-	const float surfaceIllumination = 1.0f - ((
-        g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x, -outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + float2(  outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) +
-        g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + float2( -outputTextureHalfPixelSize.x,  outputTextureHalfPixelSize.y ), 0.0f ) ) / 4.0f);
+	const float surfaceIllumination = 1.0f - g_shadowTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
     
     const float3 surfaceDiffuseColor     = calculateSurfaceDiffuseColor( surfaceAlpha, surfaceAlbedo, surfaceMetalness );
     const float3 surfaceBaseReflectivity = calculateSurfaceBaseReflectivity( surfaceAlpha, surfaceAlbedo, surfaceMetalness );
