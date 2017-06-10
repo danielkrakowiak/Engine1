@@ -72,3 +72,21 @@ std::shared_ptr< BlockMesh > MeshUtil::mergeMeshes( const std::vector< std::shar
 
     return mergedMesh;
 }
+
+void MeshUtil::flipTexcoordsVertically( BlockMesh& mesh )
+{
+    // Flip vertical texcoord.
+    for ( auto& texcoordsSet : mesh.m_texcoords )
+    {
+        for ( auto& texcoord : texcoordsSet ) {
+            texcoord.y = 1.0f - texcoord.y;
+        }
+    }
+}
+
+void MeshUtil::flipTangents( BlockMesh& mesh )
+{
+    for ( auto& tangent : mesh.m_tangents ) {
+        tangent = -tangent;
+    }
+}

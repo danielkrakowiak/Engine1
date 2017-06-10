@@ -12,6 +12,9 @@ namespace Engine1
         public:
 
         static std::shared_ptr< BlockMesh > mergeMeshes( const std::vector< std::shared_ptr< BlockMesh > >& meshes );
+
+        static void flipTexcoordsVertically( BlockMesh& mesh );
+        static void flipTangents( BlockMesh& mesh );
     };
 };
 

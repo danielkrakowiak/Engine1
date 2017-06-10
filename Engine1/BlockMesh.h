@@ -22,10 +22,12 @@ namespace Engine1
 {
     class BVHTree;
     class BVHTreeBuffer;
+    class MeshUtil;
 
     class BlockMesh : public Asset
     {
         friend class MeshFileParser;
+        friend class MeshUtil;
 
         public:
 
@@ -87,7 +89,7 @@ namespace Engine1
         BoundingBox getBoundingBox() const;
 
         void                                   buildBvhTree();
-        void                                   loadBvhTreeToGpu( ID3D11Device& device );
+        void                                   loadBvhTreeToGpu( ID3D11Device& device, const bool reload = false );
         void                                   unloadBvhTreeFromGpu();
         std::shared_ptr< const BVHTreeBuffer > getBvhTree() const;
         void                                   setBvhTree( std::shared_ptr< BVHTreeBuffer > bvhTree );

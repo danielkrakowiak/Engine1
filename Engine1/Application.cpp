@@ -62,7 +62,8 @@ Application::Application() :
     m_windowPosition( 0, 0 ),
 	m_windowFocused( false ),
     m_assetManager(),
-    m_sceneManager( m_assetManager )
+    m_sceneManager( m_assetManager ),
+    m_controlPanel( m_sceneManager )
 {
 	windowsMessageReceiver = this;
 }

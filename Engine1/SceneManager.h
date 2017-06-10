@@ -96,6 +96,9 @@ namespace Engine1
 
         void rebuildBoundingBoxAndBVH();
 
+        void flipTexcoordsVerticallyAndResaveMesh();
+        void flipTangentsAndResaveMesh();
+
         private:
 
         Microsoft::WRL::ComPtr< ID3D11Device >        m_device;

@@ -10,11 +10,13 @@ struct ID3D11Device;
 
 namespace Engine1
 {
+    class SceneManager;
+
     class ControlPanel
     {
         public:
 
-        ControlPanel();
+        ControlPanel( SceneManager& sceneManager );
         ~ControlPanel();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device, const int2 windowDimensions );
@@ -23,15 +25,20 @@ namespace Engine1
 
         void draw();
 
-        static void TW_CALL onNextLevelReflection( void *clientData );
-        static void TW_CALL onNextLevelRefraction( void *clientData );
-        static void TW_CALL onPrevLevel( void *clientData );
+        static void TW_CALL onNextLevelReflection( void* clientData );
+        static void TW_CALL onNextLevelRefraction( void* clientData );
+        static void TW_CALL onPrevLevel( void* clientData );
+        static void TW_CALL onFlipUVs( void* controlPanel );
+        static void TW_CALL onFlipTangents( void* controlPanel );
 
         private:
 
         Microsoft::WRL::ComPtr< ID3D11Device > m_device;
 
-        TwBar* tweakBar;
+        TwBar* mainBar;
+        TwBar* meshUtilsBar;
+
+        SceneManager& m_sceneManager;
     };
 }
 

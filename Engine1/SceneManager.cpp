@@ -19,6 +19,7 @@
 #include "Timer.h"
 #include "FileInfo.h"
 #include "MathUtil.h"
+#include "MeshUtil.h"
 #include "ModelUtil.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
@@ -104,7 +105,7 @@ void SceneManager::loadScene( std::string path )
 
     // Wait for all assets to be loaded.
     const Timer loadingStartTime;
-    const float maxLoadingTime = 60.0f;
+    const float maxLoadingTime = 180.0f;
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos ) {
         const Timer currTime;
         const float loadingTime = (float)Timer::getElapsedTime( currTime, loadingStartTime ) / 1000.0f;
@@ -1264,5 +1265,40 @@ void SceneManager::rebuildBoundingBoxAndBVH()
 
         actor->getModel()->getMesh()->unloadBvhTreeFromGpu();
         actor->getModel()->getMesh()->loadBvhTreeToGpu( *m_device.Get() );
+    }
+}
+
+void SceneManager::flipTexcoordsVerticallyAndResaveMesh()
+{
+    for ( auto& actor : m_selection.getBlockActors() ) 
+    {
+        if ( !actor->getModel() || !actor->getModel()->getMesh() )
+            continue;
+
+        auto& mesh = actor->getModel()->getMesh();
+
+        MeshUtil::flipTexcoordsVertically( *mesh );
+
+        mesh->loadCpuToGpu( *m_device.Get(), true );
+
+        if ( !mesh->getFileInfo().getPath().empty() )
+            mesh->saveToFile( mesh->getFileInfo().getPath(), mesh->getFileInfo().getFormat() );
+    }
+}
+
+void SceneManager::flipTangentsAndResaveMesh()
+{
+    for ( auto& actor : m_selection.getBlockActors() ) {
+        if ( !actor->getModel() || !actor->getModel()->getMesh() )
+            continue;
+
+        auto& mesh = actor->getModel()->getMesh();
+
+        MeshUtil::flipTangents( *mesh );
+
+        mesh->loadCpuToGpu( *m_device.Get(), true );
+
+        if ( !mesh->getFileInfo().getPath().empty() )
+            mesh->saveToFile( mesh->getFileInfo().getPath(), mesh->getFileInfo().getFormat() );
     }
 }

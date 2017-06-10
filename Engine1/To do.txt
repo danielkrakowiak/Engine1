@@ -777,8 +777,11 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+	  - after flipping UVS, tangents/bitangetns need to be recalculated.... (or just one of the flipped? Or none - if bitangent recalculated in shader?)
 
-	  - in shading_cs2.hlsl I somehow sample shadow texture 4 times - is it something old? Why I am doing it? Remove?
+
+	  - mipmapping for raytracing - use UV texcoords stored in g-buffer?
+	    Or use ray differentials - http://graphics.stanford.edu/papers/trd/
 
 	  - setting default texture from control panel - to metalness, roughness (defaults should be maxed out).
 
