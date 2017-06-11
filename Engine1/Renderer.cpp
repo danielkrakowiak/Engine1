@@ -919,7 +919,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
         );
 
         m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
         // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
         // #TODO RENDER: Blur shadow shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
@@ -954,7 +954,8 @@ void Renderer::renderFirstReflections( const Camera& camera,
             );
         }
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
@@ -970,7 +971,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
 		);
 
         m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        
 	}
 
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
@@ -1065,7 +1066,6 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
-
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows( 
@@ -1083,46 +1083,114 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
         m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
 
-        if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight
-             && std::static_pointer_cast<SpotLight>( lightsCastingShadows[ lightIdx ] )->getShadowMap()
-        ) 
-        {
-            m_rasterizeShadowRenderer.performShadowMapping(
-                camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
-                lightsCastingShadows[ lightIdx ],
+        //if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight
+        //     && std::static_pointer_cast<SpotLight>( lightsCastingShadows[ lightIdx ] )->getShadowMap()
+        //) 
+        //{
+        //    m_rasterizeShadowRenderer.performShadowMapping(
+        //        camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
+        //        lightsCastingShadows[ lightIdx ],
+        //        m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+        //        m_raytraceRenderer.getRayHitNormalTexture( 0 )
+        //    );
+        //}
+
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
+
+		m_raytraceShadowRenderer.generateAndTraceShadowRays(
+			lightsCastingShadows[ lightIdx ],
+			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+			m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
+			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
+            //nullptr, //#TODO: Should I use a pre-illumination?
+			blockActors
+		);
+
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
+
+        m_raytraceShadowRenderer.getHardShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        m_raytraceShadowRenderer.getSoftShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
+
+        m_mipmapRenderer.generateMipmapsWithSampleRejection(
+            m_raytraceShadowRenderer.getDistanceToOccluder(),
+            m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+            500.0f, 0, 3
+        );
+
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
+
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        // #TODO RENDER: Distance to occluder shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
+        // Modify shader of pass appropriate accumulated distance to camera to shader.
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        // Distance to occluder search.
+        m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
+            camera,
+            m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+            m_raytraceRenderer.getRayHitNormalTexture( 0 ),
+            m_raytraceShadowRenderer.getDistanceToOccluder(),
+            *lightsCastingShadows[ lightIdx ]
+        );
+
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
+        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        // #TODO RENDER: Blur shadow shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
+        // Modify shader of pass appropriate accumulated distance to camera to shader.
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        if ( settings().rendering.shadows.useSeparableShadowBlur ) {
+            // Blur shadows in two passes - horizontal and vertical.
+            m_blurShadowsRenderer.blurShadowsHorzVert(
+                camera,
                 m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-                m_raytraceRenderer.getRayHitNormalTexture( 0 )
+                m_raytraceRenderer.getRayHitNormalTexture( 0 ),
+                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getSoftShadowTexture(),
+                m_raytraceShadowRenderer.getDistanceToOccluder(),
+                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                *lightsCastingShadows[ lightIdx ]
+            );
+        } else {
+            // Blur shadows in a single pass.
+            m_blurShadowsRenderer.blurShadows(
+                camera,
+                m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+                m_raytraceRenderer.getRayHitNormalTexture( 0 ),
+                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getSoftShadowTexture(),
+                m_raytraceShadowRenderer.getDistanceToOccluder(),
+                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                *lightsCastingShadows[ lightIdx ]
             );
         }
 
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-
-		//m_raytraceShadowRenderer.generateAndTraceShadowRays(
-		//	lightsCastingShadows[ lightIdx ],
-		//	m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-		//	m_raytraceRenderer.getRayHitNormalTexture( 0 ), 
-		//	m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
-  //          nullptr, //#TODO: Should I use a pre-illumination?
-		//	blockActors
-		//);
-
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
         m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
-		// Perform shading on the main image.
-		m_shadingRenderer.performShading(
-			m_raytraceRenderer.getRayOriginsTexture( 0 ),
-			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-			m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
-			m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
-			m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
-			m_raytraceRenderer.getRayHitNormalTexture( 0 ),
-			m_rasterizeShadowRenderer.getShadowTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
-			*lightsCastingShadows[ lightIdx ]
-		);
+        // Perform shading on the main image.
+        m_shadingRenderer.performShading(
+            m_raytraceRenderer.getRayOriginsTexture( 0 ),
+            m_raytraceRenderer.getRayHitPositionTexture( 0 ),
+            m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
+            m_raytraceRenderer.getRayHitMetalnessTexture( 0 ),
+            m_raytraceRenderer.getRayHitRoughnessTexture( 0 ),
+            m_raytraceRenderer.getRayHitNormalTexture( 0 ),
+            m_blurShadowsRenderer.getShadowTexture(),
+            *lightsCastingShadows[ lightIdx ]
+        );
 
         m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 	}
@@ -1142,18 +1210,39 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
 
-    // Combine main image with refractions.
-    m_combiningRenderer.combine( 
-        m_finalRenderTarget, 
+    auto rayHitDistanceTexture = m_raytraceRenderer.getRayHitDistanceTexture( 0 );
+
+    //#TODO: Should be profiled separately.
+
+    //#TODO: Fill pixels for which all samples were rejected with max value.
+    m_mipmapRenderer.generateMipmapsWithSampleRejection(
+        rayHitDistanceTexture,
+        deferredRenderTargets.position,
+        50.0f, 0, 0
+    );
+
+    // Search for hit distance.
+    m_hitDistanceSearchRenderer.performHitDistanceSearch(
+        camera,
+        deferredRenderTargets.position,
+        deferredRenderTargets.normal,
+        rayHitDistanceTexture
+    );
+
+    // Combine main image with reflections.
+    m_combiningRenderer.combine(
+        m_finalRenderTarget,
         m_shadingRenderer.getColorRenderTarget(),
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
         deferredRenderTargets.normal,
         deferredRenderTargets.position,
         deferredRenderTargets.depth,
-        m_raytraceRenderer.getRayHitDistanceTexture( 0 ),
+        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
         camera.getPosition(),
-        contributionTextureFillWidth, contributionTextureFillHeight,
-        colorTextureFillWidth, colorTextureFillHeight 
+        contributionTextureFillWidth,
+        contributionTextureFillHeight,
+        colorTextureFillWidth,
+        colorTextureFillHeight
     );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
