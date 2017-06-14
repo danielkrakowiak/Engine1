@@ -26,10 +26,10 @@ namespace Engine1
         ID3D11ComputeShader&       getShader() const;
         bool                       isCompiled() const;
 
-        protected:
-
         ComputeShader();
         virtual ~ComputeShader();
+
+        protected:
 
         void load( const std::string& path, Microsoft::WRL::ComPtr< ID3D11Device >& device );
         virtual void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );

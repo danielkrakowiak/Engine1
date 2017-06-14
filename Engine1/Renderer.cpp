@@ -53,6 +53,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
     m_utilityRenderer( rendererCore ),
     m_extractBrightPixelsRenderer( rendererCore ),
     m_toneMappingRenderer( rendererCore ),
+    m_antialiasingRenderer( rendererCore ),
     m_activeViewType( View::Final ),
     m_exposure( 1.0f ),
     m_minBrightness( 1.0f )
@@ -91,6 +92,7 @@ void Renderer::initialize( const int2 imageDimensions, ComPtr< ID3D11Device > de
     m_utilityRenderer.initialize( device, deviceContext );
     m_extractBrightPixelsRenderer.initialize( device, deviceContext );
     m_toneMappingRenderer.initialize( device, deviceContext );
+    m_antialiasingRenderer.initialize( device, deviceContext );
 
     createRenderTargets( imageDimensions.x, imageDimensions.y, *device.Get() );
 }
@@ -184,45 +186,29 @@ Renderer::Output Renderer::renderScene(
     if ( !output.isEmpty() )
         return output;
 
-    /*std::vector< bool > renderedViewType;
-
-    output = renderReflectionsRefractions(
-        true, 1, 0,
-        settings().rendering.reflectionsRefractions.maxLevel,
-        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
-        renderedViewType,
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType, deferred
-    );
-
-    if ( !output.isEmpty() )
-        return output;
-
-    output = renderReflectionsRefractions(
-        false, 1, 0,
-        settings().rendering.reflectionsRefractions.maxLevel,
-        camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
-        renderedViewType,
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType
-    );*/
-    
     // Perform post-effects.
-    performToneMapping( m_finalRenderTarget, m_exposure );
-    
-    performBloom( m_finalRenderTarget, m_minBrightness );
+    performBloom( m_finalRenderTargetHDR, m_minBrightness );
 
-    if ( m_activeViewType == View::BloomBrightPixels )
-    {
+    if ( m_activeViewType == View::BloomBrightPixels ) {
         output.reset();
         output.float4Image = m_temporaryRenderTarget2;
 
         return output;
     }
 
-    if ( !output.isEmpty() )
-        return output;
+    performToneMapping( m_finalRenderTargetHDR, m_temporaryRenderTargetLDR, m_exposure );
 
     Output finalOutput;
-    finalOutput.float4Image = m_finalRenderTarget;
+
+    if ( settings().rendering.antialiasing )
+    {
+        performAntialiasing( m_temporaryRenderTargetLDR, m_finalRenderTargetLDR );
+        finalOutput.uchar4Image = m_finalRenderTargetLDR;
+    }
+    else
+    {
+        finalOutput.uchar4Image = m_temporaryRenderTargetLDR;
+    }
 
     return finalOutput;
 }
@@ -592,7 +578,7 @@ Renderer::Output Renderer::renderSceneImage(
     // Copy main shaded image to final render target.
     // Note: I have to explicitly cast textures, because otherwise the compiler fails to deduce the template parameters for the method.
     m_rendererCore.copyTexture( 
-        *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( m_finalRenderTarget ), 0, 
+        *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( m_finalRenderTargetHDR ), 0, 
         *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( m_shadingRenderer.getColorRenderTarget() ), 0 
     );
 
@@ -1010,7 +996,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
 
     // Combine main image with reflections.
     m_combiningRenderer.combine( 
-        m_finalRenderTarget, 
+        m_finalRenderTargetHDR, 
         m_shadingRenderer.getColorRenderTarget(), 
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
         deferredRenderTargets.normal, 
@@ -1231,7 +1217,7 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 
     // Combine main image with reflections.
     m_combiningRenderer.combine(
-        m_finalRenderTarget,
+        m_finalRenderTargetHDR,
         m_shadingRenderer.getColorRenderTarget(),
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
         deferredRenderTargets.normal,
@@ -1324,7 +1310,7 @@ void Renderer::renderReflections(
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
 
-    m_combiningRenderer.combine( m_finalRenderTarget, 
+    m_combiningRenderer.combine( m_finalRenderTargetHDR, 
                                m_shadingRenderer.getColorRenderTarget(), 
                                m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
                                m_raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
@@ -1412,7 +1398,7 @@ void Renderer::renderRefractions(
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
 
-    m_combiningRenderer.combine( m_finalRenderTarget, 
+    m_combiningRenderer.combine( m_finalRenderTargetHDR, 
                                m_shadingRenderer.getColorRenderTarget(), 
                                m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
                                m_raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
@@ -1440,18 +1426,37 @@ void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::Shader
 		m_mipmapRenderer.resampleTexture( m_temporaryRenderTarget1, mipmapLevel + 1, m_temporaryRenderTarget2, mipmapLevel );
 	}
 
-    m_utilityRenderer.mergeMipmapsValues( m_finalRenderTarget, m_temporaryRenderTarget2, 0, maxMipmapLevel );
+    m_utilityRenderer.mergeMipmapsValues( m_finalRenderTargetHDR, m_temporaryRenderTarget2, 0, maxMipmapLevel );
 
     m_profiler.endEvent( Profiler::GlobalEventType::Bloom );
 }
 
-void Renderer::performToneMapping( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > texture, const float exposure )
+void Renderer::performToneMapping( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, 
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
+    const float exposure )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::ToneMapping );
 
-    m_toneMappingRenderer.performToneMapping( texture, exposure );
+    m_toneMappingRenderer.performToneMapping( srcTexture, dstTexture, exposure );
 
     m_profiler.endEvent( Profiler::GlobalEventType::ToneMapping );
+}
+
+void Renderer::performAntialiasing( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > srcTexture,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture )
+{
+    m_profiler.beginEvent( Profiler::GlobalEventType::CalculateLuminance );
+
+    m_antialiasingRenderer.calculateLuminance( srcTexture );
+
+    m_profiler.endEvent( Profiler::GlobalEventType::CalculateLuminance );
+    m_profiler.beginEvent( Profiler::GlobalEventType::Antialiasing );
+
+    m_antialiasingRenderer.performAntialiasing( srcTexture, dstTexture );
+
+    m_profiler.endEvent( Profiler::GlobalEventType::Antialiasing );
 }
 
 void Renderer::setActiveViewType( const View view )
@@ -1476,7 +1481,13 @@ void Renderer::setExposure( const float exposure )
 
 void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
 {
-    m_finalRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
+    m_finalRenderTargetLDR = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM );
+
+    m_temporaryRenderTargetLDR = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM );
+
+    m_finalRenderTargetHDR = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 
     m_temporaryRenderTarget1 = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >

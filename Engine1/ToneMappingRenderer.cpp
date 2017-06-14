@@ -30,12 +30,13 @@ void ToneMappingRenderer::initialize( ComPtr< ID3D11Device > device,
     m_initialized = true;
 }
 
-void ToneMappingRenderer::performToneMapping( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > texture,
+void ToneMappingRenderer::performToneMapping( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
+                                              std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
                                               const float exposure )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    m_toneMappingComputeShader->setParameters( *m_deviceContext.Get(), exposure );
+    m_toneMappingComputeShader->setParameters( *m_deviceContext.Get(), *srcTexture, exposure );
 
     m_rendererCore.enableComputeShader( m_toneMappingComputeShader );
 
@@ -45,12 +46,18 @@ void ToneMappingRenderer::performToneMapping( std::shared_ptr< Texture2DSpecBind
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
-    unorderedAccessTargetsF4.push_back( texture );
+    unorderedAccessTargetsU4.push_back( dstTexture );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, 
+        unorderedAccessTargetsF2, 
+        unorderedAccessTargetsF4, 
+        unorderedAccessTargetsU1, 
+        unorderedAccessTargetsU4 
+    );
 
-    const int imageWidth = texture->getWidth();
-    const int imageHeight = texture->getHeight();
+    const int imageWidth = dstTexture->getWidth();
+    const int imageHeight = dstTexture->getHeight();
 
     uint3 groupCount(
         imageWidth / 16,

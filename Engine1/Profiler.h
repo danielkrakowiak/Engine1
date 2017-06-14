@@ -60,6 +60,8 @@ namespace Engine1
             DeferredRendering,
             Bloom,
             ToneMapping,
+            CalculateLuminance,
+            Antialiasing,
             CopyFrameToFinalRenderTarget,
             MAX_VALUE
         };

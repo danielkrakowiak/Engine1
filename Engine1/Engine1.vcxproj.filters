@@ -457,6 +457,12 @@
     <Filter Include="Source Files\Animator">
       <UniqueIdentifier>{af22374d-3ee0-4ae6-b459-24f14c098b30}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\Antialiasing">
+      <UniqueIdentifier>{31146567-5599-455b-8b70-f3f1b51606b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\Antialiasing">
+      <UniqueIdentifier>{e0fb5977-91a0-4fb5-a0b9-06376e539d8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -987,6 +993,12 @@
     <ClInclude Include="Animator.h">
       <Filter>Header Files\Animator</Filter>
     </ClInclude>
+    <ClInclude Include="AntialiasingRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="AntialiasingComputeShader.h">
+      <Filter>Header Files\Shader\Antialiasing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1487,6 +1499,12 @@
     <ClCompile Include="Animator.cpp">
       <Filter>Source Files\Animator</Filter>
     </ClCompile>
+    <ClCompile Include="AntialiasingRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="AntialiasingComputeShader.cpp">
+      <Filter>Source Files\Shader\Antialiasing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1709,6 +1727,15 @@
     </FxCompile>
     <FxCompile Include="Shaders\Common\Shading.hlsl">
       <Filter>Source Files\Shader\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AntialiasingShader\FXAA.hlsl">
+      <Filter>Source Files\Shader\Antialiasing</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AntialiasingShader\Luminance_cs.hlsl">
+      <Filter>Source Files\Shader\Antialiasing</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AntialiasingShader\Antialiasing_cs.hlsl">
+      <Filter>Source Files\Shader\Antialiasing</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

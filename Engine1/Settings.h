@@ -53,6 +53,7 @@ namespace Engine1
         {
             float fieldOfViewDegress;
             float exposure;
+            bool  antialiasing;
 
             struct Shadows
             {

@@ -405,3 +405,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 03.06.2017 - 6h - Reviewed PBR shading, fixed a potential bug in Fresnel calculation. Replaced ugly tonemapping with filmic tonemapping - fixed problems with too bright specular highligths and overly high contrast.
 04.06.2017 - 7h - Added project decription on GitHub. Made some nice screenshots. Refactored shading calculations and moved them to a separate file. Fixed fresnel calculations. Learned a lot about microfacet shading model.
 10.06.2017 - 3h - Added flipping UVs from Control Panel, re-laoding mesh to GPU.
+11.06.2017 - 2h - Added shadows in refractions and improved combining of layers (as used for reflections).
+12.06.2017 - 2h - Reading on antialiasing algorithms. Adding FXAA implemantation.
+13.06.2017 - 3h - Integrated FXAA antialiasing. Inverted order of bloom and tone mapping - bloom is first now. Modified Tone Mapping to output LDR (Low Dynamic Range) image instead of HDR.

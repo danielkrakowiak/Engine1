@@ -6,8 +6,11 @@ cbuffer ConstantBuffer : register( b0 )
     float3 pad1;
 };
 
-// Input / Output.
-RWTexture2D<float4> g_texture : register( u0 );
+// Input
+Texture2D<float4> g_srcTexture : register( t0 );
+
+// Output.
+RWTexture2D<uint4> g_dstTexture : register( u0 );
 
 float3 tonemap(float3 col);
 
@@ -21,11 +24,11 @@ void main( uint3 groupId : SV_GroupID,
            uint3 dispatchThreadId : SV_DispatchThreadID,
            uint  groupIndex : SV_GroupIndex )
 {
-    const float3 color = g_texture[ dispatchThreadId.xy ].rgb;
+    const float3 color = g_srcTexture[ dispatchThreadId.xy ].rgb;
 
     const float3 outputColor  = tonemap( color * exposure );
 
-    g_texture[ dispatchThreadId.xy ] = float4( outputColor, 1.0f );
+    g_dstTexture[ dispatchThreadId.xy ] = uint4( outputColor * 255.0, 255 );
 }
 
 float3 tonemap(float3 color)

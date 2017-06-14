@@ -423,7 +423,7 @@ void Application::run() {
         }
 
         // Drop references to render targets before starting text rendering.
-        // (reference counting of render taregts).
+        // (reference counting of render targets).
         output.reset();
 
         { // Render FPS.

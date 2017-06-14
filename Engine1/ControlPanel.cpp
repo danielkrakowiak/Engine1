@@ -44,6 +44,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device, c
 
     TwAddVarRW( mainBar, "Field of view", TW_TYPE_FLOAT, &Settings::s_settings.rendering.fieldOfViewDegress, "min=30 max=180 step=0.1 precision=1" );
     TwAddVarRW( mainBar, "Exposure", TW_TYPE_FLOAT, &Settings::s_settings.rendering.exposure, "min=-10 max=10 step=0.01 precision=2" );
+    TwAddVarRW( mainBar, "Antialiasing", TW_TYPE_BOOL8, &Settings::s_settings.rendering.antialiasing, "" );
 
     meshUtilsBar = TwNewBar("Mesh Utils");
 

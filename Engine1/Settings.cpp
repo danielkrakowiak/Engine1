@@ -66,6 +66,7 @@ void Settings::setDefault()
 
     s_settings.rendering.fieldOfViewDegress = 70.0f;
     s_settings.rendering.exposure           = 0.5f;
+    s_settings.rendering.antialiasing       = true;
 
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 

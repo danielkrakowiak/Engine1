@@ -22,6 +22,7 @@
 #include "ExtractBrightPixelsRenderer.h"
 #include "ToneMappingRenderer.h"
 #include "RenderTargetManager.h"
+#include "AntialiasingRenderer.h"
 
 #include "uchar4.h"
 #include "float4.h"
@@ -194,7 +195,16 @@ namespace Engine1
 
         void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness );
 
-        void performToneMapping( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > texture, const float exposure );
+        void performToneMapping( 
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
+            const float exposure 
+        );
+
+        void performAntialiasing( 
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > srcTexture,
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture
+        );
 
         private:
 
@@ -232,11 +242,14 @@ namespace Engine1
         UtilityRenderer                     m_utilityRenderer;
         ExtractBrightPixelsRenderer         m_extractBrightPixelsRenderer;
         ToneMappingRenderer                 m_toneMappingRenderer;
+        AntialiasingRenderer                m_antialiasingRenderer;
 
         // Render target.
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTarget;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > m_finalRenderTargetLDR;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > m_temporaryRenderTargetLDR;
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTargetHDR;
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_temporaryRenderTarget1;
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_temporaryRenderTarget2;
 

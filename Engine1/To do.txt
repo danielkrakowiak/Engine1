@@ -777,26 +777,19 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - add shadows to refracted image.
 	  - do shadows work for higher levels of reflection/refraction?
+
+	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
 
 	  - consider - not combining image layer after it's rendered - hold this image and continue rendering until reaching max layer - then combine from back to front.
 	   That would get us proper blurring of results at the cost of extra memory used (but not bandwidth - right?). Worth, as GPU have more an more memory.
 	   Could save some extra blurring passes needed otherwise. Also, probably only some info needs to be stored for each layer after it's rendered.
 	   - maybe I need some refactoring of render-targets before?
 
-	   - add some FXAA (Fast approximate anti-aliasing?) Or some antialiasing based on depth/normals and blur.
-
 	  - mipmapping for raytracing - use UV texcoords stored in g-buffer?
 	    Or use ray differentials - http://graphics.stanford.edu/papers/trd/
 
-	  - setting default texture from control panel - to metalness, roughness (defaults should be maxed out).
-
 	  - add debug view before bloom, tonemapping? To see if a problem comes from which postprocess.
-
-	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
-
-	  
 
 	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
@@ -809,7 +802,7 @@ Idea:
 	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
 
 	  IMPORTANT-BUT-CAN-WAIT:
-	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
+	  - input to antialiasing FXAA is probably not correct- linear vs non-linear, gamma etc... So antialiasing doesn't work optimally...
 	  - account for ray-length in next hit-dist-search?
 	  - account for depth in hit-dist-search
 	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
@@ -818,6 +811,8 @@ Idea:
 		  Only to albedo...
 
 	  NEXT-MINOR:
+	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
+	  - setting default texture from control panel - to metalness, roughness (defaults should be maxed out).
 	  - select all lights
 	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
 	  - colored shadows

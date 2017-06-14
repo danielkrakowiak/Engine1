@@ -32,10 +32,20 @@ void ToneMappingComputeShader::initialize( ComPtr< ID3D11Device >& device )
 }
 
 void ToneMappingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+                                              Texture2DSpecBind< TexBind::ShaderResource, float4 >& srcTexture,
                                               const float exposure )
 {
     if ( !m_compiled ) 
         throw std::exception( "ToneMappingComputeShader::setParameters - Shader hasn't been compiled yet." );
+
+    { // Set input buffers and textures.
+        const unsigned int resourceCount = 1;
+        ID3D11ShaderResourceView* resources[ resourceCount ] = {
+            srcTexture.getShaderResourceView(),
+        };
+
+        deviceContext.CSSetShaderResources( 0, resourceCount, resources );
+    }
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     ConstantBuffer* dataPtr;
@@ -57,4 +67,8 @@ void ToneMappingComputeShader::unsetParameters( ID3D11DeviceContext& deviceConte
 {
     if ( !m_compiled )
         throw std::exception( "ToneMappingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+
+    // Unset buffers and textures.
+    ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };
+    deviceContext.CSSetShaderResources( 0, 1, nullResources );
 }
