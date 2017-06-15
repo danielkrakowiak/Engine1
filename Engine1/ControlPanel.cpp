@@ -30,6 +30,8 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device, c
 
     TwAddVarRW( mainBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
     TwAddVarRW( mainBar, "Max level", TW_TYPE_INT32, &Settings::s_settings.rendering.reflectionsRefractions.maxLevel, "" );
+    TwAddVarRW( mainBar, "Reflections", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.reflectionsEnabled, "" );
+    TwAddVarRW( mainBar, "Refractions", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.refractionsEnabled, "" );
 
     TwAddButton( mainBar, "Next - reflection", ControlPanel::onNextLevelReflection, nullptr, "" );
     TwAddButton( mainBar, "Next - transmission", ControlPanel::onNextLevelReflection, nullptr, "" );

@@ -68,6 +68,8 @@ namespace Engine1
                 int maxLevel; // 0 - no reflections or refractions.
                 // true - reflection, false - refraction. Number of elements defines the current view level.
                 std::vector< bool > activeView; 
+                bool reflectionsEnabled;
+                bool refractionsEnabled;
             } reflectionsRefractions;
         } rendering;
 

@@ -409,4 +409,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 12.06.2017 - 2h - Reading on antialiasing algorithms. Adding FXAA implemantation.
 13.06.2017 - 3h - Integrated FXAA antialiasing. Inverted order of bloom and tone mapping - bloom is first now. Modified Tone Mapping to output LDR (Low Dynamic Range) image instead of HDR.
 14.06.2017 - 2h - Adding shadows to higher level reflections.
-15.06.2017 - 2h - Adding shadows to higher level reflections.
+15.06.2017 - 2h - Adding shadows to higher level reflections. Added an option to Control Panel to disable reflections/refractions alltogether.

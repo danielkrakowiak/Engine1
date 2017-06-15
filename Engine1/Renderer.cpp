@@ -649,7 +649,7 @@ Renderer::Output Renderer::renderSceneImage(
         settings().rendering.reflectionsRefractions.maxLevel,
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
         renderedViewType,
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType, 
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType,
         defferedRenderTargets
     );
 
@@ -679,6 +679,10 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets )
 {
     if ( level > maxLevelCount )
+        return Output();
+
+    if ( ( reflectionFirst && !settings().rendering.reflectionsRefractions.reflectionsEnabled ) ||
+       ( !reflectionFirst && !settings().rendering.reflectionsRefractions.refractionsEnabled ) )
         return Output();
 
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;

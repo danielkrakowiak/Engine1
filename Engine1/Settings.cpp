@@ -70,7 +70,9 @@ void Settings::setDefault()
 
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 
-    s_settings.rendering.reflectionsRefractions.maxLevel = 1;
+    s_settings.rendering.reflectionsRefractions.maxLevel           = 1;
+    s_settings.rendering.reflectionsRefractions.reflectionsEnabled = true;
+    s_settings.rendering.reflectionsRefractions.refractionsEnabled = true;
 }
 
 void Settings::onChanged()
