@@ -779,6 +779,13 @@ Idea:
 	  NEXT:
 	  - do shadows work for higher levels of reflection/refraction?
 
+	  - disabling reflections/refractions from Control Panel
+
+	  - make sure that useless rays are not traced...
+
+	  - REFACTOR: position texture in GeneratemipmapsWithsampleRejection can be removed.
+		Also the sahder can be optimized to avoid IFs.
+
 	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
 
 	  - consider - not combining image layer after it's rendered - hold this image and continue rendering until reaching max layer - then combine from back to front.
@@ -811,6 +818,7 @@ Idea:
 		  Only to albedo...
 
 	  NEXT-MINOR:
+	  - something is wrong with higher level reflections - like we read wrong level do data or from wrong renderer or something...
 	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
 	  - setting default texture from control panel - to metalness, roughness (defaults should be maxed out).
 	  - select all lights

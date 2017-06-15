@@ -65,7 +65,7 @@ void Settings::setDefault()
     s_settings.debug.refractiveIndexMul = 1.0f;
 
     s_settings.rendering.fieldOfViewDegress = 70.0f;
-    s_settings.rendering.exposure           = 0.5f;
+    s_settings.rendering.exposure           = 1.0f;
     s_settings.rendering.antialiasing       = true;
 
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
@@ -83,9 +83,9 @@ void Settings::onChanged()
     s_settings.rendering.reflectionsRefractions.maxLevel
         = std::max( 0, s_settings.rendering.reflectionsRefractions.maxLevel );
 
-    // Max-level has to be <= 5.
+    // Max-level has to be <= 8.
     s_settings.rendering.reflectionsRefractions.maxLevel
-        = std::min( 5, s_settings.rendering.reflectionsRefractions.maxLevel );
+        = std::min( 8, s_settings.rendering.reflectionsRefractions.maxLevel );
 
     s_modified = false;
 }
