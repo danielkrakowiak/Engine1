@@ -1412,51 +1412,113 @@ void Renderer::renderRefractions(
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
     const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget )
 {
-    m_reflectionRefractionShadingRenderer.performRefractionShading( level - 1, 
-                                                                  m_raytraceRenderer.getRayOriginsTexture( level - 2 ), 
-                                                                  m_raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
-                                                                  m_raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
-                                                                  m_raytraceRenderer.getRayHitAlbedoTexture( level - 2 ),
-                                                                  m_raytraceRenderer.getRayHitMetalnessTexture( level - 2 ), 
-                                                                  m_raytraceRenderer.getRayHitRoughnessTexture( level - 2 ) );
+    m_reflectionRefractionShadingRenderer.performRefractionShading( 
+        level - 1, 
+        m_raytraceRenderer.getRayOriginsTexture( level - 2 ),
+        m_raytraceRenderer.getRayHitPositionTexture( level - 2 ),
+        m_raytraceRenderer.getRayHitNormalTexture( level - 2 ),
+        m_raytraceRenderer.getRayHitAlbedoTexture( level - 2 ),
+        m_raytraceRenderer.getRayHitMetalnessTexture( level - 2 ),
+        m_raytraceRenderer.getRayHitRoughnessTexture( level - 2 ) 
+    );
 
-    m_raytraceRenderer.generateAndTraceRefractedRays( level - 1, refractionLevel,
-                                                      m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ), 
-                                                      blockActors );
+    m_raytraceRenderer.generateAndTraceRefractedRays( 
+        level - 1, 
+        refractionLevel,
+        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+        blockActors 
+    );
 
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
 
-    m_shadingRenderer.performShadingNoShadows( m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
-                                               m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-                                               m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
-                                               m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
-                                               m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
-                                               m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-                                               lightsNotCastingShadows );
+    m_shadingRenderer.performShadingNoShadows( 
+        m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
+        m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+        m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
+        m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
+        m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
+        m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+        lightsNotCastingShadows 
+    );
 
-    for ( const std::shared_ptr< Light >& light : lightsCastingShadows ) 
+    const int lightCount = (int)lightsCastingShadows.size();
+    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
     {
-        if ( light->getType() == Light::Type::SpotLight
-             && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
-        ) 
-        {
-            m_rasterizeShadowRenderer.performShadowMapping(
-                camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
-                light,
+        //if ( light->getType() == Light::Type::SpotLight
+        //     && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
+        //) 
+        //{
+        //    m_rasterizeShadowRenderer.performShadowMapping(
+        //        camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
+        //        light,
+        //        m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+        //        m_raytraceRenderer.getRayHitNormalTexture( level - 1 )
+        //    );
+        //}
+
+        m_raytraceShadowRenderer.generateAndTraceShadowRays(
+            lightsCastingShadows[ lightIdx ],
+            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+            //nullptr, //#TODO: Should I use a pre-illumination?
+            blockActors
+        );
+
+        m_raytraceShadowRenderer.getHardShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        m_raytraceShadowRenderer.getSoftShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+        m_mipmapRenderer.generateMipmapsWithSampleRejection(
+            m_raytraceShadowRenderer.getDistanceToOccluder(),
+            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+            500.0f, 0, 3
+        );
+
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        // #TODO RENDER: Distance to occluder shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
+        // Modify shader of pass appropriate accumulated distance to camera to shader.
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        // Distance to occluder search.
+        m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
+            camera,
+            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+            m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+            m_raytraceShadowRenderer.getDistanceToOccluder(),
+            *lightsCastingShadows[ lightIdx ]
+        );
+
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        // #TODO RENDER: Blur shadow shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
+        // Modify shader of pass appropriate accumulated distance to camera to shader.
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        if ( settings().rendering.shadows.useSeparableShadowBlur ) {
+            // Blur shadows in two passes - horizontal and vertical.
+            m_blurShadowsRenderer.blurShadowsHorzVert(
+                camera,
                 m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-                m_raytraceRenderer.getRayHitNormalTexture( level - 1 )
+                m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getSoftShadowTexture(),
+                m_raytraceShadowRenderer.getDistanceToOccluder(),
+                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                *lightsCastingShadows[ lightIdx ]
+            );
+        } else {
+            // Blur shadows in a single pass.
+            m_blurShadowsRenderer.blurShadows(
+                camera,
+                m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
+                m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
+                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
+                m_raytraceShadowRenderer.getSoftShadowTexture(),
+                m_raytraceShadowRenderer.getDistanceToOccluder(),
+                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                *lightsCastingShadows[ lightIdx ]
             );
         }
-
-        //m_raytraceShadowRenderer.generateAndTraceShadowRays(
-        //    light,
-        //    m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-        //    m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-        //    m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
-        //    nullptr, //#TODO: Should I use a pre-illumination?
-        //    blockActors
-        //    );
 
         // Perform shading on the main image.
         m_shadingRenderer.performShading(
@@ -1466,9 +1528,9 @@ void Renderer::renderRefractions(
             m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 ),
             m_raytraceRenderer.getRayHitNormalTexture( level - 1 ),
-            m_rasterizeShadowRenderer.getShadowTexture()/*m_raytraceShadowRenderer.getIlluminationTexture()*/,
-            *light
-            );
+            m_blurShadowsRenderer.getShadowTexture(),
+            *lightsCastingShadows[ lightIdx ]
+        );
     }
 
 
@@ -1478,19 +1540,39 @@ void Renderer::renderRefractions(
     const int contributionTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getWidth();
     const int contributionTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getHeight();
 
-    const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
-    const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
+    const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( level - 1 )->getWidth();
+    const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( level - 1 )->getHeight();
 
-    m_combiningRenderer.combine( m_finalRenderTargetHDR, 
-                               m_shadingRenderer.getColorRenderTarget(), 
-                               m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
-                               m_raytraceRenderer.getRayHitNormalTexture( level - 2 ), 
-                               m_raytraceRenderer.getRayHitPositionTexture( level - 2 ), 
-                               deferredDepthRenderTarget, 
-                               m_raytraceRenderer.getRayHitDistanceTexture( level - 1 ),
-                               camera.getPosition(),
-                               contributionTextureFillWidth, contributionTextureFillHeight,
-                               colorTextureFillWidth, colorTextureFillHeight );
+    auto rayHitDistanceTexture = m_raytraceRenderer.getRayHitDistanceTexture( level - 1 );
+
+    //#TODO: Fill pixels for which all samples were rejected with max value.
+    m_mipmapRenderer.generateMipmapsWithSampleRejection(
+        rayHitDistanceTexture,
+        m_raytraceRenderer.getRayOriginsTexture( level - 2 ),
+        50.0f, 0, 0
+    );
+
+    m_hitDistanceSearchRenderer.performHitDistanceSearch(
+        camera,
+        m_raytraceRenderer.getRayOriginsTexture( level - 2 ),
+        m_raytraceRenderer.getRayHitNormalTexture( level - 2 ),
+        rayHitDistanceTexture
+    );
+
+    m_combiningRenderer.combine( 
+        m_finalRenderTargetHDR, 
+        m_shadingRenderer.getColorRenderTarget(),
+        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+        m_raytraceRenderer.getRayHitNormalTexture( level - 2 ),
+        m_raytraceRenderer.getRayHitPositionTexture( level - 2 ),
+        deferredDepthRenderTarget,
+        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+        camera.getPosition(),
+        contributionTextureFillWidth, 
+        contributionTextureFillHeight,
+        colorTextureFillWidth, 
+        colorTextureFillHeight 
+    );
 }
 
 void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )
