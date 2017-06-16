@@ -74,6 +74,7 @@ namespace Engine1
             BloomBrightPixels,
             HitDistance,
             FinalHitDistance,
+            HitDistanceToCamera,
 			Test
         };
 

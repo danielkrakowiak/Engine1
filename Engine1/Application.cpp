@@ -1308,6 +1308,9 @@ void Application::onKeyPress( int key )
         } else if ( key == InputManager::Keys::two ) {
             m_renderer.setActiveViewType( Renderer::View::FinalHitDistance );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::three ) {
+            m_renderer.setActiveViewType( Renderer::View::HitDistanceToCamera );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }
     }
 

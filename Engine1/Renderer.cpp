@@ -763,6 +763,9 @@ Renderer::Output Renderer::renderReflectionsRefractions(
             case View::FinalHitDistance:
                 output.floatImage = m_hitDistanceSearchRenderer.getFinalHitDistanceTexture();
                 break;
+            case View::HitDistanceToCamera:
+                output.floatImage = m_raytraceRenderer.getRayHitDistanceToCameraTexture( level - 1 );
+                break;
         }
 
         return output;
@@ -1693,6 +1696,7 @@ std::string Renderer::viewToString( const View view )
         case View::BloomBrightPixels:                        return "BloomBrightPixels";
         case View::HitDistance:                              return "HitDistance";
         case View::FinalHitDistance:                         return "FinalHitDistance";
+        case View::HitDistanceToCamera:                      return "HitDistanceToCamera";
         case View::Test:                                     return "Test";
     }
 

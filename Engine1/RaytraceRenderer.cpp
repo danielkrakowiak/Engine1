@@ -10,6 +10,7 @@
 #include "GenerateRefractedRaysComputeShader.h"
 #include "RaytracingPrimaryRaysComputeShader.h"
 #include "RaytracingSecondaryRaysComputeShader.h"
+#include "SumValueComputeShader.h"
 #include "uint3.h"
 #include "Camera.h"
 #include "MathUtil.h"
@@ -33,7 +34,8 @@ RaytraceRenderer::RaytraceRenderer( Direct3DRendererCore& rendererCore ) :
     m_generateReflectedRaysComputeShader( std::make_shared< GenerateReflectedRaysComputeShader >() ),
     m_generateRefractedRaysComputeShader( std::make_shared< GenerateRefractedRaysComputeShader >() ),
     m_raytracingPrimaryRaysComputeShader( std::make_shared< RaytracingPrimaryRaysComputeShader >() ),
-    m_raytracingSecondaryRaysComputeShader( std::make_shared< RaytracingSecondaryRaysComputeShader >() )
+    m_raytracingSecondaryRaysComputeShader( std::make_shared< RaytracingSecondaryRaysComputeShader >() ),
+    m_sumValueComputeShader( std::make_shared< SumValueComputeShader >() )
 {}
 
 
@@ -72,6 +74,11 @@ void RaytraceRenderer::createComputeTargets( int imageWidth, int imageHeight, ID
         m_rayHitPositionTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >
                                          ( device, imageWidth, imageHeight, false, true, false,
                                            DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
+
+        m_rayHitDistanceToCameraTexture.push_back( 
+            std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+            ( device, imageWidth, imageHeight, false, true, false,
+              DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT ) );
 
         m_rayHitDistanceTexture.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
                                          ( device, imageWidth, imageHeight, false, true, true,
@@ -156,6 +163,8 @@ void RaytraceRenderer::generateAndTraceFirstReflectedRays( const Camera& camera,
     generateFirstReflectedRays( camera, positionTexture, normalTexture, roughnessTexture, contributionTermTexture );
     traceSecondaryRays( 0, actors );
 
+    calculateHitDistanceToCamera( 0 );
+
     m_rendererCore.disableComputePipeline();
 }
 
@@ -190,6 +199,8 @@ void RaytraceRenderer::generateAndTraceReflectedRays( const int level,
                            contributionTermTexture );
 
     traceSecondaryRays( level, actors );
+
+    calculateHitDistanceToCamera( level );
 
     m_rendererCore.disableComputePipeline();
 }
@@ -569,6 +580,59 @@ void RaytraceRenderer::traceSecondaryRays( int level, const std::vector< std::sh
     m_raytracingSecondaryRaysComputeShader->unsetParameters( *m_deviceContext.Get() );
 }
 
+void RaytraceRenderer::calculateHitDistanceToCamera( int level )
+{
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+
+    m_rendererCore.enableComputeShader( m_sumValueComputeShader );
+
+    unorderedAccessTargetsF1.push_back( m_rayHitDistanceToCameraTexture.at( level ) );
+
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, 
+        unorderedAccessTargetsF2, 
+        unorderedAccessTargetsF4, 
+        unorderedAccessTargetsU1, 
+        unorderedAccessTargetsU4 
+    );
+
+    const int imageWidth = m_rayHitDistanceToCameraTexture.at( 0 )->getWidth();
+    const int imageHeight = m_rayHitDistanceToCameraTexture.at( 0 )->getHeight();
+
+    uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
+
+    // #TODO: This distance doesn't account for initial depth (which should be converted to dist-to-camera).
+    // Another shader should be used to calculate dist-to-camera from depth after deferred rendering.
+    // #TODO: Does this summing work correctly when both refraction/reflections are enabled (but only one dit-to-camera per layer, right?)?
+
+    if ( level == 0 )
+    {
+        m_sumValueComputeShader->setParameters(
+            *m_deviceContext.Get(),
+            *m_rayHitDistanceTexture.at( level )
+        );
+    }
+    else
+    {
+        m_sumValueComputeShader->setParameters(
+            *m_deviceContext.Get(),
+            *m_rayHitDistanceTexture.at( level - 1 ),
+            *m_rayHitDistanceTexture.at( level )
+        );
+    }
+
+    m_rendererCore.compute( groupCount );
+
+    // Unbind resources to avoid binding the same resource on input and output.
+    m_rendererCore.disableUnorderedAccessViews();
+
+    m_sumValueComputeShader->unsetParameters( *m_deviceContext.Get() );
+}
+
 std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > 
 RaytraceRenderer::getRayOriginsTexture( int level )
 {
@@ -591,6 +655,12 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAc
 RaytraceRenderer::getRayHitDistanceTexture( int level )
 {
     return m_rayHitDistanceTexture.at( level );
+}
+
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+RaytraceRenderer::getRayHitDistanceToCameraTexture( int level )
+{
+    return m_rayHitDistanceToCameraTexture.at( level );
 }
 
 std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > 
@@ -644,6 +714,7 @@ void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
     m_generateRefractedRaysComputeShader->loadAndInitialize( "Shaders/GenerateRefractedRaysShader/GenerateRefractedRays_cs.cso", device );
     m_raytracingPrimaryRaysComputeShader->loadAndInitialize( "Shaders/RaytracingPrimaryRaysShader/RaytracingPrimaryRays_cs.cso", device );
     m_raytracingSecondaryRaysComputeShader->loadAndInitialize( "Shaders/RaytracingSecondaryRaysShader/RaytracingSecondaryRays_cs.cso", device );
+    m_sumValueComputeShader->loadAndInitialize( "Shaders/SumValueShader/SumValue_cs.cso", device );
 }
 
 void RaytraceRenderer::createDefaultTextures( ID3D11Device& device )

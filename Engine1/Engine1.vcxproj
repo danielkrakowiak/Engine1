@@ -363,6 +363,7 @@
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="SpotLightParser.h" />
     <ClInclude Include="SpreadValueComputeShader.h" />
+    <ClInclude Include="SumValueComputeShader.h" />
     <ClInclude Include="ToneMappingComputeShader.h" />
     <ClInclude Include="ToneMappingRenderer.h" />
     <ClInclude Include="UtilityRenderer.h" />
@@ -541,6 +542,7 @@
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="SpotLightParser.cpp" />
     <ClCompile Include="SpreadValueComputeShader.cpp" />
+    <ClCompile Include="SumValueComputeShader.cpp" />
     <ClCompile Include="ToneMappingComputeShader.cpp" />
     <ClCompile Include="ToneMappingRenderer.cpp" />
     <ClCompile Include="UtilityRenderer.cpp" />
@@ -1625,6 +1627,17 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
+    </FxCompile>
+    <FxCompile Include="Shaders\SumValueShader\SumValue_cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\SumValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">$(ProjectDir)Shaders\SumValueShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\SumValueShader\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="Shaders\TextShader\Text_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

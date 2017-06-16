@@ -777,11 +777,11 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - do shadows work for higher levels of reflection/refraction?
-
-	  - disabling reflections/refractions from Control Panel
-
 	  - make sure that useless rays are not traced...
+
+	  - maybe apply bloom after antialiaisng to avoid single, bright pixels breaking bloom?
+
+	  - scale roughness in the engine used for reflection/refraction blurring - it should increase more gently - not reaching high blur for small roughness...
 
 	  - REFACTOR: position texture in GeneratemipmapsWithsampleRejection can be removed.
 		Also the sahder can be optimized to avoid IFs.
@@ -795,6 +795,7 @@ Idea:
 
 	  - mipmapping for raytracing - use UV texcoords stored in g-buffer?
 	    Or use ray differentials - http://graphics.stanford.edu/papers/trd/
+		Right now a funny hack is used to get "some" filtering - log2(hitDistance * 5) is used.
 
 	  - add debug view before bloom, tonemapping? To see if a problem comes from which postprocess.
 
@@ -809,6 +810,7 @@ Idea:
 	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
 
 	  IMPORTANT-BUT-CAN-WAIT:
+	  - improve bloom to use two-pass blur and to use less mipmapping...
 	  - input to antialiasing FXAA is probably not correct- linear vs non-linear, gamma etc... So antialiasing doesn't work optimally...
 	  - account for ray-length in next hit-dist-search?
 	  - account for depth in hit-dist-search
@@ -816,6 +818,10 @@ Idea:
 
 	  - rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
 		  Only to albedo...
+
+	  - Distance-to-camera in RaytraceRenderer doesn't account for initial depth (which should be converted to dist-to-camera).
+        Another shader should be used to calculate dist-to-camera from depth after deferred rendering.
+        * Does this summing work correctly when both refraction/reflections are enabled (but only one dit-to-camera per layer, right?)?
 
 	  NEXT-MINOR:
 	  - something is wrong with higher level reflections - like we read wrong level do data or from wrong renderer or something...
@@ -832,6 +838,10 @@ Idea:
 	    This way you avoid blending shadows with very different blur radius - increasing quality. Test varius thresholds to divide shadows into two channels.
 	  - How to hanlde cases where a big glass window cast shadow over the whole room? It should not destroy the whole solution. It's usually very bright shadow - can this characteristic be used somehow?
 		
+
+	FUN:
+	- add PhysX support
+	- add some "Player"?
 
 	  -----------------------------
 

@@ -463,6 +463,12 @@
     <Filter Include="Header Files\Shader\Antialiasing">
       <UniqueIdentifier>{e0fb5977-91a0-4fb5-a0b9-06376e539d8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shader\Utility\SumValue">
+      <UniqueIdentifier>{4dcce508-ccef-454c-9398-2ee577013656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utility\SumValue">
+      <UniqueIdentifier>{f9e9af48-052a-458c-893f-b94ece517978}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -999,6 +1005,9 @@
     <ClInclude Include="AntialiasingComputeShader.h">
       <Filter>Header Files\Shader\Antialiasing</Filter>
     </ClInclude>
+    <ClInclude Include="SumValueComputeShader.h">
+      <Filter>Header Files\Shader\Utility\SumValue</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1505,6 +1514,9 @@
     <ClCompile Include="AntialiasingComputeShader.cpp">
       <Filter>Source Files\Shader\Antialiasing</Filter>
     </ClCompile>
+    <ClCompile Include="SumValueComputeShader.cpp">
+      <Filter>Source Files\Shader\Utility\SumValue</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1736,6 +1748,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\AntialiasingShader\Antialiasing_cs.hlsl">
       <Filter>Source Files\Shader\Antialiasing</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SumValueShader\SumValue_cs.hlsl">
+      <Filter>Source Files\Shader\Utility\SumValue</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -25,6 +25,7 @@ namespace Engine1
     class GenerateRefractedRaysComputeShader;
     class RaytracingPrimaryRaysComputeShader;
     class RaytracingSecondaryRaysComputeShader;
+    class SumValueComputeShader;
     class BlockActor;
 
     class RaytraceRenderer
@@ -66,6 +67,7 @@ namespace Engine1
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayDirectionsTexture( int level );
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayHitPositionTexture( int level );
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > getRayHitDistanceTexture( int level );
+        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > getRayHitDistanceToCameraTexture( int level );
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >             getRayHitEmissiveTexture( int level );
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >             getRayHitAlbedoTexture( int level );
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >      getRayHitMetalnessTexture( int level );
@@ -111,6 +113,8 @@ namespace Engine1
 
         void traceSecondaryRays( int level, const std::vector< std::shared_ptr< BlockActor > >& actors );
 
+        void calculateHitDistanceToCamera( int level );
+
         Direct3DRendererCore& m_rendererCore;
 
         Microsoft::WRL::ComPtr<ID3D11Device>        m_device;
@@ -127,6 +131,7 @@ namespace Engine1
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayDirectionsTexture;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayHitPositionTexture;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > > m_rayHitDistanceTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > > m_rayHitDistanceToCameraTexture;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >             m_rayHitEmissiveTexture;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >             m_rayHitAlbedoTexture;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_rayHitMetalnessTexture;
@@ -145,6 +150,7 @@ namespace Engine1
         std::shared_ptr< GenerateRefractedRaysComputeShader >      m_generateRefractedRaysComputeShader;
         std::shared_ptr< RaytracingPrimaryRaysComputeShader >      m_raytracingPrimaryRaysComputeShader;
         std::shared_ptr< RaytracingSecondaryRaysComputeShader >    m_raytracingSecondaryRaysComputeShader;
+        std::shared_ptr< SumValueComputeShader >                   m_sumValueComputeShader;
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
 
