@@ -485,7 +485,6 @@ Renderer::Output Renderer::renderSceneImage(
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             m_raytraceShadowRenderer.getDistanceToOccluder(), 
-            defferedRenderTargets.position, 
             500.0f, 0, 3 
         );
         
@@ -891,7 +890,6 @@ void Renderer::renderFirstReflections( const Camera& camera,
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             m_raytraceShadowRenderer.getDistanceToOccluder(),
-            m_raytraceRenderer.getRayHitPositionTexture( 0 ),
             500.0f, 0, 3
         );
 
@@ -989,7 +987,6 @@ void Renderer::renderFirstReflections( const Camera& camera,
     //#TODO: Fill pixels for which all samples were rejected with max value.
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
         rayHitDistanceTexture,
-        deferredRenderTargets.position,
         50.0f, 0, 0
     );
 
@@ -1114,7 +1111,6 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             m_raytraceShadowRenderer.getDistanceToOccluder(),
-            m_raytraceRenderer.getRayHitPositionTexture( 0 ),
             500.0f, 0, 3
         );
 
@@ -1210,7 +1206,6 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     //#TODO: Fill pixels for which all samples were rejected with max value.
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
         rayHitDistanceTexture,
-        deferredRenderTargets.position,
         50.0f, 0, 0
     );
 
@@ -1307,7 +1302,6 @@ void Renderer::renderReflections(
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             m_raytraceShadowRenderer.getDistanceToOccluder(),
-            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
             500.0f, 0, 3
         );
 
@@ -1382,7 +1376,6 @@ void Renderer::renderReflections(
 
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
         rayHitDistanceTexture,
-        m_raytraceRenderer.getRayOriginsTexture( level - 2 ), // #TODO: Not used - remove.
         50.0f, 0, 0
     );
 
@@ -1474,7 +1467,6 @@ void Renderer::renderRefractions(
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             m_raytraceShadowRenderer.getDistanceToOccluder(),
-            m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
             500.0f, 0, 3
         );
 
@@ -1551,7 +1543,6 @@ void Renderer::renderRefractions(
     //#TODO: Fill pixels for which all samples were rejected with max value.
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
         rayHitDistanceTexture,
-        m_raytraceRenderer.getRayOriginsTexture( level - 2 ),
         50.0f, 0, 0
     );
 

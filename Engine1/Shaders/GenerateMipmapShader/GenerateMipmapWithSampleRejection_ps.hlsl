@@ -1,7 +1,6 @@
 SamplerState g_samplerState  : register( s0 );
 
 Texture2D<float> g_textureSrcMipmap : register( t0 );
-Texture2D<float> g_positionTexture  : register( t1 );
 
 cbuffer ConstantBuffer
 {
