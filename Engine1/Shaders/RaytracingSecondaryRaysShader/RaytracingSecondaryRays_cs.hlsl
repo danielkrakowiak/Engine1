@@ -194,7 +194,7 @@ void main( uint3 groupId : SV_GroupID,
                 );
 
                 // Just a small test.
-                const float sampleLevel = log2( hitDist * 5.0 );
+                const float sampleLevel = log2( hitDist );
 			
                 const float3 normalFromMap = ( g_normalTexture.SampleLevel( g_samplerState, hitTexCoords, sampleLevel ).rgb * normalMul - 0.5f ) * 2.0f;
                 hitNormal = normalize( mul( normalFromMap, tangentToWorldMatrix ) );
