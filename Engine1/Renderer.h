@@ -103,6 +103,43 @@ namespace Engine1
             }
         };
 
+        struct LayerRenderTargets
+        {
+            LayerRenderTargets()
+            {
+                reset();
+            }
+
+            void reset()
+            {
+                hitPosition         = nullptr;
+                hitEmissive         = nullptr;
+                hitAlbedo           = nullptr;
+                hitMetalness        = nullptr;
+                hitRoughness        = nullptr;
+                hitNormal           = nullptr;
+                hitRefractiveIndex  = nullptr;
+                depth               = nullptr;
+                hitDistance         = nullptr;
+                hitDistanceBlurred  = nullptr;
+                hitDistanceToCamera = nullptr;
+                hitShaded           = nullptr;
+            }
+
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitPosition;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitEmissive;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitAlbedo;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitMetalness;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRoughness;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitNormal;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRefractiveIndex;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >                        depth;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistance;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceBlurred;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceToCamera;
+            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitShaded;
+        };
+
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
         ~Renderer();
 
@@ -159,7 +196,7 @@ namespace Engine1
             std::vector< bool >& renderedViewLevel,
             const std::vector< bool >& activeViewLevel,
             const View activeViewType,
-            const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets
+            const LayerRenderTargets& deferredRenderTargets
         );
 
         void renderFirstReflections( 
@@ -167,7 +204,7 @@ namespace Engine1
             const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-            const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets
+            const LayerRenderTargets& deferredRenderTargets
         );
 
         void renderFirstRefractions( 
@@ -175,7 +212,7 @@ namespace Engine1
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-            const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets
+            const LayerRenderTargets& deferredRenderTargets
         );
 
         void renderReflections( 
@@ -253,6 +290,8 @@ namespace Engine1
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTargetHDR;
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_temporaryRenderTarget1;
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_temporaryRenderTarget2;
+
+        std::vector< LayerRenderTargets > m_layersRenderTargets;
 
         std::shared_ptr<const BlockMesh>  m_axisMesh;
         std::shared_ptr<const BlockModel> m_lightModel;

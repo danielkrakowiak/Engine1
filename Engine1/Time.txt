@@ -411,3 +411,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 14.06.2017 - 2h - Adding shadows to higher level reflections.
 15.06.2017 - 2h - Adding shadows to higher level reflections/refractions. Added an option to Control Panel to disable reflections/refractions alltogether.
 16.06.2017 - 4h - Added SumValueComputeShader for summing total distance travelled by rays (without accounting for depth yet). Added a simple hack to get mipmapping in reflections/refractions - based only on that layer's hit-dist.
+17.06.2017 - 2h - Refactoring main Renderer and sub-renderers to use common set of render targets per layer.

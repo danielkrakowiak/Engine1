@@ -779,14 +779,10 @@ Idea:
 	  NEXT:
 	  - make sure that useless rays are not traced...
 
-	  - maybe apply bloom after antialiaisng to avoid single, bright pixels breaking bloom?
-
 	  - scale roughness in the engine used for reflection/refraction blurring - it should increase more gently - not reaching high blur for small roughness...
+	    Add a slider in Control Panel to change that...
 
 	  - fix profiling display and try to optimize something? LIke those IFs in mipmapping shaders...
-
-	  - REFACTOR: position texture in GeneratemipmapsWithsampleRejection can be removed.
-		Also the sahder can be optimized to avoid IFs.
 
 	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
 

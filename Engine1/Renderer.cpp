@@ -182,6 +182,9 @@ Renderer::Output Renderer::renderScene(
         settings().rendering.reflectionsRefractions.activeView, m_activeViewType, wireframeMode,
         selection, selectionVolumeMesh 
     );
+
+    // Release all temporary render targets.
+    m_layersRenderTargets.clear();
     
     if ( !output.isEmpty() )
         return output;
@@ -247,144 +250,158 @@ Renderer::Output Renderer::renderSceneImage(
     const Selection& selection,
     const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
-    Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
-    defferedRenderTargets.position        = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    defferedRenderTargets.emissive        = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
-    defferedRenderTargets.albedo          = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
-    defferedRenderTargets.metalness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    defferedRenderTargets.roughness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    defferedRenderTargets.normal          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    defferedRenderTargets.refractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    defferedRenderTargets.depth           = m_renderTargetManager.getRenderTargetDepth( m_imageDimensions );
+    m_layersRenderTargets.emplace_back();
+    auto& layerRenderTargets = m_layersRenderTargets.back();
 
-    Direct3DDeferredRenderer::Settings defferedSettings;
-    defferedSettings.fieldOfView     = camera.getFieldOfView();
-    defferedSettings.imageDimensions = (float2)m_imageDimensions;
-    defferedSettings.wireframeMode   = wireframeMode;
-    defferedSettings.zNear           = 0.1f;
-    defferedSettings.zFar            = 1000.0f;
+    layerRenderTargets.hitPosition        = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+    layerRenderTargets.hitEmissive        = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
+    layerRenderTargets.hitAlbedo          = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
+    layerRenderTargets.hitMetalness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+    layerRenderTargets.hitRoughness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+    layerRenderTargets.hitNormal          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+    layerRenderTargets.hitRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+    layerRenderTargets.depth              = m_renderTargetManager.getRenderTargetDepth( m_imageDimensions );
 
     // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
     // Be careful when changing!
-    defferedRenderTargets.position->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    defferedRenderTargets.emissive->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    defferedRenderTargets.albedo->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    defferedRenderTargets.metalness->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    defferedRenderTargets.roughness->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    defferedRenderTargets.normal->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    defferedRenderTargets.refractiveIndex->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    defferedRenderTargets.depth->clearDepthStencilView( *m_deviceContext.Get(), true, 1.0f, false, 0 );
+    layerRenderTargets.hitPosition->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    layerRenderTargets.hitEmissive->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    layerRenderTargets.hitAlbedo->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    layerRenderTargets.hitMetalness->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    layerRenderTargets.hitRoughness->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    layerRenderTargets.hitNormal->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    layerRenderTargets.hitRefractiveIndex->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    layerRenderTargets.depth->clearDepthStencilView( *m_deviceContext.Get(), true, 1.0f, false, 0 );
 
-    float44 viewMatrix = MathUtil::lookAtTransformation( 
-        camera.getLookAtPoint(), 
-        camera.getPosition(), 
-        camera.getUp() 
-    );
+    { // Render meshes using DeferredRenderer.
+        Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
+        defferedRenderTargets.position        = layerRenderTargets.hitPosition;
+        defferedRenderTargets.emissive        = layerRenderTargets.hitEmissive;
+        defferedRenderTargets.albedo          = layerRenderTargets.hitAlbedo;
+        defferedRenderTargets.metalness       = layerRenderTargets.hitMetalness;
+        defferedRenderTargets.roughness       = layerRenderTargets.hitRoughness;
+        defferedRenderTargets.normal          = layerRenderTargets.hitNormal;
+        defferedRenderTargets.refractiveIndex = layerRenderTargets.hitRefractiveIndex;
+        defferedRenderTargets.depth           = layerRenderTargets.depth;
 
-    m_profiler.beginEvent( Profiler::GlobalEventType::DeferredRendering );
+        Direct3DDeferredRenderer::Settings defferedSettings;
+        defferedSettings.fieldOfView     = camera.getFieldOfView();
+        defferedSettings.imageDimensions = (float2)m_imageDimensions;
+        defferedSettings.wireframeMode   = wireframeMode;
+        defferedSettings.zNear           = 0.1f;
+        defferedSettings.zFar            = 1000.0f;
 
-    // Render 'axises' model.
-    if ( m_axisMesh )
-    {
-        m_deferredRenderer.render( 
-            defferedRenderTargets, 
-            defferedSettings, 
-            *m_axisMesh, 
-            float43::IDENTITY, 
-            viewMatrix 
+        float44 viewMatrix = MathUtil::lookAtTransformation( 
+            camera.getLookAtPoint(), 
+            camera.getPosition(), 
+            camera.getUp() 
         );
-    }
 
-    float4 actorSelectionEmissiveColor( 0.1f, 0.1f, 0.0f, 1.0f );
+        m_profiler.beginEvent( Profiler::GlobalEventType::DeferredRendering );
 
-    // Render actors in the scene.
-    const std::unordered_set< std::shared_ptr<Actor> >& actors = scene.getActors();
-    for ( const std::shared_ptr<Actor> actor : actors ) 
-    {
-        if ( actor->getType() == Actor::Type::BlockActor ) 
+        // Render 'axises' model.
+        if ( m_axisMesh )
         {
-            const auto& blockActor = std::static_pointer_cast<BlockActor>(actor);
-            const auto& blockModel = blockActor->getModel();
-
-            const bool isSelected = selection.contains( blockActor );
-
-            if ( !blockModel->isInGpuMemory() )
-                continue;
-
-            const float4 extraEmissive = isSelected ? actorSelectionEmissiveColor : float4::ZERO;
-                
             m_deferredRenderer.render( 
-                defferedRenderTargets,
-                defferedSettings,
-                *blockModel, 
-                blockActor->getPose(), 
-                viewMatrix, 
-                extraEmissive
-            );
-
-        } 
-        else if ( actor->getType() == Actor::Type::SkeletonActor ) 
-        {
-            const auto& skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
-            const auto& skeletonModel = skeletonActor->getModel();
-
-            const bool isSelected = selection.contains( skeletonActor );
-
-            if ( skeletonModel->isInGpuMemory() )
-                continue;
-
-            const float4 extraEmissive = isSelected ? actorSelectionEmissiveColor : float4::ZERO;
-
-            m_deferredRenderer.render( 
-                defferedRenderTargets,
-                defferedSettings,
-                *skeletonModel, 
-                skeletonActor->getPose(), 
-                viewMatrix, 
-                skeletonActor->getSkeletonPose(), 
-                extraEmissive
+                defferedRenderTargets, 
+                defferedSettings, 
+                *m_axisMesh, 
+                float43::IDENTITY, 
+                viewMatrix 
             );
         }
-    }
 
-    float4 lightSelectionEmissiveColor( 0.0f, 0.0f, 1.0f, 1.0f );
-    float4 lightDisabledEmissiveColor( 0.0f, 1.0f, 0.0f, 1.0f );
+        float4 actorSelectionEmissiveColor( 0.1f, 0.1f, 0.0f, 1.0f );
 
-    // Render light sources in the scene.
-    if ( m_lightModel ) 
-    {
-        float43 lightPose( float43::IDENTITY );
-        for ( const auto& light : scene.getLights() ) 
+        // Render actors in the scene.
+        const std::unordered_set< std::shared_ptr<Actor> >& actors = scene.getActors();
+        for ( const std::shared_ptr<Actor> actor : actors ) 
         {
-            const bool isSelected = selection.contains( light );
+            if ( actor->getType() == Actor::Type::BlockActor ) 
+            {
+                const auto& blockActor = std::static_pointer_cast<BlockActor>(actor);
+                const auto& blockModel = blockActor->getModel();
 
-            lightPose.setTranslation( light->getPosition() );
+                const bool isSelected = selection.contains( blockActor );
 
-            float4 extraEmissive = isSelected ?
-                lightSelectionEmissiveColor :
-                ( light->isEnabled() ? float4::ZERO : lightDisabledEmissiveColor );
+                if ( !blockModel->isInGpuMemory() )
+                    continue;
 
-            m_deferredRenderer.render( 
+                const float4 extraEmissive = isSelected ? actorSelectionEmissiveColor : float4::ZERO;
+                
+                m_deferredRenderer.render( 
+                    defferedRenderTargets,
+                    defferedSettings,
+                    *blockModel, 
+                    blockActor->getPose(), 
+                    viewMatrix, 
+                    extraEmissive
+                );
+
+            } 
+            else if ( actor->getType() == Actor::Type::SkeletonActor ) 
+            {
+                const auto& skeletonActor = std::static_pointer_cast<SkeletonActor>(actor);
+                const auto& skeletonModel = skeletonActor->getModel();
+
+                const bool isSelected = selection.contains( skeletonActor );
+
+                if ( skeletonModel->isInGpuMemory() )
+                    continue;
+
+                const float4 extraEmissive = isSelected ? actorSelectionEmissiveColor : float4::ZERO;
+
+                m_deferredRenderer.render( 
+                    defferedRenderTargets,
+                    defferedSettings,
+                    *skeletonModel, 
+                    skeletonActor->getPose(), 
+                    viewMatrix, 
+                    skeletonActor->getSkeletonPose(), 
+                    extraEmissive
+                );
+            }
+        }
+
+        float4 lightSelectionEmissiveColor( 0.0f, 0.0f, 1.0f, 1.0f );
+        float4 lightDisabledEmissiveColor( 0.0f, 1.0f, 0.0f, 1.0f );
+
+        // Render light sources in the scene.
+        if ( m_lightModel ) 
+        {
+            float43 lightPose( float43::IDENTITY );
+            for ( const auto& light : scene.getLights() ) 
+            {
+                const bool isSelected = selection.contains( light );
+
+                lightPose.setTranslation( light->getPosition() );
+
+                float4 extraEmissive = isSelected ?
+                    lightSelectionEmissiveColor :
+                    ( light->isEnabled() ? float4::ZERO : lightDisabledEmissiveColor );
+
+                m_deferredRenderer.render( 
+                    defferedRenderTargets,
+                    defferedSettings, 
+                    *m_lightModel, 
+                    lightPose, 
+                    viewMatrix, 
+                    extraEmissive 
+                );
+            }
+        }
+
+        // Render selection volume.
+        if ( selectionVolumeMesh )
+        {
+            m_deferredRenderer.renderEmissive( 
                 defferedRenderTargets,
                 defferedSettings, 
-                *m_lightModel, 
-                lightPose, 
-                viewMatrix, 
-                extraEmissive 
+                *selectionVolumeMesh, 
+                float43::IDENTITY, 
+                viewMatrix
             );
         }
-    }
-
-    // Render selection volume.
-    if ( selectionVolumeMesh )
-    {
-        m_deferredRenderer.renderEmissive( 
-            defferedRenderTargets,
-            defferedSettings, 
-            *selectionVolumeMesh, 
-            float43::IDENTITY, 
-            viewMatrix
-        );
     }
 
     m_profiler.endEvent( Profiler::GlobalEventType::DeferredRendering );
@@ -392,25 +409,25 @@ Renderer::Output Renderer::renderSceneImage(
 
     // #TODO: Do we need these mipmaps? I don't think so anymore...
     // Generate mipmaps for normal and position g-buffers.
-    defferedRenderTargets.normal->generateMipMapsOnGpu( *m_deviceContext.Get() );
-    defferedRenderTargets.position->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    layerRenderTargets.hitNormal->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    layerRenderTargets.hitPosition->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( defferedRenderTargets.emissive );
+    m_shadingRenderer.performShading( layerRenderTargets.hitEmissive );
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows( 
         camera, 
-        defferedRenderTargets.position,
-        defferedRenderTargets.albedo, 
-        defferedRenderTargets.metalness,
-        defferedRenderTargets.roughness, 
-        defferedRenderTargets.normal, 
+        layerRenderTargets.hitPosition,
+        layerRenderTargets.hitAlbedo, 
+        layerRenderTargets.hitMetalness,
+        layerRenderTargets.hitRoughness, 
+        layerRenderTargets.hitNormal, 
         lightsNotCastingShadows 
     );
 
@@ -467,8 +484,8 @@ Renderer::Output Renderer::renderSceneImage(
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
             lightsCastingShadows[ lightIdx ],
-            defferedRenderTargets.position,
-            defferedRenderTargets.normal,
+            layerRenderTargets.hitPosition,
+            layerRenderTargets.hitNormal,
             nullptr,
             //m_rasterizeShadowRenderer.getShadowTexture(),
             blockActors
@@ -513,8 +530,8 @@ Renderer::Output Renderer::renderSceneImage(
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            defferedRenderTargets.position,
-            defferedRenderTargets.normal,
+            layerRenderTargets.hitPosition,
+            layerRenderTargets.hitNormal,
             m_raytraceShadowRenderer.getDistanceToOccluder(),
             *lightsCastingShadows[ lightIdx ]
         );
@@ -527,8 +544,8 @@ Renderer::Output Renderer::renderSceneImage(
             // Blur shadows in two passes - horizontal and vertical.
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
-                defferedRenderTargets.position,
-                defferedRenderTargets.normal,
+                layerRenderTargets.hitPosition,
+                layerRenderTargets.hitNormal,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getSoftShadowTexture(),
@@ -542,8 +559,8 @@ Renderer::Output Renderer::renderSceneImage(
             // Blur shadows in a single pass.
             m_blurShadowsRenderer.blurShadows(
                 camera,
-                defferedRenderTargets.position,
-                defferedRenderTargets.normal,
+                layerRenderTargets.hitPosition,
+                layerRenderTargets.hitNormal,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
                 m_raytraceShadowRenderer.getSoftShadowTexture(),
@@ -559,11 +576,11 @@ Renderer::Output Renderer::renderSceneImage(
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( 
             camera, 
-            defferedRenderTargets.position,
-			defferedRenderTargets.albedo, 
-            defferedRenderTargets.metalness,
-			defferedRenderTargets.roughness, 
-            defferedRenderTargets.normal, 
+            layerRenderTargets.hitPosition,
+			layerRenderTargets.hitAlbedo, 
+            layerRenderTargets.hitMetalness,
+			layerRenderTargets.hitRoughness, 
+            layerRenderTargets.hitNormal, 
             m_blurShadowsRenderer.getShadowTexture(), 
             *lightsCastingShadows[ lightIdx ] 
         );
@@ -593,28 +610,28 @@ Renderer::Output Renderer::renderSceneImage(
                 output.float4Image = m_shadingRenderer.getColorRenderTarget();
                 return output;
             case View::Depth: 
-                output.uchar4Image = defferedRenderTargets.depth; 
+                output.uchar4Image = layerRenderTargets.depth; 
                 return output;
             case View::Position: 
-                output.float4Image = defferedRenderTargets.position;
+                output.float4Image = layerRenderTargets.hitPosition;
                 return output;
             case View::Emissive: 
-                output.uchar4Image = defferedRenderTargets.emissive;
+                output.uchar4Image = layerRenderTargets.hitEmissive;
                 return output;
             case View::Albedo: 
-                output.uchar4Image = defferedRenderTargets.albedo;
+                output.uchar4Image = layerRenderTargets.hitAlbedo;
                 return output;
             case View::Normal:
-                output.float4Image = defferedRenderTargets.normal;
+                output.float4Image = layerRenderTargets.hitNormal;
                 return output;
             case View::Metalness:
-                output.ucharImage = defferedRenderTargets.metalness;
+                output.ucharImage = layerRenderTargets.hitMetalness;
                 return output;
             case View::Roughness:
-                output.ucharImage = defferedRenderTargets.roughness;
+                output.ucharImage = layerRenderTargets.hitRoughness;
                 return output;
             case View::IndexOfRefraction:
-                output.ucharImage = defferedRenderTargets.refractiveIndex;
+                output.ucharImage = layerRenderTargets.hitRefractiveIndex;
                 return output;
 			case View::Preillumination:
 				output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
@@ -649,7 +666,7 @@ Renderer::Output Renderer::renderSceneImage(
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
         renderedViewType,
         settings().rendering.reflectionsRefractions.activeView, m_activeViewType,
-        defferedRenderTargets
+        layerRenderTargets
     );
 
     if ( !output.isEmpty() )
@@ -661,7 +678,7 @@ Renderer::Output Renderer::renderSceneImage(
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
         renderedViewType,
         settings().rendering.reflectionsRefractions.activeView, m_activeViewType, 
-        defferedRenderTargets
+        layerRenderTargets
     );
 
     return output;
@@ -675,7 +692,7 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     std::vector< bool >& renderedViewLevel,
     const std::vector< bool >& activeViewLevel,
     const View activeViewType,
-    const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets )
+    const LayerRenderTargets& deferredRenderTargets )
 {
     if ( level > maxLevelCount )
         return Output();
@@ -801,18 +818,18 @@ void Renderer::renderFirstReflections( const Camera& camera,
                                        const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                                        const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-                                       const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets )
+                                       const LayerRenderTargets& deferredRenderTargets )
 {
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
     // Perform reflection shading.
     m_reflectionRefractionShadingRenderer.performFirstReflectionShading( 
         camera, 
-        deferredRenderTargets.position, 
-        deferredRenderTargets.normal, 
-        deferredRenderTargets.albedo,
-        deferredRenderTargets.metalness, 
-        deferredRenderTargets.roughness 
+        deferredRenderTargets.hitPosition, 
+        deferredRenderTargets.hitNormal, 
+        deferredRenderTargets.hitAlbedo,
+        deferredRenderTargets.hitMetalness, 
+        deferredRenderTargets.hitRoughness 
     );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
@@ -821,9 +838,9 @@ void Renderer::renderFirstReflections( const Camera& camera,
     // Perform ray tracing.
     m_raytraceRenderer.generateAndTraceFirstReflectedRays( 
         camera, 
-        deferredRenderTargets.position, 
-        deferredRenderTargets.normal,
-        deferredRenderTargets.roughness, 
+        deferredRenderTargets.hitPosition, 
+        deferredRenderTargets.hitNormal,
+        deferredRenderTargets.hitRoughness, 
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
         blockActors 
     );
@@ -972,8 +989,8 @@ void Renderer::renderFirstReflections( const Camera& camera,
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
-    const int contributionTextureFillWidth  = deferredRenderTargets.position->getWidth();
-    const int contributionTextureFillHeight = deferredRenderTargets.position->getHeight();
+    const int contributionTextureFillWidth  = deferredRenderTargets.hitPosition->getWidth();
+    const int contributionTextureFillHeight = deferredRenderTargets.hitPosition->getHeight();
 
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
@@ -993,8 +1010,8 @@ void Renderer::renderFirstReflections( const Camera& camera,
     // Search for hit distance.
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
         camera, 
-        deferredRenderTargets.position, 
-        deferredRenderTargets.normal, 
+        deferredRenderTargets.hitPosition, 
+        deferredRenderTargets.hitNormal, 
         rayHitDistanceTexture 
     );
 
@@ -1003,8 +1020,8 @@ void Renderer::renderFirstReflections( const Camera& camera,
         m_finalRenderTargetHDR, 
         m_shadingRenderer.getColorRenderTarget(), 
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-        deferredRenderTargets.normal, 
-        deferredRenderTargets.position, 
+        deferredRenderTargets.hitNormal, 
+        deferredRenderTargets.hitPosition, 
         deferredRenderTargets.depth, 
         m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
         camera.getPosition(),
@@ -1021,18 +1038,18 @@ void Renderer::renderFirstRefractions( const Camera& camera,
                                        const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
                                        const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-                                       const Direct3DDeferredRenderer::RenderTargets& deferredRenderTargets )
+                                       const LayerRenderTargets& deferredRenderTargets )
 {
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
     // Perform refraction shading.
     m_reflectionRefractionShadingRenderer.performFirstRefractionShading( 
         camera, 
-        deferredRenderTargets.position,
-        deferredRenderTargets.normal,
-        deferredRenderTargets.albedo,
-        deferredRenderTargets.metalness,
-        deferredRenderTargets.roughness 
+        deferredRenderTargets.hitPosition,
+        deferredRenderTargets.hitNormal,
+        deferredRenderTargets.hitAlbedo,
+        deferredRenderTargets.hitMetalness,
+        deferredRenderTargets.hitRoughness 
     );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
@@ -1041,10 +1058,10 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     // Perform ray tracing.
     m_raytraceRenderer.generateAndTraceFirstRefractedRays( 
         camera, 
-        deferredRenderTargets.position,
-        deferredRenderTargets.normal,
-        deferredRenderTargets.roughness,
-        deferredRenderTargets.refractiveIndex,
+        deferredRenderTargets.hitPosition,
+        deferredRenderTargets.hitNormal,
+        deferredRenderTargets.hitRoughness,
+        deferredRenderTargets.hitRefractiveIndex,
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
         blockActors 
     );
@@ -1191,8 +1208,8 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
-    const int contributionTextureFillWidth  = deferredRenderTargets.position->getWidth();
-    const int contributionTextureFillHeight = deferredRenderTargets.position->getHeight();
+    const int contributionTextureFillWidth  = deferredRenderTargets.hitPosition->getWidth();
+    const int contributionTextureFillHeight = deferredRenderTargets.hitPosition->getHeight();
 
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
@@ -1212,8 +1229,8 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     // Search for hit distance.
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
         camera,
-        deferredRenderTargets.position,
-        deferredRenderTargets.normal,
+        deferredRenderTargets.hitPosition,
+        deferredRenderTargets.hitNormal,
         rayHitDistanceTexture
     );
 
@@ -1222,8 +1239,8 @@ void Renderer::renderFirstRefractions( const Camera& camera,
         m_finalRenderTargetHDR,
         m_shadingRenderer.getColorRenderTarget(),
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
-        deferredRenderTargets.normal,
-        deferredRenderTargets.position,
+        deferredRenderTargets.hitNormal,
+        deferredRenderTargets.hitPosition,
         deferredRenderTargets.depth,
         m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
         camera.getPosition(),
