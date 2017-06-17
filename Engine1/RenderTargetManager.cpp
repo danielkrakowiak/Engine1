@@ -12,7 +12,7 @@ RenderTargetManager::~RenderTargetManager()
 void RenderTargetManager::initialize( ID3D11Device& device, int2 imageDimensions )
 {
     const int rtFloatCount       = 1;
-    const int rtFloat4Count      = 2;
+    const int rtFloat4Count      = 8;
     const int rtUcharCount       = 3;
     const int rtUchar4Count      = 3;
     const int rtDepthUchar4Count = 1;

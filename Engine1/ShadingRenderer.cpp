@@ -39,14 +39,14 @@ void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D1
 	this->m_imageWidth  = imageWidth;
 	this->m_imageHeight = imageHeight;
 
-    createRenderTargets( imageWidth, imageHeight, *device.Get() );
-
     loadAndCompileShaders( device );
 
 	m_initialized = true;
 }
 
-void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture )
+void ShadingRenderer::performShading( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -55,7 +55,7 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
     m_rendererCore.enableComputeShader( m_shadingComputeShader0 );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( m_colorRenderTarget );
+    unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
@@ -71,14 +71,16 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
     m_rendererCore.disableComputePipeline();
 }
 
-void ShadingRenderer::performShading( const Camera& camera,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture, 
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture, 
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture, 
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-	                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-	                                  const Light& light )
+void ShadingRenderer::performShading( 
+    const Camera& camera,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+    const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -87,7 +89,7 @@ void ShadingRenderer::performShading( const Camera& camera,
     m_rendererCore.enableComputeShader( m_shadingComputeShader );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( m_colorRenderTarget );
+    unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
@@ -103,13 +105,15 @@ void ShadingRenderer::performShading( const Camera& camera,
     m_rendererCore.disableComputePipeline();
 }
 
-void ShadingRenderer::performShadingNoShadows( const Camera& camera,
-                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                               const std::vector< std::shared_ptr< Light > > lights )
+void ShadingRenderer::performShadingNoShadows( 
+    const Camera& camera,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+    const std::vector< std::shared_ptr< Light > > lights )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -118,7 +122,7 @@ void ShadingRenderer::performShadingNoShadows( const Camera& camera,
     m_rendererCore.enableComputeShader( m_shadingNoShadowsComputeShader );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( m_colorRenderTarget );
+    unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
@@ -134,14 +138,16 @@ void ShadingRenderer::performShadingNoShadows( const Camera& camera,
     m_rendererCore.disableComputePipeline();
 }
 
-void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture, 
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture, 
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture, 
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-									  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-	                                  const Light& light )
+void ShadingRenderer::performShading( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture, 
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture, 
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture, 
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+	const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -151,7 +157,7 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
     m_rendererCore.enableComputeShader( m_shadingComputeShader2 );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( m_colorRenderTarget );
+    unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
@@ -167,13 +173,15 @@ void ShadingRenderer::performShading( const std::shared_ptr< Texture2DSpecBind< 
     m_rendererCore.disableComputePipeline();
 }
 
-void ShadingRenderer::performShadingNoShadows( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                                      const std::vector< std::shared_ptr< Light > > lights )
+void ShadingRenderer::performShadingNoShadows( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+    const std::vector< std::shared_ptr< Light > > lights )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -183,7 +191,7 @@ void ShadingRenderer::performShadingNoShadows( const std::shared_ptr< Texture2DS
     m_rendererCore.enableComputeShader( m_shadingNoShadowsComputeShader2 );
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( m_colorRenderTarget );
+    unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
 
@@ -197,22 +205,6 @@ void ShadingRenderer::performShadingNoShadows( const std::shared_ptr< Texture2DS
     m_shadingNoShadowsComputeShader2->unsetParameters( *m_deviceContext.Get() );
 
     m_rendererCore.disableComputePipeline();
-}
-
-void ShadingRenderer::clearColorRenderTarget()
-{
-	m_colorRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 1.0f ) );
-}
-
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > ShadingRenderer::getColorRenderTarget()
-{
-    return m_colorRenderTarget;
-}
-
-void ShadingRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
-{
-    m_colorRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
-        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
 void ShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )

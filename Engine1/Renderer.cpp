@@ -261,6 +261,7 @@ Renderer::Output Renderer::renderSceneImage(
     layerRenderTargets.hitNormal          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
     layerRenderTargets.hitRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
     layerRenderTargets.depth              = m_renderTargetManager.getRenderTargetDepth( m_imageDimensions );
+    layerRenderTargets.hitShaded          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
 
     // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
     // Be careful when changing!
@@ -416,13 +417,14 @@ Renderer::Output Renderer::renderSceneImage(
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( layerRenderTargets.hitEmissive );
+    m_shadingRenderer.performShading( layerRenderTargets.hitShaded, layerRenderTargets.hitEmissive );
 
     m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
     m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows( 
         camera, 
+        layerRenderTargets.hitShaded,
         layerRenderTargets.hitPosition,
         layerRenderTargets.hitAlbedo, 
         layerRenderTargets.hitMetalness,
@@ -576,6 +578,7 @@ Renderer::Output Renderer::renderSceneImage(
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( 
             camera, 
+            layerRenderTargets.hitShaded,
             layerRenderTargets.hitPosition,
 			layerRenderTargets.hitAlbedo, 
             layerRenderTargets.hitMetalness,
@@ -595,7 +598,7 @@ Renderer::Output Renderer::renderSceneImage(
     // Note: I have to explicitly cast textures, because otherwise the compiler fails to deduce the template parameters for the method.
     m_rendererCore.copyTexture( 
         *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( m_finalRenderTargetHDR ), 0, 
-        *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( m_shadingRenderer.getColorRenderTarget() ), 0 
+        *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( layerRenderTargets.hitShaded ), 0 
     );
 
     m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
@@ -607,7 +610,7 @@ Renderer::Output Renderer::renderSceneImage(
         switch ( activeViewType )
         {
             case View::Shaded:
-                output.float4Image = m_shadingRenderer.getColorRenderTarget();
+                output.float4Image = layerRenderTargets.hitShaded;
                 return output;
             case View::Depth: 
                 output.uchar4Image = layerRenderTargets.depth; 
@@ -665,8 +668,7 @@ Renderer::Output Renderer::renderSceneImage(
         settings().rendering.reflectionsRefractions.maxLevel,
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
         renderedViewType,
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType,
-        layerRenderTargets
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType
     );
 
     if ( !output.isEmpty() )
@@ -677,8 +679,7 @@ Renderer::Output Renderer::renderSceneImage(
         settings().rendering.reflectionsRefractions.maxLevel,
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
         renderedViewType,
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType, 
-        layerRenderTargets
+        settings().rendering.reflectionsRefractions.activeView, m_activeViewType
     );
 
     return output;
@@ -691,8 +692,7 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
     std::vector< bool >& renderedViewLevel,
     const std::vector< bool >& activeViewLevel,
-    const View activeViewType,
-    const LayerRenderTargets& deferredRenderTargets )
+    const View activeViewType )
 {
     if ( level > maxLevelCount )
         return Output();
@@ -714,78 +714,78 @@ Renderer::Output Renderer::renderReflectionsRefractions(
         //OutputDebugStringW( StringUtil::widen( "Reflection - " + std::to_string( level ) + "\n" ).c_str() );
 
         if ( level == 1 )
-            renderFirstReflections( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, deferredRenderTargets );
+            renderFirstReflections( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
         else
-            renderReflections( level, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, deferredRenderTargets.depth );
+            renderReflections( level, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
     }
     else 
     {
         //OutputDebugStringW( StringUtil::widen( "Refraction - " + std::to_string( level ) + "\n" ).c_str() );
 
         if ( level == 1 )
-            renderFirstRefractions( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, deferredRenderTargets );
+            renderFirstRefractions( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
         else
-            renderRefractions( level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, deferredRenderTargets.depth );
+            renderRefractions( level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
     }
 
-    if ( renderedViewLevel == activeViewLevel )
-    {
-        Output output;
+    //if ( renderedViewLevel == activeViewLevel )
+    //{
+    //    Output output;
 
-        switch ( activeViewType )
-        {
-            case View::Shaded: 
-                output.float4Image = m_shadingRenderer.getColorRenderTarget();
-                break;
-            case View::Position: 
-                output.float4Image = m_raytraceRenderer.getRayHitPositionTexture( level - 1 );
-                break;
-            case View::Emissive: 
-                output.uchar4Image = m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 );
-                break;
-            case View::Albedo: 
-                output.uchar4Image = m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 );
-                break;
-            case View::Normal:
-                output.float4Image = m_raytraceRenderer.getRayHitNormalTexture( level - 1 );
-                break;
-            case View::Metalness:
-                output.ucharImage = m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 );
-                break;
-            case View::Roughness:
-                output.ucharImage = m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 );
-                break;
-            case View::IndexOfRefraction:
-                output.ucharImage = m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 );
-                break;
-            case View::RayDirections: 
-                output.float4Image = m_raytraceRenderer.getRayDirectionsTexture( level - 1 );
-                break;
-            case View::Contribution: 
-                output.uchar4Image = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
-                break;
-            case View::CurrentRefractiveIndex:
-                output.ucharImage = m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 );
-                break;
-            case View::Preillumination:
-                output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
-                break;
-            case View::HardIllumination:
-                output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
-                break;
-            case View::HitDistance:
-                output.floatImage = m_raytraceRenderer.getRayHitDistanceTexture( level - 1 );
-                break;
-            case View::FinalHitDistance:
-                output.floatImage = m_hitDistanceSearchRenderer.getFinalHitDistanceTexture();
-                break;
-            case View::HitDistanceToCamera:
-                output.floatImage = m_raytraceRenderer.getRayHitDistanceToCameraTexture( level - 1 );
-                break;
-        }
+    //    switch ( activeViewType )
+    //    {
+    //        case View::Shaded: 
+    //            output.float4Image = nullptr; // #TODO: Return shaded image. //m_shadingRenderer.getColorRenderTarget();
+    //            break;
+    //        case View::Position: 
+    //            output.float4Image = m_raytraceRenderer.getRayHitPositionTexture( level - 1 );
+    //            break;
+    //        case View::Emissive: 
+    //            output.uchar4Image = m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 );
+    //            break;
+    //        case View::Albedo: 
+    //            output.uchar4Image = m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 );
+    //            break;
+    //        case View::Normal:
+    //            output.float4Image = m_raytraceRenderer.getRayHitNormalTexture( level - 1 );
+    //            break;
+    //        case View::Metalness:
+    //            output.ucharImage = m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 );
+    //            break;
+    //        case View::Roughness:
+    //            output.ucharImage = m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 );
+    //            break;
+    //        case View::IndexOfRefraction:
+    //            output.ucharImage = m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 );
+    //            break;
+    //        case View::RayDirections: 
+    //            output.float4Image = m_raytraceRenderer.getRayDirectionsTexture( level - 1 );
+    //            break;
+    //        case View::Contribution: 
+    //            output.uchar4Image = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
+    //            break;
+    //        case View::CurrentRefractiveIndex:
+    //            output.ucharImage = m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 );
+    //            break;
+    //        case View::Preillumination:
+    //            output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
+    //            break;
+    //        case View::HardIllumination:
+    //            output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
+    //            break;
+    //        case View::HitDistance:
+    //            output.floatImage = m_raytraceRenderer.getRayHitDistanceTexture( level - 1 );
+    //            break;
+    //        case View::FinalHitDistance:
+    //            output.floatImage = m_hitDistanceSearchRenderer.getFinalHitDistanceTexture();
+    //            break;
+    //        case View::HitDistanceToCamera:
+    //            output.floatImage = m_raytraceRenderer.getRayHitDistanceToCameraTexture( level - 1 );
+    //            break;
+    //    }
 
-        return output;
-    }
+    //    return output;
+    //}
 
     //#TODO: We can clear some deferred render targets here if level 1 is finished.
     // Only has to keep depth.
@@ -794,7 +794,7 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     output = renderReflectionsRefractions( 
         true, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        renderedViewLevel, activeViewLevel, activeViewType, deferredRenderTargets
+        renderedViewLevel, activeViewLevel, activeViewType
     );
 
     if ( !output.isEmpty() )
@@ -803,7 +803,7 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     output = renderReflectionsRefractions( 
         false, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        renderedViewLevel, activeViewLevel, activeViewType, deferredRenderTargets
+        renderedViewLevel, activeViewLevel, activeViewType
     );
 
     if ( !output.isEmpty() )
@@ -817,19 +817,29 @@ Renderer::Output Renderer::renderReflectionsRefractions(
 void Renderer::renderFirstReflections( const Camera& camera, 
                                        const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-                                       const LayerRenderTargets& deferredRenderTargets )
+                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
+    const int currLevel = 1;
+
+    if ( m_layersRenderTargets.size() <= currLevel )
+        m_layersRenderTargets.emplace_back();
+    
+    auto& firstLayerRTs = m_layersRenderTargets.front();
+    auto& prevLayerRTs  = m_layersRenderTargets.at( currLevel - 1 ); // Previous layer render targets.
+    auto& currLayerRTs  = m_layersRenderTargets.at( currLevel );     // Current layer render targets.
+
+    currLayerRTs.hitShaded = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
     // Perform reflection shading.
     m_reflectionRefractionShadingRenderer.performFirstReflectionShading( 
         camera, 
-        deferredRenderTargets.hitPosition, 
-        deferredRenderTargets.hitNormal, 
-        deferredRenderTargets.hitAlbedo,
-        deferredRenderTargets.hitMetalness, 
-        deferredRenderTargets.hitRoughness 
+        prevLayerRTs.hitPosition, 
+        prevLayerRTs.hitNormal, 
+        prevLayerRTs.hitAlbedo,
+        prevLayerRTs.hitMetalness, 
+        prevLayerRTs.hitRoughness 
     );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
@@ -838,9 +848,9 @@ void Renderer::renderFirstReflections( const Camera& camera,
     // Perform ray tracing.
     m_raytraceRenderer.generateAndTraceFirstReflectedRays( 
         camera, 
-        deferredRenderTargets.hitPosition, 
-        deferredRenderTargets.hitNormal,
-        deferredRenderTargets.hitRoughness, 
+        prevLayerRTs.hitPosition, 
+        prevLayerRTs.hitNormal,
+        prevLayerRTs.hitRoughness, 
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
         blockActors 
     );
@@ -849,12 +859,13 @@ void Renderer::renderFirstReflections( const Camera& camera,
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
+    m_shadingRenderer.performShading( currLayerRTs.hitShaded, m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows( 
+        currLayerRTs.hitShaded,
         m_raytraceRenderer.getRayOriginsTexture( 0 ), 
         m_raytraceRenderer.getRayHitPositionTexture( 0 ),
         m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
@@ -968,6 +979,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
 
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( 
+            currLayerRTs.hitShaded,
 			m_raytraceRenderer.getRayOriginsTexture( 0 ),
 			m_raytraceRenderer.getRayHitPositionTexture( 0 ),
 			m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
@@ -985,12 +997,12 @@ void Renderer::renderFirstReflections( const Camera& camera,
     m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
     // Generate mipmaps for the shaded, reflected image.
-    m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
     m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
-    const int contributionTextureFillWidth  = deferredRenderTargets.hitPosition->getWidth();
-    const int contributionTextureFillHeight = deferredRenderTargets.hitPosition->getHeight();
+    const int contributionTextureFillWidth  = prevLayerRTs.hitPosition->getWidth();
+    const int contributionTextureFillHeight = prevLayerRTs.hitPosition->getHeight();
 
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
@@ -1010,19 +1022,19 @@ void Renderer::renderFirstReflections( const Camera& camera,
     // Search for hit distance.
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
         camera, 
-        deferredRenderTargets.hitPosition, 
-        deferredRenderTargets.hitNormal, 
+        firstLayerRTs.hitPosition, 
+        firstLayerRTs.hitNormal, 
         rayHitDistanceTexture 
     );
 
     // Combine main image with reflections.
     m_combiningRenderer.combine( 
         m_finalRenderTargetHDR, 
-        m_shadingRenderer.getColorRenderTarget(), 
+        currLayerRTs.hitShaded, 
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-        deferredRenderTargets.hitNormal, 
-        deferredRenderTargets.hitPosition, 
-        deferredRenderTargets.depth, 
+        firstLayerRTs.hitNormal, 
+        firstLayerRTs.hitPosition, 
+        firstLayerRTs.depth, 
         m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
         camera.getPosition(),
         contributionTextureFillWidth, 
@@ -1037,19 +1049,29 @@ void Renderer::renderFirstReflections( const Camera& camera,
 void Renderer::renderFirstRefractions( const Camera& camera, 
                                        const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
                                        const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-                                       const LayerRenderTargets& deferredRenderTargets )
+                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
+    const int currLevel = 1;
+
+    if ( m_layersRenderTargets.size() <= currLevel )
+        m_layersRenderTargets.emplace_back();
+
+    auto& firstLayerRTs = m_layersRenderTargets.front();
+    auto& prevLayerRTs  = m_layersRenderTargets.at( currLevel - 1 ); // Previous layer render targets.
+    auto& currLayerRTs  = m_layersRenderTargets.at( currLevel );     // Current layer render targets.
+
+    currLayerRTs.hitShaded = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
     // Perform refraction shading.
     m_reflectionRefractionShadingRenderer.performFirstRefractionShading( 
         camera, 
-        deferredRenderTargets.hitPosition,
-        deferredRenderTargets.hitNormal,
-        deferredRenderTargets.hitAlbedo,
-        deferredRenderTargets.hitMetalness,
-        deferredRenderTargets.hitRoughness 
+        prevLayerRTs.hitPosition,
+        prevLayerRTs.hitNormal,
+        prevLayerRTs.hitAlbedo,
+        prevLayerRTs.hitMetalness,
+        prevLayerRTs.hitRoughness 
     );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
@@ -1058,10 +1080,10 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     // Perform ray tracing.
     m_raytraceRenderer.generateAndTraceFirstRefractedRays( 
         camera, 
-        deferredRenderTargets.hitPosition,
-        deferredRenderTargets.hitNormal,
-        deferredRenderTargets.hitRoughness,
-        deferredRenderTargets.hitRefractiveIndex,
+        prevLayerRTs.hitPosition,
+        prevLayerRTs.hitNormal,
+        prevLayerRTs.hitRoughness,
+        prevLayerRTs.hitRefractiveIndex,
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
         blockActors 
     );
@@ -1070,12 +1092,13 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
+    m_shadingRenderer.performShading( currLayerRTs.hitShaded, m_raytraceRenderer.getRayHitEmissiveTexture( 0 ) );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows( 
+        currLayerRTs.hitShaded,
         m_raytraceRenderer.getRayOriginsTexture( 0 ),
         m_raytraceRenderer.getRayHitPositionTexture( 0 ),
         m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
@@ -1188,6 +1211,7 @@ void Renderer::renderFirstRefractions( const Camera& camera,
 
         // Perform shading on the main image.
         m_shadingRenderer.performShading(
+            currLayerRTs.hitShaded,
             m_raytraceRenderer.getRayOriginsTexture( 0 ),
             m_raytraceRenderer.getRayHitPositionTexture( 0 ),
             m_raytraceRenderer.getRayHitAlbedoTexture( 0 ),
@@ -1204,12 +1228,12 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
     // Generate mipmaps for the shaded, reflected image.
-    m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
     m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
 
-    const int contributionTextureFillWidth  = deferredRenderTargets.hitPosition->getWidth();
-    const int contributionTextureFillHeight = deferredRenderTargets.hitPosition->getHeight();
+    const int contributionTextureFillWidth  = prevLayerRTs.hitPosition->getWidth();
+    const int contributionTextureFillHeight = prevLayerRTs.hitPosition->getHeight();
 
     const int colorTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( 0 )->getWidth();
     const int colorTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( 0 )->getHeight();
@@ -1229,19 +1253,19 @@ void Renderer::renderFirstRefractions( const Camera& camera,
     // Search for hit distance.
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
         camera,
-        deferredRenderTargets.hitPosition,
-        deferredRenderTargets.hitNormal,
+        prevLayerRTs.hitPosition,
+        prevLayerRTs.hitNormal,
         rayHitDistanceTexture
     );
 
     // Combine main image with reflections.
     m_combiningRenderer.combine(
         m_finalRenderTargetHDR,
-        m_shadingRenderer.getColorRenderTarget(),
+        currLayerRTs.hitShaded,
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
-        deferredRenderTargets.hitNormal,
-        deferredRenderTargets.hitPosition,
-        deferredRenderTargets.depth,
+        prevLayerRTs.hitNormal,
+        prevLayerRTs.hitPosition,
+        prevLayerRTs.depth,
         m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
         camera.getPosition(),
         contributionTextureFillWidth,
@@ -1257,9 +1281,16 @@ void Renderer::renderReflections(
     const int level, const Camera& camera, 
     const std::vector< std::shared_ptr< BlockActor > >& blockActors,
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-    const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget )
+    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
+    if ( m_layersRenderTargets.size() <= level )
+        m_layersRenderTargets.emplace_back();
+
+    auto& firstLayerRTs = m_layersRenderTargets.front();
+    auto& prevLayerRTs  = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
+    auto& currLayerRTs  = m_layersRenderTargets.at( level );     // Current layer render targets.
+
+    currLayerRTs.hitShaded = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
 
     m_reflectionRefractionShadingRenderer.performReflectionShading( 
         level - 1, 
@@ -1278,9 +1309,10 @@ void Renderer::renderReflections(
     );
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
+    m_shadingRenderer.performShading( currLayerRTs.hitShaded, m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
 
     m_shadingRenderer.performShadingNoShadows( 
+        currLayerRTs.hitShaded,
         m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
         m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
         m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
@@ -1369,6 +1401,7 @@ void Renderer::renderReflections(
 
         // Perform shading on the main image.
         m_shadingRenderer.performShading(
+            currLayerRTs.hitShaded,
             m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
             m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
             m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
@@ -1381,7 +1414,7 @@ void Renderer::renderReflections(
     }
 
     // Generate mipmaps for the shaded, reflected image.
-    m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
     const int contributionTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getWidth();
     const int contributionTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getHeight();
@@ -1406,11 +1439,11 @@ void Renderer::renderReflections(
 
     m_combiningRenderer.combine( 
         m_finalRenderTargetHDR, 
-        m_shadingRenderer.getColorRenderTarget(),
+        currLayerRTs.hitShaded,
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
         m_raytraceRenderer.getRayHitNormalTexture( level - 2 ),
         m_raytraceRenderer.getRayHitPositionTexture( level - 2 ),
-        deferredDepthRenderTarget,
+        firstLayerRTs.depth,
         m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
         camera.getPosition(),
         contributionTextureFillWidth, contributionTextureFillHeight,
@@ -1422,9 +1455,17 @@ void Renderer::renderRefractions(
     const int level, const int refractionLevel, const Camera& camera, 
     const std::vector< std::shared_ptr< BlockActor > >& blockActors,
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-    const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget )
+    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
+    if ( m_layersRenderTargets.size() <= level )
+        m_layersRenderTargets.emplace_back();
+
+    auto& firstLayerRTs = m_layersRenderTargets.front();
+    auto& prevLayerRTs  = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
+    auto& currLayerRTs  = m_layersRenderTargets.at( level );     // Current layer render targets.
+
+    currLayerRTs.hitShaded = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+
     m_reflectionRefractionShadingRenderer.performRefractionShading( 
         level - 1, 
         m_raytraceRenderer.getRayOriginsTexture( level - 2 ),
@@ -1443,9 +1484,10 @@ void Renderer::renderRefractions(
     );
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
+    m_shadingRenderer.performShading( currLayerRTs.hitShaded, m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 ) );
 
     m_shadingRenderer.performShadingNoShadows( 
+        currLayerRTs.hitShaded,
         m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
         m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
         m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
@@ -1534,6 +1576,7 @@ void Renderer::renderRefractions(
 
         // Perform shading on the main image.
         m_shadingRenderer.performShading(
+            currLayerRTs.hitShaded,
             m_raytraceRenderer.getRayOriginsTexture( level - 1 ),
             m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
             m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 ),
@@ -1547,7 +1590,7 @@ void Renderer::renderRefractions(
 
 
     // Generate mipmaps for the shaded, reflected image.
-    m_shadingRenderer.getColorRenderTarget()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
     const int contributionTextureFillWidth  = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getWidth();
     const int contributionTextureFillHeight = m_raytraceRenderer.getRayOriginsTexture( level - 2 )->getHeight();
@@ -1572,11 +1615,11 @@ void Renderer::renderRefractions(
 
     m_combiningRenderer.combine( 
         m_finalRenderTargetHDR, 
-        m_shadingRenderer.getColorRenderTarget(),
+        currLayerRTs.hitShaded,
         m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
         m_raytraceRenderer.getRayHitNormalTexture( level - 2 ),
         m_raytraceRenderer.getRayHitPositionTexture( level - 2 ),
-        deferredDepthRenderTarget,
+        firstLayerRTs.depth,
         m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
         camera.getPosition(),
         contributionTextureFillWidth, 

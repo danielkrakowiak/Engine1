@@ -126,18 +126,18 @@ namespace Engine1
                 hitShaded           = nullptr;
             }
 
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitPosition;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitEmissive;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitAlbedo;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitMetalness;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRoughness;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitNormal;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRefractiveIndex;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >                        depth;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistance;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceBlurred;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceToCamera;
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitShaded;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitPosition;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitEmissive;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitAlbedo;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitMetalness;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRoughness;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitNormal;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRefractiveIndex;
+            std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > >                        depth;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistance;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceBlurred;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceToCamera;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitShaded;
         };
 
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
@@ -195,40 +195,35 @@ namespace Engine1
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
             std::vector< bool >& renderedViewLevel,
             const std::vector< bool >& activeViewLevel,
-            const View activeViewType,
-            const LayerRenderTargets& deferredRenderTargets
+            const View activeViewType
         );
 
         void renderFirstReflections( 
             const Camera& camera, 
             const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-            const LayerRenderTargets& deferredRenderTargets
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows
         );
 
         void renderFirstRefractions( 
             const Camera& camera, 
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-            const LayerRenderTargets& deferredRenderTargets
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows
         );
 
         void renderReflections( 
             const int level, const Camera& camera, 
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-            const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows
         );
         
         void renderRefractions( 
             const int level, const int refractionLevel, const Camera& camera, 
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-            const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >& deferredDepthRenderTarget
+            const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows
         );
 
         void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness );
