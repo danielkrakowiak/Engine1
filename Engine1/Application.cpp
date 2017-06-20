@@ -54,7 +54,7 @@ using Microsoft::WRL::ComPtr;
 Application::Application() :
 	m_rendererCore(),
 	m_frameRenderer( m_rendererCore, m_profiler ),
-    m_renderer( m_rendererCore, m_profiler ),
+    m_renderer( m_rendererCore, m_profiler, m_renderTargetManager ),
 	m_initialized( false ),
 	m_applicationInstance( nullptr ),
 	m_windowHandle( nullptr ),
@@ -81,6 +81,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	m_rendererCore.initialize( *m_frameRenderer.getDeviceContext( ).Get() );
     m_assetManager.initialize( parallelThreadCount, parallelThreadCount, m_frameRenderer.getDevice() );
     m_profiler.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
+    m_renderTargetManager.initialize( m_frameRenderer.getDevice() );
 
     m_sceneManager.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
 
@@ -621,7 +622,14 @@ void Application::run() {
                 ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "                << HitDistanceSearchComputeShader::s_positionDiffMul << " [R + P]";
                 ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "                  << HitDistanceSearchComputeShader::s_normalDiffMul << " [R + N]";
                 ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: "        << HitDistanceSearchComputeShader::s_positionNormalThreshold << " [R + T]";
-                ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance << " [R + W]";;
+                ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance << " [R + W]";
+
+                ss << "\n\nRender target usage:";
+                ss << "\n float4: " << m_renderTargetManager.getTotalRenderTargetCount< float4 >();
+                ss << "\n float:  " << m_renderTargetManager.getTotalRenderTargetCount< float >();
+                ss << "\n uchar4: " << m_renderTargetManager.getTotalRenderTargetCount< uchar4 >();
+                ss << "\n uchar:  " << m_renderTargetManager.getTotalRenderTargetCount< unsigned char >();
+                ss << "\n uchar4 depth: " << m_renderTargetManager.getTotalRenderTargetDepthCount();
             }
 
             if ( settings().debug.renderText )

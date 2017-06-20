@@ -4,6 +4,7 @@
 
 #include "Direct3DRendererCore.h"
 #include "Profiler.h"
+#include "RenderTargetManager.h"
 #include "Direct3DDeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
@@ -33,9 +34,10 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
+Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager ) :
     m_rendererCore( rendererCore ),
     m_profiler( profiler ),
+    m_renderTargetManager( renderTargetManager ),
     m_deferredRenderer( rendererCore ),
     m_raytraceRenderer( rendererCore ),
     m_shadingRenderer( rendererCore ),
@@ -72,8 +74,6 @@ void Renderer::initialize( const int2 imageDimensions, ComPtr< ID3D11Device > de
     m_lightModel = lightModel;
 
     m_imageDimensions = imageDimensions;
-
-    m_renderTargetManager.initialize( *device.Get(), imageDimensions );
 
 	m_deferredRenderer.initialize( device, deviceContext );
     m_raytraceRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
@@ -659,6 +659,18 @@ Renderer::Output Renderer::renderSceneImage(
                 output.floatImage = m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture();
                 return output;
         }
+    }
+
+    { // Free render targets which are no longer needed.
+        /*layerRenderTargets.hitPosition        = nullptr;
+        layerRenderTargets.hitEmissive        = nullptr;
+        layerRenderTargets.hitAlbedo          = nullptr;
+        layerRenderTargets.hitMetalness       = nullptr;
+        layerRenderTargets.hitRoughness       = nullptr;
+        layerRenderTargets.hitNormal          = nullptr;
+        layerRenderTargets.hitRefractiveIndex = nullptr;
+        layerRenderTargets.depth              = nullptr;
+        layerRenderTargets.hitShaded          = nullptr;*/
     }
 
     std::vector< bool > renderedViewType;

@@ -13,6 +13,7 @@
 #include "ControlPanel.h"
 #include "StagingTexture2D.h"
 #include "Animator.h"
+#include "RenderTargetManager.h"
 
 namespace Engine1
 {
@@ -88,6 +89,7 @@ namespace Engine1
         Direct3DFrameRenderer     m_frameRenderer;
         Renderer                  m_renderer;
         Profiler                  m_profiler;
+        RenderTargetManager       m_renderTargetManager;
 
         ControlPanel m_controlPanel;
 

@@ -21,7 +21,6 @@
 #include "UtilityRenderer.h"
 #include "ExtractBrightPixelsRenderer.h"
 #include "ToneMappingRenderer.h"
-#include "RenderTargetManager.h"
 #include "AntialiasingRenderer.h"
 
 #include "uchar4.h"
@@ -32,6 +31,7 @@ namespace Engine1
 {
     class Direct3DRendererCore;
     class Profiler;
+    class RenderTargetManager;
     class Scene;
     class Camera;
     class BlockMesh;
@@ -146,7 +146,7 @@ namespace Engine1
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitShaded;
         };
 
-        Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
+        Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager );
         ~Renderer();
 
         void initialize( const int2 imageDimensions, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
@@ -262,7 +262,7 @@ namespace Engine1
 
         Direct3DRendererCore&     m_rendererCore;
         Profiler&                 m_profiler;
-        RenderTargetManager       m_renderTargetManager;
+        RenderTargetManager&      m_renderTargetManager;
 
         Direct3DDeferredRenderer            m_deferredRenderer;
         RaytraceRenderer                    m_raytraceRenderer;
