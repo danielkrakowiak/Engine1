@@ -58,7 +58,7 @@ void RaytracingPrimaryRaysComputeShader::initialize( ComPtr< ID3D11Device >& dev
 
 void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
                                                         const float3 rayOrigin, 
-                                                        const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
+                                                        const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionsTexture, 
                                                         const BlockMesh& mesh, const float43& worldMatrix, 
                                                         const float3 boundingBoxMin, 
                                                         const float3 boundingBoxMax,

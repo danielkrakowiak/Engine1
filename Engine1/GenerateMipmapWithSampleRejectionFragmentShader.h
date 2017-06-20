@@ -23,7 +23,7 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
         void setParameters( ID3D11DeviceContext& deviceContext,
-                            Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
+                            Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
                             const int srcMipLevel, const float maxAcceptableValue );
 
         void unsetParameters( ID3D11DeviceContext& deviceContext );

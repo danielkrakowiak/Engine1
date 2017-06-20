@@ -194,7 +194,7 @@ void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsa
     m_rendererCore.disableRenderTargetViews();
 }
 
-void MipmapRenderer::generateMipmapsWithSampleRejection( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture,
+void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture, 
                                                          const float maxAcceptableValue, const int initialSrcMipmapLevel, int generateMipmapCount )
 {
     if ( !m_initialized )
@@ -231,7 +231,12 @@ void MipmapRenderer::generateMipmapsWithSampleRejection( std::shared_ptr< Textur
         m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
 
         m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
-        m_generateMipmapWithSampleRejectionFragmentShader->setParameters( *m_deviceContext.Get(), *texture, srcMipmapLevel, maxAcceptableValue );
+        m_generateMipmapWithSampleRejectionFragmentShader->setParameters( 
+            *m_deviceContext.Get(), 
+            *texture, 
+            srcMipmapLevel, 
+            maxAcceptableValue 
+        );
 
         m_rendererCore.draw( m_rectangleMesh );
     }

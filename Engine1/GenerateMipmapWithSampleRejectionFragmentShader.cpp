@@ -58,9 +58,10 @@ void GenerateMipmapWithSampleRejectionFragmentShader::initialize( ComPtr< ID3D11
     }
 }
 
-void GenerateMipmapWithSampleRejectionFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
-                                                          Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
-                                                          const int srcMipLevel, const float maxAcceptableValue )
+void GenerateMipmapWithSampleRejectionFragmentShader::setParameters( 
+    ID3D11DeviceContext& deviceContext,
+    Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
+    const int srcMipLevel, const float maxAcceptableValue )
 {
     { // Set input textures.
         const unsigned int resourceCount = 1;

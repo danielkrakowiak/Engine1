@@ -112,20 +112,25 @@ namespace Engine1
 
             void reset()
             {
-                hitPosition         = nullptr;
-                hitEmissive         = nullptr;
-                hitAlbedo           = nullptr;
-                hitMetalness        = nullptr;
-                hitRoughness        = nullptr;
-                hitNormal           = nullptr;
-                hitRefractiveIndex  = nullptr;
-                depth               = nullptr;
-                hitDistance         = nullptr;
-                hitDistanceBlurred  = nullptr;
-                hitDistanceToCamera = nullptr;
-                hitShaded           = nullptr;
+                rayOrigin              = nullptr;
+                rayDirection           = nullptr;
+                hitPosition            = nullptr;
+                hitEmissive            = nullptr;
+                hitAlbedo              = nullptr;
+                hitMetalness           = nullptr;
+                hitRoughness           = nullptr;
+                hitNormal              = nullptr;
+                hitRefractiveIndex     = nullptr;
+                currentRefractiveIndex = nullptr;
+                depth                  = nullptr;
+                hitDistance            = nullptr;
+                hitDistanceBlurred     = nullptr;
+                hitDistanceToCamera    = nullptr;
+                hitShaded              = nullptr;
             }
 
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayOrigin;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayDirection;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitPosition;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitEmissive;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitAlbedo;
@@ -133,6 +138,7 @@ namespace Engine1
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRoughness;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitNormal;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRefractiveIndex;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > currentRefractiveIndex;
             std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > >                        depth;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistance;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceBlurred;
@@ -174,7 +180,7 @@ namespace Engine1
         void  setExposure( const float exposure );
 
         // Temporary - for debug.
-        const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& debugGetCurrentRefractiveIndexTextures();
+        const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > > debugGetCurrentRefractiveIndexTextures();
 
         private:
 

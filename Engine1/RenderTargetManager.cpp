@@ -11,10 +11,10 @@ RenderTargetManager::~RenderTargetManager()
 
 void RenderTargetManager::initialize( ID3D11Device& device, int2 imageDimensions )
 {
-    const int rtFloatCount       = 1;
-    const int rtFloat4Count      = 8;
-    const int rtUcharCount       = 3;
-    const int rtUchar4Count      = 3;
+    const int rtFloatCount       = 16;
+    const int rtFloat4Count      = 25;
+    const int rtUcharCount       = 22;
+    const int rtUchar4Count      = 14;
     const int rtDepthUchar4Count = 1;
 
     const bool storeOnCpu           = false;
@@ -88,9 +88,9 @@ void RenderTargetManager::initialize( ID3D11Device& device, int2 imageDimensions
                 storeOnCpu,
                 storeOnGpu,
                 generateMipmaps,
+                DXGI_FORMAT_R8_TYPELESS,
                 DXGI_FORMAT_R8_UNORM,
-                DXGI_FORMAT_R8_UNORM,
-                DXGI_FORMAT_R8_UNORM,
+                DXGI_FORMAT_R8_UINT,
                 DXGI_FORMAT_R8_UNORM
                 );
 
@@ -113,9 +113,9 @@ void RenderTargetManager::initialize( ID3D11Device& device, int2 imageDimensions
                 storeOnCpu,
                 storeOnGpu,
                 generateMipmaps,
+                DXGI_FORMAT_R8G8B8A8_TYPELESS,
                 DXGI_FORMAT_R8G8B8A8_UNORM,
-                DXGI_FORMAT_R8G8B8A8_UNORM,
-                DXGI_FORMAT_R8G8B8A8_UNORM,
+                DXGI_FORMAT_R8G8B8A8_UINT,
                 DXGI_FORMAT_R8G8B8A8_UNORM
                 );
 

@@ -56,7 +56,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11Texture2D > getTextureResource();
         const Microsoft::WRL::ComPtr< ID3D11Texture2D > getTextureResource() const;
 
-        void loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext );
+        void loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext, const bool reload = false );
         void unloadFromCpu();
         void unloadFromGpu();
 
@@ -689,6 +689,8 @@ namespace Engine1
 		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
         }
         #endif
+
+        m_hasMipmapsOnGpu = mipmapCount > 1;
     }
 
     template< typename PixelType >
@@ -766,6 +768,8 @@ namespace Engine1
 		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
         }
         #endif
+
+        m_hasMipmapsOnGpu = mipmapCount > 1;
     }
 
     template< typename PixelType >
@@ -980,15 +984,18 @@ namespace Engine1
 
     template< typename PixelType >
     void Texture2DGeneric< PixelType >
-        ::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext )
+        ::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext, const bool reload )
     {
         if ( !isInCpuMemory() )
             throw std::exception( "Texture2DGeneric::loadCpuToGpu - texture is not in CPU memory." );
 
-        if ( !isInGpuMemory() ) {
+        if ( !isInGpuMemory() ) 
+        {
             createTextureOnGpu( device, m_dataMipmaps, m_width, m_height, getMipMapCountOnCpu() > 1, m_textureFormat );
             createTextureViewsOnGpu( device, m_width, m_height, getMipMapCountOnCpu() > 1, m_shaderResourceViewFormat, m_renderTargetViewFormat, m_depthStencilViewFormat, m_unorderedAccessViewFormat );
-        } else {
+        } 
+        else if ( reload ) 
+        {
             if ( supportsLoadCpuToGpu() ) {
                 D3D11_MAPPED_SUBRESOURCE mappedResource;
 

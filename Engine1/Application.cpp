@@ -745,7 +745,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& te
     setWindowTitle( "float: (" + std::to_string( pixelColor.x ) + ", " + std::to_string( pixelColor.y ) + ", " + std::to_string( pixelColor.z ) + ", " + std::to_string( pixelColor.w ) + ")" );
 }
 
-void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int2 screenCoords )
+void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > >& textures, const int2 screenCoords )
 {
     if (textures.empty())
         return;

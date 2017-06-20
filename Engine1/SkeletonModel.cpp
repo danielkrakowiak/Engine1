@@ -235,38 +235,38 @@ void SkeletonModel::saveToMemory( std::vector<char>& data ) const
     SkeletonModelParser::writeBinary( data, *this );
 }
 
-void SkeletonModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext )
+void SkeletonModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext, bool reload )
 {
 	if ( m_mesh )
-		m_mesh->loadCpuToGpu( device );
+		m_mesh->loadCpuToGpu( device, reload );
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
 		if ( texture.getTexture() ) 
-            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+            texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
 		if ( texture.getTexture() ) 
-            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+            texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
 		if ( texture.getTexture() ) 
-            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+            texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
 		if ( texture.getTexture() ) 
-            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+            texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
 		if ( texture.getTexture() ) 
-            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+            texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
 		if ( texture.getTexture() ) 
-            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+            texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
 		if ( texture.getTexture() ) 
-            texture.getTexture()->loadCpuToGpu( device, deviceContext );
+            texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 }
 
 void SkeletonModel::loadGpuToCpu( )

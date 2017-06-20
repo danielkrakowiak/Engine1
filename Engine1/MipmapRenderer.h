@@ -38,7 +38,7 @@ namespace Engine1
         void generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture );
 
         // @param generateMipmapCount - if 0 passed, generate all mips down to 1x1.
-        void generateMipmapsWithSampleRejection( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture, 
+        void generateMipmapsWithSampleRejection( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture, 
                                                  const float maxAcceptableValue, const int initialSrcMipmapLevel, int generateMipmapCount = 0 );
 
         private:

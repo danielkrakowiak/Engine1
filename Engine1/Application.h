@@ -69,7 +69,7 @@ namespace Engine1
         void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int2 screenCoords );
         void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int2 screenCoords );
         void debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int2 screenCoords );
-        void debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& textures, const int2 screenCoords );
+        void debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > >& textures, const int2 screenCoords );
 
 	    // Basic application handles.
 	    HINSTANCE m_applicationInstance;

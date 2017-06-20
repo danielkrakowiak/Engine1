@@ -32,88 +32,153 @@ namespace Engine1
     {
         public:
 
+        // For first reflected/refracted rays.
+        struct InputTextures1
+        {
+            InputTextures1() :
+                prevHitPosition( nullptr ),
+                prevHitNormal( nullptr ),
+                prevHitRoughness( nullptr ),
+                prevHitRefractiveIndex( nullptr ),
+                contribution( nullptr ),
+                prevCurrentRefractiveIndex( nullptr ),
+                prevPrevCurrentRefractiveIndex( nullptr )
+            {}
+
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >        prevHitPosition;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >        prevHitNormal;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevHitRoughness;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevHitRefractiveIndex;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >        contribution;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevCurrentRefractiveIndex;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevPrevCurrentRefractiveIndex;
+        };
+
+        // For other layers of reflected/refracted rays.
+        struct InputTextures2 : public InputTextures1
+        {
+            InputTextures2() :
+                InputTextures1(),
+                prevRayDirection( nullptr ),
+                prevHitDistanceToCamera( nullptr )
+            {}
+
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > prevRayDirection;
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  prevHitDistanceToCamera;
+        };
+
+        struct RenderTargets
+        {
+            RenderTargets() :
+                rayOrigin( nullptr ),
+                rayDirection( nullptr ),
+                hitPosition( nullptr ),
+                hitEmissive( nullptr ),
+                hitAlbedo( nullptr ),
+                hitMetalness( nullptr ),
+                hitRoughness( nullptr ),
+                hitNormal( nullptr ),
+                hitRefractiveIndex( nullptr ),
+                currentRefractiveIndex( nullptr ),
+                hitDistance( nullptr ),
+                hitDistanceToCamera( nullptr )
+            {}
+
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayOrigin;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayDirection;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitPosition;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitEmissive;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitAlbedo;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitMetalness;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRoughness;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitNormal;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRefractiveIndex;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > currentRefractiveIndex;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistance;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceToCamera;
+        };
+
         RaytraceRenderer( Direct3DRendererCore& rendererCore );
         ~RaytraceRenderer();
 
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
 
-        void generateAndTracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< BlockActor > >& actors );
+        void generateAndTracePrimaryRays( 
+            const Camera& camera, 
+            RenderTargets& renderTargets,
+            const std::vector< std::shared_ptr< BlockActor > >& actors );
 
-        void generateAndTraceFirstReflectedRays( const Camera& camera, 
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                            const std::vector< std::shared_ptr< BlockActor > >& actors );
+        void generateAndTraceFirstReflectedRays( 
+            const Camera& camera, 
+            InputTextures1& inputTextures,
+            RenderTargets& renderTargets,
+            const std::vector< std::shared_ptr< BlockActor > >& actors 
+        );
 
-        void generateAndTraceFirstRefractedRays( const Camera& camera, 
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                            const std::vector< std::shared_ptr< BlockActor > >& actors );
+        void generateAndTraceFirstRefractedRays( 
+            const Camera& camera, 
+            InputTextures1& inputTextures,
+            RenderTargets& renderTargets,
+            const std::vector< std::shared_ptr< BlockActor > >& actors 
+        );
 
-        void generateAndTraceReflectedRays( const int level,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                            const std::vector< std::shared_ptr< BlockActor > >& actors );
+        void generateAndTraceReflectedRays( 
+            const int level,
+            InputTextures2& inputTextures,
+            RenderTargets& renderTargets,
+            const std::vector< std::shared_ptr< BlockActor > >& actors );
 
-        void generateAndTraceRefractedRays( const int level, const int refractionLevel,
-                                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-                                            const std::vector< std::shared_ptr< BlockActor > >& actors );
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayOriginsTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayDirectionsTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayHitPositionTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > getRayHitDistanceTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > getRayHitDistanceToCameraTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >             getRayHitEmissiveTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > >             getRayHitAlbedoTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >      getRayHitMetalnessTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >      getRayHitRoughnessTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >      getRayHitRefractiveIndexTexture( int level );
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > >             getRayHitNormalTexture( int level );
-        
-        const std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >& getCurrentRefractiveIndexTextures();
+        void generateAndTraceRefractedRays( 
+            const int level, const int refractionLevel,
+            InputTextures2& inputTextures,
+            RenderTargets& renderTargets,
+            const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         private:
 
-        void generatePrimaryRays( const Camera& camera );
+        void generatePrimaryRays( 
+            const Camera& camera,
+            RenderTargets& renderTargets
+        );
 
-        void generateFirstReflectedRays( const Camera& camera, 
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture );
+        void generateFirstReflectedRays( 
+            const Camera& camera, 
+            InputTextures1& inputTextures,
+            RenderTargets& renderTargets
+        );
 
-        void generateFirstRefractedRays( const Camera& camera, 
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture );
+        void generateFirstRefractedRays( 
+            const Camera& camera, 
+            InputTextures1& inputTextures,
+            RenderTargets& renderTargets 
+        );
 
-        void generateReflectedRays( int level,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture );
+        void generateReflectedRays( 
+            int level,
+            InputTextures2& inputTextures,
+            RenderTargets& renderTargets 
+        );
 
-        void generateRefractedRays( int level, const int refractionLevel,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayDirectionTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > refractiveIndexTexture,
-                                    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture );
+        void generateRefractedRays( 
+            int level, const int refractionLevel,
+            InputTextures2& inputTextures,
+            RenderTargets& renderTargets 
+        );
 
-        void tracePrimaryRays( const Camera& camera, const std::vector< std::shared_ptr< BlockActor > >& actors );
+        void tracePrimaryRays( 
+            const Camera& camera, 
+            RenderTargets& renderTargets,
+            const std::vector< std::shared_ptr< BlockActor > >& actors 
+        );
 
-        void traceSecondaryRays( int level, const std::vector< std::shared_ptr< BlockActor > >& actors );
+        void traceSecondaryRays( 
+            int level, 
+            RenderTargets& renderTargets,
+            const std::vector< std::shared_ptr< BlockActor > >& actors 
+        );
 
-        void calculateHitDistanceToCamera( int level );
+        void calculateHitDistanceToCamera( InputTextures2& inputs, RenderTargets& renderTargets );
 
         Direct3DRendererCore& m_rendererCore;
 
@@ -127,20 +192,8 @@ namespace Engine1
 
         static const int maxRenderTargetCount;
 
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayOriginsTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayDirectionsTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayHitPositionTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > > m_rayHitDistanceTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > > m_rayHitDistanceToCameraTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >             m_rayHitEmissiveTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, uchar4 > > >             m_rayHitAlbedoTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_rayHitMetalnessTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_rayHitRoughnessTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_rayHitRefractiveIndexTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > >             m_rayHitNormalTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > >      m_currentRefractiveIndexTextures;
-
-        void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > > m_rayOriginsTexture;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > > m_rayDirectionsTexture;
 
         // Shaders.
         std::shared_ptr< GenerateRaysComputeShader >               m_generateRaysComputeShader;

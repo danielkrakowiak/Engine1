@@ -53,8 +53,8 @@ void RaytracingSecondaryRaysComputeShader::initialize( ComPtr< ID3D11Device >& d
 }
 
 void RaytracingSecondaryRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
-                                                          const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayOriginsTexture,
-                                                          const Texture2DSpecBind< TexBind::UnorderedAccess_ShaderResource, float4 >& rayDirectionsTexture, 
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginsTexture,
+                                                          const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionsTexture, 
                                                           const BlockMesh& mesh, 
                                                           const float43& worldMatrix, 
                                                           const float3 boundingBoxMin, 

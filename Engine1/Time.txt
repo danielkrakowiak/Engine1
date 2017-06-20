@@ -412,3 +412,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 15.06.2017 - 2h - Adding shadows to higher level reflections/refractions. Added an option to Control Panel to disable reflections/refractions alltogether.
 16.06.2017 - 4h - Added SumValueComputeShader for summing total distance travelled by rays (without accounting for depth yet). Added a simple hack to get mipmapping in reflections/refractions - based only on that layer's hit-dist.
 17.06.2017 - 4h - Refactoring main Renderer and sub-renderers to use common set of render targets per layer.
+18.06.2017 - 5h - Refactoring main Renderer and RaytraceRenderer.
+19.06.2017 - 1h - Fixing problem with some textures being reloaded to GPU unneccessarily as part of the model. 
+20.06.2017 - 1h - Analyzed missing emissive term in reflected image - caused by incorrect mipmap level calculation in raytracing shader. Added support for reload flag in textures, models - to mark if we want to realod them if they are already in GPU memory.

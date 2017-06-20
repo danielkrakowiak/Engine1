@@ -35,7 +35,7 @@ namespace Engine1
         virtual void saveToFile( const std::string& path ) const = 0;
         virtual void saveToMemory( std::vector<char>& data ) const = 0;
 
-        virtual void loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext ) = 0;
+        virtual void loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext, bool reload ) = 0;
         virtual void loadGpuToCpu() = 0;
         virtual void unloadFromCpu() = 0;
         virtual void unloadFromGpu() = 0;
