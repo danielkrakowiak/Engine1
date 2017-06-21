@@ -777,6 +777,11 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+
+	  - hit-distance-renderer and reflection-refraction-shading-renderer have to be refactored before we can switch combining to back-to-front order.
+
+	  - when switching combining order - move combining call to the end of renderReflectionsRefractions method.
+
 	  - add support for reload flag in textures - to mark if we want to realod them if they are already in GPU memory...
 
 	  - make sure that useless rays are not traced...
@@ -845,6 +850,10 @@ Idea:
 	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.
 	    This way you avoid blending shadows with very different blur radius - increasing quality. Test varius thresholds to divide shadows into two channels.
 	  - How to hanlde cases where a big glass window cast shadow over the whole room? It should not destroy the whole solution. It's usually very bright shadow - can this characteristic be used somehow?
+		
+	  - PROBLEM: To properly combine layers from back to front we need lots of render targets. It's because we need all RTs from all parent layers of the rendered layer.
+	    Not because layer being render need them. It only need it's parent. But because once we unwind the "layer stack" and start rendering at "parent level" we need even more "parent" layers.
+		And this way up to the root layer. We could do breadth-first rendering of layers, but then we would need to store all layers at given level - it would end up costing the same... (I think..).
 		
 
 	FUN:

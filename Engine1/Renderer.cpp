@@ -661,18 +661,6 @@ Renderer::Output Renderer::renderSceneImage(
         }
     }
 
-    { // Free render targets which are no longer needed.
-        /*layerRenderTargets.hitPosition        = nullptr;
-        layerRenderTargets.hitEmissive        = nullptr;
-        layerRenderTargets.hitAlbedo          = nullptr;
-        layerRenderTargets.hitMetalness       = nullptr;
-        layerRenderTargets.hitRoughness       = nullptr;
-        layerRenderTargets.hitNormal          = nullptr;
-        layerRenderTargets.hitRefractiveIndex = nullptr;
-        layerRenderTargets.depth              = nullptr;
-        layerRenderTargets.hitShaded          = nullptr;*/
-    }
-
     std::vector< bool > renderedViewType;
 
     output = renderReflectionsRefractions(
