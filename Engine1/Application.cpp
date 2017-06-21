@@ -624,12 +624,21 @@ void Application::run() {
                 ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: "        << HitDistanceSearchComputeShader::s_positionNormalThreshold << " [R + T]";
                 ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance << " [R + W]";
 
+                const float screenPixelCount = (float)(settings().main.screenDimensions.x * settings().main.screenDimensions.y);
+                const float bytesInMegabyte = 1024.0f * 1024.0f;
+
+                const int renderTargetFloat4Count      = m_renderTargetManager.getTotalRenderTargetCount< float4 >();
+                const int renderTargetFloatCount       = m_renderTargetManager.getTotalRenderTargetCount< float >();
+                const int renderTargetUchar4Count      = m_renderTargetManager.getTotalRenderTargetCount< uchar4 >();
+                const int renderTargetUcharCount       = m_renderTargetManager.getTotalRenderTargetCount< unsigned char >();
+                const int renderTargetUchar4DepthCount = m_renderTargetManager.getTotalRenderTargetDepthCount();
+
                 ss << "\n\nRender target usage:";
-                ss << "\n float4: " << m_renderTargetManager.getTotalRenderTargetCount< float4 >();
-                ss << "\n float:  " << m_renderTargetManager.getTotalRenderTargetCount< float >();
-                ss << "\n uchar4: " << m_renderTargetManager.getTotalRenderTargetCount< uchar4 >();
-                ss << "\n uchar:  " << m_renderTargetManager.getTotalRenderTargetCount< unsigned char >();
-                ss << "\n uchar4 depth: " << m_renderTargetManager.getTotalRenderTargetDepthCount();
+                ss << "\n float4: " << renderTargetFloat4Count << ", approx.: " << (float)renderTargetFloat4Count * ( screenPixelCount * 16.0f ) / bytesInMegabyte << " MB";
+                ss << "\n float:  " << renderTargetFloatCount << ", approx.: " << (float)renderTargetFloatCount * ( screenPixelCount * 4.0f ) / bytesInMegabyte << " MB";
+                ss << "\n uchar4: " << renderTargetUchar4Count << ", approx.: " << (float)renderTargetUchar4Count * ( screenPixelCount * 4.0f ) / bytesInMegabyte << " MB";
+                ss << "\n uchar:  " << renderTargetUcharCount << ", approx.: " << (float)renderTargetUcharCount * ( screenPixelCount * 1.0f ) / bytesInMegabyte << " MB";
+                ss << "\n uchar4 depth: " << renderTargetUchar4DepthCount << ", approx.: " << (float)renderTargetUchar4DepthCount * ( screenPixelCount * 4.0f ) / bytesInMegabyte << " MB";
             }
 
             if ( settings().debug.renderText )
