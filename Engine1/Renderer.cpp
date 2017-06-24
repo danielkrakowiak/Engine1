@@ -728,64 +728,64 @@ Renderer::Output Renderer::renderReflectionsRefractions(
             renderRefractions( level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
     }
 
-    //if ( renderedViewLevel == activeViewLevel )
-    //{
-    //    Output output;
+    if ( renderedViewLevel == activeViewLevel )
+    {
+        Output output;
 
-    //    switch ( activeViewType )
-    //    {
-    //        case View::Shaded: 
-    //            output.float4Image = nullptr; // #TODO: Return shaded image. //m_shadingRenderer.getColorRenderTarget();
-    //            break;
-    //        case View::Position: 
-    //            output.float4Image = m_raytraceRenderer.getRayHitPositionTexture( level - 1 );
-    //            break;
-    //        case View::Emissive: 
-    //            output.uchar4Image = m_raytraceRenderer.getRayHitEmissiveTexture( level - 1 );
-    //            break;
-    //        case View::Albedo: 
-    //            output.uchar4Image = m_raytraceRenderer.getRayHitAlbedoTexture( level - 1 );
-    //            break;
-    //        case View::Normal:
-    //            output.float4Image = m_raytraceRenderer.getRayHitNormalTexture( level - 1 );
-    //            break;
-    //        case View::Metalness:
-    //            output.ucharImage = m_raytraceRenderer.getRayHitMetalnessTexture( level - 1 );
-    //            break;
-    //        case View::Roughness:
-    //            output.ucharImage = m_raytraceRenderer.getRayHitRoughnessTexture( level - 1 );
-    //            break;
-    //        case View::IndexOfRefraction:
-    //            output.ucharImage = m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 );
-    //            break;
-    //        case View::RayDirections: 
-    //            output.float4Image = m_raytraceRenderer.getRayDirectionsTexture( level - 1 );
-    //            break;
-    //        case View::Contribution: 
-    //            output.uchar4Image = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
-    //            break;
-    //        case View::CurrentRefractiveIndex:
-    //            output.ucharImage = m_raytraceRenderer.getCurrentRefractiveIndexTextures().at( level - 1 );
-    //            break;
-    //        case View::Preillumination:
-    //            output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
-    //            break;
-    //        case View::HardIllumination:
-    //            output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
-    //            break;
-    //        case View::HitDistance:
-    //            output.floatImage = m_raytraceRenderer.getRayHitDistanceTexture( level - 1 );
-    //            break;
-    //        case View::FinalHitDistance:
-    //            output.floatImage = m_hitDistanceSearchRenderer.getFinalHitDistanceTexture();
-    //            break;
-    //        case View::HitDistanceToCamera:
-    //            output.floatImage = m_raytraceRenderer.getRayHitDistanceToCameraTexture( level - 1 );
-    //            break;
-    //    }
+        switch ( activeViewType )
+        {
+            case View::Shaded: 
+                output.float4Image = m_layersRenderTargets.at( level ).hitShaded;
+                break;
+            case View::Position: 
+                output.float4Image = m_layersRenderTargets.at( level ).hitPosition;
+                break;
+            case View::Emissive: 
+                output.uchar4Image = m_layersRenderTargets.at( level ).hitEmissive;
+                break;
+            case View::Albedo: 
+                output.uchar4Image = m_layersRenderTargets.at( level ).hitAlbedo;
+                break;
+            case View::Normal:
+                output.float4Image = m_layersRenderTargets.at( level ).hitNormal;
+                break;
+            case View::Metalness:
+                output.ucharImage = m_layersRenderTargets.at( level ).hitMetalness;
+                break;
+            case View::Roughness:
+                output.ucharImage = m_layersRenderTargets.at( level ).hitRoughness;
+                break;
+            case View::IndexOfRefraction:
+                output.ucharImage = m_layersRenderTargets.at( level ).hitRefractiveIndex;
+                break;
+            case View::RayDirections: 
+                output.float4Image = m_layersRenderTargets.at( level ).rayDirection;
+                break;
+            case View::Contribution: 
+                output.uchar4Image = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
+                break;
+            case View::CurrentRefractiveIndex:
+                output.ucharImage = m_layersRenderTargets.at( level ).currentRefractiveIndex;
+                break;
+            case View::Preillumination:
+                output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
+                break;
+            case View::HardIllumination:
+                output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
+                break;
+            case View::HitDistance:
+                output.floatImage = m_layersRenderTargets.at( level ).hitDistance;
+                break;
+            case View::FinalHitDistance:
+                output.floatImage = m_layersRenderTargets.at( level ).hitDistanceBlurred;
+                break;
+            case View::HitDistanceToCamera:
+                output.floatImage = m_layersRenderTargets.at( level ).hitDistanceToCamera;
+                break;
+        }
 
-    //    return output;
-    //}
+        return output;
+    }
 
     //#TODO: We can clear some deferred render targets here if level 1 is finished.
     // Only has to keep depth.
@@ -839,6 +839,7 @@ void Renderer::renderFirstReflections( const Camera& camera,
     currLayerRTs.hitRefractiveIndex     = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
     currLayerRTs.currentRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
     currLayerRTs.hitDistance            = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
+    //currLayerRTs.hitDistanceBlurred     = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
     currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
     currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
 
@@ -966,6 +967,9 @@ void Renderer::renderFirstReflections( const Camera& camera,
             m_raytraceShadowRenderer.getDistanceToOccluder(),
             *lightsCastingShadows[ lightIdx ]
         );
+
+        // For debug display.
+        currLayerRTs.hitDistanceBlurred = m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture();
 
         m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
