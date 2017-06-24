@@ -349,7 +349,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
         std::shared_ptr< Asset > textureAsset = m_assetManager.getOrLoad( fileInfo );
 
         if ( filePath.find( "_A." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 >>( textureAsset );
+            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, uchar4 >>( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
             for ( auto& actor : m_selection.getBlockActors() ) {
@@ -366,7 +366,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                 actor->getModel()->addAlbedoTexture( modelTexture );
             }
         } else if ( filePath.find( "_AL." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char >>( textureAsset );
+            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
             for ( auto& actor : m_selection.getBlockActors() ) {
@@ -383,7 +383,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                 actor->getModel()->addAlphaTexture( modelTexture );
             }
         } else if ( filePath.find( "_M." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char >>( textureAsset );
+            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
             for ( auto& actor : m_selection.getBlockActors() ) {
@@ -400,7 +400,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                 actor->getModel()->addMetalnessTexture( modelTexture );
             }
         } else if ( filePath.find( "_N." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 >>( textureAsset );
+            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, uchar4 >>( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
             for ( auto& actor : m_selection.getBlockActors() ) {
@@ -417,7 +417,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                 actor->getModel()->addNormalTexture( modelTexture );
             }
         } else if ( filePath.find( "_R." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char >>( textureAsset );
+            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
             for ( auto& actor : m_selection.getBlockActors() ) {
@@ -434,7 +434,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                 actor->getModel()->addRoughnessTexture( modelTexture );
             }
         } else if ( filePath.find( "_E." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 >>( textureAsset );
+            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, uchar4 >>( textureAsset );
             ModelTexture2D< uchar4 > modelTexture( texture );
 
             for ( auto& actor : m_selection.getBlockActors() ) {
@@ -451,7 +451,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                 actor->getModel()->addEmissiveTexture( modelTexture );
             }
         } else if ( filePath.find( "_I." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char >>( textureAsset );
+            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( textureAsset );
             ModelTexture2D< unsigned char > modelTexture( texture );
 
             for ( auto& actor : m_selection.getBlockActors() ) {
