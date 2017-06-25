@@ -177,7 +177,7 @@ Renderer::Output Renderer::renderScene(
     const auto  blockActors             = SceneUtil::filterActorsByType< BlockActor >( actors );
 
     Output output; 
-    output = renderSceneImage( 
+    output = renderPrimaryLayer( 
         scene, camera, lightsCastingShadows, lightsNotCastingShadows, 
         settings().rendering.reflectionsRefractions.activeView, m_activeViewType, wireframeMode,
         selection, selectionVolumeMesh 
@@ -241,7 +241,7 @@ Renderer::Output Renderer::renderText(
     return output;
 }
 
-Renderer::Output Renderer::renderSceneImage( 
+Renderer::Output Renderer::renderPrimaryLayer( 
     const Scene& scene, const Camera& camera, 
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
@@ -663,7 +663,7 @@ Renderer::Output Renderer::renderSceneImage(
 
     std::vector< bool > renderedViewType;
 
-    output = renderReflectionsRefractions(
+    output = renderSecondaryLayers(
         true, 1, 0,
         settings().rendering.reflectionsRefractions.maxLevel,
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
@@ -674,7 +674,7 @@ Renderer::Output Renderer::renderSceneImage(
     if ( !output.isEmpty() )
         return output;
 
-    output = renderReflectionsRefractions(
+    output = renderSecondaryLayers(
         false, 1, 0,
         settings().rendering.reflectionsRefractions.maxLevel,
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
@@ -685,7 +685,7 @@ Renderer::Output Renderer::renderSceneImage(
     return output;
 }
 
-Renderer::Output Renderer::renderReflectionsRefractions( 
+Renderer::Output Renderer::renderSecondaryLayers( 
     const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
     const std::vector< std::shared_ptr< BlockActor > >& blockActors,
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
@@ -709,24 +709,10 @@ Renderer::Output Renderer::renderReflectionsRefractions(
 
     renderedViewLevel.push_back( reflectionFirst );
 
-    if ( reflectionFirst ) 
-    {
-        //OutputDebugStringW( StringUtil::widen( "Reflection - " + std::to_string( level ) + "\n" ).c_str() );
-
-        if ( level == 1 )
-            renderFirstReflections( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
-        else
-            renderReflections( level, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
-    }
-    else 
-    {
-        //OutputDebugStringW( StringUtil::widen( "Refraction - " + std::to_string( level ) + "\n" ).c_str() );
-
-        if ( level == 1 )
-            renderFirstRefractions( camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
-        else
-            renderRefractions( level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
-    }
+    if ( reflectionFirst )
+        renderSecondaryLayer( LayerType::Reflection, level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
+    else
+        renderSecondaryLayer( LayerType::Refraction, level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
 
     if ( renderedViewLevel == activeViewLevel )
     {
@@ -791,7 +777,7 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     // Only has to keep depth.
 
     Output output;
-    output = renderReflectionsRefractions( 
+    output = renderSecondaryLayers( 
         true, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
         renderedViewLevel, activeViewLevel, activeViewType
@@ -800,7 +786,7 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     if ( !output.isEmpty() )
         return output;
 
-    output = renderReflectionsRefractions( 
+    output = renderSecondaryLayers( 
         false, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
         renderedViewLevel, activeViewLevel, activeViewType
@@ -814,531 +800,8 @@ Renderer::Output Renderer::renderReflectionsRefractions(
     return Output();
 }
 
-void Renderer::renderFirstReflections( const Camera& camera, 
-                                       const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
-                                       const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
-{
-    const int currLevel = 1;
-
-    if ( m_layersRenderTargets.size() <= currLevel )
-        m_layersRenderTargets.emplace_back();
-    
-    auto& firstLayerRTs = m_layersRenderTargets.front();
-    auto& prevLayerRTs  = m_layersRenderTargets.at( currLevel - 1 ); // Previous layer render targets.
-    auto& currLayerRTs  = m_layersRenderTargets.at( currLevel );     // Current layer render targets.
-
-    currLayerRTs.rayOrigin              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.rayDirection           = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitPosition            = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitEmissive            = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
-    currLayerRTs.hitAlbedo              = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
-    currLayerRTs.hitMetalness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitRoughness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitNormal              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitRefractiveIndex     = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.currentRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitDistance            = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
-    //currLayerRTs.hitDistanceBlurred     = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
-    currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
-    currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-
-    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
-
-    // Perform reflection shading.
-    m_reflectionRefractionShadingRenderer.performFirstReflectionShading( 
-        camera, 
-        prevLayerRTs.hitPosition, 
-        prevLayerRTs.hitNormal, 
-        prevLayerRTs.hitAlbedo,
-        prevLayerRTs.hitMetalness, 
-        prevLayerRTs.hitRoughness 
-    );
-
-    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
-    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::Raytracing );
-
-    RaytraceRenderer::InputTextures1 raytracerInputs;
-    raytracerInputs.contribution     = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 );
-    raytracerInputs.prevHitPosition  = prevLayerRTs.hitPosition;
-    raytracerInputs.prevHitNormal    = prevLayerRTs.hitNormal;
-    raytracerInputs.prevHitRoughness = prevLayerRTs.hitRoughness;
-
-    RaytraceRenderer::RenderTargets raytracerRTs;
-    raytracerRTs.rayOrigin              = currLayerRTs.rayOrigin;
-    raytracerRTs.rayDirection           = currLayerRTs.rayDirection;
-    raytracerRTs.hitPosition            = currLayerRTs.hitPosition;
-    raytracerRTs.hitEmissive            = currLayerRTs.hitEmissive;
-    raytracerRTs.hitAlbedo              = currLayerRTs.hitAlbedo;
-    raytracerRTs.hitMetalness           = currLayerRTs.hitMetalness;
-    raytracerRTs.hitRoughness           = currLayerRTs.hitRoughness;
-    raytracerRTs.hitNormal              = currLayerRTs.hitNormal;
-    raytracerRTs.hitRefractiveIndex     = currLayerRTs.hitRefractiveIndex;
-    raytracerRTs.currentRefractiveIndex = currLayerRTs.currentRefractiveIndex;
-    raytracerRTs.hitDistance            = currLayerRTs.hitDistance;
-    raytracerRTs.hitDistanceToCamera    = currLayerRTs.hitDistanceToCamera;
-
-    // Perform ray tracing.
-    m_raytraceRenderer.generateAndTraceFirstReflectedRays( 
-        camera, 
-        raytracerInputs,
-        raytracerRTs,
-        blockActors 
-    );
-
-    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::Raytracing );
-    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
-
-    // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( currLayerRTs.hitShaded, currLayerRTs.hitEmissive );
-
-    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::EmissiveShading );
-    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ShadingNoShadows );
-
-    m_shadingRenderer.performShadingNoShadows( 
-        currLayerRTs.hitShaded,
-        currLayerRTs.rayOrigin, 
-        currLayerRTs.hitPosition,
-        currLayerRTs.hitAlbedo,
-        currLayerRTs.hitMetalness,
-        currLayerRTs.hitRoughness,
-        currLayerRTs.hitNormal, 
-        lightsNotCastingShadows 
-    );
-
-    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ShadingNoShadows );
-
-    const int lightCount = (int)lightsCastingShadows.size();
-    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
-	{
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-
-        //if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight
-        //     && std::static_pointer_cast<SpotLight>( lightsCastingShadows[ lightIdx ] )->getShadowMap()
-        //) 
-        //{
-        //    m_rasterizeShadowRenderer.performShadowMapping(
-        //        camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
-        //        lightsCastingShadows[ lightIdx ],
-        //        m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-        //        m_raytraceRenderer.getRayHitNormalTexture( 0 )
-        //    );
-        //}
-
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
-
-		m_raytraceShadowRenderer.generateAndTraceShadowRays( 
-			lightsCastingShadows[ lightIdx ], 
-			currLayerRTs.hitPosition, 
-			currLayerRTs.hitNormal, 
-			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-            //nullptr, //#TODO: Should I use a pre-illumination?
-			blockActors 
-		);
-
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
-
-        m_raytraceShadowRenderer.getHardShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        m_raytraceShadowRenderer.getSoftShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
-
-        m_mipmapRenderer.generateMipmapsWithSampleRejection(
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
-            500.0f, 0, 3
-        );
-
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
-
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // #TODO RENDER: Distance to occluder shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
-        // Modify shader of pass appropriate accumulated distance to camera to shader.
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // Distance to occluder search.
-        m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
-            camera,
-            currLayerRTs.hitPosition,
-            currLayerRTs.hitNormal,
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
-            *lightsCastingShadows[ lightIdx ]
-        );
-
-        // For debug display.
-        currLayerRTs.hitDistanceBlurred = m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture();
-
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
-
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // #TODO RENDER: Blur shadow shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
-        // Modify shader of pass appropriate accumulated distance to camera to shader.
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        if ( settings().rendering.shadows.useSeparableShadowBlur ) 
-        {
-            // Blur shadows in two passes - horizontal and vertical.
-            m_blurShadowsRenderer.blurShadowsHorzVert(
-                camera,
-                currLayerRTs.hitPosition,
-                currLayerRTs.hitNormal,
-                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
-                *lightsCastingShadows[ lightIdx ]
-            );
-        } else {
-            // Blur shadows in a single pass.
-            m_blurShadowsRenderer.blurShadows(
-                camera,
-                currLayerRTs.hitPosition,
-                currLayerRTs.hitNormal,
-                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
-                *lightsCastingShadows[ lightIdx ]
-            );
-        }
-
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
-        m_profiler.beginEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
-
-		// Perform shading on the main image.
-		m_shadingRenderer.performShading( 
-            currLayerRTs.hitShaded,
-			currLayerRTs.rayOrigin,
-			currLayerRTs.hitPosition,
-			currLayerRTs.hitAlbedo,
-			currLayerRTs.hitMetalness,
-			currLayerRTs.hitRoughness,
-			currLayerRTs.hitNormal,
-			m_blurShadowsRenderer.getShadowTexture(),
-			*lightsCastingShadows[ lightIdx ] 
-		);
-
-        m_profiler.endEvent( Profiler::StageType::R, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
-        
-	}
-
-    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
-
-    // Generate mipmaps for the shaded, reflected image.
-    currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
-    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
-
-    const int contributionTextureFillWidth  = prevLayerRTs.hitPosition->getWidth();
-    const int contributionTextureFillHeight = prevLayerRTs.hitPosition->getHeight();
-
-    const int colorTextureFillWidth  = currLayerRTs.rayOrigin->getWidth();
-    const int colorTextureFillHeight = currLayerRTs.rayOrigin->getHeight();
-
-    m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::CombiningWithMainImage );
-
-    //#TODO: Should be profiled separately.
-    
-    //#TODO: Fill pixels for which all samples were rejected with max value.
-    m_mipmapRenderer.generateMipmapsWithSampleRejection(
-        currLayerRTs.hitDistance,
-        50.0f, 0, 0
-    );
-
-    // Search for hit distance.
-    m_hitDistanceSearchRenderer.performHitDistanceSearch(
-        camera, 
-        firstLayerRTs.hitPosition, 
-        firstLayerRTs.hitNormal, 
-        currLayerRTs.hitDistance 
-    );
-
-    // Combine main image with reflections.
-    m_combiningRenderer.combine( 
-        m_finalRenderTargetHDR, 
-        currLayerRTs.hitShaded, 
-        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ), 
-        firstLayerRTs.hitNormal, 
-        firstLayerRTs.hitPosition, 
-        firstLayerRTs.depth, 
-        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-        camera.getPosition(),
-        contributionTextureFillWidth, 
-        contributionTextureFillHeight,
-        colorTextureFillWidth, 
-        colorTextureFillHeight 
-    );
-
-    m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::CombiningWithMainImage );
-}
-
-void Renderer::renderFirstRefractions( const Camera& camera, 
-                                       const std::vector< std::shared_ptr< BlockActor > >& blockActors, 
-                                       const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-                                       const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
-{
-    const int currLevel = 1;
-
-    if ( m_layersRenderTargets.size() <= currLevel )
-        m_layersRenderTargets.emplace_back();
-
-    auto& firstLayerRTs = m_layersRenderTargets.front();
-    auto& prevLayerRTs  = m_layersRenderTargets.at( currLevel - 1 ); // Previous layer render targets.
-    auto& currLayerRTs  = m_layersRenderTargets.at( currLevel );     // Current layer render targets.
-
-    currLayerRTs.rayOrigin              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.rayDirection           = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitPosition            = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitEmissive            = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
-    currLayerRTs.hitAlbedo              = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
-    currLayerRTs.hitMetalness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitRoughness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitNormal              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitRefractiveIndex     = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.currentRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitDistance            = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
-    currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
-    currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-
-    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
-
-    // Perform refraction shading.
-    m_reflectionRefractionShadingRenderer.performFirstRefractionShading( 
-        camera, 
-        prevLayerRTs.hitPosition,
-        prevLayerRTs.hitNormal,
-        prevLayerRTs.hitAlbedo,
-        prevLayerRTs.hitMetalness,
-        prevLayerRTs.hitRoughness 
-    );
-
-    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
-    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::Raytracing );
-
-    RaytraceRenderer::InputTextures1 raytracerInputs;
-    raytracerInputs.contribution           = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 );
-    raytracerInputs.prevHitPosition        = prevLayerRTs.hitPosition;
-    raytracerInputs.prevHitNormal          = prevLayerRTs.hitNormal;
-    raytracerInputs.prevHitRoughness       = prevLayerRTs.hitRoughness;
-    raytracerInputs.prevHitRefractiveIndex = prevLayerRTs.hitRefractiveIndex;
-
-    RaytraceRenderer::RenderTargets raytracerRTs;
-    raytracerRTs.rayOrigin              = currLayerRTs.rayOrigin;
-    raytracerRTs.rayDirection           = currLayerRTs.rayDirection;
-    raytracerRTs.hitPosition            = currLayerRTs.hitPosition;
-    raytracerRTs.hitEmissive            = currLayerRTs.hitEmissive;
-    raytracerRTs.hitAlbedo              = currLayerRTs.hitAlbedo;
-    raytracerRTs.hitMetalness           = currLayerRTs.hitMetalness;
-    raytracerRTs.hitRoughness           = currLayerRTs.hitRoughness;
-    raytracerRTs.hitNormal              = currLayerRTs.hitNormal;
-    raytracerRTs.hitRefractiveIndex     = currLayerRTs.hitRefractiveIndex;
-    raytracerRTs.currentRefractiveIndex = currLayerRTs.currentRefractiveIndex;
-    raytracerRTs.hitDistance            = currLayerRTs.hitDistance;
-    raytracerRTs.hitDistanceToCamera    = currLayerRTs.hitDistanceToCamera;
-
-    // Perform ray tracing.
-    m_raytraceRenderer.generateAndTraceFirstRefractedRays( 
-        camera, 
-        raytracerInputs,
-        raytracerRTs,
-        blockActors 
-    );
-
-    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::Raytracing );
-    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
-
-    // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( currLayerRTs.hitShaded, currLayerRTs.hitEmissive );
-
-    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::EmissiveShading );
-    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ShadingNoShadows );
-
-    m_shadingRenderer.performShadingNoShadows( 
-        currLayerRTs.hitShaded,
-        currLayerRTs.rayOrigin,
-        currLayerRTs.hitPosition,
-        currLayerRTs.hitAlbedo,
-        currLayerRTs.hitMetalness,
-        currLayerRTs.hitRoughness,
-        currLayerRTs.hitNormal,
-        lightsNotCastingShadows 
-    );
-
-    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ShadingNoShadows );
-
-    const int lightCount = (int)lightsCastingShadows.size();
-    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
-	{
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-
-        //if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight
-        //     && std::static_pointer_cast<SpotLight>( lightsCastingShadows[ lightIdx ] )->getShadowMap()
-        //) 
-        //{
-        //    m_rasterizeShadowRenderer.performShadowMapping(
-        //        camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
-        //        lightsCastingShadows[ lightIdx ],
-        //        m_raytraceRenderer.getRayHitPositionTexture( 0 ),
-        //        m_raytraceRenderer.getRayHitNormalTexture( 0 )
-        //    );
-        //}
-
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
-
-		m_raytraceShadowRenderer.generateAndTraceShadowRays(
-			lightsCastingShadows[ lightIdx ],
-			currLayerRTs.hitPosition,
-			currLayerRTs.hitNormal, 
-			m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
-            //nullptr, //#TODO: Should I use a pre-illumination?
-			blockActors
-		);
-
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
-
-        m_raytraceShadowRenderer.getHardShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        m_raytraceShadowRenderer.getSoftShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
-
-        m_mipmapRenderer.generateMipmapsWithSampleRejection(
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
-            500.0f, 0, 3
-        );
-
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
-
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // #TODO RENDER: Distance to occluder shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
-        // Modify shader of pass appropriate accumulated distance to camera to shader.
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // Distance to occluder search.
-        m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
-            camera,
-            currLayerRTs.hitPosition,
-            currLayerRTs.hitNormal,
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
-            *lightsCastingShadows[ lightIdx ]
-        );
-
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
-
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // #TODO RENDER: Blur shadow shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
-        // Modify shader of pass appropriate accumulated distance to camera to shader.
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        if ( settings().rendering.shadows.useSeparableShadowBlur ) {
-            // Blur shadows in two passes - horizontal and vertical.
-            m_blurShadowsRenderer.blurShadowsHorzVert(
-                camera,
-                currLayerRTs.hitPosition,
-                currLayerRTs.hitNormal,
-                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
-                *lightsCastingShadows[ lightIdx ]
-            );
-        } else {
-            // Blur shadows in a single pass.
-            m_blurShadowsRenderer.blurShadows(
-                camera,
-                currLayerRTs.hitPosition,
-                currLayerRTs.hitNormal,
-                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
-                *lightsCastingShadows[ lightIdx ]
-            );
-        }
-
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
-        m_profiler.beginEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
-
-        // Perform shading on the main image.
-        m_shadingRenderer.performShading(
-            currLayerRTs.hitShaded,
-            currLayerRTs.rayOrigin,
-            currLayerRTs.hitPosition,
-            currLayerRTs.hitAlbedo,
-            currLayerRTs.hitMetalness,
-            currLayerRTs.hitRoughness,
-            currLayerRTs.hitNormal,
-            m_blurShadowsRenderer.getShadowTexture(),
-            *lightsCastingShadows[ lightIdx ]
-        );
-
-        m_profiler.endEvent( Profiler::StageType::T, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
-	}
-
-    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
-
-    // Generate mipmaps for the shaded, reflected image.
-    currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
-    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::MipmapGenerationForShadedImage );
-
-    const int contributionTextureFillWidth  = prevLayerRTs.hitPosition->getWidth();
-    const int contributionTextureFillHeight = prevLayerRTs.hitPosition->getHeight();
-
-    const int colorTextureFillWidth  = currLayerRTs.rayOrigin->getWidth();
-    const int colorTextureFillHeight = currLayerRTs.rayOrigin->getHeight();
-
-    m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
-
-    //#TODO: Should be profiled separately.
-
-    //#TODO: Fill pixels for which all samples were rejected with max value.
-    m_mipmapRenderer.generateMipmapsWithSampleRejection(
-        currLayerRTs.hitDistance,
-        50.0f, 0, 0
-    );
-
-    // Search for hit distance.
-    m_hitDistanceSearchRenderer.performHitDistanceSearch(
-        camera,
-        prevLayerRTs.hitPosition,
-        prevLayerRTs.hitNormal,
-        currLayerRTs.hitDistance
-    );
-
-    // Combine main image with reflections.
-    m_combiningRenderer.combine(
-        m_finalRenderTargetHDR,
-        currLayerRTs.hitShaded,
-        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( 0 ),
-        prevLayerRTs.hitNormal,
-        prevLayerRTs.hitPosition,
-        prevLayerRTs.depth,
-        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-        camera.getPosition(),
-        contributionTextureFillWidth,
-        contributionTextureFillHeight,
-        colorTextureFillWidth,
-        colorTextureFillHeight
-    );
-
-    m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::CombiningWithMainImage );
-}
-
-void Renderer::renderReflections( 
-    const int level, const Camera& camera, 
+void Renderer::renderSecondaryLayer(
+    const LayerType layerType, const int level, const int refractionLevel, const Camera& camera,
     const std::vector< std::shared_ptr< BlockActor > >& blockActors,
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
@@ -1346,7 +809,6 @@ void Renderer::renderReflections(
     if ( m_layersRenderTargets.size() <= level )
         m_layersRenderTargets.emplace_back();
 
-    auto& firstLayerRTs = m_layersRenderTargets.front();
     auto& prevLayerRTs  = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
     auto& currLayerRTs  = m_layersRenderTargets.at( level );     // Current layer render targets.
 
@@ -1364,226 +826,58 @@ void Renderer::renderReflections(
     currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
     currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
 
-    m_reflectionRefractionShadingRenderer.performReflectionShading( 
-        level - 1, 
-        prevLayerRTs.rayOrigin,
-        prevLayerRTs.hitPosition,
-        prevLayerRTs.hitNormal,
-        prevLayerRTs.hitAlbedo,
-        prevLayerRTs.hitMetalness,
-        prevLayerRTs.hitRoughness 
-    );
-
-    RaytraceRenderer::InputTextures2 raytracerInputs;
-    raytracerInputs.contribution                   = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
-    raytracerInputs.prevHitPosition                = prevLayerRTs.hitPosition;
-    raytracerInputs.prevHitNormal                  = prevLayerRTs.hitNormal;
-    raytracerInputs.prevHitRoughness               = prevLayerRTs.hitRoughness;
-    raytracerInputs.prevRayDirection               = prevLayerRTs.rayDirection;
-    raytracerInputs.prevHitDistanceToCamera        = prevLayerRTs.hitDistanceToCamera;
-    raytracerInputs.prevHitRefractiveIndex         = prevLayerRTs.hitRefractiveIndex;
-
-    RaytraceRenderer::RenderTargets raytracerRTs;
-    raytracerRTs.rayOrigin              = currLayerRTs.rayOrigin;
-    raytracerRTs.rayDirection           = currLayerRTs.rayDirection;
-    raytracerRTs.hitPosition            = currLayerRTs.hitPosition;
-    raytracerRTs.hitEmissive            = currLayerRTs.hitEmissive;
-    raytracerRTs.hitAlbedo              = currLayerRTs.hitAlbedo;
-    raytracerRTs.hitMetalness           = currLayerRTs.hitMetalness;
-    raytracerRTs.hitRoughness           = currLayerRTs.hitRoughness;
-    raytracerRTs.hitNormal              = currLayerRTs.hitNormal;
-    raytracerRTs.hitRefractiveIndex     = currLayerRTs.hitRefractiveIndex;
-    raytracerRTs.currentRefractiveIndex = currLayerRTs.currentRefractiveIndex;
-    raytracerRTs.hitDistance            = currLayerRTs.hitDistance;
-    raytracerRTs.hitDistanceToCamera    = currLayerRTs.hitDistanceToCamera;
-
-    m_raytraceRenderer.generateAndTraceReflectedRays( 
-        level - 1,
-        raytracerInputs,
-        raytracerRTs,
-        blockActors 
-    );
-
-    // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( 
-        currLayerRTs.hitShaded, 
-        currLayerRTs.hitEmissive
-    );
-
-    m_shadingRenderer.performShadingNoShadows( 
-        currLayerRTs.hitShaded,
-        currLayerRTs.rayOrigin,
-        currLayerRTs.hitPosition,
-        currLayerRTs.hitAlbedo,
-        currLayerRTs.hitMetalness,
-        currLayerRTs.hitRoughness,
-        currLayerRTs.hitNormal,
-        lightsNotCastingShadows 
-    );
-
-    const int lightCount = (int)lightsCastingShadows.size();
-    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx ) 
+    if (layerType == Renderer::LayerType::Reflection)
     {
-        //if ( light->getType() == Light::Type::SpotLight
-        //     && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
-        //) 
-        //{
-        //    m_rasterizeShadowRenderer.performShadowMapping(
-        //        camera.getPosition(), // #TODO: THIS IS NOT OCRRECT - another version of this shader should be used which takes prev layer ray origin as camera position in each pixel.
-        //        light,
-        //        m_raytraceRenderer.getRayHitPositionTexture( level - 1 ),
-        //        m_raytraceRenderer.getRayHitNormalTexture( level - 1 )
-        //    );
-        //}
-
-        m_raytraceShadowRenderer.generateAndTraceShadowRays(
-            lightsCastingShadows[ lightIdx ],
-            currLayerRTs.hitPosition,
-            currLayerRTs.hitNormal,
-            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
-            //nullptr, //#TODO: Should I use a pre-illumination?
-            blockActors
-        );
-
-        m_raytraceShadowRenderer.getHardShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        m_raytraceShadowRenderer.getSoftShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
-        m_mipmapRenderer.generateMipmapsWithSampleRejection(
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
-            500.0f, 0, 3
-        );
-
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // #TODO RENDER: Distance to occluder shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
-        // Modify shader of pass appropriate accumulated distance to camera to shader.
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // Distance to occluder search.
-        m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
-            camera,
-            currLayerRTs.hitPosition,
-            currLayerRTs.hitNormal,
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
-            *lightsCastingShadows[ lightIdx ]
-        );
-
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        // #TODO RENDER: Blur shadow shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
-        // Modify shader of pass appropriate accumulated distance to camera to shader.
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        if ( settings().rendering.shadows.useSeparableShadowBlur ) {
-            // Blur shadows in two passes - horizontal and vertical.
-            m_blurShadowsRenderer.blurShadowsHorzVert(
+        if ( level <= 1 )
+        {
+            m_reflectionRefractionShadingRenderer.performFirstReflectionShading(
                 camera,
-                currLayerRTs.hitPosition,
-                currLayerRTs.hitNormal,
-                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
-                *lightsCastingShadows[ lightIdx ]
-            );
-        } else {
-            // Blur shadows in a single pass.
-            m_blurShadowsRenderer.blurShadows(
-                camera,
-                currLayerRTs.hitPosition,
-                currLayerRTs.hitNormal,
-                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
-                *lightsCastingShadows[ lightIdx ]
+                prevLayerRTs.hitPosition,
+                prevLayerRTs.hitNormal,
+                prevLayerRTs.hitAlbedo,
+                prevLayerRTs.hitMetalness,
+                prevLayerRTs.hitRoughness
             );
         }
-
-        // Perform shading on the main image.
-        m_shadingRenderer.performShading(
-            currLayerRTs.hitShaded,
-            currLayerRTs.rayOrigin,
-            currLayerRTs.hitPosition,
-            currLayerRTs.hitAlbedo,
-            currLayerRTs.hitMetalness,
-            currLayerRTs.hitRoughness,
-            currLayerRTs.hitNormal,
-            m_blurShadowsRenderer.getShadowTexture(),
-            *lightsCastingShadows[ lightIdx ] 
+        else
+        {
+            m_reflectionRefractionShadingRenderer.performReflectionShading(
+                level - 1,
+                prevLayerRTs.rayOrigin,
+                prevLayerRTs.hitPosition,
+                prevLayerRTs.hitNormal,
+                prevLayerRTs.hitAlbedo,
+                prevLayerRTs.hitMetalness,
+                prevLayerRTs.hitRoughness
             );
+        }
     }
-
-    // Generate mipmaps for the shaded, reflected image.
-    currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
-    const int contributionTextureFillWidth  = prevLayerRTs.rayOrigin->getWidth();
-    const int contributionTextureFillHeight = prevLayerRTs.rayOrigin->getHeight();
-
-    const int colorTextureFillWidth  = currLayerRTs.rayOrigin->getWidth();
-    const int colorTextureFillHeight = currLayerRTs.rayOrigin->getHeight();
-
-    m_mipmapRenderer.generateMipmapsWithSampleRejection(
-        currLayerRTs.hitDistance,
-        50.0f, 0, 0
-    );
-
-    // Search for hit distance.
-    m_hitDistanceSearchRenderer.performHitDistanceSearch(
-        camera,
-        prevLayerRTs.hitPosition,
-        prevLayerRTs.hitNormal,
-        currLayerRTs.hitDistance
-    );
-
-    m_combiningRenderer.combine( 
-        m_finalRenderTargetHDR, 
-        currLayerRTs.hitShaded,
-        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
-        prevLayerRTs.hitNormal,
-        prevLayerRTs.hitPosition,
-        firstLayerRTs.depth,
-        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-        camera.getPosition(),
-        contributionTextureFillWidth, contributionTextureFillHeight,
-        colorTextureFillWidth, colorTextureFillHeight 
-    );
-}
-
-void Renderer::renderRefractions( 
-    const int level, const int refractionLevel, const Camera& camera, 
-    const std::vector< std::shared_ptr< BlockActor > >& blockActors,
-    const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
-    const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
-{
-    if ( m_layersRenderTargets.size() <= level )
-        m_layersRenderTargets.emplace_back();
-
-    auto& firstLayerRTs = m_layersRenderTargets.front();
-    auto& prevLayerRTs  = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
-    auto& currLayerRTs  = m_layersRenderTargets.at( level );     // Current layer render targets.
-
-    currLayerRTs.rayOrigin              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.rayDirection           = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitPosition            = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitEmissive            = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
-    currLayerRTs.hitAlbedo              = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
-    currLayerRTs.hitMetalness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitRoughness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitNormal              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-    currLayerRTs.hitRefractiveIndex     = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.currentRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-    currLayerRTs.hitDistance            = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
-    currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
-    currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-
-    m_reflectionRefractionShadingRenderer.performRefractionShading( 
-        level - 1, 
-        prevLayerRTs.rayOrigin,
-        prevLayerRTs.hitPosition,
-        prevLayerRTs.hitNormal,
-        prevLayerRTs.hitAlbedo,
-        prevLayerRTs.hitMetalness,
-        prevLayerRTs.hitRoughness 
-    );
+    else if (layerType == Renderer::LayerType::Refraction)
+    {
+        if ( level <= 1 )
+        {
+            m_reflectionRefractionShadingRenderer.performFirstRefractionShading(
+                camera,
+                prevLayerRTs.hitPosition,
+                prevLayerRTs.hitNormal,
+                prevLayerRTs.hitAlbedo,
+                prevLayerRTs.hitMetalness,
+                prevLayerRTs.hitRoughness
+            );
+        }
+        else
+        {
+            m_reflectionRefractionShadingRenderer.performRefractionShading(
+                level - 1,
+                prevLayerRTs.rayOrigin,
+                prevLayerRTs.hitPosition,
+                prevLayerRTs.hitNormal,
+                prevLayerRTs.hitAlbedo,
+                prevLayerRTs.hitMetalness,
+                prevLayerRTs.hitRoughness
+            );
+        }
+    }
 
     RaytraceRenderer::InputTextures2 raytracerInputs;
     raytracerInputs.contribution                   = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
@@ -1610,18 +904,57 @@ void Renderer::renderRefractions(
     raytracerRTs.hitDistance            = currLayerRTs.hitDistance;
     raytracerRTs.hitDistanceToCamera    = currLayerRTs.hitDistanceToCamera;
 
-    m_raytraceRenderer.generateAndTraceRefractedRays( 
-        level - 1, 
-        refractionLevel,
-        raytracerInputs,
-        raytracerRTs,
-        blockActors 
-    );
+    if ( layerType == Renderer::LayerType::Reflection )
+    {
+        if ( level <= 1 )
+        {
+            m_raytraceRenderer.generateAndTraceFirstReflectedRays(
+                camera,
+                raytracerInputs,
+                raytracerRTs,
+                blockActors
+            );
+        }
+        else
+        {
+            m_raytraceRenderer.generateAndTraceReflectedRays(
+                level - 1,
+                raytracerInputs,
+                raytracerRTs,
+                blockActors
+            );
+        }
+    }
+    else if ( layerType == Renderer::LayerType::Refraction )
+    {
+        if ( level <= 1 )
+        {
+            m_raytraceRenderer.generateAndTraceFirstRefractedRays(
+                camera,
+                raytracerInputs,
+                raytracerRTs,
+                blockActors
+            );
+        }
+        else
+        {
+            m_raytraceRenderer.generateAndTraceRefractedRays(
+                level - 1,
+                refractionLevel,
+                raytracerInputs,
+                raytracerRTs,
+                blockActors
+            );
+        }
+    }
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( currLayerRTs.hitShaded, currLayerRTs.hitEmissive );
+    m_shadingRenderer.performShading( 
+        currLayerRTs.hitShaded, 
+        currLayerRTs.hitEmissive 
+    );
 
-    m_shadingRenderer.performShadingNoShadows( 
+    m_shadingRenderer.performShadingNoShadows(
         currLayerRTs.hitShaded,
         currLayerRTs.rayOrigin,
         currLayerRTs.hitPosition,
@@ -1629,12 +962,11 @@ void Renderer::renderRefractions(
         currLayerRTs.hitMetalness,
         currLayerRTs.hitRoughness,
         currLayerRTs.hitNormal,
-        lightsNotCastingShadows 
+        lightsNotCastingShadows
     );
 
     const int lightCount = (int)lightsCastingShadows.size();
-    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
-    {
+    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx ) {
         //if ( light->getType() == Light::Type::SpotLight
         //     && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
         //) 
@@ -1727,10 +1059,10 @@ void Renderer::renderRefractions(
     // Generate mipmaps for the shaded, reflected image.
     currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-    const int contributionTextureFillWidth  = prevLayerRTs.rayOrigin->getWidth();
-    const int contributionTextureFillHeight = prevLayerRTs.rayOrigin->getHeight();
+    const int contributionTextureFillWidth = prevLayerRTs.hitAlbedo->getWidth();
+    const int contributionTextureFillHeight = prevLayerRTs.hitAlbedo->getHeight();
 
-    const int colorTextureFillWidth  = currLayerRTs.rayOrigin->getWidth();
+    const int colorTextureFillWidth = currLayerRTs.rayOrigin->getWidth();
     const int colorTextureFillHeight = currLayerRTs.rayOrigin->getHeight();
 
     //#TODO: Fill pixels for which all samples were rejected with max value.
@@ -1741,25 +1073,46 @@ void Renderer::renderRefractions(
 
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
         camera,
-        currLayerRTs.rayOrigin,
-        currLayerRTs.hitNormal,
+        prevLayerRTs.hitPosition, //////////////////////////// CURR OR PREV?
+        prevLayerRTs.hitNormal, //////////////////////////// CURR OR PREV?
         currLayerRTs.hitDistance
     );
 
-    m_combiningRenderer.combine( 
-        m_finalRenderTargetHDR, 
-        currLayerRTs.hitShaded,
-        m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
-        currLayerRTs.hitNormal,
-        currLayerRTs.hitPosition,
-        firstLayerRTs.depth,
-        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-        camera.getPosition(),
-        contributionTextureFillWidth, 
-        contributionTextureFillHeight,
-        colorTextureFillWidth, 
-        colorTextureFillHeight 
-    );
+    if ( level == 1 )
+    {
+        m_combiningRenderer.combine(
+            m_finalRenderTargetHDR,
+            currLayerRTs.hitShaded,
+            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+            prevLayerRTs.hitNormal,
+            prevLayerRTs.hitPosition,
+            prevLayerRTs.depth, // #TODO: Blurred or not?
+            m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+            camera.getPosition(),
+            contributionTextureFillWidth,
+            contributionTextureFillHeight,
+            colorTextureFillWidth,
+            colorTextureFillHeight
+        );
+    }
+    else
+    {
+        m_combiningRenderer.combine(
+            m_finalRenderTargetHDR,
+            currLayerRTs.hitShaded,
+            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+            prevLayerRTs.hitNormal,
+            prevLayerRTs.hitPosition,
+            prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
+            m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+            prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
+            contributionTextureFillWidth,
+            contributionTextureFillHeight,
+            colorTextureFillWidth,
+            colorTextureFillHeight
+        );
+    }
+    
 }
 
 void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )

@@ -777,6 +777,8 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+	  - verify inputs passed to combining renderer - some could be wrong in the new "renderSecondaryLayer" method and could be wrong in exisiting code too.
+
 
 	  - hit-distance-renderer and reflection-refraction-shading-renderer have to be refactored before we can switch combining to back-to-front order.
 
@@ -837,7 +839,6 @@ Idea:
         * Does this summing work correctly when both refraction/reflections are enabled (but only one dit-to-camera per layer, right?)?
 
 	  NEXT-MINOR:
-	  - something is wrong with higher level reflections - like we read wrong level do data or from wrong renderer or something...
 	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
 	  - setting default texture from control panel - to metalness, roughness (defaults should be maxed out).
 	  - select all lights
@@ -845,6 +846,8 @@ Idea:
 	  - colored shadows
 	  - feature to provide name for the RT when getting it from Render Target Manager - to rename it in DirectX.
 	  - light attenutation
+	  - improve sampling shape in all shaders by taking samples in spherical shape - 
+	    simply exclude samples which are too far from center (box corners) - this could even improve performance, by reading less pixels.
 
 	  FUTURE IMPORTANT:
 	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.
