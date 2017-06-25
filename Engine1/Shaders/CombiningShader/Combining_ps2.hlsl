@@ -7,7 +7,7 @@ Texture2D<float4> g_colorTexture          : register( t0 );
 Texture2D<float4> g_contributionTermRoughnessTexture : register( t1 );
 Texture2D<float4> g_normalTexture         : register( t2 );
 Texture2D<float4> g_positionTexture       : register( t3 );
-Texture2D<float>  g_depthTexture          : register( t4 );
+Texture2D<float>  g_prevHitDistance       : register( t4 );
 Texture2D<float>  g_hitDistanceTexture    : register( t5 );
 Texture2D<float4> g_rayOriginTexture      : register( t6 );
 
@@ -44,16 +44,17 @@ static const float maxHitDistance = 200.0f; // Should be less than the initial r
 
 float4 main(PixelInputType input) : SV_Target
 {
-    const float depth = linearizeDepth( g_depthTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ), zNear, zFar ); // Have to account for fov tanges?
+    // #TODO: Should it be accumulated distance to camera instead?
+    const float prevHitDistance = g_prevHitDistance.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
 
-    if ( depth > maxDepth )
+    if ( prevHitDistance > maxDepth )
         return float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
     const float hitDistance = g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
 
     const float roughnessMult = 75.0f;
     const float roughness     = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
-    float       blurRadius    = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( depth + 1.0f ) );// * tan( roughness * PiHalf );
+    float       blurRadius    = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( prevHitDistance + 1.0f ) );
 
     float samplingRadius      = min( 1.0f, blurRadius ) * 0.5f;
     float samplingMipmapLevel = log2( blurRadius );
