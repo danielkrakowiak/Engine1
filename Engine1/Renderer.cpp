@@ -437,10 +437,6 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
     const auto blockActors = SceneUtil::filterActorsByType< BlockActor >( scene.getActorsVec() );
 
-    // #TODO: Remove.
-    // FOR DEBUG - Not needed normally, because whole texture gets overwritten.
-    m_blurShadowsRenderer.getShadowTexture()->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4::ZERO, 0 );
-
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
@@ -528,6 +524,47 @@ Renderer::Output Renderer::renderPrimaryLayer(
             *lightsCastingShadows[ lightIdx ]
         );
 
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+
+        auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+
+        if ( settings().rendering.shadows.useSeparableShadowBlur )
+        {
+            auto blurredShadowTemporaryRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+
+            // Blur shadows in two passes - horizontal and vertical.
+            m_blurShadowsRenderer.blurShadowsHorzVert(
+                camera,
+                layerRenderTargets.hitPosition,
+                layerRenderTargets.hitNormal,
+                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
+                hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
+                softShadowRenderTarget,
+                distanceToOccluderRenderTarget,
+                finalDistanceToOccluderRenderTarget,
+                blurredShadowRenderTarget,
+                blurredShadowTemporaryRenderTarget,
+                *lightsCastingShadows[ lightIdx ]
+            );
+        }
+        else
+        {
+            // Blur shadows in a single pass.
+            m_blurShadowsRenderer.blurShadows(
+                camera,
+                layerRenderTargets.hitPosition,
+                layerRenderTargets.hitNormal,
+                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
+                hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
+                softShadowRenderTarget,
+                distanceToOccluderRenderTarget,
+                finalDistanceToOccluderRenderTarget,
+                blurredShadowRenderTarget,
+                *lightsCastingShadows[ lightIdx ]
+            );
+        }
+
         if ( activeViewLevel.empty() ) {
             Output output;
 
@@ -544,41 +581,10 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 case View::FinalDistanceToOccluder:
                     output.floatImage = finalDistanceToOccluderRenderTarget;
                     return output;
+                case View::BlurredShadows:
+                    output.ucharImage = blurredShadowRenderTarget;
+                    return output;
             }
-        }
-
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
-
-        if ( settings().rendering.shadows.useSeparableShadowBlur )
-        {
-            // Blur shadows in two passes - horizontal and vertical.
-            m_blurShadowsRenderer.blurShadowsHorzVert(
-                camera,
-                layerRenderTargets.hitPosition,
-                layerRenderTargets.hitNormal,
-                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
-                softShadowRenderTarget,
-                distanceToOccluderRenderTarget,
-                finalDistanceToOccluderRenderTarget,
-                *lightsCastingShadows[ lightIdx ]
-            );
-        }
-        else
-        {
-            // Blur shadows in a single pass.
-            m_blurShadowsRenderer.blurShadows(
-                camera,
-                layerRenderTargets.hitPosition,
-                layerRenderTargets.hitNormal,
-                //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
-                softShadowRenderTarget,
-                distanceToOccluderRenderTarget,
-                finalDistanceToOccluderRenderTarget,
-                *lightsCastingShadows[ lightIdx ]
-            );
         }
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
@@ -593,7 +599,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             layerRenderTargets.hitMetalness,
 			layerRenderTargets.hitRoughness, 
             layerRenderTargets.hitNormal, 
-            m_blurShadowsRenderer.getShadowTexture(), 
+            blurredShadowRenderTarget, 
             *lightsCastingShadows[ lightIdx ] 
         );
 
@@ -929,11 +935,16 @@ void Renderer::renderSecondaryLayer(
             *lightsCastingShadows[ lightIdx ]
         );
 
+        auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        
         // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
         // #TODO RENDER: Blur shadow shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
         // Modify shader of pass appropriate accumulated distance to camera to shader.
         // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-        if ( settings().rendering.shadows.useSeparableShadowBlur ) {
+        if ( settings().rendering.shadows.useSeparableShadowBlur ) 
+        {
+            auto blurredShadowTemporaryRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+
             // Blur shadows in two passes - horizontal and vertical.
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
@@ -944,6 +955,8 @@ void Renderer::renderSecondaryLayer(
                 softShadowRenderTarget,
                 distanceToOccluderRenderTarget,
                 finalDistanceToOccluderRenderTarget,
+                blurredShadowRenderTarget,
+                blurredShadowTemporaryRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
             );
         } else {
@@ -957,6 +970,7 @@ void Renderer::renderSecondaryLayer(
                 softShadowRenderTarget,
                 distanceToOccluderRenderTarget,
                 finalDistanceToOccluderRenderTarget,
+                blurredShadowRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
             );
         }
@@ -970,7 +984,7 @@ void Renderer::renderSecondaryLayer(
             currLayerRTs.hitMetalness,
             currLayerRTs.hitRoughness,
             currLayerRTs.hitNormal,
-            m_blurShadowsRenderer.getShadowTexture(),
+            blurredShadowRenderTarget,
             *lightsCastingShadows[ lightIdx ]
         );
     }
@@ -1181,9 +1195,6 @@ Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
         case View::Preillumination:
             output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
             break;
-        case View::BlurredIllumination:
-            output.ucharImage = m_blurShadowsRenderer.getShadowTexture();
-            return output;
         case View::HitDistance:
             output.floatImage = m_layersRenderTargets.at( level ).hitDistance;
             break;
@@ -1217,7 +1228,7 @@ std::string Renderer::viewToString( const View view )
         case View::Preillumination:                          return "Preillumination";
         case View::HardIllumination:                         return "HardIllumination";
         case View::SoftIllumination:                         return "SoftIllumination";
-        case View::BlurredIllumination:                      return "BlurredIllumination";
+        case View::BlurredShadows:                      return "BlurredIllumination";
         case View::SpotlightDepth:                           return "SpotlightDepth";
         case View::DistanceToOccluder:                       return "DistanceToOccluder";
         case View::FinalDistanceToOccluder:                  return "FinalDistanceToOccluder";

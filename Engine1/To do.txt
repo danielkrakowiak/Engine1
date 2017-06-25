@@ -822,12 +822,14 @@ Idea:
 		Print use of RTs to screen - also with some memory consumption.
 
 	  IMPORTANT-BUT-CAN-WAIT:
+	  - how to deal with light sources placed inside geometry? It causes artifacts now..
 	  - most shaders are configured for that specific resolution - blur kernels etc should be scaled with resolution...
 	  - improve bloom to use two-pass blur and to use less mipmapping...
 	  - input to antialiasing FXAA is probably not correct- linear vs non-linear, gamma etc... So antialiasing doesn't work optimally...
 	  - account for ray-length in next hit-dist-search?
 	  - account for depth in hit-dist-search
 	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
+	  
 
 	  - rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
 		  Only to albedo...

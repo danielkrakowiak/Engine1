@@ -38,8 +38,11 @@ namespace Engine1
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softShadowTexture,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+                             const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
                              const Light& light );
 
+        // shadowTemporaryRenderTarget is an extra render target used when 2-pass separable blur is run.
+        // It stores horizontally blurred illumination before the vertical pass.
         void blurShadowsHorzVert( const Camera& camera,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
@@ -47,9 +50,9 @@ namespace Engine1
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softShadowTexture,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
+                          const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > shadowTemporaryRenderTarget,
                           const Light& light );
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getShadowTexture();
 
         private:
 
@@ -62,14 +65,6 @@ namespace Engine1
 
         // Render targets.
         int m_imageWidth, m_imageHeight;
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_shadowRenderTarget;
-
-        // Extra render target used when 2-pass separable blur is run.
-        // It stores horizontally blurred illumination before the vertical pass.
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_shadowTemporaryRenderTarget;
-
-        void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
         std::shared_ptr< BlurShadowsComputeShader >  m_blurShadowsComputeShader;

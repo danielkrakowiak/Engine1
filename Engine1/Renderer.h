@@ -64,7 +64,7 @@ namespace Engine1
             Preillumination,
             HardIllumination,
             SoftIllumination,
-            BlurredIllumination,
+            BlurredShadows,
             SpotlightDepth,
             DistanceToOccluder,
             FinalDistanceToOccluder,

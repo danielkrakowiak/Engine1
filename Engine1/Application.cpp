@@ -1304,7 +1304,7 @@ void Application::onKeyPress( int key )
             m_renderer.setActiveViewType( Renderer::View::SoftIllumination );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::four ) {
-            m_renderer.setActiveViewType( Renderer::View::BlurredIllumination );
+            m_renderer.setActiveViewType( Renderer::View::BlurredShadows );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::five ) {
             m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
