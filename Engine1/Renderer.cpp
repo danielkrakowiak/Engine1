@@ -446,9 +446,10 @@ Renderer::Output Renderer::renderPrimaryLayer(
 	{
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
-        auto hardShadowRenderTarget         = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-        auto softShadowRenderTarget         = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-        auto distanceToOccluderRenderTarget = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
+        auto hardShadowRenderTarget              = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        auto softShadowRenderTarget              = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        auto distanceToOccluderRenderTarget      = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
+        auto finalDistanceToOccluderRenderTarget = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
 
         if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight 
              && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
@@ -514,24 +515,6 @@ Renderer::Output Renderer::renderPrimaryLayer(
             500.0f, 0, 3 
         );
         
-        if ( activeViewLevel.empty() ) 
-        {
-            Output output;
-
-            switch ( activeViewType ) 
-            {
-                case View::HardIllumination:
-                    output.ucharImage = hardShadowRenderTarget;
-                    return output;
-                case View::SoftIllumination:
-                    output.ucharImage = softShadowRenderTarget;
-                    return output;
-                case View::DistanceToOccluder:
-                    output.floatImage = distanceToOccluderRenderTarget;
-                    return output;
-            }
-        }
-
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         
@@ -541,8 +524,28 @@ Renderer::Output Renderer::renderPrimaryLayer(
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
             distanceToOccluderRenderTarget,
+            finalDistanceToOccluderRenderTarget,
             *lightsCastingShadows[ lightIdx ]
         );
+
+        if ( activeViewLevel.empty() ) {
+            Output output;
+
+            switch ( activeViewType ) {
+                case View::HardIllumination:
+                    output.ucharImage = hardShadowRenderTarget;
+                    return output;
+                case View::SoftIllumination:
+                    output.ucharImage = softShadowRenderTarget;
+                    return output;
+                case View::DistanceToOccluder:
+                    output.floatImage = distanceToOccluderRenderTarget;
+                    return output;
+                case View::FinalDistanceToOccluder:
+                    output.floatImage = finalDistanceToOccluderRenderTarget;
+                    return output;
+            }
+        }
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
@@ -558,7 +561,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
                 softShadowRenderTarget,
                 distanceToOccluderRenderTarget,
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                finalDistanceToOccluderRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
             );
         }
@@ -573,7 +576,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
                 softShadowRenderTarget,
                 distanceToOccluderRenderTarget,
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                finalDistanceToOccluderRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
             );
         }
@@ -875,9 +878,10 @@ void Renderer::renderSecondaryLayer(
     const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx ) 
     {
-        auto hardShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-        auto softShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
-        auto distanceToOccluderRenderTarget = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
+        auto hardShadowRenderTarget              = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        auto softShadowRenderTarget              = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        auto distanceToOccluderRenderTarget      = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
+        auto finalDistanceToOccluderRenderTarget = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
 
         //if ( light->getType() == Light::Type::SpotLight
         //     && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
@@ -921,6 +925,7 @@ void Renderer::renderSecondaryLayer(
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
             distanceToOccluderRenderTarget,
+            finalDistanceToOccluderRenderTarget,
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -938,7 +943,7 @@ void Renderer::renderSecondaryLayer(
                 hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
                 softShadowRenderTarget,
                 distanceToOccluderRenderTarget,
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                finalDistanceToOccluderRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
             );
         } else {
@@ -951,7 +956,7 @@ void Renderer::renderSecondaryLayer(
                 hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
                 softShadowRenderTarget,
                 distanceToOccluderRenderTarget,
-                m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
+                finalDistanceToOccluderRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
             );
         }
@@ -1178,9 +1183,6 @@ Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
             break;
         case View::BlurredIllumination:
             output.ucharImage = m_blurShadowsRenderer.getShadowTexture();
-            return output;
-        case View::FinalDistanceToOccluder:
-            output.floatImage = m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture();
             return output;
         case View::HitDistance:
             output.floatImage = m_layersRenderTargets.at( level ).hitDistance;

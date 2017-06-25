@@ -35,9 +35,8 @@ namespace Engine1
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > finalDistanceToOccluderRenderTarget,
                                               const Light& light );
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > getFinalDistanceToOccluderTexture();
 
         private:
 
@@ -50,10 +49,6 @@ namespace Engine1
 
         // Render targets.
         int m_imageWidth, m_imageHeight;
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > m_finalDistanceToOccluderRenderTarget;
-
-        void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
         std::shared_ptr< DistanceToOccluderSearchComputeShader >  m_distanceToOccluderSearchComputeShader;

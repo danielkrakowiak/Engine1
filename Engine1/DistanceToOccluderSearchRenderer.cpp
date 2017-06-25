@@ -29,8 +29,6 @@ void DistanceToOccluderSearchRenderer::initialize( int imageWidth, int imageHeig
     this->m_imageWidth = imageWidth;
     this->m_imageHeight = imageHeight;
 
-    createRenderTargets( imageWidth, imageHeight, *device.Get() );
-
     loadAndCompileShaders( device );
 
     m_initialized = true;
@@ -40,12 +38,19 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( const Ca
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+                                      const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > finalDistanceToOccluderRenderTarget,
                                       const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    m_distanceToOccluderSearchComputeShader->setParameters( *m_deviceContext.Get(), camera.getPosition(), positionTexture,
-                                               normalTexture, distanceToOccluder, light );
+    m_distanceToOccluderSearchComputeShader->setParameters( 
+        *m_deviceContext.Get(), 
+        camera.getPosition(), 
+        positionTexture,
+        normalTexture, 
+        distanceToOccluder, 
+        light 
+    );
 
     m_rendererCore.enableComputeShader( m_distanceToOccluderSearchComputeShader );
 
@@ -55,9 +60,15 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( const Ca
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
-    unorderedAccessTargetsF1.push_back( m_finalDistanceToOccluderRenderTarget );
+    unorderedAccessTargetsF1.push_back( finalDistanceToOccluderRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, 
+        unorderedAccessTargetsF2, 
+        unorderedAccessTargetsF4, 
+        unorderedAccessTargetsU1, 
+        unorderedAccessTargetsU4 
+    );
 
     const int imageWidth = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();
@@ -69,18 +80,6 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( const Ca
     m_distanceToOccluderSearchComputeShader->unsetParameters( *m_deviceContext.Get() );
 
     m_rendererCore.disableComputePipeline();
-}
-
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > 
-DistanceToOccluderSearchRenderer::getFinalDistanceToOccluderTexture()
-{
-    return m_finalDistanceToOccluderRenderTarget;
-}
-
-void DistanceToOccluderSearchRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
-{
-    m_finalDistanceToOccluderRenderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 
 void DistanceToOccluderSearchRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
