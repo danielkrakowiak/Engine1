@@ -281,6 +281,8 @@ namespace Engine1
         std::shared_ptr<const BlockMesh>  m_axisMesh;
         std::shared_ptr<const BlockModel> m_lightModel;
 
+        Output getLayerRenderTarget( View view, int level );
+
         // Copying is not allowed.
         Renderer( const Renderer& ) = delete;
         Renderer& operator=(const Renderer&) = delete;

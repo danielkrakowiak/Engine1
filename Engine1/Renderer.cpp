@@ -603,65 +603,17 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
     m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
 
-    Output output;
-
     if ( activeViewLevel.empty() )
     {
-        switch ( activeViewType )
-        {
-            case View::Shaded:
-                output.float4Image = layerRenderTargets.hitShaded;
-                return output;
-            case View::Depth: 
-                output.uchar4Image = layerRenderTargets.depth; 
-                return output;
-            case View::Position: 
-                output.float4Image = layerRenderTargets.hitPosition;
-                return output;
-            case View::Emissive: 
-                output.uchar4Image = layerRenderTargets.hitEmissive;
-                return output;
-            case View::Albedo: 
-                output.uchar4Image = layerRenderTargets.hitAlbedo;
-                return output;
-            case View::Normal:
-                output.float4Image = layerRenderTargets.hitNormal;
-                return output;
-            case View::Metalness:
-                output.ucharImage = layerRenderTargets.hitMetalness;
-                return output;
-            case View::Roughness:
-                output.ucharImage = layerRenderTargets.hitRoughness;
-                return output;
-            case View::IndexOfRefraction:
-                output.ucharImage = layerRenderTargets.hitRefractiveIndex;
-                return output;
-			case View::Preillumination:
-				output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
-                return output;
-            case View::HardIllumination:
-                output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
-                return output;
-            case View::SoftIllumination:
-                output.ucharImage = m_raytraceShadowRenderer.getSoftShadowTexture();
-                return output;
-            case View::BlurredIllumination:
-                output.ucharImage = m_blurShadowsRenderer.getShadowTexture();
-                return output;
-            case View::SpotlightDepth:
-                if ( !lightsCastingShadows.empty() && lightsCastingShadows[0]->getType() == Light::Type::SpotLight )
-                    output.floatImage = std::static_pointer_cast< SpotLight >( lightsCastingShadows[ 0 ] )->getShadowMap();
-                return output;
-            case View::DistanceToOccluder:
-                output.floatImage = m_rasterizeShadowRenderer.getDistanceToOccluder();
-                return output;
-            case View::FinalDistanceToOccluder:
-                output.floatImage = m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture();
-                return output;
-        }
+        Output output = getLayerRenderTarget( activeViewType, 0 );
+
+        if ( !output.isEmpty() )
+            return output;
     }
 
     std::vector< bool > renderedViewType;
+
+    Output output;
 
     output = renderSecondaryLayers(
         true, 1, 0,
@@ -716,61 +668,10 @@ Renderer::Output Renderer::renderSecondaryLayers(
 
     if ( renderedViewLevel == activeViewLevel )
     {
-        Output output;
+        Output output = getLayerRenderTarget( activeViewType, level );
 
-        switch ( activeViewType )
-        {
-            case View::Shaded: 
-                output.float4Image = m_layersRenderTargets.at( level ).hitShaded;
-                break;
-            case View::Position: 
-                output.float4Image = m_layersRenderTargets.at( level ).hitPosition;
-                break;
-            case View::Emissive: 
-                output.uchar4Image = m_layersRenderTargets.at( level ).hitEmissive;
-                break;
-            case View::Albedo: 
-                output.uchar4Image = m_layersRenderTargets.at( level ).hitAlbedo;
-                break;
-            case View::Normal:
-                output.float4Image = m_layersRenderTargets.at( level ).hitNormal;
-                break;
-            case View::Metalness:
-                output.ucharImage = m_layersRenderTargets.at( level ).hitMetalness;
-                break;
-            case View::Roughness:
-                output.ucharImage = m_layersRenderTargets.at( level ).hitRoughness;
-                break;
-            case View::IndexOfRefraction:
-                output.ucharImage = m_layersRenderTargets.at( level ).hitRefractiveIndex;
-                break;
-            case View::RayDirections: 
-                output.float4Image = m_layersRenderTargets.at( level ).rayDirection;
-                break;
-            case View::Contribution: 
-                output.uchar4Image = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
-                break;
-            case View::CurrentRefractiveIndex:
-                output.ucharImage = m_layersRenderTargets.at( level ).currentRefractiveIndex;
-                break;
-            case View::Preillumination:
-                output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
-                break;
-            case View::HardIllumination:
-                output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
-                break;
-            case View::HitDistance:
-                output.floatImage = m_layersRenderTargets.at( level ).hitDistance;
-                break;
-            case View::FinalHitDistance:
-                output.floatImage = m_layersRenderTargets.at( level ).hitDistanceBlurred;
-                break;
-            case View::HitDistanceToCamera:
-                output.floatImage = m_layersRenderTargets.at( level ).hitDistanceToCamera;
-                break;
-        }
-
-        return output;
+        if ( !output.isEmpty() )
+            return output;
     }
 
     //#TODO: We can clear some deferred render targets here if level 1 is finished.
@@ -1210,6 +1111,81 @@ const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, 
         textures.push_back( layerRTs.currentRefractiveIndex );
 
     return textures;
+}
+
+Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
+{
+    Output output;
+
+    if ( level >= m_layersRenderTargets.size() )
+        return output;
+
+    switch ( view ) 
+    {
+        case View::Shaded:
+            output.float4Image = m_layersRenderTargets.at( level ).hitShaded;
+            break;
+        case View::Depth:
+            output.uchar4Image = m_layersRenderTargets.at( level ).depth;
+            return output;
+        case View::Position:
+            output.float4Image = m_layersRenderTargets.at( level ).hitPosition;
+            break;
+        case View::Emissive:
+            output.uchar4Image = m_layersRenderTargets.at( level ).hitEmissive;
+            break;
+        case View::Albedo:
+            output.uchar4Image = m_layersRenderTargets.at( level ).hitAlbedo;
+            break;
+        case View::Normal:
+            output.float4Image = m_layersRenderTargets.at( level ).hitNormal;
+            break;
+        case View::Metalness:
+            output.ucharImage = m_layersRenderTargets.at( level ).hitMetalness;
+            break;
+        case View::Roughness:
+            output.ucharImage = m_layersRenderTargets.at( level ).hitRoughness;
+            break;
+        case View::IndexOfRefraction:
+            output.ucharImage = m_layersRenderTargets.at( level ).hitRefractiveIndex;
+            break;
+        case View::RayDirections:
+            output.float4Image = m_layersRenderTargets.at( level ).rayDirection;
+            break;
+        case View::Contribution:
+            if ( level >= 1 )
+                output.uchar4Image = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
+            break;
+        case View::CurrentRefractiveIndex:
+            output.ucharImage = m_layersRenderTargets.at( level ).currentRefractiveIndex;
+            break;
+        case View::Preillumination:
+            output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
+            break;
+        case View::HardIllumination:
+            output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
+            break;
+        case View::SoftIllumination:
+            output.ucharImage = m_raytraceShadowRenderer.getSoftShadowTexture();
+            return output;
+        case View::BlurredIllumination:
+            output.ucharImage = m_blurShadowsRenderer.getShadowTexture();
+            return output;
+        case View::FinalDistanceToOccluder:
+            output.floatImage = m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture();
+            return output;
+        case View::HitDistance:
+            output.floatImage = m_layersRenderTargets.at( level ).hitDistance;
+            break;
+        case View::FinalHitDistance:
+            output.floatImage = m_layersRenderTargets.at( level ).hitDistanceBlurred;
+            break;
+        case View::HitDistanceToCamera:
+            output.floatImage = m_layersRenderTargets.at( level ).hitDistanceToCamera;
+            break;
+    }
+
+    return output;
 }
 
 std::string Renderer::viewToString( const View view )

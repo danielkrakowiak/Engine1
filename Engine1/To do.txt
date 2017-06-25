@@ -777,8 +777,6 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - verify inputs passed to combining renderer - some could be wrong in the new "renderSecondaryLayer" method and could be wrong in exisiting code too.
-
 
 	  - hit-distance-renderer and reflection-refraction-shading-renderer have to be refactored before we can switch combining to back-to-front order.
 
