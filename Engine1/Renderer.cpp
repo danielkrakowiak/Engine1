@@ -446,6 +446,10 @@ Renderer::Output Renderer::renderPrimaryLayer(
 	{
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
+        auto hardShadowRenderTarget         = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        auto softShadowRenderTarget         = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        auto distanceToOccluderRenderTarget = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
+
         if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight 
              && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
         )
@@ -489,6 +493,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
             nullptr,
+            hardShadowRenderTarget,
+            softShadowRenderTarget,
+            distanceToOccluderRenderTarget,
             //m_rasterizeShadowRenderer.getShadowTexture(),
             blockActors
         );
@@ -496,33 +503,32 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
 
-        m_raytraceShadowRenderer.getHardShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        m_raytraceShadowRenderer.getSoftShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        hardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        softShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
-            m_raytraceShadowRenderer.getDistanceToOccluder(), 
+            distanceToOccluderRenderTarget, 
             500.0f, 0, 3 
         );
         
         if ( activeViewLevel.empty() ) 
         {
-            switch ( activeViewType ) {
-                case View::DistanceToOccluder:
-                {
-                    // #TODO: Remove this - only for debug.
-                    // Note: Not needed - only to improve visualization of debug blur-radius.
-                    //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 0, 500.0f, 0.0f );
-                    //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 1, 500.0f, 0.0f );
-                    //m_utilityRenderer.replaceValues( illuminationMinBlurRadiusTextureInWorldSpace, 2, 500.0f, 0.0f );
+            Output output;
 
-                    Output output;
-                    output.floatImage = m_raytraceShadowRenderer.getDistanceToOccluder();
-
+            switch ( activeViewType ) 
+            {
+                case View::HardIllumination:
+                    output.ucharImage = hardShadowRenderTarget;
                     return output;
-                }
+                case View::SoftIllumination:
+                    output.ucharImage = softShadowRenderTarget;
+                    return output;
+                case View::DistanceToOccluder:
+                    output.floatImage = distanceToOccluderRenderTarget;
+                    return output;
             }
         }
 
@@ -534,7 +540,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             camera,
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
+            distanceToOccluderRenderTarget,
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -549,9 +555,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
+                hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
+                softShadowRenderTarget,
+                distanceToOccluderRenderTarget,
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -564,9 +570,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
+                hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
+                softShadowRenderTarget,
+                distanceToOccluderRenderTarget,
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -867,7 +873,12 @@ void Renderer::renderSecondaryLayer(
     );
 
     const int lightCount = (int)lightsCastingShadows.size();
-    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx ) {
+    for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx ) 
+    {
+        auto hardShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        auto softShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+        auto distanceToOccluderRenderTarget = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
+
         //if ( light->getType() == Light::Type::SpotLight
         //     && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
         //) 
@@ -885,15 +896,18 @@ void Renderer::renderSecondaryLayer(
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
             m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+            hardShadowRenderTarget,
+            softShadowRenderTarget,
+            distanceToOccluderRenderTarget,
             //nullptr, //#TODO: Should I use a pre-illumination?
             blockActors
         );
 
-        m_raytraceShadowRenderer.getHardShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        m_raytraceShadowRenderer.getSoftShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        hardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        softShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
+            distanceToOccluderRenderTarget,
             500.0f, 0, 3
         );
 
@@ -906,7 +920,7 @@ void Renderer::renderSecondaryLayer(
             camera,
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
-            m_raytraceShadowRenderer.getDistanceToOccluder(),
+            distanceToOccluderRenderTarget,
             *lightsCastingShadows[ lightIdx ]
         );
 
@@ -921,9 +935,9 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
+                hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
+                softShadowRenderTarget,
+                distanceToOccluderRenderTarget,
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -934,9 +948,9 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 //m_rasterizeShadowRenderer.getIlluminationTexture(),     // TEMP: Enabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getHardShadowTexture(), // TEMP: Disabled for Shadow Mapping tests.
-                m_raytraceShadowRenderer.getSoftShadowTexture(),
-                m_raytraceShadowRenderer.getDistanceToOccluder(),
+                hardShadowRenderTarget, // TEMP: Disabled for Shadow Mapping tests.
+                softShadowRenderTarget,
+                distanceToOccluderRenderTarget,
                 m_distanceToOccluderSearchRenderer.getFinalDistanceToOccluderTexture(),
                 *lightsCastingShadows[ lightIdx ]
             );
@@ -1162,12 +1176,6 @@ Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
         case View::Preillumination:
             output.ucharImage = m_rasterizeShadowRenderer.getShadowTexture();
             break;
-        case View::HardIllumination:
-            output.ucharImage = m_raytraceShadowRenderer.getHardShadowTexture();
-            break;
-        case View::SoftIllumination:
-            output.ucharImage = m_raytraceShadowRenderer.getSoftShadowTexture();
-            return output;
         case View::BlurredIllumination:
             output.ucharImage = m_blurShadowsRenderer.getShadowTexture();
             return output;
