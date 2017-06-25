@@ -117,6 +117,7 @@ namespace Engine1
 
             void reset()
             {
+                contributionRoughness  = nullptr;
                 rayOrigin              = nullptr;
                 rayDirection           = nullptr;
                 hitPosition            = nullptr;
@@ -134,6 +135,7 @@ namespace Engine1
                 hitShaded              = nullptr;
             }
 
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        contributionRoughness;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayOrigin;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayDirection;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitPosition;

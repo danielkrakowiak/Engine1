@@ -728,6 +728,7 @@ void Renderer::renderSecondaryLayer(
     auto& prevLayerRTs  = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
     auto& currLayerRTs  = m_layersRenderTargets.at( level );     // Current layer render targets.
 
+    currLayerRTs.contributionRoughness  = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
     currLayerRTs.rayOrigin              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
     currLayerRTs.rayDirection           = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
     currLayerRTs.hitPosition            = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
@@ -752,19 +753,21 @@ void Renderer::renderSecondaryLayer(
                 prevLayerRTs.hitNormal,
                 prevLayerRTs.hitAlbedo,
                 prevLayerRTs.hitMetalness,
-                prevLayerRTs.hitRoughness
+                prevLayerRTs.hitRoughness,
+                currLayerRTs.contributionRoughness
             );
         }
         else
         {
             m_reflectionRefractionShadingRenderer.performReflectionShading(
-                level - 1,
                 prevLayerRTs.rayOrigin,
                 prevLayerRTs.hitPosition,
                 prevLayerRTs.hitNormal,
                 prevLayerRTs.hitAlbedo,
                 prevLayerRTs.hitMetalness,
-                prevLayerRTs.hitRoughness
+                prevLayerRTs.hitRoughness,
+                prevLayerRTs.contributionRoughness,
+                currLayerRTs.contributionRoughness
             );
         }
     }
@@ -778,25 +781,27 @@ void Renderer::renderSecondaryLayer(
                 prevLayerRTs.hitNormal,
                 prevLayerRTs.hitAlbedo,
                 prevLayerRTs.hitMetalness,
-                prevLayerRTs.hitRoughness
+                prevLayerRTs.hitRoughness,
+                currLayerRTs.contributionRoughness
             );
         }
         else
         {
             m_reflectionRefractionShadingRenderer.performRefractionShading(
-                level - 1,
                 prevLayerRTs.rayOrigin,
                 prevLayerRTs.hitPosition,
                 prevLayerRTs.hitNormal,
                 prevLayerRTs.hitAlbedo,
                 prevLayerRTs.hitMetalness,
-                prevLayerRTs.hitRoughness
+                prevLayerRTs.hitRoughness,
+                prevLayerRTs.contributionRoughness,
+                currLayerRTs.contributionRoughness
             );
         }
     }
 
     RaytraceRenderer::InputTextures2 raytracerInputs;
-    raytracerInputs.contribution                   = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
+    raytracerInputs.contribution                   = currLayerRTs.contributionRoughness;
     raytracerInputs.prevHitPosition                = prevLayerRTs.hitPosition;
     raytracerInputs.prevHitNormal                  = prevLayerRTs.hitNormal;
     raytracerInputs.prevHitRoughness               = prevLayerRTs.hitRoughness;
@@ -905,7 +910,7 @@ void Renderer::renderSecondaryLayer(
             lightsCastingShadows[ lightIdx ],
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
-            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+            currLayerRTs.contributionRoughness,
             hardShadowRenderTarget,
             softShadowRenderTarget,
             distanceToOccluderRenderTarget,
@@ -1017,7 +1022,7 @@ void Renderer::renderSecondaryLayer(
         m_combiningRenderer.combine(
             m_finalRenderTargetHDR,
             currLayerRTs.hitShaded,
-            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+            currLayerRTs.contributionRoughness,
             prevLayerRTs.hitNormal,
             prevLayerRTs.hitPosition,
             prevLayerRTs.depth, // #TODO: Blurred or not?
@@ -1034,7 +1039,7 @@ void Renderer::renderSecondaryLayer(
         m_combiningRenderer.combine(
             m_finalRenderTargetHDR,
             currLayerRTs.hitShaded,
-            m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 ),
+            currLayerRTs.contributionRoughness,
             prevLayerRTs.hitNormal,
             prevLayerRTs.hitPosition,
             prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
@@ -1046,7 +1051,6 @@ void Renderer::renderSecondaryLayer(
             colorTextureFillHeight
         );
     }
-    
 }
 
 void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )
@@ -1186,8 +1190,7 @@ Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
             output.float4Image = m_layersRenderTargets.at( level ).rayDirection;
             break;
         case View::Contribution:
-            if ( level >= 1 )
-                output.uchar4Image = m_reflectionRefractionShadingRenderer.getContributionTermRoughnessTarget( level - 1 );
+            output.uchar4Image = m_layersRenderTargets.at( level ).contributionRoughness;
             break;
         case View::CurrentRefractiveIndex:
             output.ucharImage = m_layersRenderTargets.at( level ).currentRefractiveIndex;
