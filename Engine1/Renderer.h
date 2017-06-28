@@ -74,7 +74,7 @@ namespace Engine1
             MaxIlluminationBlurRadiusInWorldSpace,
             BloomBrightPixels,
             HitDistance,
-            FinalHitDistance,
+            HitDistanceBlurred,
             HitDistanceToCamera,
 			Test
         };

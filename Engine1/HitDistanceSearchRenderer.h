@@ -27,15 +27,18 @@ namespace Engine1
         HitDistanceSearchRenderer( Direct3DRendererCore& rendererCore );
         ~HitDistanceSearchRenderer();
 
-        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device,
-                         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
+        void initialize( 
+            Microsoft::WRL::ComPtr< ID3D11Device > device,
+            Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext 
+        );
 
-        void performHitDistanceSearch( const Camera& camera,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > hitDistance );
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > getFinalHitDistanceTexture();
+        void performHitDistanceSearch( 
+            const Camera& camera,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > hitDistance,
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > blurredHitDistanceRenderTarget
+        );
 
         private:
 
@@ -45,13 +48,6 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
 
         bool m_initialized;
-
-        // Render targets.
-        int m_imageWidth, m_imageHeight;
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > m_finalHitDistanceRenderTarget;
-
-        void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
 
         // Shaders.
         std::shared_ptr< HitDistanceSearchComputeShader >  m_hitDistanceSearchComputeShader;

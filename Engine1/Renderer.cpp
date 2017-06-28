@@ -80,7 +80,7 @@ void Renderer::initialize( const int2 imageDimensions, ComPtr< ID3D11Device > de
     m_shadingRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_reflectionRefractionShadingRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_edgeDetectionRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
-    m_hitDistanceSearchRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+    m_hitDistanceSearchRenderer.initialize( device, deviceContext );
     m_combiningRenderer.initialize( device, deviceContext );
     m_textureRescaleRenderer.initialize( device, deviceContext );
     m_rasterizeShadowRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
@@ -740,7 +740,7 @@ Renderer::Output Renderer::renderSecondaryLayers(
             prevLayerRTs.hitNormal,
             prevLayerRTs.hitPosition,
             prevLayerRTs.depth, // #TODO: Blurred or not?
-            m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+            currLayerRTs.hitDistanceBlurred,
             camera.getPosition(),
             currLayerRTs.contributionRoughness->getWidth(),
             currLayerRTs.contributionRoughness->getHeight(),
@@ -755,7 +755,7 @@ Renderer::Output Renderer::renderSecondaryLayers(
             prevLayerRTs.hitNormal,
             prevLayerRTs.hitPosition,
             prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
-            m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+            currLayerRTs.hitDistanceBlurred,
             prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
             currLayerRTs.contributionRoughness->getWidth(),
             currLayerRTs.contributionRoughness->getHeight(),
@@ -784,6 +784,8 @@ void Renderer::renderSecondaryLayer(
     auto& prevLayerRTs  = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
     auto& currLayerRTs  = m_layersRenderTargets.at( level );     // Current layer render targets.
 
+    const int2 hitDistSearchDimensions = m_imageDimensions / settings().rendering.hitDistanceSearch.resolutionDivider;
+
     currLayerRTs.contributionRoughness  = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions );
     currLayerRTs.rayOrigin              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
     currLayerRTs.rayDirection           = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
@@ -796,6 +798,7 @@ void Renderer::renderSecondaryLayer(
     currLayerRTs.hitRefractiveIndex     = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
     currLayerRTs.currentRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
     currLayerRTs.hitDistance            = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
+    currLayerRTs.hitDistanceBlurred     = m_renderTargetManager.getRenderTarget< float >( hitDistSearchDimensions );
     currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
     currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
 
@@ -1068,45 +1071,11 @@ void Renderer::renderSecondaryLayer(
 
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
         camera,
-        prevLayerRTs.hitPosition, //////////////////////////// CURR OR PREV?
-        prevLayerRTs.hitNormal, //////////////////////////// CURR OR PREV?
-        currLayerRTs.hitDistance
+        prevLayerRTs.hitPosition,
+        prevLayerRTs.hitNormal,
+        currLayerRTs.hitDistance,
+        currLayerRTs.hitDistanceBlurred
     );
-
-    //if ( level == 1 )
-    //{
-    //    m_combiningRenderer.combine(
-    //        m_finalRenderTargetHDR,
-    //        currLayerRTs.hitShaded,
-    //        currLayerRTs.contributionRoughness,
-    //        prevLayerRTs.hitNormal,
-    //        prevLayerRTs.hitPosition,
-    //        prevLayerRTs.depth, // #TODO: Blurred or not?
-    //        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-    //        camera.getPosition(),
-    //        contributionTextureFillWidth,
-    //        contributionTextureFillHeight,
-    //        colorTextureFillWidth,
-    //        colorTextureFillHeight
-    //    );
-    //}
-    //else
-    //{
-    //    m_combiningRenderer.combine(
-    //        m_finalRenderTargetHDR,
-    //        currLayerRTs.hitShaded,
-    //        currLayerRTs.contributionRoughness,
-    //        prevLayerRTs.hitNormal,
-    //        prevLayerRTs.hitPosition,
-    //        prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
-    //        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-    //        prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
-    //        contributionTextureFillWidth,
-    //        contributionTextureFillHeight,
-    //        colorTextureFillWidth,
-    //        colorTextureFillHeight
-    //    );
-    //}
 }
 
 void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )
@@ -1257,7 +1226,7 @@ Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
         case View::HitDistance:
             output.floatImage = m_layersRenderTargets.at( level ).hitDistance;
             break;
-        case View::FinalHitDistance:
+        case View::HitDistanceBlurred:
             output.floatImage = m_layersRenderTargets.at( level ).hitDistanceBlurred;
             break;
         case View::HitDistanceToCamera:
@@ -1288,13 +1257,13 @@ std::string Renderer::viewToString( const View view )
         case View::Preillumination:                          return "Preillumination";
         case View::HardIllumination:                         return "HardIllumination";
         case View::SoftIllumination:                         return "SoftIllumination";
-        case View::BlurredShadows:                      return "BlurredIllumination";
+        case View::BlurredShadows:                           return "BlurredIllumination";
         case View::SpotlightDepth:                           return "SpotlightDepth";
         case View::DistanceToOccluder:                       return "DistanceToOccluder";
         case View::FinalDistanceToOccluder:                  return "FinalDistanceToOccluder";
         case View::BloomBrightPixels:                        return "BloomBrightPixels";
         case View::HitDistance:                              return "HitDistance";
-        case View::FinalHitDistance:                         return "FinalHitDistance";
+        case View::HitDistanceBlurred:                       return "HitDistanceBlurred";
         case View::HitDistanceToCamera:                      return "HitDistanceToCamera";
         case View::Test:                                     return "Test";
     }

@@ -73,6 +73,8 @@ void Settings::setDefault()
     s_settings.rendering.reflectionsRefractions.maxLevel           = 1;
     s_settings.rendering.reflectionsRefractions.reflectionsEnabled = true;
     s_settings.rendering.reflectionsRefractions.refractionsEnabled = true;
+
+    s_settings.rendering.hitDistanceSearch.resolutionDivider = 4;
 }
 
 void Settings::onChanged()

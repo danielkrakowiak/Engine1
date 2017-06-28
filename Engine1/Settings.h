@@ -71,6 +71,14 @@ namespace Engine1
                 bool reflectionsEnabled;
                 bool refractionsEnabled;
             } reflectionsRefractions;
+
+            struct HitDistanceSearch
+            {
+                // Hit-dist-search can and should be performed at lower resolution to improve blur quality and performance.
+                // This value decides at what resolution compared to screen the operation will be performed.
+                // It was tested at 1/4 resolution of 1024x768 screen - so divider = 4 worked fine.
+                int resolutionDivider; 
+            } hitDistanceSearch;
         } rendering;
 
         private:
