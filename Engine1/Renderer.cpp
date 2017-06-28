@@ -611,18 +611,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 	}
 
-    //m_profiler.beginEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
-
     layerRenderTargets.shadedCombined = layerRenderTargets.hitShaded;
-
-    // Copy main shaded image to final render target.
-    // Note: I have to explicitly cast textures, because otherwise the compiler fails to deduce the template parameters for the method.
-    /*m_rendererCore.copyTexture( 
-        *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( m_finalRenderTargetHDR ), 0, 
-        *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( layerRenderTargets.hitShaded ), 0 
-    );*/
-
-    //m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
 
     if ( activeViewLevel.empty() )
     {
@@ -713,6 +702,8 @@ Renderer::Output Renderer::renderSecondaryLayers(
     if ( !output.isEmpty() )
         return output;
 
+    combineLayers( level, camera );
+
     output = renderSecondaryLayers( 
         false, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
@@ -722,47 +713,9 @@ Renderer::Output Renderer::renderSecondaryLayers(
     if ( !output.isEmpty() )
         return output;
 
-    auto& prevLayerRTs = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
-    auto& currLayerRTs = m_layersRenderTargets.at( level );     // Current layer render targets.
+    combineLayers( level, camera );
 
-    if ( !prevLayerRTs.shadedCombined )
-    {
-        prevLayerRTs.shadedCombined = prevLayerRTs.hitShaded;//m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
-        prevLayerRTs.hitShaded = nullptr;
-        //prevLayerRTs.shadedCombined->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    }
-
-    if ( level == 1 ) {
-        m_combiningRenderer.combine(
-            prevLayerRTs.shadedCombined,
-            currLayerRTs.shadedCombined ? currLayerRTs.shadedCombined : currLayerRTs.hitShaded,
-            currLayerRTs.contributionRoughness,
-            prevLayerRTs.hitNormal,
-            prevLayerRTs.hitPosition,
-            prevLayerRTs.depth, // #TODO: Blurred or not?
-            currLayerRTs.hitDistanceBlurred,
-            camera.getPosition(),
-            currLayerRTs.contributionRoughness->getWidth(),
-            currLayerRTs.contributionRoughness->getHeight(),
-            m_finalRenderTargetHDR->getWidth(),
-            m_finalRenderTargetHDR->getHeight()
-        );
-    } else {
-        m_combiningRenderer.combine(
-            prevLayerRTs.shadedCombined,
-            currLayerRTs.shadedCombined ? currLayerRTs.shadedCombined : currLayerRTs.hitShaded,
-            currLayerRTs.contributionRoughness,
-            prevLayerRTs.hitNormal,
-            prevLayerRTs.hitPosition,
-            prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
-            currLayerRTs.hitDistanceBlurred,
-            prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
-            currLayerRTs.contributionRoughness->getWidth(),
-            currLayerRTs.contributionRoughness->getHeight(),
-            m_finalRenderTargetHDR->getWidth(),
-            m_finalRenderTargetHDR->getHeight()
-        );
-    }
+    auto& currLayerRTs = m_layersRenderTargets.at( level );
 
     if ( activeViewLevel == renderedViewLevel && activeViewType == View::ShadedCombined )
         output.float4Image = currLayerRTs.shadedCombined;
@@ -801,6 +754,7 @@ void Renderer::renderSecondaryLayer(
     currLayerRTs.hitDistanceBlurred     = m_renderTargetManager.getRenderTarget< float >( hitDistSearchDimensions );
     currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions );
     currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+    currLayerRTs.shadedCombined         = nullptr; // It's important to reset this - it may contain results from same layer reflection/refraction.
 
     if (layerType == Renderer::LayerType::Reflection)
     {
@@ -1053,10 +1007,6 @@ void Renderer::renderSecondaryLayer(
         );
     }
 
-
-    // Generate mipmaps for the shaded, reflected image.
-    currLayerRTs.hitShaded->generateMipMapsOnGpu( *m_deviceContext.Get() );
-
     const int contributionTextureFillWidth = prevLayerRTs.hitAlbedo->getWidth();
     const int contributionTextureFillHeight = prevLayerRTs.hitAlbedo->getHeight();
 
@@ -1076,6 +1026,62 @@ void Renderer::renderSecondaryLayer(
         currLayerRTs.hitDistance,
         currLayerRTs.hitDistanceBlurred
     );
+}
+
+void Renderer::combineLayers( const int currentLevel, const Camera& camera )
+{
+    if ( currentLevel < 1 || currentLevel >= m_layersRenderTargets.size() )
+        throw std::exception( "Renderer::combineLayers - given level is 0 (nothing to combine then) or higher-equal to number of layers available." );
+
+    auto& prevLayerRTs = m_layersRenderTargets.at( currentLevel - 1 ); // Previous layer render targets.
+    auto& currLayerRTs = m_layersRenderTargets.at( currentLevel );     // Current layer render targets.
+
+    if ( !currLayerRTs.shadedCombined ) 
+    {
+        currLayerRTs.shadedCombined = currLayerRTs.hitShaded;
+        currLayerRTs.hitShaded = nullptr;
+    }
+
+    if ( !prevLayerRTs.shadedCombined ) 
+    {
+        prevLayerRTs.shadedCombined = prevLayerRTs.hitShaded;
+        prevLayerRTs.hitShaded = nullptr;
+    }
+
+    // Generate mipmaps for the current layer shaded-combined image.
+    currLayerRTs.shadedCombined->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+    if ( currentLevel == 1 ) {
+        m_combiningRenderer.combine(
+            prevLayerRTs.shadedCombined,
+            currLayerRTs.shadedCombined,
+            currLayerRTs.contributionRoughness,
+            prevLayerRTs.hitNormal,
+            prevLayerRTs.hitPosition,
+            prevLayerRTs.depth, // #TODO: Blurred or not?
+            currLayerRTs.hitDistanceBlurred,
+            camera.getPosition(),
+            currLayerRTs.contributionRoughness->getWidth(),
+            currLayerRTs.contributionRoughness->getHeight(),
+            m_finalRenderTargetHDR->getWidth(),
+            m_finalRenderTargetHDR->getHeight()
+        );
+    } else {
+        m_combiningRenderer.combine(
+            prevLayerRTs.shadedCombined,
+            currLayerRTs.shadedCombined,
+            currLayerRTs.contributionRoughness,
+            prevLayerRTs.hitNormal,
+            prevLayerRTs.hitPosition,
+            prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
+            currLayerRTs.hitDistanceBlurred,
+            prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
+            currLayerRTs.contributionRoughness->getWidth(),
+            currLayerRTs.contributionRoughness->getHeight(),
+            m_finalRenderTargetHDR->getWidth(),
+            m_finalRenderTargetHDR->getHeight()
+        );
+    }
 }
 
 void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )

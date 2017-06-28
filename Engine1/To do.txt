@@ -777,12 +777,9 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
-	  - if we force contribution to be 100% always, then when getting close to a surface (< 1m) reflections from higher layers dim to black... Why???
-	    Reflections also dim unnaturally fast when roughness is increased...
-
-	  - roughness in higher layers is too high, because we don't properly account for distance to camera - and then when it accumulates through several blurs from layer to layers it gets way too strong...
-
 	  - why mirrors contribution is not almost 100%? But it's graysih...
+
+	  - refraction combining seems to work incorrectly - making image too bright when comining let's say 2nd layer with 3rd. Like the same image gets added twice.. Maybe left is some buffer.. I should try to clear everything i can and assing nulls.
 
 	  - remove m_imageHeight, m_imageWidth from most renderers? Pass that data in rendering calls instead or deduce it from render targets?
 	    Or deduce it from targetMipmapLevel - as we don't allow for arbitrary image dimensions - rather some multiplies of screen dimensions..
