@@ -1279,15 +1279,18 @@ void Application::onKeyPress( int key )
             m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f1 ) {
-            m_renderer.setActiveViewType( Renderer::View::RayDirections );
+            m_renderer.setActiveViewType( Renderer::View::ShadedCombined );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f2 ) {
-            m_renderer.setActiveViewType( Renderer::View::Contribution );
+            m_renderer.setActiveViewType( Renderer::View::RayDirections );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f3 ) {
-            m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
+            m_renderer.setActiveViewType( Renderer::View::Contribution );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f4 ) {
+            m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f5 ) {
             m_renderer.setActiveViewType( Renderer::View::BloomBrightPixels );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }

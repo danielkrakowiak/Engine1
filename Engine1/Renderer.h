@@ -49,6 +49,7 @@ namespace Engine1
 
         enum class View : char {
             Final = 0,
+            ShadedCombined,
             Shaded,
             Depth,
             Position,
@@ -133,6 +134,7 @@ namespace Engine1
                 hitDistanceBlurred     = nullptr;
                 hitDistanceToCamera    = nullptr;
                 hitShaded              = nullptr;
+                shadedCombined         = nullptr;
             }
 
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        contributionRoughness;
@@ -151,6 +153,7 @@ namespace Engine1
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceBlurred;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceToCamera;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitShaded;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        shadedCombined;
         };
 
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager );

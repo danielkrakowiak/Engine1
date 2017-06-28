@@ -176,6 +176,8 @@ Renderer::Output Renderer::renderScene(
     const auto  lightsNotCastingShadows = SceneUtil::filterLightsByShadowCasting( lightsEnabled, false );
     const auto  blockActors             = SceneUtil::filterActorsByType< BlockActor >( actors );
 
+    m_layersRenderTargets.reserve( settings().rendering.reflectionsRefractions.maxLevel + 1 );
+
     Output output; 
     output = renderPrimaryLayer( 
         scene, camera, lightsCastingShadows, lightsNotCastingShadows, 
@@ -186,11 +188,13 @@ Renderer::Output Renderer::renderScene(
     // Release all temporary render targets.
     m_layersRenderTargets.clear();
     
-    if ( !output.isEmpty() )
+    if ( !output.isEmpty() && m_activeViewType != Renderer::View::Final )
         return output;
 
+    assert( output.float4Image );
+
     // Perform post-effects.
-    performBloom( m_finalRenderTargetHDR, m_minBrightness );
+    performBloom( output.float4Image, m_minBrightness );
 
     if ( m_activeViewType == View::BloomBrightPixels ) {
         output.reset();
@@ -199,7 +203,7 @@ Renderer::Output Renderer::renderScene(
         return output;
     }
 
-    performToneMapping( m_finalRenderTargetHDR, m_temporaryRenderTargetLDR, m_exposure );
+    performToneMapping( output.float4Image, m_temporaryRenderTargetLDR, m_exposure );
 
     Output finalOutput;
 
@@ -607,16 +611,18 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 	}
 
-    m_profiler.beginEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
+    //m_profiler.beginEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
+
+    layerRenderTargets.shadedCombined = layerRenderTargets.hitShaded;
 
     // Copy main shaded image to final render target.
     // Note: I have to explicitly cast textures, because otherwise the compiler fails to deduce the template parameters for the method.
-    m_rendererCore.copyTexture( 
+    /*m_rendererCore.copyTexture( 
         *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, float4 > >( m_finalRenderTargetHDR ), 0, 
         *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, float4 > >( layerRenderTargets.hitShaded ), 0 
-    );
+    );*/
 
-    m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
+    //m_profiler.endEvent( Profiler::GlobalEventType::CopyFrameToFinalRenderTarget );
 
     if ( activeViewLevel.empty() )
     {
@@ -648,6 +654,11 @@ Renderer::Output Renderer::renderPrimaryLayer(
         renderedViewType,
         settings().rendering.reflectionsRefractions.activeView, m_activeViewType
     );
+
+    if ( !output.isEmpty() )
+        return output;
+    else
+        output.float4Image = layerRenderTargets.shadedCombined;
 
     return output;
 }
@@ -711,9 +722,54 @@ Renderer::Output Renderer::renderSecondaryLayers(
     if ( !output.isEmpty() )
         return output;
 
+    auto& prevLayerRTs = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
+    auto& currLayerRTs = m_layersRenderTargets.at( level );     // Current layer render targets.
+
+    if ( !prevLayerRTs.shadedCombined )
+    {
+        prevLayerRTs.shadedCombined = prevLayerRTs.hitShaded;//m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions );
+        prevLayerRTs.hitShaded = nullptr;
+        //prevLayerRTs.shadedCombined->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    }
+
+    if ( level == 1 ) {
+        m_combiningRenderer.combine(
+            prevLayerRTs.shadedCombined,
+            currLayerRTs.shadedCombined ? currLayerRTs.shadedCombined : currLayerRTs.hitShaded,
+            currLayerRTs.contributionRoughness,
+            prevLayerRTs.hitNormal,
+            prevLayerRTs.hitPosition,
+            prevLayerRTs.depth, // #TODO: Blurred or not?
+            m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+            camera.getPosition(),
+            currLayerRTs.contributionRoughness->getWidth(),
+            currLayerRTs.contributionRoughness->getHeight(),
+            m_finalRenderTargetHDR->getWidth(),
+            m_finalRenderTargetHDR->getHeight()
+        );
+    } else {
+        m_combiningRenderer.combine(
+            prevLayerRTs.shadedCombined,
+            currLayerRTs.shadedCombined ? currLayerRTs.shadedCombined : currLayerRTs.hitShaded,
+            currLayerRTs.contributionRoughness,
+            prevLayerRTs.hitNormal,
+            prevLayerRTs.hitPosition,
+            prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
+            m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+            prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
+            currLayerRTs.contributionRoughness->getWidth(),
+            currLayerRTs.contributionRoughness->getHeight(),
+            m_finalRenderTargetHDR->getWidth(),
+            m_finalRenderTargetHDR->getHeight()
+        );
+    }
+
+    if ( activeViewLevel == renderedViewLevel && activeViewType == View::ShadedCombined )
+        output.float4Image = currLayerRTs.shadedCombined;
+
     renderedViewLevel.pop_back();
 
-    return Output();
+    return output;
 }
 
 void Renderer::renderSecondaryLayer(
@@ -1017,40 +1073,40 @@ void Renderer::renderSecondaryLayer(
         currLayerRTs.hitDistance
     );
 
-    if ( level == 1 )
-    {
-        m_combiningRenderer.combine(
-            m_finalRenderTargetHDR,
-            currLayerRTs.hitShaded,
-            currLayerRTs.contributionRoughness,
-            prevLayerRTs.hitNormal,
-            prevLayerRTs.hitPosition,
-            prevLayerRTs.depth, // #TODO: Blurred or not?
-            m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-            camera.getPosition(),
-            contributionTextureFillWidth,
-            contributionTextureFillHeight,
-            colorTextureFillWidth,
-            colorTextureFillHeight
-        );
-    }
-    else
-    {
-        m_combiningRenderer.combine(
-            m_finalRenderTargetHDR,
-            currLayerRTs.hitShaded,
-            currLayerRTs.contributionRoughness,
-            prevLayerRTs.hitNormal,
-            prevLayerRTs.hitPosition,
-            prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
-            m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
-            prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
-            contributionTextureFillWidth,
-            contributionTextureFillHeight,
-            colorTextureFillWidth,
-            colorTextureFillHeight
-        );
-    }
+    //if ( level == 1 )
+    //{
+    //    m_combiningRenderer.combine(
+    //        m_finalRenderTargetHDR,
+    //        currLayerRTs.hitShaded,
+    //        currLayerRTs.contributionRoughness,
+    //        prevLayerRTs.hitNormal,
+    //        prevLayerRTs.hitPosition,
+    //        prevLayerRTs.depth, // #TODO: Blurred or not?
+    //        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+    //        camera.getPosition(),
+    //        contributionTextureFillWidth,
+    //        contributionTextureFillHeight,
+    //        colorTextureFillWidth,
+    //        colorTextureFillHeight
+    //    );
+    //}
+    //else
+    //{
+    //    m_combiningRenderer.combine(
+    //        m_finalRenderTargetHDR,
+    //        currLayerRTs.hitShaded,
+    //        currLayerRTs.contributionRoughness,
+    //        prevLayerRTs.hitNormal,
+    //        prevLayerRTs.hitPosition,
+    //        prevLayerRTs.hitDistance, // #TODO: IMPORTANT: Blurred or not?
+    //        m_hitDistanceSearchRenderer.getFinalHitDistanceTexture(),
+    //        prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
+    //        contributionTextureFillWidth,
+    //        contributionTextureFillHeight,
+    //        colorTextureFillWidth,
+    //        colorTextureFillHeight
+    //    );
+    //}
 }
 
 void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )
@@ -1215,6 +1271,7 @@ Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
 std::string Renderer::viewToString( const View view )
 {
     switch ( view ) {
+        case View::ShadedCombined:                           return "ShadedCombined";
         case View::Final:                                    return "Final";
         case View::Shaded:                                   return "Shaded";
         case View::Depth:                                    return "Depth";

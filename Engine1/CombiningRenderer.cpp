@@ -42,16 +42,19 @@ void CombiningRenderer::initialize( ComPtr< ID3D11Device > device,
 	m_initialized = true;
 }
 
-void CombiningRenderer::combine( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture, 
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
-                                 const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                                 const float3 cameraPosition, 
-                                 const int contributionTextureFilledWidth, const int contributionTextureFilledHeight,
-                                 const int srcTextureFilledWidth, const int srcTextureFilledHeight )
+void CombiningRenderer::combine( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > destTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
+    const float3 cameraPosition,
+    const int contributionTextureFilledWidth, 
+    const int contributionTextureFilledHeight,
+    const int srcTextureFilledWidth, 
+    const int srcTextureFilledHeight )
 {
     if ( !m_initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 
@@ -88,16 +91,19 @@ void CombiningRenderer::combine( std::shared_ptr< Texture2D< TexUsage::Default, 
     m_rendererCore.disableRenderTargetViews();
 }
 
-void CombiningRenderer::combine( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture, 
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture,
-                      const int contributionTextureFilledWidth, const int contributionTextureFilledHeight,
-                      const int srcTextureFilledWidth, const int srcTextureFilledHeight )
+void CombiningRenderer::combine( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > destTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture,
+    const int contributionTextureFilledWidth, 
+    const int contributionTextureFilledHeight,
+    const int srcTextureFilledWidth, 
+    const int srcTextureFilledHeight )
 {
     if ( !m_initialized ) throw std::exception( "CombiningRenderer::combine - renderer not initialized." );
 

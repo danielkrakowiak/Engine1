@@ -58,5 +58,5 @@ void main( uint3 groupId : SV_GroupID,
     const float4 prevContributionTermRoughness = g_prevContributionTermRoughnessTexture[ dispatchThreadId.xy ];
 
     // Calculate how much of the incoming reflection light is visible at the camera (after all the light bounces).
-    g_contributionTermRoughnessTexture[ dispatchThreadId.xy ] = (uint4)(float4( prevContributionTermRoughness.rgb * refractionTerm, min( 1.0f, prevContributionTermRoughness.a + surfaceRoughness ) ) * 255.0);
+    g_contributionTermRoughnessTexture[ dispatchThreadId.xy ] = (uint4)(float4( /*prevContributionTermRoughness.rgb **/ refractionTerm.rrr, min( 1.0f, /*prevContributionTermRoughness.a*/ + surfaceRoughness ) ) * 255.0);
 }

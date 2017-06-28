@@ -777,6 +777,14 @@ Idea:
 	  ----------------------------------------------------------------------
 
 	  NEXT:
+	  - contribution/roughness etc have to be computed only from layer to layer - so no complex accumulation like it is now...
+
+	  - remove rejecting rays based on contribution? Does it even help in real cases? How much screen space do we save by using that information? Mark red non-traced rays from contribution?
+
+	  - refactor final-hit-distance renderer to use external render targets
+	  - almost for sure contributionRoughness has to be rethought - do we still need to accumulate values? Maybe... (to avoid tracing some rays), but should we use that when combining? or another buffer which only has curr layer contriburion and roughness?
+
+	  - roughness is not changing smoothly - probably because I change the number of samples etc which happens at certain steps - how to improve that?
 
 	  - hit-distance-renderer and reflection-refraction-shading-renderer have to be refactored before we can switch combining to back-to-front order.
 
