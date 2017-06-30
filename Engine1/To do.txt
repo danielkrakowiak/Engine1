@@ -71,7 +71,6 @@ For later ######################################################################
 - test combining poses (skeleton-space, parent-space)
 - add method to substract poses (leave only the difference between poses)
 
-
 - add option to ignore bones which are not in mesh when loading an animation file. How to make sure that missing bones are not in between of the existing ones? Useful to apply complex animation to a sipler version of mesh (LOD etc)
 
 - Refactor Font and FontCharacter classes.
@@ -82,20 +81,23 @@ For later ######################################################################
 
 - make RectangleMesh derive from BlockMesh (to be able to render it with BlockMeshShader) ?
 
-Next2:
-
-	- zdublowac gettery w SkeletonMesh tab by byly wersje const i non-const. Jak w BlockMesh.
-
-##################################################################################################################################
-
 --------------------------------------
-	Problems with texture class:
+	Texture2D class:
+
 	- No generic class without template params to be used as method arguments.
 	- PixelType has no usage for textures which are only stored on gpu (like render target) - but restricts their usage in methods etc.
 
 	How to deal with textures which are not loaded, but store file information (when parsing ModelTexture files etc). 
 	Should it ba possible to create empty textures? But lock them internally to make any action impossible?
 	But probably a more elegant solution can be found. 
+
+	**** IMPORTANT 3:
+	- maybe there is no point to add compile time checks related to texture usage? Or maybe we can simplify it somehow? Because we use only some subsets of all congurations.
+	Like when binding is RT or UA then it's obvious that texture is not Immutable - probably Default usage.
+	Also there seems to be no point ic creating a texture which is only RT, but not UA. Or RT but not SR - you usually want to read what you just rendered there...
+	Maybe just a couple of "texture types" would be enough? Like RenderTarget (Default, RT_UA_SR), StaticTexture (Immutable, SR), DynamicTexture (Dynamic, SR, maybe RT_UA?), Staging.
+	But need to make sure that asking for SR texture works fine - without some stupid casting etc..
+
 -------------------------------------
 	IMPORTANT: AssetManager tests (event the first one) make whole test execution to fail for all tests. But only in Release builds. It works fine in Debug. Why?
 -------------------------------------
@@ -108,13 +110,7 @@ Next2:
    Also2: pass stack depth to the shader as constant or...
    Also3: Compile a few versions of the shader with different stack depth and use the appropriate one?
 
-   - After creating BVH for a mesh - mesh's triangle vector could be replaced with the one from BVH. It's just a matter of reordering the triangles.
-     Then, there would be no need to send a seperate buffer to GPU just to mark which triangles are in BVH nodes. Nodes would already contain triangles from mesh triangle list.
-
 	 - textures which use float4 for vectors (rayDir, rayOrigin etc) could use float3, because such format exists.
-
-	 - add loading (drag&drop) animations and applying it to the default skeleton model if they match.
-	   Would be good to check if they still work and check how reflections look for them.
 
 	- PERFORMANCE: buffer containing "surface position" in DeferredRenderer could be reused to store ray origins in the RaytraceRenderer. 
 	    It would have to be read and rewritten as UAV to slithly adjust ray origins along the surface normal to avoid self-collisions of ray with the reflective surface.
@@ -127,61 +123,12 @@ Next2:
 
 	- add g-buffer name display in the corner - how to do it elegantly? These are not full rgba textures...
 
-	- final blurring of reflections: sample mipmap one/two levels less blurry than you need (with/without filtering? any cost? use filtering between points) 
-	  and then apply 5x5 gaussian blurr to smoothen pixel borders. Or similar.
-	  Must read before!!! : https://bartwronski.com/2014/03/23/gdc-follow-up-screenspace-reflections-filtering-and-up-sampling/
-
-	  - should measure the cost of generating mipmaps for the color target! Compare it with cost of running blur kernels.
-
-	  - the problem is bleeding reflections through the edges - note it down somewhere.
-
-	  - create a edge-detection shader which writes distance to the nearest "reflection edge" based on position/normal/ray direction whatever.. Could use multiple passes and shaders.
-
-	  - probably need to add some memory barriers in the compute shader for edge distance. Pixels written by some threads are read by others. Read aboubt sync in DX book.
-
-	  - IMPORTANT: optimization of edge distance calculation: pass "current render pass index" to shader and then ignore threads with current edge distance smaller than pass index 
-	    (they are calculated already - no point in recalculating it again). This way less and less pixels will have to be calculated each pass. And zero at some point!
-
-
-	  - have to upscale mipmaps to at least half the screen size to avoid aliasing when moving camera.
-
-	  - I could limit reflection mipmaps to let's say 4x4 - there is not much point in having even rougher reflections - and to store their upscaled mipmaps at half screen resolution.
-
-	  - upscaling has to happen in steps - upscale by factor of 2 each render pass. Otherwise it gives no advantage over simple sampling. How to do that efficently with 3d texture?
-
-	  - instead of texture array for reflection upscaled mipmaps use 3d texture. It allows for sampling between layers based on dynamic, float level.
-
-	  ////////////////////
-
-	  - why unsigned char textures are displayed/loaded with artifacts? Add texture path to debug name.
-
-	  - IMPORTANT: FreeImage has some trouble loading grayscale png image. What's the problem?
-
-	  - add modifying light params using keyboard shortcuts.
-
-	  Test this idea:
-
-	  - try decreasing far neighbors weigth and check how it influences image. It mimics how most rays reflect near center ray, so they have bigger impact.
-
-
-	  * To allow for recursive ray tracing:
-	  - accumulate specular term multiplier (something like combined surface param)
-	  - add total distance covered by ray (maybe except for primary ray depth)
-	  - accumulate roughness? accumulate based on distances between levels?
-
-	  How to generate upscaled mipmaps:
-	  - start with 2 level mipmap - render it stretched to 3d texture layer 0.
-	  - take level 3 mipmap and render it to level 2 mipmap. Then render level 2 mipmap to 3d texture layer 1.
-	  - take level 4 mipmap and render it to level 3 mipmap. Then render it to level 2 mipmap. Then to 3d texture layer 2.
-	     and so on... - but how about the problem of binding the same resource on input and output? Should I have separate shader resource view for each mipmap level as well to avoid the problem?
+	  - IDEA: try decreasing far neighbors weigth and check how it influences image. It mimics how most rays reflect near center ray, so they have bigger impact.
 
    ----------------------------------------------------
    Refactoring:
 
-	- Change naming convention: use m_ in class members.
-	- use ComPtr wherever possible instead of raw pointers.
 	- use short "Idx" for "index" in the whole code + shaders.
-	- rename Texture2D to Texture2D
 
 	- add uint type, which would be just a typedef for unsigned int - could be in math in separate header file.
 	- rename "ReflectedRefracted..." shader names to "SecondaryRays...".
@@ -189,10 +136,6 @@ Next2:
 	- shader could use g_ in global variable names. Because names often reapeat.
 
 	- get rid of "Direct3D" from class names. It's used all over the code anyway - no reason to mark specific lass with such prefix.
-
-	- all UAVs and render target could be uniformly called "RenderTargets" - everyone knows what that means. No need to differentiate all the time between UAV and RT.
-
-	- should I also const things inside the vectors -> const std::vector< const std::shared_ptr< const Light > > ??
 
 	- rendererCore should also allow for setting viewport dimensions and depth range. It's done manually in FrameRenderer and CombiningRenderer, but it's wrong this way.
    ---------------------------------------------------
@@ -210,41 +153,6 @@ Could be a template class taking it's element type at template argument. It woul
 + Check bind flags on different resources - ex. vertex buffers (and normals etc) have bind flag - "default", but should rather hvae "immutable". Default means that I expect GPU to modify these buffers.
 
 
------------------------------------------
-
-Ability to select an actor by clicking on it. Using ray tracing.
-
-Add other phases of rendering. Rendering color, normals etc. Then rendering the final image. 
-
-How to do raytracing on the GPU --------------------------
-
-First shader: For all rays, find the intersection distance, hit actor (or model), hit triangle -> save to texture.
-For each actor in the current scene node run second shader (pass model textures etc):
-Second shader: For all rays, calculate the received color.
-
-How to pass many meshes to shader at the same time?
-* Maybe use one huge buffer for vertex data and each mesh has a view to only a part of this buffer.
-And then also one special view to access the whole buffer.
-* Or the same huge buffer approach but with each mesh remebering it's start/end index in that buffer.
-
-----------------------------------------------------------
-
-Implementation order:
-1) Generating rays from camera (for test) or from depth buffer
-2) Outputing rays as pixels, (pos, albedo, spec, roughness etc)
-3) Ray-Box test
-4) Shading a layer (no shadows)
-5) Shadow-rays tests
-6) Storing scene (mesh list/ptrs) on GPU
-7) Ray-Mesh test
-
-
-1) for each layer:
-- render depth/pos + albedo/normal/spec/roughness (using DX or RT)
-- shade - 1 pass for each light - use SM/RT -> color
-2) for each layer - from the last one
-- blur the reflections, refractions
-- combine with the previous layer
 
 Idea:
 - when calculatin range of a light source - it's bounding volume doesn't have to be a sphere. The more precise the bounding volume to more calculations we save. Maybe even a few volumes could describe a lights range?
@@ -253,7 +161,6 @@ Idea:
 
 	  - should I rename refration into transmission? To differentiate them more..
 
-	  - we probably need to store current ray refraction index - the whole history for each ray - as many buffers as there is for reflection/transmission term.
 	  - if we hit surface from inside (deduced from normal), than we need to invert refraction index? How to know refractive index of air, water if we are in one mesh, inside another and another etc?
 
 	  - rename albedo render targets to albedoAlpha.
@@ -261,8 +168,6 @@ Idea:
 	  - rename reflectionTerm texture in combining shader and classes. Should be called contributionTerm. Check for incorrect assumption regarding reflection/refraction too.
 
 	  - experiment with increasing minimal contribtuion for the ray to be generated and traced. How high can we go for higher levels?
-
-	  
 
 	  - add exceptions and check if wrong level is passed to reflectionrefraction renderer.
 	  - remove unnecessary 'level' and 'prev contribution term' from firstreflectionshadindg and firstrefractionshading.
@@ -362,18 +267,6 @@ Idea:
 
 	  CURRENT SHADOW PROBLEMS:
 
-	  /////////////////////////
-
-	  DEPTH PEEELING - fix for calculating dist-to-occluder in shadow mapping:
-
-	  - render first shadow map normally - like it is now - the closest object to light is visibile in SM.
-	  - render second shadow map, but only the pixels with greater depth than the prev SM. This SM will have all shadowed pixels...
-
-	  - WAAARNING: Depth peeling may also fail? Because it will still get the closest-to-light-dist, but one greater than the closest. And we need the furthest-from-light but closer than some surface... 
-	  How to achieve that? Inverted depth test with some maximum? How to know the maximum easily? Read it from screen?
-
-	  - By comparing the distance between first and second SM we know the dist-to-occluder.
-
 	  //////////////////
 
 	  - check which part os lambo has problems? Test1: make everything white, disable shadows and check if shading is ok for everything.
@@ -414,29 +307,9 @@ Idea:
 
 	  - OPTIMIZATION: when detecting pixels for which its useful to trace shadow rays I detect the need for pixels at the edge of spot light cone. There is no point to trace these rays. How to avoid that? Calculate dot in the shader for that light and compare with cone angle?
 
-	  - use normal when calculating blur radius for shadow... to avoid dim shadow at flat angles.
-
-	  - need to handle casting shadow rays for pixel which are too far from the spot light (ex. above 100m which is max for shadow map).
+	  
 
 	  - PROFILING: how to track the total number of traced rays?
-
-	  - Should I use two-pass blurring for soft shadows? May fail, because blur kernel is assymetrical and variable across the screen (soft, hard shadows).
-
-	  NEEDED TEST SCENES:
-		- a tower in the desert - to show shadow far from the occluder. How it looks with shadow map and how with ray tracing. How soft shadow acts with distance, how soft shadow look using RT or SM.
-
-		- how to handle semi-transparent models in shadow mapping phase?
-		- should there be a separate shadow raytracing shader for lights without shadow maps?
-
-	  - THOUGHTS ON MY TECHNIQUE FOR SOFT SHADOWS:
-		- the only way to get sharp shadows is to calculate them in screen-space
-		- and when doing it in screen-space I found a prety good technique to make them soft where needed
-		- we can also know the needed quality in advance and trace rays where sharp shadow is needed and use shadow map where soft shadow is needed (as optimization)
-		- and generally use shadow map to avoid tracing most rays (fully illuminated or shadowed).
-		- FIX: I have to fix fake bright samples...
-		- FIX: problem when looking at flat angle - smaller screen space is covered in shadow and shadow gets too dim...
-		- FIX: handle samples outside of screen - or rather mipmap generation fails for screen regions near egdes..
-		- how this blurring would work in reflections? When it is needed?
 
 	  - what is the size of the penumbra? Source: https://www.nde-ed.org/GeneralResources/Formula/RTFormula/Unsharpness/GeometricUnsharpness.htm
 	    How much to blur shadows based on light source size, distance from light ot occluder and distance from occluder to shadow receiver.
@@ -450,11 +323,6 @@ Idea:
 
 	  - OPTIMIZATION: make sure to check for max ray distance when intersecting rays with Bounding boxes in view raytracing. As it's done in shadows...
 
-	  - maybe use different vertex shader for shadow maps....
-
-	  - IMPORTANT TEST: How much the shadows would cost if they only used bounindg boxes for tests... Can disable self-shadowing for test..
-	  Because if the cost is very low, then maybe it's not a big optimization to use shadow mapping for hard shadows..?
-
 	  - display GPU name and optionally also CPU name on the screen
 
 	  BETTER IDEA: Start merging using with the type (albedo, roughness) which has the most unqiue textures. Then use that texture placement for other texture types.
@@ -462,17 +330,9 @@ Idea:
 
 	  Is my sorting stable? Not moving items which are in correct order?
 
-	  - NOW: UVs get recalculated incorrectly after merge? All meshes have the same UVs ? Or maybe even zeros as UVs?
-
 	  - fix merging models when all models share one alpha but have different other texutres.
 
-
 	  - check which shaders are running with "skip optimization" flag? Maybe we slow down because of that... Is raytracing shader still faster with that flag?
-
-
-	  - why skybox has reflections? Why roughness == 1.0f doesn't cancel raytracing? Bad skybox texture?
-
-	  - mipmapping (someone will probably ask about that) ?
 
 	  LATER:
 
@@ -515,71 +375,9 @@ Idea:
 	    page 721
 
 
-	    --------------
-		BLOOM TODO:
-		- split blur into 2-passes and increase number of taps
-		- rename blur method and remove radius param.
-
-	    -----------------------------
-
-		###############
-
-
-		- is initial hard/soft shadow texture in raytracing shadows filled with preShadow?
-
-		###############
-
-	BUGS:
-	- there seems to be a bug in reflections hsading - it uses illumination from sorrounding pixels even if they are far away rom the center pixel. 
-	  This causes bright glow around lit objects in the normally dark background.
-
-
-	  FINAL TODO: ---------------------------------------------------------------
-
-	  - TO TEST: When bluring shadows - use a shadow sample if it blur-radius is similar to shadow sample blur-radius. Requires more reads, but may improve shadow mixing.
-
-	  IDEA: Have 2 textures. In one, spread minimal blur-radius samples. In other, spread maximal blur-radius samples. Then, join both textures?
-
-	  REFACTOR: I could have utulity renderer which does some operations on textures - such as min, max, spread min/max?
-
-	  PERF/QUALITY: Limit screen space or world space shadow blur? And than use that limit to reduce the number of passes required to spread values 
-	  (knowing that values are decresing while being spread). If possible...
-
-	  - Spreading soft shadow through hard shadow works pretty well, but it's a bit too much. There is this dark glow around hard shadows...
-	    How to reduce it? Faster decresing blur-radius values with number of spreading passes?
-
-		IDEA: Write shadows to two textures - one for soft shadows and one for hard shadows. Each shadow is in fact saved to both textures, lerped using blur-radius.
-		Then blur -radius for soft shadows gets spread. Then it gets combined with hard shadows blur-radius (or not?).
-		Then when sampling both textures are read an dalso lerped using blur-radius.
-
-		- TODO: Sharper shadow has to spread as well... Otherwise we get too hard edgers for shadows...
-
-		- TODO: normalize the amount of shadow written and read from soft/hard illumination textures. Use equations from the note...
-
-		GOOD IDEAS FOR SPREADING BLUR RADIUS:
-
-		***** USED: *********************
-
-		- generate mipmap for "blur radius" taking avarage only from non-empty samples.
-		- spread "blur radius" with avaraging of all non-empty pixels in some radius - it provides first blur of sharp egdes.
-		- first spread passes should spread 4px away to ensure that later "smart spread" will work.
-		- spread using 3rd mipmap, but than create the 4th mipmap and sample 4th. Because spreading always leaves some sharp egdes, that will smooth them.
-
-		*********************************
-
-		DAILY TO-DO:
-		- perspective correction of kernels
-		- why dist-to-occluder search is no tdone in two passes?
-
-
-		IDEA: I could do a couple of passes of dist-to-occluder search, each with a bit larger search radius, but only for empty pixels. This could ensure smaller blur close to original edges.
-		Cons: Expensive, because we do all that search for pixels which are too far...
-
 		USEFUL NOTES FOR DIST-TO-OCCLUDER SEARCH: -----------------------
 		- using small search area better preserves sharp shadows, but dissallows big, soft shadows
 		- using large search area blurs sharp shadows entirely if softer shadow is nearby.
-
-		
 
 		older:
 		- be carefull about samples pattern. Take most samples near the center, less further away. 
@@ -604,14 +402,6 @@ Idea:
 		  * For large search-radius we are probably zoomed in, so not that many more samples are needed.
 		  * But when we are zoomed out, we need very few samples.
 
-		TO TEST:
-		- assymetrical weighting of samples based on dist-to-occluder
-			* sth like if center sample is sharp, decrease weight of blurred samples
-			* if center sample is blurred, treat all samples equally (or opposite)
-		- dividing illumination into two textures (sharp and blurred) and then sample a bit from each during blurring.
-
-		- why blurred-illumination is float4 instead of float? Could be good for future colored shadows, but now?
-
 		MAYBE GOOD IDEA:
 		- spread shadow only to surfaces further from light source than shadowed surface (or slightly closer). Should be easy to calculate...
 		  May be a better check than comparing positions.. Accounts for light position.
@@ -624,73 +414,6 @@ Idea:
 		How to know that something should not receive any shadow from sorrounding pixels? Should I compare distance to light source more than position itself?
 		Shadow cannot be spread on objects closer to light than shadowed surface, right? But we also store nearest distance, which could cause problem. We would also need farthest distance...
 
-		CURRENT ISSUES:
-		- how to blur something, while preserving edges? Use 9-tap filtering with position checks... Accept only samples with similar position to central pixel.
-		  Regarding blur-radius - these 9-tap could be farther away from each other to simulate more blurring without increasing number of taps.
-		  This would be the same approach as in reflections... Could work..
-		  * But why did it work before? On screenshots? Did I do some check during blurring to check if samples are ok?
-		    Maybe all shadow samples were rejected anyways, so blur radius didn't matter that much? But it still sucks to have it this way... Could cause problems anytime..
-			No.. position threshold is not enough to stop this problem. It has to be solved properly...
-
-		- IDEA: Do some spreading on full-res image first - like 4 pixels etc.
-		  This should ensure that there are samples available at both sides of edges. Should spread correctly from there..
-		  Nooo... not gonna help if we create a mipmap from this.
-
-		- when we have available blur-radius in max-resolution - let's use it instead of mipmaps - should help with blur-radius leaks and improve quality
-			* I could generate a final, full-res blur-radius texture for better debug - but it's not needed - the 'if' can be in the blur-shadows shader.
-			* NOOOO... We can't sample from full res, because we don't know when to use it. Pixel which are lit have max blur radius anyways...
-			* Hard to do, because mipmaps have samples with 1000 blur-radius. And when sampling that linearly we get very high values near egdes.
-			* other idea: When deciding which sample to use - sample position mipmap level 3 and 0 and compare - if there are bigg differences - use 0 mipamp as there is egde nearby
-		- blur radius-spreading from foreground to background and opposite - simpler to fix
-			* fix mipmap generation for blur-radius to be aware of surface position
-				> do I have to use pixel-size-in-world-space and camera-pos for this? Can we live with simple positon threshold?
-				> Nooo, not easy, beceause mipmapping cannot use position as threshold - which pixel's position would have priority there?
-			* fix spreading awarness of position - check calculations and if they even work..
-		- blur radius-spreading ugly and with low performance - incorrect limiting of spread of low values
-		- using sharp shadow samples when in soft shadow - have to fix prevois solution which required some normalization
-
-		------------------
-
-		- why high blur radius from front surface of flowers spreads to the wall? Didn't I limit it somehow using position threshold?
-		So we have to limit spreding using screen-space limits and world-space limits?
-		Maybe I should stick to world-space then, reading position texture and avoiding spreading blur radius through object egdes?
-		I don't know....
-
-		- create a couple of test scenes for shadows? Like if we pass all of them we accept the solution?
-
-		CONCLUSION: SO.. - take position in spread shader and compare it against blur-radius in world space to avoid spreading to far on the same surface or spreading
-		from foreground to background.
-
-		TO TEST: When there are values all around central sample - don't do anything - this should keep natural edges sharp...
-		Or just sample during blur-shadow from higher res mipmap if available...
-
-		How to disconnect spreading pace from number of passes? Should low blur-radius spread more slowly? Probably not, just not spread at all at some point and be ready for some blending...
-
-		- keep blur-radius in screen space until blur-shadows. 
-		  Before that run a conversion shader which recalculates screen-space-brlur-radius into world-space-blur-radius.
-		  Keeping them in screen-space facilitates rejecting low-blur-radius samples during spreading.
-
-		- limit spreading blur radius for low values. One black patch shouldn't spread to the rest of the screen...
-		  Discard samples which blur-radius is smaller than spreadDist (or sampling dist from center) in world space (or convert both to screen space?).
-
-		- first spread in radius of 4px
-		- then run compute every 4th pixel and spread once
-		- then run every 8th pixel and spread, then every 16th, 32nd, 64th, 128th, 256th, 512th. -> Logarithmic complexity.
-		  But better than mipmaping because we don't loose detail on edges. 
-		  Plus we can't really mipmap blur radius, because we have holes in the data. (except for custom mipmapping with ifs).
-		  Should also work fine, because far-reaching shadows are usueally soft and have little detail.
-		- then run every 256th, 128th, 64th, 32nd, 16th, 8th? again - to fill the gaps.
-		- in the end run every 4th, but with offset of (2,2) - that will fill pixels between our 4-spaced pixels.
-		- then run every 2nd, and again every 2nd with offset (1,1). It's done.
-		- When filling gaps, ignore neighbor samples which have value lower than dist to neighbor (passed as param to shader and depanding on the pass).
-		- When more than one sample is available - take avarage.
-
-		- BUG: When sampling during spreading blur-radius texture I accept samples from outside of screen - because thay value of 0 - they get accepted.
-
-		- SOME PROBLEM: Depending whether we look at close-up or from afar using hardcoded 4 px gives different results...
-
-		- Best to do the above using screen-space blur radius - easier to reject far samples.
-		  But then it could be recalculated to world-space in a separate pass - so that rejecting shadow samples is easier in "blur shadows" phase.
 	  ---------------------------------------------------------------------------
 
 
@@ -730,10 +453,16 @@ Idea:
 		  Could look for min hit-dist in sorrounding pixels before deciding on how to weight sky (far) samples.
 	  ----------------------------------------------------------------------
 
+	  BLOOM TODO:
+		- split blur into 2-passes and increase number of taps
+		- rename blur method and remove radius param.
+
+	  OLD TO-DO:
+		- perspective correction of kernels
+		- why dist-to-occluder search is no tdone in two passes?
+
 	  NEXT:
 	  - why mirrors contribution is not almost 100%? But it's graysih...
-
-	  - refraction combining seems to work incorrectly - making image too bright when comining let's say 2nd layer with 3rd. Like the same image gets added twice.. Maybe left is some buffer.. I should try to clear everything i can and assing nulls.
 
 	  - remove m_imageHeight, m_imageWidth from most renderers? Pass that data in rendering calls instead or deduce it from render targets?
 	    Or deduce it from targetMipmapLevel - as we don't allow for arbitrary image dimensions - rather some multiplies of screen dimensions..
@@ -746,7 +475,11 @@ Idea:
 
 	  - roughness is not changing smoothly - probably because I change the number of samples etc which happens at certain steps - how to improve that?
 
+	  - render mode where everything is white/gray - for shadow testing - could be done by forcing default albedo on objects..
+
 	  - make sure that useless rays are not traced...
+
+	  - scale blur kernels based on camera-space surface normals - to avoid dim shadows, over-blurred reflections at flat angles. Can it be done assymetrically?
 
 	  - refractive index may be working incorrectly - we don't set it up yet in Renderer and it's not set in RaytraceRenderer anymore.
 	    Especially things like currentRefractiveIndex are probably wrong. Check with some glass spheres etc...
