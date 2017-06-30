@@ -702,8 +702,6 @@ Renderer::Output Renderer::renderSecondaryLayers(
     if ( !output.isEmpty() )
         return output;
 
-    combineLayers( level, camera );
-
     output = renderSecondaryLayers( 
         false, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
@@ -713,6 +711,7 @@ Renderer::Output Renderer::renderSecondaryLayers(
     if ( !output.isEmpty() )
         return output;
 
+    // Combine current layer with previous layer.
     combineLayers( level, camera );
 
     auto& currLayerRTs = m_layersRenderTargets.at( level );

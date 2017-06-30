@@ -536,21 +536,6 @@ Idea:
 
 	  FINAL TODO: ---------------------------------------------------------------
 
-	  - add replacing blur radius at the end of raytracing to 0 for all untouched pixels.
-
-	  - [LOOKS DONE] raytracing should store dist-to-occluder nearest to shaded surface - 
-	  - check if dist-to-ocluder is same for Shadow Mapping and RT - obviously it's not...
-	  - make sure blur-radius is ok in shadowed areas for Shadow Mapping - there are weird problems at shadow intersections between near and far objects.
-	  - why rasterizing shadow shader reads previous blur radius value? Is there anyvalue there before that shader is run? What's the point?
-	  - IDEA: Sample shadow map with bilinear filtering to get dist-to-occluder - that should make transitions between big pixels smoother. But be careful when to use or not bilinear sampling.
-	  - HOPE: With good filtering of blur radius, good blur radius from ray tracing on edges it could be feasible...
-	  - IMPORTANT: Set initial blur radius (when clearing texture) to 0, not 1000. It improves filtering, mipmaping etc. 
-	    Also sample blur radius at level 4,5 with bilinear filtering. It gives good results for Shadow Mapping.
-		Or replace pixels with initial (1000) blur radius at the end, before usign to 0.
-
-	  - some nice antialiasing of shadow could be achieved by limiting minimal blur value to let's say 1 or 2.
-	  - Add some antialiasing?
-
 	  - TO TEST: When bluring shadows - use a shadow sample if it blur-radius is similar to shadow sample blur-radius. Requires more reads, but may improve shadow mixing.
 
 	  IDEA: Have 2 textures. In one, spread minimal blur-radius samples. In other, spread maximal blur-radius samples. Then, join both textures?
@@ -583,18 +568,12 @@ Idea:
 		*********************************
 
 		DAILY TO-DO:
-		- render which samples get accepted during blur-shadows
 		- perspective correction of kernels
-		- working on rejecting, weighting samples in both dist-to-occluder search and illumination blurring.
-		- adding normal threshold? or ray direction threshold?
 		- why dist-to-occluder search is no tdone in two passes?
 
 
 		IDEA: I could do a couple of passes of dist-to-occluder search, each with a bit larger search radius, but only for empty pixels. This could ensure smaller blur close to original edges.
 		Cons: Expensive, because we do all that search for pixels which are too far...
-
-		IDEA: During dist-to-occluder search weight down samples which are farther from center in screen-space and have low dist-to-occluder (sharp shadows away from center).
-		---------------------------------
 
 		USEFUL NOTES FOR DIST-TO-OCCLUDER SEARCH: -----------------------
 		- using small search area better preserves sharp shadows, but dissallows big, soft shadows
@@ -631,17 +610,7 @@ Idea:
 			* if center sample is blurred, treat all samples equally (or opposite)
 		- dividing illumination into two textures (sharp and blurred) and then sample a bit from each during blurring.
 
-		#TODO: Check PowerVR method for rejecting sampled based on derivative.
-
-
 		- why blurred-illumination is float4 instead of float? Could be good for future colored shadows, but now?
-
-		Spreading/blurring blur-radius:
-		- CAN'T MIPMAP because:
-			* that leaks blur-radius from background to foreground (and opposite)
-
-		- CAN'T SPREAD AT FULL RES because:
-			* bad performance?
 
 		MAYBE GOOD IDEA:
 		- spread shadow only to surfaces further from light source than shadowed surface (or slightly closer). Should be easy to calculate...
@@ -725,21 +694,6 @@ Idea:
 	  ---------------------------------------------------------------------------
 
 
-
-	  NEW TODO:
-
-	  SHADOWS: ----------------------------------------
-	  - maybe i should sample original dist-to-occluder texture instead of the final-dist-to-occluder?
-	  - or it's mipmap... Because my shadow softness ratio is affected by that and maybe it shouln't be.
-
-	  FIX: Fix 4-pixel stripes in shadows by first  performing 4-pixel wide neighbor search-for-occluder dist. Separate pass. Then another pass can jump 4 pixels at a time or maybe use a lower mipmap?
-
-
-	  - during dist-to-occluder-search: weighting samples similar to center higher improves quality when shadows overlap (and transparent shadow over hard shadow etc).
-	  But good weighting equation is needed and it probably should be one way -> only soft samples are weighted down when center is hard...
-
-
-
 	  //////////////////////////////// REFLECTIONS/ REFRACTIONS //////////////////////////////////////
 	  ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -788,16 +742,9 @@ Idea:
 
 	  - remove rejecting rays based on contribution? Does it even help in real cases? How much screen space do we save by using that information? Mark red non-traced rays from contribution?
 
-	  - refactor final-hit-distance renderer to use external render targets
 	  - almost for sure contributionRoughness has to be rethought - do we still need to accumulate values? Maybe... (to avoid tracing some rays), but should we use that when combining? or another buffer which only has curr layer contriburion and roughness?
 
 	  - roughness is not changing smoothly - probably because I change the number of samples etc which happens at certain steps - how to improve that?
-
-	  - hit-distance-renderer and reflection-refraction-shading-renderer have to be refactored before we can switch combining to back-to-front order.
-
-	  - when switching combining order - move combining call to the end of renderReflectionsRefractions method.
-
-	  - add support for reload flag in textures - to mark if we want to realod them if they are already in GPU memory...
 
 	  - make sure that useless rays are not traced...
 
@@ -811,11 +758,6 @@ Idea:
 
 	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
 
-	  - consider - not combining image layer after it's rendered - hold this image and continue rendering until reaching max layer - then combine from back to front.
-	   That would get us proper blurring of results at the cost of extra memory used (but not bandwidth - right?). Worth, as GPU have more an more memory.
-	   Could save some extra blurring passes needed otherwise. Also, probably only some info needs to be stored for each layer after it's rendered.
-	   - maybe I need some refactoring of render-targets before?
-
 	  - mipmapping for raytracing - use UV texcoords stored in g-buffer?
 	    Or use ray differentials - http://graphics.stanford.edu/papers/trd/
 		Right now a funny hack is used to get "some" filtering - log2(hitDistance) is used - but it's stupid and if you have an object far away it will use 1x1 mipamp for sure....
@@ -824,17 +766,7 @@ Idea:
 
 	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
-	  - Refactor: No render target should be in the renderers themselves. All Render targets should be in main renderer.
-	  - reenable shadows in reflections/refractions
-	  - option to invert-z, invert vertex-order, invert-uvs and re-save the mesh... Add to Tweak bar and shortcut
-	  - check error in bloom causing black boxes - office scene has a camera set up showing this
-	  - how to blur further layers reflections/refractions? Because higher layer sharp edges kill the feeling of roughness from the first layer.
-	  - mipmapping for reflections/refractions
 	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
-
-	  - RenderTargetManager should allocate new RTs when needed. Also should have methods to get info about used number of RTs - for debug.
-	    Make sure to reserve enough vector size for new RTS - moving them is not allowed. So only add new RTS withing that hard limit.
-		Print use of RTs to screen - also with some memory consumption.
 
 	  IMPORTANT-BUT-CAN-WAIT:
 	  - how to deal with light sources placed inside geometry? It causes artifacts now..
@@ -869,11 +801,6 @@ Idea:
 	    This way you avoid blending shadows with very different blur radius - increasing quality. Test varius thresholds to divide shadows into two channels.
 	  - How to hanlde cases where a big glass window cast shadow over the whole room? It should not destroy the whole solution. It's usually very bright shadow - can this characteristic be used somehow?
 		
-	  - PROBLEM: To properly combine layers from back to front we need lots of render targets. It's because we need all RTs from all parent layers of the rendered layer.
-	    Not because layer being render need them. It only need it's parent. But because once we unwind the "layer stack" and start rendering at "parent level" we need even more "parent" layers.
-		And this way up to the root layer. We could do breadth-first rendering of layers, but then we would need to store all layers at given level - it would end up costing the same... (I think..).
-		
-
 	FUN:
 	- add PhysX support
 	- add some "Player"?
