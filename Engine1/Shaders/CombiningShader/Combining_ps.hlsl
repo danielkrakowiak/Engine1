@@ -56,11 +56,19 @@ float4 main(PixelInputType input) : SV_Target
     const float roughness     = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
     float       blurRadius    = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( depth + 1.0f ) );// * tan( roughness * PiHalf );
 
-    float samplingRadius      = min( 1.0f, blurRadius ) * 0.5f;
-    float samplingMipmapLevel = log2( blurRadius );
-
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
+
+    const float3 dirToCamera = normalize( cameraPosition - centerPosition );
+
+    // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
+    // to decrease search radius when looking at walls/floors at flat angle.
+    // #TODO: This should probably flatten blur-kernel separately in vertical and horizontal directions?
+    const float blurRadiusMul = saturate( abs( dot( centerNormal, dirToCamera ) ) );
+    blurRadius *= blurRadiusMul;
+
+    float samplingRadius      = min( 1.0f, blurRadius ) * 0.5f;
+    float samplingMipmapLevel = log2( blurRadius );
 
     const float3 contributionTerm = g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).rgb;
     

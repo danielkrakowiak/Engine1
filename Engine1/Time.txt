@@ -421,3 +421,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 29.06.2017 - 1h - Trying to fix problem with combining layers - refraction is too bright - combined twice in some cases.
 30.06.2017 - 3h - Fixed problem with combining layers. Cleaned up to-do list. Creating Lego F1 scene.
 --- June 2017 - 64h
+01.07.2017 - 1h - Added scaling-down of blur-kernels for shadows and reflections/refractions (combining) when view-dir is almost parallel to surface (to avoid overblurring).

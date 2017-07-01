@@ -56,20 +56,32 @@ float4 main(PixelInputType input) : SV_Target
     const float roughness     = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
     float       blurRadius    = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( prevHitDistance + 1.0f ) );
 
-    float samplingRadius      = min( 1.0f, blurRadius ) * 0.5f;
-    float samplingMipmapLevel = log2( blurRadius );
+    
 
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
+
+    { // Scaling blur-kernel based on view-angle - disabled to improve performance - not too important for higher layers - could be anabled usign some define.
+        // Note: eeded only for kernel-scaling based on view-angle - could be ignored for performance.
+        //float3 cameraPosition = g_rayOriginTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
+
+        //const float3 dirToCamera = normalize( cameraPosition - centerPosition );
+
+        // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
+        // to decrease search radius when looking at walls/floors at flat angle.
+        // #TODO: This should probably flatten blur-kernel separately in vertical and horizontal directions?
+        //const float blurRadiusMul = saturate( abs( dot( centerNormal, dirToCamera ) ) );
+        //blurRadius *= blurRadiusMul;
+    }
+
+    float samplingRadius      = min( 1.0f, blurRadius ) * 0.5f;
+    float samplingMipmapLevel = log2( blurRadius );
 
     const float3 contributionTerm = g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).rgb;
 
     float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 
     const int2 texCoordsInt = (int2)( imageSize * input.texCoord );
-
-    // Ray origin position.
-    //float3 cameraPosition = g_rayOriginTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f ).xyz;
 
     if ( samplingRadius <= 0.0001f )
     {

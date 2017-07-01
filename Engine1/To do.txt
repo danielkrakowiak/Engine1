@@ -509,6 +509,7 @@ Idea:
 	  - account for ray-length in next hit-dist-search?
 	  - account for depth in hit-dist-search
 	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
+	  - shaders that have several quality options, which we want to change only for test could be compiled for each option - then at runtime correct shader could be loaded based on settings...
 	  
 
 	  - rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
