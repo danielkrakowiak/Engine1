@@ -93,8 +93,12 @@ void main( uint3 groupId : SV_GroupID,
     
     const float blurRadiusInWorldSpace = min( maxWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
 
+    // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
+    // to decrease search radius when looking at walls/floors at flat angle.
+    const float samplingRadiusMul = saturate( abs( dot( surfaceNormal, dirToCamera ) ) );
+
     const float minBlurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
-    const float samplingRadius             = minBlurRadiusInScreenSpace;
+    const float samplingRadius             = minBlurRadiusInScreenSpace * samplingRadiusMul;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
     const float centerShadowSoftness = min( 1.0f, blurRadiusInWorldSpace / 1.0f );

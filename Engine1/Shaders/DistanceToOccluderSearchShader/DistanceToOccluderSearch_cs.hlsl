@@ -111,6 +111,12 @@ void main( uint3 groupId : SV_GroupID,
     else if (centerDistToOccluder > 500.0f)
         searchRadius = 25.0f / (mipmap + 1.0f);
 
+    // #TODO: Should we scale this search-radius based on view-angle?
+    // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
+    // to decrease search radius when looking at walls/floors at flat angle.
+    //const float searchRadiusMul = saturate( abs( dot( surfaceNormal, dirToCamera ) ) );
+    //searchRadius *= searchRadiusMul;
+
     //float searchRadius = lerp( 4.0f, 100.0f, saturate( centerDistToOccluder / 10.0f ) ); /*/ distToCamera*/;
     // Note: Surprisingly this loop doesn't work correctly without unrolling - texcoord offsets are always positive.
     //[unroll(20)] 

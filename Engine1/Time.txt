@@ -418,3 +418,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 24.06.2017 - 1h - Refactoring Renderer to merge renderFirstReflections, renderFirstRefractions, renderReflections, renderRefractions into one method: renderSecondaryLayer.
 25.06.2017 - 4h - Fixed a bug in combining shader for higher layers - it linearized prev-hit-distance (like depth) which was incorrect. Finished major refactoring of Renderer. Refactored RaytraceShadowRenderer, DistanceToOccluderSearchRenderer, BlurShadowsRenderer, ReflectionRefractionShadingRenderer to take render targets as inputs instead of using its own. Working on combining layers back to front (to fix hard edges in combined image).
 28.06.2017 - 4h - Succeded at combining layers back to front. Modified reflection/refraction shading to not accumulate contribution/roughness over several layers - as it's not needed anymore. Refactored HitDistanceSearchRenderer to take render taregt as input. Fixed many issues with combining layers back to front.
+29.06.2017 - 1h - Trying to fix problem with combining layers - refraction is too bright - combined twice in some cases.
+30.06.2017 - 3h - Fixed problem with combining layers. Cleaned up to-do list. Creating Lego F1 scene.
+--- June 2017 - 64h
