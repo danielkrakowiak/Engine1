@@ -37,6 +37,8 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device, c
     TwAddButton( mainBar, "Next - transmission", ControlPanel::onNextLevelReflection, nullptr, "" );
     TwAddButton( mainBar, "Back", ControlPanel::onPrevLevel, nullptr, "" );
 
+    TwAddVarRW( mainBar, "Roughness blur mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.roughnessBlurMul, "min=0 max=200 step=0.2 precision=1" );
+
     TwAddVarRW( mainBar, "Alpha mul", TW_TYPE_FLOAT, &Settings::s_settings.debug.alphaMul, "min=0 max=1 step=0.001 precision=3" );
     TwAddVarRW( mainBar, "Emissive mul", TW_TYPE_COLOR3F, &Settings::s_settings.debug.emissiveMul, "colormode=hls" );
     TwAddVarRW( mainBar, "Albedo mul", TW_TYPE_COLOR3F, &Settings::s_settings.debug.albedoMul, "colormode=hls" );

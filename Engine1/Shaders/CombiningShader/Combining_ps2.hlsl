@@ -30,6 +30,8 @@ cbuffer ConstantBuffer
     float3 pad6;
     float  positionNormalThreshold;
     float3 pad7;
+    float  roughnessMul;
+    float3 pad8;
 };
 
 struct PixelInputType
@@ -52,8 +54,7 @@ float4 main(PixelInputType input) : SV_Target
 
     const float hitDistance = g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
 
-    const float roughnessMult = 75.0f;
-    const float roughness     = roughnessMult * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
+    const float roughness     = roughnessMul * g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f ).a;/*g_roughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f )*/;
     float       blurRadius    = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( prevHitDistance + 1.0f ) );
 
     

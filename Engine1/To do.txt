@@ -458,28 +458,19 @@ Idea:
 		- rename blur method and remove radius param.
 
 	  OLD TO-DO:
-		- perspective correction of kernels
 		- why dist-to-occluder search is no tdone in two passes?
 
 	  NEXT:
 	  - why mirrors contribution is not almost 100%? But it's graysih...
 
+	  - remove unused, commented code from shaders (especially shadows related)
+
 	  - remove m_imageHeight, m_imageWidth from most renderers? Pass that data in rendering calls instead or deduce it from render targets?
 	    Or deduce it from targetMipmapLevel - as we don't allow for arbitrary image dimensions - rather some multiplies of screen dimensions..
-
-	  - contribution/roughness etc have to be computed only from layer to layer - so no complex accumulation like it is now...
-
-	  - remove rejecting rays based on contribution? Does it even help in real cases? How much screen space do we save by using that information? Mark red non-traced rays from contribution?
-
-	  - almost for sure contributionRoughness has to be rethought - do we still need to accumulate values? Maybe... (to avoid tracing some rays), but should we use that when combining? or another buffer which only has curr layer contriburion and roughness?
 
 	  - roughness is not changing smoothly - probably because I change the number of samples etc which happens at certain steps - how to improve that?
 
 	  - render mode where everything is white/gray - for shadow testing - could be done by forcing default albedo on objects..
-
-	  - make sure that useless rays are not traced...
-
-	  - scale blur kernels based on camera-space surface normals - to avoid dim shadows, over-blurred reflections at flat angles. Can it be done assymetrically?
 
 	  - refractive index may be working incorrectly - we don't set it up yet in Renderer and it's not set in RaytraceRenderer anymore.
 	    Especially things like currentRefractiveIndex are probably wrong. Check with some glass spheres etc...
@@ -510,7 +501,11 @@ Idea:
 	  - account for depth in hit-dist-search
 	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
 	  - shaders that have several quality options, which we want to change only for test could be compiled for each option - then at runtime correct shader could be loaded based on settings...
-	  
+	  - make sure that useless rays are not traced...
+	  - almost for sure contributionRoughness has to be rethought - do we still need to accumulate values? Maybe... (to avoid tracing some rays), but should we use that when combining? or another buffer which only has curr layer contriburion and roughness?
+	  - remove rejecting rays based on contribution? Does it even help in real cases? How much screen space do we save by using that information? Mark red non-traced rays from contribution?
+
+
 
 	  - rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
 		  Only to albedo...
@@ -529,6 +524,7 @@ Idea:
 	  - light attenutation
 	  - improve sampling shape in all shaders by taking samples in spherical shape - 
 	    simply exclude samples which are too far from center (box corners) - this could even improve performance, by reading less pixels.
+	  - scale blur kernels based on view-angle assymetrically - horizontally and vertically - ex. for walls we should flatten horizontally and for floors vertically. Assuming that camera is not rotated around view-dir.
 
 	  FUTURE IMPORTANT:
 	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.

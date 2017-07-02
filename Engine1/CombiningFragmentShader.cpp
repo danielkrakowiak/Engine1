@@ -1,6 +1,7 @@
 #include "CombiningFragmentShader.h"
 
 #include "StringUtil.h"
+#include "Settings.h"
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -127,6 +128,7 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
     dataPtr->positionDiffMul         = s_positionDiffMul;
     dataPtr->normalDiffMul           = s_normalDiffMul;
     dataPtr->positionNormalThreshold = s_positionNormalThreshold;
+    dataPtr->roughnessMul            = settings().rendering.reflectionsRefractions.roughnessBlurMul;
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

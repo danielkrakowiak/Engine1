@@ -70,6 +70,10 @@ namespace Engine1
                 std::vector< bool > activeView; 
                 bool reflectionsEnabled;
                 bool refractionsEnabled;
+
+                // Multiplier deciding how surface roughness translates to reflection/refraction blur kernel-size.
+                float roughnessBlurMul;
+
             } reflectionsRefractions;
 
             struct HitDistanceSearch

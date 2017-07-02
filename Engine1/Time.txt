@@ -422,3 +422,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 30.06.2017 - 3h - Fixed problem with combining layers. Cleaned up to-do list. Creating Lego F1 scene.
 --- June 2017 - 64h
 01.07.2017 - 1h - Added scaling-down of blur-kernels for shadows and reflections/refractions (combining) when view-dir is almost parallel to surface (to avoid overblurring).
+02.07.2017 - 1h - Added slider to Control Panel to modify global blur multiplier for reflections/refractions based on surface roughness. Decreasd that multiplier from 75 to 8.

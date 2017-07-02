@@ -60,6 +60,8 @@ namespace Engine1
             float3 pad6;
             float  positionNormalThreshold;
             float3 pad7;
+            float  roughnessMul;
+            float3 pad8;
         };
 
         int m_resourceCount;
