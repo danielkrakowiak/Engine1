@@ -944,6 +944,9 @@ void Application::onFocusChange( bool windowFocused )
 
 void Application::onKeyPress( int key )
 {
+    const bool ctrlPressed  = m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
+    const bool shiftPressed = m_inputManager.isKeyPressed( InputManager::Keys::shift );
+
     // [\] - Hide/show text.
     if ( key == InputManager::Keys::backslash )
     {
@@ -970,27 +973,27 @@ void Application::onKeyPress( int key )
     
     // [Ctrl + S] - save scene or selected models.
     if ( ( key == InputManager::Keys::ctrl || key == InputManager::Keys::s ) &&
-       ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::s ) ) )
+       ( ctrlPressed && m_inputManager.isKeyPressed( InputManager::Keys::s ) ) )
     {
         m_sceneManager.saveSceneOrSelectedModels();
     }
 
     // [Ctrl + A] - Select all actors and lights.
     if ( ( key == InputManager::Keys::ctrl || key == InputManager::Keys::a ) &&
-       ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::a ) ) )
+       ( ctrlPressed && m_inputManager.isKeyPressed( InputManager::Keys::a ) ) )
     {
         m_sceneManager.selectAll();
     }
 
     // [Ctrl + D] - Unselect all.
     if ( ( key == InputManager::Keys::ctrl || key == InputManager::Keys::d ) &&
-         ( m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::d ) ) ) {
+         ( ctrlPressed && m_inputManager.isKeyPressed( InputManager::Keys::d ) ) ) {
         m_sceneManager.clearSelection();
     }
 
     // [Shift + A] - Select all actors inside the selection volume.
     if ( ( key == InputManager::Keys::shift || key == InputManager::Keys::a ) &&
-         ( m_inputManager.isKeyPressed( InputManager::Keys::shift ) && m_inputManager.isKeyPressed( InputManager::Keys::a ) ) ) {
+         ( shiftPressed && m_inputManager.isKeyPressed( InputManager::Keys::a ) ) ) {
         m_sceneManager.selectAllInsideSelectionVolume();
     }
 
@@ -1002,7 +1005,7 @@ void Application::onKeyPress( int key )
     }
 
     // [+] or [-] - Change light brightness.
-    if ( !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && !m_inputManager.isKeyPressed( InputManager::Keys::shift ) 
+    if ( !ctrlPressed && !shiftPressed 
          && !m_inputManager.isKeyPressed( InputManager::Keys::p ) )
     {
         if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
@@ -1017,8 +1020,8 @@ void Application::onKeyPress( int key )
     }
 
     // [Shift] and ( [+] or [-] ) - Modify spot light cone angle.
-    if ( !m_sceneManager.getSelectedLights().empty() && m_inputManager.isKeyPressed( InputManager::Keys::shift ) 
-         && !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    if ( !m_sceneManager.getSelectedLights().empty() && shiftPressed 
+         && !ctrlPressed ) 
     {
         const float sensitivity = 0.01f;
 
@@ -1043,8 +1046,8 @@ void Application::onKeyPress( int key )
     }
 
     // [Shift] and [Ctrl] and ( [+] or [-] ) - Modify light emitter radius.
-    if ( !m_sceneManager.getSelectedLights().empty() && m_inputManager.isKeyPressed( InputManager::Keys::shift ) 
-        && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    if ( !m_sceneManager.getSelectedLights().empty() && shiftPressed 
+        && ctrlPressed ) 
     {
         const float sensitivity = 0.005f;
 
@@ -1144,11 +1147,11 @@ void Application::onKeyPress( int key )
     }
 
     // [Enter] - Enable/disable light sources.
-    if ( key == InputManager::Keys::enter && !m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+    if ( key == InputManager::Keys::enter && !shiftPressed && !ctrlPressed )
         m_sceneManager.enableDisableSelectedLights();
 
     // [Shift + Enter] - Enable/disable casting shadows for lights and actors.
-    if ( key == InputManager::Keys::enter && m_inputManager.isKeyPressed( InputManager::Keys::shift ) )
+    if ( key == InputManager::Keys::enter && shiftPressed )
     {
         m_sceneManager.enableDisableCastingShadowsForSelected();
         m_renderer.renderShadowMaps( m_sceneManager.getScene() );
@@ -1171,19 +1174,19 @@ void Application::onKeyPress( int key )
     }
 
     // [Shift + C] - Clone the actors, but share their models with the original actors.
-    if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::shift ) ) 
+    if ( key == InputManager::Keys::c && shiftPressed ) 
         m_sceneManager.cloneInstancesOfSelectedActors();
 
     // [Ctrl + C] - Clone the actors and clone their models or clone light sources.
-    if ( key == InputManager::Keys::c && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    if ( key == InputManager::Keys::c && ctrlPressed ) 
         m_sceneManager.cloneSelectedActorsAndLights();
 
     // [Ctrl + M] - Merge selected actors/models/meshes etc.
-    if ( key == InputManager::Keys::m && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) ) 
+    if ( key == InputManager::Keys::m && ctrlPressed ) 
         m_sceneManager.mergeSelectedActors();
 
-    // [Enter] - Render alpha.
-    if ( key == InputManager::Keys::enter )
+    // [Enter] + [Ctrl] + [Shift] - Render alpha.
+    if ( key == InputManager::Keys::enter && ctrlPressed && shiftPressed )
         Settings::modify().debug.debugRenderAlpha = !settings().debug.debugRenderAlpha;
 
     // [Page up/Page down] - Switch displayed mipmap.
@@ -1201,7 +1204,7 @@ void Application::onKeyPress( int key )
         Settings::modify().debug.slowmotionMode = !settings().debug.slowmotionMode;
 
     // [Ctrl + B] - Rebuild bounding box and BVH.
-    if ( key == InputManager::Keys::b && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
+    if ( key == InputManager::Keys::b && ctrlPressed )
         m_sceneManager.rebuildBoundingBoxAndBVH();
 
     // [Spacebar] - Enable/disable snapping when rotating/translating actors.
@@ -1215,7 +1218,7 @@ void Application::onKeyPress( int key )
         m_sceneManager.selectPrev();
 
     // [E] and ( [+] or [-] ) - Change exposure.
-    if ( !m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && !m_inputManager.isKeyPressed( InputManager::Keys::shift )
+    if ( !ctrlPressed && !shiftPressed
          && m_inputManager.isKeyPressed( InputManager::Keys::e ) ) {
         if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) {
             const float valueChange =
@@ -1336,9 +1339,9 @@ void Application::onKeyPress( int key )
 
     if ( m_sceneManager.isSelectionEmpty() )
     {
-        if ( key == InputManager::Keys::up && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
+        if ( key == InputManager::Keys::up && ctrlPressed )
             Settings::modify().rendering.reflectionsRefractions.maxLevel++;
-        else if ( key == InputManager::Keys::down && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) )
+        else if ( key == InputManager::Keys::down && ctrlPressed )
             Settings::modify().rendering.reflectionsRefractions.maxLevel--;
         else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
             Settings::modify().rendering.reflectionsRefractions.activeView.push_back( true );

@@ -461,14 +461,14 @@ Idea:
 		- why dist-to-occluder search is no tdone in two passes?
 
 	  NEXT:
+	  - try to increase maximal achievable blur for reflections/refractions?
+
 	  - why mirrors contribution is not almost 100%? But it's graysih...
 
 	  - remove unused, commented code from shaders (especially shadows related)
 
 	  - remove m_imageHeight, m_imageWidth from most renderers? Pass that data in rendering calls instead or deduce it from render targets?
 	    Or deduce it from targetMipmapLevel - as we don't allow for arbitrary image dimensions - rather some multiplies of screen dimensions..
-
-	  - roughness is not changing smoothly - probably because I change the number of samples etc which happens at certain steps - how to improve that?
 
 	  - render mode where everything is white/gray - for shadow testing - could be done by forcing default albedo on objects..
 
