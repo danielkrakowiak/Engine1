@@ -73,9 +73,13 @@ void Settings::setDefault()
     s_settings.rendering.reflectionsRefractions.maxLevel           = 1;
     s_settings.rendering.reflectionsRefractions.reflectionsEnabled = true;
     s_settings.rendering.reflectionsRefractions.refractionsEnabled = true;
-    s_settings.rendering.reflectionsRefractions.roughnessBlurMul   = 8.0f;
+    s_settings.rendering.reflectionsRefractions.roughnessBlurMul   = 60.0f;
 
     s_settings.rendering.hitDistanceSearch.resolutionDivider = 4;
+
+    s_settings.rendering.combining.positionDiffMul         = 6.0f;
+    s_settings.rendering.combining.normalDiffMul           = 3.0f;
+    s_settings.rendering.combining.positionNormalThreshold = 1.2f;
 }
 
 void Settings::onChanged()

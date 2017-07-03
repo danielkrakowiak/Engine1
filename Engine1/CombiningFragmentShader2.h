@@ -18,10 +18,6 @@ namespace Engine1
     {
         public:
 
-        static float s_positionDiffMul;
-        static float s_normalDiffMul;
-        static float s_positionNormalThreshold;
-
         CombiningFragmentShader2();
         virtual ~CombiningFragmentShader2();
 

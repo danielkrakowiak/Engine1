@@ -461,6 +461,14 @@ Idea:
 		- why dist-to-occluder search is no tdone in two passes?
 
 	  NEXT:
+
+	  - my hack for skybox - "don't raytrace if roughness is maximal" causes problems in the mirrors and some other objects - what other trick can i use?
+
+	  - improved roughness handling helper a lot - but it also caused black lines near some rough edges - because correct samples cannot be found.
+	    I should handle such case using if - when samples were not found - and simply use central sample then with some less agressive blur.
+
+	  - make sure to sample buffers using CLAMP sampler - whenever i do some blur etc... To avoid reading the other side of the screen
+
 	  - try to increase maximal achievable blur for reflections/refractions?
 
 	  - why mirrors contribution is not almost 100%? But it's graysih...

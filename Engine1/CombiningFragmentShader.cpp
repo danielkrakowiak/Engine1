@@ -12,10 +12,6 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-float CombiningFragmentShader::s_positionDiffMul = 6.0f;
-float CombiningFragmentShader::s_normalDiffMul = 3.0f;
-float CombiningFragmentShader::s_positionNormalThreshold = 0.3f;
-
 CombiningFragmentShader::CombiningFragmentShader() :
 m_resourceCount( 0 )
 {}
@@ -29,9 +25,9 @@ void CombiningFragmentShader::initialize( ComPtr< ID3D11Device >& device )
     { // Create point filter sampler configuration
 		D3D11_SAMPLER_DESC samplerConfiguration;
 		samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_MIP_POINT;
-		samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_BORDER;
+		samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_BORDER;
+		samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_BORDER;
 		samplerConfiguration.MipLODBias       = 0.0f;
 		samplerConfiguration.MaxAnisotropy    = 1;
 		samplerConfiguration.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
@@ -50,9 +46,9 @@ void CombiningFragmentShader::initialize( ComPtr< ID3D11Device >& device )
     { // Create linear filter sampler configuration
 		D3D11_SAMPLER_DESC samplerConfiguration;
 		samplerConfiguration.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerConfiguration.AddressU         = D3D11_TEXTURE_ADDRESS_BORDER;
+		samplerConfiguration.AddressV         = D3D11_TEXTURE_ADDRESS_BORDER;
+		samplerConfiguration.AddressW         = D3D11_TEXTURE_ADDRESS_BORDER;
 		samplerConfiguration.MipLODBias       = 0.0f;
 		samplerConfiguration.MaxAnisotropy    = 1;
 		samplerConfiguration.ComparisonFunc   = D3D11_COMPARISON_ALWAYS;
@@ -125,9 +121,9 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
     dataPtr->contributionTextureFillSize = float2( (float)contributionTextureFilledWidth, (float)contributionTextureFilledHeight );
     dataPtr->srcTextureFillSize          = float2( (float)srcTextureFilledWidth, (float)srcTextureFilledHeight );
 
-    dataPtr->positionDiffMul         = s_positionDiffMul;
-    dataPtr->normalDiffMul           = s_normalDiffMul;
-    dataPtr->positionNormalThreshold = s_positionNormalThreshold;
+    dataPtr->positionDiffMul         = settings().rendering.combining.positionDiffMul;
+    dataPtr->normalDiffMul           = settings().rendering.combining.normalDiffMul;
+    dataPtr->positionNormalThreshold = settings().rendering.combining.positionNormalThreshold;
     dataPtr->roughnessMul            = settings().rendering.reflectionsRefractions.roughnessBlurMul;
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );

@@ -83,6 +83,17 @@ namespace Engine1
                 // It was tested at 1/4 resolution of 1024x768 screen - so divider = 4 worked fine.
                 int resolutionDivider; 
             } hitDistanceSearch;
+
+            struct Combining
+            {
+                // Thresholds and multipliers deciding how reflection/refraction samples are weighted.
+                // Sample weight depends on how much it differs (in terms of pos/normal) from the central sample (in blur kernel).
+                // Increasing a multiplier increases significance of position or normal difference - samples are more strongly "rejected" based on that criteria.
+                // Increasing threshold increases "acceptance" level of error between center sample and neighbors.
+                float positionDiffMul;
+                float normalDiffMul;
+                float positionNormalThreshold;
+            } combining;
         } rendering;
 
         private:

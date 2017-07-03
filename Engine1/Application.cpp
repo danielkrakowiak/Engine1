@@ -613,12 +613,9 @@ void Application::run() {
 
             if ( m_sceneManager.isSelectionEmpty() )
             {
-                ss << "\nCombiningFragmentShader::s_positionDiffMul: "                       << CombiningFragmentShader::s_positionDiffMul << " [C + P]";
-                ss << "\nCombiningFragmentShader::s_normalDiffMul: "                         << CombiningFragmentShader::s_normalDiffMul << " [C + N]";
-                ss << "\nCombiningFragmentShader::s_positionNormalThreshold: "               << CombiningFragmentShader::s_positionNormalThreshold << " [C + T]";
-                ss << "\nCombiningFragmentShader2::s_positionDiffMul: "                      << CombiningFragmentShader2::s_positionDiffMul << " [C + P]";
-                ss << "\nCombiningFragmentShader2::s_normalDiffMul: "                        << CombiningFragmentShader2::s_normalDiffMul << " [C + N]";
-                ss << "\nCombiningFragmentShader2::s_positionNormalThreshold: "              << CombiningFragmentShader2::s_positionNormalThreshold << " [C + T]";
+                ss << "\nrendering.combining.positionDiffMul: "                       << settings().rendering.combining.positionDiffMul << " [C + P]";
+                ss << "\nrendering.combining.normalDiffMul: "                         << settings().rendering.combining.normalDiffMul << " [C + N]";
+                ss << "\nrendering.combining.positionNormalThreshold: "               << settings().rendering.combining.positionNormalThreshold << " [C + T]";
                 ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "                << HitDistanceSearchComputeShader::s_positionDiffMul << " [R + P]";
                 ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "                  << HitDistanceSearchComputeShader::s_normalDiffMul << " [R + N]";
                 ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: "        << HitDistanceSearchComputeShader::s_positionNormalThreshold << " [R + T]";
@@ -1113,14 +1110,11 @@ void Application::onKeyPress( int key )
                 0.1f : -0.05f;
 
             if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) ) {
-                CombiningFragmentShader::s_positionDiffMul  += change;
-                CombiningFragmentShader2::s_positionDiffMul += change;
+                Settings::modify().rendering.combining.positionDiffMul  += change;
             } else if ( m_inputManager.isKeyPressed( InputManager::Keys::n ) ) {
-                CombiningFragmentShader::s_normalDiffMul  += change;
-                CombiningFragmentShader2::s_normalDiffMul += change;
+                Settings::modify().rendering.combining.normalDiffMul  += change;
             } else if ( m_inputManager.isKeyPressed( InputManager::Keys::t ) ) {
-                CombiningFragmentShader::s_positionNormalThreshold  += change;
-                CombiningFragmentShader2::s_positionNormalThreshold += change;
+                Settings::modify().rendering.combining.positionNormalThreshold  += change;
             }
         }
     }
