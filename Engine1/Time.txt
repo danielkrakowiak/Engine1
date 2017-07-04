@@ -424,3 +424,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 01.07.2017 - 1h - Added scaling-down of blur-kernels for shadows and reflections/refractions (combining) when view-dir is almost parallel to surface (to avoid overblurring).
 02.07.2017 - 1h - Added slider to Control Panel to modify global blur multiplier for reflections/refractions based on surface roughness. Decreasd that multiplier from 75 to 8.
 03.07.2017 - 4h - Increased maximal achievable (visually) roughness. Fixed problem with blur-radius being non-linear in regards to roughness. Achieved great improvment in quality of surfaces with varying roughness. Added clamp to max sampled mipmap level to avoid blocky aliasing artefacts.
+04.07.2017 - 2h - Fixed problem with refractions for gloss surfaces - caused by automatic rejection of central sample in blur kernel - weight of central sample is now gradually decreased for higher mipmaps.

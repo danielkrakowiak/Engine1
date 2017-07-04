@@ -56,7 +56,9 @@ float4 main(PixelInputType input) : SV_Target
     const float4 contributionTermRoughness = g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f );
     
     const float roughness  = roughnessMul * contributionTermRoughness.a;
-    float       blurRadius = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( prevHitDistance + 1.0f ) );
+
+    // Note: clamp min to 1 to ensure correct behavior of log2 further down the code.
+    float blurRadius = max( 1.0f, log2( hitDistance + 1.0f ) * roughness / log2( prevHitDistance + 1.0f ) );
 
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
@@ -94,16 +96,24 @@ float4 main(PixelInputType input) : SV_Target
     float  sampleWeightSum = 0.0001;
     float3 sampleSum       = 0.0;
 
+    // Center sample gets special treatment - it's very important for low roughness (low level mipmaps) 
+    // and should be ignored for high roughness (high level mipmaps) as it contains influences from neighbors (artefacts).
+    // Decrease its weight based on mipmap level.
+    { 
+        const float3 centerSample = g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord/** srcTextureFillSize / imageSize*/, mipmapLevel ).rgb;
+        const float  centerWeight = lerp( 1.0, 0.0, mipmapLevel / 3.0 ); // Zero its weight for mipmap level >= 3.
+        
+        sampleSum       += centerSample * centerWeight;
+        sampleWeightSum += centerWeight;
+    }
+
     for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep ) 
     {
         for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
         {
             const float2 sampleTexcoords = input.texCoord + float2( x * pixelSize.x, y * pixelSize.y ); 
 
-            // Skip central sample? As it contains influence of other pixels because of mipmapping
-            // and cannot be filtered out, because it's position is too similar to the central pixel from 0 mipmap.
-            //(IDEA: Or increase drastically thresholds to be accepted for central sample)
-            //PROBLEM: Other samples also contain influence of other pixels because of mipmapping...
+            // Skip central pixel as it's been already accounted for.
             if ( x == 0.0 && y == 0.0 )
                 continue;
 

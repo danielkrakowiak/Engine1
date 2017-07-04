@@ -462,6 +462,8 @@ Idea:
 
 	  NEXT:
 
+	  - last submit disabled refraction for some reason. Find the reason for it.
+
 	  - my hack for skybox - "don't raytrace if roughness is maximal" causes problems in the mirrors and some other objects - what other trick can i use?
 
 	  - improved roughness handling helper a lot - but it also caused black lines near some rough edges - because correct samples cannot be found.
