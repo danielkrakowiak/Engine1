@@ -93,6 +93,7 @@ void main( uint3 groupId : SV_GroupID,
     const float maxSearchRadius = 30.0f;//lerp( 20.0f, 200.0f, min(1.0f, centerDistToOccluder / 0.5f) ) / distToCamera;
 
     float searchRadius = 1.0f;
+    float searchStep   = 1.0f;
 
     if (centerDistToOccluder >= 0.1f && centerDistToOccluder < 0.3f)
         searchRadius = 2.0f / (mipmap + 1.0f);
@@ -110,6 +111,15 @@ void main( uint3 groupId : SV_GroupID,
         searchRadius = 10.0f / (mipmap + 1.0f);
     else if (centerDistToOccluder > 500.0f)
         searchRadius = 25.0f / (mipmap + 1.0f);
+
+    // Modify search radius and search step depanding on distance from surface to camera.
+    // Needed because when we zoom in the search area has to be larger in screen space (while staying similar in world space).
+    // Step has to be increased to avoid taking too many samples when zoomed in - 
+    // we don't need any extra precision in that case anyways - 
+    // if sample sensity was fine for zoomed out, it will be fine when zoomed in.
+    const float mulFromDistToCamera = 4.0 / (0.1 + distToCamera);
+    searchRadius *= mulFromDistToCamera;
+    searchStep   *= mulFromDistToCamera;
 
     // #TODO: Should we scale this search-radius based on view-angle?
     // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
@@ -130,9 +140,9 @@ void main( uint3 groupId : SV_GroupID,
     //    // #TODO: Should not depend on search radius, because it then changes when zooming in - pointlessly.
     //    const float stepCount = floor( lerp(1.5f, 8.0f, searchRadius * distToCamera / 600.0f) ); 
     //    const float step = 1.0f / stepCount;
-    for ( float y = -searchRadius; y <= searchRadius; y += 1.0f )
+    for ( float y = -searchRadius; y <= searchRadius; y += searchStep )
     {
-        for ( float x = -searchRadius; x <= searchRadius; x += 1.0f )
+        for ( float x = -searchRadius; x <= searchRadius; x += searchStep )
         {
             const float2 sampleTexcoords = texcoords + float2( x * pixelSize.x, y * pixelSize.y );
 
