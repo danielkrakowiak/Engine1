@@ -159,8 +159,8 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
 
 void BlurShadowsRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_blurShadowsComputeShader->loadAndInitialize( "Shaders/BlurShadowsShader/BlurShadows_cs.cso", device );
-    m_blurShadowsHorizontalComputeShader->loadAndInitialize( "Shaders/BlurShadowsShader/BlurShadowsHorizontal_cs.cso", device );
-    m_blurShadowsVerticalComputeShader->loadAndInitialize( "Shaders/BlurShadowsShader/BlurShadowsVertical_cs.cso", device );
+    m_blurShadowsComputeShader->loadAndInitialize( "Engine1/Shaders/BlurShadowsShader/BlurShadows_cs.cso", device );
+    m_blurShadowsHorizontalComputeShader->loadAndInitialize( "Engine1/Shaders/BlurShadowsShader/BlurShadowsHorizontal_cs.cso", device );
+    m_blurShadowsVerticalComputeShader->loadAndInitialize( "Engine1/Shaders/BlurShadowsShader/BlurShadowsVertical_cs.cso", device );
 }
 

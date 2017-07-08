@@ -512,7 +512,7 @@ namespace Engine1
     {
         m_fileInfo = fileInfo;
 
-        #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        #if defined(_DEBUG) 
         if ( m_texture ) {
 		    std::string resourceName = std::string( "Texture2D (" + fileInfo.getPath() + ")" );
 		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
@@ -683,7 +683,7 @@ namespace Engine1
         HRESULT result = device.CreateTexture2D( &desc, nullptr, m_texture.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "Texture2DGeneric::createTextureOnGpu - creating texture on GPU failed." );
 
-        #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        #if defined(_DEBUG) 
         if ( !getFileInfo().getPath().empty() ) {
 		    std::string resourceName = std::string( "Texture2D (" + getFileInfo().getPath() + ")" );
 		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
@@ -762,7 +762,7 @@ namespace Engine1
         if ( result < 0 ) 
             throw std::exception( "Texture2DGeneric::createTextureOnGpu - creating texture on GPU failed." );
 
-        #if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+        #if defined(_DEBUG) 
         if ( !getFileInfo().getPath().empty() ) {
 		    std::string resourceName = std::string( "Texture2D (" + getFileInfo().getPath() + ")" );
 		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );

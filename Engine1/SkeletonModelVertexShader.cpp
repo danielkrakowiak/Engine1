@@ -117,7 +117,7 @@ void SkeletonModelVertexShader::initialize( ComPtr< ID3D11Device >& device )
 		if ( result < 0 ) 
             throw std::exception( "SkeletonModelVertexShader::compileFromFile - creating constant input buffer failed" );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonModelVertexShader::constantInputBuffer" );
 		Direct3DUtil::setResourceName( *m_constantInputBuffer.Get(), resourceName );
 #endif

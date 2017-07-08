@@ -78,7 +78,7 @@ unsigned int ComputeShader::getCompileFlags() const
     //#TODO: Is that flag still needed?
     UINT flags = D3D10_SHADER_ENABLE_STRICTNESS;
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
+#if defined(_DEBUG)
     flags |= D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
 #endif
 

@@ -101,7 +101,7 @@ void SkeletonMeshVertexShader::initialize( ComPtr< ID3D11Device >& device )
 		HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMeshVertexShader::compileFromFile - creating constant input buffer failed" );
 
-		#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+		#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMeshVertexShader::constantInputBuffer" );
 		Direct3DUtil::setResourceName( *m_constantInputBuffer.Get(), resourceName );
 		#endif

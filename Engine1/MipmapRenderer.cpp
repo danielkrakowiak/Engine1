@@ -299,10 +299,10 @@ ComPtr<ID3D11BlendState> MipmapRenderer::createBlendState( ID3D11Device& device 
 
 void MipmapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_generateMipmapMinValueComputeShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmapMinValue_cs.cso", device );
-    m_generateMipmapVertexShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmap_vs.cso", device );
-	m_resampleTextureFragmentShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmap_ps.cso", device );
-    m_generateMipmapMinValueFragmentShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.cso", device );
-    m_generateMipmapWithSampleRejectionFragmentShader->loadAndInitialize( "Shaders/GenerateMipmapShader/GenerateMipmapWithSampleRejection_ps.cso", device );
+    m_generateMipmapMinValueComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_cs.cso", device );
+    m_generateMipmapVertexShader->loadAndInitialize( "Engine1/Shaders/GenerateMipmapShader/GenerateMipmap_vs.cso", device );
+	m_resampleTextureFragmentShader->loadAndInitialize( "Engine1/Shaders/GenerateMipmapShader/GenerateMipmap_ps.cso", device );
+    m_generateMipmapMinValueFragmentShader->loadAndInitialize( "Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.cso", device );
+    m_generateMipmapWithSampleRejectionFragmentShader->loadAndInitialize( "Engine1/Shaders/GenerateMipmapShader/GenerateMipmapWithSampleRejection_ps.cso", device );
 }
 

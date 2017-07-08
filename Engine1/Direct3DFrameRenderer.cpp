@@ -221,7 +221,7 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceCon
 
 	// Enable debug layer if in debug mode.
 	unsigned int flags = 0;
-#if defined(DEBUG_DIRECT3D) /*|| defined(_DEBUG)*/
+#if defined(_DEBUG)
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
@@ -361,13 +361,13 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateWithBlending( ID
 
 void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_textureVertexShader->loadAndInitialize( "Shaders/TextureShader/Texture_vs.cso", device );
-	m_textureFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_ps.cso", device );
-    m_textureAlphaFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_Alpha_ps.cso", device );
-    m_textureSingleChannelFragmentShader->loadAndInitialize( "Shaders/TextureShader/Texture_SingleChannel_ps.cso", device );
+	m_textureVertexShader->loadAndInitialize( "Engine1/Shaders/TextureShader/Texture_vs.cso", device );
+	m_textureFragmentShader->loadAndInitialize( "Engine1/Shaders/TextureShader/Texture_ps.cso", device );
+    m_textureAlphaFragmentShader->loadAndInitialize( "Engine1/Shaders/TextureShader/Texture_Alpha_ps.cso", device );
+    m_textureSingleChannelFragmentShader->loadAndInitialize( "Engine1/Shaders/TextureShader/Texture_SingleChannel_ps.cso", device );
 
-	m_textVertexShader->loadAndInitialize( "Shaders/TextShader/Text_vs.cso", device );
-	m_textFragmentShader->loadAndInitialize( "Shaders/TextShader/Text_ps.cso", device );
+	m_textVertexShader->loadAndInitialize( "Engine1/Shaders/TextShader/Text_vs.cso", device );
+	m_textFragmentShader->loadAndInitialize( "Engine1/Shaders/TextShader/Text_ps.cso", device );
 }
 
 void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )

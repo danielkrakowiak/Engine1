@@ -162,8 +162,12 @@ $RECYCLE.BIN/
 /Engine1.VC.opendb
 /Engine1.VC.db
 
+/Assets/*
+/TestAssets/*
+/Assets-old/*
 /Engine1/Assets/*
 /Engine1/TestAssets/*
+/Engine1/Assets-old/*
 /Engine1/error.txt
 /Engine1.VC.VC.opendb
 /Engine1/begin.txt
@@ -179,7 +183,6 @@ $RECYCLE.BIN/
 /Engine1/Shaders/GenerateMipmapMinValueShader/GenerateMipmapMinValue_cs.cso
 *.idb
 *.cso
-/Engine1/Assets-old
 /Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.hlsl
 /Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.hlsl
 /Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.hlsl

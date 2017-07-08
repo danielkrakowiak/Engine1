@@ -74,7 +74,7 @@ void ToneMappingRenderer::performToneMapping( std::shared_ptr< Texture2DSpecBind
 
 void ToneMappingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_toneMappingComputeShader->loadAndInitialize( "Shaders/ToneMappingShader/ToneMapping_cs.cso", device );
+    m_toneMappingComputeShader->loadAndInitialize( "Engine1/Shaders/ToneMappingShader/ToneMapping_cs.cso", device );
 }
 
 

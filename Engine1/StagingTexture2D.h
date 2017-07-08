@@ -102,7 +102,7 @@ namespace Engine1
         HRESULT result = device.CreateTexture2D( &desc, nullptr, m_texture.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "StagingTexture::createTextureOnGpu - creating texture on GPU failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
         std::string resourceName = std::string( "StagingTexture2D" );
         Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
 #endif

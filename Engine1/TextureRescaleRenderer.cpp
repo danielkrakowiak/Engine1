@@ -62,5 +62,5 @@ void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpe
 
 void TextureRescaleRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_textureRescaleComputeShader->loadAndInitialize( "Shaders/TextureRescaleShader/TextureRescale_cs.cso", device );
+    m_textureRescaleComputeShader->loadAndInitialize( "Engine1/Shaders/TextureRescaleShader/TextureRescale_cs.cso", device );
 }

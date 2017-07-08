@@ -112,7 +112,7 @@ void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHei
 
 void RasterizeShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_rasterizeShadowsComputeShader->loadAndInitialize( "Shaders/RasterizingShadowsShader/RasterizingShadows_cs.cso", device );
+    m_rasterizeShadowsComputeShader->loadAndInitialize( "Engine1/Shaders/RasterizingShadowsShader/RasterizingShadows_cs.cso", device );
 }
 
 

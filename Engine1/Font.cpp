@@ -83,7 +83,7 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device 
 					HRESULT result = device.CreateBuffer( &vertexBufferDesc, &vertexDataPtr, vertexBuffer.ReleaseAndGetAddressOf() );
 					if ( result < 0 ) throw std::exception( "Font::getCharacter - loading character vertices to GPU failed" );
 
-					#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+					#if defined(_DEBUG) 
 					std::string resourceName = std::string( "FontCharacter::vertexBuffer - charcode: " ) + std::to_string( charcode );
 					Direct3DUtil::setResourceName( *vertexBuffer.Get(), resourceName );
 					#endif

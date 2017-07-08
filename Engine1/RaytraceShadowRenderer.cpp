@@ -139,7 +139,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 void RaytraceShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_raytracingShadowsComputeShader->loadAndInitialize( "Shaders/RaytracingShadowsShader/RaytracingShadows_cs.cso", device );
+	m_raytracingShadowsComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingShadowsShader/RaytracingShadows_cs.cso", device );
 }
 
 void RaytraceShadowRenderer::createDefaultTextures( ID3D11Device& device )

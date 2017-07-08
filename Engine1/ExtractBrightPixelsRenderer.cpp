@@ -68,7 +68,7 @@ void ExtractBrightPixelsRenderer::extractBrightPixels( std::shared_ptr< Texture2
 
 void ExtractBrightPixelsRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_extractBrightPixelsComputeShader->loadAndInitialize( "Shaders/ExtractBrightPixelsShader/ExtractBrightPixels_cs.cso", device );
+    m_extractBrightPixelsComputeShader->loadAndInitialize( "Engine1/Shaders/ExtractBrightPixelsShader/ExtractBrightPixels_cs.cso", device );
 }
 
 

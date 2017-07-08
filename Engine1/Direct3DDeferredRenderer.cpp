@@ -608,21 +608,21 @@ void Direct3DDeferredRenderer::enableRenderTargets( const RenderTargets& renderT
 
 void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_blockMeshVertexShader.loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
-    m_blockMeshFragmentShader.loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_ps.cso", device );
-    m_blockMeshEmissiveFragmentShader.loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_ps_emissive.cso", device );
+	m_blockMeshVertexShader.loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
+    m_blockMeshFragmentShader.loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_ps.cso", device );
+    m_blockMeshEmissiveFragmentShader.loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_ps_emissive.cso", device );
 
-	m_skeletonMeshVertexShader.loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
-	m_skeletonMeshFragmentShader.loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_ps.cso", device );
+	m_skeletonMeshVertexShader.loadAndInitialize( "Engine1/Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
+	m_skeletonMeshFragmentShader.loadAndInitialize( "Engine1/Shaders/SkeletonMeshShader/SkeletonMesh_ps.cso", device );
 
-	m_blockModelVertexShader.loadAndInitialize( "Shaders/BlockModelShader/BlockModel_vs.cso", device );
-	m_blockModelFragmentShader.loadAndInitialize( "Shaders/BlockModelShader/BlockModel_ps.cso", device );
+	m_blockModelVertexShader.loadAndInitialize( "Engine1/Shaders/BlockModelShader/BlockModel_vs.cso", device );
+	m_blockModelFragmentShader.loadAndInitialize( "Engine1/Shaders/BlockModelShader/BlockModel_ps.cso", device );
 
-	m_skeletonModelVertexShader.loadAndInitialize( "Shaders/SkeletonModelShader/SkeletonModel_vs.cso", device );
-	m_skeletonModelFragmentShader.loadAndInitialize( "Shaders/SkeletonModelShader/SkeletonModel_ps.cso", device );
+	m_skeletonModelVertexShader.loadAndInitialize( "Engine1/Shaders/SkeletonModelShader/SkeletonModel_vs.cso", device );
+	m_skeletonModelFragmentShader.loadAndInitialize( "Engine1/Shaders/SkeletonModelShader/SkeletonModel_ps.cso", device );
 
-	m_textVertexShader.loadAndInitialize( "Shaders/TextShader/Text_vs.cso", device );
-	m_textFragmentShader.loadAndInitialize( "Shaders/TextShader/Text_ps.cso", device );
+	m_textVertexShader.loadAndInitialize( "Engine1/Shaders/TextShader/Text_vs.cso", device );
+	m_textFragmentShader.loadAndInitialize( "Engine1/Shaders/TextShader/Text_ps.cso", device );
 }
 
 void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )

@@ -360,12 +360,12 @@ void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< Texture2DSpecBind< Te
 
 void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_replaceValueComputeShader->loadAndInitialize( "Shaders/ReplaceValueShader/ReplaceValue_cs.cso", device );
-    m_spreadMaxValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadMaxValue_cs.cso", device );
-    m_spreadMinValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadMinValue_cs.cso", device );
-    m_spreadSparseMinValueComputeShader->loadAndInitialize( "Shaders/SpreadValueShader/SpreadSparseMinValue_cs.cso", device );
-    m_mergeMinValueComputeShader->loadAndInitialize( "Shaders/MergeValueShader/MergeMinValue_cs.cso", device );
-    m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader->loadAndInitialize( "Shaders/ConvertValueFromScreenSpaceToWorldSpaceShader/ConvertDistanceFromScreenSpaceToWorldSpace_cs.cso", device );
-    m_blurValueComputeShader->loadAndInitialize( "Shaders/BlurValueShader/BlurValue_cs.cso", device );
-    m_mergeMipmapsValueComputeShader->loadAndInitialize( "Shaders/MergeMipmapsValueShader/MergeMipmapsValue_cs.cso", device );
+    m_replaceValueComputeShader->loadAndInitialize( "Engine1/Shaders/ReplaceValueShader/ReplaceValue_cs.cso", device );
+    m_spreadMaxValueComputeShader->loadAndInitialize( "Engine1/Shaders/SpreadValueShader/SpreadMaxValue_cs.cso", device );
+    m_spreadMinValueComputeShader->loadAndInitialize( "Engine1/Shaders/SpreadValueShader/SpreadMinValue_cs.cso", device );
+    m_spreadSparseMinValueComputeShader->loadAndInitialize( "Engine1/Shaders/SpreadValueShader/SpreadSparseMinValue_cs.cso", device );
+    m_mergeMinValueComputeShader->loadAndInitialize( "Engine1/Shaders/MergeValueShader/MergeMinValue_cs.cso", device );
+    m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader->loadAndInitialize( "Engine1/Shaders/ConvertValueFromScreenSpaceToWorldSpaceShader/ConvertDistanceFromScreenSpaceToWorldSpace_cs.cso", device );
+    m_blurValueComputeShader->loadAndInitialize( "Engine1/Shaders/BlurValueShader/BlurValue_cs.cso", device );
+    m_mergeMipmapsValueComputeShader->loadAndInitialize( "Engine1/Shaders/MergeMipmapsValueShader/MergeMipmapsValue_cs.cso", device );
 }

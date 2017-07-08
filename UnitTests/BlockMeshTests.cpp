@@ -29,7 +29,7 @@ namespace UnitTests {
 			if ( result < 0 )
 				throw std::exception( "Device creation failed." );
 
-            BOOL success = SetCurrentDirectoryW( L"F:/Projekty/Engine1/Engine1/" );
+            BOOL success = SetCurrentDirectoryW( L"F:/Projekty/Engine1/" );
             if ( !success )
                 throw std::exception( "Failed to set current path for tests." );
 		}
@@ -262,6 +262,15 @@ namespace UnitTests {
 
 		TEST_METHOD( Mesh_Loading_Cpu_To_Gpu_1 )
 		{
+            std::string currentPath;
+            {
+                const DWORD charCount = GetCurrentDirectoryW( 0, nullptr );
+                std::vector<wchar_t> currentPathBufferW;
+                currentPathBufferW.resize( charCount );
+                GetCurrentDirectoryW( charCount, (LPWSTR)currentPathBufferW.data() );
+                std::wstring currentPathW( currentPathBufferW.data(), charCount - 1 );
+            }
+
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
 			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );

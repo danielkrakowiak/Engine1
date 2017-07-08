@@ -62,7 +62,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &vertexBufferDesc, &vertexDataPtr, m_vertexBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "RectangleMesh::loadToGpu - Buffer creation for mesh vertices failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "RectangleMesh::vertexBuffer" );
 		Direct3DUtil::setResourceName( *m_vertexBuffer.Get(), resourceName );
 #endif
@@ -85,7 +85,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &normalBufferDesc, &normalDataPtr, m_normalBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "RectangleMesh::loadToGpu - Buffer creation for mesh normals failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "RectangleMesh::normalBuffer" );
 		Direct3DUtil::setResourceName( *m_normalBuffer.Get(), resourceName );
 #endif
@@ -109,7 +109,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &texcoordBufferDesc, &texcoordDataPtr, m_texcoordBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "RectangleMesh::loadToGpu - Buffer creation for mesh texcoords failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "RectangleMesh::texcoordsBuffer" );
 		Direct3DUtil::setResourceName( *m_texcoordBuffer.Get(), resourceName );
 #endif
@@ -134,7 +134,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, m_triangleBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "RectangleMesh::loadToGpu - Buffer creation for mesh triangles failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "RectangleMesh::triangleBuffer" );
 		Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif

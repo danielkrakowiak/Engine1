@@ -110,8 +110,8 @@ void AntialiasingRenderer::performAntialiasing(
 
 void AntialiasingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_luminanceComputeShader->loadAndInitialize( "Shaders/AntialiasingShader/Luminance_cs.cso", device );
-    m_antialiasingComputeShader->loadAndInitialize( "Shaders/AntialiasingShader/Antialiasing_cs.cso", device );
+    m_luminanceComputeShader->loadAndInitialize( "Engine1/Shaders/AntialiasingShader/Luminance_cs.cso", device );
+    m_antialiasingComputeShader->loadAndInitialize( "Engine1/Shaders/AntialiasingShader/Antialiasing_cs.cso", device );
 }
 
 

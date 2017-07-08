@@ -145,7 +145,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &vertexBufferDesc, &vertexDataPtr, m_vertexBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh vertices failed" );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexBuffer" );
 		Direct3DUtil::setResourceName( *m_vertexBuffer.Get(), resourceName );
 #endif
@@ -168,7 +168,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &vertexBonesBufferDesc, &vertexBonesDataPtr, m_vertexBonesBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh vertex-bones failed" );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexBonesBuffer" );
 		Direct3DUtil::setResourceName( *m_vertexBonesBuffer.Get(), resourceName );
 #endif
@@ -191,7 +191,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &vertexWeightsBufferDesc, &vertexWeightsDataPtr, m_vertexWeightsBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh vertex-weights failed" );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexWeightsBuffer" );
 		Direct3DUtil::setResourceName( *m_vertexWeightsBuffer.Get(), resourceName );
 #endif
@@ -214,7 +214,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &normalBufferDesc, &normalDataPtr, m_normalBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh normals failed" );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::normalBuffer" );
 		Direct3DUtil::setResourceName( *m_normalBuffer.Get(), resourceName );
 #endif
@@ -237,7 +237,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &tangentBufferDesc, &tangentDataPtr, m_tangentBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh tangents failed" );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::tangentBuffer" );
 		Direct3DUtil::setResourceName( *m_tangentBuffer.Get(), resourceName );
 #endif
@@ -274,7 +274,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
 		m_texcoordBuffers.push_back( buffer );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::texcoordBuffer[" ) + std::to_string( m_texcoordBuffers.size() - 1 ) + std::string( "]" );
 		Direct3DUtil::setResourceName( *buffer.Get(), resourceName );
 #endif
@@ -299,7 +299,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 		HRESULT result = device.CreateBuffer( &triangleBufferDesc, &triangleDataPtr, m_triangleBuffer.ReleaseAndGetAddressOf() );
 		if ( result < 0 ) throw std::exception( "SkeletonMesh::loadToGpu - Buffer creation for mesh triangles failed" );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::triangleBuffer" );
 		Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif

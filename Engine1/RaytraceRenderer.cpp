@@ -297,7 +297,7 @@ void RaytraceRenderer::generateRefractedRays(
     RenderTargets& renderTargets )
 {
     // Optional clearing - for better debug. Clearing probably not needed, because it gets overwritten in the shader anyways.
-    #if defined(DEBUG_DIRECT3D) || defined(_DEBUG)
+    #if defined(_DEBUG)
     renderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     renderTargets.currentRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     #endif
@@ -612,14 +612,14 @@ void RaytraceRenderer::calculateHitDistanceToCamera( InputTextures2& inputs, Ren
 
 void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_generateRaysComputeShader->loadAndInitialize( "Shaders/GenerateRaysShader/GenerateRays_cs.cso", device );
-    m_generateFirstReflectedRaysComputeShader->loadAndInitialize( "Shaders/GenerateFirstReflectedRaysShader/GenerateFirstReflectedRays_cs.cso", device );
-    m_generateReflectedRaysComputeShader->loadAndInitialize( "Shaders/GenerateReflectedRaysShader/GenerateReflectedRays_cs.cso", device );
-    m_generateFirstRefractedRaysComputeShader->loadAndInitialize( "Shaders/GenerateFirstRefractedRaysShader/GenerateFirstRefractedRays_cs.cso", device );
-    m_generateRefractedRaysComputeShader->loadAndInitialize( "Shaders/GenerateRefractedRaysShader/GenerateRefractedRays_cs.cso", device );
-    m_raytracingPrimaryRaysComputeShader->loadAndInitialize( "Shaders/RaytracingPrimaryRaysShader/RaytracingPrimaryRays_cs.cso", device );
-    m_raytracingSecondaryRaysComputeShader->loadAndInitialize( "Shaders/RaytracingSecondaryRaysShader/RaytracingSecondaryRays_cs.cso", device );
-    m_sumValueComputeShader->loadAndInitialize( "Shaders/SumValueShader/SumValue_cs.cso", device );
+    m_generateRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateRaysShader/GenerateRays_cs.cso", device );
+    m_generateFirstReflectedRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateFirstReflectedRaysShader/GenerateFirstReflectedRays_cs.cso", device );
+    m_generateReflectedRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateReflectedRaysShader/GenerateReflectedRays_cs.cso", device );
+    m_generateFirstRefractedRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateFirstRefractedRaysShader/GenerateFirstRefractedRays_cs.cso", device );
+    m_generateRefractedRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateRefractedRaysShader/GenerateRefractedRays_cs.cso", device );
+    m_raytracingPrimaryRaysComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingPrimaryRaysShader/RaytracingPrimaryRays_cs.cso", device );
+    m_raytracingSecondaryRaysComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingSecondaryRaysShader/RaytracingSecondaryRays_cs.cso", device );
+    m_sumValueComputeShader->loadAndInitialize( "Engine1/Shaders/SumValueShader/SumValue_cs.cso", device );
 }
 
 void RaytraceRenderer::createDefaultTextures( ID3D11Device& device )

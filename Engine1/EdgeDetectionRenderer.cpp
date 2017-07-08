@@ -121,6 +121,6 @@ void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight
 
 void EdgeDetectionRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_edgeDetectionComputeShader->loadAndInitialize( "Shaders/EdgeDetectionShader/EdgeDetection_cs.cso", device );
-    m_edgeDistanceComputeShader->loadAndInitialize( "Shaders/EdgeDistanceShader/EdgeDistance_cs.cso", device );
+    m_edgeDetectionComputeShader->loadAndInitialize( "Engine1/Shaders/EdgeDetectionShader/EdgeDetection_cs.cso", device );
+    m_edgeDistanceComputeShader->loadAndInitialize( "Engine1/Shaders/EdgeDistanceShader/EdgeDistance_cs.cso", device );
 }

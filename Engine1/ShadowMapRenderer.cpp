@@ -135,8 +135,8 @@ void ShadowMapRenderer::createAndSetRenderTarget( const int2 dimensions, ID3D11D
 
 void ShadowMapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-	m_blockMeshVertexShader->loadAndInitialize( "Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
-	m_skeletonMeshVertexShader->loadAndInitialize( "Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
+	m_blockMeshVertexShader->loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
+	m_skeletonMeshVertexShader->loadAndInitialize( "Engine1/Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
 }
 
 std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > ShadowMapRenderer::getRenderTarget()

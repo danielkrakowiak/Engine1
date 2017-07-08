@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="DebugDirect3D|x64">
-      <Configuration>DebugDirect3D</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -27,13 +23,6 @@
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -48,9 +37,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -59,11 +45,6 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Engine1;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Engine1\x64\Debug;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\Freetype;$(SolutionDir)\Engine1;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Engine1\x64\DebugDirect3D;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -84,27 +65,11 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Actor.obj;Animator.obj;AntialiasingRenderer.obj;AntialiasingComputeShader.obj;Application.obj;Asset.obj;AssetManager.obj;AssetPathManager.obj;assimp.lib;BinaryFile.obj;BlockActor.obj;BlockMesh.obj;BlockMeshFileInfo.obj;BlockMeshFileInfoParser.obj;BlockMeshFragmentShader.obj;BlockMeshLOD.obj;BlockMeshVertexShader.obj;BlockModel.obj;BlockModelFileInfo.obj;BlockModelFileInfoParser.obj;BlockModelFragmentShader.obj;BlockModelLOD.obj;BlockModelParser.obj;BlockModelVertexShader.obj;BlurShadowsRenderer.obj;BlurShadowsComputeShader.obj;BlurValueComputeShader.obj;BoundingBox.obj;BVHNode.obj;BVHTree.obj;BVHTreeBuffer.obj;BVHTreeBufferParser.obj;Camera.obj;CombiningFragmentShader.obj;CombiningFragmentShader2.obj;CombiningRenderer.obj;CombiningVertexShader.obj;ComplexModel.obj;ComputeShader.obj;ControlPanel.obj;ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader;d3d11.lib;d3dcompiler.lib;Direct3DDeferredRenderer.obj;Direct3DFrameRenderer.obj;Direct3DRendererCore.obj;Direct3DUtil.obj;DistanceToOccluderSearchComputeShader.obj;DistanceToOccluderSearchRenderer.obj;dxgi.lib;dxguid.lib;EdgeDetectionComputeShader.obj;EdgeDetectionRenderer.obj;EdgeDistanceComputeShader.obj;ExtractBrightPixelsComputeShader.obj;ExtractBrightPixelsRenderer.obj;FileSystem.obj;FileUtil.obj;float2.obj;float3.obj;float33.obj;float4.obj;float43.obj;float44.obj;Font.obj;FontLibrary.obj;FragmentShader.obj;FreeCamera.obj;FreeCameraParser.obj;FreeImage.lib;FreeImagePlus.lib;freetype26.lib;GenerateMipmapVertexShader.obj;GenerateMipmapMinValueFragmentShader.obj;GenerateMipmapMinValueComputeShader.obj;GenerateMipmapWithSampleRejectionFragmentShader.obj;GenerateFirstReflectedRaysComputeShader.obj;GenerateFirstRefractedRaysComputeShader.obj;GenerateRaysComputeShader.obj;GenerateReflectedRaysComputeShader.obj;GenerateRefractedRaysComputeShader.obj;HitDistanceSearchComputeShader.obj;HitDistanceSearchRenderer.obj;ImageLibrary.obj;InputManager.obj;int2.obj;int3.obj;Light.obj;main.obj;MathUtil.obj;MeshFileParser.obj;MeshUtil.obj;MergeMipmapsValueComputeShader.obj;MergeValueComputeShader.obj;MipmapRenderer.obj;ModelTexture2D.obj;ModelTexture2DParser.obj;ModelUtil.obj;Model.obj;MyXAFFileParser.obj;PointLight.obj;PointLightParser.obj;quat.obj;Profiler.obj;RasterizeShadowRenderer.obj;RasterizingShadowsComputeShader.obj;RaytraceRenderer.obj;RaytraceShadowRenderer.obj;RaytracingShadowsComputeShader.obj;RaytracingPrimaryRaysComputeShader.obj;RaytracingSecondaryRaysComputeShader.obj;RectangleMesh.obj;ReflectionRefractionShadingRenderer.obj;ReflectionShadingComputeShader.obj;ReflectionShadingComputeShader2.obj;RefractionShadingComputeShader.obj;RefractionShadingComputeShader2.obj;Renderer.obj;RenderTargetManager.obj;ReplaceValueComputeShader.obj;ToneMappingComputeShader.obj;ToneMappingRenderer.obj;ResampleTextureFragmentShader.obj;Scene.obj;SceneParser.obj;SceneManager.obj;SceneUtil.obj;Selection.obj;Settings.obj;ShadingComputeShader0.obj;ShadingComputeShader.obj;ShadingComputeShader2.obj;ShadingNoShadowsComputeShader.obj;ShadingNoShadowsComputeShader2.obj;ShadingRenderer.obj;ShadowMapRenderer.obj;SkeletonActor.obj;SkeletonAnimation.obj;SkeletonAnimationFileInfo.obj;SkeletonAnimationFileInfoParser.obj;SkeletonMesh.obj;SkeletonMeshEnums.obj;SkeletonMeshFileInfo.obj;SkeletonMeshFileInfoParser.obj;SkeletonMeshFragmentShader.obj;SkeletonMeshVertexShader.obj;SkeletonModel.obj;SkeletonModelFileInfo.obj;SkeletonModelFileInfoParser.obj;SkeletonModelFragmentShader.obj;SkeletonModelParser.obj;SkeletonModelVertexShader.obj;SkeletonPose.obj;SumValueComputeShader.obj;SpotLight.obj;SpotLightParser.obj;SpreadValueComputeShader.obj;StringUtil.obj;TextFile.obj;TextFragmentShader.obj;Texture2DFileInfo.obj;Texture2DFileInfoParser.obj;TextureFragmentShader.obj;TextureRescaleComputeShader.obj;TextureRescaleRenderer.obj;TextureVertexShader.obj;TextVertexShader.obj;Timer.obj;uint2.obj;uint3.obj;uint4.obj;UtilityRenderer.obj;VertexShader.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Actor.obj;Animator.obj;AntialiasingRenderer.obj;AntialiasingComputeShader.obj;Application.obj;Asset.obj;AssetManager.obj;AssetPathManager.obj;assimpd.lib;BinaryFile.obj;BlockActor.obj;BlockMesh.obj;BlockMeshFileInfo.obj;BlockMeshFileInfoParser.obj;BlockMeshFragmentShader.obj;BlockMeshLOD.obj;BlockMeshVertexShader.obj;BlockModel.obj;BlockModelFileInfo.obj;BlockModelFileInfoParser.obj;BlockModelFragmentShader.obj;BlockModelLOD.obj;BlockModelParser.obj;BlockModelVertexShader.obj;BlurShadowsRenderer.obj;BlurShadowsComputeShader.obj;BlurValueComputeShader.obj;BoundingBox.obj;BVHNode.obj;BVHTree.obj;BVHTreeBuffer.obj;BVHTreeBufferParser.obj;Camera.obj;CombiningFragmentShader.obj;CombiningFragmentShader2.obj;CombiningRenderer.obj;CombiningVertexShader.obj;ComplexModel.obj;ComputeShader.obj;ControlPanel.obj;ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader;d3d11.lib;d3dcompiler.lib;Direct3DDeferredRenderer.obj;Direct3DFrameRenderer.obj;Direct3DRendererCore.obj;Direct3DUtil.obj;DistanceToOccluderSearchComputeShader.obj;DistanceToOccluderSearchRenderer.obj;dxgi.lib;dxguid.lib;EdgeDetectionComputeShader.obj;EdgeDetectionRenderer.obj;EdgeDistanceComputeShader.obj;ExtractBrightPixelsComputeShader.obj;ExtractBrightPixelsRenderer.obj;FileSystem.obj;FileUtil.obj;float2.obj;float3.obj;float33.obj;float4.obj;float43.obj;float44.obj;Font.obj;FontLibrary.obj;FragmentShader.obj;FreeCamera.obj;FreeCameraParser.obj;FreeImaged.lib;FreeImagePlusd.lib;freetype26d.lib;GenerateMipmapVertexShader.obj;GenerateMipmapMinValueFragmentShader.obj;GenerateMipmapMinValueComputeShader.obj;GenerateMipmapWithSampleRejectionFragmentShader.obj;GenerateFirstReflectedRaysComputeShader.obj;GenerateFirstRefractedRaysComputeShader.obj;GenerateRaysComputeShader.obj;GenerateReflectedRaysComputeShader.obj;GenerateRefractedRaysComputeShader.obj;HitDistanceSearchComputeShader.obj;HitDistanceSearchRenderer.obj;ImageLibrary.obj;InputManager.obj;int2.obj;int3.obj;Light.obj;main.obj;MathUtil.obj;MeshFileParser.obj;MeshUtil.obj;MergeMipmapsValueComputeShader.obj;MergeValueComputeShader.obj;MipmapRenderer.obj;ModelTexture2D.obj;ModelTexture2DParser.obj;ModelUtil.obj;Model.obj;MyXAFFileParser.obj;PointLight.obj;PointLightParser.obj;quat.obj;Profiler.obj;RasterizeShadowRenderer.obj;RasterizingShadowsComputeShader.obj;RaytraceRenderer.obj;RaytraceShadowRenderer.obj;RaytracingShadowsComputeShader.obj;RaytracingPrimaryRaysComputeShader.obj;RaytracingSecondaryRaysComputeShader.obj;RectangleMesh.obj;ReflectionRefractionShadingRenderer.obj;ReflectionShadingComputeShader.obj;ReflectionShadingComputeShader2.obj;RefractionShadingComputeShader.obj;RefractionShadingComputeShader2.obj;Renderer.obj;RenderTargetManager.obj;ReplaceValueComputeShader.obj;ToneMappingComputeShader.obj;ToneMappingRenderer.obj;ResampleTextureFragmentShader.obj;Scene.obj;SceneParser.obj;SceneManager.obj;SceneUtil.obj;Selection.obj;Settings.obj;ShadingComputeShader0.obj;ShadingComputeShader.obj;ShadingComputeShader2.obj;ShadingNoShadowsComputeShader.obj;ShadingNoShadowsComputeShader2.obj;ShadingRenderer.obj;ShadowMapRenderer.obj;SkeletonActor.obj;SkeletonAnimation.obj;SkeletonAnimationFileInfo.obj;SkeletonAnimationFileInfoParser.obj;SkeletonMesh.obj;SkeletonMeshEnums.obj;SkeletonMeshFileInfo.obj;SkeletonMeshFileInfoParser.obj;SkeletonMeshFragmentShader.obj;SkeletonMeshVertexShader.obj;SkeletonModel.obj;SkeletonModelFileInfo.obj;SkeletonModelFileInfoParser.obj;SkeletonModelFragmentShader.obj;SkeletonModelParser.obj;SkeletonModelVertexShader.obj;SkeletonPose.obj;SumValueComputeShader.obj;SpotLight.obj;SpotLightParser.obj;SpreadValueComputeShader.obj;StringUtil.obj;TextFile.obj;TextFragmentShader.obj;Texture2DFileInfo.obj;Texture2DFileInfoParser.obj;TextureFragmentShader.obj;TextureRescaleComputeShader.obj;TextureRescaleRenderer.obj;TextureVertexShader.obj;TextVertexShader.obj;Timer.obj;uint2.obj;uint3.obj;uint4.obj;UtilityRenderer.obj;VertexShader.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">
-    <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <UseFullPaths>true</UseFullPaths>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Actor.obj;Animator.obj;AntialiasingRenderer.obj;AntialiasingComputeShader.obj;Application.obj;Asset.obj;AssetManager.obj;AssetPathManager.obj;assimp.lib;BinaryFile.obj;BlockActor.obj;BlockMesh.obj;BlockMeshFileInfo.obj;BlockMeshFileInfoParser.obj;BlockMeshFragmentShader.obj;BlockMeshLOD.obj;BlockMeshVertexShader.obj;BlockModel.obj;BlockModelFileInfo.obj;BlockModelFileInfoParser.obj;BlockModelFragmentShader.obj;BlockModelLOD.obj;BlockModelParser.obj;BlockModelVertexShader.obj;BlurShadowsRenderer.obj;BlurShadowsComputeShader.obj;BlurValueComputeShader.obj;BoundingBox.obj;BVHNode.obj;BVHTree.obj;BVHTreeBuffer.obj;BVHTreeBufferParser.obj;Camera.obj;CombiningFragmentShader.obj;CombiningFragmentShader2.obj;CombiningRenderer.obj;CombiningVertexShader.obj;ComplexModel.obj;ComputeShader.obj;ControlPanel.obj;ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader;d3d11.lib;d3dcompiler.lib;Direct3DDeferredRenderer.obj;Direct3DFrameRenderer.obj;Direct3DRendererCore.obj;Direct3DUtil.obj;DistanceToOccluderSearchComputeShader.obj;DistanceToOccluderSearchRenderer.obj;dxgi.lib;dxguid.lib;EdgeDetectionComputeShader.obj;EdgeDetectionRenderer.obj;EdgeDistanceComputeShader.obj;ExtractBrightPixelsComputeShader.obj;ExtractBrightPixelsRenderer.obj;FileSystem.obj;FileUtil.obj;float2.obj;float3.obj;float33.obj;float4.obj;float43.obj;float44.obj;Font.obj;FontLibrary.obj;FragmentShader.obj;FreeCamera.obj;FreeCameraParser.obj;FreeImage.lib;FreeImagePlus.lib;freetype26.lib;GenerateMipmapVertexShader.obj;GenerateMipmapMinValueFragmentShader.obj;GenerateMipmapMinValueComputeShader.obj;GenerateMipmapWithSampleRejectionFragmentShader.obj;GenerateFirstReflectedRaysComputeShader.obj;GenerateFirstRefractedRaysComputeShader.obj;GenerateRaysComputeShader.obj;GenerateReflectedRaysComputeShader.obj;GenerateRefractedRaysComputeShader.obj;HitDistanceSearchComputeShader.obj;HitDistanceSearchRenderer.obj;ImageLibrary.obj;InputManager.obj;int2.obj;int3.obj;Light.obj;main.obj;MathUtil.obj;MeshFileParser.obj;MeshUtil.obj;MergeMipmapsValueComputeShader.obj;MergeValueComputeShader.obj;MipmapRenderer.obj;ModelTexture2D.obj;ModelTexture2DParser.obj;ModelUtil.obj;Model.obj;MyXAFFileParser.obj;PointLight.obj;PointLightParser.obj;quat.obj;Profiler.obj;RasterizeShadowRenderer.obj;RasterizingShadowsComputeShader.obj;RaytraceRenderer.obj;RaytraceShadowRenderer.obj;RaytracingShadowsComputeShader.obj;RaytracingPrimaryRaysComputeShader.obj;RaytracingSecondaryRaysComputeShader.obj;RectangleMesh.obj;ReflectionRefractionShadingRenderer.obj;ReflectionShadingComputeShader.obj;ReflectionShadingComputeShader2.obj;RefractionShadingComputeShader.obj;RefractionShadingComputeShader2.obj;Renderer.obj;RenderTargetManager.obj;ReplaceValueComputeShader.obj;ToneMappingComputeShader.obj;ToneMappingRenderer.obj;ResampleTextureFragmentShader.obj;Scene.obj;SceneParser.obj;SceneManager.obj;SceneUtil.obj;Selection.obj;Settings.obj;ShadingComputeShader0.obj;ShadingComputeShader.obj;ShadingComputeShader2.obj;ShadingNoShadowsComputeShader.obj;ShadingNoShadowsComputeShader2.obj;ShadingRenderer.obj;ShadowMapRenderer.obj;SkeletonActor.obj;SkeletonAnimation.obj;SkeletonAnimationFileInfo.obj;SkeletonAnimationFileInfoParser.obj;SkeletonMesh.obj;SkeletonMeshEnums.obj;SkeletonMeshFileInfo.obj;SkeletonMeshFileInfoParser.obj;SkeletonMeshFragmentShader.obj;SkeletonMeshVertexShader.obj;SkeletonModel.obj;SkeletonModelFileInfo.obj;SkeletonModelFileInfoParser.obj;SkeletonModelFragmentShader.obj;SkeletonModelParser.obj;SkeletonModelVertexShader.obj;SkeletonPose.obj;SumValueComputeShader.obj;SpotLight.obj;SpotLightParser.obj;SpreadValueComputeShader.obj;StringUtil.obj;TextFile.obj;TextFragmentShader.obj;Texture2DFileInfo.obj;Texture2DFileInfoParser.obj;TextureFragmentShader.obj;TextureRescaleComputeShader.obj;TextureRescaleRenderer.obj;TextureVertexShader.obj;TextVertexShader.obj;Timer.obj;uint2.obj;uint3.obj;uint4.obj;UtilityRenderer.obj;VertexShader.obj;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -137,13 +102,11 @@
     <ClCompile Include="quatTests.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugDirect3D|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="BlockMeshTests.cpp" />
     <ClCompile Include="StringUtilTests.cpp" />
     <ClCompile Include="Texture2DTests.cpp" />
-    <ClCompile Include="TTexture2DTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine1\Engine1.vcxproj">

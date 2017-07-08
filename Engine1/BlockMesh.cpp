@@ -197,7 +197,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         if ( result < 0 ) 
             throw std::exception( "BlockMesh::loadCpuToGpu - creating vertex buffer shader resource on GPU failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::vertexBuffer" );
 		Direct3DUtil::setResourceName( *m_vertexBuffer.Get(), resourceName );
 #endif
@@ -232,7 +232,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         if ( result < 0 ) 
             throw std::exception( "BlockMesh::loadCpuToGpu - creating normal buffer shader resource on GPU failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::normalBuffer" );
 		Direct3DUtil::setResourceName( *m_normalBuffer.Get(), resourceName );
 #endif
@@ -267,7 +267,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         if ( result < 0 ) 
             throw std::exception( "BlockMesh::loadCpuToGpu - creating tangent buffer shader resource on GPU failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::tangentBuffer" );
 		Direct3DUtil::setResourceName( *m_tangentBuffer.Get(), resourceName );
 #endif
@@ -329,7 +329,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
 
         m_texcoordBufferResources.push_back( bufferResource );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::texcoordBuffer[" ) + std::to_string( m_texcoordBuffers.size() - 1 ) + std::string( "]" );
 		Direct3DUtil::setResourceName( *buffer.Get(), resourceName );
 #endif
@@ -367,7 +367,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
         if ( result < 0 ) 
             throw std::exception( "BlockMesh::loadCpuToGpu - creating triangle buffer shader resource on GPU failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::triangleBuffer" );
         Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif
@@ -647,7 +647,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device, const bool reload )
         result = device.CreateShaderResourceView( m_bvhTreeBufferNodesGpu.Get(), &resourceDesc, m_bvhTreeBufferNodesGpuSRV.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH nodes shader resource view on GPU failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhNodes" );
         Direct3DUtil::setResourceName( *m_bvhTreeBufferNodesGpu.Get(), resourceName );
 #endif
@@ -680,7 +680,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device, const bool reload )
         result = device.CreateShaderResourceView( m_bvhTreeBufferNodesExtentsGpu.Get(), &resourceDesc, m_bvhTreeBufferNodesExtentsGpuSRV.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH nodes extents shader resource view on GPU failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhNodesExtents" );
         Direct3DUtil::setResourceName( *m_bvhTreeBufferNodesExtentsGpu.Get(), resourceName );
 #endif
@@ -712,7 +712,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device, const bool reload )
         result = device.CreateShaderResourceView( m_bvhTreeBufferTrianglesGpu.Get(), &resourceDesc, m_bvhTreeBufferTrianglesGpuSRV.ReleaseAndGetAddressOf() );
         if ( result < 0 ) throw std::exception( "BlockMesh::loadCpuToGpu - creating BVH triangles shader resource view on GPU failed." );
 
-#if defined(DEBUG_DIRECT3D) || defined(_DEBUG) 
+#if defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhTriangles" );
         Direct3DUtil::setResourceName( *m_bvhTreeBufferTrianglesGpu.Get(), resourceName );
 #endif

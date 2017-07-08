@@ -16,9 +16,6 @@
     <Filter Include="Source Files\Mesh">
       <UniqueIdentifier>{dc84a666-e14b-4f88-8d28-a7c71707cf7e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Texture">
-      <UniqueIdentifier>{96f9a610-4eae-48fb-8134-3b8c091ad4fb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\AssetManager">
       <UniqueIdentifier>{1dc66b41-6b37-4810-97fb-c5c3765695fe}</UniqueIdentifier>
     </Filter>
@@ -31,7 +28,7 @@
     <Filter Include="Source Files\Math">
       <UniqueIdentifier>{db7a32ee-40e2-44fd-8cd8-d05941f545a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\TTexture2D">
+    <Filter Include="Source Files\Texture2D">
       <UniqueIdentifier>{8a89a667-6c7c-4f9f-8494-02cdf5db608f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -62,14 +59,11 @@
     <ClCompile Include="float44Tests.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2DTests.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="quatTests.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="TTexture2DTests.cpp">
-      <Filter>Source Files\TTexture2D</Filter>
+    <ClCompile Include="Texture2DTests.cpp">
+      <Filter>Source Files\Texture2D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

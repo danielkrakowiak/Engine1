@@ -209,9 +209,9 @@ void ShadingRenderer::performShadingNoShadows(
 
 void ShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_shadingComputeShader0->loadAndInitialize( "Shaders/ShadingShader/Shading_cs0.cso", device );
-    m_shadingComputeShader->loadAndInitialize( "Shaders/ShadingShader/Shading_cs.cso", device );
-    m_shadingComputeShader2->loadAndInitialize( "Shaders/ShadingShader/Shading_cs2.cso", device );
-    m_shadingNoShadowsComputeShader->loadAndInitialize( "Shaders/ShadingNoShadowsShader/ShadingNoShadows_cs.cso", device );
-    m_shadingNoShadowsComputeShader2->loadAndInitialize( "Shaders/ShadingNoShadowsShader/ShadingNoShadows_cs2.cso", device );
+    m_shadingComputeShader0->loadAndInitialize( "Engine1/Shaders/ShadingShader/Shading_cs0.cso", device );
+    m_shadingComputeShader->loadAndInitialize( "Engine1/Shaders/ShadingShader/Shading_cs.cso", device );
+    m_shadingComputeShader2->loadAndInitialize( "Engine1/Shaders/ShadingShader/Shading_cs2.cso", device );
+    m_shadingNoShadowsComputeShader->loadAndInitialize( "Engine1/Shaders/ShadingNoShadowsShader/ShadingNoShadows_cs.cso", device );
+    m_shadingNoShadowsComputeShader2->loadAndInitialize( "Engine1/Shaders/ShadingNoShadowsShader/ShadingNoShadows_cs2.cso", device );
 }

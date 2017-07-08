@@ -84,5 +84,5 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( const Ca
 
 void DistanceToOccluderSearchRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_distanceToOccluderSearchComputeShader->loadAndInitialize( "Shaders/DistanceToOccluderSearchShader/DistanceToOccluderSearch_cs.cso", device );
+    m_distanceToOccluderSearchComputeShader->loadAndInitialize( "Engine1/Shaders/DistanceToOccluderSearchShader/DistanceToOccluderSearch_cs.cso", device );
 }

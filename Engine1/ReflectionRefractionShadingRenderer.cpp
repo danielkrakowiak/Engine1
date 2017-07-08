@@ -211,8 +211,8 @@ void ReflectionRefractionShadingRenderer::performRefractionShading(
 
 void ReflectionRefractionShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_reflectionShadingComputeShader->loadAndInitialize( "Shaders/ReflectionShadingShader/ReflectionShading_cs.cso", device );
-    m_reflectionShadingComputeShader2->loadAndInitialize( "Shaders/ReflectionShadingShader/ReflectionShading_cs2.cso", device );
-    m_refractionShadingComputeShader->loadAndInitialize( "Shaders/RefractionShadingShader/RefractionShading_cs.cso", device );
-    m_refractionShadingComputeShader2->loadAndInitialize( "Shaders/RefractionShadingShader/RefractionShading_cs2.cso", device );
+    m_reflectionShadingComputeShader->loadAndInitialize( "Engine1/Shaders/ReflectionShadingShader/ReflectionShading_cs.cso", device );
+    m_reflectionShadingComputeShader2->loadAndInitialize( "Engine1/Shaders/ReflectionShadingShader/ReflectionShading_cs2.cso", device );
+    m_refractionShadingComputeShader->loadAndInitialize( "Engine1/Shaders/RefractionShadingShader/RefractionShading_cs.cso", device );
+    m_refractionShadingComputeShader2->loadAndInitialize( "Engine1/Shaders/RefractionShadingShader/RefractionShading_cs2.cso", device );
 }

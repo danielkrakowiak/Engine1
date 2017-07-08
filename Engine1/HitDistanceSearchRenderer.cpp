@@ -86,5 +86,5 @@ void HitDistanceSearchRenderer::performHitDistanceSearch(
 
 void HitDistanceSearchRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
 {
-    m_hitDistanceSearchComputeShader->loadAndInitialize( "Shaders/HitDistanceSearchShader/HitDistanceSearch_cs.cso", device );
+    m_hitDistanceSearchComputeShader->loadAndInitialize( "Engine1/Shaders/HitDistanceSearchShader/HitDistanceSearch_cs.cso", device );
 }
