@@ -10,6 +10,7 @@ namespace Engine1
     {
         // Only Application and ControlPanel classes can modify the settings.
         friend class Application;
+        friend class EngineApplication;
         friend class ControlPanel;
 
         public:

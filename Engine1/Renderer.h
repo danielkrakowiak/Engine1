@@ -159,8 +159,12 @@ namespace Engine1
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager );
         ~Renderer();
 
-        void initialize( const int2 imageDimensions, Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
-                         std::shared_ptr<const BlockMesh> axisModel, std::shared_ptr<const BlockModel> lightModel );
+        void initialize( 
+            const int2 imageDimensions, 
+            Microsoft::WRL::ComPtr< ID3D11Device > device, 
+            Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
+            std::shared_ptr<const BlockModel> lightModel 
+        );
 
         // Should be called at the beginning of each frame, before calling renderScene(). 
         void clear();
@@ -285,7 +289,6 @@ namespace Engine1
 
         std::vector< LayerRenderTargets > m_layersRenderTargets;
 
-        std::shared_ptr<const BlockMesh>  m_axisMesh;
         std::shared_ptr<const BlockModel> m_lightModel;
 
         Output getLayerRenderTarget( View view, int level );

@@ -1,5 +1,3 @@
-
-
 #include <Windows.h>
 #include <fstream>
 
@@ -16,8 +14,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     hPrevInstance;
     lpCmdLine;
     nShowCmd;
-
-    writeErrorToFile( "begin.txt", "tralala" );
 
 	try {
 		Application application;

@@ -1008,6 +1008,9 @@
     <ClInclude Include="SumValueComputeShader.h">
       <Filter>Header Files\Shader\Utility\SumValue</Filter>
     </ClInclude>
+    <ClInclude Include="EngineApplication.h">
+      <Filter>Header Files\Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1516,6 +1519,9 @@
     </ClCompile>
     <ClCompile Include="SumValueComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\SumValue</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineApplication.cpp">
+      <Filter>Source Files\Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

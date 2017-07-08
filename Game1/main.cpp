@@ -16,15 +16,14 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     lpCmdLine;
     nShowCmd;
 
-    writeErrorToFile( "begin.txt", "tralala" );
-
     try {
         GameApplication application;
 
         application.initialize( hInstance );
         application.show();
         application.run();
-    } catch ( std::exception& e ) {
+    } catch ( std::exception& e ) 
+    {
         OutputDebugStringW( StringUtil::widen( e.what() + std::string( "\n" ) ).c_str() );
         writeErrorToFile( "error.txt", ( e.what() + std::string( "\n" ) ) );
     }

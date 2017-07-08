@@ -5,6 +5,7 @@
 class GameApplication : public Engine1::Application
 {
     public:
+
     GameApplication();
     ~GameApplication();
 };

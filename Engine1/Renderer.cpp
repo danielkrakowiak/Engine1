@@ -64,13 +64,15 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, Rend
 Renderer::~Renderer()
 {}
 
-void Renderer::initialize( const int2 imageDimensions, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext, 
-                         std::shared_ptr<const BlockMesh> axisMesh, std::shared_ptr<const BlockModel> lightModel )
+void Renderer::initialize( 
+    const int2 imageDimensions, 
+    ComPtr< ID3D11Device > device, 
+    ComPtr< ID3D11DeviceContext > deviceContext, 
+    std::shared_ptr<const BlockModel> lightModel )
 {
     m_device        = device;
     m_deviceContext = deviceContext;
 
-    m_axisMesh   = axisMesh;
     m_lightModel = lightModel;
 
     m_imageDimensions = imageDimensions;
@@ -303,18 +305,6 @@ Renderer::Output Renderer::renderPrimaryLayer(
         );
 
         m_profiler.beginEvent( Profiler::GlobalEventType::DeferredRendering );
-
-        // Render 'axises' model.
-        if ( m_axisMesh )
-        {
-            m_deferredRenderer.render( 
-                defferedRenderTargets, 
-                defferedSettings, 
-                *m_axisMesh, 
-                float43::IDENTITY, 
-                viewMatrix 
-            );
-        }
 
         float4 actorSelectionEmissiveColor( 0.1f, 0.1f, 0.0f, 1.0f );
 

@@ -367,6 +367,7 @@
     <ClInclude Include="DistanceToOccluderSearchComputeShader.h" />
     <ClInclude Include="DistanceToOccluderSearchRenderer.h" />
     <ClInclude Include="EmissiveBlockMeshFragmentShader.h" />
+    <ClInclude Include="EngineApplication.h" />
     <ClInclude Include="ExtractBrightPixelsComputeShader.h" />
     <ClInclude Include="ExtractBrightPixelsRenderer.h" />
     <ClInclude Include="FileSystem.h" />
@@ -547,6 +548,7 @@
     <ClCompile Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.cpp" />
     <ClCompile Include="DistanceToOccluderSearchComputeShader.cpp" />
     <ClCompile Include="DistanceToOccluderSearchRenderer.cpp" />
+    <ClCompile Include="EngineApplication.cpp" />
     <ClCompile Include="ExtractBrightPixelsComputeShader.cpp" />
     <ClCompile Include="ExtractBrightPixelsRenderer.cpp" />
     <ClCompile Include="FileSystem.cpp" />

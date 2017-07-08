@@ -34,7 +34,7 @@ namespace Engine1
 
         void setWindowTitle( const std::string& title );
 
-    private:
+    protected:
 
 	    static ImageLibrary imageLibrary;
 	    static FontLibrary fontLibrary;
@@ -50,27 +50,27 @@ namespace Engine1
 
 	    static LRESULT CALLBACK windowsMessageHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
-	    void onStart( );
-	    void onExit( );
-	    void onResize( int newWidth, int newHeight );
-        void onMove( int newPosX, int newPosY );
-	    void onFocusChange( bool windowFocused );
-        void onKeyPress( int key );
-        void onMouseButtonPress( int button );
-	    void onDragAndDropFile( std::string filePath, bool replaceSelected );
+	    virtual void onStart( );
+	    virtual void onExit( );
+	    virtual void onResize( int newWidth, int newHeight );
+        virtual void onMove( int newPosX, int newPosY );
+	    virtual void onFocusChange( bool windowFocused );
+        virtual void onKeyPress( int key );
+        virtual void onMouseButtonPress( int button );
+	    virtual void onDragAndDropFile( std::string filePath, bool replaceSelected );
 
-        bool onFrame( const double frameTimeMs, const bool lockCursor ); // returns: modifyingScene
-        void onSelectionChanged();
-        void setTextureMultipliersInSettingsFromModel( const Model& model );
-        void setModelTextureMultipliersFromSettings( Model& model );
+        virtual bool onFrame( const double frameTimeMs, const bool lockCursor ); // returns: modifyingScene
+        virtual void onSelectionChanged();
 
-        int2 screenPosToWindowPos( int2 screenPos ) const;
+        void createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
 
         void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int2 screenCoords );
         void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int2 screenCoords );
         void debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int2 screenCoords );
         void debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int2 screenCoords );
         void debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > >& textures, const int2 screenCoords );
+
+        int2 screenPosToWindowPos( int2 screenPos ) const;
 
 	    // Basic application handles.
 	    HINSTANCE m_applicationInstance;
@@ -95,18 +95,16 @@ namespace Engine1
 
 	    bool m_windowFocused;
 
-        std::shared_ptr< StagingTexture2D< unsigned char > > m_debugFrameU1;
-        std::shared_ptr< StagingTexture2D< uchar4 > >        m_debugFrameU4;
-        std::shared_ptr< StagingTexture2D< float > >         m_debugFrameF1;
-        std::shared_ptr< StagingTexture2D< float4 > >        m_debugFrameF4;
-
-        void createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
-
         // Debug uchar render target.
         void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
 
         // Needed to display uchar textures using usual texture shader (unorm view is required - integer as 0-1 float).
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > ucharDisplayFrame;
+
+        std::shared_ptr< StagingTexture2D< unsigned char > > m_debugFrameU1;
+        std::shared_ptr< StagingTexture2D< uchar4 > >        m_debugFrameU4;
+        std::shared_ptr< StagingTexture2D< float > >         m_debugFrameF1;
+        std::shared_ptr< StagingTexture2D< float4 > >        m_debugFrameF4;
 
 	    // Copying is not allowed.
 	    Application( const Application& ) = delete;

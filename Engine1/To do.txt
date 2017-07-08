@@ -462,6 +462,13 @@ Idea:
 
 	  NEXT:
 
+	  - make it possible to copy one texture to another at different coordinates
+	  - create 1x1 px staging textures in Application - no need for full screen textures.
+
+	  - create EngineApplication class and move "test app" code there
+	  - modify Application class code to only contain basing stuff that app needs - like window initialization, systems etc.
+	  - maybe add some loop methods like render callback, input handling callback?
+
 	  - my hack for skybox - "don't raytrace if roughness is maximal" causes problems in the mirrors and some other objects - what other trick can i use?
 
 	  - improved roughness handling helper a lot - but it also caused black lines near some rough edges - because correct samples cannot be found.
