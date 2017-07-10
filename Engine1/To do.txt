@@ -462,6 +462,10 @@ Idea:
 
 	  NEXT:
 
+	  - add PhysX support in Engine.
+	  - add some code to generate collision hull for selected object (or all of them?) and create it's physics?
+	  - where to store actor's physics? Should actor has it's separate xform or take it from physics directly? What if ana ctor doesn't have physics?
+
 	  - make it possible to copy one texture to another at different coordinates
 	  - create 1x1 px staging textures in Application - no need for full screen textures.
 

@@ -451,9 +451,6 @@
     <Filter Include="Source Files\RenderTargetManager">
       <UniqueIdentifier>{54fe07db-eb44-43e7-a0c4-53bc4b783309}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Animator">
-      <UniqueIdentifier>{e96300f4-a22d-447d-b616-f849ceae344c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Animator">
       <UniqueIdentifier>{af22374d-3ee0-4ae6-b459-24f14c098b30}</UniqueIdentifier>
     </Filter>
@@ -468,6 +465,15 @@
     </Filter>
     <Filter Include="Source Files\Shader\Utility\SumValue">
       <UniqueIdentifier>{f9e9af48-052a-458c-893f-b94ece517978}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{99490892-aab9-418e-a0ae-0b82b42009a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{8904755a-1c42-4d7e-82a7-c3098288018f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Actor\Animator">
+      <UniqueIdentifier>{e96300f4-a22d-447d-b616-f849ceae344c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -997,7 +1003,7 @@
       <Filter>Header Files\RenderTargetManager</Filter>
     </ClInclude>
     <ClInclude Include="Animator.h">
-      <Filter>Header Files\Animator</Filter>
+      <Filter>Header Files\Actor\Animator</Filter>
     </ClInclude>
     <ClInclude Include="AntialiasingRenderer.h">
       <Filter>Header Files\Renderer</Filter>
@@ -1010,6 +1016,9 @@
     </ClInclude>
     <ClInclude Include="EngineApplication.h">
       <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsLibrary.h">
+      <Filter>Header Files\Libraries</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1522,6 +1531,9 @@
     </ClCompile>
     <ClCompile Include="EngineApplication.cpp">
       <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsLibrary.cpp">
+      <Filter>Source Files\Libraries</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

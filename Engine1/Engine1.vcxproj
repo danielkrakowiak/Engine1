@@ -134,12 +134,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -154,12 +154,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -218,7 +218,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimpd.lib;FreeImaged.lib;FreeImagePlusd.lib;d3d11.lib;freetype26.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimpd.lib;FreeImaged.lib;FreeImagePlusd.lib;d3d11.lib;freetype26d.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -305,7 +305,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3_x64.lib;PhysX3Common_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -387,6 +387,7 @@
     <ClInclude Include="GenerateFirstRefractedRaysComputeShader.h" />
     <ClInclude Include="HitDistanceSearchComputeShader.h" />
     <ClInclude Include="HitDistanceSearchRenderer.h" />
+    <ClInclude Include="PhysicsLibrary.h" />
     <ClInclude Include="RenderTargetManager.h" />
     <ClInclude Include="ResampleTextureFragmentShader.h" />
     <ClInclude Include="GenerateMipmapMinValueComputeShader.h" />
@@ -568,6 +569,7 @@
     <ClCompile Include="GenerateFirstRefractedRaysComputeShader.cpp" />
     <ClCompile Include="HitDistanceSearchComputeShader.cpp" />
     <ClCompile Include="HitDistanceSearchRenderer.cpp" />
+    <ClCompile Include="PhysicsLibrary.cpp" />
     <ClCompile Include="RenderTargetManager.cpp" />
     <ClCompile Include="ResampleTextureFragmentShader.cpp" />
     <ClCompile Include="GenerateMipmapMinValueComputeShader.cpp" />

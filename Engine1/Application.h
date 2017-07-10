@@ -9,6 +9,7 @@
 #include "Profiler.h"
 #include "ImageLibrary.h"
 #include "FontLibrary.h"
+#include "PhysicsLibrary.h"
 #include "AssetManager.h"
 #include "ControlPanel.h"
 #include "StagingTexture2D.h"
@@ -38,6 +39,7 @@ namespace Engine1
 
 	    static ImageLibrary imageLibrary;
 	    static FontLibrary fontLibrary;
+        static PhysicsLibrary physicsLibrary;
 
 	    // Initialization
 	    bool m_initialized;

@@ -48,6 +48,7 @@ Application* Application::windowsMessageReceiver = nullptr;
 // Initialize external libraries.
 ImageLibrary Application::imageLibrary;
 FontLibrary  Application::fontLibrary;
+PhysicsLibrary Application::physicsLibrary;
 
 using Microsoft::WRL::ComPtr;
 
