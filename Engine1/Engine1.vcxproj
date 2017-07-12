@@ -214,12 +214,13 @@
       <BrowseInformation>true</BrowseInformation>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimpd.lib;FreeImaged.lib;FreeImagePlusd.lib;d3d11.lib;freetype26d.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimpd.lib;FreeImaged.lib;FreeImagePlusd.lib;d3d11.lib;freetype26d.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PxFoundationDEBUG_x64.lib;PxPvdSDKDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -236,6 +237,7 @@
       <BrowseInformation>true</BrowseInformation>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -299,14 +301,15 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3_x64.lib;PhysX3Common_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3_x64.lib;PhysX3Common_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;PhysX3Extensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Engine1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">
@@ -320,6 +323,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

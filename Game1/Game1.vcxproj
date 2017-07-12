@@ -89,9 +89,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Engine1.lib;assimpd.lib;FreeImaged.lib;FreeImagePlusd.lib;d3d11.lib;freetype26.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Engine1.lib;assimpd.lib;FreeImaged.lib;FreeImagePlusd.lib;d3d11.lib;freetype26.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PxFoundationDEBUG_x64.lib;PxPvdSDKDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,11 +116,12 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Engine1.lib;assimp.lib;FreeImage.lib;FreeImagePlus.lib;d3d11.lib;freetype26.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3_x64.lib;PhysX3Common_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Engine1.lib;assimp.lib;FreeImage.lib;FreeImagePlus.lib;d3d11.lib;freetype26.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3_x64.lib;PhysX3Common_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;PhysX3Extensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

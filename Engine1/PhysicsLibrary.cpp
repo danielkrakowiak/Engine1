@@ -2,12 +2,19 @@
 
 #include "Windows.h"
 
+#include <thread>
+
 #include "StringUtil.h"
 
 using namespace Engine1;
 using namespace physx;
 
-PhysicsLibrary::PhysicsLibrary()
+PhysicsLibrary::PhysicsLibrary() :
+    m_foundation( nullptr ),
+    m_visualDebugger( nullptr ),
+    m_physics( nullptr ),
+    m_scene( nullptr ),
+    m_defaultMaterial( nullptr )
 {
     m_foundation = PxCreateFoundation( PX_FOUNDATION_VERSION, m_allocatorCallback, m_errorCallback );
     assert( m_foundation );
@@ -35,6 +42,30 @@ PhysicsLibrary::PhysicsLibrary()
     assert( m_physics );
     if ( !m_physics )
         throw std::exception( "PhysicsLibrary::PhysicsLibrary: Failed to create PhysX core physics object." );
+
+    if ( !PxInitExtensions( *m_physics, m_visualDebugger ) )
+    {
+        assert( false );
+        throw std::exception( "PhysicsLibrary::PhysicsLibrary: Failed to initialize PhysX extensions." );
+    }
+
+    auto* defaultCPUDispather = PxDefaultCpuDispatcherCreate( std::thread::hardware_concurrency() );
+
+    PxSceneDesc sceneDesc( scale );
+    sceneDesc.gravity         = PxVec3( 0.0f, -9.81f, 0.0f );
+    sceneDesc.cpuDispatcher   = defaultCPUDispather;
+    sceneDesc.filterShader    = PxDefaultSimulationFilterShader;
+
+    m_scene = m_physics->createScene( sceneDesc );
+
+    auto* pvdClient = m_scene->getScenePvdClient();
+    if ( pvdClient ) {
+        pvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true );
+        pvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONTACTS, true );
+        pvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true );
+    }
+
+    m_defaultMaterial = m_physics->createMaterial( 0.5f, 0.5f, 0.6f );
 }
 
 PhysicsLibrary::~PhysicsLibrary()
@@ -47,8 +78,16 @@ PhysicsLibrary::~PhysicsLibrary()
 
     if (m_visualDebugger)
     {
+        auto* transport = m_visualDebugger->getTransport();
+
         m_visualDebugger->release();
         m_visualDebugger = nullptr;
+
+        if (transport)
+        {
+            transport->release();
+            transport = nullptr;
+        }
     }
 
     if (m_foundation)

@@ -45,6 +45,9 @@ namespace Engine1
         PhysicsLibrary();
         ~PhysicsLibrary();
 
+        PhysicsLibrary( PhysicsLibrary& ) = delete;
+        void operator=( PhysicsLibrary& ) = delete;
+
         private:
 
         PhysXAllocatorCallback m_allocatorCallback;
@@ -53,5 +56,8 @@ namespace Engine1
         physx::PxFoundation* m_foundation;
         physx::PxPvd*        m_visualDebugger;
         physx::PxPhysics*    m_physics;
+
+        physx::PxScene*    m_scene;
+        physx::PxMaterial* m_defaultMaterial;
     };
 }

@@ -857,19 +857,19 @@ void Application::onFocusChange( bool windowFocused )
     Settings::modify().main.limitFPS = !windowFocused;
 }
 
-void Application::onKeyPress( int key )
+void Application::onKeyPress( int /*key*/ )
 {
 }
 
-void Application::onMouseButtonPress( int button )
+void Application::onMouseButtonPress( int /*button*/ )
 {
 }
 
-void Application::onDragAndDropFile( std::string filePath, bool replaceSelected )
+void Application::onDragAndDropFile( std::string /*filePath*/, bool /*replaceSelected*/ )
 {
 }
 
-bool Application::onFrame( const double frameTimeMs, const bool lockCursor )
+bool Application::onFrame( const double /*frameTimeMs*/, const bool /*lockCursor*/ )
 {
     return false;
 }
