@@ -80,6 +80,8 @@ void Settings::setDefault()
     s_settings.rendering.combining.positionDiffMul         = 6.0f;
     s_settings.rendering.combining.normalDiffMul           = 3.0f;
     s_settings.rendering.combining.positionNormalThreshold = 1.2f;
+
+    s_settings.physics.fixedStepDuration = 1.0f / 60.0f;
 }
 
 void Settings::onChanged()

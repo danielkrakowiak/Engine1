@@ -3,6 +3,7 @@
 #include "float3.h"
 #include "quat.h"
 
+#include "PhysX/foundation/PxMat33.h"
 
 //3x3 matrix
 //m11 m12 m13
@@ -360,6 +361,17 @@ namespace Engine1
         }
 
         void rotate( const float3& rotationAngles );
+
+        // Implicit conversion to PhysX matrix type.
+        operator physx::PxMat33()
+        {
+            return reinterpret_cast<physx::PxMat33&>( *this );
+        }
+
+        operator physx::PxMat33() const
+        {
+            return reinterpret_cast<const physx::PxMat33&>( *this );
+        }
     };
 
     float3 operator * (const float3& a, const float33& b);

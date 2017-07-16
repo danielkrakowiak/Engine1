@@ -42,22 +42,36 @@ namespace Engine1
     {
         public:
 
-        PhysicsLibrary();
-        ~PhysicsLibrary();
+        static bool initialize();
 
+        // Note: Not called anywhere normally.
+        // No need to call it until you need to free some memory.
+        static void deinitialize();
+
+        static physx::PxFoundation& getFoundation();
+        static physx::PxPvd&        getVisualDebugger();
+        static physx::PxPhysics&    getPhysics();
+        static physx::PxScene&      getScene();
+        static physx::PxMaterial&   getDefaultMaterial();
+
+
+        PhysicsLibrary()                  = delete;
+        ~PhysicsLibrary()                 = delete;
         PhysicsLibrary( PhysicsLibrary& ) = delete;
         void operator=( PhysicsLibrary& ) = delete;
 
         private:
 
-        PhysXAllocatorCallback m_allocatorCallback;
-        PhysXErrorCallback     m_errorCallback;
+        static PhysXAllocatorCallback s_allocatorCallback;
+        static PhysXErrorCallback     s_errorCallback;
 
-        physx::PxFoundation* m_foundation;
-        physx::PxPvd*        m_visualDebugger;
-        physx::PxPhysics*    m_physics;
+        static physx::PxFoundation* s_foundation;
+        static physx::PxPvd*        s_visualDebugger;
+        static physx::PxPhysics*    s_physics;
 
-        physx::PxScene*    m_scene;
-        physx::PxMaterial* m_defaultMaterial;
+        static physx::PxScene*    s_scene;
+        static physx::PxMaterial* s_defaultMaterial;
+
+        static bool s_initialized;
     };
 }

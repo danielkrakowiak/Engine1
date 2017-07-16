@@ -69,11 +69,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>F:\Projekty\Engine1\Engine1;$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Engine1;$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(SolutionDir)\Include\PhysX\;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(SolutionDir)\x64\DebugEngineLibrary</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>F:\Projekty\Engine1\Engine1;$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Engine1;$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(SolutionDir)\Include\PhysX\;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(SolutionDir)\x64\ReleaseEngineLibrary</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

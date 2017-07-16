@@ -37,3 +37,8 @@ float3 BoundingBox::getCenter() const
 {
     return m_center;
 }
+
+float3 BoundingBox::getDimensions() const
+{
+    return m_max - m_min;
+}

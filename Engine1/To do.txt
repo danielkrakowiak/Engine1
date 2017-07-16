@@ -462,6 +462,8 @@ Idea:
 
 	  NEXT:
 
+	  - I need to add proper copy consturctor to BlockActor which "copies" -> creates a new physics from an existing one (or empty for now).
+
 	  - add PhysX support in Engine.
 	  - add some code to generate collision hull for selected object (or all of them?) and create it's physics?
 	  - where to store actor's physics? Should actor has it's separate xform or take it from physics directly? What if ana ctor doesn't have physics?

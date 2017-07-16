@@ -17,6 +17,7 @@ namespace Engine1
         float3 getMin() const;
         float3 getMax() const;
         float3 getCenter() const;
+        float3 getDimensions() const;
 
         private:
 

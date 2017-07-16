@@ -9,25 +9,31 @@
 using namespace Engine1;
 using namespace physx;
 
-PhysicsLibrary::PhysicsLibrary() :
-    m_foundation( nullptr ),
-    m_visualDebugger( nullptr ),
-    m_physics( nullptr ),
-    m_scene( nullptr ),
-    m_defaultMaterial( nullptr )
+PhysXAllocatorCallback PhysicsLibrary::s_allocatorCallback;
+PhysXErrorCallback     PhysicsLibrary::s_errorCallback;
+
+physx::PxFoundation* PhysicsLibrary::s_foundation      = nullptr;
+physx::PxPvd*        PhysicsLibrary::s_visualDebugger  = nullptr;
+physx::PxPhysics*    PhysicsLibrary::s_physics         = nullptr;
+physx::PxScene*      PhysicsLibrary::s_scene           = nullptr;
+physx::PxMaterial*   PhysicsLibrary::s_defaultMaterial = nullptr;
+
+bool PhysicsLibrary::s_initialized = PhysicsLibrary::initialize();
+
+bool PhysicsLibrary::initialize()
 {
-    m_foundation = PxCreateFoundation( PX_FOUNDATION_VERSION, m_allocatorCallback, m_errorCallback );
-    assert( m_foundation );
-    if ( !m_foundation )
+    s_foundation = PxCreateFoundation( PX_FOUNDATION_VERSION, s_allocatorCallback, s_errorCallback );
+    assert( s_foundation );
+    if ( !s_foundation )
         throw std::exception( "PhysicsLibrary::PhysicsLibrary: Failed to create PhysX foundation." );
 
-    m_visualDebugger = PxCreatePvd( *m_foundation );
-    assert( m_visualDebugger );
-    if ( !m_visualDebugger )
+    s_visualDebugger = PxCreatePvd( *s_foundation );
+    assert( s_visualDebugger );
+    if ( !s_visualDebugger )
         throw std::exception( "PhysicsLibrary::PhysicsLibrary: Failed to create PhysX visual debugger." );
 
     PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate( "localhost", 5425, 10 );
-    m_visualDebugger->connect( *transport, PxPvdInstrumentationFlag::eALL );
+    s_visualDebugger->connect( *transport, PxPvdInstrumentationFlag::eALL );
 
     const bool recordMemoryAllocations = false;
 
@@ -36,14 +42,14 @@ PhysicsLibrary::PhysicsLibrary() :
     scale.mass   = 1000.0f; // Weight of 1 cubic meter in kg.
     scale.speed  = 10.0f;   // 10 m/s - speed of a falling object after 1 sec.
 
-    m_physics = PxCreatePhysics( 
-        PX_PHYSICS_VERSION, *m_foundation, scale, recordMemoryAllocations, m_visualDebugger 
+    s_physics = PxCreatePhysics( 
+        PX_PHYSICS_VERSION, *s_foundation, scale, recordMemoryAllocations, s_visualDebugger 
     );
-    assert( m_physics );
-    if ( !m_physics )
+    assert( s_physics );
+    if ( !s_physics )
         throw std::exception( "PhysicsLibrary::PhysicsLibrary: Failed to create PhysX core physics object." );
 
-    if ( !PxInitExtensions( *m_physics, m_visualDebugger ) )
+    if ( !PxInitExtensions( *s_physics, s_visualDebugger ) )
     {
         assert( false );
         throw std::exception( "PhysicsLibrary::PhysicsLibrary: Failed to initialize PhysX extensions." );
@@ -56,32 +62,34 @@ PhysicsLibrary::PhysicsLibrary() :
     sceneDesc.cpuDispatcher   = defaultCPUDispather;
     sceneDesc.filterShader    = PxDefaultSimulationFilterShader;
 
-    m_scene = m_physics->createScene( sceneDesc );
+    s_scene = s_physics->createScene( sceneDesc );
 
-    auto* pvdClient = m_scene->getScenePvdClient();
+    auto* pvdClient = s_scene->getScenePvdClient();
     if ( pvdClient ) {
         pvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true );
         pvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONTACTS, true );
         pvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true );
     }
 
-    m_defaultMaterial = m_physics->createMaterial( 0.5f, 0.5f, 0.6f );
+    s_defaultMaterial = s_physics->createMaterial( 0.5f, 0.5f, 0.6f );
+
+    return true;
 }
 
-PhysicsLibrary::~PhysicsLibrary()
+void PhysicsLibrary::deinitialize()
 {
-    if (m_physics)
+    if (s_physics)
     {
-        m_physics->release();
-        m_physics = nullptr;
+        s_physics->release();
+        s_physics = nullptr;
     }
 
-    if (m_visualDebugger)
+    if (s_visualDebugger)
     {
-        auto* transport = m_visualDebugger->getTransport();
+        auto* transport = s_visualDebugger->getTransport();
 
-        m_visualDebugger->release();
-        m_visualDebugger = nullptr;
+        s_visualDebugger->release();
+        s_visualDebugger = nullptr;
 
         if (transport)
         {
@@ -90,11 +98,51 @@ PhysicsLibrary::~PhysicsLibrary()
         }
     }
 
-    if (m_foundation)
+    if (s_foundation)
     {
-        m_foundation->release();
-        m_foundation = nullptr;
+        s_foundation->release();
+        s_foundation = nullptr;
     }
+}
+
+physx::PxFoundation& PhysicsLibrary::getFoundation()
+{
+    if ( s_foundation )
+        return *s_foundation;
+    else
+        throw std::exception( "PhysicsLibrary::getFoundation - Physics Library is not initialized (or is corrupted)." );
+}
+
+physx::PxPvd& PhysicsLibrary::getVisualDebugger()
+{
+    if ( s_visualDebugger )
+        return *s_visualDebugger;
+    else
+        throw std::exception( "PhysicsLibrary::getVisualDebugger - Physics Library is not initialized (or is corrupted)." );
+}
+
+physx::PxPhysics& PhysicsLibrary::getPhysics()
+{
+    if ( s_physics )
+        return *s_physics;
+    else
+        throw std::exception( "PhysicsLibrary::getPhysics - Physics Library is not initialized (or is corrupted)." );
+}
+
+physx::PxScene& PhysicsLibrary::getScene()
+{
+    if ( s_scene )
+        return *s_scene;
+    else
+        throw std::exception( "PhysicsLibrary::getScene - Physics Library is not initialized (or is corrupted)." );
+}
+
+physx::PxMaterial& PhysicsLibrary::getDefaultMaterial()
+{
+    if ( s_defaultMaterial )
+        return *s_defaultMaterial;
+    else
+        throw std::exception( "PhysicsLibrary::getDefaultMaterial - Physics Library is not initialized (or is corrupted)." );
 }
 
 PhysXErrorCallback::PhysXErrorCallback()

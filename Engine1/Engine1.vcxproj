@@ -133,12 +133,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(SolutionDir)\Include\PhysX\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(SolutionDir)\Include\PhysX\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,12 +153,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(SolutionDir)\Include\PhysX\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Include\FreeType\;$(SolutionDir)\Include\;$(SolutionDir)\Include\PhysX\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Freetype;$(SolutionDir)\Libraries\FreeImage;$(SolutionDir)\Libraries\D3DCompiler;$(SolutionDir)\Libraries\Assimp;$(SolutionDir)\Libraries\AntTweakBar;$(SolutionDir)\Libraries\PhysX;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -95,6 +95,29 @@ void EngineApplication::onKeyPress( int key )
         Settings::modify().debug.renderFps = !settings().debug.renderFps;
     }
 
+    // [ C + D + P ] - Create dynamic physics for a block actor.
+    if ( m_inputManager.isKeyPressed( InputManager::Keys::c ) 
+         && m_inputManager.isKeyPressed( InputManager::Keys::d )
+         && m_inputManager.isKeyPressed( InputManager::Keys::p ) )
+    {
+        for ( auto& actor : m_sceneManager.getSelection().getBlockActors() )
+        {
+            if ( !actor->hasPhysics() )
+                actor->createDynamicPhysics();
+        }
+    }
+
+    // [ C + K + P ] - Create kinematic physics for a block actor.
+    if ( m_inputManager.isKeyPressed( InputManager::Keys::c )
+         && m_inputManager.isKeyPressed( InputManager::Keys::k )
+         && m_inputManager.isKeyPressed( InputManager::Keys::p ) ) 
+    {
+        for ( auto& actor : m_sceneManager.getSelection().getBlockActors() ) {
+            if ( !actor->hasPhysics() )
+                actor->createKinematicPhysics();
+        }
+    }
+
     // [ L + P ] - Add point light.
     // [ L + S ] - Add spot light.
     if ( key == InputManager::Keys::l && m_inputManager.isKeyPressed( InputManager::Keys::p ) ) 

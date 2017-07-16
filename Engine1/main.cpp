@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <fstream>
 
-#include "Application.h"
+#include "EngineApplication.h"
 
 #include "StringUtil.h"
 
@@ -16,7 +16,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     nShowCmd;
 
 	try {
-		Application application;
+		EngineApplication application;
 
 		application.initialize( hInstance );
 		application.show();

@@ -3,6 +3,7 @@
 #include "float33.h"
 #include "quat.h"
 
+#include "PhysX/foundation/PxMat44.h"
 
 //4x3 matrix
 //m11 m12 m13 (0)
@@ -55,6 +56,22 @@ namespace Engine1
             t1 = 0.0f;
             t2 = 0.0f;
             t3 = 0.0f;
+        }
+
+        float43( const physx::PxMat44& mat )
+        {
+            m11 = mat.column0.x;
+            m12 = mat.column0.y;
+            m13 = mat.column0.z;
+            m21 = mat.column1.x;
+            m22 = mat.column1.y;
+            m23 = mat.column1.z;
+            m31 = mat.column2.x;
+            m32 = mat.column2.y;
+            m33 = mat.column2.z;
+            t1 = mat.column3.x;
+            t2 = mat.column3.y;
+            t3 = mat.column3.z;
         }
 
         void identity()

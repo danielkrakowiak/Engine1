@@ -48,7 +48,6 @@ Application* Application::windowsMessageReceiver = nullptr;
 // Initialize external libraries.
 ImageLibrary Application::imageLibrary;
 FontLibrary  Application::fontLibrary;
-PhysicsLibrary Application::physicsLibrary;
 
 using Microsoft::WRL::ComPtr;
 
@@ -237,6 +236,10 @@ void Application::run()
 
     Timer profilingLastRefreshTime;
 
+    // Used to deduce when to progress physics animation.
+    float physicsTimeAccumulator = 0.0f;
+    bool physicsStepFinished = true;
+
     m_renderer.renderShadowMaps( m_sceneManager.getScene() );
 
     bool updateProfiling = true;
@@ -260,6 +263,19 @@ void Application::run()
 			if ( WM_QUIT == msg.message ) 
                 run = false;
 		}
+
+        if ( !physicsStepFinished )
+            physicsStepFinished = PhysicsLibrary::getScene().fetchResults( false );
+
+        physicsTimeAccumulator += (float)(frameTimeMs * 1000.0);
+        if ( physicsTimeAccumulator > settings().physics.fixedStepDuration && physicsStepFinished )
+        {
+            PhysicsLibrary::getScene().simulate( settings().physics.fixedStepDuration );
+            
+            physicsStepFinished = false;
+            physicsTimeAccumulator -= settings().physics.fixedStepDuration;
+        }
+
         bool modifyingScene = false;
 
         // Disable locking when connecting through Team Viewer.

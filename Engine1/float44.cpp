@@ -90,3 +90,13 @@ float44 Engine1::operator * (const float value, const float44& b)
 		b.m41 * value, b.m42 * value, b.m43 * value, b.m44 * value
 		);
 }
+
+float44& Engine1::toFloat44( physx::PxMat44& matrix )
+{
+    return reinterpret_cast<float44&>( matrix );
+}
+
+const float44& Engine1::toFloat44( const physx::PxMat44& matrix )
+{
+    return reinterpret_cast<const float44&>( matrix );
+}

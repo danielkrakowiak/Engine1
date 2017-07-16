@@ -6,6 +6,8 @@
 #include "float43.h"
 #include "quat.h"
 
+#include "PhysX/foundation/PxMat44.h"
+
 //4x4 matrix
 //m11 m12 m13 m14
 //m21 m22 m23 m24
@@ -436,9 +438,24 @@ namespace Engine1
 
         void translate( const float3& translation );
         void rotate( const float3& rotationAngles );
+
+        // Implicit conversion to PhysX matrix type.
+        operator physx::PxMat44()
+        {
+            return reinterpret_cast<physx::PxMat44&>( *this );
+        }
+
+        operator physx::PxMat44() const
+        {
+            return reinterpret_cast<const physx::PxMat44&>( *this );
+        }
     };
 
     float4 operator * (const float4& a, const float44& b);
     float44 operator * (const float value, const float44& b);
+
+    // Conversion from PhysX matrix type.
+    float44& toFloat44( physx::PxMat44& matrix );
+    const float44& toFloat44( const physx::PxMat44& matrix );
 }
 

@@ -5,6 +5,8 @@
 #undef max
 #define NOMINMAX
 
+#include "PhysX/foundation/PxVec3.h"
+
 namespace Engine1
 {
     class float4;
@@ -168,6 +170,17 @@ namespace Engine1
         void rotate( const float3& rotationAngles );
 
         explicit operator int3() const;
+
+        // Implicit conversion to PhysX vector type.
+        operator physx::PxVec3() 
+        { 
+            return reinterpret_cast< physx::PxVec3& >( *this ); 
+        }
+
+        operator physx::PxVec3() const
+        {
+            return reinterpret_cast< const physx::PxVec3& >( *this );
+        }
     };
 
     float  dot( const float3& vec1, const float3& vec2 );

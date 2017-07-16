@@ -97,6 +97,11 @@ namespace Engine1
             } combining;
         } rendering;
 
+        struct Physics
+        {
+            float fixedStepDuration; // In seconds.
+        } physics;
+
         private:
 
         // Use this method to modify settings - it marks settings as changed.

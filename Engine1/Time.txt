@@ -430,3 +430,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 09.07.2017 - 3h - Adding PhysX support, copying libraries, DLLs, configuring projects, writing startup/shutdown code.
 10.07.2017 - 2h - Adding PhysX support, fixing project config, writing startup code etc.
 11.07.2017 - 2h - Adding PhysX support.
+12.07.2017 - 1h - Fixed project config, unified runtime library among engine and libraries.
+13.07.2017 - 2h - Creating a physics actor for a block actor - using std::unqiue_ptr to store it with custom deleter.
+14.07.2017 - 2h - Cloning actor with it's physics. Managed to run physics simulation.
