@@ -81,13 +81,15 @@ float4 main(PixelInputType input) : SV_Target
 
     float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 
-    const float samplingStep = 1.0f;
+    const float samplingStepInt = 1.0f;
 
     // This code decreases the mipmap level and calculates how many 
     // samples have to ba taken to achieve the same result (but with smoother filtering, rejecting etc).
-    const float mipmapLevel         = baseMipmapLevel * 0.666f;
+    // Note: baseMipmapLevel may be fractional so mipmapLevelDecrease may also be fractional.
+    const float mipmapLevel         = floor( baseMipmapLevel * 0.666 );
     const float mipmapLevelDecrease = baseMipmapLevel - mipmapLevel;
-    const float samplingRadius      = pow( 2.0f, mipmapLevelDecrease );
+    const float samplingRadius      = pow( 2.0, mipmapLevelDecrease );
+    const float samplingRadiusInt   = ceil( samplingRadius );
     ////
 
     float2 pixelSize0 = ( 1.0f / imageSize );
@@ -100,6 +102,7 @@ float4 main(PixelInputType input) : SV_Target
     // and should be ignored for high roughness (high level mipmaps) as it contains influences from neighbors (artefacts).
     // Decrease its weight based on mipmap level.
     { 
+        // #TODO: Could use point sampler? Should not make a difference as we sample exact pixel center.
         const float3 centerSample = g_colorTexture.SampleLevel( g_linearSamplerState, input.texCoord/** srcTextureFillSize / imageSize*/, mipmapLevel ).rgb;
         const float  centerWeight = lerp( 1.0, 0.0, mipmapLevel / 3.0 ); // Zero its weight for mipmap level >= 3.
         
@@ -107,15 +110,30 @@ float4 main(PixelInputType input) : SV_Target
         sampleWeightSum += centerWeight;
     }
 
-    for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep ) 
+    for ( float yInt = -samplingRadiusInt; yInt <= samplingRadiusInt; yInt += samplingStepInt )
     {
-        for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
-        {
-            const float2 sampleTexcoords = input.texCoord + float2( x * pixelSize.x, y * pixelSize.y ); 
+        const float y = clamp( yInt, -samplingRadius, samplingRadius );
 
+        const float sampleWeightY = 1.0 - abs( yInt - y );
+
+        for ( float xInt = -samplingRadiusInt; xInt <= samplingRadiusInt; xInt += samplingStepInt )
+        {
+            const float x = clamp( xInt, -samplingRadius, samplingRadius );
+
+            const float sampleWeightX = 1.0 - abs( xInt - x );
+
+            // Used to decrease weight of the outmost samples which are taken 
+            // not exactly at pixel centers (non integer x, y relative to center).
+            // Their weight has to be decreased, because they are too close to other samples
+            // and sometimes could cause error from sampling twice at almost the same place.
+            const float sampleWeightXY = sampleWeightX * sampleWeightY;
+
+            // Note: This test will only work if loop iterates over integer x, y.
             // Skip central pixel as it's been already accounted for.
-            if ( x == 0.0 && y == 0.0 )
+            if (abs(x) < 0.001 && abs(y) < 0.001)
                 continue;
+
+            const float2 sampleTexcoords = input.texCoord + float2(x * pixelSize.x, y * pixelSize.y);
 
             // Skip pixels which are off-screen.
             if (any(saturate(sampleTexcoords) != sampleTexcoords))
@@ -132,7 +150,7 @@ float4 main(PixelInputType input) : SV_Target
 
             const float  sampleWeight1 = getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
-            const float sampleWeight = sampleWeight1;
+            const float sampleWeight = sampleWeightXY * sampleWeight1;
 
             sampleSum       += sampleValue * sampleWeight;
             sampleWeightSum += sampleWeight;

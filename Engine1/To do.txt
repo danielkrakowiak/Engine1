@@ -462,6 +462,28 @@ Idea:
 
 	  NEXT:
 
+      - sampling artefacts show in stripes because we sample color at 4-th mipmap and position/normal at 0 mipmap. So weight assigned to sample changes over the samples area...
+        Stripes are more visible than normal erorrs - I should fix that somehow..
+        Should I sample a higher mipmap of position/normal? That could also lead to artefacts as position on the edge would be a mix of two positions...
+        INTERESTING detail: At the outer part of each stripe the sample is correct - no influence of wrong reflection. So Maybe I can sample pixel at corners to deduce it's weight?
+        And use the lowest weight - or simply use the highest position difference...?
+        Or I could make that center pos enough to reject that pixel... But how?
+        IMPORTANT: But I should still fix this as this error appears also for correct samples - as these stripes are visible...
+
+      - display text about which debug view is shown... or maybe in application title...
+
+	  - seems like those jagged edges in reflection (and difference between smoothnes of left/right side of the screen) come from the fact that
+	    combining shader has non-integer searchRadius, but integer step. So outmost left sample is always max to the left (like - 4.6 px from center), 
+		while outmost right may be rejected, because of numerical errors when increasing loop counter (4.60001 not less then 4.6 etc)
+
+      - starting from -4.6 also means that we don't hit center precisely - instead we hit -0.6 and 0.6 - and we do not reject central pixel which causes artefacts...
+
+      - we should probably start with -4.6 and account it with weight of 0.6, then -4 with weight 1, -3 with weight 1 and until 4.6 with weight 0.6?
+       So weight is difference between samples pos and pixel center?
+       What with pixelSize being weird because of mipmap scaling? Should I scale mipmap level differently?
+
+       - maybe also hitDistance is not smooth (or not sampeld smoothly) over the screen? And when hitDistance value jumps from pixel to pixel blur radius also jumps...
+
 	  - I need to add proper copy consturctor to BlockActor which "copies" -> creates a new physics from an existing one (or empty for now).
 
 	  - add PhysX support in Engine.

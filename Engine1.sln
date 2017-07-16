@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine1", "Engine1\Engine1.vcxproj", "{33E69B51-7F8C-4488-9124-857B8E476DFC}"
 EndProject
@@ -13,68 +13,42 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game1", "Game1\Game1.vcxpro
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		DebugEngineLibrary|x64 = DebugEngineLibrary|x64
-		DebugEngineLibrary|x86 = DebugEngineLibrary|x86
 		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 		ReleaseEngineLibrary|x64 = ReleaseEngineLibrary|x64
-		ReleaseEngineLibrary|x86 = ReleaseEngineLibrary|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{33E69B51-7F8C-4488-9124-857B8E476DFC}.Debug|x64.ActiveCfg = Debug|x64
 		{33E69B51-7F8C-4488-9124-857B8E476DFC}.Debug|x64.Build.0 = Debug|x64
-		{33E69B51-7F8C-4488-9124-857B8E476DFC}.Debug|x86.ActiveCfg = Debug|Win32
-		{33E69B51-7F8C-4488-9124-857B8E476DFC}.Debug|x86.Build.0 = Debug|Win32
 		{33E69B51-7F8C-4488-9124-857B8E476DFC}.DebugEngineLibrary|x64.ActiveCfg = DebugEngineLibrary|x64
 		{33E69B51-7F8C-4488-9124-857B8E476DFC}.DebugEngineLibrary|x64.Build.0 = DebugEngineLibrary|x64
-		{33E69B51-7F8C-4488-9124-857B8E476DFC}.DebugEngineLibrary|x86.ActiveCfg = DebugEngineLibrary|Win32
-		{33E69B51-7F8C-4488-9124-857B8E476DFC}.DebugEngineLibrary|x86.Build.0 = DebugEngineLibrary|Win32
 		{33E69B51-7F8C-4488-9124-857B8E476DFC}.Release|x64.ActiveCfg = Release|x64
 		{33E69B51-7F8C-4488-9124-857B8E476DFC}.Release|x64.Build.0 = Release|x64
-		{33E69B51-7F8C-4488-9124-857B8E476DFC}.Release|x86.ActiveCfg = Release|Win32
-		{33E69B51-7F8C-4488-9124-857B8E476DFC}.Release|x86.Build.0 = Release|Win32
 		{33E69B51-7F8C-4488-9124-857B8E476DFC}.ReleaseEngineLibrary|x64.ActiveCfg = ReleaseEngineLibrary|x64
 		{33E69B51-7F8C-4488-9124-857B8E476DFC}.ReleaseEngineLibrary|x64.Build.0 = ReleaseEngineLibrary|x64
-		{33E69B51-7F8C-4488-9124-857B8E476DFC}.ReleaseEngineLibrary|x86.ActiveCfg = ReleaseEngineLibrary|Win32
-		{33E69B51-7F8C-4488-9124-857B8E476DFC}.ReleaseEngineLibrary|x86.Build.0 = ReleaseEngineLibrary|Win32
 		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.Debug|x64.ActiveCfg = Debug|x64
 		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.Debug|x64.Build.0 = Debug|x64
-		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.Debug|x86.ActiveCfg = Debug|x64
 		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.DebugEngineLibrary|x64.ActiveCfg = Debug|x64
 		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.DebugEngineLibrary|x64.Build.0 = Debug|x64
-		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.DebugEngineLibrary|x86.ActiveCfg = Release|x64
-		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.DebugEngineLibrary|x86.Build.0 = Release|x64
 		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.Release|x64.ActiveCfg = Release|x64
 		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.Release|x64.Build.0 = Release|x64
-		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.Release|x86.ActiveCfg = Release|x64
 		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.ReleaseEngineLibrary|x64.ActiveCfg = Release|x64
 		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.ReleaseEngineLibrary|x64.Build.0 = Release|x64
-		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.ReleaseEngineLibrary|x86.ActiveCfg = Release|x64
-		{5A0BD8CC-1195-4E62-9CA1-F8F34A8C9834}.ReleaseEngineLibrary|x86.Build.0 = Release|x64
 		{605842BA-6E37-412B-9502-C1557B07E8F1}.Debug|x64.ActiveCfg = Debug|x64
 		{605842BA-6E37-412B-9502-C1557B07E8F1}.Debug|x64.Build.0 = Debug|x64
-		{605842BA-6E37-412B-9502-C1557B07E8F1}.Debug|x86.ActiveCfg = Debug|Win32
-		{605842BA-6E37-412B-9502-C1557B07E8F1}.Debug|x86.Build.0 = Debug|Win32
 		{605842BA-6E37-412B-9502-C1557B07E8F1}.DebugEngineLibrary|x64.ActiveCfg = Debug|x64
 		{605842BA-6E37-412B-9502-C1557B07E8F1}.DebugEngineLibrary|x64.Build.0 = Debug|x64
-		{605842BA-6E37-412B-9502-C1557B07E8F1}.DebugEngineLibrary|x86.ActiveCfg = Debug|Win32
-		{605842BA-6E37-412B-9502-C1557B07E8F1}.DebugEngineLibrary|x86.Build.0 = Debug|Win32
 		{605842BA-6E37-412B-9502-C1557B07E8F1}.Release|x64.ActiveCfg = Release|x64
 		{605842BA-6E37-412B-9502-C1557B07E8F1}.Release|x64.Build.0 = Release|x64
-		{605842BA-6E37-412B-9502-C1557B07E8F1}.Release|x86.ActiveCfg = Release|Win32
-		{605842BA-6E37-412B-9502-C1557B07E8F1}.Release|x86.Build.0 = Release|Win32
 		{605842BA-6E37-412B-9502-C1557B07E8F1}.ReleaseEngineLibrary|x64.ActiveCfg = Release|x64
 		{605842BA-6E37-412B-9502-C1557B07E8F1}.ReleaseEngineLibrary|x64.Build.0 = Release|x64
-		{605842BA-6E37-412B-9502-C1557B07E8F1}.ReleaseEngineLibrary|x86.ActiveCfg = Release|Win32
-		{605842BA-6E37-412B-9502-C1557B07E8F1}.ReleaseEngineLibrary|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
