@@ -434,3 +434,7 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 13.07.2017 - 2h - Creating a physics actor for a block actor - using std::unqiue_ptr to store it with custom deleter.
 14.07.2017 - 2h - Cloning actor with it's physics. Managed to run physics simulation.
 16.07.2017 - 3h - Trying to track source of artefacts in reflections on SimpleTest3 scene. Fixed visible transitions between sampled mipmap levels. Enforced sampling color mipmap only at non-fractional levels. Fixed looping over kernel pixels when sampling-radius is fractional - outmost pixels' weight gets decreased if they are fractional.
+18.07.2017 - 2h - Trying to improve rejecting samples in Combining shader - to reject more samples without limiting maximal achievable blur (roughness).
+19.07.2017 - 1h - Trying to improve rejecting samples in Combining shader - by calculating expected position-difference in world space between sample and center sample and comparing it with the real difference.
+20.07.2017 - 2h - Recompiled Assimp with newest Visual Studio to avoid linking to old VS libraries, redist packages etc.
+23.07.2017 - 4h - Trying to modify the code to make Graphics Shader Debugger work - split creating DX device and swap chain.

@@ -3,7 +3,7 @@
 #include "StringUtil.h"
 #include "BlockMesh.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -14,7 +14,7 @@ RaytracingPrimaryRaysComputeShader::RaytracingPrimaryRaysComputeShader() {}
 
 RaytracingPrimaryRaysComputeShader::~RaytracingPrimaryRaysComputeShader() {}
 
-void RaytracingPrimaryRaysComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void RaytracingPrimaryRaysComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -56,7 +56,7 @@ void RaytracingPrimaryRaysComputeShader::initialize( ComPtr< ID3D11Device >& dev
     this->m_shaderId = ++compiledShadersCount;
 }
 
-void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
+void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, 
                                                         const float3 rayOrigin, 
                                                         const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionsTexture, 
                                                         const BlockMesh& mesh, const float43& worldMatrix, 
@@ -129,7 +129,7 @@ void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext& dev
     }
 }
 
-void RaytracingPrimaryRaysComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void RaytracingPrimaryRaysComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "RaytracingPrimaryRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 

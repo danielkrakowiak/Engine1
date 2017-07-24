@@ -11,7 +11,7 @@
 
 #include "TextFile.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -121,7 +121,7 @@ SkeletonMeshFileInfo& SkeletonMesh::getFileInfo( )
 	return m_fileInfo;
 }
 
-void SkeletonMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
+void SkeletonMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 {
 	if ( !isInCpuMemory() ) throw std::exception( "SkeletonMesh::loadCpuToGpu - Mesh not loaded in CPU memory." );
 

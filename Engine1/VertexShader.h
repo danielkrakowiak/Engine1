@@ -9,7 +9,7 @@
 
 struct ID3D11InputLayout;
 struct ID3D11VertexShader;
-struct ID3D11Device;
+struct ID3D11Device3;
 struct ID3D11InputLayout;
 struct ID3D11Buffer;
 
@@ -19,7 +19,7 @@ namespace Engine1
     {
         public:
 
-        void loadAndInitialize( const std::string& path, Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void loadAndInitialize( const std::string& path, Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         bool                       isSame( const VertexShader& shader ) const;
         virtual ID3D11InputLayout& getInputLauout() const = 0;
@@ -31,8 +31,8 @@ namespace Engine1
         VertexShader();
         virtual ~VertexShader();
 
-        void load( const std::string& path, Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        virtual void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void load( const std::string& path, Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        virtual void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         virtual unsigned int getCompileFlags() const;
 
@@ -43,7 +43,7 @@ namespace Engine1
         unsigned int m_shaderId;
 
         Microsoft::WRL::ComPtr<ID3D11VertexShader> m_shader;
-        Microsoft::WRL::ComPtr<ID3D11Device>       m_device;
+        Microsoft::WRL::ComPtr<ID3D11Device3>       m_device;
         Microsoft::WRL::ComPtr<ID3D11Buffer>       m_constantInputBuffer;
         std::shared_ptr< std::vector< char > >     m_shaderBytecode;
 

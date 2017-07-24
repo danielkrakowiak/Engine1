@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 #include "uchar4.h"
@@ -19,7 +19,7 @@ ResampleTextureFragmentShader::~ResampleTextureFragmentShader()
 {}
 
 
-void ResampleTextureFragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void ResampleTextureFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	{ // Create sampler configuration.
 		D3D11_SAMPLER_DESC samplerConfiguration;
@@ -59,7 +59,7 @@ void ResampleTextureFragmentShader::initialize( ComPtr< ID3D11Device >& device )
 	}
 }
 
-void ResampleTextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
+void ResampleTextureFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext,
 	Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture,
 	const int srcMipLevel )
 {
@@ -90,7 +90,7 @@ void ResampleTextureFragmentShader::setParameters( ID3D11DeviceContext& deviceCo
 	deviceContext.PSSetSamplers( 0, 1, samplerStates );
 }
 
-void ResampleTextureFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void ResampleTextureFragmentShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
 	// Unset buffers and textures.
 	ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };

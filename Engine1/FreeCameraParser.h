@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-struct ID3D11Device;
+struct ID3D11Device3;
 
 namespace Engine1
 {

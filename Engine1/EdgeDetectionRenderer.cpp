@@ -5,7 +5,7 @@
 #include "EdgeDetectionComputeShader.h"
 #include "EdgeDistanceComputeShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -23,8 +23,8 @@ EdgeDetectionRenderer::EdgeDetectionRenderer( Direct3DRendererCore& rendererCore
 EdgeDetectionRenderer::~EdgeDetectionRenderer()
 {}
 
-void EdgeDetectionRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, 
-                                          ComPtr< ID3D11DeviceContext > deviceContext )
+void EdgeDetectionRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device3 > device, 
+                                          ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device        = device;
 	this->m_deviceContext = deviceContext;
@@ -110,7 +110,7 @@ void EdgeDetectionRenderer::swapSrcDestRenderTargets()
     m_valueRenderTargetDest      = valueRenderTargetTemp;
 }
 
-void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
+void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device3& device )
 {
     m_valueRenderTargetDest = m_valueRenderTarget0 = std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
@@ -119,7 +119,7 @@ void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 }
 
-void EdgeDetectionRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void EdgeDetectionRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_edgeDetectionComputeShader->loadAndInitialize( "Engine1/Shaders/EdgeDetectionShader/EdgeDetection_cs.cso", device );
     m_edgeDistanceComputeShader->loadAndInitialize( "Engine1/Shaders/EdgeDistanceShader/EdgeDistance_cs.cso", device );

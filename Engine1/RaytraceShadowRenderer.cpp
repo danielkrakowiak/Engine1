@@ -1,6 +1,6 @@
 #include "RaytraceShadowRenderer.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "Direct3DRendererCore.h"
 #include "RaytracingShadowsComputeShader.h"
@@ -28,8 +28,8 @@ RaytraceShadowRenderer::~RaytraceShadowRenderer()
 void RaytraceShadowRenderer::initialize(
 	int imageWidth,
 	int imageHeight,
-	Microsoft::WRL::ComPtr< ID3D11Device > device,
-	Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext )
+	Microsoft::WRL::ComPtr< ID3D11Device3 > device,
+	Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
 	m_device        = device;
 	m_deviceContext = deviceContext;
@@ -137,12 +137,12 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	m_rendererCore.disableComputePipeline();
 }
 
-void RaytraceShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void RaytraceShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
 	m_raytracingShadowsComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingShadowsShader/RaytracingShadows_cs.cso", device );
 }
 
-void RaytraceShadowRenderer::createDefaultTextures( ID3D11Device& device )
+void RaytraceShadowRenderer::createDefaultTextures( ID3D11Device3& device )
 {
 	std::vector< unsigned char > dataAlpha = { 255 };
 

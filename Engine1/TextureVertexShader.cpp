@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ TextureVertexShader::TextureVertexShader() {}
 
 TextureVertexShader::~TextureVertexShader() {}
 
-void TextureVertexShader::initialize( ComPtr< ID3D11Device >& device )
+void TextureVertexShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	{
 		const unsigned int inputLayoutCount = 3;
@@ -66,7 +66,7 @@ void TextureVertexShader::initialize( ComPtr< ID3D11Device >& device )
 	}
 }
 
-void TextureVertexShader::setParameters( ID3D11DeviceContext& deviceContext, float posX, float posY, float width, float height )
+void TextureVertexShader::setParameters( ID3D11DeviceContext3& deviceContext, float posX, float posY, float width, float height )
 {
 	if ( !m_compiled ) throw std::exception( "TextureVertexShader::setParameters - Shader hasn't been compiled yet" );
 

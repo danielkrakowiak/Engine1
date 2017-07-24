@@ -9,8 +9,8 @@
 
 #include "Texture2D.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -22,15 +22,15 @@ namespace Engine1
         GenerateReflectedRaysComputeShader();
         virtual ~GenerateReflectedRaysComputeShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext,
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitPositionTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitNormalTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& rayHitRoughnessTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,
                             const int outputTextureWidth, const int outputTextureHeight );
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

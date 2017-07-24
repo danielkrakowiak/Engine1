@@ -14,7 +14,7 @@
 #include "BlockMeshFileInfo.h"
 #include "BoundingBox.h"
 
-struct ID3D11Device;
+struct ID3D11Device3;
 struct ID3D11Buffer;
 struct ID3D11ShaderResourceView;
 
@@ -52,7 +52,7 @@ namespace Engine1
         const BlockMeshFileInfo& getFileInfo() const;
         BlockMeshFileInfo&       getFileInfo();
 
-        void loadCpuToGpu( ID3D11Device& device, bool reload = false );
+        void loadCpuToGpu( ID3D11Device3& device, bool reload = false );
         void loadGpuToCpu();
         void unloadFromCpu();
         void unloadFromGpu();
@@ -89,7 +89,7 @@ namespace Engine1
         BoundingBox getBoundingBox() const;
 
         void                                   buildBvhTree();
-        void                                   loadBvhTreeToGpu( ID3D11Device& device, const bool reload = false );
+        void                                   loadBvhTreeToGpu( ID3D11Device3& device, const bool reload = false );
         void                                   unloadBvhTreeFromGpu();
         std::shared_ptr< const BVHTreeBuffer > getBvhTree() const;
         void                                   setBvhTree( std::shared_ptr< BVHTreeBuffer > bvhTree );

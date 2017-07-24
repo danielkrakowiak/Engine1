@@ -6,8 +6,8 @@
 
 #include "float44.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -19,8 +19,8 @@ namespace Engine1
         TextureVertexShader();
         virtual ~TextureVertexShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, float posX, float posY, float width, float height );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext, float posX, float posY, float width, float height );
 
         ID3D11InputLayout& getInputLauout() const;
 

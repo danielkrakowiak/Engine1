@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "Texture2D.h"
 #include "uchar4.h"

@@ -1,6 +1,6 @@
 #include "BlockModel.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <tuple>
 
 #include "BinaryFile.h"
@@ -8,12 +8,12 @@
 
 using namespace Engine1;
 
-std::shared_ptr<BlockModel> BlockModel::createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently, ID3D11Device& device )
+std::shared_ptr<BlockModel> BlockModel::createFromFile( const BlockModelFileInfo& fileInfo, const bool loadRecurrently, ID3D11Device3& device )
 {
 	return createFromFile( fileInfo.getPath(), fileInfo.getFormat(), loadRecurrently, device );
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device& device )
+std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device3& device )
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
@@ -25,7 +25,7 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path,
     return model;
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::const_iterator dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device& device )
+std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::const_iterator dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device3& device )
 {
 	if ( BlockModelFileInfo::Format::BLOCKMODEL == format ) {
 		return BlockModelParser::parseBinary( dataIt, loadRecurrently, device );
@@ -235,7 +235,7 @@ void BlockModel::saveToMemory( std::vector<char>& data ) const
     BlockModelParser::writeBinary( data, *this );
 }
 
-void BlockModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext, bool reload )
+void BlockModel::loadCpuToGpu( ID3D11Device3& device, ID3D11DeviceContext3& deviceContext, bool reload )
 {
 	if ( m_mesh )
 		m_mesh->loadCpuToGpu( device, reload );

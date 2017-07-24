@@ -3,7 +3,7 @@
 #include "StringUtil.h"
 #include "Settings.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 #include "uchar4.h"
@@ -20,7 +20,7 @@ CombiningFragmentShader::~CombiningFragmentShader()
 {}
 
 
-void CombiningFragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void CombiningFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     { // Create point filter sampler configuration
 		D3D11_SAMPLER_DESC samplerConfiguration;
@@ -79,7 +79,7 @@ void CombiningFragmentShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
+void CombiningFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, 
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture, 
                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
@@ -134,7 +134,7 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
 	deviceContext.PSSetSamplers( 0, 2, samplerStates );
 }
 
-void CombiningFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void CombiningFragmentShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     std::vector< ID3D11ShaderResourceView* > nullResources;
     nullResources.resize( m_resourceCount );

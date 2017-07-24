@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ CombiningVertexShader::CombiningVertexShader() {}
 
 CombiningVertexShader::~CombiningVertexShader() {}
 
-void CombiningVertexShader::initialize( ComPtr< ID3D11Device >& device )
+void CombiningVertexShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	{
 		const unsigned int inputLayoutCount = 3;
@@ -64,7 +64,7 @@ void CombiningVertexShader::initialize( ComPtr< ID3D11Device >& device )
 	//}
 }
 
-void CombiningVertexShader::setParameters( ID3D11DeviceContext& deviceContext )
+void CombiningVertexShader::setParameters( ID3D11DeviceContext3& deviceContext )
 {
     deviceContext;
 	//if ( !compiled ) throw std::exception( "CombiningVertexShader::setParameters - Shader hasn't been compiled yet" );

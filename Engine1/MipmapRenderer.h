@@ -8,8 +8,8 @@
 
 #include "float.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -27,8 +27,8 @@ namespace Engine1
         MipmapRenderer( Direct3DRendererCore& rendererCore );
         ~MipmapRenderer();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device,
-                         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device,
+                         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
 		void resampleTexture( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, int destMipmapLevel,
 			std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, int srcMipmapLevel );
@@ -45,13 +45,13 @@ namespace Engine1
 
         Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;
 
         bool m_initialized;
 
-        Microsoft::WRL::ComPtr< ID3D11RasterizerState > createRasterizerState( ID3D11Device& device );
-        Microsoft::WRL::ComPtr< ID3D11BlendState >      createBlendState( ID3D11Device& device );
+        Microsoft::WRL::ComPtr< ID3D11RasterizerState > createRasterizerState( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr< ID3D11BlendState >      createBlendState( ID3D11Device3& device );
 
         Microsoft::WRL::ComPtr< ID3D11RasterizerState > m_rasterizerState;
         Microsoft::WRL::ComPtr< ID3D11BlendState >      m_blendState;
@@ -66,7 +66,7 @@ namespace Engine1
         std::shared_ptr< GenerateMipmapMinValueFragmentShader >            m_generateMipmapMinValueFragmentShader;
         std::shared_ptr< GenerateMipmapWithSampleRejectionFragmentShader > m_generateMipmapWithSampleRejectionFragmentShader;
 
-        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         // Copying is not allowed.
         MipmapRenderer( const MipmapRenderer& ) = delete;

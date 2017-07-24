@@ -10,7 +10,7 @@
 #include "StringUtil.h"
 #include "Direct3DUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -23,7 +23,7 @@ m_bonesPerVertexCurrentConfig( BonesPerVertexCount::Type::ZERO )
 
 SkeletonModelVertexShader::~SkeletonModelVertexShader( ) {}
 
-void SkeletonModelVertexShader::initialize( ComPtr< ID3D11Device >& device )
+void SkeletonModelVertexShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	// Create input layouts for each possible value of bones-per-vertex-count.
 	for ( BonesPerVertexCount::Type bonesPerVertexCount : BonesPerVertexCount::correctValues ) {
@@ -124,7 +124,7 @@ void SkeletonModelVertexShader::initialize( ComPtr< ID3D11Device >& device )
 	}
 }
 
-void SkeletonModelVertexShader::setParameters( ID3D11DeviceContext& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix, const SkeletonMesh& skeletonMesh, const SkeletonPose& bonesPoseInSkeletonSpace )
+void SkeletonModelVertexShader::setParameters( ID3D11DeviceContext3& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix, const SkeletonMesh& skeletonMesh, const SkeletonPose& bonesPoseInSkeletonSpace )
 {
 	if ( !m_compiled ) throw std::exception( "SkeletonModelVertexShader::setParameters - Shader hasn't been compiled yet." );
 	if ( skeletonMesh.getBoneCount( ) != bonesPoseInSkeletonSpace.getBonesCount( ) ) throw std::exception( "SkeletonModelVertexShader::setParameters - there is different number of bones in bind pose and current pose." );

@@ -12,7 +12,7 @@ RenderTargetManager::RenderTargetManager()
 RenderTargetManager::~RenderTargetManager()
 {}
 
-void RenderTargetManager::initialize( ComPtr< ID3D11Device >& device )
+void RenderTargetManager::initialize( ComPtr< ID3D11Device3 >& device )
 {
     m_device = device;
 }

@@ -4,8 +4,8 @@
 
 #include "Texture2D.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -17,12 +17,12 @@ namespace Engine1
         ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader();
         virtual ~ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext,
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext,
                             const float3& cameraPos,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                             const int2 outputTextureSize );
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

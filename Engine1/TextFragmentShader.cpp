@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -14,7 +14,7 @@ TextFragmentShader::TextFragmentShader() {}
 TextFragmentShader::~TextFragmentShader()
 {}
 
-void TextFragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void TextFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	{ // Create sampler configuration
 		D3D11_SAMPLER_DESC desc;
@@ -38,7 +38,7 @@ void TextFragmentShader::initialize( ComPtr< ID3D11Device >& device )
 	}
 }
 
-void TextFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, ID3D11ShaderResourceView* characterTextureResource )
+void TextFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, ID3D11ShaderResourceView* characterTextureResource )
 {
 	deviceContext.PSSetShaderResources( 0, 1, &characterTextureResource );
 	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );

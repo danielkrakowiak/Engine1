@@ -5,7 +5,7 @@
 #include "ComputeShader.h"
 #include "AntialiasingComputeShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -21,8 +21,8 @@ AntialiasingRenderer::AntialiasingRenderer( Direct3DRendererCore& rendererCore )
 AntialiasingRenderer::~AntialiasingRenderer()
 {}
 
-void AntialiasingRenderer::initialize( ComPtr< ID3D11Device > device,
-                                      ComPtr< ID3D11DeviceContext > deviceContext )
+void AntialiasingRenderer::initialize( ComPtr< ID3D11Device3 > device,
+                                      ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device = device;
     this->m_deviceContext = deviceContext;
@@ -108,7 +108,7 @@ void AntialiasingRenderer::performAntialiasing(
     m_rendererCore.disableComputePipeline();
 }
 
-void AntialiasingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void AntialiasingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_luminanceComputeShader->loadAndInitialize( "Engine1/Shaders/AntialiasingShader/Luminance_cs.cso", device );
     m_antialiasingComputeShader->loadAndInitialize( "Engine1/Shaders/AntialiasingShader/Antialiasing_cs.cso", device );

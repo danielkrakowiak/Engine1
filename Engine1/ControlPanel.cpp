@@ -1,6 +1,6 @@
 #include "ControlPanel.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include "SceneManager.h"
 
 #include "Settings.h"
@@ -20,7 +20,7 @@ ControlPanel::~ControlPanel()
     mainBar = nullptr;
 }
 
-void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device, const int2 windowDimensions )
+void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, const int2 windowDimensions )
 {
     TwInit( TW_DIRECT3D11, device.Get() );
 

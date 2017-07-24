@@ -21,12 +21,12 @@ namespace Engine1
         GenerateMipmapMinValueFragmentShader();
         virtual ~GenerateMipmapMinValueFragmentShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext,
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext,
                             Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
                             const int srcMipLevel );
 
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

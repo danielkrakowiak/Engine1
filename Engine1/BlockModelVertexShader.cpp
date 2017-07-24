@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ BlockModelVertexShader::BlockModelVertexShader() {}
 
 BlockModelVertexShader::~BlockModelVertexShader() {}
 
-void BlockModelVertexShader::initialize( ComPtr< ID3D11Device >& device ) 
+void BlockModelVertexShader::initialize( ComPtr< ID3D11Device3 >& device ) 
 {
 	{
 		const unsigned int inputLayoutCount = 4;
@@ -71,7 +71,7 @@ void BlockModelVertexShader::initialize( ComPtr< ID3D11Device >& device )
 	}
 }
 
-void BlockModelVertexShader::setParameters( ID3D11DeviceContext& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix ) {
+void BlockModelVertexShader::setParameters( ID3D11DeviceContext3& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix ) {
 	if ( !m_compiled ) throw std::exception( "BlockModelVertexShader::setParameters - Shader hasn't been compiled yet" );
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;

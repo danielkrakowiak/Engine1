@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 #include "uchar4.h"
@@ -16,7 +16,7 @@ SkeletonModelFragmentShader::SkeletonModelFragmentShader( ) : m_samplerState( nu
 SkeletonModelFragmentShader::~SkeletonModelFragmentShader( )
 {}
 
-void SkeletonModelFragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void SkeletonModelFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	{ // Create sampler configuration.
 		D3D11_SAMPLER_DESC desc;
@@ -54,7 +54,7 @@ void SkeletonModelFragmentShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void SkeletonModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
+void SkeletonModelFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                  const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture,
                                                  const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
                                                  const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
@@ -94,7 +94,7 @@ void SkeletonModelFragmentShader::setParameters( ID3D11DeviceContext& deviceCont
     deviceContext.PSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void SkeletonModelFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void SkeletonModelFragmentShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
 	ID3D11ShaderResourceView* nullResources[] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	ID3D11SamplerState*       nullSampler = nullptr;

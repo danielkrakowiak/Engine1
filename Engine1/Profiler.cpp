@@ -1,6 +1,6 @@
 #include "Profiler.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include <exception>
 #include <string>
@@ -108,7 +108,7 @@ Profiler::Profiler() :
 Profiler::~Profiler()
 {}
 
-void Profiler::initialize( ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext )
+void Profiler::initialize( ComPtr< ID3D11Device3 > device, ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     m_device = device;
     m_deviceContext = deviceContext;
@@ -326,7 +326,7 @@ float Profiler::getEventDuration( const StageType stage, const int lightIndex, c
     return m_eventsPerStagePerLight[ m_currentReadResultsFrameIndex ][ (int)stage ][ (int)lightIndex ][ (int)event ].durationMilliseconds;
 }
 
-Profiler::Event Profiler::createEvent( ID3D11Device& device )
+Profiler::Event Profiler::createEvent( ID3D11Device3& device )
 {
     Event event;
     event.measured             = false;
@@ -337,7 +337,7 @@ Profiler::Event Profiler::createEvent( ID3D11Device& device )
     return event;
 }
 
-ComPtr< ID3D11Query > Profiler::createTimestampQuery( ID3D11Device& device )
+ComPtr< ID3D11Query > Profiler::createTimestampQuery( ID3D11Device3& device )
 {
     D3D11_QUERY_DESC desc;
     ZeroMemory(&desc, sizeof(desc));
@@ -351,7 +351,7 @@ ComPtr< ID3D11Query > Profiler::createTimestampQuery( ID3D11Device& device )
     return query;
 }
 
-Microsoft::WRL::ComPtr< ID3D11Query > Profiler::createDisjointQuery( ID3D11Device& device )
+Microsoft::WRL::ComPtr< ID3D11Query > Profiler::createDisjointQuery( ID3D11Device3& device )
 {
     D3D11_QUERY_DESC desc;
     ZeroMemory( &desc, sizeof( desc ) );

@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 #include "uchar4.h"
@@ -16,7 +16,7 @@ BlockModelFragmentShader::BlockModelFragmentShader() : m_samplerState( nullptr )
 BlockModelFragmentShader::~BlockModelFragmentShader()
 {}
 
-void BlockModelFragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void BlockModelFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	{ // Create sampler configuration.
 		D3D11_SAMPLER_DESC desc;
@@ -56,7 +56,7 @@ void BlockModelFragmentShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
  
-void BlockModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, 
+void BlockModelFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, 
                                               const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture, const float alphaMul,
                                               const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture, const float3& emissiveMul,
                                               const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture, const float3& albedoMul,
@@ -103,7 +103,7 @@ void BlockModelFragmentShader::setParameters( ID3D11DeviceContext& deviceContext
     deviceContext.PSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void BlockModelFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void BlockModelFragmentShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     ID3D11ShaderResourceView* nullResources[] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	ID3D11SamplerState*       nullSampler = nullptr;

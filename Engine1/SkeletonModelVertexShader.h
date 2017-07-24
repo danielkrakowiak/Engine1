@@ -8,8 +8,8 @@
 #include "float44.h"
 #include "SkeletonMeshEnums.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -25,8 +25,8 @@ namespace Engine1
         SkeletonModelVertexShader();
         virtual ~SkeletonModelVertexShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix, const SkeletonMesh& skeletonMesh, const SkeletonPose& bonesPoseInSkeletonSpace );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext, const float43& worldMatrix, const float44& viewMatrix, const float44& projectionMatrix, const SkeletonMesh& skeletonMesh, const SkeletonPose& bonesPoseInSkeletonSpace );
 
         ID3D11InputLayout& getInputLauout() const;
 

@@ -161,8 +161,8 @@ namespace Engine1
 
         void initialize( 
             const int2 imageDimensions, 
-            Microsoft::WRL::ComPtr< ID3D11Device > device, 
-            Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext,
+            Microsoft::WRL::ComPtr< ID3D11Device3 > device, 
+            Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext,
             std::shared_ptr<const BlockModel> lightModel 
         );
 
@@ -242,8 +242,8 @@ namespace Engine1
 
         private:
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;
 
         View m_activeViewType;
 
@@ -279,7 +279,7 @@ namespace Engine1
         AntialiasingRenderer                m_antialiasingRenderer;
 
         // Render target.
-        void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device );
+        void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device3& device );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > m_finalRenderTargetLDR;
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > m_temporaryRenderTargetLDR;

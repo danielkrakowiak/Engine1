@@ -9,8 +9,8 @@
 
 #include "Texture2D.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -22,8 +22,8 @@ namespace Engine1
         GenerateRefractedRaysComputeShader();
         virtual ~GenerateRefractedRaysComputeShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const unsigned int refractionLevel,
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext, const unsigned int refractionLevel,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitPositionTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitNormalTexture,
@@ -33,7 +33,7 @@ namespace Engine1
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevRefractiveIndexTexture,
                             const std::shared_ptr< const Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > currentRefractiveIndexTexture,
                             const int outputTextureWidth, const int outputTextureHeight );
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

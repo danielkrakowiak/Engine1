@@ -4,7 +4,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -15,7 +15,7 @@ GenerateMipmapVertexShader::GenerateMipmapVertexShader() {}
 
 GenerateMipmapVertexShader::~GenerateMipmapVertexShader() {}
 
-void GenerateMipmapVertexShader::initialize( ComPtr< ID3D11Device >& device )
+void GenerateMipmapVertexShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         const unsigned int inputLayoutCount = 3;
@@ -51,7 +51,7 @@ void GenerateMipmapVertexShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void GenerateMipmapVertexShader::setParameters( ID3D11DeviceContext& deviceContext )
+void GenerateMipmapVertexShader::setParameters( ID3D11DeviceContext3& deviceContext )
 {
     deviceContext;
 }

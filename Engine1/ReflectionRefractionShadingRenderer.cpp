@@ -8,7 +8,7 @@
 #include "RefractionShadingComputeShader2.h"
 #include "Camera.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -30,8 +30,8 @@ ReflectionRefractionShadingRenderer::ReflectionRefractionShadingRenderer( Direct
 ReflectionRefractionShadingRenderer::~ReflectionRefractionShadingRenderer()
 {}
 
-void ReflectionRefractionShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, 
-                                          ComPtr< ID3D11DeviceContext > deviceContext )
+void ReflectionRefractionShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device3 > device, 
+                                          ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device        = device;
 	this->m_deviceContext = deviceContext;
@@ -209,7 +209,7 @@ void ReflectionRefractionShadingRenderer::performRefractionShading(
     m_rendererCore.disableComputePipeline();
 }
 
-void ReflectionRefractionShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void ReflectionRefractionShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_reflectionShadingComputeShader->loadAndInitialize( "Engine1/Shaders/ReflectionShadingShader/ReflectionShading_cs.cso", device );
     m_reflectionShadingComputeShader2->loadAndInitialize( "Engine1/Shaders/ReflectionShadingShader/ReflectionShading_cs2.cso", device );

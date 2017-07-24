@@ -8,8 +8,8 @@
 #include "uchar4.h"
 #include "float2.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilState;
 struct ID3D11BlendState;
@@ -31,8 +31,8 @@ namespace Engine1
         ReflectionRefractionShadingRenderer( Direct3DRendererCore& rendererCore );
         ~ReflectionRefractionShadingRenderer();
 
-        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device, 
-                         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
+        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device, 
+                         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void performFirstReflectionShading( 
             const Camera& camera,
@@ -82,8 +82,8 @@ namespace Engine1
 
         Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;
 
         bool m_initialized;
 
@@ -96,7 +96,7 @@ namespace Engine1
         std::shared_ptr< RefractionShadingComputeShader >   m_refractionShadingComputeShader;
         std::shared_ptr< RefractionShadingComputeShader2 >  m_refractionShadingComputeShader2;
 
-        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         // Copying is not allowed.
         ReflectionRefractionShadingRenderer( const ReflectionRefractionShadingRenderer& )           = delete;

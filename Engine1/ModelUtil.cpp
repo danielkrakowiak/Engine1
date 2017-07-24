@@ -11,7 +11,7 @@
 
 using namespace Engine1;
 
-//std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::shared_ptr< BlockModel > >& models, ID3D11Device& device )
+//std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::shared_ptr< BlockModel > >& models, ID3D11Device3& device )
 //{
 //    // #TODO: BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But roughness textures 
 //    // or emissive may have completely different dimensions and be placed differently in the atlas.
@@ -184,7 +184,7 @@ using namespace Engine1;
 //    return mergedModel;
 //}
 
-std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::shared_ptr< BlockModel > >& models, ID3D11Device& device )
+std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::shared_ptr< BlockModel > >& models, ID3D11Device3& device )
 {
     // #TODO: BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But roughness textures 
     // or emissive may have completely different dimensions and be placed differently in the atlas.

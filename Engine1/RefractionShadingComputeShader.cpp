@@ -4,7 +4,7 @@
 #include "BlockMesh.h"
 #include "Light.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -15,7 +15,7 @@ RefractionShadingComputeShader::RefractionShadingComputeShader() {}
 
 RefractionShadingComputeShader::~RefractionShadingComputeShader() {}
 
-void RefractionShadingComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void RefractionShadingComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -32,7 +32,7 @@ void RefractionShadingComputeShader::initialize( ComPtr< ID3D11Device >& device 
     }
 }
 
-void RefractionShadingComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
+void RefractionShadingComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                                     /*const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,*/
@@ -75,7 +75,7 @@ void RefractionShadingComputeShader::setParameters( ID3D11DeviceContext& deviceC
     }
 }
 
-void RefractionShadingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void RefractionShadingComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "RefractionShadingComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 

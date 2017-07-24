@@ -113,7 +113,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     onStart();
 }
 
-void Application::createUcharDisplayFrame( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device )
+void Application::createUcharDisplayFrame( int imageWidth, int imageHeight, ComPtr< ID3D11Device3 > device )
 {
     ucharDisplayFrame = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
         ( *device.Get(), imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM );
@@ -894,7 +894,7 @@ void Application::onSelectionChanged()
 {
 }
 
-void Application::createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device )
+void Application::createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device )
 {
     m_debugFrameU1 = std::make_shared< StagingTexture2D< unsigned char > >
         ( *device.Get(), imageWidth, imageHeight, DXGI_FORMAT_R8_UINT );

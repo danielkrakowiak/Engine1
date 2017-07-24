@@ -4,7 +4,7 @@
 
 #include "ExtractBrightPixelsComputeShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -19,8 +19,8 @@ ExtractBrightPixelsRenderer::ExtractBrightPixelsRenderer( Direct3DRendererCore& 
 ExtractBrightPixelsRenderer::~ExtractBrightPixelsRenderer()
 {}
 
-void ExtractBrightPixelsRenderer::initialize( ComPtr< ID3D11Device > device,
-                                              ComPtr< ID3D11DeviceContext > deviceContext )
+void ExtractBrightPixelsRenderer::initialize( ComPtr< ID3D11Device3 > device,
+                                              ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device = device;
     this->m_deviceContext = deviceContext;
@@ -66,7 +66,7 @@ void ExtractBrightPixelsRenderer::extractBrightPixels( std::shared_ptr< Texture2
     m_rendererCore.disableComputePipeline();
 }
 
-void ExtractBrightPixelsRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void ExtractBrightPixelsRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_extractBrightPixelsComputeShader->loadAndInitialize( "Engine1/Shaders/ExtractBrightPixelsShader/ExtractBrightPixels_cs.cso", device );
 }

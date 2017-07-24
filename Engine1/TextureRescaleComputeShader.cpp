@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ TextureRescaleComputeShader::TextureRescaleComputeShader() {}
 
 TextureRescaleComputeShader::~TextureRescaleComputeShader() {}
 
-void TextureRescaleComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void TextureRescaleComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -53,7 +53,7 @@ void TextureRescaleComputeShader::initialize( ComPtr< ID3D11Device >& device )
 	}
 }
 
-void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                const Texture2DSpecBind< TexBind::ShaderResource, float4 >& srcTexture,
                                                const int destTextureWidth, const int destTextureHeight,
                                                const unsigned char srcMipmapLevel )
@@ -89,7 +89,7 @@ void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext& deviceCont
     deviceContext.CSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
-void TextureRescaleComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void TextureRescaleComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "TextureRescaleComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 

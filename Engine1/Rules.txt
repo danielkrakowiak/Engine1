@@ -117,14 +117,14 @@ Direct3D -----------------------------------------------------------------------
 	- Generally, if you are creating a fresh ComPtr and then using a COM creation function or factory, you can use.GetAddressOf() since you know the ComPtr is initially null.
 
 	ex.:
-		Microsoft::WRL::ComPtr<ID3D11Device> device;
+		Microsoft::WRL::ComPtr<ID3D11Device3> device;
 		D3D11CreateDevice( ..., device.GetAddressOf(), ... );
 
 	- If you are using a ComPtr as a class member, then you should use .ReleaseAndGetAddressOf() to ensure any existing object reference is properly released. 
 	The operator overload for & does the same thing as .ReleaseAndGetAddressOf(), but the explicit use of the method name is clearer in code.
 
 	ex.:
-		Microsoft::WRL::ComPtr<ID3D11Device> m_device;
+		Microsoft::WRL::ComPtr<ID3D11Device3> m_device;
 		D3D11CreateDevice( ..., m_device.ReleaseAndGetAddressOf(), ... );
 		is same as:
 		D3D11CreateDevice( ..., &m_device, ... );

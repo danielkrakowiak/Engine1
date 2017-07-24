@@ -8,8 +8,8 @@
 #include "uchar4.h"
 #include "float2.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilState;
 struct ID3D11BlendState;
@@ -28,8 +28,8 @@ namespace Engine1
         BlurShadowsRenderer( Direct3DRendererCore& rendererCore );
         ~BlurShadowsRenderer();
 
-        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device,
-                         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
+        void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device,
+                         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void blurShadows( const Camera& camera,
                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
@@ -58,8 +58,8 @@ namespace Engine1
 
         Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;
 
         bool m_initialized;
 
@@ -71,7 +71,7 @@ namespace Engine1
         std::shared_ptr< BlurShadowsComputeShader >  m_blurShadowsHorizontalComputeShader;
         std::shared_ptr< BlurShadowsComputeShader >  m_blurShadowsVerticalComputeShader;
 
-        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         // Copying is not allowed.
         BlurShadowsRenderer( const BlurShadowsRenderer& ) = delete;

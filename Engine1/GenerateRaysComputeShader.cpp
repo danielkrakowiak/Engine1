@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ GenerateRaysComputeShader::GenerateRaysComputeShader() {}
 
 GenerateRaysComputeShader::~GenerateRaysComputeShader() {}
 
-void GenerateRaysComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void GenerateRaysComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -30,7 +30,7 @@ void GenerateRaysComputeShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void GenerateRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
+void GenerateRaysComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                                                const float3 viewportUp, const float3 viewportRight, const float2 viewportSize )
 {
     if ( !m_compiled ) throw std::exception( "GenerateRaysComputeShader::setParameters - Shader hasn't been compiled yet." );

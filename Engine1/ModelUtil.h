@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-struct ID3D11Device;
+struct ID3D11Device3;
 
 namespace Engine1
 {
@@ -13,7 +13,7 @@ namespace Engine1
     {
         public:
 
-        static std::shared_ptr< BlockModel > mergeModels( const std::vector< std::shared_ptr< BlockModel > >& models, ID3D11Device& device );
+        static std::shared_ptr< BlockModel > mergeModels( const std::vector< std::shared_ptr< BlockModel > >& models, ID3D11Device3& device );
 
         private: 
 

@@ -10,7 +10,7 @@
 #include "MathUtil.h"
 #include "TextFile.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3d11_3.h>
 #include <d3dcompiler.h>
 
@@ -23,7 +23,7 @@ RaytracingShadowsComputeShader::RaytracingShadowsComputeShader()
 
 RaytracingShadowsComputeShader::~RaytracingShadowsComputeShader() {}
 
-void RaytracingShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void RaytracingShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	{
 		// Create constant buffer.
@@ -86,7 +86,7 @@ void RaytracingShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device 
 }
 
 void RaytracingShadowsComputeShader::setParameters(
-	ID3D11DeviceContext& deviceContext,
+	ID3D11DeviceContext3& deviceContext,
 	const Light& light,
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
@@ -214,7 +214,7 @@ void RaytracingShadowsComputeShader::setParameters(
 	}
 }
 
-void RaytracingShadowsComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void RaytracingShadowsComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 { 
 	if ( !m_compiled ) 
         throw std::exception( "RaytracingShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );

@@ -20,8 +20,8 @@ DistanceToOccluderSearchRenderer::DistanceToOccluderSearchRenderer( Direct3DRend
 DistanceToOccluderSearchRenderer::~DistanceToOccluderSearchRenderer()
 {}
 
-void DistanceToOccluderSearchRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device,
-                 ComPtr< ID3D11DeviceContext > deviceContext )
+void DistanceToOccluderSearchRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device3 > device,
+                 ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device = device;
     this->m_deviceContext = deviceContext;
@@ -82,7 +82,7 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( const Ca
     m_rendererCore.disableComputePipeline();
 }
 
-void DistanceToOccluderSearchRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void DistanceToOccluderSearchRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_distanceToOccluderSearchComputeShader->loadAndInitialize( "Engine1/Shaders/DistanceToOccluderSearchShader/DistanceToOccluderSearch_cs.cso", device );
 }

@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ GenerateMipmapMinValueComputeShader::GenerateMipmapMinValueComputeShader() {}
 
 GenerateMipmapMinValueComputeShader::~GenerateMipmapMinValueComputeShader() {}
 
-void GenerateMipmapMinValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void GenerateMipmapMinValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     { // Create sampler configuration.
         D3D11_SAMPLER_DESC desc;
@@ -37,7 +37,7 @@ void GenerateMipmapMinValueComputeShader::initialize( ComPtr< ID3D11Device >& de
     }
 }
 
-void GenerateMipmapMinValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void GenerateMipmapMinValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                          Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
                                                          const int srcMipLevel )
 {
@@ -63,7 +63,7 @@ void GenerateMipmapMinValueComputeShader::setParameters( ID3D11DeviceContext& de
     }
 }
 
-void GenerateMipmapMinValueComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void GenerateMipmapMinValueComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "GenerateMipmapMinValueComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 

@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 #include "uchar4.h"
@@ -17,7 +17,7 @@ TextureFragmentShader::~TextureFragmentShader()
 {}
 
 
-void TextureFragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void TextureFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
 	{ // Create sampler configuration
 		D3D11_SAMPLER_DESC samplerConfiguration;
@@ -41,7 +41,7 @@ void TextureFragmentShader::initialize( ComPtr< ID3D11Device >& device )
 	}
 }
 
-void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& texture, int mipmapLevel )
+void TextureFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& texture, int mipmapLevel )
 {
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView( mipmapLevel );
 
@@ -49,7 +49,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
-void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& texture, int mipmapLevel )
+void TextureFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& texture, int mipmapLevel )
 {
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView( mipmapLevel );
 
@@ -57,7 +57,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
-void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, int mipmapLevel )
+void TextureFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, int mipmapLevel )
 {
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView( mipmapLevel );
 
@@ -65,7 +65,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
-void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, int mipmapLevel )
+void TextureFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, int mipmapLevel )
 {
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView( mipmapLevel );
 
@@ -73,7 +73,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
-void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, int mipmapLevel )
+void TextureFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, int mipmapLevel )
 {
 	ID3D11ShaderResourceView* textureResource = texture.getShaderResourceView( mipmapLevel );
 
@@ -81,7 +81,7 @@ void TextureFragmentShader::setParameters( ID3D11DeviceContext& deviceContext, c
 	deviceContext.PSSetSamplers( 0, 1, m_samplerState.GetAddressOf() );
 }
 
-void TextureFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void TextureFragmentShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
 	ID3D11ShaderResourceView* nullResource = nullptr;
 	ID3D11SamplerState*       nullSampler = nullptr;

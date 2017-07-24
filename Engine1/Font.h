@@ -14,7 +14,7 @@
 #include "uint2.h"
 #include "uint3.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 namespace Engine1
 {
@@ -106,7 +106,7 @@ namespace Engine1
         ~Font( void ) {}
 
         void loadFromFile( std::string path, unsigned int size );
-        FontCharacter* getCharacter( unsigned long charcode, ID3D11Device& device );
+        FontCharacter* getCharacter( unsigned long charcode, ID3D11Device3& device );
         int getLineHeight() const;
 
         private:

@@ -9,7 +9,7 @@
 #include "ShadingNoShadowsComputeShader2.h"
 #include "Camera.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -30,8 +30,8 @@ ShadingRenderer::ShadingRenderer( Direct3DRendererCore& rendererCore ) :
 ShadingRenderer::~ShadingRenderer()
 {}
 
-void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, 
-                                          ComPtr< ID3D11DeviceContext > deviceContext )
+void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device3 > device, 
+                                          ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device        = device;
 	this->m_deviceContext = deviceContext;
@@ -207,7 +207,7 @@ void ShadingRenderer::performShadingNoShadows(
     m_rendererCore.disableComputePipeline();
 }
 
-void ShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void ShadingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_shadingComputeShader0->loadAndInitialize( "Engine1/Shaders/ShadingShader/Shading_cs0.cso", device );
     m_shadingComputeShader->loadAndInitialize( "Engine1/Shaders/ShadingShader/Shading_cs.cso", device );

@@ -2,7 +2,7 @@
 
 #include <climits>
 #include <thread>
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "BlockMesh.h"
 #include "SkeletonMesh.h"
@@ -40,7 +40,7 @@ AssetManager::~AssetManager()
         thread.join();
 }
 
-void AssetManager::initialize( int parsingBasicAssetsThreadCount, int parsingComplexAssetsThreadCount, ComPtr< ID3D11Device > device )
+void AssetManager::initialize( int parsingBasicAssetsThreadCount, int parsingComplexAssetsThreadCount, ComPtr< ID3D11Device3 > device )
 {
     if ( parsingBasicAssetsThreadCount <= 0 ) 
         throw std::exception( "AssetManager::AssetManager - Number of loading threads has to be greater than 0." );

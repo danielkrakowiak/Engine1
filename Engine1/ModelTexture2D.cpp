@@ -7,7 +7,7 @@
 //using namespace Engine1;
 //
 //template< typename PixelType >
-//std::shared_ptr< ModelTexture2D< PixelType > > ModelTexture2D< PixelType >::createFromMemory( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device )
+//std::shared_ptr< ModelTexture2D< PixelType > > ModelTexture2D< PixelType >::createFromMemory( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device3& device )
 //{
 //	return ModelTexture2DParser::parseBinary( dataIt, loadRecurrently, device );
 //}

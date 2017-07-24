@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <memory>
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "ModelTexture2D.h"
 #include "BinaryFile.h"
@@ -14,14 +14,14 @@ namespace Engine1
     {
         public:
 
-        static std::shared_ptr< ModelTexture2D< PixelType > > parseBinary( std::vector< char >::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device );
+        static std::shared_ptr< ModelTexture2D< PixelType > > parseBinary( std::vector< char >::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device3& device );
         static void                                           writeBinary( std::vector< char >& data, const ModelTexture2D< PixelType >& modelTexture );
 
         static DXGI_FORMAT getDefaultFormat();
     };
 
     template< typename PixelType >
-    std::shared_ptr< ModelTexture2D< PixelType > > ModelTexture2DParser< PixelType >::parseBinary( std::vector< char >::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device )
+    std::shared_ptr< ModelTexture2D< PixelType > > ModelTexture2DParser< PixelType >::parseBinary( std::vector< char >::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device3& device )
     {
 	    std::shared_ptr< ModelTexture2D< PixelType > > modelTexture = std::make_shared< ModelTexture2D< PixelType > >( );
 

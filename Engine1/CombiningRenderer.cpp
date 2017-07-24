@@ -5,7 +5,7 @@
 #include "ShadingComputeShader.h"
 #include "Camera.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -24,8 +24,8 @@ CombiningRenderer::CombiningRenderer( Direct3DRendererCore& rendererCore ) :
 CombiningRenderer::~CombiningRenderer()
 {}
 
-void CombiningRenderer::initialize( ComPtr< ID3D11Device > device, 
-                                    ComPtr< ID3D11DeviceContext > deviceContext )
+void CombiningRenderer::initialize( ComPtr< ID3D11Device3 > device, 
+                                    ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device        = device;
 	this->m_deviceContext = deviceContext;
@@ -160,7 +160,7 @@ float CombiningRenderer::getPositionThreshold() const
     return m_positionThreshold;
 }
 
-ComPtr<ID3D11RasterizerState> CombiningRenderer::createRasterizerState( ID3D11Device& device )
+ComPtr<ID3D11RasterizerState> CombiningRenderer::createRasterizerState( ID3D11Device3& device )
 {
 	D3D11_RASTERIZER_DESC         rasterDesc;
 	ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -184,7 +184,7 @@ ComPtr<ID3D11RasterizerState> CombiningRenderer::createRasterizerState( ID3D11De
 	return rasterizerState;
 }
 
-ComPtr<ID3D11BlendState> CombiningRenderer::createBlendState( ID3D11Device& device )
+ComPtr<ID3D11BlendState> CombiningRenderer::createBlendState( ID3D11Device3& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -218,7 +218,7 @@ ComPtr<ID3D11BlendState> CombiningRenderer::createBlendState( ID3D11Device& devi
 	return blendState;
 }
 
-void CombiningRenderer::loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device )
+void CombiningRenderer::loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device )
 {
     m_combiningVertexShader->loadAndInitialize( "Engine1/Shaders/CombiningShader/Combining_vs.cso", device );
     m_combiningFragmentShader->loadAndInitialize( "Engine1/Shaders/CombiningShader/Combining_ps.cso", device );

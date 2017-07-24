@@ -19,7 +19,7 @@
 
 #include "Font.h"
 
-struct ID3D11Device3;
+struct ID3D11Device33;
 struct ID3D11DeviceContext3;
 struct IDXGIAdapter;
 struct IDXGISwapChain;
@@ -55,8 +55,8 @@ namespace Engine1
 
         void displayFrame();
 
-        Microsoft::WRL::ComPtr< ID3D11Device > getDevice();
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > getDeviceContext();
+        Microsoft::WRL::ComPtr< ID3D11Device3 > getDevice();
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > getDeviceContext();
 
         private:
 
@@ -68,13 +68,17 @@ namespace Engine1
         std::string             getGpuDescription( IDXGIAdapter& adapter );
         size_t                  getGpuMemory( IDXGIAdapter& adapter );
 
-        std::tuple< Microsoft::WRL::ComPtr<IDXGISwapChain>, Microsoft::WRL::ComPtr<ID3D11Device>, Microsoft::WRL::ComPtr<ID3D11DeviceContext> >
-            createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator );
+        Microsoft::WRL::ComPtr<IDXGISwapChain> createSwapChain( 
+            IDXGIFactory3& factory, ID3D11Device3& device,
+            HWND windowHandle, bool fullscreen, bool verticalSync, 
+            unsigned int screenWidth, unsigned int screenHeight, 
+            int refreshRateNumerator, int refreshRateDenominator 
+        );
 
         Microsoft::WRL::ComPtr<ID3D11Texture2D>       getBackbufferTexture( IDXGISwapChain& swapChain );
-        Microsoft::WRL::ComPtr<ID3D11RasterizerState> createRasterizerState( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendStateNoBlending( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendStateWithBlending( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState> createRasterizerState( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendStateNoBlending( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>      createBlendStateWithBlending( ID3D11Device3& device );
 
         bool m_initialized;
 
@@ -85,12 +89,12 @@ namespace Engine1
         size_t m_gpuMemory;
         std::string m_gpuDescription;
 
-        Microsoft::WRL::ComPtr<ID3D11Device>          m_device;
-        Microsoft::WRL::ComPtr<ID3D11DeviceContext>   m_deviceContext;
-        Microsoft::WRL::ComPtr<IDXGISwapChain>        m_swapChain;
-        Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
-        Microsoft::WRL::ComPtr<ID3D11BlendState>      m_blendStateNoBlending;
-        Microsoft::WRL::ComPtr<ID3D11BlendState>      m_blendStateWithBlending;
+        Microsoft::WRL::ComPtr< ID3D11Device3 >         m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 >  m_deviceContext;
+        Microsoft::WRL::ComPtr< IDXGISwapChain >        m_swapChain;
+        Microsoft::WRL::ComPtr< ID3D11RasterizerState > m_rasterizerState;
+        Microsoft::WRL::ComPtr< ID3D11BlendState >      m_blendStateNoBlending;
+        Microsoft::WRL::ComPtr< ID3D11BlendState >      m_blendStateWithBlending;
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > > m_renderTarget;
 
@@ -98,7 +102,7 @@ namespace Engine1
         RectangleMesh rectangleMesh;
 
         // Shaders.
-        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         std::shared_ptr<TextureVertexShader>   m_textureVertexShader;
         std::shared_ptr<TextureFragmentShader> m_textureFragmentShader;

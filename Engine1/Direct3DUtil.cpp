@@ -1,6 +1,6 @@
 #include "Direct3DUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 

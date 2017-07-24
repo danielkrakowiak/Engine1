@@ -16,9 +16,9 @@ namespace Engine1
         BlockModelFragmentShader();
         virtual ~BlockModelFragmentShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
-        void setParameters( ID3D11DeviceContext& deviceContext, 
+        void setParameters( ID3D11DeviceContext3& deviceContext, 
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture, const float alphaMul,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture, const float3& emissiveMul,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture, const float3& albedoMul,
@@ -28,7 +28,7 @@ namespace Engine1
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul,
                             const float4& extraEmissive = float4::ZERO );
 
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

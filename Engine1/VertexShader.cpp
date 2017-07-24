@@ -1,6 +1,6 @@
 #include "VertexShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 //#include <d3dcompiler.h>
 
 #include "BinaryFile.h"
@@ -20,20 +20,20 @@ VertexShader::VertexShader() :
 VertexShader::~VertexShader()
 {}
 
-void VertexShader::loadAndInitialize( const std::string& path, ComPtr< ID3D11Device >& device )
+void VertexShader::loadAndInitialize( const std::string& path, ComPtr< ID3D11Device3 >& device )
 {
     load( path, device );
     initialize( device );
 }
 
-void VertexShader::load( const std::string& path, ComPtr< ID3D11Device >& device )
+void VertexShader::load( const std::string& path, ComPtr< ID3D11Device3 >& device )
 {
     if ( m_compiled )
         throw std::exception( "VertexShader::loadFromFile - Shader has already been compiled" );
 
     m_shaderBytecode = BinaryFile::load( path );
 
-    // #TODO: Should I "cast" ID3D11Device to ID3D11Device3?
+    // #TODO: Should I "cast" ID3D11Device3 to ID3D11Device3?
 
     HRESULT result = device->CreateVertexShader( m_shaderBytecode->data(), m_shaderBytecode->size(), nullptr, m_shader.ReleaseAndGetAddressOf() );
     if ( result < 0 )
@@ -44,7 +44,7 @@ void VertexShader::load( const std::string& path, ComPtr< ID3D11Device >& device
     this->m_shaderId = ++compiledShadersCount;
 }
 
-void VertexShader::initialize( ComPtr< ID3D11Device >& device )
+void VertexShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     device;
 }

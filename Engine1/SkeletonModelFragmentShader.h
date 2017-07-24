@@ -16,8 +16,8 @@ namespace Engine1
         SkeletonModelFragmentShader();
         virtual ~SkeletonModelFragmentShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, 
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext, 
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
@@ -27,7 +27,7 @@ namespace Engine1
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture,
                             const float4& extraEmissive = float4::ZERO );
 
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

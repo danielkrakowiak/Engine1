@@ -17,8 +17,8 @@
 
 #include "uchar2.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilState;
 struct ID3D11BlendState;
@@ -81,8 +81,8 @@ namespace Engine1
         Direct3DDeferredRenderer( Direct3DRendererCore& rendererCore );
         ~Direct3DDeferredRenderer();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device, 
-                         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, 
+                         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void disableRenderTargets();
 
@@ -144,8 +144,8 @@ namespace Engine1
 
         Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr<ID3D11Device> m_device;
-        Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
+        Microsoft::WRL::ComPtr<ID3D11Device3> m_device;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext3> m_deviceContext;
 
         bool m_initialized;
 
@@ -157,12 +157,12 @@ namespace Engine1
         Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForTransparentMeshRendering;
         Microsoft::WRL::ComPtr<ID3D11BlendState>        m_blendStateForTextRendering;
 
-        Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createRasterizerState( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createWireframeRasterizerState( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11DepthStencilState> createDepthStencilState( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForMeshRendering( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTransparentMeshRendering( ID3D11Device& device );
-        Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTextRendering( ID3D11Device& device );
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createRasterizerState( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr<ID3D11RasterizerState>   createWireframeRasterizerState( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr<ID3D11DepthStencilState> createDepthStencilState( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForMeshRendering( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTransparentMeshRendering( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr<ID3D11BlendState>        createBlendStateForTextRendering( ID3D11Device3& device );
 
         // Shaders.
         BlockMeshVertexShader        m_blockMeshVertexShader;
@@ -179,7 +179,7 @@ namespace Engine1
 
         void enableRenderTargets( const RenderTargets& renderTargets );
 
-        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         // Default textures.
         std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultAlphaTexture;
@@ -190,7 +190,7 @@ namespace Engine1
         std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultAlbedoTexture;
         std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultNormalTexture;
 
-        void createDefaultTextures( ID3D11Device& device );
+        void createDefaultTextures( ID3D11Device3& device );
 
         // Copying is not allowed.
         Direct3DDeferredRenderer( const Direct3DDeferredRenderer& ) = delete;

@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ ToneMappingComputeShader::ToneMappingComputeShader() {}
 
 ToneMappingComputeShader::~ToneMappingComputeShader() {}
 
-void ToneMappingComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void ToneMappingComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -31,7 +31,7 @@ void ToneMappingComputeShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void ToneMappingComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void ToneMappingComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                               Texture2DSpecBind< TexBind::ShaderResource, float4 >& srcTexture,
                                               const float exposure )
 {
@@ -63,7 +63,7 @@ void ToneMappingComputeShader::setParameters( ID3D11DeviceContext& deviceContext
     deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void ToneMappingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void ToneMappingComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
         throw std::exception( "ToneMappingComputeShader::unsetParameters - Shader hasn't been compiled yet." );

@@ -4,7 +4,7 @@
 
 #include "ToneMappingComputeShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -19,8 +19,8 @@ ToneMappingRenderer::ToneMappingRenderer( Direct3DRendererCore& rendererCore ) :
 ToneMappingRenderer::~ToneMappingRenderer()
 {}
 
-void ToneMappingRenderer::initialize( ComPtr< ID3D11Device > device,
-                                              ComPtr< ID3D11DeviceContext > deviceContext )
+void ToneMappingRenderer::initialize( ComPtr< ID3D11Device3 > device,
+                                              ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device = device;
     this->m_deviceContext = deviceContext;
@@ -72,7 +72,7 @@ void ToneMappingRenderer::performToneMapping( std::shared_ptr< Texture2DSpecBind
     m_rendererCore.disableComputePipeline();
 }
 
-void ToneMappingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void ToneMappingRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_toneMappingComputeShader->loadAndInitialize( "Engine1/Shaders/ToneMappingShader/ToneMapping_cs.cso", device );
 }

@@ -240,7 +240,7 @@ namespace Engine1
             std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >,
             std::vector< TexturePlacement >
         > mergeTextures( const std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > >& inputTextures,
-                         ID3D11Device& device, DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat )
+                         ID3D11Device3& device, DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat )
         {
             if ( inputTextures.empty() )
                 throw std::exception( "TextureUtil::mergeTextures - no input textures were passed." );
@@ -362,7 +362,7 @@ namespace Engine1
         template< typename PixelType >
         static std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
         mergeTextures( const std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > >& inputTextures,
-                       const std::vector< TexturePlacement >& placements, const bool duplicateTextures, ID3D11Device& device,
+                       const std::vector< TexturePlacement >& placements, const bool duplicateTextures, ID3D11Device3& device,
                        DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat )
         {
             if ( inputTextures.empty() || placements.empty() )

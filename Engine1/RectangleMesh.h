@@ -8,7 +8,7 @@
 #include "uint3.h"
 
 
-struct ID3D11Device;
+struct ID3D11Device3;
 struct ID3D11Buffer;
 
 namespace Engine1
@@ -21,7 +21,7 @@ namespace Engine1
         RectangleMesh();
         ~RectangleMesh();
 
-        void loadCpuToGpu( ID3D11Device& device, bool reload = false );
+        void loadCpuToGpu( ID3D11Device3& device, bool reload = false );
         void loadGpuToCpu();
         void unloadFromCpu();
         void unloadFromGpu();

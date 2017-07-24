@@ -1029,6 +1029,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/Gfp</AdditionalOptions>
     </FxCompile>
     <FxCompile Include="Shaders\CombiningShader\Combining_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>

@@ -1,6 +1,6 @@
 #include "RaytraceRenderer.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "Direct3DRendererCore.h"
 #include "GenerateRaysComputeShader.h"
@@ -42,7 +42,7 @@ RaytraceRenderer::RaytraceRenderer( Direct3DRendererCore& rendererCore ) :
 RaytraceRenderer::~RaytraceRenderer()
 {}
 
-void RaytraceRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device, ComPtr< ID3D11DeviceContext > deviceContext )
+void RaytraceRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device3 > device, ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device = device;
     this->m_deviceContext = deviceContext;
@@ -610,7 +610,7 @@ void RaytraceRenderer::calculateHitDistanceToCamera( InputTextures2& inputs, Ren
     m_sumValueComputeShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_generateRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateRaysShader/GenerateRays_cs.cso", device );
     m_generateFirstReflectedRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateFirstReflectedRaysShader/GenerateFirstReflectedRays_cs.cso", device );
@@ -622,7 +622,7 @@ void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
     m_sumValueComputeShader->loadAndInitialize( "Engine1/Shaders/SumValueShader/SumValue_cs.cso", device );
 }
 
-void RaytraceRenderer::createDefaultTextures( ID3D11Device& device )
+void RaytraceRenderer::createDefaultTextures( ID3D11Device3& device )
 {
     std::vector< unsigned char > dataAlpha             = { 255 };
     std::vector< unsigned char > dataMetalness         = { 0 };

@@ -5,7 +5,7 @@
 #include "Light.h"
 #include "SpotLight.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -18,7 +18,7 @@ BlurShadowsComputeShader::BlurShadowsComputeShader() {}
 
 BlurShadowsComputeShader::~BlurShadowsComputeShader() {}
 
-void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -80,7 +80,7 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos,
+void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
@@ -150,7 +150,7 @@ void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext& deviceContext
     }
 }
 
-void BlurShadowsComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void BlurShadowsComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
         throw std::exception( "BlurShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );

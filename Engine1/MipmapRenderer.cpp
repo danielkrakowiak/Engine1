@@ -8,7 +8,7 @@
 #include "GenerateMipmapMinValueFragmentShader.h"
 #include "GenerateMipmapWithSampleRejectionFragmentShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -27,8 +27,8 @@ MipmapRenderer::MipmapRenderer( Direct3DRendererCore& rendererCore ) :
 MipmapRenderer::~MipmapRenderer()
 {}
 
-void MipmapRenderer::initialize( ComPtr< ID3D11Device > device,
-                                         ComPtr< ID3D11DeviceContext > deviceContext )
+void MipmapRenderer::initialize( ComPtr< ID3D11Device3 > device,
+                                         ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device        = device;
     this->m_deviceContext = deviceContext;
@@ -246,7 +246,7 @@ void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< 
     m_rendererCore.disableRenderTargetViews();
 }
 
-ComPtr<ID3D11RasterizerState> MipmapRenderer::createRasterizerState( ID3D11Device& device )
+ComPtr<ID3D11RasterizerState> MipmapRenderer::createRasterizerState( ID3D11Device3& device )
 {
     D3D11_RASTERIZER_DESC         rasterDesc;
     ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -270,7 +270,7 @@ ComPtr<ID3D11RasterizerState> MipmapRenderer::createRasterizerState( ID3D11Devic
     return rasterizerState;
 }
 
-ComPtr<ID3D11BlendState> MipmapRenderer::createBlendState( ID3D11Device& device )
+ComPtr<ID3D11BlendState> MipmapRenderer::createBlendState( ID3D11Device3& device )
 {
     ComPtr<ID3D11BlendState> blendState;
     D3D11_BLEND_DESC         blendDesc;
@@ -297,7 +297,7 @@ ComPtr<ID3D11BlendState> MipmapRenderer::createBlendState( ID3D11Device& device 
     return blendState;
 }
 
-void MipmapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void MipmapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_generateMipmapMinValueComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_cs.cso", device );
     m_generateMipmapVertexShader->loadAndInitialize( "Engine1/Shaders/GenerateMipmapShader/GenerateMipmap_vs.cso", device );

@@ -64,7 +64,7 @@ namespace Engine1
         virtual bool onFrame( const double frameTimeMs, const bool lockCursor ); // returns: modifyingScene
         virtual void onSelectionChanged();
 
-        void createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
+        void createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device );
 
         void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int2 screenCoords );
         void debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int2 screenCoords );
@@ -98,7 +98,7 @@ namespace Engine1
 	    bool m_windowFocused;
 
         // Debug uchar render target.
-        void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device > device );
+        void createUcharDisplayFrame( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device );
 
         // Needed to display uchar textures using usual texture shader (unorm view is required - integer as 0-1 float).
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > > ucharDisplayFrame;

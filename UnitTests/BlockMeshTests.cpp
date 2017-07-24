@@ -5,7 +5,7 @@
 //#include "OBJMeshFileParser.h"
 #include "MathUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

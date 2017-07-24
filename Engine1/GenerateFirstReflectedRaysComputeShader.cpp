@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ GenerateFirstReflectedRaysComputeShader::GenerateFirstReflectedRaysComputeShader
 
 GenerateFirstReflectedRaysComputeShader::~GenerateFirstReflectedRaysComputeShader() {}
 
-void GenerateFirstReflectedRaysComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void GenerateFirstReflectedRaysComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     { // Create linear filter sampler configuration
         D3D11_SAMPLER_DESC samplerConfiguration;
@@ -51,7 +51,7 @@ void GenerateFirstReflectedRaysComputeShader::initialize( ComPtr< ID3D11Device >
     }
 }
 
-void GenerateFirstReflectedRaysComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
+void GenerateFirstReflectedRaysComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                                                              const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
                                                              const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                                                              const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
@@ -103,7 +103,7 @@ void GenerateFirstReflectedRaysComputeShader::setParameters( ID3D11DeviceContext
     deviceContext.CSSetSamplers( 0, 1, samplerStates );
 }
 
-void GenerateFirstReflectedRaysComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void GenerateFirstReflectedRaysComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "GenerateFirstReflectedRaysComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 

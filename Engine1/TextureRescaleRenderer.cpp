@@ -4,7 +4,7 @@
 
 #include "TextureRescaleComputeShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -19,8 +19,8 @@ TextureRescaleRenderer::TextureRescaleRenderer( Direct3DRendererCore& rendererCo
 TextureRescaleRenderer::~TextureRescaleRenderer()
 {}
 
-void TextureRescaleRenderer::initialize( ComPtr< ID3D11Device > device, 
-                                         ComPtr< ID3D11DeviceContext > deviceContext )
+void TextureRescaleRenderer::initialize( ComPtr< ID3D11Device3 > device, 
+                                         ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device        = device;
 	this->m_deviceContext = deviceContext;
@@ -60,7 +60,7 @@ void TextureRescaleRenderer::rescaleTexture( const std::shared_ptr< Texture2DSpe
     m_rendererCore.disableComputePipeline();
 }
 
-void TextureRescaleRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void TextureRescaleRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_textureRescaleComputeShader->loadAndInitialize( "Engine1/Shaders/TextureRescaleShader/TextureRescale_cs.cso", device );
 }

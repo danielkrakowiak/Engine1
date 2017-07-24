@@ -1,6 +1,6 @@
 #include "RasterizeShadowRenderer.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "Direct3DRendererCore.h"
 #include "RasterizingShadowsComputeShader.h"
@@ -27,8 +27,8 @@ RasterizeShadowRenderer::~RasterizeShadowRenderer()
 void RasterizeShadowRenderer::initialize(
     int imageWidth,
     int imageHeight,
-    Microsoft::WRL::ComPtr< ID3D11Device > device,
-    Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext )
+    Microsoft::WRL::ComPtr< ID3D11Device3 > device,
+    Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     m_device = device;
     m_deviceContext = deviceContext;
@@ -99,7 +99,7 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAc
     return m_distanceToOccluderTexture;
 }
 
-void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device )
+void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device3& device )
 {
     // #TODO: Is using mipmaps? Disable them if they are not necessary.
     m_shadowTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
@@ -110,7 +110,7 @@ void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHei
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 
-void RasterizeShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void RasterizeShadowRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_rasterizeShadowsComputeShader->loadAndInitialize( "Engine1/Shaders/RasterizingShadowsShader/RasterizingShadows_cs.cso", device );
 }

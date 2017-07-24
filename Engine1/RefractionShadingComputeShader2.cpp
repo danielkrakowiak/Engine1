@@ -4,7 +4,7 @@
 #include "BlockMesh.h"
 #include "Light.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -15,12 +15,12 @@ RefractionShadingComputeShader2::RefractionShadingComputeShader2() {}
 
 RefractionShadingComputeShader2::~RefractionShadingComputeShader2() {}
 
-void RefractionShadingComputeShader2::initialize( ComPtr< ID3D11Device >& device )
+void RefractionShadingComputeShader2::initialize( ComPtr< ID3D11Device3 >& device )
 {
     device;
 }
 
-void RefractionShadingComputeShader2::setParameters( ID3D11DeviceContext& deviceContext,
+void RefractionShadingComputeShader2::setParameters( ID3D11DeviceContext3& deviceContext,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
@@ -49,7 +49,7 @@ void RefractionShadingComputeShader2::setParameters( ID3D11DeviceContext& device
     }
 }
 
-void RefractionShadingComputeShader2::unsetParameters( ID3D11DeviceContext& deviceContext )
+void RefractionShadingComputeShader2::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "RefractionShadingComputeShader2::unsetParameters - Shader hasn't been compiled yet." );
 

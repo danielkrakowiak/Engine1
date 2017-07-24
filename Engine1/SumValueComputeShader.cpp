@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,10 +13,10 @@ SumValueComputeShader::SumValueComputeShader() {}
 
 SumValueComputeShader::~SumValueComputeShader() {}
 
-void SumValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void SumValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {}
 
-void SumValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void SumValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                            Texture2DSpecBind< TexBind::ShaderResource, float >& texture1 )
 {
     if ( !m_compiled )
@@ -32,7 +32,7 @@ void SumValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
     deviceContext.CSSetShaderResources( 0, resourceCount, resources );
 }
 
-void SumValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void SumValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                            Texture2DSpecBind< TexBind::ShaderResource, float >& texture1,
                                            Texture2DSpecBind< TexBind::ShaderResource, float >& texture2 )
 {
@@ -49,7 +49,7 @@ void SumValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
     deviceContext.CSSetShaderResources( 0, resourceCount, resources );
 }
 
-void SumValueComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void SumValueComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
         throw std::exception( "SumValueComputeShader::unsetParameters - Shader hasn't been compiled yet." );

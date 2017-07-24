@@ -1,6 +1,6 @@
 #include "ComputeShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3d11_3.h>
 //#include <d3dcompiler.h>
 
@@ -21,20 +21,20 @@ m_shaderId( 0 )
 ComputeShader::~ComputeShader()
 {}
 
-void ComputeShader::loadAndInitialize( const std::string& path, ComPtr< ID3D11Device >& device )
+void ComputeShader::loadAndInitialize( const std::string& path, ComPtr< ID3D11Device3 >& device )
 {
     load( path, device );
     initialize( device );
 }
 
-void ComputeShader::load( const std::string& path, ComPtr< ID3D11Device >& device )
+void ComputeShader::load( const std::string& path, ComPtr< ID3D11Device3 >& device )
 {
     if ( m_compiled )
         throw std::exception( "ComputeShader::loadFromFile - Shader has already been compiled" );
 
     const auto compiledShader = BinaryFile::load( path );
 
-    // #TODO: Should I "cast" ID3D11Device to ID3D11Device3?
+    // #TODO: Should I "cast" ID3D11Device3 to ID3D11Device3?
 
     ComPtr< ID3D11Device3 > device3;
 
@@ -49,7 +49,7 @@ void ComputeShader::load( const std::string& path, ComPtr< ID3D11Device >& devic
     this->m_shaderId = ++compiledShadersCount;
 }
 
-void ComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void ComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     device;
 }

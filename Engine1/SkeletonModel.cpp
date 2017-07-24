@@ -5,12 +5,12 @@
 
 using namespace Engine1;
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const SkeletonModelFileInfo& fileInfo, const bool loadRecurrently, ID3D11Device& device )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const SkeletonModelFileInfo& fileInfo, const bool loadRecurrently, ID3D11Device3& device )
 {
 	return createFromFile( fileInfo.getPath(), fileInfo.getFormat(), loadRecurrently, device );
 }
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device& device )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string& path, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device3& device )
 {
 	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
@@ -22,7 +22,7 @@ std::shared_ptr<SkeletonModel> SkeletonModel::createFromFile( const std::string&
     return model;
 }
 
-std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>::const_iterator dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device& device )
+std::shared_ptr<SkeletonModel> SkeletonModel::createFromMemory( std::vector<char>::const_iterator dataIt, const SkeletonModelFileInfo::Format format, bool loadRecurrently, ID3D11Device3& device )
 {
 	if ( SkeletonModelFileInfo::Format::SKELETONMODEL == format ) {
 		return SkeletonModelParser::parseBinary( dataIt, loadRecurrently, device );
@@ -235,7 +235,7 @@ void SkeletonModel::saveToMemory( std::vector<char>& data ) const
     SkeletonModelParser::writeBinary( data, *this );
 }
 
-void SkeletonModel::loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext, bool reload )
+void SkeletonModel::loadCpuToGpu( ID3D11Device3& device, ID3D11DeviceContext3& deviceContext, bool reload )
 {
 	if ( m_mesh )
 		m_mesh->loadCpuToGpu( device, reload );

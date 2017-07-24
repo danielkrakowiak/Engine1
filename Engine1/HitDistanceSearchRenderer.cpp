@@ -22,8 +22,8 @@ HitDistanceSearchRenderer::~HitDistanceSearchRenderer()
 {}
 
 void HitDistanceSearchRenderer::initialize( 
-    ComPtr< ID3D11Device > device,
-    ComPtr< ID3D11DeviceContext > deviceContext )
+    ComPtr< ID3D11Device3 > device,
+    ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     m_device        = device;
     m_deviceContext = deviceContext;
@@ -84,7 +84,7 @@ void HitDistanceSearchRenderer::performHitDistanceSearch(
     m_rendererCore.disableComputePipeline();
 }
 
-void HitDistanceSearchRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void HitDistanceSearchRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_hitDistanceSearchComputeShader->loadAndInitialize( "Engine1/Shaders/HitDistanceSearchShader/HitDistanceSearch_cs.cso", device );
 }

@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 #include "uchar4.h"
@@ -18,7 +18,7 @@ GenerateMipmapWithSampleRejectionFragmentShader::~GenerateMipmapWithSampleReject
 {}
 
 
-void GenerateMipmapWithSampleRejectionFragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void GenerateMipmapWithSampleRejectionFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     { // Create sampler configuration.
         D3D11_SAMPLER_DESC samplerConfiguration;
@@ -59,7 +59,7 @@ void GenerateMipmapWithSampleRejectionFragmentShader::initialize( ComPtr< ID3D11
 }
 
 void GenerateMipmapWithSampleRejectionFragmentShader::setParameters( 
-    ID3D11DeviceContext& deviceContext,
+    ID3D11DeviceContext3& deviceContext,
     Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
     const int srcMipLevel, const float maxAcceptableValue )
 {
@@ -94,7 +94,7 @@ void GenerateMipmapWithSampleRejectionFragmentShader::setParameters(
     deviceContext.PSSetSamplers( 0, 1, samplerStates );
 }
 
-void GenerateMipmapWithSampleRejectionFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void GenerateMipmapWithSampleRejectionFragmentShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };

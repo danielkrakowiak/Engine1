@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ MergeMipmapsValueComputeShader::MergeMipmapsValueComputeShader() {}
 
 MergeMipmapsValueComputeShader::~MergeMipmapsValueComputeShader() {}
 
-void MergeMipmapsValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void MergeMipmapsValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     { // Create constant buffer.
         D3D11_BUFFER_DESC desc;
@@ -52,7 +52,7 @@ void MergeMipmapsValueComputeShader::initialize( ComPtr< ID3D11Device >& device 
     }
 }
 
-void MergeMipmapsValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void MergeMipmapsValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                     const int2 outputTextureSize,
                                                     Texture2DSpecBind< TexBind::ShaderResource, float4 >& inputTexture,
                                                     int firstMipmapLevel,
@@ -101,7 +101,7 @@ void MergeMipmapsValueComputeShader::setParameters( ID3D11DeviceContext& deviceC
     }
 }
 
-void MergeMipmapsValueComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void MergeMipmapsValueComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
         throw std::exception( "MergeMipmapsValueComputeShader::unsetParameters - Shader hasn't been compiled yet." );

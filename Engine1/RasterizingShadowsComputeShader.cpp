@@ -7,7 +7,7 @@
 
 #include "MathUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using Microsoft::WRL::ComPtr;
@@ -17,7 +17,7 @@ RasterizingShadowsComputeShader::RasterizingShadowsComputeShader() {}
 
 RasterizingShadowsComputeShader::~RasterizingShadowsComputeShader() {}
 
-void RasterizingShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void RasterizingShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -84,7 +84,7 @@ void RasterizingShadowsComputeShader::initialize( ComPtr< ID3D11Device >& device
 }
 
 void RasterizingShadowsComputeShader::setParameters(
-    ID3D11DeviceContext& deviceContext,
+    ID3D11DeviceContext3& deviceContext,
     const float3& cameraPos,
     const Light& light,
     const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
@@ -144,7 +144,7 @@ void RasterizingShadowsComputeShader::setParameters(
     }
 }
 
-void RasterizingShadowsComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void RasterizingShadowsComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) 
         throw std::exception( "RasterizingShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );

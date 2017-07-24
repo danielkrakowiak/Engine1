@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ SpreadValueComputeShader::SpreadValueComputeShader() {}
 
 SpreadValueComputeShader::~SpreadValueComputeShader() {}
 
-void SpreadValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void SpreadValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -52,7 +52,7 @@ void SpreadValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void SpreadValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
+void SpreadValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, 
                                               const float skipPixelIfBelowValue, 
                                               const float minAcceptableValue,
                                               const int  totalSpread,
@@ -96,7 +96,7 @@ void SpreadValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext
     deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void SpreadValueComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void SpreadValueComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
         throw std::exception( "SpreadValueComputeShader::unsetParameters - Shader hasn't been compiled yet." );

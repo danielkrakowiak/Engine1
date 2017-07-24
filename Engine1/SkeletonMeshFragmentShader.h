@@ -11,7 +11,7 @@ namespace Engine1
         SkeletonMeshFragmentShader();
         virtual ~SkeletonMeshFragmentShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         private:
 

@@ -1,6 +1,6 @@
 #include "RectangleMesh.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "Direct3DUtil.h"
 
@@ -40,7 +40,7 @@ RectangleMesh::~RectangleMesh()
 {
 }
 
-void RectangleMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
+void RectangleMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 {
     if ( reload )
         throw std::exception( "RectangleMesh::loadCpuToGpu - reload not yet implemented." );

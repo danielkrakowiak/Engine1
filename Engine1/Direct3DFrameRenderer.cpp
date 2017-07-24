@@ -54,24 +54,94 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 	this->m_screenHeight = screenHeight;
 	this->m_verticalSync = verticalSync;
 
+    ComPtr< IDXGIFactory3 > factory;
+    ComPtr< IDXGIAdapter > adapter;
 	int refreshRateNumerator = 0, refreshRateDenominator = 1;
 	{
-		ComPtr<IDXGIFactory> factory;
-		ComPtr<IDXGIAdapter> adapter;
 		HRESULT result;
 
-		result = CreateDXGIFactory1( __uuidof( IDXGIFactory ), (void**)factory.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "Direct3DRenderer::initialize - creation of DXGIFactory failed" );
+		result = CreateDXGIFactory( __uuidof( IDXGIFactory3 ), (void**)factory.ReleaseAndGetAddressOf() );
+		if ( result < 0 ) 
+            throw std::exception( "Direct3DRenderer::initialize - creation of DXGIFactory failed." );
 
 		result = factory->EnumAdapters( 0, adapter.ReleaseAndGetAddressOf() );
-		if ( result < 0 ) throw std::exception( "Direct3DRenderer::initialize - enumarating adapters failed" );
+		if ( result < 0 ) 
+            throw std::exception( "Direct3DRenderer::initialize - enumarating adapters failed." );
 
 		std::tie( refreshRateNumerator, refreshRateDenominator ) = getRefreshRateNumeratorDenominator( *adapter.Get(), (unsigned int)screenWidth, (unsigned int)screenHeight );
 		m_gpuMemory = getGpuMemory( *adapter.Get() );
 		m_gpuDescription = getGpuDescription( *adapter.Get() );
 	}
 
-	std::tie( m_swapChain, m_device, m_deviceContext ) = createDeviceAndSwapChain( windowHandle, fullscreen, verticalSync, screenWidth, screenHeight, refreshRateNumerator, refreshRateDenominator );
+    { // Create device.
+        ComPtr< ID3D11Device >        basicDevice;
+        ComPtr< ID3D11DeviceContext > basicDeviceContext;
+
+        // Enable debug layer if in debug mode.
+        unsigned int flags = 0;
+        #if defined(_DEBUG)
+        flags |= D3D11_CREATE_DEVICE_DEBUG;
+        //flags |= D3D11_CREATE_DEVICE_DEBUGGABLE; // Useful for shader debugging.
+        #endif
+
+        #if defined(NDEBUG)
+        // This flag is useful to make it harder to debug release builds using graphics debuggers.
+        // It means that DirectX control panel settings regarding debug layer are ignored.
+        flags |= D3D11_CREATE_DEVICE_PREVENT_ALTERING_LAYER_SETTINGS_FROM_REGISTRY;
+        #endif
+
+        
+
+        D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
+
+        // Create Direct3D device, and Direct3D device context.
+        HRESULT result = D3D11CreateDevice(
+            nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, &featureLevel, 1,
+            D3D11_SDK_VERSION, basicDevice.ReleaseAndGetAddressOf(), nullptr,
+            basicDeviceContext.ReleaseAndGetAddressOf()
+        );
+
+        if ( result < 0 )
+            throw std::exception( "Direct3DRenderer::initialize - creation of device failed." );
+
+        result = basicDevice.As( &m_device );
+
+        if ( result < 0 )
+            throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of DirectX 11.3 device failed" );
+
+        (void)basicDeviceContext.As( &m_deviceContext );
+
+        //////////////////////////////////////////////////////////////
+        // Check features support
+        //////////////////////////////////////////////////////////////
+
+        //D3D11_FEATURE_DATA_D3D11_OPTIONS2 featureData;
+        //ZeroMemory( &featureData, sizeof( featureData ) );
+        //HRESULT hr = basicDevice->CheckFeatureSupport( D3D11_FEATURE_D3D11_OPTIONS2, &featureData, sizeof( featureData ) );
+        //if ( SUCCEEDED( hr ) ) {
+        //    // TypedUAVLoadAdditionalFormats contains a Boolean that tells you whether the feature is supported or not
+        //    if ( featureData.TypedUAVLoadAdditionalFormats ) {
+        //        // Can assume “all-or-nothing” subset is supported (e.g. R32G32B32A32_FLOAT)
+        //        // Can not assume other formats are supported, so we check:
+        //        D3D11_FEATURE_DATA_FORMAT_SUPPORT2 FormatSupport;
+        //        ZeroMemory( &FormatSupport, sizeof( FormatSupport ) );
+        //        FormatSupport.InFormat = DXGI_FORMAT_R32G32_FLOAT;
+        //        hr = basicDevice->CheckFeatureSupport( D3D11_FEATURE_FORMAT_SUPPORT2, &FormatSupport, sizeof( FormatSupport ) );
+        //        if ( SUCCEEDED( hr ) && ( FormatSupport.OutFormatSupport2 & D3D11_FORMAT_SUPPORT2_UAV_TYPED_LOAD ) != 0 ) {
+        //            // DXGI_FORMAT_R32G32_FLOAT supports UAV Typed Load!
+        //        }
+        //    }
+        //}
+
+        /////////////////////////////////////////////////////////////
+    }
+
+	m_swapChain = createSwapChain( 
+        *factory.Get(), *m_device.Get(), 
+        windowHandle, fullscreen, verticalSync, 
+        screenWidth, screenHeight, 
+        refreshRateNumerator, refreshRateDenominator 
+    );
 
 	{ // Initialize render target.
         ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *m_swapChain.Get() );
@@ -173,34 +243,36 @@ size_t Direct3DFrameRenderer::getGpuMemory( IDXGIAdapter& adapter )
 	return adapterDesc.DedicatedVideoMemory;
 }
 
-std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext> >  Direct3DFrameRenderer::createDeviceAndSwapChain( HWND windowHandle, bool fullscreen, bool verticalSync, unsigned int screenWidth, unsigned int screenHeight, int refreshRateNumerator, int refreshRateDenominator )
+ComPtr<IDXGISwapChain> Direct3DFrameRenderer::createSwapChain( 
+    IDXGIFactory3& factory, ID3D11Device3& device,
+    HWND windowHandle, bool fullscreen, bool verticalSync, 
+    unsigned int screenWidth, unsigned int screenHeight, 
+    int refreshRateNumerator, int refreshRateDenominator )
 {
-	ComPtr<IDXGISwapChain> swapChain;
-	ComPtr<ID3D11Device> basicDevice;
-	ComPtr<ID3D11DeviceContext> basicDeviceContext;
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	ComPtr< IDXGISwapChain > swapChain;
+	DXGI_SWAP_CHAIN_DESC     swapChainDesc;
 
 	// Initialize the swap chain description.
 	ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
 
 	// Set to a single back buffer.
-	swapChainDesc.BufferCount = 1;
-	swapChainDesc.BufferDesc.Width = screenWidth;
+	swapChainDesc.BufferCount       = 1;
+	swapChainDesc.BufferDesc.Width  = screenWidth;
 	swapChainDesc.BufferDesc.Height = screenHeight;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	if ( verticalSync ) {
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = refreshRateNumerator;
+		swapChainDesc.BufferDesc.RefreshRate.Numerator   = refreshRateNumerator;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = refreshRateDenominator;
 	} else {
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+		swapChainDesc.BufferDesc.RefreshRate.Numerator   = 0;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	}
 
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferUsage  = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.OutputWindow = windowHandle;
 	// Turn multisampling off.
-	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Count   = 1;
 	swapChainDesc.SampleDesc.Quality = 0;
 
 	if ( fullscreen ) {
@@ -210,66 +282,18 @@ std::tuple< ComPtr<IDXGISwapChain>, ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceCon
 	}
 
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	swapChainDesc.BufferDesc.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;
 
 	// Discard the back buffer contents after presenting.
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
 	swapChainDesc.Flags = 0;
 
-	//////////////////////////////////////////////////////
-
-	// Enable debug layer if in debug mode.
-	unsigned int flags = 0;
-#if defined(_DEBUG)
-	flags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
-
-	// Create the swap chain, Direct3D device, and Direct3D device context.
-	HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, &featureLevel, 1,
-													D3D11_SDK_VERSION, &swapChainDesc, swapChain.ReleaseAndGetAddressOf(),
-													basicDevice.ReleaseAndGetAddressOf(), nullptr, basicDeviceContext.ReleaseAndGetAddressOf() );
-	if ( result < 0 ) throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of device or swap chain failed" );
-
-	ComPtr< ID3D11Device3 >        device;
-	ComPtr< ID3D11DeviceContext3 > deviceContext;
-
-    result = basicDevice.As( &device );
-
+	HRESULT result = factory.CreateSwapChain( &device, &swapChainDesc, swapChain.ReleaseAndGetAddressOf() );
+	
     if ( result < 0 ) 
-        throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of DirectX 11.3 device failed" );
+        throw std::exception( "Direct3DRenderer::createDeviceAndSwapChain - creation of swap chain failed." );
 
-    (void)basicDeviceContext.As( &deviceContext );
-
-    return std::make_tuple( swapChain, device, deviceContext );
-
-    //////////////////////////////////////////////////////////////
-    // Check features support
-    //////////////////////////////////////////////////////////////
-
-    //D3D11_FEATURE_DATA_D3D11_OPTIONS2 featureData;
-    //ZeroMemory( &featureData, sizeof( featureData ) );
-    //HRESULT hr = basicDevice->CheckFeatureSupport( D3D11_FEATURE_D3D11_OPTIONS2, &featureData, sizeof( featureData ) );
-    //if ( SUCCEEDED( hr ) ) {
-    //    // TypedUAVLoadAdditionalFormats contains a Boolean that tells you whether the feature is supported or not
-    //    if ( featureData.TypedUAVLoadAdditionalFormats ) {
-    //        // Can assume “all-or-nothing” subset is supported (e.g. R32G32B32A32_FLOAT)
-    //        // Can not assume other formats are supported, so we check:
-    //        D3D11_FEATURE_DATA_FORMAT_SUPPORT2 FormatSupport;
-    //        ZeroMemory( &FormatSupport, sizeof( FormatSupport ) );
-    //        FormatSupport.InFormat = DXGI_FORMAT_R32G32_FLOAT;
-    //        hr = basicDevice->CheckFeatureSupport( D3D11_FEATURE_FORMAT_SUPPORT2, &FormatSupport, sizeof( FormatSupport ) );
-    //        if ( SUCCEEDED( hr ) && ( FormatSupport.OutFormatSupport2 & D3D11_FORMAT_SUPPORT2_UAV_TYPED_LOAD ) != 0 ) {
-    //            // DXGI_FORMAT_R32G32_FLOAT supports UAV Typed Load!
-    //        }
-    //    }
-    //}
-
-    /////////////////////////////////////////////////////////////
-
-    //return std::make_tuple( swapChain, basicDevice, basicDeviceContext );
+    return swapChain;
 }
 
 ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwapChain& swapChain )
@@ -283,7 +307,7 @@ ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwap
 	return backBufferPtr;
 }
 
-ComPtr<ID3D11RasterizerState> Direct3DFrameRenderer::createRasterizerState( ID3D11Device& device )
+ComPtr<ID3D11RasterizerState> Direct3DFrameRenderer::createRasterizerState( ID3D11Device3& device )
 {
 	D3D11_RASTERIZER_DESC         rasterDesc;
 	ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -307,7 +331,7 @@ ComPtr<ID3D11RasterizerState> Direct3DFrameRenderer::createRasterizerState( ID3D
 	return rasterizerState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateNoBlending( ID3D11Device& device )
+ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateNoBlending( ID3D11Device3& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -333,7 +357,7 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateNoBlending( ID3D
 	return blendState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateWithBlending( ID3D11Device& device )
+ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateWithBlending( ID3D11Device3& device )
 {
     ComPtr<ID3D11BlendState> blendState;
     D3D11_BLEND_DESC         blendDesc;
@@ -359,7 +383,7 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateWithBlending( ID
     return blendState;
 }
 
-void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
 	m_textureVertexShader->loadAndInitialize( "Engine1/Shaders/TextureShader/Texture_vs.cso", device );
 	m_textureFragmentShader->loadAndInitialize( "Engine1/Shaders/TextureShader/Texture_ps.cso", device );
@@ -596,14 +620,14 @@ void Direct3DFrameRenderer::displayFrame()
 
 }
 
-ComPtr< ID3D11Device > Direct3DFrameRenderer::getDevice()
+ComPtr< ID3D11Device3 > Direct3DFrameRenderer::getDevice()
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::getDevice - renderer not initialized." );
 
 	return m_device;
 }
 
-ComPtr< ID3D11DeviceContext > Direct3DFrameRenderer::getDeviceContext()
+ComPtr< ID3D11DeviceContext3 > Direct3DFrameRenderer::getDeviceContext()
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::getDeviceContext - renderer not initialized." );
 

@@ -12,7 +12,7 @@
 #include "Asset.h"
 #include "FileInfo.h"
 
-struct ID3D11Device;
+struct ID3D11Device3;
 
 namespace Engine1
 {
@@ -26,7 +26,7 @@ namespace Engine1
         // parsingBasicAssetsThreadCount and parsingComplexAssetsThreadCount - should be around the number of threads the CPU can run in parallel.
         // Having separate threads for complex assets is needed, because they can all freeze waiting for basic assets (sub-assets) to be loaded.
         // Thus we need other threads to parse basic assets at all times.
-        void initialize( int parsingBasicAssetsThreadCount, int parsingComplexAssetsThreadCount, Microsoft::WRL::ComPtr< ID3D11Device > device );
+        void initialize( int parsingBasicAssetsThreadCount, int parsingComplexAssetsThreadCount, Microsoft::WRL::ComPtr< ID3D11Device3 > device );
 
         void                   load( const FileInfo& fileInfo );
         void                   loadAsync( const FileInfo& fileInfo, const bool highestPriority = false );
@@ -38,7 +38,7 @@ namespace Engine1
 
         private:
 
-        Microsoft::WRL::ComPtr< ID3D11Device > m_device;
+        Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;
 
         bool m_executeThreads;
 

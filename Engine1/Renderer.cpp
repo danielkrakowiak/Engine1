@@ -66,8 +66,8 @@ Renderer::~Renderer()
 
 void Renderer::initialize( 
     const int2 imageDimensions, 
-    ComPtr< ID3D11Device > device, 
-    ComPtr< ID3D11DeviceContext > deviceContext, 
+    ComPtr< ID3D11Device3 > device, 
+    ComPtr< ID3D11DeviceContext3 > deviceContext, 
     std::shared_ptr<const BlockModel> lightModel )
 {
     m_device        = device;
@@ -1142,7 +1142,7 @@ void Renderer::setExposure( const float exposure )
     m_exposure = std::max( -10.0f, std::min( 10.0f, exposure ) );
 }
 
-void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device& device )
+void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device3& device )
 {
     m_finalRenderTargetLDR = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
         ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM );

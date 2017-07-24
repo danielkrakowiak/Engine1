@@ -21,12 +21,12 @@ namespace Engine1
 		ResampleTextureFragmentShader();
 		virtual ~ResampleTextureFragmentShader();
 
-		void initialize(Microsoft::WRL::ComPtr< ID3D11Device >& device);
-		void setParameters(ID3D11DeviceContext& deviceContext,
+		void initialize(Microsoft::WRL::ComPtr< ID3D11Device3 >& device);
+		void setParameters(ID3D11DeviceContext3& deviceContext,
 			Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture,
 			const int srcMipLevel);
 
-		void unsetParameters(ID3D11DeviceContext& deviceContext);
+		void unsetParameters(ID3D11DeviceContext3& deviceContext);
 
 	private:
 

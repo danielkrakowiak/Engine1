@@ -4,7 +4,7 @@
 
 #include "MathUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -22,8 +22,8 @@ ShadowMapRenderer::~ShadowMapRenderer()
 {
 }
 
-void ShadowMapRenderer::initialize( Microsoft::WRL::ComPtr< ID3D11Device > device,
-	Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext )
+void ShadowMapRenderer::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device,
+	Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
 	this->m_device = device;
 	this->m_deviceContext = deviceContext;
@@ -90,7 +90,7 @@ void ShadowMapRenderer::render( const SkeletonMesh& mesh, const float43& worldMa
 	m_rendererCore.draw( mesh );
 }
 
-Microsoft::WRL::ComPtr<ID3D11DepthStencilState> ShadowMapRenderer::createDepthStencilState( ID3D11Device& device )
+Microsoft::WRL::ComPtr<ID3D11DepthStencilState> ShadowMapRenderer::createDepthStencilState( ID3D11Device3& device )
 {
 	D3D11_DEPTH_STENCIL_DESC        depthStencilDesc;
 	ComPtr<ID3D11DepthStencilState> depthStencilState;
@@ -126,14 +126,14 @@ void ShadowMapRenderer::setRenderTarget( std::shared_ptr< Texture2D< TexUsage::D
     m_renderTarget = renderTarget;
 }
 
-void ShadowMapRenderer::createAndSetRenderTarget( const int2 dimensions, ID3D11Device& device )
+void ShadowMapRenderer::createAndSetRenderTarget( const int2 dimensions, ID3D11Device3& device )
 {
 	// Create depth render target.
 	m_renderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > >
 		( device, dimensions.x, dimensions.y, false, true, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 
-void ShadowMapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void ShadowMapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
 	m_blockMeshVertexShader->loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
 	m_skeletonMeshVertexShader->loadAndInitialize( "Engine1/Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );

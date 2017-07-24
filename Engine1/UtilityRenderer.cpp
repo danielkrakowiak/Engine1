@@ -28,8 +28,8 @@ UtilityRenderer::UtilityRenderer( Direct3DRendererCore& rendererCore ) :
 UtilityRenderer::~UtilityRenderer()
 {}
 
-void UtilityRenderer::initialize( ComPtr< ID3D11Device > device,
-                                       ComPtr< ID3D11DeviceContext > deviceContext )
+void UtilityRenderer::initialize( ComPtr< ID3D11Device3 > device,
+                                       ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     m_device = device;
     m_deviceContext = deviceContext;
@@ -358,7 +358,7 @@ void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< Texture2DSpecBind< Te
     m_rendererCore.disableComputePipeline();
 }
 
-void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_replaceValueComputeShader->loadAndInitialize( "Engine1/Shaders/ReplaceValueShader/ReplaceValue_cs.cso", device );
     m_spreadMaxValueComputeShader->loadAndInitialize( "Engine1/Shaders/SpreadValueShader/SpreadMaxValue_cs.cso", device );

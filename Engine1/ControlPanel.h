@@ -6,7 +6,7 @@
 #include "int2.h"
 #include <memory>
 
-struct ID3D11Device;
+struct ID3D11Device3;
 
 namespace Engine1
 {
@@ -19,7 +19,7 @@ namespace Engine1
         ControlPanel( SceneManager& sceneManager );
         ~ControlPanel();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device, const int2 windowDimensions );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, const int2 windowDimensions );
 
         int processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam );
 
@@ -33,7 +33,7 @@ namespace Engine1
 
         private:
 
-        Microsoft::WRL::ComPtr< ID3D11Device > m_device;
+        Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;
 
         TwBar* mainBar;
         TwBar* meshUtilsBar;

@@ -42,7 +42,7 @@ SceneManager::SceneManager( AssetManager& assetManager ) :
     m_camera.rotate( float3( 0.0f, MathUtil::piHalf, 0.0f ) );
 }
 
-void SceneManager::initialize( Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext )
+void SceneManager::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     m_device        = device;
     m_deviceContext = deviceContext;

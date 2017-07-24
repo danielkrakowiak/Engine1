@@ -4,8 +4,8 @@
 #include <vector>
 #include <array>
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 struct ID3D11Query;
 
 namespace Engine1
@@ -111,7 +111,7 @@ namespace Engine1
         Profiler();
         ~Profiler();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void beginEvent( const GlobalEventType event );
         void endEvent( const GlobalEventType event );
@@ -136,15 +136,15 @@ namespace Engine1
 
         private:
 
-        Event createEvent( ID3D11Device& device );
+        Event createEvent( ID3D11Device3& device );
 
-        Microsoft::WRL::ComPtr< ID3D11Query > createTimestampQuery( ID3D11Device& device );
-        Microsoft::WRL::ComPtr< ID3D11Query > createDisjointQuery( ID3D11Device& device );
+        Microsoft::WRL::ComPtr< ID3D11Query > createTimestampQuery( ID3D11Device3& device );
+        Microsoft::WRL::ComPtr< ID3D11Query > createDisjointQuery( ID3D11Device3& device );
 
         void resetEvents( const int frameIdx );
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;
 
         bool m_profilingPaused;
 

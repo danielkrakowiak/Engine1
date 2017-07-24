@@ -1,6 +1,6 @@
 #pragma once
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <wrl.h>
 
 #include "Direct3DUtil.h"
@@ -11,17 +11,17 @@ namespace Engine1
     class StagingTexture2D
     {
         public:
-        StagingTexture2D( ID3D11Device& device, const int width, const int height, DXGI_FORMAT textureFormat );
+        StagingTexture2D( ID3D11Device3& device, const int width, const int height, DXGI_FORMAT textureFormat );
         ~StagingTexture2D();
 
         Microsoft::WRL::ComPtr< ID3D11Texture2D > getTextureResource();
 
-        void loadGpuToCpu( ID3D11DeviceContext& deviceContext );
+        void loadGpuToCpu( ID3D11DeviceContext3& deviceContext );
 
         // Loads a fragment of the texture. 
         // @param coords - left top x, y coordinates (in pixels).
         // @param dimensions - width, height of the fragment to be loaded.
-        void loadGpuToCpu( ID3D11DeviceContext& deviceContext, const int2 coords, const int2 dimensions );
+        void loadGpuToCpu( ID3D11DeviceContext3& deviceContext, const int2 coords, const int2 dimensions );
 
         PixelType getPixel( const int2 coords ) const;
 
@@ -35,7 +35,7 @@ namespace Engine1
 
         void createTextureOnCpu( const int width, const int height );
 
-        void createTextureOnGpu( ID3D11Device& device, const int width, const int height, DXGI_FORMAT textureFormat );
+        void createTextureOnGpu( ID3D11Device3& device, const int width, const int height, DXGI_FORMAT textureFormat );
 
         int m_width;
         int m_height;
@@ -47,7 +47,7 @@ namespace Engine1
 
     template< typename PixelType >
     StagingTexture2D< PixelType >
-        ::StagingTexture2D( ID3D11Device& device, const int width, const int height, DXGI_FORMAT textureFormat ) : 
+        ::StagingTexture2D( ID3D11Device3& device, const int width, const int height, DXGI_FORMAT textureFormat ) : 
         m_width( width ),
         m_height( height )
     {
@@ -80,7 +80,7 @@ namespace Engine1
 
     template< typename PixelType >
     void StagingTexture2D< PixelType >
-        ::createTextureOnGpu( ID3D11Device& device, const int width, const int height, DXGI_FORMAT textureFormat )
+        ::createTextureOnGpu( ID3D11Device3& device, const int width, const int height, DXGI_FORMAT textureFormat )
     {
         if ( width <= 0 || height <= 0 )
             throw std::exception( "StagingTexture::createTextureOnGpu - given width or height has zero or negative value." );
@@ -110,7 +110,7 @@ namespace Engine1
 
     template< typename PixelType >
     void StagingTexture2D< PixelType >
-        ::loadGpuToCpu( ID3D11DeviceContext& deviceContext )
+        ::loadGpuToCpu( ID3D11DeviceContext3& deviceContext )
     {
         if ( !m_texture )
             throw std::exception( "StagingTexture2D::loadGpuToCpu - texture not initialized." );
@@ -129,7 +129,7 @@ namespace Engine1
 
     template< typename PixelType >
     void StagingTexture2D< PixelType >
-        ::loadGpuToCpu( ID3D11DeviceContext& deviceContext, const int2 coords, const int2 dimensions )
+        ::loadGpuToCpu( ID3D11DeviceContext3& deviceContext, const int2 coords, const int2 dimensions )
     {
         if ( !m_texture ) {
             throw std::exception( "StagingTexture2D::loadGpuToCpu - texture not initialized." );

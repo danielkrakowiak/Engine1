@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ MergeValueComputeShader::MergeValueComputeShader() {}
 
 MergeValueComputeShader::~MergeValueComputeShader() {}
 
-void MergeValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void MergeValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     device;
 
@@ -32,7 +32,7 @@ void MergeValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
     //}
 }
 
-void MergeValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void MergeValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                              Texture2DSpecBind< TexBind::ShaderResource, float > texture )
 {
     if ( !m_compiled )
@@ -61,7 +61,7 @@ void MergeValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
     deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void MergeValueComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void MergeValueComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
         throw std::exception( "MergeValueComputeShader::unsetParameters - Shader hasn't been compiled yet." );

@@ -1,6 +1,6 @@
 #include "SkeletonModelParser.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "SkeletonMesh.h"
 #include "SkeletonModel.h"
@@ -10,7 +10,7 @@
 
 using namespace Engine1;
 
-std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device& device )
+std::shared_ptr<SkeletonModel> SkeletonModelParser::parseBinary( std::vector<char>::const_iterator& dataIt, const bool loadRecurrently, ID3D11Device3& device )
 {
 	std::shared_ptr<SkeletonModel> model = std::make_shared<SkeletonModel>( );
 

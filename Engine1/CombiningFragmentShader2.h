@@ -21,8 +21,8 @@ namespace Engine1
         CombiningFragmentShader2();
         virtual ~CombiningFragmentShader2();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext,
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture, 
                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
@@ -35,7 +35,7 @@ namespace Engine1
                             const int contributionTextureFilledWidth, const int contributionTextureFilledHeight,
                             const int srcTextureFilledWidth, const int srcTextureFilledHeight );
 
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

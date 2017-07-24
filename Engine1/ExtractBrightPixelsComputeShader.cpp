@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ ExtractBrightPixelsComputeShader::ExtractBrightPixelsComputeShader() {}
 
 ExtractBrightPixelsComputeShader::~ExtractBrightPixelsComputeShader() {}
 
-void ExtractBrightPixelsComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void ExtractBrightPixelsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -31,7 +31,7 @@ void ExtractBrightPixelsComputeShader::initialize( ComPtr< ID3D11Device >& devic
     }
 }
 
-void ExtractBrightPixelsComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
+void ExtractBrightPixelsComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, 
                                                       const Texture2DSpecBind< TexBind::ShaderResource, float4 >& colorTexture,
                                                       const float minBrightness )
 {
@@ -62,7 +62,7 @@ void ExtractBrightPixelsComputeShader::setParameters( ID3D11DeviceContext& devic
     deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void ExtractBrightPixelsComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void ExtractBrightPixelsComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) 
         throw std::exception( "ExtractBrightPixelsComputeShader::unsetParameters - Shader hasn't been compiled yet." );

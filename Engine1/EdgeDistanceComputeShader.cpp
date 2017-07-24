@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ EdgeDistanceComputeShader::EdgeDistanceComputeShader() {}
 
 EdgeDistanceComputeShader::~EdgeDistanceComputeShader() {}
 
-void EdgeDistanceComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void EdgeDistanceComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -30,7 +30,7 @@ void EdgeDistanceComputeShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void EdgeDistanceComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void EdgeDistanceComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& distToEdgeTexture,
                                                const unsigned char passIndex )
 {
@@ -61,7 +61,7 @@ void EdgeDistanceComputeShader::setParameters( ID3D11DeviceContext& deviceContex
     deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void EdgeDistanceComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void EdgeDistanceComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "EdgeDistanceComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 

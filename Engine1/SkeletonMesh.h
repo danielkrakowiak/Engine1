@@ -17,7 +17,7 @@
 #include "BoundingBox.h"
 
 struct ID3D11Buffer;
-struct ID3D11Device;
+struct ID3D11Device3;
 
 namespace Engine1
 {
@@ -45,7 +45,7 @@ namespace Engine1
         const SkeletonMeshFileInfo& getFileInfo() const;
         SkeletonMeshFileInfo&       getFileInfo();
 
-        void loadCpuToGpu( ID3D11Device& device, bool reload = false );
+        void loadCpuToGpu( ID3D11Device3& device, bool reload = false );
         void loadGpuToCpu();
         void unloadFromCpu();
         void unloadFromGpu();

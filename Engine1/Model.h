@@ -5,7 +5,7 @@
 
 #include "ModelTexture2D.h"
 
-struct ID3D11Device;
+struct ID3D11Device3;
 
 namespace Engine1
 {
@@ -35,7 +35,7 @@ namespace Engine1
         virtual void saveToFile( const std::string& path ) const = 0;
         virtual void saveToMemory( std::vector<char>& data ) const = 0;
 
-        virtual void loadCpuToGpu( ID3D11Device& device, ID3D11DeviceContext& deviceContext, bool reload ) = 0;
+        virtual void loadCpuToGpu( ID3D11Device3& device, ID3D11DeviceContext3& deviceContext, bool reload ) = 0;
         virtual void loadGpuToCpu() = 0;
         virtual void unloadFromCpu() = 0;
         virtual void unloadFromGpu() = 0;

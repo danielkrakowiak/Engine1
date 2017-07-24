@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ EdgeDetectionComputeShader::EdgeDetectionComputeShader() {}
 
 EdgeDetectionComputeShader::~EdgeDetectionComputeShader() {}
 
-void EdgeDetectionComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void EdgeDetectionComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -30,7 +30,7 @@ void EdgeDetectionComputeShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void EdgeDetectionComputeShader::setParameters( ID3D11DeviceContext& deviceContext, 
+void EdgeDetectionComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, 
                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
                                                 const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture )
 {
@@ -59,7 +59,7 @@ void EdgeDetectionComputeShader::setParameters( ID3D11DeviceContext& deviceConte
     deviceContext.CSSetConstantBuffers( 0, 1, constantInputBuffer.GetAddressOf() );*/
 }
 
-void EdgeDetectionComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void EdgeDetectionComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "EdgeDetectionComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 

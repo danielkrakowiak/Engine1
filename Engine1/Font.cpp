@@ -31,7 +31,7 @@ void Font::loadFromFile( std::string path, unsigned int size ) {
     m_loaded = true;
 }
 
-FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device& device ) {
+FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device3& device ) {
 	if ( !m_loaded ) return 0;
 
 	std::map<unsigned long, FontCharacter>::iterator charactersIt;

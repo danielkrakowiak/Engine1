@@ -21,13 +21,13 @@ namespace Engine1
         TextureFragmentShader();
         virtual ~TextureFragmentShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& texture, int mipmapLevel = 0 );
-        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& texture, int mipmapLevel = 0 );
-        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, int mipmapLevel = 0 );
-        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, int mipmapLevel = 0 );
-        void setParameters( ID3D11DeviceContext& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float  >& texture, int mipmapLevel = 0 );
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& texture, int mipmapLevel = 0 );
+        void setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& texture, int mipmapLevel = 0 );
+        void setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, int mipmapLevel = 0 );
+        void setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, int mipmapLevel = 0 );
+        void setParameters( ID3D11DeviceContext3& deviceContext, const Texture2DSpecBind< TexBind::ShaderResource, float  >& texture, int mipmapLevel = 0 );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

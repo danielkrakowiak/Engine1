@@ -13,7 +13,7 @@
 
 #include "Font.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -28,8 +28,8 @@ Direct3DDeferredRenderer::~Direct3DDeferredRenderer()
 {}
 
 void Direct3DDeferredRenderer::initialize( 
-    ComPtr< ID3D11Device > device, 
-    ComPtr< ID3D11DeviceContext > deviceContext )
+    ComPtr< ID3D11Device3 > device, 
+    ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
 	this->m_device = device;
 	this->m_deviceContext = deviceContext;
@@ -404,7 +404,7 @@ void Direct3DDeferredRenderer::render(
 	}
 }
 
-ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( ID3D11Device& device )
+ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( ID3D11Device3& device )
 {
 	D3D11_RASTERIZER_DESC         rasterDesc;
 	ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -426,7 +426,7 @@ ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( I
 	return rasterizerState;
 }
 
-ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createWireframeRasterizerState( ID3D11Device& device )
+ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createWireframeRasterizerState( ID3D11Device3& device )
 {
     D3D11_RASTERIZER_DESC         rasterDesc;
     ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -448,7 +448,7 @@ ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createWireframeRasterize
     return rasterizerState;
 }
 
-ComPtr<ID3D11DepthStencilState> Direct3DDeferredRenderer::createDepthStencilState( ID3D11Device& device )
+ComPtr<ID3D11DepthStencilState> Direct3DDeferredRenderer::createDepthStencilState( ID3D11Device3& device )
 {
 	D3D11_DEPTH_STENCIL_DESC        depthStencilDesc;
 	ComPtr<ID3D11DepthStencilState> depthStencilState;
@@ -479,7 +479,7 @@ ComPtr<ID3D11DepthStencilState> Direct3DDeferredRenderer::createDepthStencilStat
 	return depthStencilState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForMeshRendering( ID3D11Device& device )
+ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForMeshRendering( ID3D11Device3& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -509,7 +509,7 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForMeshRender
 	return blendState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTransparentMeshRendering( ID3D11Device& device )
+ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTransparentMeshRendering( ID3D11Device3& device )
 {
     ComPtr<ID3D11BlendState> blendState;
     D3D11_BLEND_DESC         blendDesc;
@@ -539,7 +539,7 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTransparen
     return blendState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRendering( ID3D11Device& device )
+ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRendering( ID3D11Device3& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -606,7 +606,7 @@ void Direct3DDeferredRenderer::enableRenderTargets( const RenderTargets& renderT
     );
 }
 
-void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
 	m_blockMeshVertexShader.loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
     m_blockMeshFragmentShader.loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_ps.cso", device );
@@ -625,7 +625,7 @@ void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& de
 	m_textFragmentShader.loadAndInitialize( "Engine1/Shaders/TextShader/Text_ps.cso", device );
 }
 
-void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device& device )
+void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device3& device )
 {
     std::vector< unsigned char > dataAlpha             = { 255 };
     std::vector< unsigned char > dataMetalness         = { 0 };

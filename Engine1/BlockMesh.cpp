@@ -4,7 +4,7 @@
 #include <fstream>
 #include <vector>
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 #include "MeshFileParser.h"
 #include "BlockMeshFileInfoParser.h"
@@ -163,7 +163,7 @@ BlockMeshFileInfo& BlockMesh::getFileInfo( )
 	return m_fileInfo;
 }
 
-void BlockMesh::loadCpuToGpu( ID3D11Device& device, bool reload )
+void BlockMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 {
 	if ( !isInCpuMemory() ) 
         throw std::exception( "BlockMesh::loadCpuToGpu - Mesh not loaded in CPU memory." );
@@ -618,7 +618,7 @@ void BlockMesh::buildBvhTree()
     m_bvhTree->clearTriangles();
 }
 
-void BlockMesh::loadBvhTreeToGpu( ID3D11Device& device, const bool reload )
+void BlockMesh::loadBvhTreeToGpu( ID3D11Device3& device, const bool reload )
 {
     if ( !m_bvhTreeBufferNodesGpu || reload ) 
     {

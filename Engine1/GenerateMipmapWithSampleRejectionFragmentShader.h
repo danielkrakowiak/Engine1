@@ -21,12 +21,12 @@ namespace Engine1
         GenerateMipmapWithSampleRejectionFragmentShader();
         virtual ~GenerateMipmapWithSampleRejectionFragmentShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
-        void setParameters( ID3D11DeviceContext& deviceContext,
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
+        void setParameters( ID3D11DeviceContext3& deviceContext,
                             Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
                             const int srcMipLevel, const float maxAcceptableValue );
 
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

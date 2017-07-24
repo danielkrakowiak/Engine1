@@ -12,8 +12,8 @@
 
 #include "Texture2D.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -27,9 +27,9 @@ namespace Engine1
         RaytracingSecondaryRaysComputeShader();
         virtual ~RaytracingSecondaryRaysComputeShader();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
-        void setParameters( ID3D11DeviceContext& deviceContext,
+        void setParameters( ID3D11DeviceContext3& deviceContext,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginsTexture,
                             const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionsTexture, 
                             const BlockMesh& mesh, 
@@ -45,7 +45,7 @@ namespace Engine1
                             const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul,
                             const int outputTextureWidth, const int outputTextureHeight );
 
-        void unsetParameters( ID3D11DeviceContext& deviceContext );
+        void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
 

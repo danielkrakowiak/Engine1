@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ AntialiasingComputeShader::AntialiasingComputeShader() {}
 
 AntialiasingComputeShader::~AntialiasingComputeShader() {}
 
-void AntialiasingComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void AntialiasingComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     { // Create sampler configuration.
         D3D11_SAMPLER_DESC desc;
@@ -53,7 +53,7 @@ void AntialiasingComputeShader::initialize( ComPtr< ID3D11Device >& device )
 }
 
 void AntialiasingComputeShader::setParameters( 
-    ID3D11DeviceContext& deviceContext,
+    ID3D11DeviceContext3& deviceContext,
     Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& srcTexture,
     const float fxaaQualitySubpix,
     const float fxaaQualityEdgeThreshold,
@@ -94,7 +94,7 @@ void AntialiasingComputeShader::setParameters(
     }
 }
 
-void AntialiasingComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void AntialiasingComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
         throw std::exception( "AntialiasingComputeShader::unsetParameters - Shader hasn't been compiled yet." );

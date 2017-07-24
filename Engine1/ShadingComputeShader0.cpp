@@ -4,7 +4,7 @@
 #include "BlockMesh.h"
 #include "Light.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -15,7 +15,7 @@ ShadingComputeShader0::ShadingComputeShader0() {}
 
 ShadingComputeShader0::~ShadingComputeShader0() {}
 
-void ShadingComputeShader0::initialize( ComPtr< ID3D11Device >& device )
+void ShadingComputeShader0::initialize( ComPtr< ID3D11Device3 >& device )
 {
     { // Create sampler configuration.
         D3D11_SAMPLER_DESC desc;
@@ -39,7 +39,7 @@ void ShadingComputeShader0::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void ShadingComputeShader0::setParameters( ID3D11DeviceContext& deviceContext, 
+void ShadingComputeShader0::setParameters( ID3D11DeviceContext3& deviceContext, 
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture )
 {
     if ( !m_compiled ) throw std::exception( "ShadingComputeShader0::setParameters - Shader hasn't been compiled yet." );
@@ -58,7 +58,7 @@ void ShadingComputeShader0::setParameters( ID3D11DeviceContext& deviceContext,
     }
 }
 
-void ShadingComputeShader0::unsetParameters( ID3D11DeviceContext& deviceContext )
+void ShadingComputeShader0::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled ) throw std::exception( "ShadingComputeShader0::unsetParameters - Shader hasn't been compiled yet." );
 

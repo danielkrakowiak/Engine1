@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <wrl.h>
 
 #include "Texture2DEnums.h"
@@ -52,7 +52,7 @@ namespace Engine1
             return m_renderTargetViews[ mipmapLevel ].Get();
         }
 
-        void clearRenderTargetView( ID3D11DeviceContext& deviceContext, float4 colorRGBA, int mipmapLevel = 0 )
+        void clearRenderTargetView( ID3D11DeviceContext3& deviceContext, float4 colorRGBA, int mipmapLevel = 0 )
         {
 	        if ( !isInGpuMemory() ) 
                 throw std::exception( "Texture2DSpecBind< TexBind::RenderTarget >::clearRenderTargetView - Texture not in GPU memory." );
@@ -78,7 +78,7 @@ namespace Engine1
             return m_depthStencilViews[ mipmapLevel ].Get();
         }
 
-        void clearDepthStencilView( ID3D11DeviceContext& deviceContext, bool clearDepth, float depth, bool clearStencil, unsigned char stencil, int mipmapLevel = 0 )
+        void clearDepthStencilView( ID3D11DeviceContext3& deviceContext, bool clearDepth, float depth, bool clearStencil, unsigned char stencil, int mipmapLevel = 0 )
         {
             if ( !clearDepth && !clearStencil )
 		        return;
@@ -112,7 +112,7 @@ namespace Engine1
         }
 
         // TODO: maybe the input type should be PixelType and based on it the uint/float function gets called.
-        void clearUnorderedAccessViewUint( ID3D11DeviceContext& deviceContext, uint4 value, int mipmapLevel = 0 )
+        void clearUnorderedAccessViewUint( ID3D11DeviceContext3& deviceContext, uint4 value, int mipmapLevel = 0 )
         {
 	        if ( !isInGpuMemory() ) 
                 throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::clearUnorderedAccessViewUint - Texture not in GPU memory." );
@@ -124,7 +124,7 @@ namespace Engine1
         }
 
         // TODO: maybe the input type should be PixelType and based on it the uint/float function gets called.
-        void clearUnorderedAccessViewFloat( ID3D11DeviceContext& deviceContext, float4 value, int mipmapLevel = 0 )
+        void clearUnorderedAccessViewFloat( ID3D11DeviceContext3& deviceContext, float4 value, int mipmapLevel = 0 )
         {
 	        if ( !isInGpuMemory() ) 
                 throw std::exception( "Texture2DSpecBind< TexBind::UnorderedAccess >::clearUnorderedAccessViewFloat - Texture not in GPU memory." );
@@ -144,7 +144,7 @@ namespace Engine1
     {
         public:
 
-        void generateMipMapsOnGpu( ID3D11DeviceContext& deviceContext )
+        void generateMipMapsOnGpu( ID3D11DeviceContext3& deviceContext )
         {
             if ( !isInGpuMemory() )
                 throw std::exception( "Texture2DSpecBind< TexBind::RenderTarget_ShaderResource >::generateMipMapsOnGpu - Can't generate because texture is not in GPU memory." );
@@ -181,7 +181,7 @@ namespace Engine1
     {
         public:
 
-        void generateMipMapsOnGpu( ID3D11DeviceContext& deviceContext )
+        void generateMipMapsOnGpu( ID3D11DeviceContext3& deviceContext )
         {
             if ( !isInGpuMemory() )
                 throw std::exception( "Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource >::generateMipMapsOnGpu - Can't generate because texture is not in GPU memory." );

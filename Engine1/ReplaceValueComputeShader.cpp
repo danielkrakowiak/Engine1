@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -13,7 +13,7 @@ ReplaceValueComputeShader::ReplaceValueComputeShader() {}
 
 ReplaceValueComputeShader::~ReplaceValueComputeShader() {}
 
-void ReplaceValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void ReplaceValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -30,7 +30,7 @@ void ReplaceValueComputeShader::initialize( ComPtr< ID3D11Device >& device )
     }
 }
 
-void ReplaceValueComputeShader::setParameters( ID3D11DeviceContext& deviceContext,
+void ReplaceValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                const float replaceFromValue,
                                                const float replaceToValue )
 {
@@ -54,7 +54,7 @@ void ReplaceValueComputeShader::setParameters( ID3D11DeviceContext& deviceContex
     deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
 }
 
-void ReplaceValueComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void ReplaceValueComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     deviceContext;
 

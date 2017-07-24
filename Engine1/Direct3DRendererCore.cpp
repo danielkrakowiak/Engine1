@@ -11,7 +11,7 @@
 
 #include "MathUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -38,7 +38,7 @@ m_currentBlendState( nullptr )
 Direct3DRendererCore::~Direct3DRendererCore()
 {}
 
-void Direct3DRendererCore::initialize( ID3D11DeviceContext& deviceContext )
+void Direct3DRendererCore::initialize( ID3D11DeviceContext3& deviceContext )
 {
 	this->m_deviceContext = &deviceContext;
 }

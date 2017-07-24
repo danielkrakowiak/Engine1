@@ -5,7 +5,7 @@
 #include "Light.h"
 #include "SpotLight.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 using namespace Engine1;
@@ -21,7 +21,7 @@ HitDistanceSearchComputeShader::HitDistanceSearchComputeShader() {}
 
 HitDistanceSearchComputeShader::~HitDistanceSearchComputeShader() {}
 
-void HitDistanceSearchComputeShader::initialize( ComPtr< ID3D11Device >& device )
+void HitDistanceSearchComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -83,7 +83,7 @@ void HitDistanceSearchComputeShader::initialize( ComPtr< ID3D11Device >& device 
     }
 }
 
-void HitDistanceSearchComputeShader::setParameters( ID3D11DeviceContext& deviceContext, const float3& cameraPos, const int2 outputTextureDimensions,
+void HitDistanceSearchComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos, const int2 outputTextureDimensions,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
                                                     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder )
@@ -131,7 +131,7 @@ void HitDistanceSearchComputeShader::setParameters( ID3D11DeviceContext& deviceC
     }
 }
 
-void HitDistanceSearchComputeShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void HitDistanceSearchComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
         throw std::exception( "HitDistanceSearchComputeShader::unsetParameters - Shader hasn't been compiled yet." );

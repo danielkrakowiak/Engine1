@@ -5,7 +5,7 @@
 #include "BlurShadowsComputeShader.h"
 #include "Camera.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 
 using namespace Engine1;
 
@@ -24,8 +24,8 @@ BlurShadowsRenderer::BlurShadowsRenderer( Direct3DRendererCore& rendererCore ) :
 BlurShadowsRenderer::~BlurShadowsRenderer()
 {}
 
-void BlurShadowsRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device > device,
-                                  ComPtr< ID3D11DeviceContext > deviceContext )
+void BlurShadowsRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D11Device3 > device,
+                                  ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
     this->m_device = device;
     this->m_deviceContext = deviceContext;
@@ -157,7 +157,7 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
     m_rendererCore.disableComputePipeline();
 }
 
-void BlurShadowsRenderer::loadAndCompileShaders( ComPtr< ID3D11Device >& device )
+void BlurShadowsRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_blurShadowsComputeShader->loadAndInitialize( "Engine1/Shaders/BlurShadowsShader/BlurShadows_cs.cso", device );
     m_blurShadowsHorizontalComputeShader->loadAndInitialize( "Engine1/Shaders/BlurShadowsShader/BlurShadowsHorizontal_cs.cso", device );

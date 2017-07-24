@@ -18,7 +18,7 @@ namespace Engine1
         RenderTargetManager();
         ~RenderTargetManager();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         template < typename T >
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > > 
@@ -50,7 +50,7 @@ namespace Engine1
         std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > 
             getViewFormatsForPixelType();
 
-        Microsoft::WRL::ComPtr< ID3D11Device > m_device;
+        Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;
 
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > >         m_renderTargetsFloat;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > >        m_renderTargetsFloat4;

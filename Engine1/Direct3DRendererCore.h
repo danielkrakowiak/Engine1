@@ -11,7 +11,7 @@
 #include "float4.h"
 #include "uchar4.h"
 
-struct ID3D11DeviceContext;
+struct ID3D11DeviceContext3;
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilState;
 struct ID3D11BlendState;
@@ -37,7 +37,7 @@ namespace Engine1
         Direct3DRendererCore();
         ~Direct3DRendererCore();
 
-        void initialize( ID3D11DeviceContext& deviceContext );
+        void initialize( ID3D11DeviceContext3& deviceContext );
 
         void disableRenderingPipeline();
         void disableComputePipeline();

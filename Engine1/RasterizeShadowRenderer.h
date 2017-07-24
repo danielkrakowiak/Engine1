@@ -10,8 +10,8 @@
 
 #include "Texture2D.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -30,8 +30,8 @@ namespace Engine1
         void initialize(
             int imageWidth,
             int imageHeight,
-            Microsoft::WRL::ComPtr< ID3D11Device > device,
-            Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext
+            Microsoft::WRL::ComPtr< ID3D11Device3 > device,
+            Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext
             );
 
         void performShadowMapping(
@@ -48,8 +48,8 @@ namespace Engine1
 
         Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;
 
         bool m_initialized;
 
@@ -59,12 +59,12 @@ namespace Engine1
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_shadowTexture;
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         m_distanceToOccluderTexture;
 
-        void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device& device );
+        void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device3& device );
 
         // Shaders.
         std::shared_ptr< RasterizingShadowsComputeShader > m_rasterizeShadowsComputeShader;
 
-        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         // Copying is not allowed.
         RasterizeShadowRenderer( const RasterizeShadowRenderer& ) = delete;

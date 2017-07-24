@@ -1,6 +1,6 @@
 #include "FragmentShader.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 //#include <d3dcompiler.h>
 
 //#include "StringUtil.h"
@@ -20,13 +20,13 @@ m_shaderId( 0 )
 FragmentShader::~FragmentShader()
 {}
 
-void FragmentShader::loadAndInitialize( const std::string& path, ComPtr< ID3D11Device >& device )
+void FragmentShader::loadAndInitialize( const std::string& path, ComPtr< ID3D11Device3 >& device )
 {
     load( path, device );
     initialize( device );
 }
 
-void FragmentShader::load( const std::string& path, ComPtr< ID3D11Device >& device )
+void FragmentShader::load( const std::string& path, ComPtr< ID3D11Device3 >& device )
 {
     if ( m_compiled )
         throw std::exception( "FragmentShader::loadFromFile - Shader has already been compiled" );
@@ -42,7 +42,7 @@ void FragmentShader::load( const std::string& path, ComPtr< ID3D11Device >& devi
     this->m_shaderId = ++compiledShadersCount;
 }
 
-void FragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void FragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     device;
 }

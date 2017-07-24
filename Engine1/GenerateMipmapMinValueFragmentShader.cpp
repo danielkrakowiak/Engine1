@@ -2,7 +2,7 @@
 
 #include "StringUtil.h"
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3dcompiler.h>
 
 #include "uchar4.h"
@@ -19,7 +19,7 @@ GenerateMipmapMinValueFragmentShader::~GenerateMipmapMinValueFragmentShader()
 {}
 
 
-void GenerateMipmapMinValueFragmentShader::initialize( ComPtr< ID3D11Device >& device )
+void GenerateMipmapMinValueFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     { // Create sampler configuration.
         D3D11_SAMPLER_DESC samplerConfiguration;
@@ -59,7 +59,7 @@ void GenerateMipmapMinValueFragmentShader::initialize( ComPtr< ID3D11Device >& d
     }
 }
 
-void GenerateMipmapMinValueFragmentShader::setParameters( ID3D11DeviceContext& deviceContext,
+void GenerateMipmapMinValueFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                           Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
                                                           const int srcMipLevel )
 {
@@ -93,7 +93,7 @@ void GenerateMipmapMinValueFragmentShader::setParameters( ID3D11DeviceContext& d
     deviceContext.PSSetSamplers( 0, 1, samplerStates );
 }
 
-void GenerateMipmapMinValueFragmentShader::unsetParameters( ID3D11DeviceContext& deviceContext )
+void GenerateMipmapMinValueFragmentShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 1 ] = { nullptr };

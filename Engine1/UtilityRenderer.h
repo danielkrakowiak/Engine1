@@ -5,8 +5,8 @@
 
 #include "Texture2D.h"
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
+struct ID3D11Device3;
+struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
@@ -25,8 +25,8 @@ namespace Engine1
         UtilityRenderer( Direct3DRendererCore& rendererCore );
         ~UtilityRenderer();
 
-        void initialize( Microsoft::WRL::ComPtr< ID3D11Device > device,
-                         Microsoft::WRL::ComPtr< ID3D11DeviceContext > deviceContext );
+        void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device,
+                         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
                             const int mipmapLevel,
@@ -73,8 +73,8 @@ namespace Engine1
 
         Direct3DRendererCore& m_rendererCore;
 
-        Microsoft::WRL::ComPtr< ID3D11Device >        m_device;
-        Microsoft::WRL::ComPtr< ID3D11DeviceContext > m_deviceContext;
+        Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;
 
         bool m_initialized;
 
@@ -88,7 +88,7 @@ namespace Engine1
         std::shared_ptr< BlurValueComputeShader >                                  m_blurValueComputeShader;
         std::shared_ptr< MergeMipmapsValueComputeShader >                          m_mergeMipmapsValueComputeShader;
 
-        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device >& device );
+        void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         // Copying is not allowed.
         UtilityRenderer( const UtilityRenderer& ) = delete;
