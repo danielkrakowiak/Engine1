@@ -63,7 +63,9 @@ float4 main(PixelInputType input) : SV_Target
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
 
-    const float3 dirToCamera = normalize( cameraPosition - centerPosition );
+    const float3 vectorToCamera = cameraPosition - centerPosition;
+    const float3 dirToCamera    = normalize( vectorToCamera );
+    const float  distToCamera   = length( vectorToCamera );
 
     // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
     // to decrease search radius when looking at walls/floors at flat angle.
@@ -87,11 +89,15 @@ float4 main(PixelInputType input) : SV_Target
     const float samplingRadiusInt   = ceil( samplingRadius );
     ////
 
-    float2 pixelSize0 = ( 1.0f / imageSize );
-    float2 pixelSize  = pixelSize0 * (float)pow( 2.0, mipmapLevel );
+    float2 pixelSize0   = ( 1.0f / imageSize );
+    float  pixelSizeMul = pow(2.0, mipmapLevel);
+    float2 pixelSize    = pixelSize0 * pixelSizeMul;
 
     float  sampleWeightSum = 0.0001;
     float3 sampleSum       = 0.0;
+
+    // #TODO: Use real FOV instead of hardcoded value.
+    const float pixelSizeInWorldSpace = pixelSizeMul * getPixelSizeInWorldSpace( distToCamera, Pi / 4.0f, imageSize.y );
 
     // Center sample gets special treatment - it's very important for low roughness (low level mipmaps) 
     // and should be ignored for high roughness (high level mipmaps) as it contains influences from neighbors (artefacts).
@@ -134,18 +140,32 @@ float4 main(PixelInputType input) : SV_Target
             if (any(saturate(sampleTexcoords) != sampleTexcoords))
                 continue;
 
-            const float3 sampleValue = g_colorTexture.SampleLevel( g_linearSamplerState, sampleTexcoords/** srcTextureFillSize / imageSize*/, mipmapLevel ).rgb;
+            const float3 sampleValue   = g_colorTexture.SampleLevel( g_linearSamplerState, sampleTexcoords/** srcTextureFillSize / imageSize*/, mipmapLevel ).rgb;
+            const float3 samplPosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz;
+            const float3 sampleNormal  = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz;
+            
+            // #TODO: Maybe I should calculate the expected difference in positions between center and sample. 
+            // And then use ratio of positon-diff to expected-position-diff as weight?
+            // Because right now we dim outer pixels just because they are naturally further away. 
+            // And it's fine, but it's mixed with filtering pixel in the background.
+            // These two processes should be clearly separated and tweakable. So two kinds of weights calculated...
 
-            const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
-            const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
+            // Calculate expected distance in world space between sample and center 
+            // assuming they are on flat surface facing the camera.
+            const float distanceInPixels     = sqrt(x * x + y * y);
 
-            const float  positionDiff       = length( samplePosition - centerPosition );
-            const float  normalDiff         = 1.0f - max( 0.0, dot( sampleNormal, centerNormal ) );  
-            const float  samplesPosNormDiff = positionDiffMul * positionDiff + normalDiffMul * normalDiff;
+            const float expectedPositionDiff = distanceInPixels * pixelSizeInWorldSpace;
+            const float positionDiff         = length( samplPosition - centerPosition );
+            const float normalDiff           = 1.0f - max( 0.0, dot( sampleNormal, centerNormal ) );  
 
-            const float  sampleWeight1 = getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
+            const float positionDiffErrorRatio = max( 0.0, positionDiff - expectedPositionDiff) / expectedPositionDiff;
 
-            const float sampleWeight = sampleWeightXY * sampleWeight1;
+            const float samplesPosNormDiff = positionDiffMul * positionDiff * positionDiff + normalDiffMul * normalDiff * normalDiff;
+
+            const float  sampleWeight1 = lerp( 1.0, 0.0, saturate( positionDiffErrorRatio ) );
+            const float  sampleWeight2 = getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
+
+            const float sampleWeight = sampleWeightXY * sampleWeight1 * sampleWeight2;
 
             sampleSum       += sampleValue * sampleWeight;
             sampleWeightSum += sampleWeight;

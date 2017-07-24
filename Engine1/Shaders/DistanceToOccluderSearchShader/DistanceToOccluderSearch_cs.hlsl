@@ -78,6 +78,7 @@ void main( uint3 groupId : SV_GroupID,
     const float3 centerPosition       = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
     const float  centerWeight         = saturate( 500.0f - centerDistToOccluder );
 
+    // #TODO: Replace with call to getPixelSizeInWorldSpace. Check if it caused any errors. Use real FOV instead of hardcoded value.
     const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
 
     const float mipmap = 2.0f;

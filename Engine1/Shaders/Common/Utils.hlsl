@@ -103,4 +103,11 @@ float calculateRefractionTerm( float3 incidentRay, float3 surfaceNormal, float r
     return r0 + (1.0f - r0) * x * x * x * x * x;
 }
 
+// fov - vertical field of view
+// imageHeight - in pixels
+float getPixelSizeInWorldSpace( const float distToCamera, const float fov, const float imageHeight )
+{
+    return (distToCamera * tan( fov / 2.0 /*Pi / 8.0f*/ )) / (imageHeight / 2.0);
+}
+
 #endif
