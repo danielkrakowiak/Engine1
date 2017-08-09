@@ -17,6 +17,8 @@
 #include "BlockModel.h"
 #include "BlockActor.h"
 
+#include "Settings.h"
+
 using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
@@ -51,8 +53,6 @@ void RaytraceRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D
     this->m_imageHeight = imageHeight;
 
     loadAndCompileShaders( device );
-
-    createDefaultTextures( *device.Get() );
 
     m_initialized = true;
 }
@@ -411,22 +411,22 @@ void RaytraceRenderer::tracePrimaryRays(
         const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 1.0f;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *m_defaultEmissiveTexture;
+            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *settings().textures.defaults.emissive;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
-            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *m_defaultAlbedoTexture;
+            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *settings().textures.defaults.albedo;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
-            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *m_defaultNormalTexture;
+            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *settings().textures.defaults.normal;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
-            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *m_defaultMetalnessTexture;
+            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *settings().textures.defaults.metalness;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
-            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *m_defaultRoughnessTexture;
+            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *settings().textures.defaults.roughness;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *m_defaultIndexOfRefractionTexture;
+            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *settings().textures.defaults.refractiveIndex;
 
         m_raytracingPrimaryRaysComputeShader->setParameters( 
             *m_deviceContext.Get(), 
@@ -515,25 +515,25 @@ void RaytraceRenderer::traceSecondaryRays(
         const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 1.0f;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
-            = !model.getAlphaTextures().empty() ? *model.getAlphaTextures()[ 0 ].getTexture() : *m_defaultAlphaTexture;
+            = !model.getAlphaTextures().empty() ? *model.getAlphaTextures()[ 0 ].getTexture() : *settings().textures.defaults.alpha;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *m_defaultEmissiveTexture;
+            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *settings().textures.defaults.emissive;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
-            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *m_defaultAlbedoTexture;
+            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *settings().textures.defaults.albedo;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
-            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *m_defaultNormalTexture;
+            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *settings().textures.defaults.normal;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
-            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *m_defaultMetalnessTexture;
+            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *settings().textures.defaults.metalness;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
-            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *m_defaultRoughnessTexture;
+            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *settings().textures.defaults.roughness;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *m_defaultIndexOfRefractionTexture;
+            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *settings().textures.defaults.refractiveIndex;
 
         m_raytracingSecondaryRaysComputeShader->setParameters( 
             *m_deviceContext.Get(), 
@@ -621,37 +621,4 @@ void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
     m_raytracingSecondaryRaysComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingSecondaryRaysShader/RaytracingSecondaryRays_cs.cso", device );
     m_sumValueComputeShader->loadAndInitialize( "Engine1/Shaders/SumValueShader/SumValue_cs.cso", device );
 }
-
-void RaytraceRenderer::createDefaultTextures( ID3D11Device3& device )
-{
-    std::vector< unsigned char > dataAlpha             = { 255 };
-    std::vector< unsigned char > dataMetalness         = { 0 };
-    std::vector< unsigned char > dataRoughness         = { 0 };
-    std::vector< unsigned char > dataIndexOfRefraction = { 0 };
-    std::vector< uchar4 >        dataEmissive          = { uchar4( 0, 0, 0, 255 ) };
-    std::vector< uchar4 >        dataAlbedo            = { uchar4( 128, 128, 128, 255 ) };
-    std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 255 ) };
-
-    m_defaultAlphaTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-        ( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_defaultMetalnessTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-        ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_defaultRoughnessTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-        ( device, dataRoughness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_defaultIndexOfRefractionTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-        ( device, dataIndexOfRefraction, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_defaultEmissiveTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-        ( device, dataEmissive, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
-
-    m_defaultAlbedoTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-        ( device, dataAlbedo, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
-
-    m_defaultNormalTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-        ( device, dataNormal, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
-}
-
 

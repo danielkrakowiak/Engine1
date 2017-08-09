@@ -78,6 +78,9 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     const int parallelThreadCount = std::thread::hardware_concurrency( ) > 0 ? std::thread::hardware_concurrency( ) : 1;
 
 	m_frameRenderer.initialize( m_windowHandle, settings().main.screenDimensions.x, settings().main.screenDimensions.y, settings().main.fullscreen, settings().main.verticalSync );
+
+    Settings::initialize( *m_frameRenderer.getDevice().Get() );
+
 	m_rendererCore.initialize( *m_frameRenderer.getDeviceContext( ).Get() );
     m_assetManager.initialize( parallelThreadCount, parallelThreadCount, m_frameRenderer.getDevice() );
     m_profiler.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );

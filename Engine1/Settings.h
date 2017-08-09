@@ -1,11 +1,18 @@
 #pragma once
 
+#include <vector>
+
 #include "int2.h"
 #include "float3.h"
-#include <vector>
+
+#include "Texture2D.h"
+
+struct ID3D11Device3;
 
 namespace Engine1
 {
+    template< TexUsage, TexBind, typename > class Texture2D;
+
     class Settings
     {
         // Only Application and ControlPanel classes can modify the settings.
@@ -19,6 +26,9 @@ namespace Engine1
         ~Settings();
 
         static const Settings& get();
+
+        // A second initialization that may require some info from outside of Settings.
+        static void initialize(ID3D11Device3& device);
 
         struct Main
         {
@@ -97,6 +107,20 @@ namespace Engine1
             } combining;
         } rendering;
 
+        struct Textures
+        {
+            struct Defaults
+            {
+                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > alpha;
+                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        emissive;
+                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        albedo;
+                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        normal;
+                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > metalness;
+                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > roughness;
+                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > refractiveIndex;
+            } defaults;
+        } textures;
+
         struct Physics
         {
             float fixedStepDuration; // In seconds.
@@ -109,7 +133,7 @@ namespace Engine1
         // of settings each time - because when we modify them we can also read them and they need to be up-to-date.
         static Settings& modify();
 
-        static void setDefault();
+        static void initializeInternal();
         static void onChanged();
 
         // These should not be changed from outside of this class - even by friend classes.

@@ -181,17 +181,6 @@ namespace Engine1
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
-        // Default textures.
-        std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultAlphaTexture;
-        std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultMetalnessTexture;
-        std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultRoughnessTexture;
-        std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > m_defaultIndexOfRefractionTexture;
-        std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultEmissiveTexture;
-        std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultAlbedoTexture;
-        std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        m_defaultNormalTexture;
-
-        void createDefaultTextures( ID3D11Device3& device );
-
         // Copying is not allowed.
         Direct3DDeferredRenderer( const Direct3DDeferredRenderer& ) = delete;
         Direct3DDeferredRenderer& operator=(const Direct3DDeferredRenderer&) = delete;

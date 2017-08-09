@@ -12,6 +12,7 @@
 #include "SkeletonPose.h"
 
 #include "Font.h"
+#include "Settings.h"
 
 #include <d3d11_3.h>
 
@@ -42,8 +43,6 @@ void Direct3DDeferredRenderer::initialize(
 	m_blendStateForTextRendering            = createBlendStateForTextRendering( *device.Get() );
 
 	loadAndCompileShaders( device );
-
-    createDefaultTextures( *device.Get() );
 
 	m_initialized = true;
 }
@@ -181,7 +180,7 @@ void Direct3DDeferredRenderer::render(
 
 void Direct3DDeferredRenderer::render( 
     const RenderTargets& renderTargets, 
-    const Settings& settings, 
+    const Settings& renderSettings, 
     const BlockModel& model, 
     const float43& worldMatrix, 
     const float44& viewMatrix, 
@@ -194,13 +193,13 @@ void Direct3DDeferredRenderer::render(
         throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
 
     const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation(
-        settings.fieldOfView,
-        settings.imageDimensions.x / settings.imageDimensions.y,
-        settings.zNear,
-        settings.zFar
+        renderSettings.fieldOfView,
+        renderSettings.imageDimensions.x / renderSettings.imageDimensions.y,
+        renderSettings.zNear,
+        renderSettings.zFar
     );
 
-    m_rendererCore.setViewport( settings.imageDimensions );
+    m_rendererCore.setViewport( renderSettings.imageDimensions );
 
     // Enable render targets.
     enableRenderTargets( renderTargets );
@@ -215,25 +214,25 @@ void Direct3DDeferredRenderer::render(
         const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 1.0f;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
-            = !model.getAlphaTextures().empty() ? *model.getAlphaTextures()[ 0 ].getTexture() : *m_defaultAlphaTexture;
+            = !model.getAlphaTextures().empty() ? *model.getAlphaTextures()[ 0 ].getTexture() : *settings().textures.defaults.alpha;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *m_defaultEmissiveTexture;
+            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *settings().textures.defaults.emissive;
 
 	    const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
-            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *m_defaultAlbedoTexture;
+            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *settings().textures.defaults.albedo;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
-            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *m_defaultNormalTexture;
+            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *settings().textures.defaults.normal;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
-            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *m_defaultMetalnessTexture;
+            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *settings().textures.defaults.metalness;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
-            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *m_defaultRoughnessTexture;
+            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *settings().textures.defaults.roughness;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *m_defaultIndexOfRefractionTexture;
+            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *settings().textures.defaults.refractiveIndex;
 
 		m_blockModelVertexShader.setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, projectionMatrix );
 
@@ -252,7 +251,7 @@ void Direct3DDeferredRenderer::render(
 		m_rendererCore.enableRenderingShaders( m_blockModelVertexShader, m_blockModelFragmentShader );
 	}
 
-	m_rendererCore.enableRasterizerState( settings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
+	m_rendererCore.enableRasterizerState( renderSettings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
 	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
 	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
@@ -262,7 +261,7 @@ void Direct3DDeferredRenderer::render(
 
 void Direct3DDeferredRenderer::render( 
     const RenderTargets& renderTargets, 
-    const Settings& settings, 
+    const Settings& renderSettings, 
     const SkeletonModel& model, 
     const float43& worldMatrix, 
     const float44& viewMatrix, 
@@ -276,13 +275,13 @@ void Direct3DDeferredRenderer::render(
         throw std::exception( "Direct3DDeferredRenderer::render - model has no mesh." );
 
     const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation(
-        settings.fieldOfView,
-        settings.imageDimensions.x / settings.imageDimensions.y,
-        settings.zNear,
-        settings.zFar
+        renderSettings.fieldOfView,
+        renderSettings.imageDimensions.x / renderSettings.imageDimensions.y,
+        renderSettings.zNear,
+        renderSettings.zFar
     );
 
-    m_rendererCore.setViewport( settings.imageDimensions );
+    m_rendererCore.setViewport( renderSettings.imageDimensions );
 
     // Enable render targets.
     enableRenderTargets( renderTargets );
@@ -297,25 +296,25 @@ void Direct3DDeferredRenderer::render(
         const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 1.0f;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
-            = !model.getAlphaTextures().empty() ? *model.getAlphaTextures()[ 0 ].getTexture() : *m_defaultAlphaTexture;
+            = !model.getAlphaTextures().empty() ? *model.getAlphaTextures()[ 0 ].getTexture() : *settings().textures.defaults.alpha;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
-            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *m_defaultEmissiveTexture;
+            = !model.getEmissiveTextures().empty() ? *model.getEmissiveTextures()[ 0 ].getTexture() : *settings().textures.defaults.emissive;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
-            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *m_defaultAlbedoTexture;
+            = !model.getAlbedoTextures().empty() ? *model.getAlbedoTextures()[ 0 ].getTexture() : *settings().textures.defaults.albedo;
 
         const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
-            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *m_defaultNormalTexture;
+            = !model.getNormalTextures().empty() ? *model.getNormalTextures()[ 0 ].getTexture() : *settings().textures.defaults.normal;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
-            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *m_defaultMetalnessTexture;
+            = !model.getMetalnessTextures().empty() ? *model.getMetalnessTextures()[ 0 ].getTexture() : *settings().textures.defaults.metalness;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
-            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *m_defaultRoughnessTexture;
+            = !model.getRoughnessTextures().empty() ? *model.getRoughnessTextures()[ 0 ].getTexture() : *settings().textures.defaults.roughness;
 
         const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
-            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *m_defaultIndexOfRefractionTexture;
+            = !model.getRefractiveIndexTextures().empty() ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() : *settings().textures.defaults.refractiveIndex;
 
 		m_skeletonModelVertexShader.setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, projectionMatrix, *model.getMesh( ), poseInSkeletonSpace );
 		m_skeletonModelFragmentShader.setParameters( *m_deviceContext.Get(), alphaTexture, emissiveTexture, albedoTexture, normalTexture, metalnessTexture, roughnessTexture, indexOfRefractionTexture, extraEmissive );
@@ -323,7 +322,7 @@ void Direct3DDeferredRenderer::render(
 		m_rendererCore.enableRenderingShaders( m_skeletonModelVertexShader, m_skeletonModelFragmentShader );
 	}
 
-	m_rendererCore.enableRasterizerState( settings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
+	m_rendererCore.enableRasterizerState( renderSettings.wireframeMode ? *m_wireframeRasterizerState.Get() : *m_rasterizerState.Get() );
 	m_rendererCore.enableDepthStencilState( *m_depthStencilState.Get() );
 	m_rendererCore.enableBlendState( *m_blendStateForMeshRendering.Get() );
 
@@ -623,36 +622,4 @@ void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& d
 
 	m_textVertexShader.loadAndInitialize( "Engine1/Shaders/TextShader/Text_vs.cso", device );
 	m_textFragmentShader.loadAndInitialize( "Engine1/Shaders/TextShader/Text_ps.cso", device );
-}
-
-void Direct3DDeferredRenderer::createDefaultTextures( ID3D11Device3& device )
-{
-    std::vector< unsigned char > dataAlpha             = { 255 };
-    std::vector< unsigned char > dataMetalness         = { 0 };
-    std::vector< unsigned char > dataRoughness         = { 0 };
-    std::vector< unsigned char > dataIndexOfRefraction = { 0 };
-    std::vector< uchar4 >        dataEmissive          = { uchar4( 0, 0, 0, 255 ) };
-    std::vector< uchar4 >        dataAlbedo            = { uchar4( 128, 128, 128, 255 ) };
-    std::vector< uchar4 >        dataNormal            = { uchar4( 128, 128, 255, 255 ) };
-
-    m_defaultAlphaTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-        ( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_defaultMetalnessTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-        ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_defaultRoughnessTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-        ( device, dataRoughness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_defaultIndexOfRefractionTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-        ( device, dataIndexOfRefraction, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-
-    m_defaultEmissiveTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-        ( device, dataEmissive, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
-
-    m_defaultAlbedoTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-        ( device, dataAlbedo, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
-
-    m_defaultNormalTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-        ( device, dataNormal, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 }
