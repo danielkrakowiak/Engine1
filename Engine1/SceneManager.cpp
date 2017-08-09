@@ -923,7 +923,7 @@ bool SceneManager::isSelectionEmpty()
 void SceneManager::selectAll()
 {
     m_selection.replace( m_scene->getActorsVec() );
-    m_selection.replace( m_scene->getLightsVec() );
+    m_selection.add( m_scene->getLightsVec() );
 }
 
 void SceneManager::clearSelection()
