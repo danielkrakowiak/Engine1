@@ -752,12 +752,16 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
         auto& selectedBlockActors = m_sceneManager.getSelectedBlockActors();
         auto& selectedSkeletonActors = m_sceneManager.getSelectedSkeletonActors();
 
-        if ( !selectedBlockActors.empty() ) {
-            if ( selectedBlockActors[ 0 ]->getModel() )
-                setModelTextureMultipliersFromSettings( *selectedBlockActors[ 0 ]->getModel() );
-        } else if ( !selectedSkeletonActors.empty() ) {
-            if ( selectedSkeletonActors[ 0 ]->getModel() )
-                setModelTextureMultipliersFromSettings( *selectedSkeletonActors[ 0 ]->getModel() );
+        for ( auto& actor : selectedBlockActors )
+        {
+            if ( actor->getModel() )
+                setModelTextureMultipliersFromSettings( *actor->getModel() );
+        } 
+    
+        for ( auto& actor : selectedSkeletonActors )
+        {
+            if ( actor->getModel() )
+                setModelTextureMultipliersFromSettings( *actor->getModel() );
         }
     }
 
