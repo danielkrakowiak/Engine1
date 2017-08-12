@@ -763,6 +763,14 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
             if ( actor->getModel() )
                 setModelTextureMultipliersFromSettings( *actor->getModel() );
         }
+
+        // Apply modified multipliers only once after they have been changed in Control Panel.
+        Settings::s_settings.debug.alphaMulChanged           = false;
+        Settings::s_settings.debug.emissiveMulChanged        = false;
+        Settings::s_settings.debug.albedoMulChanged          = false;
+        Settings::s_settings.debug.metalnessMulChanged       = false;
+        Settings::s_settings.debug.roughnessMulChanged       = false;
+        Settings::s_settings.debug.refractiveIndexMulChanged = false;
     }
 
     return modifyingScene;
