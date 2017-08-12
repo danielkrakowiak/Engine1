@@ -32,6 +32,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( mainBar, "Max level", TW_TYPE_INT32, &Settings::s_settings.rendering.reflectionsRefractions.maxLevel, "" );
     TwAddVarRW( mainBar, "Reflections", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.reflectionsEnabled, "" );
     TwAddVarRW( mainBar, "Refractions", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.refractionsEnabled, "" );
+    TwAddVarRW( mainBar, "Shadows", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.enabled, "" );
 
     TwAddButton( mainBar, "Next - reflection", ControlPanel::onNextLevelReflection, nullptr, "" );
     TwAddButton( mainBar, "Next - transmission", ControlPanel::onNextLevelReflection, nullptr, "" );
@@ -54,6 +55,8 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
 
     TwAddButton( meshUtilsBar, "Flip UVs (vertically)", ControlPanel::onFlipUVs, this, "" );
     TwAddButton( meshUtilsBar, "Flip Tangents", ControlPanel::onFlipTangents, this, "" );
+    TwAddButton( meshUtilsBar, "Flip Normals", ControlPanel::onFlipNormals, this, "" );
+    TwAddButton( meshUtilsBar, "Invert vertex winding order", ControlPanel::onInvertVertexWindingOrder, this, "" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )
@@ -154,4 +157,20 @@ void TW_CALL ControlPanel::onFlipTangents( void* controlPanel )
         return;
 
     ( (ControlPanel*)controlPanel )->m_sceneManager.flipTangentsAndResaveMesh();
+}
+
+void TW_CALL ControlPanel::onFlipNormals( void* controlPanel )
+{
+    if ( !controlPanel )
+        return;
+
+    ( (ControlPanel*)controlPanel )->m_sceneManager.flipNormalsAndResaveMesh();
+}
+
+void TW_CALL ControlPanel::onInvertVertexWindingOrder( void* controlPanel )
+{
+    if ( !controlPanel )
+        return;
+
+    ( (ControlPanel*)controlPanel )->m_sceneManager.invertVertexWindingOrderAndResaveMesh();
 }

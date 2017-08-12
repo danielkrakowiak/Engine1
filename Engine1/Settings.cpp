@@ -77,6 +77,7 @@ void Settings::initializeInternal()
     s_settings.rendering.exposure           = 1.0f;
     s_settings.rendering.antialiasing       = true;
 
+    s_settings.rendering.shadows.enabled                = true;
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 
     s_settings.rendering.reflectionsRefractions.maxLevel           = 1;

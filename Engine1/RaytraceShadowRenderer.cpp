@@ -9,6 +9,8 @@
 #include "BlockModel.h"
 #include "BlockActor.h"
 
+#include "Settings.h"
+
 using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
@@ -108,7 +110,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
         actorsToPass.clear();
         while ( actorsToPass.size() < RaytracingShadowsComputeShader::s_maxActorCount && actorIdx < actors.size() )
         {
-            if ( actors[ actorIdx ]->isCastingShadows() )
+            if ( settings().rendering.shadows.enabled && actors[ actorIdx ]->isCastingShadows() )
                 actorsToPass.push_back( actors[ actorIdx ] );
 
             ++actorIdx;

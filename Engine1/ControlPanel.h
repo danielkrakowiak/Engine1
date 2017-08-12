@@ -41,6 +41,8 @@ namespace Engine1
 
         static void TW_CALL onFlipUVs( void* controlPanel );
         static void TW_CALL onFlipTangents( void* controlPanel );
+        static void TW_CALL onFlipNormals( void* controlPanel );
+        static void TW_CALL onInvertVertexWindingOrder( void* controlPanel );
 
         private:
 

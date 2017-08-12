@@ -75,6 +75,8 @@ namespace Engine1
 
             struct Shadows
             {
+                bool enabled;
+
                 // Debug option to enable/disable blurring shadows in two passes - horizontal and vertical.
                 // It reduces blurring complexity from n^2 to 2n, where n is blurring kernel size.
                 // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
