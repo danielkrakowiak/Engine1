@@ -44,6 +44,7 @@ BlockModel::BlockModel( )
 {}
 
 BlockModel::BlockModel( const BlockModel& obj ) :
+Model( obj ),
 m_fileInfo( obj.m_fileInfo ),
 m_mesh( obj.m_mesh )
 {}
