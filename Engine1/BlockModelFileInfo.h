@@ -14,7 +14,8 @@ namespace Engine1
 
         enum class Format : char
         {
-            BLOCKMODEL = 0
+            BLOCKMODEL = 0,
+            OBJ
         };
 
         static std::shared_ptr<BlockModelFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );

@@ -4,7 +4,27 @@
 
 #include <memory>
 
+#include "StringUtil.h"
+
 using namespace Engine1;
+
+Texture2DFileInfo::Format Texture2DFileInfo::fromExtension( const std::string& extension )
+{
+    auto extensionLowercase = StringUtil::toLowercase( extension );
+
+    if ( extensionLowercase.compare("bmp") == 0 )       return Format::BMP;
+    else if ( extensionLowercase.compare("dds") == 0 )  return Format::DDS;
+    else if ( extensionLowercase.compare("jpeg") == 0 
+        || extensionLowercase.compare("jpg") == 0 )     return Format::JPEG;
+    else if ( extensionLowercase.compare("png") == 0 )  return Format::PNG;
+    else if ( extensionLowercase.compare("raw") == 0 )  return Format::RAW;
+    else if ( extensionLowercase.compare("tiff") == 0 
+        || extensionLowercase.compare("tif") == 0 )     return Format::TIFF;
+    else if ( extensionLowercase.compare("tga") == 0 )  return Format::TGA;
+    else if ( extensionLowercase.compare("gif") == 0 )  return Format::GIF;
+
+    throw std::exception( "Texture2DFileInfo::fromExtension - unrecognized extension." );
+}
 
 std::shared_ptr<Texture2DFileInfo> Texture2DFileInfo::createFromMemory( std::vector<char>::const_iterator& dataIt )
 {

@@ -15,9 +15,11 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const BlockModelFileInfo
 
 std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device3& device )
 {
-	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
+    std::shared_ptr<BlockModel> model;
 
-	std::shared_ptr<BlockModel> model = createFromMemory( fileData->cbegin(), format, loadRecurrently, device );
+	std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
+	    
+    model = createFromMemory( fileData->cbegin(), fileData->cend(), format, loadRecurrently, device );
 
     model->getFileInfo( ).setPath( path );
     model->getFileInfo( ).setFormat( format );
@@ -25,11 +27,14 @@ std::shared_ptr<BlockModel> BlockModel::createFromFile( const std::string& path,
     return model;
 }
 
-std::shared_ptr<BlockModel> BlockModel::createFromMemory( std::vector<char>::const_iterator dataIt, const BlockModelFileInfo::Format format, const bool loadRecurrently, ID3D11Device3& device )
+std::shared_ptr<BlockModel> BlockModel::createFromMemory( 
+    std::vector<char>::const_iterator dataIt, 
+    std::vector<char>::const_iterator dataEndIt, 
+    const BlockModelFileInfo::Format format, 
+    const bool loadRecurrently, ID3D11Device3& device )
 {
-	if ( BlockModelFileInfo::Format::BLOCKMODEL == format ) {
+	if ( BlockModelFileInfo::Format::BLOCKMODEL == format )
 		return BlockModelParser::parseBinary( dataIt, loadRecurrently, device );
-	}
 
 	throw std::exception( "BlockModel::createFromMemory() - incorrect 'format' argument." );
 }
@@ -241,31 +246,31 @@ void BlockModel::loadCpuToGpu( ID3D11Device3& device, ID3D11DeviceContext3& devi
 		m_mesh->loadCpuToGpu( device, reload );
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
-		if ( texture.getTexture() )
+		if ( texture.getTexture() && texture.getTexture()->isInCpuMemory() )
             texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
     for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
-		if ( texture.getTexture() ) 
+		if ( texture.getTexture() && texture.getTexture()->isInCpuMemory() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
-		if ( texture.getTexture() ) 
+		if ( texture.getTexture() && texture.getTexture()->isInCpuMemory() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
-		if ( texture.getTexture() ) 
+		if ( texture.getTexture() && texture.getTexture()->isInCpuMemory() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
-		if ( texture.getTexture() ) 
+		if ( texture.getTexture() && texture.getTexture()->isInCpuMemory() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
-		if ( texture.getTexture() ) 
+		if ( texture.getTexture() && texture.getTexture()->isInCpuMemory() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
-		if ( texture.getTexture() ) 
+		if ( texture.getTexture() && texture.getTexture()->isInCpuMemory() ) 
             texture.getTexture()->loadCpuToGpu( device, deviceContext, reload );
 }
 
@@ -358,31 +363,31 @@ bool BlockModel::isInCpuMemory() const
 		return false;
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
             return false;
 
     for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInCpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInCpuMemory() )
             return false;
 
 	return true;
@@ -394,31 +399,31 @@ bool BlockModel::isInGpuMemory() const
 		return false;
 
     for ( const ModelTexture2D< unsigned char >& texture : m_alphaTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
             return false;
 
     for ( const ModelTexture2D< uchar4 >& texture : m_emissiveTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_albedoTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_metalnessTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_roughnessTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< uchar4 >& texture : m_normalTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
             return false;
 
 	for ( const ModelTexture2D< unsigned char >& texture : m_refractiveIndexTextures )
-		if ( !texture.getTexture() || !texture.getTexture()->isInGpuMemory() )
+		if ( texture.getTexture() && !texture.getTexture()->isInGpuMemory() )
             return false;
 
 	return true;

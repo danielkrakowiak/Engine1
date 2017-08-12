@@ -76,7 +76,11 @@ void AssetManager::load( const FileInfo& fileInfo )
 	}
 
 	try {
-		OutputDebugStringW( StringUtil::widen( "AssetManager::load - reading and parsing \"" + fileInfo.getPath( ) + "\"\n" ).c_str( ) );
+		OutputDebugStringW( StringUtil::widen( 
+            "AssetManager::load - reading and parsing \"" 
+            + fileInfo.getPath( ) + "\" [" 
+            + std::to_string( fileInfo.getIndexInFile() ) + "]\n" 
+        ).c_str( ) );
 
 		std::shared_ptr<Asset> asset = createFromFile( fileInfo );
 
@@ -96,14 +100,22 @@ void AssetManager::load( const FileInfo& fileInfo )
 			m_loadedAssets.insert( std::make_pair( id, asset ) );
 		}
 
-		OutputDebugStringW( StringUtil::widen( "AssetManager::load - read and parsed \"" + fileInfo.getPath( ) + "\"\n" ).c_str( ) );
+		OutputDebugStringW( StringUtil::widen( 
+            "AssetManager::load - read and parsed \"" 
+            + fileInfo.getPath( ) + "\" [" 
+            + std::to_string( fileInfo.getIndexInFile() ) + "]\n" 
+        ).c_str( ) );
 
 	} catch ( .../*std::exception& ex*/ ) {
 		// If asset failed to load - remove it from assets.
 		std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
 		m_assets.erase( id );
 
-		OutputDebugStringW( StringUtil::widen( "AssetManager::load - failed to read or parse \"" + fileInfo.getPath( ) + "\"\n" ).c_str( ) );
+		OutputDebugStringW( StringUtil::widen( 
+            "AssetManager::load - failed to read or parse \"" 
+            + fileInfo.getPath( ) + "\" [" 
+            + std::to_string( fileInfo.getIndexInFile() ) + "]\n"  
+        ).c_str( ) );
 
 		// Re-throw the exception.
 		throw;
@@ -249,7 +261,11 @@ void AssetManager::readAssetsFromDisk() {
             }
 		}
 
-		OutputDebugStringW( StringUtil::widen( "AssetManager::readAssetsFromDisk - reading \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+		OutputDebugStringW( StringUtil::widen( 
+            "AssetManager::readAssetsFromDisk - reading \"" 
+            + fileInfo->getPath( ) + "\" [" 
+            + std::to_string( fileInfo->getIndexInFile() ) + "]\n"  
+        ).c_str( ) );
 
 		// Load file from disk.
 		try {
@@ -258,7 +274,11 @@ void AssetManager::readAssetsFromDisk() {
 			else if ( fileInfo->getFileType() == FileInfo::FileType::Binary )
 				fileData = BinaryFile::load( fileInfo->getPath() );
 
-			OutputDebugStringW( StringUtil::widen( "AssetManager::readAssetsFromDisk - read \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+			OutputDebugStringW( StringUtil::widen( 
+                "AssetManager::readAssetsFromDisk - read \"" 
+                + fileInfo->getPath( ) + "\" [" 
+                + std::to_string( fileInfo->getIndexInFile() ) + "]\n"  
+            ).c_str( ) );
 
 		} catch ( .../*std::exception& ex*/ ) {
             std::string id = getId( fileInfo->getAssetType( ), fileInfo->getPath( ), fileInfo->getIndexInFile( ) );
@@ -267,7 +287,11 @@ void AssetManager::readAssetsFromDisk() {
 			std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
 			m_assets.erase( id );
 
-			OutputDebugStringW( StringUtil::widen( "AssetManager::readAssetsFromDisk - failed to read \"" + fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+			OutputDebugStringW( StringUtil::widen( 
+                "AssetManager::readAssetsFromDisk - failed to read \"" 
+                + fileInfo->getPath( ) + "\" [" 
+                + std::to_string( fileInfo->getIndexInFile() ) + "]\n"  
+            ).c_str( ) );
 
             // Notify 'getWhenLoaded' method that an asset failed to load.
             m_assetLoadedOrError.notify_all();
@@ -320,7 +344,11 @@ void AssetManager::parseBasicAssets()
 			m_basicAssetsToParse.pop_front();
 		}
 
-		OutputDebugStringW( StringUtil::widen( "AssetManager::parseBasicAssets - parsing \"" + assetToParse.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+		OutputDebugStringW( StringUtil::widen( 
+            "AssetManager::parseBasicAssets - parsing \"" 
+            + assetToParse.fileInfo->getPath( ) + "\" [" 
+            + std::to_string( assetToParse.fileInfo->getIndexInFile() ) + "]\n"  
+        ).c_str( ) );
 
 		std::shared_ptr<Asset> asset = nullptr;
 
@@ -328,13 +356,21 @@ void AssetManager::parseBasicAssets()
 		try {
 			asset = createFromMemory( *assetToParse.fileInfo, *assetToParse.fileData );
 
-			OutputDebugStringW( StringUtil::widen( "AssetManager::parseBasicAssets - parsed \"" + assetToParse.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+			OutputDebugStringW( StringUtil::widen( 
+                "AssetManager::parseBasicAssets - parsed \"" 
+                + assetToParse.fileInfo->getPath( ) + "\" [" 
+                + std::to_string( assetToParse.fileInfo->getIndexInFile() ) + "]\n"  
+            ).c_str( ) );
 		} catch ( .../*std::exception& ex*/ ) {
 			// Asset failed to load - remove it from assets.
 			std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
 			m_assets.erase( assetToParse.fileInfo->getPath() );
 
-			OutputDebugStringW( StringUtil::widen( "AssetManager::parseBasicAssets - failed to parse \"" + assetToParse.fileInfo->getPath( ) + "\"\n" ).c_str( ) );
+			OutputDebugStringW( StringUtil::widen( 
+                "AssetManager::parseBasicAssets - failed to parse \"" 
+                + assetToParse.fileInfo->getPath( ) + "\" [" 
+                + std::to_string( assetToParse.fileInfo->getIndexInFile() ) + "]\n"  
+            ).c_str( ) );
 
             // Notify 'getWhenLoaded' method that an asset failed to load.
             m_assetLoadedOrError.notify_all();
@@ -377,7 +413,11 @@ void AssetManager::parseComplexAssets()
             m_complexAssetsToParse.pop_front();
         }
 
-        OutputDebugStringW( StringUtil::widen( "AssetManager::parseComplexAssets - parsing \"" + assetToParse.fileInfo->getPath() + "\"\n" ).c_str() );
+        OutputDebugStringW( StringUtil::widen( 
+            "AssetManager::parseComplexAssets - parsing \"" 
+            + assetToParse.fileInfo->getPath() + "\" [" 
+            + std::to_string( assetToParse.fileInfo->getIndexInFile() ) + "]\n"  
+        ).c_str() );
 
         std::shared_ptr<Asset> asset = nullptr;
 
@@ -403,13 +443,21 @@ void AssetManager::parseComplexAssets()
                 }
             }
 
-            OutputDebugStringW( StringUtil::widen( "AssetManager::parseComplexAssets - parsed \"" + assetToParse.fileInfo->getPath() + "\"\n" ).c_str() );
+            OutputDebugStringW( StringUtil::widen( 
+                "AssetManager::parseComplexAssets - parsed \"" 
+                + assetToParse.fileInfo->getPath() + "\" [" 
+                + std::to_string( assetToParse.fileInfo->getIndexInFile() ) + "]\n"  
+            ).c_str() );
         } catch ( .../*std::exception& ex*/ ) {
             // Asset failed to load - remove it from assets.
             std::lock_guard<std::mutex> assetsLock( m_assetsMutex );
             m_assets.erase( assetToParse.fileInfo->getPath() );
 
-            OutputDebugStringW( StringUtil::widen( "AssetManager::parseComplexAssets - failed to parse \"" + assetToParse.fileInfo->getPath() + "\"\n" ).c_str() );
+            OutputDebugStringW( StringUtil::widen( 
+                "AssetManager::parseComplexAssets - failed to parse \"" 
+                + assetToParse.fileInfo->getPath() + "\" [" 
+                + std::to_string( assetToParse.fileInfo->getIndexInFile() ) + "]\n"  
+            ).c_str() );
 
             // Notify 'getWhenLoaded' method that an asset failed to load.
             m_assetLoadedOrError.notify_all();
@@ -488,7 +536,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 		case Asset::Type::BlockModel:
 		{
 			const BlockModelFileInfo& modelFileInfo = static_cast<const BlockModelFileInfo&>( fileInfo );
-			std::shared_ptr<BlockModel> model = BlockModel::createFromMemory( fileData.cbegin(), modelFileInfo.getFormat( ), false, *m_device.Get() );
+			std::shared_ptr<BlockModel> model = BlockModel::createFromMemory( fileData.cbegin(), fileData.cend(), modelFileInfo.getFormat( ), false, *m_device.Get() );
             model->setFileInfo( modelFileInfo );
 
             return model;

@@ -27,6 +27,8 @@
 #include "PointLight.h"
 #include "SpotLight.h"
 
+#include "BlockModelImporter.h"
+
 using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
@@ -171,10 +173,10 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
     std::string filePathWithoutExtension = StringUtil::toLowercase( filePath.substr( 0, dotIndex ) );
     std::string extension = StringUtil::toLowercase( filePath.substr( dotIndex + 1 ) );
 
-    std::array< const std::string, 4 > blockMeshExtensions     = { "obj", "dae", "fbx", "blockmesh" };
+    std::array< const std::string, 3 > blockMeshExtensions     = { "dae", "fbx", "blockmesh" };
     std::array< const std::string, 1 > skeletonkMeshExtensions = { "dae" };
     std::array< const std::string, 9 > textureExtensions       = { "bmp", "dds", "jpg", "jpeg", "png", "raw", "tga", "tiff", "tif" };
-    std::array< const std::string, 1 > blockModelExtensions    = { "blockmodel" };
+    std::array< const std::string, 2 > blockModelExtensions    = { "blockmodel", "obj" };
     std::array< const std::string, 1 > skeletonModelExtensions = { "skeletonmodel" };
     std::array< const std::string, 1 > animationExtensions     = { "xaf" };
     std::array< const std::string, 1 > sceneExtensions         = { "scene" };
@@ -470,25 +472,61 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
         }
     }
 
-    if ( isBlockModel ) {
+    if ( isBlockModel ) 
+    {
+        BlockModelFileInfo::Format format = BlockModelFileInfo::Format::BLOCKMODEL;
 
-        BlockModelFileInfo fileInfo( filePath, BlockModelFileInfo::Format::BLOCKMODEL, 0 );
-        std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( m_assetManager.getOrLoad( fileInfo ) );
+        if ( extension.compare( "obj" ) == 0 ) 
+            format = BlockModelFileInfo::Format::OBJ;
 
-        if ( model->getMesh() && !model->getMesh()->getBvhTree() ) {
-            model->getMesh()->buildBvhTree();
-            model->getMesh()->loadBvhTreeToGpu( *m_device.Get() );
+        if ( format == BlockModelFileInfo::Format::BLOCKMODEL )
+        {
+            BlockModelFileInfo fileInfo( filePath, format, 0 );
+            std::shared_ptr<BlockModel> model = std::static_pointer_cast<BlockModel>( m_assetManager.getOrLoad( fileInfo ) );
+
+            if ( !model->isInGpuMemory() )
+                model->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
+
+            // Add new actor to the scene.
+            auto& newActor = std::make_shared< BlockActor >( model, pose );
+            m_scene->addActor( newActor );
+                
+            m_selection.clear();
+            m_selection.add( newActor );
         }
+        else
+        { // Import block models from an external file format.
 
-        if ( !model->isInGpuMemory() )
-            model->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
+            auto models = BlockModelImporter::import( filePath, invertZ, invertVertexWindingOrder, invertUVs );
 
-        // Add new actor to the scene.
-        auto& newActor = std::make_shared< BlockActor >( model, pose );
-        m_scene->addActor( newActor );
+            for ( int modelIdx = 0; modelIdx < models.size(); ++modelIdx )
+            {
+                auto& model = models[ modelIdx ];
 
-        m_selection.clear();
-        m_selection.add( newActor );
+                if ( !model->getMesh() ) 
+                    continue;
+
+                model->getMesh()->recalculateBoundingBox();
+                model->getMesh()->buildBvhTree();
+
+                // Save model and mesh to .blockmodel/.blockmesh format for future use.
+                std::string meshPath = filePathWithoutExtension + ( modelIdx != 0 ? "_" + std::to_string( modelIdx ) : "" ) + ".blockmesh";
+                std::string modelPath = filePathWithoutExtension + ( modelIdx != 0 ? "_" + std::to_string( modelIdx ) : "" ) + ".blockmodel";
+                
+                model->getMesh()->saveToFile( meshPath, BlockMeshFileInfo::Format::BLOCKMESH );
+
+                model->getMesh()->getFileInfo().setPath( meshPath );
+                model->getMesh()->getFileInfo().setFormat( BlockMeshFileInfo::Format::BLOCKMESH );
+                model->getMesh()->getFileInfo().setIndexInFile( 0 );
+
+                model->saveToFile( modelPath );
+
+                OutputDebugStringW( StringUtil::widen( 
+                    "SceneManager::loadAsset - imported a model and re-saved as \"" 
+                    + modelPath + "\n"  
+                ).c_str( ) );
+            }
+        }
     }
 
     if ( isSkeletonModel ) {

@@ -26,6 +26,9 @@ namespace Engine1
         };
 
         static std::string textureTypeToString( TextureType type );
+        static TextureType textureFileNameToType( std::string fileName ); // Decides based on file name suffix (_A, _N etc).
+        static TextureType textureNameSuffixToType( std::string nameSuffix );
+        static std::string textureTypeToNameSuffix( TextureType type );
 
         virtual Asset::Type                                 getType() const = 0;
         virtual std::vector< std::shared_ptr<const Asset> > getSubAssets() const = 0;
@@ -58,6 +61,7 @@ namespace Engine1
         void removeAllRoughnessTextures();
         void removeAllNormalTextures();
         void removeAllRefractiveIndexTextures();
+        void removeAllTextures( const TextureType type );
 
         int getTextureCount( const TextureType type ) const;
 

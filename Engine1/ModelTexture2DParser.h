@@ -27,19 +27,23 @@ namespace Engine1
 
 	    Texture2DFileInfo fileInfo = *Texture2DFileInfo::createFromMemory( dataIt );
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture;
-        if ( loadRecurrently ) 
+        // If texture path is not set - leave texture empty.
+        if ( !fileInfo.getPath().empty() )
         {
-            const DXGI_FORMAT defaultFormat = ModelTexture2DParser< PixelType >::getDefaultFormat();
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture;
+            if ( loadRecurrently ) 
+            {
+                const DXGI_FORMAT defaultFormat = ModelTexture2DParser< PixelType >::getDefaultFormat();
 
-	        texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                ( device, fileInfo, true, true, true, defaultFormat, defaultFormat );
-        } else {
-            texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >();
-            texture->setFileInfo( fileInfo );
+	            texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
+                    ( device, fileInfo, true, true, true, defaultFormat, defaultFormat );
+            } else {
+                texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >();
+                texture->setFileInfo( fileInfo );
+            }
+
+	        modelTexture->setTexture( texture );
         }
-
-	    modelTexture->setTexture( texture );
 	    modelTexture->setTexcoordIndex( BinaryFile::readInt( dataIt ) );
 	    modelTexture->setColorMultiplier( BinaryFile::readFloat4( dataIt ) );
 

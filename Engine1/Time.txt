@@ -438,3 +438,9 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 19.07.2017 - 1h - Trying to improve rejecting samples in Combining shader - by calculating expected position-difference in world space between sample and center sample and comparing it with the real difference.
 20.07.2017 - 2h - Recompiled Assimp with newest Visual Studio to avoid linking to old VS libraries, redist packages etc.
 23.07.2017 - 4h - Trying to modify the code to make Graphics Shader Debugger work - split creating DX device and swap chain.
+--- July 2017 - 37h
+08.08.2017 - 3h - Preparing New York Loft scene.
+09.08.2017 - 6h - Parsing .obj + .mtl file as Block Model, with materials, color multipliers etc.
+10.08.2017 - 5h - Separated loading external file formats from AssetManager etc (ex: .obj file). It simplifies AssetManager as it loads only internal files now. Renaming textures and .mtl fields for New York Loft scene.
+11.08.2017 - 2h - Reading textures via Assimp - interpreting their type based on file name suffix (_A, _N etc) - to avoid relying on Assimp interpretation.
+12.08.2017 - 1h - Fixed a bug - when selecting all actors, color multipliers from the first one were applied to all of them.

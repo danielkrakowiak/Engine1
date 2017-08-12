@@ -15,12 +15,13 @@ namespace Engine1
         enum class Format : char
         {
             BMP = 0,
-            DDS = 1,
-            JPEG = 2,
-            PNG = 3,
-            RAW = 4,
-            TIFF = 5,
-            TGA = 6
+            DDS,
+            JPEG,
+            PNG,
+            RAW,
+            TIFF,
+            TGA,
+            GIF
         };
 
         enum class PixelType : char
@@ -28,6 +29,8 @@ namespace Engine1
             UCHAR  = 0,
             UCHAR4 = 1,
         };
+
+        static Format fromExtension( const std::string& extension );
 
         static std::shared_ptr<Texture2DFileInfo> createFromMemory( std::vector<char>::const_iterator& dataIt );
 

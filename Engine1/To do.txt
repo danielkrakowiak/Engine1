@@ -462,8 +462,29 @@ Idea:
 
 	  NEXT:
 
+      - BUG: When I select all models I loose color multipliers...
+
+      - IDEA: I can handle interpreting textures from mtl assuming that they are already renamed to my standard - _R, _A, _AL etc. And ignore the mtl standard.
+        How to read .mtl fields like map_bump in Assimp?
+        Convert textures to proper modes - grayscale vs RGB - remember to rename files/modify .mtl if extension changed
+
+      - AssetManager only has to load internal format assets.
+      - For external formats use separate importers - that will keep the code clean.
+        Also, importing other formats doesn't have to run in multiple threads etc... Simpler implementation.
+
+        - I can remove this index-in-file, format etc from file-infos...
+      
+
+      - modify AssetManager so it could load many assets from the same file at once - should there be an option to load just one on many?
+      - should I collect the info about materials somewhere? Like additional data structure? That would have to be stored in AssetManager...dirty
+      - maybe an ability to load .obj files as BlockModel? Then it would read needed info at once without stroign it?
+
       - make shader debugging work in VS 2017 - debug combining shader to check why the new idea with expected position-difference doesn't work.
       - probably need to use Dependency Walker to deduce which library or pieco fo code uses VS13 runtime dlls
+
+      - picking objects does not work correctly if window is moved somewhere from top-left corner...
+
+      - when creating mesh from .obj it could name submeshes based on name in obj file - and then save it with that name, sufffix etc - to simplify applying materials
 
       In combining shader:
       // #TODO: Maybe I should calculate the expected difference in positions between center and sample. 
@@ -558,15 +579,28 @@ Idea:
 	  - improve sampling shape in all shaders by taking samples in spherical shape - 
 	    simply exclude samples which are too far from center (box corners) - this could even improve performance, by reading less pixels.
 	  - scale blur kernels based on view-angle assymetrically - horizontally and vertically - ex. for walls we should flatten horizontally and for floors vertically. Assuming that camera is not rotated around view-dir.
+      - should all file-infos have filename instead of path? Probably not... - but it's misleading if the full path will be used or just a filename...
+      - Texture2DFileInfo::PixelType should be probably moved to the texture class itself - pixel-type is a general property of a texture, not just a texture file
 
 	  FUTURE IMPORTANT:
 	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.
 	    This way you avoid blending shadows with very different blur radius - increasing quality. Test varius thresholds to divide shadows into two channels.
 	  - How to hanlde cases where a big glass window cast shadow over the whole room? It should not destroy the whole solution. It's usually very bright shadow - can this characteristic be used somehow?
 		
+      DIFFUSE REFLECTIONS USING MULTIPLE RAYS
+      - if we cast more rays we need larger g-buffers - that limits how many rays we can cast
+      - but if split screen into fragments and calculate one fragment at a time - we can store all rays in one image
+      - example: fragment is 1/4th of a screen, so we can store 16 rays at normal screen g-buffer and calculate them all at once.
+      - the bigger problem is how to calculate higher layer's ray origin/direction? Because we now have many rays, not just one...
+      - maybe we can keep the resolution and trace 1/4th of rays at next layer - we assume it's very diffuse reflection anyways...
+        This way ray count stays the same, but we get approximate incoming light.
+      - we would probably still need to trace specular reflections as a special fragment or something...
+
 	FUN:
 	- add PhysX support
 	- add some "Player"?
+
+
 
 	  -----------------------------
 

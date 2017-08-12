@@ -20,6 +20,49 @@ std::string Model::textureTypeToString( Model::TextureType type )
     return "-";
 }
 
+Model::TextureType Model::textureFileNameToType( std::string fileName )
+{
+    auto suffixIndex    = fileName.rfind("_");
+    auto extensionIndex = fileName.rfind(".");
+    if ( suffixIndex != std::string::npos )
+    {
+        auto fileNameSuffix = fileName.substr( suffixIndex, extensionIndex - suffixIndex );
+
+        return textureNameSuffixToType( fileNameSuffix );
+    }
+
+    throw std::exception( std::string("Model::textureFileNameToType - texture name has no suffix (" + fileName + ").").c_str() );
+}
+
+Model::TextureType Model::textureNameSuffixToType( std::string nameSuffix )
+{
+    if (nameSuffix.compare("_AL") == 0)       return Model::TextureType::Alpha;
+    else if (nameSuffix.compare("_E") == 0)   return Model::TextureType::Emissive;
+    else if (nameSuffix.compare("_A") == 0)   return Model::TextureType::Albedo;
+    else if (nameSuffix.compare("_M") == 0)   return Model::TextureType::Metalness;
+    else if (nameSuffix.compare("_R") == 0)   return Model::TextureType::Roughness;
+    else if (nameSuffix.compare("_N") == 0)   return Model::TextureType::Normal;
+    else if (nameSuffix.compare("_I") == 0)   return Model::TextureType::RefractiveIndex;
+
+    throw std::exception( (std::string( "Model::textureNameSuffixToType - unrecognized texture name suffix (" ) + nameSuffix + ").").c_str() );
+}
+
+std::string Model::textureTypeToNameSuffix( TextureType type )
+{
+    switch ( type )
+    {
+        case Model::TextureType::Alpha:           return "_AL";
+        case Model::TextureType::Emissive:        return "_E";
+        case Model::TextureType::Albedo:          return "_A";
+        case Model::TextureType::Metalness:       return "_M";
+        case Model::TextureType::Roughness:       return "_R";
+        case Model::TextureType::Normal:          return "_N";
+        case Model::TextureType::RefractiveIndex: return "_I";
+    }
+
+    assert( false ); // Probably a new enum was added, but not added here.
+}
+
 Model::Model( ) 
 {}
 
@@ -147,6 +190,35 @@ void Model::removeAllRefractiveIndexTextures()
     m_refractiveIndexTextures.clear();
 }
 
+void Model::removeAllTextures( const TextureType type )
+{
+    switch ( type ) {
+        case TextureType::Alpha:
+            m_alphaTextures.clear();
+            break;
+        case TextureType::Emissive:
+            m_emissiveTextures.clear();
+            break;
+        case TextureType::Albedo:
+            m_albedoTextures.clear();
+            break;
+        case TextureType::Metalness:
+            m_metalnessTextures.clear();
+            break;
+        case TextureType::Roughness:
+            m_roughnessTextures.clear();
+            break;
+        case TextureType::Normal:
+            m_normalTextures.clear();
+            break;
+        case TextureType::RefractiveIndex:
+            m_refractiveIndexTextures.clear();
+            break;
+    }
+
+    assert(false);
+}
+
 int Model::getTextureCount( const TextureType type ) const
 {
     switch ( type ) {
@@ -166,7 +238,7 @@ int Model::getTextureCount( const TextureType type ) const
             return (int)m_refractiveIndexTextures.size();
     }
 
-    throw std::exception( "Model::getTextureCount - there is no such texture type." );
+    assert(false);
 }
 
 std::vector< std::tuple< std::shared_ptr< Asset >, int > > Model::getTextures( const TextureType type ) const
@@ -211,7 +283,7 @@ std::vector< std::tuple< std::shared_ptr< Asset >, int > > Model::getTextures( c
             return textures;
     }
 
-    throw std::exception( "Model::getTextures - there is no such texture type." );
+    assert(false);
 }
 
 const std::vector< ModelTexture2D< unsigned char > >& Model::getAlphaTextures( ) const 

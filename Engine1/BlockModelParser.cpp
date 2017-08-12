@@ -5,6 +5,7 @@
 #include "BlockMesh.h"
 #include "BlockModel.h"
 #include "BinaryFile.h"
+#include "FileUtil.h"
 
 #include "ModelTexture2DParser.h"
 
@@ -128,5 +129,3 @@ void BlockModelParser::writeBinary( std::vector<char>& data, const BlockModel& m
 	for ( const ModelTexture2D< unsigned char >& modelTexture : texturesU1 )
 		ModelTexture2DParser< unsigned char >::writeBinary( data, modelTexture );
 }
-
-

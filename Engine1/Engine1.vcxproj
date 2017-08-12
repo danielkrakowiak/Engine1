@@ -353,6 +353,7 @@
     <ClInclude Include="BlockMeshVertexShader.h" />
     <ClInclude Include="BlockModelFileInfo.h" />
     <ClInclude Include="BlockModelFileInfoParser.h" />
+    <ClInclude Include="BlockModelImporter.h" />
     <ClInclude Include="BlockModelParser.h" />
     <ClInclude Include="BlockModelFragmentShader.h" />
     <ClInclude Include="BlockModelLOD.h" />
@@ -536,6 +537,7 @@
     <ClCompile Include="BlockMeshVertexShader.cpp" />
     <ClCompile Include="BlockModelFileInfo.cpp" />
     <ClCompile Include="BlockModelFileInfoParser.cpp" />
+    <ClCompile Include="BlockModelImporter.cpp" />
     <ClCompile Include="BlockModelParser.cpp" />
     <ClCompile Include="BlockModelFragmentShader.cpp" />
     <ClCompile Include="BlockModelLOD.cpp" />

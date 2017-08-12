@@ -126,7 +126,8 @@ void RaytracingShadowsComputeShader::setParameters(
 
             const auto& mesh = *actor->getModel()->getMesh();
 
-            const auto& alphaTexture = !actor->getModel()->getAlphaTextures().empty() 
+            const auto& alphaTexture = 
+                !actor->getModel()->getAlphaTextures().empty() && actor->getModel()->getAlphaTextures()[ 0 ].getTexture()
                 ? *actor->getModel()->getAlphaTextures()[ 0 ].getTexture() 
                 : defaultAlphaTexture;
 
@@ -166,7 +167,8 @@ void RaytracingShadowsComputeShader::setParameters(
             if ( !actor || !actor->getModel() || !actor->getModel()->getMesh() )
                 continue;
 
-            const auto& alphaTexture = !actor->getModel()->getAlphaTextures().empty() 
+            const auto& alphaTexture = 
+                !actor->getModel()->getAlphaTextures().empty() && actor->getModel()->getAlphaTextures()[ 0 ].getTexture()
                 ? *actor->getModel()->getAlphaTextures()[ 0 ].getTexture() 
                 : defaultAlphaTexture;
 
