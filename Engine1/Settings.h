@@ -52,6 +52,13 @@ namespace Engine1
             bool slowmotionMode;
             bool snappingMode;
 
+            bool alphaMulChanged;
+            bool emissiveMulChanged;
+            bool albedoMulChanged;
+            bool metalnessMulChanged;
+            bool roughnessMulChanged;
+            bool refractiveIndexMulChanged;
+
             float  alphaMul;
             float3 emissiveMul;
             float3 albedoMul;

@@ -59,12 +59,19 @@ void Settings::initializeInternal()
     s_settings.debug.slowmotionMode            = false;
     s_settings.debug.snappingMode              = false;
 
-    s_settings.debug.alphaMul           = 1.0f;
-    s_settings.debug.emissiveMul        = float3( 1.0f, 1.0f, 1.0f );
-    s_settings.debug.albedoMul          = float3( 1.0f, 1.0f, 1.0f );
-    s_settings.debug.metalnessMul       = 1.0f;
-    s_settings.debug.roughnessMul       = 1.0f;
-    s_settings.debug.refractiveIndexMul = 1.0f;
+    s_settings.debug.alphaMulChanged           = false;
+    s_settings.debug.emissiveMulChanged        = false;
+    s_settings.debug.albedoMulChanged          = false;
+    s_settings.debug.metalnessMulChanged       = false;
+    s_settings.debug.roughnessMulChanged       = false;
+    s_settings.debug.refractiveIndexMulChanged = false;
+
+    s_settings.debug.alphaMul                = 1.0f;
+    s_settings.debug.emissiveMul             = float3( 1.0f, 1.0f, 1.0f );
+    s_settings.debug.albedoMul               = float3( 1.0f, 1.0f, 1.0f );
+    s_settings.debug.metalnessMul            = 1.0f;
+    s_settings.debug.roughnessMul            = 1.0f;
+    s_settings.debug.refractiveIndexMul      = 1.0f;
 
     s_settings.rendering.fieldOfViewDegress = 70.0f;
     s_settings.rendering.exposure           = 1.0f;

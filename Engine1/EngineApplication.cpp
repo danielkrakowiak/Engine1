@@ -748,7 +748,7 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
         }
     }
 
-    {
+    { // Update color multipliers from Settings.
         auto& selectedBlockActors = m_sceneManager.getSelectedBlockActors();
         auto& selectedSkeletonActors = m_sceneManager.getSelectedSkeletonActors();
 
@@ -817,21 +817,21 @@ void EngineApplication::setModelTextureMultipliersFromSettings( Model& model )
     auto& roughnessTextures = model.getRoughnessTextures();
     auto& refractiveIndexTextures = model.getRefractiveIndexTextures();
 
-    if ( !alphaTextures.empty() )
+    if ( !alphaTextures.empty() && settings().debug.alphaMulChanged )
         alphaTextures[ 0 ].setColorMultiplier( float4( settings().debug.alphaMul ) );
 
-    if ( !emissiveTextures.empty() )
+    if ( !emissiveTextures.empty() && settings().debug.emissiveMulChanged )
         emissiveTextures[ 0 ].setColorMultiplier( float4( settings().debug.emissiveMul, 0.0f ) );
 
-    if ( !albedoTextures.empty() )
+    if ( !albedoTextures.empty() && settings().debug.albedoMulChanged )
         albedoTextures[ 0 ].setColorMultiplier( float4( settings().debug.albedoMul, 0.0f ) );
 
-    if ( !metalnessTextures.empty() )
+    if ( !metalnessTextures.empty() && settings().debug.metalnessMulChanged )
         metalnessTextures[ 0 ].setColorMultiplier( float4( settings().debug.metalnessMul ) );
 
-    if ( !roughnessTextures.empty() )
+    if ( !roughnessTextures.empty() && settings().debug.roughnessMulChanged )
         roughnessTextures[ 0 ].setColorMultiplier( float4( settings().debug.roughnessMul ) );
 
-    if ( !refractiveIndexTextures.empty() )
+    if ( !refractiveIndexTextures.empty() && settings().debug.refractiveIndexMulChanged )
         refractiveIndexTextures[ 0 ].setColorMultiplier( float4( settings().debug.refractiveIndexMul ) );
 }

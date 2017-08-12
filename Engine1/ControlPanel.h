@@ -28,6 +28,17 @@ namespace Engine1
         static void TW_CALL onNextLevelReflection( void* clientData );
         static void TW_CALL onNextLevelRefraction( void* clientData );
         static void TW_CALL onPrevLevel( void* clientData );
+
+        static void TW_CALL onSetAlphaMul( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetEmissiveMul( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetAlbedoMul( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetMetalnessMul( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetRoughnessMul( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetRefractiveIndexMul( const void* value, void* /*clientData*/ );
+
+        static void TW_CALL onGetColorMulFloat( void* value, void* colorMulFloat );
+        static void TW_CALL onGetColorMulFloat3( void* value, void* colorMulFloat3 );
+
         static void TW_CALL onFlipUVs( void* controlPanel );
         static void TW_CALL onFlipTangents( void* controlPanel );
 
