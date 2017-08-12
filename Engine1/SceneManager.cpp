@@ -1340,3 +1340,37 @@ void SceneManager::flipTangentsAndResaveMesh()
             mesh->saveToFile( mesh->getFileInfo().getPath(), mesh->getFileInfo().getFormat() );
     }
 }
+
+void SceneManager::flipNormalsAndResaveMesh()
+{
+    for ( auto& actor : m_selection.getBlockActors() ) {
+        if ( !actor->getModel() || !actor->getModel()->getMesh() )
+            continue;
+
+        auto& mesh = actor->getModel()->getMesh();
+
+        MeshUtil::flipNormals( *mesh );
+
+        mesh->loadCpuToGpu( *m_device.Get(), true );
+
+        if ( !mesh->getFileInfo().getPath().empty() )
+            mesh->saveToFile( mesh->getFileInfo().getPath(), mesh->getFileInfo().getFormat() );
+    }
+}
+
+void SceneManager::invertVertexWindingOrderAndResaveMesh()
+{
+    for ( auto& actor : m_selection.getBlockActors() ) {
+        if ( !actor->getModel() || !actor->getModel()->getMesh() )
+            continue;
+
+        auto& mesh = actor->getModel()->getMesh();
+
+        MeshUtil::invertVertexWindingOrder( *mesh );
+
+        mesh->loadCpuToGpu( *m_device.Get(), true );
+
+        if ( !mesh->getFileInfo().getPath().empty() )
+            mesh->saveToFile( mesh->getFileInfo().getPath(), mesh->getFileInfo().getFormat() );
+    }
+}

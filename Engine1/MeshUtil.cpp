@@ -86,7 +86,27 @@ void MeshUtil::flipTexcoordsVertically( BlockMesh& mesh )
 
 void MeshUtil::flipTangents( BlockMesh& mesh )
 {
-    for ( auto& tangent : mesh.m_tangents ) {
+    for ( auto& tangent : mesh.m_tangents ) 
+    {
         tangent = -tangent;
+    }
+}
+
+void MeshUtil::flipNormals( BlockMesh& mesh )
+{
+    for ( auto& normal : mesh.m_normals ) 
+    {
+        normal = -normal;
+    }
+}
+
+void MeshUtil::invertVertexWindingOrder( BlockMesh& mesh )
+{
+    for ( auto& triangle : mesh.m_triangles )
+    {
+        uint3 triangleTemp = triangle;
+
+        triangle.x = triangleTemp.z;
+        triangle.z = triangleTemp.x;
     }
 }

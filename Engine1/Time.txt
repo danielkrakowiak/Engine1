@@ -443,4 +443,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 09.08.2017 - 6h - Parsing .obj + .mtl file as Block Model, with materials, color multipliers etc.
 10.08.2017 - 5h - Separated loading external file formats from AssetManager etc (ex: .obj file). It simplifies AssetManager as it loads only internal files now. Renaming textures and .mtl fields for New York Loft scene.
 11.08.2017 - 2h - Reading textures via Assimp - interpreting their type based on file name suffix (_A, _N etc) - to avoid relying on Assimp interpretation.
-12.08.2017 - 1h - Fixed a bug - when selecting all actors, color multipliers from the first one were applied to all of them.
+12.08.2017 - 7h - Fixed a bug - when selecting all actors, color multipliers from the first one were applied to all of them. Preparing and fixing New York Loft scene. Fixing bugs etc.

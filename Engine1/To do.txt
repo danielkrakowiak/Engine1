@@ -462,7 +462,13 @@ Idea:
 
 	  NEXT:
 
-      - BUG: When I select all models I loose color multipliers...
+      - to help with merging models - add an option to fill all missing texture types for selected models with drag&droped texture...
+
+      - BUG: When I copy a model, materials get lost.
+      - importing sub-meshes with names?
+      - ceiling in the Loft scene leaks light...
+
+      - whenever i have an explicit copy constructor, I need to call a base class copy constructor directly - add where missing.
 
       - IDEA: I can handle interpreting textures from mtl assuming that they are already renamed to my standard - _R, _A, _AL etc. And ignore the mtl standard.
         How to read .mtl fields like map_bump in Assimp?

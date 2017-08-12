@@ -15,6 +15,8 @@ namespace Engine1
 
         static void flipTexcoordsVertically( BlockMesh& mesh );
         static void flipTangents( BlockMesh& mesh );
+        static void flipNormals( BlockMesh& mesh );
+        static void invertVertexWindingOrder( BlockMesh& mesh );
     };
 };
 

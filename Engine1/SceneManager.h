@@ -98,6 +98,8 @@ namespace Engine1
 
         void flipTexcoordsVerticallyAndResaveMesh();
         void flipTangentsAndResaveMesh();
+        void flipNormalsAndResaveMesh();
+        void invertVertexWindingOrderAndResaveMesh();
 
         private:
 
