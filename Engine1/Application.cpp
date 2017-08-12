@@ -641,6 +641,28 @@ void Application::run()
                 ss << "\n uchar4 depth: " << renderTargetUchar4DepthCount << ", approx.: " << (float)renderTargetUchar4DepthCount * ( screenPixelCount * 4.0f ) / bytesInMegabyte << " MB";
             }
 
+            // Print model textures.
+            if ( m_sceneManager.getSelection().containsOnlyOneBlockActor() )
+            {
+                ss << "\n\nModel textures:";
+
+                BlockActor& selectedBlockActor = *m_sceneManager.getSelection().getBlockActors().front();
+
+                auto textures = selectedBlockActor.getModel()->getTextures( Model::TextureType::Alpha );
+                
+                for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
+                {
+                    const auto textures = selectedBlockActor.getModel()->getTextures( (Model::TextureType)textureType );
+                    for ( auto& texture : textures )
+                    {
+                        const auto& tex = std::get< 0 >( texture );
+                        
+                        if ( tex && !tex->getFileInfo().getPath().empty() )
+                            ss << "\n" << tex->getFileInfo().getPath();
+                    }
+                }
+            }
+
             if ( settings().debug.renderText )
                 output = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
