@@ -579,7 +579,6 @@ void EngineApplication::onDragAndDropFile( std::string filePath, bool replaceSel
 		filePath = filePath.substr( 1 );
 
     // Temporarily always replace assets. Holding Ctrl is too hard...
-    replaceSelected    &= m_sceneManager.getSelectedBlockActors().size() >= 1 || m_sceneManager.getSelectedSkeletonActors().size() >= 1; //m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
     const bool invertZ = true;//!m_inputManager.isKeyPressed( InputManager::Keys::shift );
     const bool invertVertexWindingOrder = true;
     const bool invertUVs = false;

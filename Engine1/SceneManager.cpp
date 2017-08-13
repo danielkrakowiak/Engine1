@@ -322,153 +322,45 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
     }
 
     if ( isTexture ) {
-        Texture2DFileInfo::Format format = Texture2DFileInfo::Format::BMP;
+        Texture2DFileInfo::Format format = Texture2DFileInfo::fromExtension( extension );
+        Model::TextureType        textureType = Model::textureFileNameToType( filePath );
 
-        if ( extension.compare( "bmp" ) == 0 )       format = Texture2DFileInfo::Format::BMP;
-        else if ( extension.compare( "dds" ) == 0 )  format = Texture2DFileInfo::Format::DDS;
-        else if ( extension.compare( "jpg" ) == 0 )  format = Texture2DFileInfo::Format::JPEG;
-        else if ( extension.compare( "jpeg" ) == 0 ) format = Texture2DFileInfo::Format::JPEG;
-        else if ( extension.compare( "png" ) == 0 )  format = Texture2DFileInfo::Format::PNG;
-        else if ( extension.compare( "raw" ) == 0 )  format = Texture2DFileInfo::Format::RAW;
-        else if ( extension.compare( "tga" ) == 0 )  format = Texture2DFileInfo::Format::TGA;
-        else if ( extension.compare( "tiff" ) == 0 ) format = Texture2DFileInfo::Format::TIFF;
-        else if ( extension.compare( "tif" ) == 0 )  format = Texture2DFileInfo::Format::TIFF;
-
+        // #TODO: THis should be replaced by a call to an utility method - but PixelType is in the wrong class
+        // (should be a part of the texture), not texture-file-info.
         Texture2DFileInfo::PixelType pixelType;
-        if ( filePath.find( "_A." ) != std::string::npos ||
-             filePath.find( "_N." ) != std::string::npos ||
-             filePath.find( "_E." ) != std::string::npos ) {
+        if ( textureType == Model::TextureType::Albedo ||
+             textureType == Model::TextureType::Normal ||
+             textureType == Model::TextureType::Emissive ) 
+        {
             pixelType = Texture2DFileInfo::PixelType::UCHAR4;
-        } else if ( filePath.find( "_AL." ) != std::string::npos ||
-                    filePath.find( "_M." ) != std::string::npos ||
-                    filePath.find( "_R." ) != std::string::npos ||
-                    filePath.find( "_I." ) != std::string::npos ) {
+        } 
+        else if ( 
+            textureType == Model::TextureType::Alpha ||
+            textureType == Model::TextureType::Metalness ||
+            textureType == Model::TextureType::Roughness ||
+            textureType == Model::TextureType::RefractiveIndex ) 
+        {
             pixelType = Texture2DFileInfo::PixelType::UCHAR;
-        } else
-            return; // Unrecognized texture type.
+        }
 
         Texture2DFileInfo fileInfo( filePath, format, pixelType );
         std::shared_ptr< Asset > textureAsset = m_assetManager.getOrLoad( fileInfo );
 
-        if ( filePath.find( "_A." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, uchar4 >>( textureAsset );
-            ModelTexture2D< uchar4 > modelTexture( texture );
+        for ( auto& actor : m_selection.getActors() ) 
+        {
+            auto&     model        = actor->getBaseModel();
+            const int textureCount = model->getTextureCount( textureType );
 
-            for ( auto& actor : m_selection.getBlockActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllAlbedoTextures();
+            if ( !replaceSelected && textureCount > 0 && model->getTexture( textureType ) )
+                continue;
 
-                actor->getModel()->addAlbedoTexture( modelTexture );
-            }
+            // Read first texture color multipliers if available.
+            float4 colorMultiplier = float4::ONE;
+            if ( textureCount > 0 )
+                colorMultiplier = model->getTextureColorMultiplier( textureType );
 
-            for ( auto& actor : m_selection.getSkeletonActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllAlbedoTextures();
-
-                actor->getModel()->addAlbedoTexture( modelTexture );
-            }
-        } else if ( filePath.find( "_AL." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( textureAsset );
-            ModelTexture2D< unsigned char > modelTexture( texture );
-
-            for ( auto& actor : m_selection.getBlockActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllAlphaTextures();
-
-                actor->getModel()->addAlphaTexture( modelTexture );
-            }
-
-            for ( auto& actor : m_selection.getSkeletonActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllAlphaTextures();
-
-                actor->getModel()->addAlphaTexture( modelTexture );
-            }
-        } else if ( filePath.find( "_M." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( textureAsset );
-            ModelTexture2D< unsigned char > modelTexture( texture );
-
-            for ( auto& actor : m_selection.getBlockActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllMetalnessTextures();
-
-                actor->getModel()->addMetalnessTexture( modelTexture );
-            }
-
-            for ( auto& actor : m_selection.getSkeletonActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllMetalnessTextures();
-
-                actor->getModel()->addMetalnessTexture( modelTexture );
-            }
-        } else if ( filePath.find( "_N." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, uchar4 >>( textureAsset );
-            ModelTexture2D< uchar4 > modelTexture( texture );
-
-            for ( auto& actor : m_selection.getBlockActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllNormalTextures();
-
-                actor->getModel()->addNormalTexture( modelTexture );
-            }
-
-            for ( auto& actor : m_selection.getSkeletonActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllNormalTextures();
-
-                actor->getModel()->addNormalTexture( modelTexture );
-            }
-        } else if ( filePath.find( "_R." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( textureAsset );
-            ModelTexture2D< unsigned char > modelTexture( texture );
-
-            for ( auto& actor : m_selection.getBlockActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllRoughnessTextures();
-
-                actor->getModel()->addRoughnessTexture( modelTexture );
-            }
-
-            for ( auto& actor : m_selection.getSkeletonActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllRoughnessTextures();
-
-                actor->getModel()->addRoughnessTexture( modelTexture );
-            }
-        } else if ( filePath.find( "_E." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, uchar4 >>( textureAsset );
-            ModelTexture2D< uchar4 > modelTexture( texture );
-
-            for ( auto& actor : m_selection.getBlockActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllEmissiveTextures();
-
-                actor->getModel()->addEmissiveTexture( modelTexture );
-            }
-
-            for ( auto& actor : m_selection.getSkeletonActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllEmissiveTextures();
-
-                actor->getModel()->addEmissiveTexture( modelTexture );
-            }
-        } else if ( filePath.find( "_I." ) != std::string::npos ) {
-            auto texture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, unsigned char >>( textureAsset );
-            ModelTexture2D< unsigned char > modelTexture( texture );
-
-            for ( auto& actor : m_selection.getBlockActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllRefractiveIndexTextures();
-
-                actor->getModel()->addRefractiveIndexTexture( modelTexture );
-            }
-
-            for ( auto& actor : m_selection.getSkeletonActors() ) {
-                if ( replaceSelected )
-                    actor->getModel()->removeAllRefractiveIndexTextures();
-
-                actor->getModel()->addRefractiveIndexTexture( modelTexture );
-            }
+            model->removeAllTextures( textureType );
+            model->addTexture( textureType, textureAsset, 0, colorMultiplier );
         }
     }
 

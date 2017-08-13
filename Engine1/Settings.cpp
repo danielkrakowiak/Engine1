@@ -59,6 +59,8 @@ void Settings::initializeInternal()
     s_settings.debug.slowmotionMode            = false;
     s_settings.debug.snappingMode              = false;
 
+    s_settings.debug.replaceSelected = true;
+
     s_settings.debug.alphaMulChanged           = false;
     s_settings.debug.emissiveMulChanged        = false;
     s_settings.debug.albedoMulChanged          = false;

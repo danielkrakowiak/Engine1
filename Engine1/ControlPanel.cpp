@@ -40,6 +40,8 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
 
     TwAddVarRW( mainBar, "Roughness blur mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.roughnessBlurMul, "min=0 max=1000 step=0.2 precision=1" );
 
+    TwAddVarRW( mainBar, "Replace selected", TW_TYPE_BOOL8, &Settings::s_settings.debug.replaceSelected, "" );
+
     TwAddVarCB( mainBar, "Alpha mul", TW_TYPE_FLOAT, ControlPanel::onSetAlphaMul, ControlPanel::onGetColorMulFloat, &Settings::s_settings.debug.alphaMul, "min=0 max=1 step=0.001 precision=3" );
     TwAddVarCB( mainBar, "Emissive mul", TW_TYPE_COLOR3F, ControlPanel::onSetEmissiveMul, ControlPanel::onGetColorMulFloat3, &Settings::s_settings.debug.emissiveMul, "colormode=hls" );
     TwAddVarCB( mainBar, "Albedo mul", TW_TYPE_COLOR3F, ControlPanel::onSetAlbedoMul, ControlPanel::onGetColorMulFloat3, &Settings::s_settings.debug.albedoMul, "colormode=hls" );

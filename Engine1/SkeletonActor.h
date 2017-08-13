@@ -26,8 +26,12 @@ namespace Engine1
         float43&                             getPose();
         const SkeletonPose&                  getSkeletonPose() const;
         SkeletonPose&                        getSkeletonPose();
-        std::shared_ptr<const SkeletonModel> getModel() const;
-        std::shared_ptr<SkeletonModel>       getModel();
+
+        std::shared_ptr< const SkeletonModel > getModel() const;
+        std::shared_ptr< SkeletonModel >       getModel();
+
+        std::shared_ptr< const Model > getBaseModel() const;
+        std::shared_ptr< Model >       getBaseModel();
 
         void setPose( const float43& pose );
         void setSkeletonPose( const SkeletonPose& poseInSkeletonSpace );

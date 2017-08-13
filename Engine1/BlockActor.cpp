@@ -61,6 +61,16 @@ std::shared_ptr<BlockModel> BlockActor::getModel( )
     return m_model;
 }
 
+std::shared_ptr< const Model > BlockActor::getBaseModel() const
+{
+    return m_model;
+}
+
+std::shared_ptr< Model > BlockActor::getBaseModel()
+{
+    return m_model;
+}
+
 void BlockActor::setPose( const float43& pose )
 {
     this->m_pose = pose;

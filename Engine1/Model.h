@@ -81,8 +81,9 @@ namespace Engine1
         const std::vector< ModelTexture2D< unsigned char > >&  getRefractiveIndexTextures() const;
               std::vector< ModelTexture2D< unsigned char > >&  getRefractiveIndexTextures();
 
-        // Returns a texture and its texcoord set index.
-        std::tuple< std::shared_ptr< Asset >, int > getTexture( const TextureType type, int index = 0 ) const;
+        std::shared_ptr< Asset > getTexture( const TextureType type, int index = 0 ) const;
+
+        float4 getTextureColorMultiplier( const TextureType type, int index = 0 ) const;
 
         protected:
 

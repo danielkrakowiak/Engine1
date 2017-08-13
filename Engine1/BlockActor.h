@@ -25,8 +25,12 @@ namespace Engine1
 
         const float43&                    getPose() const;
         float43&                          getPose();
-        std::shared_ptr<const BlockModel> getModel() const;
-        std::shared_ptr<BlockModel>       getModel();
+
+        std::shared_ptr< const BlockModel > getModel() const;
+        std::shared_ptr< BlockModel >       getModel();
+
+        std::shared_ptr< const Model > getBaseModel() const;
+        std::shared_ptr< Model >       getBaseModel();
 
         void setPose( const float43& pose );
         void setModel( std::shared_ptr<BlockModel> model );

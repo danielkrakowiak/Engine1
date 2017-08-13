@@ -857,7 +857,7 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
             std::wstring pathW( pathBufferW.data(), charCount - 1 );
             std::string path = StringUtil::narrow( pathW );
 
-			const bool replaceAssets = (fileCount == 1);
+			const bool replaceAssets = settings().debug.replaceSelected;
 
             try {
                 windowsMessageReceiver->onDragAndDropFile( path, replaceAssets );

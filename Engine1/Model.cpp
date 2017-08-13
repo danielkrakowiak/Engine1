@@ -61,6 +61,7 @@ std::string Model::textureTypeToNameSuffix( TextureType type )
     }
 
     assert( false ); // Probably a new enum was added, but not added here.
+    return "";
 }
 
 Model::Model( ) 
@@ -195,28 +196,28 @@ void Model::removeAllTextures( const TextureType type )
     switch ( type ) {
         case TextureType::Alpha:
             m_alphaTextures.clear();
-            break;
+            return;
         case TextureType::Emissive:
             m_emissiveTextures.clear();
-            break;
+            return;
         case TextureType::Albedo:
             m_albedoTextures.clear();
-            break;
+            return;
         case TextureType::Metalness:
             m_metalnessTextures.clear();
-            break;
+            return;
         case TextureType::Roughness:
             m_roughnessTextures.clear();
-            break;
+            return;
         case TextureType::Normal:
             m_normalTextures.clear();
-            break;
+            return;
         case TextureType::RefractiveIndex:
             m_refractiveIndexTextures.clear();
-            break;
+            return;
     }
 
-    assert(false);
+    assert( false );
 }
 
 int Model::getTextureCount( const TextureType type ) const
@@ -238,7 +239,8 @@ int Model::getTextureCount( const TextureType type ) const
             return (int)m_refractiveIndexTextures.size();
     }
 
-    assert(false);
+    assert( false );
+    return 0;
 }
 
 std::vector< std::tuple< std::shared_ptr< Asset >, int > > Model::getTextures( const TextureType type ) const
@@ -283,7 +285,8 @@ std::vector< std::tuple< std::shared_ptr< Asset >, int > > Model::getTextures( c
             return textures;
     }
 
-    assert(false);
+    assert( false );
+    return textures;
 }
 
 const std::vector< ModelTexture2D< unsigned char > >& Model::getAlphaTextures( ) const 
@@ -356,46 +359,89 @@ std::vector< ModelTexture2D< unsigned char > >& Model::getRefractiveIndexTexture
     return m_refractiveIndexTextures;
 }
 
-std::tuple< std::shared_ptr< Asset >, int > Model::getTexture( const TextureType type, int index ) const
+std::shared_ptr< Asset > Model::getTexture( const TextureType type, int index ) const
 {
     switch ( type ) 
     {
         case TextureType::Alpha: 
         {
             const auto& modelTexture = m_alphaTextures.at( index );
-            return std::make_tuple( modelTexture.getTexture(), modelTexture.getTexcoordIndex() );
+            return modelTexture.getTexture();
         }
         case TextureType::Emissive:
         {
             const auto& modelTexture = m_emissiveTextures.at( index );
-            return std::make_tuple( modelTexture.getTexture(), modelTexture.getTexcoordIndex() );
+            return modelTexture.getTexture();
         }
         case TextureType::Albedo:
         {
             const auto& modelTexture = m_albedoTextures.at( index );
-            return std::make_tuple( modelTexture.getTexture(), modelTexture.getTexcoordIndex() );
+            return modelTexture.getTexture();
         }
         case TextureType::Metalness:
         {
             const auto& modelTexture = m_metalnessTextures.at( index );
-            return std::make_tuple( modelTexture.getTexture(), modelTexture.getTexcoordIndex() );
+            return modelTexture.getTexture();
         }
         case TextureType::Roughness:
         {
             const auto& modelTexture = m_roughnessTextures.at( index );
-            return std::make_tuple( modelTexture.getTexture(), modelTexture.getTexcoordIndex() );
+            return modelTexture.getTexture();
         }
         case TextureType::Normal:
         {
             const auto& modelTexture = m_normalTextures.at( index );
-            return std::make_tuple( modelTexture.getTexture(), modelTexture.getTexcoordIndex() );
+            return modelTexture.getTexture();
         }
         case TextureType::RefractiveIndex:
         {
             const auto& modelTexture = m_refractiveIndexTextures.at( index );
-            return std::make_tuple( modelTexture.getTexture(), modelTexture.getTexcoordIndex() );
+            return modelTexture.getTexture();
         }
     }
 
-    throw std::exception( "Model::getTexture - there is no such texture type." );
+    assert( false );
+    return nullptr;
+}
+
+float4 Model::getTextureColorMultiplier( const TextureType type, int index ) const
+{
+    switch ( type ) 
+    {
+        case TextureType::Alpha: 
+        {
+            const auto& modelTexture = m_alphaTextures.at( index );
+            return modelTexture.getColorMultiplier();
+        }
+        case TextureType::Emissive:
+        {
+            const auto& modelTexture = m_emissiveTextures.at( index );
+            return modelTexture.getColorMultiplier();
+        }
+        case TextureType::Albedo:
+        {
+            const auto& modelTexture = m_albedoTextures.at( index );
+            return modelTexture.getColorMultiplier();
+        }
+        case TextureType::Metalness:
+        {
+            const auto& modelTexture = m_metalnessTextures.at( index );
+            return modelTexture.getColorMultiplier();
+        }
+        case TextureType::Roughness:
+        {
+            const auto& modelTexture = m_roughnessTextures.at( index );
+            return modelTexture.getColorMultiplier();
+        }
+        case TextureType::Normal:
+        {
+            const auto& modelTexture = m_normalTextures.at( index );
+            return modelTexture.getColorMultiplier();
+        }
+        case TextureType::RefractiveIndex:
+        {
+            const auto& modelTexture = m_refractiveIndexTextures.at( index );
+            return modelTexture.getColorMultiplier();
+        }
+    }
 }

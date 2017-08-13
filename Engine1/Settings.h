@@ -52,6 +52,12 @@ namespace Engine1
             bool slowmotionMode;
             bool snappingMode;
 
+            // Option used to avoid replacing textures/meshes
+            // on selected models when you drag&drop an asset.
+            // The drag&dropped texture will be applied only to models 
+            // which don't have any textures of that type.
+            bool replaceSelected;
+
             bool alphaMulChanged;
             bool emissiveMulChanged;
             bool albedoMulChanged;

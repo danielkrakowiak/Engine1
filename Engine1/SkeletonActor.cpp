@@ -64,6 +64,16 @@ std::shared_ptr<SkeletonModel> SkeletonActor::getModel( )
     return m_model;
 }
 
+std::shared_ptr< const Model > SkeletonActor::getBaseModel() const
+{
+    return m_model;
+}
+
+std::shared_ptr< Model > SkeletonActor::getBaseModel()
+{
+    return m_model;
+}
+
 void SkeletonActor::setPose( const float43& pose )
 {
     this->m_pose = pose;
