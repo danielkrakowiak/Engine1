@@ -1,5 +1,9 @@
 #pragma once
 
+#undef min
+#undef max
+#define NOMINMAX
+
 #include "float4.h"
 
 #include "float33.h"

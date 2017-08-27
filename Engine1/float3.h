@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+
 #undef min
 #undef max
 #define NOMINMAX

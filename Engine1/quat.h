@@ -1,6 +1,8 @@
 #pragma once
 
-
+#undef min
+#undef max
+#define NOMINMAX
 
 namespace Engine1
 {

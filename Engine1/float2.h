@@ -1,5 +1,9 @@
 #pragma once
 
+#undef min
+#undef max
+#define NOMINMAX
+
 #include <cmath>
 
 namespace Engine1
@@ -14,6 +18,7 @@ namespace Engine1
         float y;
 
         static const float2 ZERO;
+        static const float2 HALF;
         static const float2 ONE;
 
         float2() {}
@@ -128,6 +133,9 @@ namespace Engine1
 
         explicit operator int2() const;
     };
+
+    float2 max( const float2& vec1, const float2& vec2 );
+    float2 min( const float2& vec1, const float2& vec2 );
 
     float2 operator * (const float value, const float2& vec);
     float dot( const float2& vec1, const float2& vec2 );

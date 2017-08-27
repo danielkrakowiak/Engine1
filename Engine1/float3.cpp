@@ -13,7 +13,7 @@ float3::float3(const float4& a) : x(a.x), y(a.y), z(a.z) {}
 
 float3 Engine1::operator * ( const float value, const float3& vec ) 
 {
-	return float3(vec.x * value, vec.y * value, vec.z * value);
+	return float3( vec.x * value, vec.y * value, vec.z * value );
 }
 
 void float3::rotate( const float3& rotationAngles )

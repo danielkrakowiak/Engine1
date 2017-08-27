@@ -1,9 +1,14 @@
 #pragma once
 
-#include "float3.h"
+#undef min
+#undef max
+#define NOMINMAX
 
 namespace Engine1
 {
+    class float3;
+    class int2;
+
     class int3
     {
         typedef int int3_type;
@@ -125,14 +130,9 @@ namespace Engine1
             return *this;
         }
 
-        explicit operator float3() const
-        {
-            return float3(
-                (float)x,
-                (float)y,
-                (float)z
-            );
-        }
+        explicit operator float3() const;
+
+        explicit operator int2() const;
     };
 }
 

@@ -1,5 +1,9 @@
 #pragma once
 
+#undef min
+#undef max
+#define NOMINMAX
+
 #include "float2.h"
 
 namespace Engine1

@@ -1,10 +1,20 @@
 #pragma once
 
+#undef min
+#undef max
+#define NOMINMAX
+
 #include <cmath>
 
 namespace Engine1
 {
     class float3;
+    class uchar2;
+    class uchar4;
+    class uint1;
+    class uint2;
+    class uint3;
+    class uint4;
 
     class float4
     {
@@ -132,9 +142,21 @@ namespace Engine1
             return *this;
         }
 
+        explicit operator unsigned char() const;
+        explicit operator uchar2() const;
+        explicit operator uchar4() const;
+
+        explicit operator unsigned int() const;
+        explicit operator uint2() const;
+        explicit operator uint3() const;
+        explicit operator uint4() const;
+
     };
 
     float4 operator * (const float value, const float4& vec);
     float dot( const float4& vec1, const float4& vec2 );
+
+    float4 max( const float4& a, const float4& b );
+    float4 min( const float4& a, const float4& b );
 }
 

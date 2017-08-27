@@ -1,5 +1,9 @@
 #pragma once
 
+#undef min
+#undef max
+#define NOMINMAX
+
 #include "float3.h"
 #include "quat.h"
 

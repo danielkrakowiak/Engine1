@@ -1,12 +1,16 @@
 #pragma once
 
-#include <cmath>
+#undef min
+#undef max
+#define NOMINMAX
 
-#include "float4.h"
-#include "uint4.h"
+#include <cmath>
 
 namespace Engine1
 {
+    class float4;
+    class uint4;
+
     class uchar4
     {
         public:
@@ -144,25 +148,9 @@ namespace Engine1
             return *this;
         }
 
-        explicit operator float4() const
-        {
-            return float4(
-                (float)x,
-                (float)y,
-                (float)z,
-                (float)w
-            );
-        }
+        explicit operator float4() const;
 
-        explicit operator uint4() const
-        {
-            return uint4(
-                (unsigned int)x,
-                (unsigned int)y,
-                (unsigned int)z,
-                (unsigned int)w
-            );
-        }
+        explicit operator uint4() const;
 
     };
 
