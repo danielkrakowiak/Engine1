@@ -1,15 +1,19 @@
 #include "MeshUtil.h"
 
 #include "BlockMesh.h"
+#include "float43.h"
 
 #include <algorithm>
 
 using namespace Engine1;
 
-std::shared_ptr< BlockMesh > MeshUtil::mergeMeshes( const std::vector< std::shared_ptr< BlockMesh > >& meshes )
+std::shared_ptr< BlockMesh > MeshUtil::mergeMeshes( const std::vector< std::shared_ptr< BlockMesh > >& meshes, const std::vector< float43 >& transforms )
 {
     if ( meshes.empty() )
         throw std::exception( "MeshUtil::mergeMeshes - no meshes to merge." );
+
+    if ( !transforms.empty() && transforms.size() != meshes.size() )
+        throw std::exception( "MeshUtil::mergeMeshes - different number of transforms passed compared to the number of meshes." );
 
     for ( auto& mesh : meshes ) {
         if ( !mesh->isInCpuMemory() )
@@ -41,13 +45,21 @@ std::shared_ptr< BlockMesh > MeshUtil::mergeMeshes( const std::vector< std::shar
     int triangleIndexShift = 0;
     std::vector< uint3 >& mergedMeshTriangles = mergedMesh->getTriangles();
 
-    for ( auto& mesh : meshes )
+    for ( int meshIdx = 0; meshIdx < meshes.size(); ++meshIdx )
     {
+        auto&       mesh      = meshes[meshIdx];
+
         const int meshVertexCount = (int)mesh->getVertices().size();
 
         std::memcpy( &mergedMesh->getVertices()[ vertexIndexShift ], mesh->getVertices().data(), meshVertexCount * sizeof( float3 ) );
         std::memcpy( &mergedMesh->getNormals()[ vertexIndexShift ], mesh->getNormals().data(), meshVertexCount * sizeof( float3 ) );
         std::memcpy( &mergedMesh->getTangents()[ vertexIndexShift ], mesh->getTangents().data(), meshVertexCount * sizeof( float3 ) );
+
+        // Transform newly merged vertices.
+        if ( !transforms.empty() )
+        {
+            MeshUtil::transformVertices( *mergedMesh, transforms[meshIdx], vertexIndexShift, vertexIndexShift + meshVertexCount );
+        }
 
         // Copy texcoords or fill with zeros if not present in input mesh.
         for ( int texcoordSetIndex = 0; texcoordSetIndex < texcoordSetCount; ++texcoordSetIndex )
@@ -109,4 +121,18 @@ void MeshUtil::invertVertexWindingOrder( BlockMesh& mesh )
         triangle.x = triangleTemp.z;
         triangle.z = triangleTemp.x;
     }
+}
+
+void MeshUtil::transformVertices( BlockMesh& mesh, const float43& transform, const int startVertexIdx, const int endVertexIndex )
+{
+    const auto rotation = transform.getOrientation();
+
+    for ( int idx = startVertexIdx; idx <= endVertexIndex; ++idx )
+        mesh.m_vertices[idx] = mesh.m_vertices[idx] * transform;
+
+    for ( int idx = startVertexIdx; idx <= endVertexIndex; ++idx )
+        mesh.m_normals[idx] = mesh.m_normals[idx] * rotation;
+
+    for ( int idx = startVertexIdx; idx <= endVertexIndex; ++idx )
+        mesh.m_tangents[idx] = mesh.m_tangents[idx] * rotation;
 }

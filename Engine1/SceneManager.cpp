@@ -272,7 +272,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                 else 
                 {
                     // Add new actor to the scene.
-                    auto& newActor = std::make_shared< BlockActor >( std::make_shared< BlockModel >(), pose );
+                    auto newActor = std::make_shared< BlockActor >( std::make_shared< BlockModel >(), pose );
                     newActor->getModel()->setMesh( mesh );
 
                     m_scene->addActor( newActor );
@@ -309,7 +309,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
 
                 // #TODO: add replacing mesh? How to deal with non-matching animation?
                 // Add new actor to the scene.
-                auto& newActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>(), pose );
+                auto newActor = std::make_shared<SkeletonActor>( std::make_shared<SkeletonModel>(), pose );
                 newActor->getModel()->setMesh( mesh );
                 newActor->resetSkeletonPose();
 
@@ -380,7 +380,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                 model->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
 
             // Add new actor to the scene.
-            auto& newActor = std::make_shared< BlockActor >( model, pose );
+            auto newActor = std::make_shared< BlockActor >( model, pose );
             m_scene->addActor( newActor );
                 
             m_selection.clear();
@@ -428,7 +428,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             model->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
 
         // Add new actor to the scene.
-        auto& newActor = std::make_shared< SkeletonActor >( model, pose );
+        auto newActor = std::make_shared< SkeletonActor >( model, pose );
         m_scene->addActor( newActor );
 
         m_selection.clear();
@@ -549,14 +549,24 @@ SceneManager::pickActorOrLight( const float2& targetPixel, const float screenWid
 
 void SceneManager::mergeSelectedActors()
 {
+    if ( m_selection.getBlockActors().empty() )
+        return;
+
     try {
         std::vector< std::shared_ptr< BlockModel > > models;
+        std::vector< float43 >                       transforms;
         models.reserve( m_selection.getBlockActors().size() );
+        transforms.reserve( m_selection.getBlockActors().size() );
+
+        const float43 firstTransformInv = m_selection.getBlockActors().front()->getPose().getScaleOrientationTranslationInverse();
 
         for ( auto& actor : m_selection.getBlockActors() )
+        {
             models.push_back( actor->getModel() );
+            transforms.push_back( actor->getPose() * firstTransformInv );
+        }
 
-        std::shared_ptr< BlockModel > mergedModel = ModelUtil::mergeModels( models, *m_device.Get() );
+        std::shared_ptr< BlockModel > mergedModel = ModelUtil::mergeModels( models, transforms, *m_device.Get() );
 
         if ( mergedModel->getMesh() ) {
             mergedModel->getMesh()->recalculateBoundingBox();

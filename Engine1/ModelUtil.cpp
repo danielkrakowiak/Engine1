@@ -3,188 +3,20 @@
 #include <tuple>
 #include <algorithm>
 #include <array>
+#include <memory>
 
 #include "BlockModel.h"
 
+#include "Texture2DGeneric.h"
 #include "TextureUtil.h"
 #include "MeshUtil.h"
 
 using namespace Engine1;
 
-//std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::shared_ptr< BlockModel > >& models, ID3D11Device3& device )
-//{
-//    // #TODO: BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But roughness textures 
-//    // or emissive may have completely different dimensions and be placed differently in the atlas.
-//    // So we somehow have to enforce layout withing the atlas based on the first created atlas.How to deal with big textures?
-//
-//    // #TODO: PROBLEM: What if all alpha textures are the same among models, but roughness textures are different. 
-//    // It should be supported by duplicating alpha texture the same way roughness is placed within the merged texture.
-//    // It gets more complex when there are some repeated textures in metalness, rougnees, albedo etc at the same time.
-//    // : idea: start by merging the set of textures which has the most unique textures. 
-//    // Then merge other sets using the given placement. If something goeas wrong - interrupt.
-//
-//    // #TODO: How to improve code by getting rid of these distinction between emissive/albedo/metalness etc and treat them as texture sets.
-//    // Store texture sets in a map? <type, vector> ? and iterate over that map...?
-//
-//    // #TODO: Support for multiple UV sets/multitexturing.
-//
-//    // #TODO: How to deal with color multipliers per texture when merging them?
-//
-//    // We assume that there is one texture of each type (albedo, roughness etc) for each texcoord in each model. Or there may be zero texture of given type for all models.
-//
-//    std::array< std::vector< std::shared_ptr< Asset > >, (int)Model::TextureType::COUNT > uniqueTexturesSets;
-//    std::array< std::vector< std::shared_ptr< Asset > >, (int)Model::TextureType::COUNT > nonUniqueTexturesSets;
-//
-//    const int currTexcoordSetIndex = 0;
-//
-//    // Gather unique textures which use the same texcoord set.
-//    for ( auto& model : models )
-//    {
-//        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
-//        {
-//            for ( const auto& modelTexture : model->getTextures( (Model::TextureType)textureType ) )
-//            {
-//                std::shared_ptr< Asset > texture;
-//                int                      texcoordSetIndex;
-//
-//                std::tie( texture, texcoordSetIndex ) = modelTexture;
-//
-//                if ( texcoordSetIndex == currTexcoordSetIndex )
-//                {
-//                    const bool alreadyListed = std::find( uniqueTexturesSets[ textureType ].begin(), uniqueTexturesSets[ textureType ].end(), texture ) != uniqueTexturesSets[ textureType ].end();
-//                    
-//                    nonUniqueTexturesSets[ textureType ].push_back( texture );
-//
-//                    if ( !alreadyListed )
-//                        uniqueTexturesSets[ textureType ].push_back( texture );
-//                }
-//            }
-//        }
-//    }
-//
-//    // Check if there is one texture of each type per model for the current texcoord set.
-//    for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
-//    {
-//        if ( !nonUniqueTexturesSets[ textureType ].empty() && nonUniqueTexturesSets[ textureType ].size() != models.size() )
-//        {
-//            std::string description;
-//            for ( auto& model : models )
-//                description += getDescription( *model );
-//
-//            //#TODO: Should use default textures in that case. Default textures should be in model class maybe? And they should be a bit larger than 1x1 to avoid filtering issues...
-//            throw std::exception( ( "ModelUtil::mergeModels - cannot merge models, because some types of textures are present only in some of the models. (ex: only model 0 and 2 have roughness texture). Details: \n\n" + description ).c_str() );
-//        }
-//    }
-//
-//    // Decide whether to use unique or non-unique texture set when merging models.
-//    // Use unique set if all models share the same textures. Use non-unique textures otherwise.
-//    bool modelsShareAllTextures = true;
-//    {
-//        // Check if there is one unique texture for each type.
-//        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
-//        {
-//            if ( uniqueTexturesSets[ textureType ].size() > 1 )
-//                modelsShareAllTextures = false;
-//        }
-//    }
-//
-//    std::array< std::vector< std::shared_ptr< Asset > >, (int)Model::TextureType::COUNT >& textureSets = modelsShareAllTextures ? uniqueTexturesSets : nonUniqueTexturesSets;
-//
-//
-//    std::array< std::shared_ptr< Asset >, (int)Model::TextureType::COUNT >                     mergedTextures;
-//    std::array< std::vector< TextureUtil::TexturePlacement >, (int)Model::TextureType::COUNT > mergedTexturePlacements;
-//    std::vector< TextureUtil::TexturePlacement >*                                              mergedTexturePlacement = nullptr;
-//    
-//    // Merge textures.
-//    for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
-//    {
-//        if ( !textureSets[ textureType ].empty() ) 
-//        {
-//            Model::TextureType texType = (Model::TextureType)textureType;
-//            
-//            if ( texType == Model::TextureType::Alpha ||
-//                 texType == Model::TextureType::Metalness || 
-//                 texType == Model::TextureType::Roughness ||
-//                 texType == Model::TextureType::RefractiveIndex )
-//            {
-//                auto textureSet = reinterpret_cast< std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > >& >( textureSets[ textureType ] );
-//
-//                std::tie( mergedTextures[ textureType ], mergedTexturePlacements[ textureType ] )
-//                    = TextureUtil::mergeTextures( textureSet, device, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-//            }
-//            else
-//            {
-//                auto textureSet = reinterpret_cast<std::vector< std::shared_ptr< Texture2DGeneric< uchar4 > > >&>( textureSets[ textureType ] );
-//
-//                std::tie( mergedTextures[ textureType ], mergedTexturePlacements[ textureType ] )
-//                    = TextureUtil::mergeTextures( textureSet, device, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
-//            }
-//
-//            mergedTexturePlacement = &mergedTexturePlacements[ textureType ];
-//        }
-//    }
-//
-//    // Check if texture placements for all texture types are the same 
-//    // - that textures were placed at the same texcoords within the merged texture.
-//    for ( int textureIdx = 0; textureIdx < models.size(); ++textureIdx ) 
-//    {
-//        TextureUtil::TexturePlacement& texturePlacement = mergedTexturePlacement->at( textureIdx );
-//
-//        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType ) 
-//        {
-//            if ( !mergedTexturePlacements[ textureType ].empty() && !TextureUtil::TexturePlacement::areTexcoordsEqual( texturePlacement, mergedTexturePlacements[ textureType ][ textureIdx ] ) ) 
-//            {
-//                std::string description;
-//
-//                for ( auto& model : models )
-//                    description += getDescription( *model, true, true );
-//
-//                throw std::exception( ( "ModelUtil::mergeModels - cannot merge models, because of dfferences in size for textures of various types (albedo, roughness etc) - each type of textures requirs a different set of textures after merge." + description ).c_str() );
-//            }
-//        }
-//    }
-//
-//    // Gather meshes to be merged.
-//    std::vector< std::shared_ptr< BlockMesh > > meshes;
-//    meshes.reserve( models.size() );
-//    for ( auto& model : models ) 
-//        meshes.push_back( model->getMesh() );
-//
-//    // Merge the meshes.
-//    std::shared_ptr< BlockMesh > mergedMesh = MeshUtil::mergeMeshes( meshes );
-//
-//    { // Recalculate merged mesh texcoords to match the merged textures.
-//        std::vector< float2 >& mergedMeshTexcoords = mergedMesh->getTexcoords( 0 );
-//        int vertexStartIndex = 0, vertexEndIndex = 0;
-//        for ( int meshIndex = 0; meshIndex < meshes.size(); ++meshIndex ) 
-//        {
-//            const std::shared_ptr< BlockMesh >& mesh             = meshes[ meshIndex ];
-//            const TextureUtil::TexturePlacement texturePlacement = mergedTexturePlacement->at( meshIndex );
-//
-//            vertexEndIndex += (int)mesh->getVertices().size();
-//            // Recalculate texcoords.
-//            for ( int vertexIndex = vertexStartIndex; vertexIndex < vertexEndIndex; ++vertexIndex )
-//                mergedMeshTexcoords[ vertexIndex ] = texturePlacement.getTopLeftTexcoords() + mergedMeshTexcoords[ vertexIndex ] * texturePlacement.getDimensionsInTexcoords();
-//
-//            vertexStartIndex = vertexEndIndex;
-//        }
-//    }
-//
-//    std::shared_ptr< BlockModel > mergedModel = std::make_shared< BlockModel >();
-//    { // Create merged model.
-//        mergedModel->setMesh( mergedMesh );
-//
-//        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
-//        {
-//            if ( mergedTextures[ textureType ] )
-//                mergedModel->addTexture( (Model::TextureType)textureType, mergedTextures[ textureType ], currTexcoordSetIndex );
-//        }
-//    }
-//
-//    return mergedModel;
-//}
-
-std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::shared_ptr< BlockModel > >& models, ID3D11Device3& device )
+std::shared_ptr< BlockModel > ModelUtil::mergeModels( 
+    const std::vector< std::shared_ptr< BlockModel > >& models, 
+    const std::vector< float43 >& transforms, 
+    ID3D11Device3& device )
 {
     // #TODO: BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But roughness textures 
     // or emissive may have completely different dimensions and be placed differently in the atlas.
@@ -205,122 +37,253 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::sh
 
     // We assume that there is one texture of each type (albedo, roughness etc) for each texcoord in each model. Or there may be zero texture of given type for all models.
 
-    // Stores unique textures for all models.
-    std::array< std::vector< std::shared_ptr< Asset > >, (int)Model::TextureType::COUNT > uniqueTexturesSets;
+    // ------ NEW --------------------
+    // 1. Check that all models have textures of the same types provided.
+    // 2. Treat textures in sets - one set per model. Gather sets for all models. Each models refrences its set.
+    // 3. Remove duplicated sets - re-index models to sets.
+    // 4. For each set - find the proportions of the texture (max of all types), max dimensions etc. Save it as texture set properties.
+    // 5. Decide on texture placements (texcoords) based on texture set properties - like normal merging, but only to generate placements.
+    // 6. For each texture type, iterate over all sets and calculate what is the needed maximal texture diemnsion (per type) to fit textures in their placements.
+    // 7. Create a texture of needed dimensions for each type
+    // 8. Copy/re-size textures into their placements.
 
-    // Stores one texture (or none) for each model in the same order in which models are.
-    std::array< std::vector< std::shared_ptr< Asset > >, (int)Model::TextureType::COUNT > modelsTexturesSets;
+    if ( !transforms.empty() && transforms.size() != models.size() )
+        throw std::exception( "ModelUtil::mergeModels - different number of transforms passed compared to the number of models." );
+    // -------------------------------
 
-    const int currTexcoordSetIndex = 0;
+    // Check that all models have meshes and power-of-two textures.
+    std::string error;
 
-    // Gather unique textures which use the same texcoord set.
-    for ( int modelIdx = 0; modelIdx < models.size(); ++modelIdx ) 
+    for ( auto& model : models )
     {
-        const auto& model = models[ modelIdx ];
-        
-        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType ) 
+        if ( !model->getMesh() )
+            error += "ModelUtil::mergeModels - some models don't have a mesh.\n";
+
+        // Check if all textures have power-of-two dimensions.
+        // #TODO: This limitation should be removed in the future.
+        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
         {
-            modelsTexturesSets[ textureType ].resize( models.size(), nullptr );
+            const auto texType = (Model::TextureType)textureType;
 
-            for ( const auto& modelTexture : model->getTextures( ( Model::TextureType )textureType ) ) 
+            const auto textures = model->getTextures( texType );
+            for ( const auto& texture : textures )
             {
-                std::shared_ptr< Asset > texture;
-                int                      texcoordSetIndex;
+                const auto& tex = std::get< 0 >( texture );
 
-                std::tie( texture, texcoordSetIndex ) = modelTexture;
+                if ( !tex )
+                    continue;
 
-                if ( texcoordSetIndex == currTexcoordSetIndex ) 
+                int2 dimensions( int2::ZERO );
+                if ( texType == Model::TextureType::Alpha
+                    || texType == Model::TextureType::Metalness
+                    || texType == Model::TextureType::Roughness
+                    || texType == Model::TextureType::RefractiveIndex )
                 {
-                    const bool alreadyListed = std::find( uniqueTexturesSets[ textureType ].begin(), uniqueTexturesSets[ textureType ].end(), texture ) != uniqueTexturesSets[ textureType ].end();
+                    auto& texU = static_cast< Texture2DGeneric< unsigned char >& >( *std::get< 0 >( texture ) );
 
-                    modelsTexturesSets[ textureType ][ modelIdx ] = texture;
+                    dimensions = texU.getDimensions();
+                }
+                else
+                {
+                    auto& texU4 = static_cast< Texture2DGeneric< uchar4 >& >( *std::get< 0 >( texture ) );
 
-                    if ( !alreadyListed )
-                        uniqueTexturesSets[ textureType ].push_back( texture );
+                    dimensions = texU4.getDimensions();
+                }
 
-                    break; // Allow for only one texture per texcoord set per model.
+                if ( !MathUtil::isPowerOfTwo( dimensions.x ) || !MathUtil::isPowerOfTwo( dimensions.y ) )
+                {
+                    std::string path = std::get< 0 >( texture )->getFileInfo().getPath();
+
+                    error += "ModelUtil::mergeModels - the texture does not have power-of-two dimensions: " + path + "\n";
                 }
             }
         }
     }
 
-    // Check if there is one texture of each type per model for the current texcoord set.
-    //for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType ) {
-    //    if ( !nonUniqueTexturesSets[ textureType ].empty() && nonUniqueTexturesSets[ textureType ].size() != models.size() ) {
-    //        std::string description;
-    //        for ( auto& model : models )
-    //            description += getDescription( *model );
+    if ( !error.empty() )
+        throw std::exception( error.c_str() );
 
-    //        //#TODO: Should use default textures in that case. Default textures should be in model class maybe? And they should be a bit larger than 1x1 to avoid filtering issues...
-    //        throw std::exception( ( "ModelUtil::mergeModels - cannot merge models, because some types of textures are present only in some of the models. (ex: only model 0 and 2 have roughness texture). Details: \n\n" + description ).c_str() );
+    // Each set stores textures of all types for a single model (or many - if they share the same set).
+    std::vector< TextureSet > textureSets;
+    textureSets.reserve( models.size() );
+
+    // Texture-set index for each model. If two models share the same set, they have the same index.
+    std::vector< int > modelToTextureSetMapping;
+    modelToTextureSetMapping.reserve( models.size() );
+
+    // Check that all models have textures of the same types provided.
+    std::array< int, (int)Model::TextureType::COUNT > textureCountPerType = { 0 };
+    for ( auto& model : models )
+    {
+        modelToTextureSetMapping.push_back( (int)textureSets.size() );
+        textureSets.emplace_back();
+        auto& textureSet = textureSets.back();
+
+        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
+        {
+            const int textureCount = model->getTextureCount( (Model::TextureType)textureType );
+
+            if ( textureCount > 0 )
+            {
+                textureCountPerType[ textureType ] += 1;
+
+                // Add a texture and it's color multipliers to the model's set.
+                textureSet.m_textures[ textureType ]         = model->getTexture( (Model::TextureType)textureType );
+                textureSet.m_colorMultipliers[ textureType ] = model->getTextureColorMultiplier( (Model::TextureType)textureType );
+            }
+        }
+    }
+
+    // Check if count of each texture type is the same (no texture is missing).
+    std::string errorDescription;
+    const int maxTextureCount = *std::max_element( textureCountPerType.begin(), textureCountPerType.end() );
+    for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
+    {
+        if ( textureCountPerType[ textureType ] > 0 && textureCountPerType[ textureType ] < maxTextureCount )
+        {
+            errorDescription = "Some models are missing " 
+                + Model::textureTypeToString( (Model::TextureType)textureType ) + " textures:";
+
+            // Find models which are missing textures of given type.
+            for ( auto& model : models )
+            {
+                if ( model->getTextureCount( (Model::TextureType)textureType ) == 0 )
+                {
+                    // Get model or mesh file path.
+                    auto path = model->getFileInfo().getPath();
+                    if ( path.empty() ) 
+                        path = model->getMesh()->getFileInfo().getPath();
+
+                    errorDescription += "\n" + path;
+                }
+            }
+
+            errorDescription += "\n\n";
+        }
+    }
+
+    // Remove duplicated sets - re-index model-to-texture-set mapping if needed.
+    //for ( int setIdx1 = 0; setIdx1 < textureSets.size(); ++setIdx1 )
+    //{
+    //    for ( int setIdx2 = setIdx1 + 1; setIdx2 < textureSets.size(); )
+    //    {
+    //        if ( textureSets[ setIdx1 ] == textureSets[ setIdx2 ] )
+    //        {
+    //            // Erase the duplicate set.
+    //            textureSets.erase( textureSets.begin() + setIdx2 );
+
+    //            // Re-index all models referencing the removed set to the remaining copy of it.
+    //            for ( int mapIdx = setIdx1 + 1; mapIdx < modelToTextureSetMapping.size(); ++mapIdx )
+    //            {
+    //                if ( modelToTextureSetMapping[ mapIdx ] == setIdx2 )
+    //                    modelToTextureSetMapping[ mapIdx ] = setIdx1;
+    //                else if ( modelToTextureSetMapping[ mapIdx ] > setIdx2 )
+    //                    modelToTextureSetMapping[ mapIdx ] -= 1;
+    //            }
+    //        }
+    //        else
+    //            ++setIdx2;
     //    }
     //}
 
-    // Find a type of texture for which there is the most unique textures.
-    Model::TextureType mainTextureType = Model::TextureType::Alpha;
-    int maxUniqueTexturesCount = 0;
-
-    for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType ) 
+    // Calculate dimensions of each set, which are required to store 
+    // the set without loosing resolution for any type of texture.
+    std::vector< int2 > textureSetDimensions;
+    textureSetDimensions.reserve( textureSets.size() );
+    for ( auto& textureSet : textureSets )
     {
-        if ( uniqueTexturesSets[ textureType ].size() > maxUniqueTexturesCount ) 
-        {
-            maxUniqueTexturesCount = (int)uniqueTexturesSets[ textureType ].size();
-            mainTextureType        = (Model::TextureType)textureType;
-        }
+        textureSet.calculateDimensions();
+
+        textureSetDimensions.push_back( textureSet.m_dimensions );
     }
+
+    int2                                       mergedTextureDimensions;
+    std::vector< std::pair< float2, float2 > > mergedTexturesTexcoords;
+
+    // Calculate where textures need to be placed within the merged texture.
+    std::tie( mergedTextureDimensions, mergedTexturesTexcoords ) 
+        = TextureUtil::prepareTextureMerge( textureSetDimensions );
 
     std::array< std::shared_ptr< Asset >, (int)Model::TextureType::COUNT > mergedTextures;
-    std::vector< TextureUtil::TexturePlacement >                           mergedTexturePlacement;
 
-    // Merge main texture set (which has the most unique textures).
-    if ( mainTextureType == Model::TextureType::Alpha || mainTextureType == Model::TextureType::Metalness ||
-         mainTextureType == Model::TextureType::Roughness || mainTextureType == Model::TextureType::RefractiveIndex ) 
+    // For each texture type, iterate over all sets and calculate 
+    // what are the needed merged texture dimensions (per type) 
+    // to fit textures in their texcoord range.
+    // Then, merge the textures of given type.
+    for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
     {
-        auto textureSet = reinterpret_cast<std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > >&>( uniqueTexturesSets[ (int)mainTextureType ] );
+        const auto texType = (Model::TextureType)textureType;
 
-        std::tie( mergedTextures[ (int)mainTextureType ], mergedTexturePlacement )
-            = TextureUtil::mergeTextures( textureSet, device, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
-    } 
-    else 
-    {
-        auto textureSet = reinterpret_cast<std::vector< std::shared_ptr< Texture2DGeneric< uchar4 > > >&>( uniqueTexturesSets[ (int)mainTextureType ] );
+        int2 neededDimensions( int2::ZERO );
+        for ( int textureSetIdx = 0; textureSetIdx < textureSets.size(); ++textureSetIdx )
+        {
+            const auto& textureSet    = textureSets[ textureSetIdx ];
+            const int2  dimensions    = textureSet.getTextureDimensions( texType );
+            const auto& texcoords     = mergedTexturesTexcoords[ textureSetIdx ];
+            const auto  texcoordsSpan = texcoords.second - texcoords.first;
 
-        std::tie( mergedTextures[ (int)mainTextureType ], mergedTexturePlacement )
-            = TextureUtil::mergeTextures( textureSet, device, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
-    }
+            neededDimensions.x = std::max( (int)((float)dimensions.x * ( 1.0f / texcoordsSpan.x )), neededDimensions.x );
+            neededDimensions.y = std::max( (int)((float)dimensions.y * ( 1.0f / texcoordsSpan.y )), neededDimensions.y );
+        }
 
-    // Merge remaining texture sets.
-    for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType ) 
-    {
-        if ( textureType == (int)mainTextureType )
-            continue; // Main type is already merged.
+        // Gather textures to be merged.
+        std::vector< std::shared_ptr< Asset > > texturesToMerge;
+        std::vector< float4 >                   colorMultipliersToMerge;
+        texturesToMerge.reserve( textureSets.size() );
+        colorMultipliersToMerge.reserve( textureSets.size() );
+        for ( auto& textureSet : textureSets )
+        {
+            auto& texture = textureSet.m_textures[ textureType ];
 
-        if ( uniqueTexturesSets[ textureType ].empty() )
+            if ( texture )
+            {
+                texturesToMerge.push_back( texture );
+                colorMultipliersToMerge.push_back( textureSet.m_colorMultipliers[ textureType ] );
+            }
+        }
+
+        if ( texturesToMerge.empty() )
             continue;
         
-        Model::TextureType texType = ( Model::TextureType )textureType;
-
-        std::shared_ptr< Asset > mergedTexture;
-
+        // Merge textures.
         if ( texType == Model::TextureType::Alpha || texType == Model::TextureType::Metalness ||
              texType == Model::TextureType::Roughness || texType == Model::TextureType::RefractiveIndex ) 
         {
-            auto textureSet = reinterpret_cast<std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > >&>( uniqueTexturesSets[ textureType ] );
-            const bool duplicateTextures = textureSet.size() == 1;
-            mergedTexture   = TextureUtil::mergeTextures( textureSet, mergedTexturePlacement, duplicateTextures, device, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+            auto texturesToMergeU 
+                = reinterpret_cast< std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > >& >( texturesToMerge );
+
+            mergedTextures[ textureType ] = TextureUtil::mergeTextures( 
+                texturesToMergeU, 
+                colorMultipliersToMerge,
+                mergedTexturesTexcoords, 
+                neededDimensions,
+                device, 
+                DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM 
+            );
+
+            // Save temporary merged result - to help in debugging.
+            auto tex = std::dynamic_pointer_cast< Texture2DGeneric< unsigned char > >( mergedTextures[ textureType ] );
+            assert(tex);
+            tex->saveToFile( "Temp/merged_temp_" + Model::textureTypeToString( texType ) + ".tif", Texture2DFileInfo::Format::TIFF );
         } 
         else 
         {
-            auto textureSet = reinterpret_cast<std::vector< std::shared_ptr< Texture2DGeneric< uchar4 > > >&>( uniqueTexturesSets[ textureType ] );
-            const bool duplicateTextures = textureSet.size() == 1;
-            mergedTexture   = TextureUtil::mergeTextures( textureSet, mergedTexturePlacement, duplicateTextures, device, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
-        }
+            auto texturesToMergeU4 
+                = reinterpret_cast< std::vector< std::shared_ptr< Texture2DGeneric< uchar4 > > >& >( texturesToMerge );
 
-        if ( mergedTexture ) {
-            mergedTextures[ textureType ] = mergedTexture;
-        } else {
-            throw std::exception( ("ModelUtil::mergeModels - merging was not possible, because " + Model::textureTypeToString( texType ) +
-                                   " textures cannot be merged using the same texcoords as " + Model::textureTypeToString( mainTextureType ) + " textures").c_str() );
+            mergedTextures[ textureType ] = TextureUtil::mergeTextures( 
+                texturesToMergeU4, 
+                colorMultipliersToMerge,
+                mergedTexturesTexcoords, 
+                neededDimensions,
+                device, 
+                DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM 
+            );
+
+            // Save temporary merged result - to help in debugging.
+            auto tex = std::dynamic_pointer_cast< Texture2DGeneric< uchar4 > >( mergedTextures[ textureType ] );
+            assert(tex);
+            tex->saveToFile( "Temp/merged_temp_" + Model::textureTypeToString( texType ) + ".png", Texture2DFileInfo::Format::PNG );
         }
     }
 
@@ -331,42 +294,67 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::sh
         meshes.push_back( model->getMesh() );
 
     // Merge the meshes.
-    std::shared_ptr< BlockMesh > mergedMesh = MeshUtil::mergeMeshes( meshes );
+    std::shared_ptr< BlockMesh > mergedMesh = MeshUtil::mergeMeshes( meshes, transforms );
 
     { // Recalculate merged mesh texcoords to match the merged textures.
-        std::vector< float2 >& mergedMeshTexcoords = mergedMesh->getTexcoords( 0 );
+        std::vector< float2 > meshTexcoordOffsets;
+        meshTexcoordOffsets.reserve( meshes.size() );
 
-        // Check if all texcoords are zeros.
-        bool allTexcoordsAreZeros = true;
-        for ( const float2& texcoord : mergedMeshTexcoords )
-        {
-            if ( !MathUtil::areEqual( texcoord, float2::ZERO, 0.0f, 0.0001f ) ) {
-                allTexcoordsAreZeros = false;
-                break;
-            }
-        }
-
-        // Optionally apply texcoords offset if all texcoords are zeros.
+        // Check if all texcoords for a given source mesh are zeros -
+        // apply (0.5, 0.5) offset then.
         // Without such offset texcoords after merge would end up in the top-left corner 
         // of the input textures in the atlas. That would cause unwanted blending between them when using bilinear sampling.
-        const float2 texcoordOffset = allTexcoordsAreZeros ? float2( 0.5f, 0.5f ) : float2::ZERO;
+        for ( const auto& mesh : meshes )
+        {
+            bool allTexcoordsAreZeros = true;
+
+            for ( const auto& texcoord : mesh->getTexcoords() )
+            {
+                if ( !MathUtil::areEqual( texcoord, float2::ZERO, 0.0f, 0.0001f ) ) 
+                {
+                    allTexcoordsAreZeros = false;
+                    break;
+                }
+            }
+
+            meshTexcoordOffsets.push_back( 
+                allTexcoordsAreZeros ? float2::HALF : float2::ZERO
+            );
+        }
+
+        std::vector< float2 >& mergedMeshTexcoords = mergedMesh->getTexcoords( 0 );
 
         int vertexStartIndex = 0, vertexEndIndex = 0;
 
         for ( int modelIndex = 0; modelIndex < models.size(); ++modelIndex ) 
         {
-            const auto& mesh         = models[ modelIndex ]->getMesh();
-            const auto& modelTexture = modelsTexturesSets[ (int)mainTextureType ][ modelIndex ];
-
-            const auto& uniqueTextureIt = std::find( uniqueTexturesSets[ (int)mainTextureType ].begin(), uniqueTexturesSets[ (int)mainTextureType ].end(), modelTexture );
-            const int   indexWithinUniqueTextures = (int)(uniqueTextureIt - uniqueTexturesSets[ (int)mainTextureType ].begin());
-
-            const TextureUtil::TexturePlacement texturePlacement = mergedTexturePlacement[ indexWithinUniqueTextures ];
+            const auto& mesh                = models[ modelIndex ]->getMesh();
+            const auto& extraTexcoordOffset = meshTexcoordOffsets[ modelIndex ];
+            const auto& mergedTexcoords     = mergedTexturesTexcoords[ modelToTextureSetMapping[ modelIndex ] ];
 
             vertexEndIndex += (int)mesh->getVertices().size();
             // Recalculate texcoords.
             for ( int vertexIndex = vertexStartIndex; vertexIndex < vertexEndIndex; ++vertexIndex )
-                mergedMeshTexcoords[ vertexIndex ] = texturePlacement.getTopLeftTexcoords() + ( mergedMeshTexcoords[ vertexIndex ] + texcoordOffset ) * texturePlacement.getDimensionsInTexcoords();
+            {
+                float2 texcoord = mergedMeshTexcoords[ vertexIndex ];
+
+                // Wrap UVs to 0-1 range (original ones could be negative, or greater than 1, less then -1).
+                texcoord.x = fmod( texcoord.x, 1.0f );
+                texcoord.y = fmod( texcoord.y, 1.0f );
+
+                if (texcoord.x < 0.0f)
+                    texcoord.x += 1.0f;
+
+                if (texcoord.y < 0.0f)
+                    texcoord.y += 1.0f;
+
+                mergedMeshTexcoords[ vertexIndex ] 
+                    = mergedTexcoords.first + ( texcoord + extraTexcoordOffset ) * (mergedTexcoords.second - mergedTexcoords.first);
+
+                // Debug test.
+                //static_cast< Texture2DGeneric< uchar4 >& >( *mergedTextures[ (int)Model::TextureType::Albedo ] ).setDataPixel( 
+                //    mergedMeshTexcoords[ vertexIndex ], uchar4( 255, 0, 0, 255 ), 0 );
+            }
 
             vertexStartIndex = vertexEndIndex;
         }
@@ -376,9 +364,10 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels( const std::vector< std::sh
     { // Create merged model.
         mergedModel->setMesh( mergedMesh );
 
-        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType ) {
+        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType ) 
+        {
             if ( mergedTextures[ textureType ] )
-                mergedModel->addTexture( ( Model::TextureType )textureType, mergedTextures[ textureType ], currTexcoordSetIndex );
+                mergedModel->addTexture( ( Model::TextureType )textureType, mergedTextures[ textureType ], 0 );
         }
     }
 
@@ -439,4 +428,83 @@ std::string ModelUtil::getDescription( const BlockModel& model, const bool print
     text += "\n";
 
     return text;
+}
+
+ModelUtil::TextureSet::TextureSet() :
+    m_dimensions( float2::ZERO )
+{
+    m_textures         = {};
+    m_colorMultipliers = {};
+}
+
+bool ModelUtil::TextureSet::operator == (TextureSet& other) const
+{
+    if ( m_dimensions != other.m_dimensions )
+        return false;
+
+    for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
+    {
+        // Return false if textures or color multipliers are different.
+        if ( m_textures[ textureType ] != other.m_textures[ textureType ] )
+        {
+            return false;
+        }
+        else if ( !MathUtil::areEqual( m_colorMultipliers[ textureType ], other.m_colorMultipliers[ textureType ], 0.0f, 0.001f ) )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void ModelUtil::TextureSet::calculateDimensions()
+{
+    for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
+    {
+        auto texType = (Model::TextureType)textureType;
+
+        if ( !m_textures[ textureType ] )
+            continue;
+
+        if ( texType == Model::TextureType::Alpha
+            || texType == Model::TextureType::Metalness
+            || texType == Model::TextureType::Roughness
+            || texType == Model::TextureType::RefractiveIndex )
+        {
+            auto& texture = static_cast< Texture2DGeneric< unsigned char >& >( *m_textures[ textureType ] );
+
+            m_dimensions.x = std::max( texture.getWidth(), m_dimensions.x );
+            m_dimensions.y = std::max( texture.getHeight(), m_dimensions.y );
+        }
+        else
+        {
+            auto& texture = static_cast< Texture2DGeneric< uchar4 >& >( *m_textures[ textureType ] );
+
+            m_dimensions.x = std::max( texture.getWidth(), m_dimensions.x );
+            m_dimensions.y = std::max( texture.getHeight(), m_dimensions.y );
+        }
+    }
+}
+
+int2 ModelUtil::TextureSet::getTextureDimensions( Model::TextureType textureType ) const
+{
+    if ( !m_textures[ (int)textureType ] )
+            return int2::ZERO;
+
+    if ( textureType == Model::TextureType::Alpha
+        || textureType == Model::TextureType::Metalness
+        || textureType == Model::TextureType::Roughness
+        || textureType == Model::TextureType::RefractiveIndex )
+    {
+        auto& texture = static_cast< const Texture2DGeneric< unsigned char >& >( *m_textures[ (int)textureType ] );
+
+        return texture.getDimensions();
+    }
+    else
+    {
+        auto& texture = static_cast< const Texture2DGeneric< uchar4 >& >( *m_textures[ (int)textureType ] );
+
+        return texture.getDimensions();
+    }
 }

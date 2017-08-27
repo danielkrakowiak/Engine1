@@ -11,6 +11,7 @@
 
 #include "int2.h"
 #include "uchar4.h"
+#include "uint4.h"
 #include "Texture2DEnums.h"
 #include "ImageLibrary.h"
 #include "Texture2DFileInfo.h"
@@ -68,6 +69,11 @@ namespace Engine1
         int2 getDimensions( unsigned int mipMapLevel = 0 ) const;
         int  getSize( unsigned int mipMapLevel = 0 ) const;
         int  getLineSize( unsigned int mipMapLevel = 0 ) const;
+
+        PixelType sampleBilinearData( float2 texcoords, unsigned int mipMapLevel = 0 ) const;
+
+        void setDataPixel( float2 texcoords, PixelType color, unsigned int mipMapLevel = 0 );
+        void setDataPixel( int2 position, PixelType color, unsigned int mipMapLevel = 0 );
 
         const std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 ) const;
         std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 );
@@ -152,7 +158,13 @@ namespace Engine1
         int formatToFreeImagePlusSaveFlag( Texture2DFileInfo::Format format ) const;
 
         // Special averaging method used to avoid overflow for small integer types during mipmap calculations.
-        PixelType average( PixelType val1, PixelType val2, PixelType val3, PixelType val4 );
+        PixelType average( PixelType val1, PixelType val2, PixelType val3, PixelType val4 ) const;
+
+        PixelType weightedAverage( 
+            PixelType val1, float weight1, 
+            PixelType val2, float weight2, 
+            PixelType val3, float weight3, 
+            PixelType val4, float weight4 ) const;
 
         Texture2DFileInfo m_fileInfo;
 
@@ -1236,9 +1248,46 @@ namespace Engine1
         return flags;
     }
 
+    template< typename PixelType >
+    PixelType Texture2DGeneric< PixelType >
+        ::sampleBilinearData( float2 texcoords, unsigned int mipMapLevel ) const
+    {
+        if ( !isInCpuMemory() )
+            throw std::exception( "Texture2DGeneric::sampleData - texture is not in CPU memory." );
+
+        // Wrap texcoords in case they exceed <0 - 1> range.
+        texcoords.x = fmod( texcoords.x, 1.0f );
+        texcoords.y = fmod( texcoords.y, 1.0f );
+
+        mipMapLevel = std::min( getMipMapCountOnCpu() - 1, (int)mipMapLevel );
+
+        const auto& data       = m_dataMipmaps.at( mipMapLevel );
+        const int2  dimensions = getDimensions( mipMapLevel );
+
+        const float2 posF = max( float2::ZERO, texcoords * (float2)dimensions - float2( 0.5f, 0.5f ) );
+        const int2   posI( (int2)posF );
+
+        const float2 ratio     = posF - (float2)posI;
+        const float2 ratio_inv = float2::ONE - ratio;
+
+        const int dataOffsetTopLeft     = posI.y * dimensions.x + posI.x;
+        const int dataOffsetTopRight    = posI.y * dimensions.x + std::min( dimensions.x - 1, posI.x + 1 );
+        const int dataOffsetBottomLeft  = std::min( dimensions.y - 1, posI.y + 1 ) * dimensions.x + posI.x;
+        const int dataOffsetBottomRight = std::min( dimensions.y - 1, posI.y + 1 ) * dimensions.x + std::min( dimensions.x - 1, posI.x + 1 );
+        
+        const PixelType result = weightedAverage(
+            data[dataOffsetTopLeft], ratio_inv.x * ratio_inv.y,
+            data[dataOffsetTopRight], ratio.x * ratio_inv.y, 
+            data[dataOffsetBottomLeft], ratio_inv.x * ratio.y,
+            data[dataOffsetBottomRight], ratio.x * ratio.y
+        );
+
+        return result;
+    }
+
     template<>
     inline unsigned char Texture2DGeneric< unsigned char >
-        ::average( unsigned char val1, unsigned char val2, unsigned char val3, unsigned char val4 )
+        ::average( unsigned char val1, unsigned char val2, unsigned char val3, unsigned char val4 ) const
     {
         // Note: Unsafe cast to smaller type.
         return (unsigned char)( ((int)val1 + (int)val2 + (int)val3 + (int)val4) / 4 );
@@ -1246,7 +1295,7 @@ namespace Engine1
 
     template<>
     inline uchar4 Texture2DGeneric< uchar4 >
-        ::average( uchar4 val1, uchar4 val2, uchar4 val3, uchar4 val4 )
+        ::average( uchar4 val1, uchar4 val2, uchar4 val3, uchar4 val4 ) const
     {
         uint4 value = ((uint4)val1 + (uint4)val2 + (uint4)val3 + (uint4)val4) / 4;
 
@@ -1256,22 +1305,109 @@ namespace Engine1
 
     template<>
     inline float Texture2DGeneric< float >
-        ::average( float val1, float val2, float val3, float val4 )
+        ::average( float val1, float val2, float val3, float val4 ) const
     {
         return (val1 + val2 + val3 + val4) / 4.0f;
     }
 
     template<>
     inline float4 Texture2DGeneric< float4 >
-        ::average( float4 val1, float4 val2, float4 val3, float4 val4 )
+        ::average( float4 val1, float4 val2, float4 val3, float4 val4 ) const
     {
         return (val1 + val2 + val3 + val4) / 4.0f;
     }
 
-    //template<typename PixelType>
-    //inline PixelType Texture2DGeneric<PixelType>::sum( PixelType val1, PixelType val2, PixelType val3, PixelType val4 )
-    //{
-    //    return PixelType();
-    //}
+    template<>
+    inline unsigned char Texture2DGeneric< unsigned char >
+        ::weightedAverage( 
+            unsigned char val1, float weight1, 
+            unsigned char val2, float weight2, 
+            unsigned char val3, float weight3, 
+            unsigned char val4, float weight4 ) const
+    {
+        // Note: Unsafe cast to smaller type.
+        return (unsigned char)( 
+            (float)val1 * weight1 + 
+            (float)val2 * weight2 + 
+            (float)val3 * weight3 + 
+            (float)val4 * weight4 
+        );
+    }
+
+    template<>
+    inline uchar4 Texture2DGeneric< uchar4 >
+        ::weightedAverage( 
+            uchar4 val1, float weight1, 
+            uchar4 val2, float weight2, 
+            uchar4 val3, float weight3, 
+            uchar4 val4, float weight4 ) const
+    {
+        uint4 value = (uint4)
+            ((float4)val1 * weight1 + 
+            (float4)val2 * weight2 + 
+            (float4)val3 * weight3 + 
+            (float4)val4 * weight4);
+
+        // Note: Unsafe cast to smaller type.
+        return uchar4( (unsigned char)value.x, (unsigned char)value.y, (unsigned char)value.z, (unsigned char)value.w );
+    }
+
+    template<>
+    inline float Texture2DGeneric< float >
+        ::weightedAverage( 
+            float val1, float weight1,
+            float val2, float weight2,
+            float val3, float weight3,
+            float val4, float weight4 ) const
+    {
+        return 
+            val1 * weight1 + 
+            val2 * weight2 + 
+            val3 * weight3 + 
+            val4 * weight4;
+    }
+
+    template<>
+    inline float4 Texture2DGeneric< float4 >
+        ::weightedAverage( 
+            float4 val1, float weight1,
+            float4 val2, float weight2,
+            float4 val3, float weight3,
+            float4 val4, float weight4 ) const
+    {
+        return 
+            val1 * weight1 + 
+            val2 * weight2 + 
+            val3 * weight3 + 
+            val4 * weight4;
+    }
+
+    template< typename PixelType >
+    void Texture2DGeneric< PixelType >
+        ::setDataPixel( float2 texcoords, PixelType color, unsigned int mipMapLevel )
+    {
+        // Clamp texcoords to <0, 1> range.
+        texcoords.x = std::max( 0.0f, texcoords.x );
+        texcoords.y = std::max( 0.0f, texcoords.y );
+        texcoords.x = std::min( 1.0f, texcoords.x );
+        texcoords.y = std::min( 1.0f, texcoords.y );
+
+        setDataPixel( 
+            (int2)(texcoords * (float2)getDimensions( mipMapLevel )), 
+            color,
+            mipMapLevel
+        );
+    }
+
+    template< typename PixelType >
+    void Texture2DGeneric< PixelType >
+        ::setDataPixel( int2 position, PixelType color, unsigned int mipMapLevel )
+    {
+        const int2 dimensions = getDimensions( mipMapLevel );
+        position.x = std::min( dimensions.x - 1, position.x );
+        position.y = std::min( dimensions.y - 1, position.y );
+
+        getData( mipMapLevel )[ position.y * dimensions.x + position.x ] = color;
+    }
 }
 

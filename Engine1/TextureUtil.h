@@ -8,7 +8,7 @@
 
 #include "MathUtil.h"
 
-#include "int2.h"
+#include "int3.h"
 #include "float2.h"
 
 namespace Engine1
@@ -17,52 +17,35 @@ namespace Engine1
     {
         private:
 
-        template< typename PixelType >
         class TextureBin
         {
             private:
 
-            int m_width;
-            int m_height;
+            int2 m_dimensions;
             bool m_horizontal; // Matters only if bin has children.
 
-            //std::weak_ptr< TextureBin > m_parent;
             std::unique_ptr< TextureBin > m_firstChild, m_secondChild;
 
-            // Note: Texture has to fill the entire space of the bin.
-            std::shared_ptr< Texture2DGeneric< PixelType > > m_texture;
+            bool m_empty;
 
             public:
 
-            TextureBin( const int width, const int height, const std::shared_ptr< Texture2DGeneric< PixelType > > texture ) :
-                //m_parent( parent ),
-                m_width( width ),
-                m_height( height ),
+            TextureBin( const int2 textureDimensions, bool empty ) :
+                m_dimensions( textureDimensions ),
                 m_horizontal( false ),
-                m_texture( texture )
+                m_empty( empty )
             {} // Should check texture dimensions in constructor?
 
-            TextureBin( const int width, const int height ) :
-                m_width( width ),
-                m_height( height ),
-                m_horizontal( false )
-            {}
-
-            int getWidth()
+            int2 getDimensions()
             {
-                return m_width;
-            }
-
-            int getHeight()
-            {
-                return m_height;
+                return m_dimensions;
             }
 
             // Assumption - no texture should be bigger than the bin it is inserted into.
             // Returns true if insertion has succeeded and a position (in pixels) of the inserted texture within the merged texture.
-            std::pair< bool, int2 > insert( std::shared_ptr< Texture2DGeneric< PixelType > > texture )
+            std::pair< bool, int2 > insert( const int2 textureDimensions )
             {
-                if ( m_texture || m_width < texture->getWidth() || m_height < texture->getHeight() )
+                if ( !m_empty || m_dimensions.x < textureDimensions.x || m_dimensions.y < textureDimensions.y )
                     return std::make_pair( false, int2::ZERO ); // This bin is already filled or it's too small - cannot insert.
 
                 // This bin has sufficient size.
@@ -70,32 +53,32 @@ namespace Engine1
                 if ( m_firstChild || m_secondChild ) {
                     std::pair< bool, int2 > inserted;
                     if ( m_firstChild )
-                        inserted = m_firstChild->insert( texture );
+                        inserted = m_firstChild->insert( textureDimensions );
 
                     if ( m_secondChild && !inserted.first )
                     {
-                        inserted = m_secondChild->insert( texture );
+                        inserted = m_secondChild->insert( textureDimensions );
 
                         // Add half of bin's width/height to the returned texture's position 
                         // - because it was placed in the second child.
                         if ( inserted.first )
-                            inserted.second += m_horizontal ? int2( m_width / 2, 0 ) : int2( 0, m_height / 2 );
+                            inserted.second += m_horizontal ? int2( m_dimensions.x / 2, 0 ) : int2( 0, m_dimensions.y / 2 );
                     }
 
                     return inserted;
                 } else // This bin doesn't have children (isn't divided).
                 {
-                    if ( m_width == texture->getWidth() && m_height == texture->getHeight() ) {
-                        m_texture = texture; // This bin has exactly the size of the texture - fill it.
+                    if ( m_dimensions.x == textureDimensions.x && m_dimensions.y == textureDimensions.y ) {
+                        m_empty = false; // This bin has exactly the size of the texture - fill it.
 
                         return std::make_pair( true, int2::ZERO );
                     } else {
                         // This bin is too wide - divide horizontally, too high - divide vertically.
-                        const bool divideHorizontally = m_width > texture->getWidth();
+                        const bool divideHorizontally = m_dimensions.x > textureDimensions.x;
                         divide( divideHorizontally );
 
                         // Try to insert again.
-                        return insert( texture );
+                        return insert( textureDimensions );
                     }
                 }
             }
@@ -105,13 +88,13 @@ namespace Engine1
             // Returns the new root bin.
             static std::unique_ptr< TextureBin > enlarge( std::unique_ptr< TextureBin >& rootBin )
             {
-                std::unique_ptr< TextureBin > neighborBin = std::make_unique< TextureBin >( rootBin->m_width, rootBin->m_height );
+                std::unique_ptr< TextureBin > neighborBin = std::make_unique< TextureBin >( rootBin->m_dimensions, true );
 
-                const bool horizontal = rootBin->m_width <= rootBin->m_height;
-                const int  newWidth = horizontal ? rootBin->m_width * 2 : rootBin->m_width;
-                const int  newHeight = !horizontal ? rootBin->m_height * 2 : rootBin->m_height;
+                const bool horizontal = rootBin->m_dimensions.x <= rootBin->m_dimensions.y;
+                const int  newWidth   = horizontal ? rootBin->m_dimensions.x * 2 : rootBin->m_dimensions.x;
+                const int  newHeight  = !horizontal ? rootBin->m_dimensions.y * 2 : rootBin->m_dimensions.y;
 
-                std::unique_ptr< TextureBin > newRootBin = std::make_unique< TextureBin >( newWidth, newHeight );
+                std::unique_ptr< TextureBin > newRootBin = std::make_unique< TextureBin >( int2( newWidth, newHeight ), true );
 
                 // Attach the children to the new root bin.
                 newRootBin->m_horizontal = horizontal;
@@ -121,324 +104,225 @@ namespace Engine1
                 return newRootBin;
             }
 
-            // Returns pair( false, (0, 0) ) if there is no such texture in the bin and its children.
-            // Otherwise returns position of the given texture in the newly merged texture (in pixel from the left-top corner).
-            std::pair< bool, int2 > getTexturePosition( const std::shared_ptr< Texture2DGeneric< PixelType > > texture )
-            {
-                // If this bin holds that texture.
-                if ( m_texture == texture )
-                    return std::make_pair( true, int2( 0, 0 ) );
-
-                if ( m_firstChild ) {
-                    auto result = m_firstChild->getTexturePosition( texture );
-                    if ( result.first )
-                        return result;
-                }
-
-                if ( m_secondChild ) {
-                    auto result = m_secondChild->getTexturePosition( texture );
-                    if ( result.first ) {
-                        result.second += m_horizontal ? int2( m_width / 2, 0 ) : int2( 0, m_height / 2 );
-                        return result;
-                    }
-                }
-
-                // Neither this bin or its children hold the given texture.
-                return std::make_pair( false, int2( 0, 0 ) );
-            }
-
             private:
 
             void divide( const bool horizontally )
             {
-                assert( !m_texture ); // Only an empty bin can be divided.
+                assert( m_empty ); // Only an empty bin can be divided.
 
-                const int newWidth = horizontally ? m_width / 2 : m_width;
-                const int newHeight = !horizontally ? m_height / 2 : m_height;
+                int2 newDimensions;
+                newDimensions.x =  horizontally ? m_dimensions.x / 2 : m_dimensions.x;
+                newDimensions.y = !horizontally ? m_dimensions.y / 2 : m_dimensions.y;
 
-                m_horizontal = horizontally;
-                m_firstChild = std::make_unique< TextureBin >( newWidth, newHeight, nullptr );
-                m_secondChild = std::make_unique< TextureBin >( newWidth, newHeight, nullptr );
+                m_horizontal  = horizontally;
+                m_firstChild  = std::make_unique< TextureBin >( newDimensions, true );
+                m_secondChild = std::make_unique< TextureBin >( newDimensions, true );
             }
         };
 
         public:
 
-        // Describes where a texture is placed within a merged texture.
-        class TexturePlacement
-        {
-            public:
-
-            static bool areTexcoordsEqual( const TexturePlacement& placement1, const TexturePlacement& placement2 )
-            {
-                return MathUtil::areEqual( placement1.getTopLeftTexcoords(), placement2.getTopLeftTexcoords(), 0.0f, 0.0001f )
-                    && MathUtil::areEqual( placement1.getBottomRightTexcoords(), placement2.getBottomRightTexcoords(), 0.0f, 0.0001f );
-            }
-
-            TexturePlacement( const float2& topLeftTexcoords, const float2& bottomRightTexcoords ) :
-                m_topLeftTexcoords( topLeftTexcoords ),
-                m_bottomRightTexcoords( bottomRightTexcoords )
-            {}
-
-            float2 getTopLeftTexcoords() const
-            {
-                return m_topLeftTexcoords;
-            }
-
-            float2 getBottomRightTexcoords() const
-            {
-                return m_bottomRightTexcoords;
-            }
-
-            float2 getDimensionsInTexcoords() const
-            {
-                return m_bottomRightTexcoords - m_topLeftTexcoords;
-            }
-
-            private:
-
-            float2 m_topLeftTexcoords;
-            float2 m_bottomRightTexcoords;
-        };
-
         template< typename PixelType >
-        static void copyTexture( Texture2DGeneric< PixelType >& destTexture, Texture2DGeneric< PixelType >& srcTexture, int2 destTopLeft, int2 srcTopLeft, int2 dimensions )
+        static void copyTextureCpu( 
+            Texture2DGeneric< PixelType >& destTexture, 
+            Texture2DGeneric< PixelType >& srcTexture, 
+            float2 destTopLeftTexcoords,
+            float2 destBottomRightTexcoords,
+            float2 srcTopLeftTexcoords, 
+            float2 srcBottomRightTexcoords,
+            float4 colorMultiplier = float4::ONE )
         {
-            if ( srcTopLeft.x < 0 || dimensions.x < 0 || srcTopLeft.x + dimensions.x > srcTexture.getWidth()
-                 || srcTopLeft.y < 0 || dimensions.y < 0 || srcTopLeft.y + dimensions.y > srcTexture.getHeight()
-                 || destTopLeft.x < 0 || destTopLeft.x + dimensions.x > destTexture.getWidth()
-                 || destTopLeft.y < 0 || destTopLeft.y + dimensions.y > destTexture.getHeight() ) 
+            if ( srcTopLeftTexcoords.x < 0.0f || srcBottomRightTexcoords.x < srcTopLeftTexcoords.x || srcBottomRightTexcoords.x > 1.0f
+                 || srcTopLeftTexcoords.y < 0.0f || srcBottomRightTexcoords.y < srcTopLeftTexcoords.y || srcBottomRightTexcoords.y > 1.0f
+                 || destTopLeftTexcoords.x < 0.0f || destBottomRightTexcoords.x < destTopLeftTexcoords.x || destBottomRightTexcoords.x > 1.0f
+                 || destTopLeftTexcoords.y < 0.0f || destBottomRightTexcoords.y < destTopLeftTexcoords.y || destBottomRightTexcoords.y > 1.0f ) 
             {
                 throw std::exception( "TextureUtil::copyTexture - incorrect region defined." );
             }
 
+            const int2 srcDimensions  = srcTexture.getDimensions();
+            const int2 destDimensions = destTexture.getDimensions();
+
+            const int2 srcTopLeft           = (int2)(srcTopLeftTexcoords * (float2)srcDimensions);
+            const int2 srcRegionDimensions  = (int2)((srcBottomRightTexcoords - srcTopLeftTexcoords) * (float2)srcDimensions);
+            const int2 destTopLeft          = (int2)(destTopLeftTexcoords * (float2)destDimensions);
+            const int2 destRegionDimensions = (int2)((destBottomRightTexcoords - destTopLeftTexcoords) * (float2)destDimensions);
+
             const std::vector< PixelType >& srcData  = srcTexture.getData();
             std::vector< PixelType >&       destData = destTexture.getData();
 
-            const int srcWidth  = srcTexture.getWidth();
-            const int destWidth = destTexture.getWidth();
-
-            for ( int y = 0; y < dimensions.y; ++y )
+            if ( srcRegionDimensions == destRegionDimensions && colorMultiplier == float4::ONE )
             {
-                // Copy one line of data.
-                std::memcpy( 
-                    &destData[ (destTopLeft.y + y) * destWidth + destTopLeft.x ],
-                    &srcData[ (srcTopLeft.y + y) * srcWidth + srcTopLeft.x ],
-                    dimensions.x * sizeof( PixelType )
-                );
+                // Fast copy, line-by-line is possible, 
+                // as source and destination regions have the same dimensions
+                // and color multiplier equals (1,1,1,1).
+                const int2 dimensions = srcRegionDimensions;
+
+                for ( int y = 0; y < dimensions.y; ++y )
+                {
+                    // Copy one line of data.
+                    std::memcpy( 
+                        &destData[ (destTopLeft.y + y) * destDimensions.x + destTopLeft.x ],
+                        &srcData[ (srcTopLeft.y + y) * srcDimensions.x + srcTopLeft.x ],
+                        dimensions.x * sizeof( PixelType )
+                    );
+                }
+            }
+            else
+            {
+                // Slow re-sampling/re-scaling is required,
+                // as source and destination regions have different dimensions.
+                const float2 srcTexcoordsSpan = srcBottomRightTexcoords - srcTopLeftTexcoords;
+
+                int2 destPos;
+                for ( destPos.y = 0; destPos.y < destRegionDimensions.y; ++destPos.y )
+                {
+                    for ( destPos.x = 0; destPos.x < destRegionDimensions.x; ++destPos.x )
+                    {
+                        const float2 srcTexcoords = srcTopLeftTexcoords + srcTexcoordsSpan * ((float2)destPos / (float2)destRegionDimensions);
+
+                        const PixelType srcPixel = srcTexture.sampleBilinearData( srcTexcoords, 0 );
+
+                        destData[ (destTopLeft.y + destPos.y) * destDimensions.x + destTopLeft.x + destPos.x ] = (PixelType)(float4( srcPixel ) * colorMultiplier);
+                    }
+                }
             }
         }
 
-        // Every texture has to have power-of-two dimensions.
         // Textures are not rotated during merge (for simplicity).
-        // Returns the merged texture and a vector of positions 
-        // (left-top corner position in pixels) at which input textures
-        // were placed within the merged texture. 
-        // Order of vector of positions is the same as order of input textures. 
-        template< typename PixelType >
-        static std::tuple< 
-            std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >,
-            std::vector< TexturePlacement >
-        > mergeTextures( const std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > >& inputTextures,
-                         ID3D11Device3& device, DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat )
+        // Returns merged texture dimensions and a vector of texcoords 
+        // (for top-left and bottom-right corner) describing where input textures 
+        // need to be placed within the merged texture.
+        // Order of vector of texcoords is the same as the order of input textures. 
+        static std::tuple< int2, std::vector< std::pair< float2, float2 > > >
+        prepareTextureMerge( const std::vector< int2 >& texturesDimensions )
         {
-            if ( inputTextures.empty() )
-                throw std::exception( "TextureUtil::mergeTextures - no input textures were passed." );
-
-            for ( auto& texture : inputTextures ) {
-                if ( !MathUtil::isPowerOfTwo( texture->getWidth() ) || !MathUtil::isPowerOfTwo( texture->getHeight() ) )
-                    throw std::exception( "TextureUtil::mergeTextures - one of the texture does not have power-of-two dimensions." );
+            for ( auto& dimensions : texturesDimensions ) {
+                if ( !MathUtil::isPowerOfTwo( dimensions.x ) || !MathUtil::isPowerOfTwo( dimensions.y ) )
+                    throw std::exception( "TextureUtil::prepareTextureMerge - one of the textures does not have power-of-two dimensions." );
             }
 
-            // Check if all input textures are the same.
-            bool allInputTexturesAreTheSame = true;
-            for ( const auto& inputTexture : inputTextures ) {
-                if ( inputTexture != inputTextures.front() )
-                    allInputTexturesAreTheSame = false;
-            }
+            const int textureCount = (int)texturesDimensions.size();
 
-
-            std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > > textures( inputTextures.begin(), inputTextures.end() );
-
-            int maxWidth = 1, maxHeight = 1;
-
-            // Find maximal dimensions of the texture set.
-            for ( auto& texture : textures ) {
-                maxWidth  = std::max( maxWidth, texture->getWidth() );
-                maxHeight = std::max( maxHeight, texture->getHeight() );
-            }
-
-            // Sort textures by increasing dimensions.
-            if ( !allInputTexturesAreTheSame )
+            // Copy input vector, store element's index within input vector as an extra component.
+            std::vector< int3 > sortedTextures;
+            sortedTextures.reserve( textureCount );
+            for( int idx = 0; idx < textureCount; ++idx )
             {
-                std::sort( 
-                    textures.begin(), 
-                    textures.end(), 
-                    []( const std::shared_ptr< Texture2DGeneric< PixelType > >& tex1, const std::shared_ptr< Texture2DGeneric< PixelType > >& tex2 )
-                    { 
-                        const int tex1MaxDimension = std::max( tex1->getWidth(), tex1->getHeight() );
-                        const int tex1MinDimension = std::min( tex1->getWidth(), tex1->getHeight() );
-                        const int tex2MaxDimension = std::max( tex2->getWidth(), tex2->getHeight() );
-                        const int tex2MinDimension = std::min( tex2->getWidth(), tex2->getHeight() );
-
-                        // Note: Handle cases where the maximal dimensions are the same, 
-                        // but smaller one are different: Ex. (256, 128) vs (256, 64).
-                        if ( tex1MaxDimension > tex2MaxDimension )       return false;
-                        else if ( tex2MaxDimension > tex1MaxDimension )  return true;
-                        else if ( tex1MinDimension >= tex2MinDimension ) return false;
-                        else                                             return true;
-                    }
+                sortedTextures.emplace_back( 
+                    texturesDimensions[ idx ].x, 
+                    texturesDimensions[ idx ].y, 
+                    idx 
                 );
             }
 
-            std::shared_ptr< Texture2DGeneric< PixelType > > texture = textures.back();
+            // Sort textures by increasing dimensions.
+            std::sort( 
+                sortedTextures.begin(), 
+                sortedTextures.end(), 
+                []( const int3& texture1, const int3& texture2 )
+                { 
+                    const int tex1MaxDimension = std::max( texture1.x, texture1.y );
+                    const int tex1MinDimension = std::min( texture1.x, texture1.y );
+                    const int tex2MaxDimension = std::max( texture2.x, texture2.y );
+                    const int tex2MinDimension = std::min( texture2.x, texture2.y );
 
-            std::unique_ptr< TextureBin< PixelType > > rootBin 
-                = std::make_unique< TextureBin< PixelType > >( texture->getWidth(), texture->getHeight(), texture );
+                    // Note: Handle cases where the maximal dimensions are the same, 
+                    // but smaller one are different: Ex. (256, 128) vs (256, 64).
+                    if ( tex1MaxDimension > tex2MaxDimension )       return false;
+                    else if ( tex2MaxDimension > tex1MaxDimension )  return true;
+                    else if ( tex1MinDimension >= tex2MinDimension ) return false;
+                    else                                             return true;
+                }
+            );
 
-            std::vector< int2 > texturePositions; // In the same order as ordered textures vector.
-            texturePositions.resize( inputTextures.size(), int2::ZERO );
+            auto rootBin = std::make_unique< TextureBin >( (int2)sortedTextures.back(), false );
+
+            std::vector< int2 > positionsTemp;
+            positionsTemp.resize( textureCount, int2::ZERO );
 
             { // Insert textures in the bin.
-                int idx = (int)textures.size() - 2;
+                int idx = (int)textureCount - 2;
                 while ( idx >= 0 )
                 {
-                    texture = textures[ idx ];
-
-                    std::pair< bool, int2 > inserted = rootBin->insert( texture );
+                    std::pair< bool, int2 > inserted = rootBin->insert( (int2)sortedTextures[ idx ] );
                     if ( inserted.first )
                     {
-                        texturePositions[ idx ] = inserted.second;
+                        positionsTemp[ idx ] = inserted.second;
 
                         --idx; // Insertion succeeded - continue.
                     }
                     else
                     {
-                        rootBin = TextureBin< PixelType >::enlarge( rootBin ); // Insertion failed - enlarge the root bin.
+                        // Insertion failed - enlarge the root bin.
+                        rootBin = TextureBin::enlarge( rootBin ); 
                     }
                 }
             }
 
-            // Create new texture.
-            auto mergedTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                ( device, rootBin->getWidth(), rootBin->getHeight(), true, false, false, textureFormat, viewFormat );
-
-            std::vector< TexturePlacement > texturePlacements;
-            texturePlacements.reserve( inputTextures.size() );
-
-            // Copy data from source textures to the merged texture.
-            // Collect texture positions withing the merged texture.
-            for ( int idx = 0; idx < inputTextures.size(); ++idx )
+            // Create a vector of texcoords describing 
+            // where to place input texture within the merged texture.
+            // (for left-top and bottom-right corners) 
+            // (ordered the same as input vector of texture dimensions).
+            std::vector< std::pair< float2, float2 > > texcoords;
+            texcoords.resize( textureCount );
+            for ( int sortedIdx = 0; sortedIdx < textureCount; ++sortedIdx )
             {
-                const auto& inputTexture = inputTextures[ idx ];
+                const int idxInInputVector = sortedTextures[ sortedIdx ].z;
 
-                const int idxWithinSorted = allInputTexturesAreTheSame ? idx : (int)( std::find( textures.begin(), textures.end(), inputTexture ) - textures.begin() );
-                int2& texturePosition = texturePositions[ idxWithinSorted ];
+                // Top-left corner texcoords.
+                texcoords[ idxInInputVector ].first  
+                    = (float2)positionsTemp[ sortedIdx ] / (float2)rootBin->getDimensions();
 
-                TextureUtil::copyTexture( 
-                    *mergedTexture, 
-                    *inputTexture, 
-                    texturePosition, 
-                    int2::ZERO, 
-                    int2( inputTexture->getWidth(), inputTexture->getHeight() ) 
-                );
-
-                texturePlacements.push_back( 
-                    TexturePlacement( 
-                        float2( (float)texturePosition.x / mergedTexture->getWidth(), (float)texturePosition.y / mergedTexture->getHeight() ),
-                        float2( (float)(texturePosition.x + inputTexture->getWidth()) / mergedTexture->getWidth(), (float)(texturePosition.y + inputTexture->getHeight()) / mergedTexture->getHeight() )
-                     ) 
-                );
+                // Bottom-right corner texcoords.
+                texcoords[ idxInInputVector ].second 
+                    = (float2)( positionsTemp[ sortedIdx ] + texturesDimensions[ idxInInputVector ] ) / (float2)rootBin->getDimensions();
             }
 
-            //mergedTexture.saveToFile( "Assets/Textures/merged.png", Texture2DFileInfo::Format::PNG );
-
-            return std::make_tuple( mergedTexture, texturePlacements );
+            return std::make_tuple( rootBin->getDimensions(), texcoords );
         }
 
-        // Every texture has to have power-of-two dimensions.
         // Textures are not rotated during merge (for simplicity).
         // Returns the merged texture or nullptr if merge failed.
         template< typename PixelType >
         static std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-        mergeTextures( const std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > >& inputTextures,
-                       const std::vector< TexturePlacement >& placements, const bool duplicateTextures, ID3D11Device3& device,
-                       DXGI_FORMAT textureFormat, DXGI_FORMAT viewFormat )
+        mergeTextures( 
+            const std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > >& textures,
+            const std::vector< float4 >& colorMultipliers,
+            const std::vector< std::pair< float2, float2 > >& texcoords, 
+            const int2 mergedTextureDimensions,
+            ID3D11Device3& device,
+            DXGI_FORMAT textureFormat, 
+            DXGI_FORMAT viewFormat )
         {
-            if ( inputTextures.empty() || placements.empty() )
-                throw std::exception( "TextureUtil::mergeTextures - no input textures or no placements were passed." );
+            if ( textures.empty() || texcoords.empty() || colorMultipliers.empty() )
+                throw std::exception( "TextureUtil::mergeTextures - no input textures, texcoords or color multipleirs were passed." );
 
-            if ( !duplicateTextures && inputTextures.size() != placements.size() )
-                throw std::exception( "TextureUtil::mergeTextures - input texture count is different than number of placement positions." );
+            if ( textures.size() != texcoords.size() || textures.size() != colorMultipliers.size() )
+                throw std::exception( "TextureUtil::mergeTextures - input texture count is different than number of texcoords or color multipliers." );
 
-            if ( duplicateTextures && inputTextures.size() != 1 )
-                throw std::exception( "TextureUtil::mergeTextures - there can be only one input texture to be duplicated." );
-
-            for ( auto& texture : inputTextures ) {
+            for ( auto& texture : textures ) {
                 if ( !MathUtil::isPowerOfTwo( texture->getWidth() ) || !MathUtil::isPowerOfTwo( texture->getHeight() ) )
-                    throw std::exception( "TextureUtil::mergeTextures - one of the texture does not have power-of-two dimensions." );
+                    throw std::exception( "TextureUtil::mergeTextures - one of the textures does not have power-of-two dimensions." );
             }
 
-            const int textureCount = duplicateTextures ? (int)placements.size() : (int)inputTextures.size();
+            const int textureCount = (int)textures.size();
 
-            // Calculate merged texture dimensions.
-            int2 mergeTextureDimensions;
-            mergeTextureDimensions.x = (int)( (float)inputTextures[ 0 ]->getWidth()  * ( 1.0f / placements[ 0 ].getDimensionsInTexcoords().x ) );
-            mergeTextureDimensions.y = (int)( (float)inputTextures[ 0 ]->getHeight() * ( 1.0f / placements[ 0 ].getDimensionsInTexcoords().y ) );
-
-            // Check if other textures need the same merged texture dimensions.
-            for ( int i = 1; i < textureCount; ++i )
-            {
-                const int texIdx = std::min( (int)inputTextures.size() - 1, i );
-                int2 dimensions;
-                dimensions.x = (int)((float)inputTextures[ texIdx ]->getWidth()  * (1.0f / placements[ i ].getDimensionsInTexcoords().x));
-                dimensions.y = (int)((float)inputTextures[ texIdx ]->getHeight() * (1.0f / placements[ i ].getDimensionsInTexcoords().y));
-
-                if ( dimensions != mergeTextureDimensions )
-                    return nullptr; // Merge was not possible - incorrect texture placement.
-            }
-
-            // #TODO: Need to check if all textures suggest the same merged texture size.
-
-            // Check if input textures would overlap in the merged texture.
-            //for ( int i = 0; i < inputTextures.size(); ++i ) 
-            //{
-            //    const auto&   texture1      = inputTextures[ i ];
-            //    const float2& minTexCoords1 = placements[ i ];
-            //    const float2& maxTexCoords1 = minTexCoords1 + float2( (float)texture1->getWidth() / (float)mergeTextureDimensions.x,
-            //                                                          (float)texture1->getHeight() / (float)mergeTextureDimensions.y );
-
-            //    for ( int j = 0; j < inputTextures.size(); ++j ) 
-            //    {
-            //        if ( i == j )
-            //            continue; // Don't check overlap with itself.
-
-            //        const auto&   texture2      = inputTextures[ j ];
-            //        const float2& minTexCoords2 = placements[ j ];
-            //        const float2& maxTexCoords2 = minTexCoords2 + float2( (float)texture2->getWidth() / (float)mergeTextureDimensions.x,
-            //                                                              (float)texture2->getHeight() / (float)mergeTextureDimensions.y );
-
-            //        if ( minTexCoords1 < maxTexCoords2 || minTexCoords2 < maxTexCoords1 )
-            //            return nullptr; // Textures would overlap - merge is not possible.
-            //    }
-            //}
-
-            // Create new texture.
+            // Create a new texture.
             auto mergedTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                ( device, mergeTextureDimensions.x, mergeTextureDimensions.y, true, false, false, textureFormat, viewFormat );
+                ( device, mergedTextureDimensions.x, mergedTextureDimensions.y, true, false, false, textureFormat, viewFormat );
 
+            // Copy input textures to the merged texture (with up-scaling).
             for ( int idx = 0; idx < textureCount; ++idx ) 
             {
-                const int     texIdx = std::min( (int)inputTextures.size() - 1, idx );
-                const auto&   inputTexture = inputTextures[ texIdx ];
-                const float2& placement    = placements[ idx ].getTopLeftTexcoords();
-
-                TextureUtil::copyTexture(
+                TextureUtil::copyTextureCpu(
                     *mergedTexture,
-                    *inputTexture,
-                    int2( (int)(placement.x * (float)mergeTextureDimensions.x), (int)(placement.y * (float)mergeTextureDimensions.y) ),
-                    int2::ZERO,
-                    inputTexture->getDimensions()
+                    *textures[ idx ],
+                    texcoords[ idx ].first,
+                    texcoords[ idx ].second,
+                    float2::ZERO,
+                    float2::ONE,
+                    colorMultipliers[ idx ]
                 );
             }
 

@@ -462,9 +462,21 @@ Idea:
 
 	  NEXT:
 
-      - to help with merging models - add an option to fill all missing texture types for selected models with drag&droped texture...
+      - during texcoord recalculation - check if any texcoord exceed 0-1 range - wrap texcoords to 0-1 range.
+      - some UV may be negative, some over 1 - wrap them properly...
 
-      - BUG: When I copy a model, materials get lost.
+      - why textures are not layed out from top-left to bottom-right? Check that...
+
+      - are merged textures saved upside-down compared to what is needed?
+      - drawn vertices on albedo, merged texture are in wrong places - investigate...
+      - calculating texcoords for the merged mesh seems to be incorrect - find the bug.
+      - auto re-scale texture to nearest power-of-two when merging - prefer up-scaling than down-scaling.
+      - additional check whether model texcoords are all zeros should be performed per input model, not per merged model -
+        meaning that a single mesh should have its texcoords offset if all of its texcoords are zeros.
+        - is removing duplicate texture set correct with re-mapping - it's easy to make a mistake there...
+
+      - it's a bit of a mess with textures, each with color multipliers, ModelTexture with empty textures etc...
+
       - importing sub-meshes with names?
       - ceiling in the Loft scene leaks light...
 
@@ -587,6 +599,7 @@ Idea:
 	  - scale blur kernels based on view-angle assymetrically - horizontally and vertically - ex. for walls we should flatten horizontally and for floors vertically. Assuming that camera is not rotated around view-dir.
       - should all file-infos have filename instead of path? Probably not... - but it's misleading if the full path will be used or just a filename...
       - Texture2DFileInfo::PixelType should be probably moved to the texture class itself - pixel-type is a general property of a texture, not just a texture file
+      - merging algorithm should probably be able to stretch-up/rescale textures to much some placements... (maybe if given some flag, max stretch-up-down ratios etc)
 
 	  FUTURE IMPORTANT:
 	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.
