@@ -105,19 +105,19 @@ namespace Engine1
         void disableShaderInputs();
 
         template< typename T >
-        void copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
+        void copyTextureGpu( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
                           const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture, const int srcMipmap );
 
 		template< typename T >
-		void copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
+		void copyTextureGpu( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
 					      const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
 						  const int2 coords = int2( 0, 0 ), int2 dimensions = int2( -1, -1 ) );
 
         template< typename T >
-        void copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture );
+        void copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture );
 
         template< typename T >
-        void copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture,
+        void copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture,
                           const int2 coords, const int2 dimensions );
 
         private:
@@ -158,7 +158,7 @@ namespace Engine1
     };
 
 	template< typename T >
-	void Direct3DRendererCore::copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
+	void Direct3DRendererCore::copyTextureGpu( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
 											const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
 											const int2 coords, int2 dimensions )
 	{
@@ -197,7 +197,7 @@ namespace Engine1
 	}
 
     template< typename T >
-    void Direct3DRendererCore::copyTexture( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
+    void Direct3DRendererCore::copyTextureGpu( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
                                             const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture, const int srcMipmap )
     {
         if ( !m_deviceContext ) {
@@ -222,7 +222,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void Direct3DRendererCore::copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture )
+    void Direct3DRendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture )
     {
         if ( !m_deviceContext ) {
             throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
@@ -232,7 +232,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void Direct3DRendererCore::copyTexture( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture,
+    void Direct3DRendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture,
                                             const int2 coords, const int2 dimensions )
     {
         if ( !m_deviceContext ) {

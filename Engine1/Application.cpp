@@ -79,17 +79,20 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
 	m_frameRenderer.initialize( m_windowHandle, settings().main.screenDimensions.x, settings().main.screenDimensions.y, settings().main.fullscreen, settings().main.verticalSync );
 
-    Settings::initialize( *m_frameRenderer.getDevice().Get() );
+    auto device        = m_frameRenderer.getDevice();
+    auto deviceContext = m_frameRenderer.getDeviceContext();
 
-	m_rendererCore.initialize( *m_frameRenderer.getDeviceContext( ).Get() );
-    m_assetManager.initialize( parallelThreadCount, parallelThreadCount, m_frameRenderer.getDevice() );
-    m_profiler.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
-    m_renderTargetManager.initialize( m_frameRenderer.getDevice() );
+    Settings::initialize( *device.Get() );
 
-    m_sceneManager.initialize( m_frameRenderer.getDevice(), m_frameRenderer.getDeviceContext() );
+	m_rendererCore.initialize( *deviceContext.Get() );
+    m_assetManager.initialize( parallelThreadCount, parallelThreadCount, device );
+    m_profiler.initialize( device, deviceContext );
+    m_renderTargetManager.initialize( device );
 
-    createUcharDisplayFrame( settings().main.screenDimensions.x, settings().main.screenDimensions.y, m_frameRenderer.getDevice() );
-    createDebugFrames( settings().main.screenDimensions.x, settings().main.screenDimensions.y, m_frameRenderer.getDevice() );
+    m_sceneManager.initialize( device, deviceContext );
+
+    createUcharDisplayFrame( settings().main.screenDimensions.x, settings().main.screenDimensions.y, device );
+    createDebugFrames( settings().main.screenDimensions.x, settings().main.screenDimensions.y, device );
 
     // Load 'light source' model.
 	std::shared_ptr<BlockModel> lightModel;
@@ -104,12 +107,12 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
     m_renderer.initialize( 
         settings().main.screenDimensions, 
-        m_frameRenderer.getDevice(), 
-        m_frameRenderer.getDeviceContext(), 
+        device, 
+        deviceContext, 
         lightModel 
     );
 
-    m_controlPanel.initialize( m_frameRenderer.getDevice(), settings().main.screenDimensions );
+    m_controlPanel.initialize( device, settings().main.screenDimensions );
 
 	m_initialized = true;
 
@@ -306,7 +309,7 @@ void Application::run()
         {
             if ( output.ucharImage ) 
             {
-                m_rendererCore.copyTexture( 
+                m_rendererCore.copyTextureGpu( 
                     *ucharDisplayFrame, *output.ucharImage, 
                     int2( 0, 0 ), output.ucharImage->getDimensions() 
                 );
@@ -648,8 +651,6 @@ void Application::run()
 
                 BlockActor& selectedBlockActor = *m_sceneManager.getSelection().getBlockActors().front();
 
-                auto textures = selectedBlockActor.getModel()->getTextures( Model::TextureType::Alpha );
-                
                 for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
                 {
                     const auto textures = selectedBlockActor.getModel()->getTextures( (Model::TextureType)textureType );
@@ -939,7 +940,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< unsigned cha
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    m_rendererCore.copyTexture( *m_debugFrameU1, texture, textureCoords, int2::ONE );
+    m_rendererCore.copyTextureGpu( *m_debugFrameU1, texture, textureCoords, int2::ONE );
     m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
     const unsigned char pixelColor = m_debugFrameU1->getPixel( textureCoords );
@@ -953,7 +954,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& te
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    m_rendererCore.copyTexture( *m_debugFrameU4, texture, textureCoords, int2::ONE );
+    m_rendererCore.copyTextureGpu( *m_debugFrameU4, texture, textureCoords, int2::ONE );
     m_debugFrameU4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
     const uchar4 pixelColor = m_debugFrameU4->getPixel( textureCoords );
@@ -968,7 +969,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< float >& tex
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    m_rendererCore.copyTexture( *m_debugFrameF1, texture, textureCoords, int2::ONE );
+    m_rendererCore.copyTextureGpu( *m_debugFrameF1, texture, textureCoords, int2::ONE );
     m_debugFrameF1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
     const float pixelColor = m_debugFrameF1->getPixel( textureCoords );
@@ -981,7 +982,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& te
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    m_rendererCore.copyTexture( *m_debugFrameF4, texture, textureCoords, int2::ONE );
+    m_rendererCore.copyTextureGpu( *m_debugFrameF4, texture, textureCoords, int2::ONE );
     m_debugFrameF4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
     const float4 pixelColor = m_debugFrameF4->getPixel( textureCoords );
@@ -1000,7 +1001,7 @@ void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr<
     std::string debugString = "ior: ";
 
     for ( auto& texture : textures ) {
-        m_rendererCore.copyTexture( *m_debugFrameU1, *texture, textureCoords, int2::ONE );
+        m_rendererCore.copyTextureGpu( *m_debugFrameU1, *texture, textureCoords, int2::ONE );
         m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
         const unsigned char pixelColor = m_debugFrameU1->getPixel( textureCoords );

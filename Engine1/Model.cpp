@@ -444,4 +444,7 @@ float4 Model::getTextureColorMultiplier( const TextureType type, int index ) con
             return modelTexture.getColorMultiplier();
         }
     }
+
+    assert( false );
+    return float4::ZERO;
 }
