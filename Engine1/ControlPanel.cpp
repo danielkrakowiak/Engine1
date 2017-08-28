@@ -38,6 +38,8 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddButton( mainBar, "Next - transmission", ControlPanel::onNextLevelReflection, nullptr, "" );
     TwAddButton( mainBar, "Back", ControlPanel::onPrevLevel, nullptr, "" );
 
+    TwAddButton( mainBar, "Reset camera", ControlPanel::onResetCamera, this, "" );
+
     TwAddVarRW( mainBar, "Roughness blur mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.roughnessBlurMul, "min=0 max=1000 step=0.2 precision=1" );
 
     TwAddVarRW( mainBar, "Replace selected", TW_TYPE_BOOL8, &Settings::s_settings.debug.replaceSelected, "" );
@@ -97,6 +99,11 @@ void TW_CALL ControlPanel::onPrevLevel( void* /*clientData*/ )
         Settings::modify().rendering.reflectionsRefractions.activeView.pop_back();
 
     Settings::onChanged();
+}
+
+void TW_CALL ControlPanel::onResetCamera( void* controlPanel )
+{
+    ( (ControlPanel*)controlPanel )->m_sceneManager.getCamera().setPosition( float3::ZERO );
 }
 
 void TW_CALL ControlPanel::onSetAlphaMul( const void* value, void* /*clientData*/ )

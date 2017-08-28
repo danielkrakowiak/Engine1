@@ -29,6 +29,8 @@ namespace Engine1
         static void TW_CALL onNextLevelRefraction( void* clientData );
         static void TW_CALL onPrevLevel( void* clientData );
 
+        static void TW_CALL onResetCamera( void* controlPanel );
+
         static void TW_CALL onSetAlphaMul( const void* value, void* /*clientData*/ );
         static void TW_CALL onSetEmissiveMul( const void* value, void* /*clientData*/ );
         static void TW_CALL onSetAlbedoMul( const void* value, void* /*clientData*/ );
