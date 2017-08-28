@@ -29,6 +29,8 @@ namespace Engine1
         float3 getPosition() const;
         float3 getColor( ) const;
         float  getEmitterRadius() const;
+        float  getLinearAttenuationFactor() const;
+        float  getQuadraticAttenuationFactor() const;
 
         protected:
 

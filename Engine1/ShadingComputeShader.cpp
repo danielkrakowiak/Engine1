@@ -113,11 +113,13 @@ void ShadingComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, c
 
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
-        dataPtr->cameraPos         = cameraPos;
-        dataPtr->pad1		       = 0.0f;
-        dataPtr->lightPosition     = float4( light.getPosition(), 0.0f );
-        dataPtr->lightColor        = float4( light.getColor(), 0.0f );
-        dataPtr->outputTextureSize = float2( (float)positionTexture->getWidth(), (float)positionTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
+        dataPtr->cameraPos                       = cameraPos;
+        dataPtr->pad1		                     = 0.0f;
+        dataPtr->lightPosition                   = float4( light.getPosition(), 0.0f );
+        dataPtr->lightColor                      = float4( light.getColor(), 0.0f );
+        dataPtr->lightLinearAttenuationFactor    = light.getLinearAttenuationFactor();
+        dataPtr->lightQuadraticAttenuationFactor = light.getQuadraticAttenuationFactor();
+        dataPtr->outputTextureSize               = float2( (float)positionTexture->getWidth(), (float)positionTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

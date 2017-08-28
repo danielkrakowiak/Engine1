@@ -50,6 +50,8 @@ namespace Engine1
             float3       pad2;
             float4       pointLightPositions[ maxPointLightCount ];
             float4       pointLightColors[ maxPointLightCount ];
+            float4       lightLinearAttenuationFactor[ maxPointLightCount ];   
+            float4       lightQuadraticAttenuationFactor[ maxPointLightCount ];
         };
 
         // Copying is not allowed.

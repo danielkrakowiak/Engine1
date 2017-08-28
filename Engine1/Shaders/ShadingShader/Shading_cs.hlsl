@@ -8,8 +8,12 @@ cbuffer ConstantBuffer : register( b0 )
     float  pad1;
     float4 lightPosition;
     float4 lightColor;
+    float  lightLinearAttenuationFactor;
+    float3 pad2;
+    float  lightQuadraticAttenuationFactor;
+    float3 pad3;
     float2 outputTextureSize;
-    float2 pad2;
+    float2 pad4;
 };
 
 SamplerState g_linearSamplerState;
@@ -52,17 +56,27 @@ void main( uint3 groupId : SV_GroupID,
     const float3 vectorToCamera = cameraPos - surfacePosition;
     const float3 dirToCamera    = normalize( vectorToCamera );
 
-    const float3 vectorToLight       = lightPosition.xyz - surfacePosition;
-    const float3 dirToLight          = normalize( vectorToLight );
+    const float3 vectorToLight  = lightPosition.xyz - surfacePosition;
+    const float3 dirToLight     = normalize( vectorToLight );
+    const float  distToLight    = length( vectorToLight );
+
+    float lightAttenuationFactor = 1 / (1 + lightLinearAttenuationFactor * distToLight + lightQuadraticAttenuationFactor * distToLight * distToLight );
+    lightAttenuationFactor = ( lightAttenuationFactor - lightAttenuationFactorCutoff ) / ( 1.0 - lightAttenuationFactorCutoff );
+
+    if (lightAttenuationFactor <= 0.0)
+        return;
 
     const float surfaceIllumination = 1.0f - g_shadowTexture.SampleLevel( g_pointSamplerState, texcoords/* + pixelSize0*/, 0.0f ); // PROBLEM: Input texture is a bit shifted compared to other image textures...
+
+    if (surfaceIllumination <= 0.0)
+        return;
 
     const float3 surfaceDiffuseColor     = calculateSurfaceDiffuseColor( surfaceAlpha, surfaceAlbedo, surfaceMetalness );
     const float3 surfaceBaseReflectivity = calculateSurfaceBaseReflectivity( surfaceAlpha, surfaceAlbedo, surfaceMetalness );
 
     float4 outputColor = float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
-    outputColor.rgb += calculateSurfaceLighting( lightColor.rgb * surfaceIllumination, surfaceNormal, dirToLight, dirToCamera,
+    outputColor.rgb += calculateSurfaceLighting( lightColor.rgb * lightAttenuationFactor * surfaceIllumination, surfaceNormal, dirToLight, dirToCamera,
                                                  surfaceDiffuseColor, surfaceBaseReflectivity, surfaceMetalness, surfaceRoughness );
 
     g_colorTexture[ dispatchThreadId.xy ] += outputColor;

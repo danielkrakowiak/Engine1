@@ -90,3 +90,14 @@ float Light::getEmitterRadius() const
 {
     return m_emitterRadius;
 }
+
+float Light::getLinearAttenuationFactor() const
+{
+    // #TODO: Should be a member variable.
+    return 0.0f;
+}
+float Light::getQuadraticAttenuationFactor() const
+{
+    // #TODO: Should be a member variable.
+    return 1.0f;
+}

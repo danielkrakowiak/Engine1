@@ -12,6 +12,8 @@ cbuffer ConstantBuffer : register( b0 )
     float3 pad2;
     float4 pointLightPositions[ MAX_POINT_LIGHT_COUNT ];
     float4 pointLightColors[ MAX_POINT_LIGHT_COUNT ];
+    float4 lightLinearAttenuationFactor[ MAX_POINT_LIGHT_COUNT ];    // YZW components are ignored.
+    float4 lightQuadraticAttenuationFactor[ MAX_POINT_LIGHT_COUNT ]; // YZW components are ignored.
 };
 
 SamplerState g_linearSamplerState;
@@ -52,9 +54,17 @@ void main( uint3 groupId : SV_GroupID,
 
     for ( uint i = 0; i < pointLightCount; ++i )
     {
-        const float3 dirToLight  = normalize( pointLightPositions[ i ].xyz - surfacePosition );
+        const float3 vectorToLight  = pointLightPositions[ i ].xyz - surfacePosition;
+        const float3 dirToLight     = normalize( vectorToLight );
+        const float  distToLight    = length( vectorToLight );
 
-        outputColor.rgb += calculateSurfaceLighting( pointLightColors[ i ].rgb, surfaceNormal, dirToLight, dirToCamera,
+        float lightAttenuationFactor = 1 / (1 + lightLinearAttenuationFactor[ i ] * distToLight + lightQuadraticAttenuationFactor[ i ] * distToLight * distToLight );
+        lightAttenuationFactor = ( lightAttenuationFactor - lightAttenuationFactorCutoff ) / ( 1.0 - lightAttenuationFactorCutoff );
+
+        if (lightAttenuationFactor <= 0.0)
+            continue;
+
+        outputColor.rgb += calculateSurfaceLighting( pointLightColors[ i ].rgb * lightAttenuationFactor, surfaceNormal, dirToLight, dirToCamera,
                                                      surfaceDiffuseColor, surfaceBaseReflectivity, surfaceMetalness, surfaceRoughness );
     }
 

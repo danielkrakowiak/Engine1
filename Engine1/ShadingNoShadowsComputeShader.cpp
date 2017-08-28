@@ -82,6 +82,12 @@ void ShadingNoShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceC
         for ( unsigned int i = 0; i < pointLightCount; ++i )
             dataPtr->pointLightColors[ i ] = float4( lights[ i ]->getColor(), 0.0f );
 
+        for ( unsigned int i = 0; i < pointLightCount; ++i )
+            dataPtr->lightLinearAttenuationFactor[ i ] = float4( lights[ i ]->getLinearAttenuationFactor() );
+
+        for ( unsigned int i = 0; i < pointLightCount; ++i )
+            dataPtr->lightQuadraticAttenuationFactor[ i ] = float4( lights[ i ]->getQuadraticAttenuationFactor() );
+
         for ( unsigned int i = pointLightCount; i < maxPointLightCount; ++i )
             dataPtr->pointLightColors[ i ] = float4::ZERO;
 

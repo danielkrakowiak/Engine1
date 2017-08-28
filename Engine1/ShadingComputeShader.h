@@ -50,8 +50,12 @@ namespace Engine1
             float  pad1;
             float4 lightPosition;
             float4 lightColor;
+            float  lightLinearAttenuationFactor;
+            float3 pad2;
+            float  lightQuadraticAttenuationFactor;
+            float3 pad3;
             float2 outputTextureSize;
-            float2 pad2;
+            float2 pad4;
         };
 
         // Copying is not allowed.
