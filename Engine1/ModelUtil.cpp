@@ -18,34 +18,19 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels(
     const std::vector< float43 >& transforms, 
     ID3D11Device3& device )
 {
-    // #TODO: BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But roughness textures 
-    // or emissive may have completely different dimensions and be placed differently in the atlas.
-    // So we somehow have to enforce layout withing the atlas based on the first created atlas.How to deal with big textures?
-
-    // #TODO: PROBLEM: What if all alpha textures are the same among models, but roughness textures are different. 
-    // It should be supported by duplicating alpha texture the same way roughness is placed within the merged texture.
-    // It gets more complex when there are some repeated textures in metalness, rougnees, albedo etc at the same time.
-    // : idea: start by merging the set of textures which has the most unique textures. 
-    // Then merge other sets using the given placement. If something goeas wrong - interrupt.
-
-    // #TODO: How to improve code by getting rid of these distinction between emissive/albedo/metalness etc and treat them as texture sets.
-    // Store texture sets in a map? <type, vector> ? and iterate over that map...?
-
-    // #TODO: Support for multiple UV sets/multitexturing.
-
-    // #TODO: How to deal with color multipliers per texture when merging them?
-
     // We assume that there is one texture of each type (albedo, roughness etc) for each texcoord in each model. Or there may be zero texture of given type for all models.
 
     // ------ NEW --------------------
     // 1. Check that all models have textures of the same types provided.
-    // 2. Treat textures in sets - one set per model. Gather sets for all models. Each models refrences its set.
+    // 2. Treat textures in sets - one set per model. Gather sets for all models. Each model references its set.
     // 3. Remove duplicated sets - re-index models to sets.
     // 4. For each set - find the proportions of the texture (max of all types), max dimensions etc. Save it as texture set properties.
-    // 5. Decide on texture placements (texcoords) based on texture set properties - like normal merging, but only to generate placements.
-    // 6. For each texture type, iterate over all sets and calculate what is the needed maximal texture diemnsion (per type) to fit textures in their placements.
-    // 7. Create a texture of needed dimensions for each type
+    // 5. Decide on texture placements (texcoords) based on texture set properties (not just one type of textures - as they may have different dimensions).
+    // 6. For each texture type, iterate over all sets and calculate what is the needed merged texture dimension (per type) to fit textures in their placements.
+    // 7. Create a texture of needed dimensions for each type.
     // 8. Copy/re-size textures into their placements.
+
+    // #TODO: Adding a border of a few pixels to each sub-texture. Otherwise, textures blend with each other because of bilinear filtering or higher level mipmap sampling during rendering.
 
     if ( !transforms.empty() && transforms.size() != models.size() )
         throw std::exception( "ModelUtil::mergeModels - different number of transforms passed compared to the number of models." );
@@ -163,28 +148,28 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels(
     }
 
     // Remove duplicated sets - re-index model-to-texture-set mapping if needed.
-    //for ( int setIdx1 = 0; setIdx1 < textureSets.size(); ++setIdx1 )
-    //{
-    //    for ( int setIdx2 = setIdx1 + 1; setIdx2 < textureSets.size(); )
-    //    {
-    //        if ( textureSets[ setIdx1 ] == textureSets[ setIdx2 ] )
-    //        {
-    //            // Erase the duplicate set.
-    //            textureSets.erase( textureSets.begin() + setIdx2 );
+    for ( int setIdx1 = 0; setIdx1 < textureSets.size(); ++setIdx1 )
+    {
+        for ( int setIdx2 = setIdx1 + 1; setIdx2 < textureSets.size(); )
+        {
+            if ( textureSets[ setIdx1 ] == textureSets[ setIdx2 ] )
+            {
+                // Erase the duplicate set.
+                textureSets.erase( textureSets.begin() + setIdx2 );
 
-    //            // Re-index all models referencing the removed set to the remaining copy of it.
-    //            for ( int mapIdx = setIdx1 + 1; mapIdx < modelToTextureSetMapping.size(); ++mapIdx )
-    //            {
-    //                if ( modelToTextureSetMapping[ mapIdx ] == setIdx2 )
-    //                    modelToTextureSetMapping[ mapIdx ] = setIdx1;
-    //                else if ( modelToTextureSetMapping[ mapIdx ] > setIdx2 )
-    //                    modelToTextureSetMapping[ mapIdx ] -= 1;
-    //            }
-    //        }
-    //        else
-    //            ++setIdx2;
-    //    }
-    //}
+                // Re-index all models referencing the removed set to the remaining copy of it.
+                for ( int mapIdx = setIdx1 + 1; mapIdx < modelToTextureSetMapping.size(); ++mapIdx )
+                {
+                    if ( modelToTextureSetMapping[ mapIdx ] == setIdx2 )
+                        modelToTextureSetMapping[ mapIdx ] = setIdx1;
+                    else if ( modelToTextureSetMapping[ mapIdx ] > setIdx2 )
+                        modelToTextureSetMapping[ mapIdx ] -= 1;
+                }
+            }
+            else
+                ++setIdx2;
+        }
+    }
 
     // Calculate dimensions of each set, which are required to store 
     // the set without loosing resolution for any type of texture.
@@ -244,7 +229,7 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels(
 
         if ( texturesToMerge.empty() )
             continue;
-        
+
         // Merge textures.
         if ( texType == Model::TextureType::Alpha || texType == Model::TextureType::Metalness ||
              texType == Model::TextureType::Roughness || texType == Model::TextureType::RefractiveIndex ) 
