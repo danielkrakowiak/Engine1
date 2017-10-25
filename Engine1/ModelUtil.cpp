@@ -147,6 +147,9 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels(
         }
     }
 
+    if ( !errorDescription.empty() )
+        throw std::exception( "ModelUtil::mergeModels - errors during merge: \n" );
+
     // Remove duplicated sets - re-index model-to-texture-set mapping if needed.
     for ( int setIdx1 = 0; setIdx1 < textureSets.size(); ++setIdx1 )
     {

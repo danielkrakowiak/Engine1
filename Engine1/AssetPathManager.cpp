@@ -55,7 +55,7 @@ std::string AssetPathManager::getPathForFileName( const std::string& fileName )
     const auto it = s_paths.find( name );
 
     if ( it == s_paths.end() )
-        return "";
+        throw std::exception("AssetPathManager::getPathForFileName - filename not found.");
     else
         return it->second;
 }

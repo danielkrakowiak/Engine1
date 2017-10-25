@@ -451,7 +451,10 @@ void Application::run()
 
         { // Render some debug options.
             std::stringstream ss;
-            ss << "Use separable shadow blur: " << ( settings().rendering.shadows.useSeparableShadowBlur ? "enabled" : "disabled" );
+
+            ss << "Active view type: " + Renderer::viewToString( m_renderer.getActiveViewType() );
+
+            ss << "\n\nUse separable shadow blur: " << ( settings().rendering.shadows.useSeparableShadowBlur ? "enabled" : "disabled" );
 
             ss << "\n\n";
 
@@ -665,7 +668,7 @@ void Application::run()
             }
 
             if ( settings().debug.renderText )
-                output = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+                output = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         }
 
         { // Render camera state.
