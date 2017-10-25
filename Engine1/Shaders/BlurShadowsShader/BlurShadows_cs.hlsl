@@ -101,8 +101,8 @@ void main( uint3 groupId : SV_GroupID,
     const float samplingRadius             = minBlurRadiusInScreenSpace * samplingRadiusMul;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
-    const float centerShadowSoftness = min( 1.0f, blurRadiusInWorldSpace / 1.0f );
-    const float centerShadowHardness = 1.0f - centerShadowSoftness;
+    //const float centerShadowSoftness = min( 1.0f, blurRadiusInWorldSpace / 1.0f );
+    //const float centerShadowHardness = 1.0f - centerShadowSoftness;
 
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
 
@@ -147,7 +147,12 @@ void main( uint3 groupId : SV_GroupID,
                 //const float sampleIllumination = illuminationSoftness * sampleSoftIllumination;//lerp( sampleHardIllumination, sampleSoftIllumination, illuminationSoftness );//illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
                 //const float sampleIllumination1 = min( 1.0f, illuminationHardness / sampleIlluminationHardness ) * sampleHardIllumination;
                 //const float sampleIllumination2 = min( 1.0f, illuminationSoftness / sampleIlluminationSoftness ) * sampleSoftIllumination;
-                const float sampleShadow = sampleHardShadow;// * centerShadowHardness + sampleSoftShadow * centerShadowSoftness;// + sampleHardIllumination;*/ //sampleIllumination1 + sampleIllumination2;
+                const float sampleShadow = 
+                    minBlurRadiusInScreenSpace < 25.0 
+                    ? sampleHardShadow
+                    : sampleSoftShadow;
+                
+                // * centerShadowHardness + sampleSoftShadow * centerShadowSoftness;// + sampleHardIllumination;*/ //sampleIllumination1 + sampleIllumination2;
                 
                 const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
 
@@ -155,7 +160,7 @@ void main( uint3 groupId : SV_GroupID,
 
                 const float sampleWeight2 = pow( e, -positionDiff * positionDiff / positionThreshold );
 
-                float sampleWeight = sampleWeight2;
+                float sampleWeight = 1.0f;//sampleWeight2;
 
                 //if (samplePointIllumination < 0.8f ) { 
                 //    sampleWeight = max( 0.0f, 1.0f - abs(blurRadius - sampleBlurRadius) / blurRadius );
@@ -166,7 +171,7 @@ void main( uint3 groupId : SV_GroupID,
 
                 if ( useSample )
                 {
-                    surfaceShadow += sampleShadow * sampleWeight;
+                    surfaceShadow += sampleShadow;// * sampleWeight;
 
                     // Add fully lit samples twice.
                     //if ( sampleIllumination > 0.99f )

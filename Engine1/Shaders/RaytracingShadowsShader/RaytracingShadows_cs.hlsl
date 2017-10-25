@@ -26,6 +26,8 @@ cbuffer ConstantBuffer : register( b0 )
     float4x4 shadowMapViewMatrix;
     float4x4 shadowMapProjectionMatrix;
     float4   alphaMul; // (2nd, 3rd, 4th components are padding).
+    float3   cameraPos;
+    float    pad8;
 };
 
 // Input.
@@ -75,6 +77,10 @@ void main( uint3 groupId : SV_GroupID,
 	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 	const float3 rayDir    = normalize( lightPosition - rayOrigin );
 
+    const float3 vectorToCamera = cameraPos - rayOrigin;
+    const float3 dirToCamera    = normalize( vectorToCamera );
+    const float  distToCamera   = length( vectorToCamera );
+
     // If pixel is outside of spot light's cone - ignore.
     if ( dot( lightDirection, -rayDir ) < lightConeMinDot ) {
         // Preserve illumination from shadow map. 
@@ -83,35 +89,10 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    // TEMPORARILY RAY TRACE FOR ALL PIXELS - BECAUSE SHADOW MAP KNOWS ONLY THE DIST TO THE NEAREST TO LIGHT OCCLUDER.
-
-    // Check if raytracing shadows is needed for this pixel.
-    //const float preillumination = g_preIllumination.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
-    //if ( preillumination < 0.01f || preillumination > 0.99f )
-    //{
-        // This pixel and its neighbors are entirely in shadow or entirely lit - don't raytrace.
-
-        //#TODO: This write should be avoided. There is not point to write the same copied value each time this shader is run...
-        // This could be done in the first pass. Just copying values from preillumination texture. Or preillumination could be copied entirely using a copy drawcall.
-
-        //g_illumination[ dispatchThreadId.xy ] = (uint)(g_preIllumination[ dispatchThreadId.xy ] * 255.0f);
-        //return;
-    //}
-    //else
-    //{
-        // Raytrace!!!
-        //g_illumination[ dispatchThreadId.xy ] = 128;
-        //return;
-    //}
-
-    /////////////////////////////////////
-
 	const float3 surfaceNormal  = g_surfaceNormal.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
     const float  normalLightDot = dot( surfaceNormal, rayDir );
 
 	// #TODO: Discard ray with zero contribution.
-
-    //const uint illuminationUint = g_illumination[ dispatchThreadId.xy ];
 
     // IMPORTANT: Cannot quit early when pixel is already in shadow, because we need to know if a mesh changed blur radius at that pixel!!!!
     // Or maybe we can rely on blur radius from shadow map?
@@ -126,13 +107,14 @@ void main( uint3 groupId : SV_GroupID,
 
     const float rayMaxLength = length( lightPosition - rayOrigin );
 
-    // #TODO: Reading unsigned char from UAV is supported only on DirectX 11.3. 
-	float shadow = 0.0f;//(float)illuminationUint / 255.0f;
-    
     // We only care about intersections closer to ray origin than the light source. #TODO: Or all of them? - alpha etc, illumination?
     float nearestHitDist = 10000.0f;
 
     // #OPTIMIZATION: Could be more effective to trace ray from light to surface - because we care about the nearest to light intersection. Easier to skip other objects. 
+
+    float shadow = 0.0f;
+
+    const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
 
     if ( rayMeshIntersect( rayOrigin, rayDir, rayMaxLength, nearestHitDist, shadow ) )
     {
@@ -140,21 +122,27 @@ void main( uint3 groupId : SV_GroupID,
         const float surfaceDistToOccluder = nearestHitDist;
         const float occluderDistToLight   = surfaceDistToLight - surfaceDistToOccluder;
         
-        const float blurRadius = calculateShadowBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight );
+        const float blurRadiusInWorldSpace  = calculateShadowBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight );
+        const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;
 
         const float prevDistToOccluder = g_distToOccluder[ dispatchThreadId.xy ];
 
-        const float prevHardShadow = (float)g_hardShadow[ dispatchThreadId.xy ] / 255.0f;
-        const float prevSoftShadow = (float)g_softShadow[ dispatchThreadId.xy ] / 255.0f;
+        float hardShadow = (float)g_hardShadow[ dispatchThreadId.xy ] / 255.0f;
+        float softShadow = (float)g_softShadow[ dispatchThreadId.xy ] / 255.0f;
 
-        const float shadowSoftness = min(1.0f, (blurRadius / 1.0f));
-        const float shadowHardness = 1.0f - shadowSoftness;
-
-        shadow = min( 1.0f, shadow ); // Needed? Can shadow go over 1 after many intersections?
+        // Note: When we later blur soft shadows (in other shader) we don't want to include hard shadows in the blur,
+        // so we don't render them on the soft shadow texture.
+        // But we can do the inverse, render soft shadows on the hard shadow texture - 
+        // because hard shadow blurs only a little bit so it won't influence the result too much. 
+        // And it will ensure that transition areas (between hard and soft shadows) don't leak light.
+        const float hardShadowBlurRadiusThreshold = 30.0f;
+        const float softShadowBlurRadiusThreshold = 20.0f;
+        hardShadow += blurRadiusInScreenSpace < hardShadowBlurRadiusThreshold ? shadow : 0.0f;
+        softShadow += blurRadiusInScreenSpace > softShadowBlurRadiusThreshold ? shadow : 0.0f;
 
         g_distToOccluder[ dispatchThreadId.xy ] = min( prevDistToOccluder, surfaceDistToOccluder );
-        g_hardShadow[ dispatchThreadId.xy ]     = (uint)( min(1.0f, prevHardShadow + shadow * shadowHardness ) * 255.0f );
-        g_softShadow[ dispatchThreadId.xy ]     = (uint)( min(1.0f, prevSoftShadow + shadow * shadowSoftness ) * 255.0f );
+        g_hardShadow[ dispatchThreadId.xy ]     = (uint)( min(1.0f, hardShadow ) * 255.0f );
+        g_softShadow[ dispatchThreadId.xy ]     = (uint)( min(1.0f, softShadow ) * 255.0f );
     }
 }
 

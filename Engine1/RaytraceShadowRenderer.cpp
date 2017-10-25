@@ -8,6 +8,7 @@
 #include "MathUtil.h"
 #include "BlockModel.h"
 #include "BlockActor.h"
+#include "Camera.h"
 
 #include "Settings.h"
 
@@ -47,7 +48,8 @@ void RaytraceShadowRenderer::initialize(
 }
 
 void RaytraceShadowRenderer::generateAndTraceShadowRays(
-	const std::shared_ptr< Light > light,
+	const Camera& camera,
+    const std::shared_ptr< Light > light,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
@@ -118,6 +120,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 
 		m_raytracingShadowsComputeShader->setParameters( 
 			*m_deviceContext.Get(), 
+            camera.getPosition(),
             *light, 
             *rayOriginTexture, 
             *surfaceNormalTexture, 

@@ -480,6 +480,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
+            camera,
             lightsCastingShadows[ lightIdx ],
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
@@ -909,6 +910,7 @@ void Renderer::renderSecondaryLayer(
         //}
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
+            camera,
             lightsCastingShadows[ lightIdx ],
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,

@@ -450,3 +450,10 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 16.08.2017 - 3h - Re-writing merging models, testing.
 20.08.2017 - 6h - Re-writing merging models, testing.
 24.08.2017 - 1h - Re-writing merging models, accounting for original mesh pose during merge.
+27.08.2017 - 1h - Working on New York scene.
+28.08.2017 - 2h - Added light attenuation with distance. Working on New York scene.
+29.08.2017 - 1h - Working on New York scene.
+30.08.2017 - 1h - Working on New York scene. Merging models.
+--- August 2017 - 60h
+21.10.2017 - 2h - Trying to split shadow into hard/soft part without light leaks.
+--- October 2017

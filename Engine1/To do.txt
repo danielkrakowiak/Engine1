@@ -462,6 +462,14 @@ Idea:
 
 	  NEXT:
 
+      - button to reload textures for all models - useful if I change textures on disk, but don't want to reload the scene, loose selection etc.
+
+      - add versioning of files? How to add that for files without versions?
+      - add saving/loading light attenuation multipliers to file
+      - add options to change light settigns in Control Panel
+
+      - stretching up textures to nearest power-of-two when merging
+
       - during texcoord recalculation - check if any texcoord exceed 0-1 range - wrap texcoords to 0-1 range.
       - some UV may be negative, some over 1 - wrap them properly...
 
@@ -614,6 +622,23 @@ Idea:
       - maybe we can keep the resolution and trace 1/4th of rays at next layer - we assume it's very diffuse reflection anyways...
         This way ray count stays the same, but we get approximate incoming light.
       - we would probably still need to trace specular reflections as a special fragment or something...
+
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ///////// Shadows //////////////////////////////////////////////////////////////////////////////////////////
+
+      - split shadow blurring into 2 or 3 or 4 phases.
+      - each phase has different range of shadow blur radius - 0 - 0.3, 0.3 - 0.5, 0.5 - 0.7, 0.7 - 1.0
+
+      - There should be two blur passes? ONe for hard shadow, one for soft shadow...? What could we benefit this way?
+
+      - Don't use SEPARABLE SHADOW BLUR for tests!!!!
+
+      - maybe I could split whole shadow processing (occluder search + blur) into two or more phases?
+       It could fix unsolvable problems with hard shadows intersecting and mixing with soft shadows - and in theory it would lead to worse performance.
+       But in practice we could probably decrease sampling rate for soft shadows etc without fear of loosing details of hrder shadows.
+       And we could also limit search radius for hard shadows, reducing cost. Maybe that's a great idea???
+
 
 	FUN:
 	- add PhysX support

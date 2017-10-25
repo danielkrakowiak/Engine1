@@ -87,6 +87,7 @@ void RaytracingShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device
 
 void RaytracingShadowsComputeShader::setParameters(
 	ID3D11DeviceContext3& deviceContext,
+    const float3& cameraPosition,
 	const Light& light,
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
 	const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
@@ -204,6 +205,8 @@ void RaytracingShadowsComputeShader::setParameters(
             dataPtr->shadowMapViewMatrix         = float44::IDENTITY;
             dataPtr->shadowMapProjectionMatrix   = float44::IDENTITY;
         }
+
+        dataPtr->cameraPos = cameraPosition;
 
 		deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

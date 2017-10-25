@@ -73,7 +73,7 @@ float4 main(PixelInputType input) : SV_Target
     //const float blurRadiusMul = saturate( abs( dot( centerNormal, dirToCamera ) ) );
     //blurRadius *= blurRadiusMul;
 
-    const float maxMipmapLevel  = 6.0f; // To avoid sampling overly blocky, aliased mipmaps - limits maximal roughness.
+    const float maxMipmapLevel = 12.0;// 6.0f; // To avoid sampling overly blocky, aliased mipmaps - limits maximal roughness.
     const float baseMipmapLevel = min( maxMipmapLevel, log2( blurRadius ) );
 
     float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -165,7 +165,7 @@ float4 main(PixelInputType input) : SV_Target
             const float  sampleWeight1 = lerp( 1.0, 0.0, saturate( positionDiffErrorRatio ) );
             const float  sampleWeight2 = getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
-            const float sampleWeight = sampleWeightXY * sampleWeight1 * sampleWeight2;
+            const float sampleWeight = sampleWeightXY/* *sampleWeight1*/ * sampleWeight2;
 
             sampleSum       += sampleValue * sampleWeight;
             sampleWeightSum += sampleWeight;

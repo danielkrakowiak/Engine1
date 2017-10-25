@@ -19,6 +19,7 @@ namespace Engine1
 	class BlockActor;
 	class RaytracingShadowsComputeShader;
 	class Light;
+    class Camera;
 
 	class RaytraceShadowRenderer
 	{
@@ -35,6 +36,7 @@ namespace Engine1
 		);
 
 		void generateAndTraceShadowRays(
+            const Camera& camera,
 			const std::shared_ptr< Light > light,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
 			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
