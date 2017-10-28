@@ -79,8 +79,14 @@ void Settings::initializeInternal()
     s_settings.rendering.exposure           = 1.0f;
     s_settings.rendering.antialiasing       = true;
 
-    s_settings.rendering.shadows.enabled                = true;
-    s_settings.rendering.shadows.useSeparableShadowBlur = true;
+    s_settings.rendering.shadows.enabled                                        = true;
+    s_settings.rendering.shadows.useSeparableShadowBlur                         = true;
+    s_settings.rendering.shadows.distanceToOccluderSearchRadiusForHardShadows   = 5.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearchRadiusForMediumShadows = 20.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearchRadiusForSoftShadows   = 40.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearchStepForHardShadows     = 2.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearchStepForMediumShadows   = 5.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearchStepForSoftShadows     = 8.0f;
 
     s_settings.rendering.reflectionsRefractions.maxLevel           = 1;
     s_settings.rendering.reflectionsRefractions.reflectionsEnabled = true;

@@ -18,11 +18,15 @@ void RenderTargetManager::initialize( ComPtr< ID3D11Device3 >& device )
 }
 
 std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > 
-RenderTargetManager::getRenderTargetDepth( const int2 imageDimensions )
+RenderTargetManager::getRenderTargetDepth( const int2 imageDimensions, const std::string debugName )
 {
     for ( auto& renderTarget : m_renderTargetsDepthUchar4 ) {
         if ( renderTarget.use_count() == 1 && renderTarget->getDimensions() == imageDimensions )
+        {
+            Direct3DUtil::setResourceName( *renderTarget->getTextureResource().Get(), debugName );
+
             return renderTarget;
+        }
     }
 
     // Render target not found - create a new one.

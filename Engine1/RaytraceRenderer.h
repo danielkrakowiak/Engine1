@@ -25,8 +25,9 @@ namespace Engine1
     class GenerateRefractedRaysComputeShader;
     class RaytracingPrimaryRaysComputeShader;
     class RaytracingSecondaryRaysComputeShader;
-    class SumValueComputeShader;
     class BlockActor;
+    template < typename PixelType >
+    class SumValuesComputeShader;
 
     class RaytraceRenderer
     {
@@ -124,13 +125,12 @@ namespace Engine1
         );
 
         void generateAndTraceReflectedRays( 
-            const int level,
             InputTextures2& inputTextures,
             RenderTargets& renderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         void generateAndTraceRefractedRays( 
-            const int level, const int refractionLevel,
+            const int refractionLevel,
             InputTextures2& inputTextures,
             RenderTargets& renderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors );
@@ -155,13 +155,12 @@ namespace Engine1
         );
 
         void generateReflectedRays( 
-            int level,
             InputTextures2& inputTextures,
             RenderTargets& renderTargets 
         );
 
         void generateRefractedRays( 
-            int level, const int refractionLevel,
+            const int refractionLevel,
             InputTextures2& inputTextures,
             RenderTargets& renderTargets 
         );
@@ -173,7 +172,6 @@ namespace Engine1
         );
 
         void traceSecondaryRays( 
-            int level, 
             RenderTargets& renderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors 
         );
@@ -203,7 +201,7 @@ namespace Engine1
         std::shared_ptr< GenerateRefractedRaysComputeShader >      m_generateRefractedRaysComputeShader;
         std::shared_ptr< RaytracingPrimaryRaysComputeShader >      m_raytracingPrimaryRaysComputeShader;
         std::shared_ptr< RaytracingSecondaryRaysComputeShader >    m_raytracingSecondaryRaysComputeShader;
-        std::shared_ptr< SumValueComputeShader >                   m_sumValueComputeShader;
+        std::shared_ptr< SumValuesComputeShader< float > >         m_sumValueComputeShader;
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 

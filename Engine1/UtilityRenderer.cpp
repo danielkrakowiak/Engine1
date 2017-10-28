@@ -8,6 +8,7 @@
 #include "ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h"
 #include "BlurValueComputeShader.h"
 #include "MergeMipmapsValueComputeShader.h"
+#include "SumValuesComputeShader.h"
 
 using namespace Engine1;
 
@@ -22,7 +23,9 @@ UtilityRenderer::UtilityRenderer( Direct3DRendererCore& rendererCore ) :
     m_mergeMinValueComputeShader( std::make_shared< MergeValueComputeShader >() ),
     m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader( std::make_shared< ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader >() ),
     m_blurValueComputeShader( std::make_shared< BlurValueComputeShader >() ),
-    m_mergeMipmapsValueComputeShader( std::make_shared< MergeMipmapsValueComputeShader >() )
+    m_mergeMipmapsValueComputeShader( std::make_shared< MergeMipmapsValueComputeShader >() ),
+    m_sumTwoUcharValuesComputeShader( std::make_shared< SumValuesComputeShader< unsigned char > >() ),
+    m_sumThreeUcharValuesComputeShader( std::make_shared< SumValuesComputeShader< unsigned char > >() )
 {}
 
 UtilityRenderer::~UtilityRenderer()
@@ -358,6 +361,69 @@ void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< Texture2DSpecBind< Te
     m_rendererCore.disableComputePipeline();
 }
 
+void UtilityRenderer::sumValues( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > outputTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture1,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture2,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture3
+)
+{
+    if ( !m_initialized )
+        throw std::exception( "UtilityRenderer::sumValues - renderer has not been initialized." );
+
+    m_rendererCore.disableRenderingPipeline();
+
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+
+    unorderedAccessTargetsU1.push_back( outputTexture );
+    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
+                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+
+    if (!inputTexture3)
+    {
+        // Sum two values.
+        m_sumTwoUcharValuesComputeShader->setParameters( 
+            *m_deviceContext.Get(), 
+            *inputTexture1, 
+            *inputTexture2
+        );
+
+        m_rendererCore.enableComputeShader( m_sumTwoUcharValuesComputeShader );
+    }
+    else
+    {
+        // Sum three values.
+        m_sumThreeUcharValuesComputeShader->setParameters( 
+            *m_deviceContext.Get(), 
+            *inputTexture1, 
+            *inputTexture2,
+            *inputTexture3
+        );
+
+        m_rendererCore.enableComputeShader( m_sumThreeUcharValuesComputeShader );
+    }
+
+    uint3 groupCount( 
+        outputTexture->getWidth() / 16, 
+        outputTexture->getHeight() / 16, 
+        1 
+    );
+
+    m_rendererCore.compute( groupCount );
+
+    m_sumTwoUcharValuesComputeShader->unsetParameters( *m_deviceContext.Get() );
+    m_sumThreeUcharValuesComputeShader->unsetParameters( *m_deviceContext.Get() );
+
+    // Unbind resources to avoid binding the same resource on input and output.
+    m_rendererCore.disableUnorderedAccessViews();
+
+    m_rendererCore.disableComputePipeline();
+}
+
 void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
     m_replaceValueComputeShader->loadAndInitialize( "Engine1/Shaders/ReplaceValueShader/ReplaceValue_cs.cso", device );
@@ -368,4 +434,6 @@ void UtilityRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
     m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader->loadAndInitialize( "Engine1/Shaders/ConvertValueFromScreenSpaceToWorldSpaceShader/ConvertDistanceFromScreenSpaceToWorldSpace_cs.cso", device );
     m_blurValueComputeShader->loadAndInitialize( "Engine1/Shaders/BlurValueShader/BlurValue_cs.cso", device );
     m_mergeMipmapsValueComputeShader->loadAndInitialize( "Engine1/Shaders/MergeMipmapsValueShader/MergeMipmapsValue_cs.cso", device );
+    m_sumTwoUcharValuesComputeShader->loadAndInitialize( "Engine1/Shaders/SumValuesShader/SumTwoUcharValues_cs.cso", device );
+    m_sumThreeUcharValuesComputeShader->loadAndInitialize( "Engine1/Shaders/SumValuesShader/SumThreeUcharValues_cs.cso", device );
 }

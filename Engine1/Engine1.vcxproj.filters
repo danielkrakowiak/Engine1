@@ -1011,9 +1011,6 @@
     <ClInclude Include="AntialiasingComputeShader.h">
       <Filter>Header Files\Shader\Antialiasing</Filter>
     </ClInclude>
-    <ClInclude Include="SumValueComputeShader.h">
-      <Filter>Header Files\Shader\Utility\SumValue</Filter>
-    </ClInclude>
     <ClInclude Include="EngineApplication.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
@@ -1022,6 +1019,9 @@
     </ClInclude>
     <ClInclude Include="BlockModelImporter.h">
       <Filter>Header Files\Model\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SumValuesComputeShader.h">
+      <Filter>Header Files\Shader\Utility\SumValue</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1529,9 +1529,6 @@
     <ClCompile Include="AntialiasingComputeShader.cpp">
       <Filter>Source Files\Shader\Antialiasing</Filter>
     </ClCompile>
-    <ClCompile Include="SumValueComputeShader.cpp">
-      <Filter>Source Files\Shader\Utility\SumValue</Filter>
-    </ClCompile>
     <ClCompile Include="EngineApplication.cpp">
       <Filter>Source Files\Application</Filter>
     </ClCompile>
@@ -1540,6 +1537,9 @@
     </ClCompile>
     <ClCompile Include="BlockModelImporter.cpp">
       <Filter>Source Files\Model\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SumValuesComputeShader.cpp">
+      <Filter>Source Files\Shader\Utility\SumValue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1773,7 +1773,16 @@
     <FxCompile Include="Shaders\AntialiasingShader\Antialiasing_cs.hlsl">
       <Filter>Source Files\Shader\Antialiasing</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\SumValueShader\SumValue_cs.hlsl">
+    <FxCompile Include="Shaders\SumValuesShader\SumTwoFloatValues_cs.hlsl">
+      <Filter>Source Files\Shader\Utility\SumValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SumValuesShader\SumThreeFloatValues_cs.hlsl">
+      <Filter>Source Files\Shader\Utility\SumValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SumValuesShader\SumThreeUcharValues_cs.hlsl">
+      <Filter>Source Files\Shader\Utility\SumValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SumValuesShader\SumTwoUcharValues_cs.hlsl">
       <Filter>Source Files\Shader\Utility\SumValue</Filter>
     </FxCompile>
   </ItemGroup>

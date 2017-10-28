@@ -627,17 +627,26 @@ Idea:
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ///////// Shadows //////////////////////////////////////////////////////////////////////////////////////////
 
-      - split shadow blurring into 2 or 3 or 4 phases.
-      - each phase has different range of shadow blur radius - 0 - 0.3, 0.3 - 0.5, 0.5 - 0.7, 0.7 - 1.0
-
-      - There should be two blur passes? ONe for hard shadow, one for soft shadow...? What could we benefit this way?
-
       - Don't use SEPARABLE SHADOW BLUR for tests!!!!
+
+      - increase medium shadow screen-space blur range - shift it more towards soft shadows
+      - simplify dist-to-occluder rsearch shader - no need to decide on search radius - just use a given one...
+      - play with search-radius, search-step settings for hard, medium, soft shadows...
 
       - maybe I could split whole shadow processing (occluder search + blur) into two or more phases?
        It could fix unsolvable problems with hard shadows intersecting and mixing with soft shadows - and in theory it would lead to worse performance.
        But in practice we could probably decrease sampling rate for soft shadows etc without fear of loosing details of hrder shadows.
        And we could also limit search radius for hard shadows, reducing cost. Maybe that's a great idea???
+
+       Remaining issues: 
+        - light leaks at layer transitions
+        - too complex dist-to-occluder-search and shadow-blur shaders - can be simplified
+        - medium shadow is underused and soft shadow is overused
+        - non tweaked settings for how each layer is processed (sampling, blur radius)
+
+       OPTIMIZATION:
+       - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
+         And what would result from doing two smaller passer (half radius etc) rather than one big?
 
 
 	FUN:

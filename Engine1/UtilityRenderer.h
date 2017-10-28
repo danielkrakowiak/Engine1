@@ -17,6 +17,8 @@ namespace Engine1
     class ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader;
     class BlurValueComputeShader;
     class MergeMipmapsValueComputeShader;
+    template < typename PixelType >
+    class SumValuesComputeShader;
 
     class UtilityRenderer
     {
@@ -69,6 +71,13 @@ namespace Engine1
                              const int firstMipmapLevel,
                              const int lastMipmapLevel );
 
+        void sumValues( 
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > outputTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture1,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture2,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture3
+        );
+
         private:
 
         Direct3DRendererCore& m_rendererCore;
@@ -87,6 +96,8 @@ namespace Engine1
         std::shared_ptr< ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader > m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader;
         std::shared_ptr< BlurValueComputeShader >                                  m_blurValueComputeShader;
         std::shared_ptr< MergeMipmapsValueComputeShader >                          m_mergeMipmapsValueComputeShader;
+        std::shared_ptr< SumValuesComputeShader< unsigned char > >                 m_sumTwoUcharValuesComputeShader;
+        std::shared_ptr< SumValuesComputeShader< unsigned char > >                 m_sumThreeUcharValuesComputeShader;
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 

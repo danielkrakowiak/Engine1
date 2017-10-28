@@ -20,6 +20,6 @@ void main( uint3 groupId : SV_GroupID,
     const float value1 = g_texture1[ dispatchThreadId.xy ];
     const float value2 = g_texture2[ dispatchThreadId.xy ];
 
-    g_sumTexture[ dispatchThreadId.xy ] = value1 + value2;
+    g_sumTexture[ dispatchThreadId.xy ] = min( 1.0, value1 + value2 );
 }
 

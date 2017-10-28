@@ -29,10 +29,9 @@ SamplerState g_pointSamplerState;
 // Input.
 Texture2D<float4> g_positionTexture            : register( t0 );
 Texture2D<float4> g_normalTexture              : register( t1 ); 
-Texture2D<float>  g_hardShadowTexture          : register( t2 ); 
-Texture2D<float>  g_softShadowTexture          : register( t3 ); 
-Texture2D<float>  g_distToOccluderTexture      : register( t4 );
-Texture2D<float>  g_finalDistToOccluderTexture : register( t5 );
+Texture2D<float>  g_shadowTexture              : register( t2 ); 
+Texture2D<float>  g_distToOccluderTexture      : register( t3 );
+Texture2D<float>  g_finalDistToOccluderTexture : register( t4 );
 
 // Input / Output.
 RWTexture2D<uint> g_blurredShadowTexture : register( u0 );
@@ -99,9 +98,6 @@ void main( uint3 groupId : SV_GroupID,
     const float samplingRadius             = minBlurRadiusInScreenSpace * samplingRadiusMul;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
-    //const float illuminationSoftness = min( 1.0f, minBlurRadiusInWorldSpace / 1.0f );
-    //const float illuminationHardness = 1.0f - illuminationSoftness;
-
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
 
     float surfaceShadow = 0.0f;
@@ -111,7 +107,7 @@ void main( uint3 groupId : SV_GroupID,
 
     if ( samplingRadius <= 0.0001f || samplingRadius > maxBlurRadius )
     {
-        surfaceShadow = g_hardShadowTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
+        surfaceShadow = g_shadowTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
     }
     else
     {
@@ -133,23 +129,13 @@ void main( uint3 groupId : SV_GroupID,
             //#TODO: When we sample outside of light cone - the sample should be black.
 
             //float sampleDistToOccluder  = g_distToOccluder.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 1.5f );
-            //const float sampleIlluminationSoftness = min( 1.0f, sampleBlurRadiusInWorldSpace / 1.0f );
-            //const float sampleIlluminationHardness = 1.0f - sampleIlluminationSoftness;
 
             //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
-            const float  sampleHardShadow = g_hardShadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
-            //const float  sampleSoftIllumination = g_softIlluminationTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
-            //const float  sampleBlurRadius   = g_illuminationBlurRadiusTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f );
+            const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
             //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
                 
-            //const float sampleIllumination = illuminationSoftness * sampleSoftIllumination;//lerp( sampleHardIllumination, sampleSoftIllumination, illuminationSoftness );//illuminationHardness * sampleHardIllumination + illuminationSoftness * sampleSoftIllumination;
-            //const float sampleIllumination1 = min( 1.0f, illuminationHardness / sampleIlluminationHardness ) * sampleHardIllumination;
-            //const float sampleIllumination2 = min( 1.0f, illuminationSoftness / sampleIlluminationSoftness ) * sampleSoftIllumination;
-            const float sampleShadow = sampleHardShadow;// + sampleHardIllumination;*/ //sampleIllumination1 + sampleIllumination2;
-                
-            const float3 samplePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
-
-            const float positionDiff = length( samplePosition - centerPosition );
+            const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
+            const float positionDiff    = length( samplePosition - centerPosition );
 
             const float sampleWeight2 = pow( e, -positionDiff * positionDiff / positionThreshold );
 

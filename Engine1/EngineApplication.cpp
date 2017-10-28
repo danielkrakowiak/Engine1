@@ -461,22 +461,40 @@ void EngineApplication::onKeyPress( int key )
             m_renderer.setActiveViewType( Renderer::View::Preillumination );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::two ) {
-            m_renderer.setActiveViewType( Renderer::View::HardIllumination );
+            m_renderer.setActiveViewType( Renderer::View::HardShadow );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::three ) {
-            m_renderer.setActiveViewType( Renderer::View::SoftIllumination );
+            m_renderer.setActiveViewType( Renderer::View::MediumShadow );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::four ) {
-            m_renderer.setActiveViewType( Renderer::View::BlurredShadows );
+            m_renderer.setActiveViewType( Renderer::View::SoftShadow );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::five ) {
-            m_renderer.setActiveViewType( Renderer::View::SpotlightDepth );
+            m_renderer.setActiveViewType( Renderer::View::BlurredHardShadows );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::six ) {
-            m_renderer.setActiveViewType( Renderer::View::DistanceToOccluder );
+            m_renderer.setActiveViewType( Renderer::View::BlurredMediumShadows );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::seven ) {
-            m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluder );
+            m_renderer.setActiveViewType( Renderer::View::BlurredSoftShadows );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f1 ) {
+            m_renderer.setActiveViewType( Renderer::View::DistanceToOccluderHardShadow );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f2 ) {
+            m_renderer.setActiveViewType( Renderer::View::DistanceToOccluderMediumShadow );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f3 ) {
+            m_renderer.setActiveViewType( Renderer::View::DistanceToOccluderSoftShadow );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f4 ) {
+            m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluderHardShadow );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f5 ) {
+            m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluderMediumShadow );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f6 ) {
+            m_renderer.setActiveViewType( Renderer::View::FinalDistanceToOccluderSoftShadow );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }
     }

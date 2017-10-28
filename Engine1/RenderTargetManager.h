@@ -8,6 +8,7 @@
 #include "Texture2D.h"
 #include "float4.h"
 #include "int2.h"
+#include "Direct3DUtil.h"
 
 namespace Engine1
 {
@@ -22,10 +23,10 @@ namespace Engine1
 
         template < typename T >
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > > 
-            getRenderTarget( const int2 imageDimensions );
+            getRenderTarget( const int2 imageDimensions, const std::string debugName = "" );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > 
-            getRenderTargetDepth( const int2 imageDimensions );
+            getRenderTargetDepth( const int2 imageDimensions, const std::string debugName = "" );
 
         // Debug methods to keep track of render target usage.
         template< typename T >
@@ -61,12 +62,16 @@ namespace Engine1
 
     template < typename T >
     std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > >
-        RenderTargetManager::getRenderTarget( const int2 imageDimensions )
+        RenderTargetManager::getRenderTarget( const int2 imageDimensions, const std::string debugName )
     {
         auto& renderTargets = getAllRenderTargets< T >();
         for ( auto& renderTarget : renderTargets ) {
             if ( renderTarget.use_count() == 1 && renderTarget->getDimensions() == imageDimensions )
+            {
+                Direct3DUtil::setResourceName( *renderTarget->getTextureResource().Get(), debugName );
+
                 return renderTarget;
+            }
         }
 
         // Render target not found - create a new one.

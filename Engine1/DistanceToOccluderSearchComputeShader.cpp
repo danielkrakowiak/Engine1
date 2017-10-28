@@ -80,11 +80,15 @@ void DistanceToOccluderSearchComputeShader::initialize( ComPtr< ID3D11Device3 >&
     }
 }
 
-void DistanceToOccluderSearchComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                                              const Light& light )
+void DistanceToOccluderSearchComputeShader::setParameters( 
+    ID3D11DeviceContext3& deviceContext, 
+    const float3& cameraPos,
+    const float searchRadius,
+    const float searchStep,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+    const Light& light )
 {
     if ( !m_compiled )
         throw std::exception( "DistanceToOccluderSearchComputeShader::setParameters - Shader hasn't been compiled yet." );
@@ -129,6 +133,9 @@ void DistanceToOccluderSearchComputeShader::setParameters( ID3D11DeviceContext3&
             dataPtr->lightConeMinDot = -1.0f;
             dataPtr->lightDirection = float3( 0.0f, 1.0f, 0.0f );
         }
+
+        dataPtr->searchRadius = 0.0f;
+        dataPtr->searchStep   = 1.0f;
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

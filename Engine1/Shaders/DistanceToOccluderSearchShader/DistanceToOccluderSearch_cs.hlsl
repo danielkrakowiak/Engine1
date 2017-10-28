@@ -19,6 +19,10 @@ cbuffer ConstantBuffer : register( b0 )
     float2 pad6;
     float  positionThreshold;
     float3 pad7;
+    float  searchRadius;
+    float3 pad8;
+    float  searchStep; // In pixels - distance between neighbor samples.
+    float3 pad9;
 };
 
 SamplerState g_linearSamplerState;

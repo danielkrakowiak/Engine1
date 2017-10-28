@@ -34,18 +34,24 @@ void DistanceToOccluderSearchRenderer::initialize( int imageWidth, int imageHeig
     m_initialized = true;
 }
 
-void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( const Camera& camera,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                                      const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > finalDistanceToOccluderRenderTarget,
-                                      const Light& light )
+void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( 
+    const Camera& camera,
+    const float searchRadius,
+    const float searchStep,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > finalDistanceToOccluderRenderTarget,
+    const Light& light 
+)
 {
     m_rendererCore.disableRenderingPipeline();
 
     m_distanceToOccluderSearchComputeShader->setParameters( 
         *m_deviceContext.Get(), 
         camera.getPosition(), 
+        searchRadius,
+        searchStep,
         positionTexture,
         normalTexture, 
         distanceToOccluder, 

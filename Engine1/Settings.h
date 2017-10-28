@@ -87,6 +87,22 @@ namespace Engine1
                 // It reduces blurring complexity from n^2 to 2n, where n is blurring kernel size.
                 // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
                 bool useSeparableShadowBlur;
+
+                // Shadow processing is split into 3 layers - hard shadows, medium shadows, soft shadows -
+                // depending on the screen-space blur radius. For each layer shadow distance-to-occluder 
+                // is first blurred and spread from shadow areas to lit areas. 
+                // Below params define what is the blur/spread radius and what is the distance between samples.
+                // Increasing search-radius increases blur, spread distance from shadow to lit areas and decreases performance.
+                // Search-step is used to control performance - for larger search-radius larger search step can be used to save performance.
+                // Small search-radius small search-step is required to avoid under sampling artifacts.
+                // Unit: pixels.
+                float distanceToOccluderSearchRadiusForHardShadows;
+                float distanceToOccluderSearchRadiusForMediumShadows;
+                float distanceToOccluderSearchRadiusForSoftShadows;
+
+                float distanceToOccluderSearchStepForHardShadows;
+                float distanceToOccluderSearchStepForMediumShadows;
+                float distanceToOccluderSearchStepForSoftShadows;
             } shadows;
 
             struct ReflectionsRefractions

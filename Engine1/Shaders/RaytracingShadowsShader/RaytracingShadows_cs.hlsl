@@ -47,9 +47,12 @@ SamplerState      g_pointSamplerState     : register( s0 );
 SamplerState      g_linearSamplerState    : register( s1 );
 
 // Input / Output.
-RWTexture2D<float> g_distToOccluder   : register( u0 );
-RWTexture2D<uint>  g_hardShadow       : register( u1 ); // 1 - there is no illumination, 0 - full illumination.
-RWTexture2D<uint>  g_softShadow       : register( u2 );
+RWTexture2D<float> g_distToOccluderHardShadow   : register( u0 );
+RWTexture2D<float> g_distToOccluderMediumShadow : register( u1 );
+RWTexture2D<float> g_distToOccluderSoftShadow   : register( u2 );
+RWTexture2D<uint>  g_hardShadow                 : register( u3 ); // 1 - there is no illumination, 0 - full illumination.
+RWTexture2D<uint>  g_mediumShadow               : register( u4 );
+RWTexture2D<uint>  g_softShadow                 : register( u5 );
 
 float    calculateShadowBlurRadius( const float lightEmitterRadius, const float distToOccluder, const float distLightToOccluder );
 bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const float maxAllowedHitDist, inout float nearestHitDist, inout float shadow );
@@ -100,8 +103,9 @@ void main( uint3 groupId : SV_GroupID,
 	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
     if ( !any( rayOrigin ) || normalLightDot < 0.0f /*|| illuminationUint == 0*//*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) 
     { 
-        g_hardShadow[ dispatchThreadId.xy ] = 255;
-        g_softShadow[ dispatchThreadId.xy ] = 255;
+        g_hardShadow[ dispatchThreadId.xy ]   = 255;
+        g_mediumShadow[ dispatchThreadId.xy ] = 255;
+        g_softShadow[ dispatchThreadId.xy ]   = 255;
         return;
     }
 
@@ -125,24 +129,39 @@ void main( uint3 groupId : SV_GroupID,
         const float blurRadiusInWorldSpace  = calculateShadowBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight );
         const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;
 
-        const float prevDistToOccluder = g_distToOccluder[ dispatchThreadId.xy ];
-
-        float hardShadow = (float)g_hardShadow[ dispatchThreadId.xy ] / 255.0f;
-        float softShadow = (float)g_softShadow[ dispatchThreadId.xy ] / 255.0f;
-
-        // Note: When we later blur soft shadows (in other shader) we don't want to include hard shadows in the blur,
-        // so we don't render them on the soft shadow texture.
-        // But we can do the inverse, render soft shadows on the hard shadow texture - 
-        // because hard shadow blurs only a little bit so it won't influence the result too much. 
-        // And it will ensure that transition areas (between hard and soft shadows) don't leak light.
-        const float hardShadowBlurRadiusThreshold = 30.0f;
+        const float hardShadowBlurRadiusThreshold = 10.0f;
         const float softShadowBlurRadiusThreshold = 20.0f;
-        hardShadow += blurRadiusInScreenSpace < hardShadowBlurRadiusThreshold ? shadow : 0.0f;
-        softShadow += blurRadiusInScreenSpace > softShadowBlurRadiusThreshold ? shadow : 0.0f;
 
-        g_distToOccluder[ dispatchThreadId.xy ] = min( prevDistToOccluder, surfaceDistToOccluder );
-        g_hardShadow[ dispatchThreadId.xy ]     = (uint)( min(1.0f, hardShadow ) * 255.0f );
-        g_softShadow[ dispatchThreadId.xy ]     = (uint)( min(1.0f, softShadow ) * 255.0f );
+        if (blurRadiusInScreenSpace < hardShadowBlurRadiusThreshold)
+        {
+            const float prevDistToOccluderHardShadow = g_distToOccluderHardShadow[ dispatchThreadId.xy ];
+            const float prevHardShadow               = (float)g_hardShadow[ dispatchThreadId.xy ] / 255.0f;
+
+            const float hardShadow = prevHardShadow + shadow;
+
+            g_distToOccluderHardShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderHardShadow, surfaceDistToOccluder );
+            g_hardShadow[ dispatchThreadId.xy ]               = (uint)( min(1.0f, hardShadow ) * 255.0f );
+        }
+        else if (blurRadiusInScreenSpace < softShadowBlurRadiusThreshold)
+        {
+            const float prevDistToOccluderMediumShadow = g_distToOccluderMediumShadow[ dispatchThreadId.xy ];
+            const float prevMediumShadow               = (float)g_mediumShadow[ dispatchThreadId.xy ] / 255.0f;
+
+            const float mediumShadow = prevMediumShadow + shadow;
+
+            g_distToOccluderMediumShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderMediumShadow, surfaceDistToOccluder );
+            g_mediumShadow[ dispatchThreadId.xy ]             = (uint)( min(1.0f, mediumShadow ) * 255.0f );
+        }
+        else
+        {
+            const float prevDistToOccluderSoftShadow = g_distToOccluderSoftShadow[ dispatchThreadId.xy ];
+            const float prevSoftShadow               = (float)g_softShadow[ dispatchThreadId.xy ] / 255.0f;
+
+            const float softShadow = prevSoftShadow + shadow;
+
+            g_distToOccluderSoftShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderSoftShadow, surfaceDistToOccluder );
+            g_softShadow[ dispatchThreadId.xy ]               = (uint)( min(1.0f, softShadow ) * 255.0f );
+        }
     }
 }
 

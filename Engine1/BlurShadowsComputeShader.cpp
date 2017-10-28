@@ -83,8 +83,7 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > hardIlluminationTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > softIlluminationTexture,
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
                                               const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
                                               const Light& light )
@@ -93,12 +92,11 @@ void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceContex
         throw std::exception( "BlurShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 6;
+        const unsigned int resourceCount = 5;
         ID3D11ShaderResourceView* resources[ resourceCount ] = {
             positionTexture->getShaderResourceView(),
             normalTexture->getShaderResourceView(),
-            hardIlluminationTexture->getShaderResourceView(),
-            softIlluminationTexture->getShaderResourceView(),
+            shadowTexture->getShaderResourceView(),
             distanceToOccluder->getShaderResourceView(),
             finalDistanceToOccluder->getShaderResourceView(),
         };

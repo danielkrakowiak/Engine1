@@ -456,4 +456,7 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 30.08.2017 - 1h - Working on New York scene. Merging models.
 --- August 2017 - 60h
 21.10.2017 - 2h - Trying to split shadow into hard/soft part without light leaks.
+25.10.2017 - 4h - Splitting shadow processing (ray tracing results storage, dist-to-occluder-search, shadow blurring), into 3 layers - for hard, medium, soft shadows. To avoid problems when hard and soft shadows intersect and overlap.
+26.10.2017 - 4h - Splitting shadow processing into 3 layers. Added an option to set debug name for Render Target when acquiring it. Added new utility shader which sums up 3 values per pixel.
+28.10.2017 - 2h - Splitting shadow processing into 3 layers. Testing on different scenes.
 --- October 2017

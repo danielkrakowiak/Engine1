@@ -37,15 +37,18 @@ namespace Engine1
 
 		void generateAndTraceShadowRays(
             const Camera& camera,
-			const std::shared_ptr< Light > light,
-			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
-			const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-            //const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,
+            const std::shared_ptr< Light > light,
+	        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
+	        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
+	        const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
+            //const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,]
             std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > hardShadowRenderTarget,
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > mediumShadowRenderTarget,
             std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > softShadowRenderTarget,
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderRenderTarget,
-			const std::vector< std::shared_ptr< BlockActor > >& actors
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderHardShadowRenderTarget,
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderMediumShadowRenderTarget,
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderSoftShadowRenderTarget,
+	        const std::vector< std::shared_ptr< BlockActor > >& actors
 		);
 
 	private:

@@ -33,11 +33,18 @@ namespace Engine1
         virtual ~DistanceToOccluderSearchComputeShader();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
-        void setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                            const Light& light );
+
+        void setParameters( 
+            ID3D11DeviceContext3& deviceContext, 
+            const float3& cameraPos,
+            const float searchRadius,
+            const float searchStep,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+            const Light& light  
+        );
+
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:
@@ -62,6 +69,10 @@ namespace Engine1
             float2 pad6;
             float  positionThreshold;
             float3 pad7;
+            float  searchRadius;
+            float3 pad8;
+            float  searchStep; // In pixels - distance between neighbor samples.
+            float3 pad9;
         };
 
         // Copying is not allowed.

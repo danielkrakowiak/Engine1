@@ -10,7 +10,7 @@
 #include "GenerateRefractedRaysComputeShader.h"
 #include "RaytracingPrimaryRaysComputeShader.h"
 #include "RaytracingSecondaryRaysComputeShader.h"
-#include "SumValueComputeShader.h"
+#include "SumValuesComputeShader.h"
 #include "uint3.h"
 #include "Camera.h"
 #include "MathUtil.h"
@@ -37,7 +37,7 @@ RaytraceRenderer::RaytraceRenderer( Direct3DRendererCore& rendererCore ) :
     m_generateRefractedRaysComputeShader( std::make_shared< GenerateRefractedRaysComputeShader >() ),
     m_raytracingPrimaryRaysComputeShader( std::make_shared< RaytracingPrimaryRaysComputeShader >() ),
     m_raytracingSecondaryRaysComputeShader( std::make_shared< RaytracingSecondaryRaysComputeShader >() ),
-    m_sumValueComputeShader( std::make_shared< SumValueComputeShader >() )
+    m_sumValueComputeShader( std::make_shared< SumValuesComputeShader< float > >() )
 {}
 
 
@@ -108,7 +108,7 @@ void RaytraceRenderer::generateAndTraceFirstReflectedRays(
 
     //generatePrimaryRays( camera );
     generateFirstReflectedRays( camera, inputTextures, renderTargets );
-    traceSecondaryRays( 0, renderTargets, actors );
+    traceSecondaryRays( renderTargets, actors );
 
     // #TODO: Account for depth and calculate hit-dist-to-camera.
     //calculateHitDistanceToCamera( renderTargets );
@@ -126,22 +126,21 @@ void RaytraceRenderer::generateAndTraceFirstRefractedRays(
 
     //generatePrimaryRays( camera );
     generateFirstRefractedRays( camera, inputTextures, renderTargets );
-    traceSecondaryRays( 0, renderTargets, actors );
+    traceSecondaryRays( renderTargets, actors );
 
     m_rendererCore.disableComputePipeline();
 }
 
 void RaytraceRenderer::generateAndTraceReflectedRays( 
-    const int level,
     InputTextures2& inputTextures,
     RenderTargets& renderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    generateReflectedRays( level, inputTextures, renderTargets );
+    generateReflectedRays( inputTextures, renderTargets );
 
-    traceSecondaryRays( level, renderTargets, actors );
+    traceSecondaryRays( renderTargets, actors );
 
     calculateHitDistanceToCamera( inputTextures, renderTargets );
 
@@ -149,16 +148,16 @@ void RaytraceRenderer::generateAndTraceReflectedRays(
 }
 
 void RaytraceRenderer::generateAndTraceRefractedRays( 
-    const int level, const int refractionLevel,
+    const int refractionLevel,
     InputTextures2& inputTextures,
     RenderTargets& renderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    generateRefractedRays( level, refractionLevel, inputTextures, renderTargets );
+    generateRefractedRays( refractionLevel, inputTextures, renderTargets );
 
-    traceSecondaryRays( level, renderTargets, actors );
+    traceSecondaryRays( renderTargets, actors );
 
     m_rendererCore.disableComputePipeline();
 }
@@ -258,7 +257,6 @@ void RaytraceRenderer::generateFirstRefractedRays(
 }
 
 void RaytraceRenderer::generateReflectedRays( 
-    int level,
     InputTextures2& inputTextures,
     RenderTargets& renderTargets )
 {
@@ -292,7 +290,7 @@ void RaytraceRenderer::generateReflectedRays(
 }
 
 void RaytraceRenderer::generateRefractedRays( 
-    int level, const int refractionLevel,
+    const int refractionLevel,
     InputTextures2& inputTextures,
     RenderTargets& renderTargets )
 {
@@ -464,7 +462,6 @@ void RaytraceRenderer::tracePrimaryRays(
 }
 
 void RaytraceRenderer::traceSecondaryRays( 
-    int level, 
     RenderTargets& renderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
@@ -645,6 +642,6 @@ void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
     m_generateRefractedRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateRefractedRaysShader/GenerateRefractedRays_cs.cso", device );
     m_raytracingPrimaryRaysComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingPrimaryRaysShader/RaytracingPrimaryRays_cs.cso", device );
     m_raytracingSecondaryRaysComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingSecondaryRaysShader/RaytracingSecondaryRays_cs.cso", device );
-    m_sumValueComputeShader->loadAndInitialize( "Engine1/Shaders/SumValueShader/SumValue_cs.cso", device );
+    m_sumValueComputeShader->loadAndInitialize( "Engine1/Shaders/SumValuesShader/SumTwoValues_cs.cso", device );
 }
 

@@ -55,8 +55,11 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
     //const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,]
     std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > hardShadowRenderTarget,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > mediumShadowRenderTarget,
     std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > softShadowRenderTarget,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderRenderTarget,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderHardShadowRenderTarget,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderMediumShadowRenderTarget,
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderSoftShadowRenderTarget,
 	const std::vector< std::shared_ptr< BlockActor > >& actors
 )
 {
@@ -69,8 +72,11 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
     //m_softIlluminationTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 255, 255, 255 ) );
 
     hardShadowRenderTarget->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4::ZERO );
+    mediumShadowRenderTarget->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4::ZERO );
     softShadowRenderTarget->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4::ZERO );
-    distanceToOccluderRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 1000.0f ) );
+    distanceToOccluderHardShadowRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 1000.0f ) );
+    distanceToOccluderMediumShadowRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 1000.0f ) );
+    distanceToOccluderSoftShadowRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 1000.0f ) );
 
     // Copy pre-illumination texture as initial illumination. 
     // This is to avoid copying values inside the shader in each pass.
@@ -85,8 +91,11 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
-    unorderedAccessTargetsF1.push_back( distanceToOccluderRenderTarget );
+    unorderedAccessTargetsF1.push_back( distanceToOccluderHardShadowRenderTarget );
+    unorderedAccessTargetsF1.push_back( distanceToOccluderMediumShadowRenderTarget );
+    unorderedAccessTargetsF1.push_back( distanceToOccluderSoftShadowRenderTarget );
 	unorderedAccessTargetsU1.push_back( hardShadowRenderTarget );
+    unorderedAccessTargetsU1.push_back( mediumShadowRenderTarget );
     unorderedAccessTargetsU1.push_back( softShadowRenderTarget );
 
 	m_rendererCore.enableUnorderedAccessTargets( 
