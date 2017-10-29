@@ -36,11 +36,7 @@ Texture2D<float>  g_finalDistToOccluderTexture : register( t4 );
 // Input / Output.
 RWTexture2D<uint> g_blurredShadowTexture : register( u0 );
 
-static const float positionThresholdFalloff = 0.4f;
-
-static const float maxBlurRadius = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
-
-bool canUseSample( const float3 blurCenterPosition, const float3 samplePosition, const float blurRadiusInWorldSpace, const float positionThreshold );
+static const float sampleCountPerSide = 20.0;
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -92,57 +88,44 @@ void main( uint3 groupId : SV_GroupID,
     // to decrease search radius when looking at walls/floors at flat angle.
     const float samplingRadiusMul = saturate( abs( dot( surfaceNormal, dirToCamera ) ) );
 
-    const float minBlurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
-    const float samplingRadius             = minBlurRadiusInScreenSpace * samplingRadiusMul;
+    const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
+    const float samplingRadius          = blurRadiusInScreenSpace * samplingRadiusMul;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
 
     float surfaceShadow = 0.0f;
+    float sampleCount   = 0.000001f; // Note: Small value to avoid division by zero.
 
-    if ( samplingRadius <= 0.0001f || samplingRadius > maxBlurRadius )
+    const float samplingStep = max(1.0, samplingRadius / sampleCountPerSide);
+
+    for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
     {
-        surfaceShadow = g_shadowTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
-    }
-    else
-    {
-        // Note: It's impossible to tell how far samples are from each other in world space
-        // by using blur radius in screen space (because it depends on camera distance from surface).
-        // So we calculate blur radius in world space.
-        //const float blurRadiusInWorldSpace = blurRadius * log2( distToCamera + 1.0f );
-
-        float sampleCount = 0.0f;
-
-        const float samplingStep = 0.05f * samplingRadius;
-
-        for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
+        for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
         {
-            for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
-            {
-                const float2 texCoordShift = float2( pixelSize0.x * x, pixelSize0.y * y );
+            const float2 texCoordShift = float2( pixelSize0.x * x, pixelSize0.y * y );
 
-                //#TODO: When we sample outside of light cone - the sample should be black.
+            //#TODO: When we sample outside of light cone - the sample should be black.
 
-                //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
-                const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
-                //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
+            //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
+            const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
+            //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
                 
-                const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
-                const float positionDiff    = length( samplePosition - centerPosition );
+            const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
+            const float positionDiff    = length( samplePosition - centerPosition );
 
-                const float sampleWeight2 = pow( e, -positionDiff * positionDiff / g_positionThreshold );
+            const float sampleWeight2 = pow( e, -positionDiff * positionDiff / g_positionThreshold );
 
-                float sampleWeight = sampleWeight2;
+            float sampleWeight = sampleWeight2;
 
-                // #TODO: Increase positionThreshold!! 
-                surfaceShadow += sampleShadow * sampleWeight;
-                sampleCount   += sampleWeight;
-            }
+            // #TODO: Increase positionThreshold!! 
+            surfaceShadow += sampleShadow * sampleWeight;
+            sampleCount   += sampleWeight;
         }
-
-        // Note: We assume that at least the central pixel will get accepted - otherwise division by zero would occur.
-        surfaceShadow /= sampleCount;
     }
+
+    // Note: We assume that at least the central pixel will get accepted - otherwise division by zero would occur.
+    surfaceShadow /= sampleCount;
 
     g_blurredShadowTexture[ dispatchThreadId.xy ] = (int)(255.0 * surfaceShadow);
 }
