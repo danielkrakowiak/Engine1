@@ -1,20 +1,22 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
+#include "Common\Constants.hlsl"
+
 cbuffer ConstantBuffer : register( b0 )
 {
-    float3 cameraPos;
+    float3 g_cameraPos;
     float  pad1;
-    float3 lightPosition;
+    float3 g_lightPosition;
     float  pad2;
-    float  lightConeMinDot;
+    float  g_lightConeMinDot;
     float3 pad3;
-    float3 lightDirection;
+    float3 g_lightDirection;
     float  pad4;
-    float  lightEmitterRadius;
+    float  g_lightEmitterRadius;
     float3 pad5;
-    float2 outputTextureSize;
+    float2 g_outputTextureSize;
     float2 pad6;
-    float  positionThreshold;
+    float  g_positionThreshold;
     float3 pad7;
 };
 
@@ -34,8 +36,6 @@ Texture2D<float>  g_finalDistToOccluderTexture : register( t4 );
 // Input / Output.
 RWTexture2D<uint> g_blurredShadowTexture : register( u0 );
 
-static const float Pi = 3.14159265f;
-static const float e = 2.71828f;
 static const float positionThresholdFalloff = 0.4f;
 
 static const float maxBlurRadius = 999.0f; // Every distance-to-occluder sampled from texture, which is greater than that is not a real value - rather a missing value.
@@ -58,39 +58,35 @@ void main( uint3 groupId : SV_GroupID,
     #endif
     /////////////////////////////////////////////////////////////////
 
-    //const float2 texcoords = dispatchThreadId.xy / outputTextureSize;
     // Note: Calculate texcoords for the pixel center.
-    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
+    const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / g_outputTextureSize;
 
-    //const float2 outputTextureHalfPixelSize = 1.0f / outputTextureSize; // Should be illumination texture size?
+    const float2 pixelSize0 = 1.0f / g_outputTextureSize;
 
-    const float2 pixelSize0 = 1.0f / outputTextureSize;
+    const float3 surfacePosition = g_positionTexture[ dispatchThreadId.xy ].xyz;
+    const float3 surfaceNormal   = g_normalTexture[ dispatchThreadId.xy ].xyz;
 
-    const float3 surfacePosition     = g_positionTexture[ dispatchThreadId.xy ].xyz;
-    const float3 surfaceNormal       = g_normalTexture[ dispatchThreadId.xy ].xyz;
-
-    const float3 vectorToCamera = cameraPos - surfacePosition;
+    const float3 vectorToCamera = g_cameraPos - surfacePosition;
     const float3 dirToCamera    = normalize( vectorToCamera );
     const float  distToCamera   = length( vectorToCamera );
 
-    const float3 vectorToLight       = lightPosition.xyz - surfacePosition;
-    const float3 dirToLight          = normalize( vectorToLight );
-    const float  distToLight         = length( vectorToLight );
+    const float3 vectorToLight  = g_lightPosition.xyz - surfacePosition;
+    const float3 dirToLight     = normalize( vectorToLight );
+    const float  distToLight    = length( vectorToLight );
 
     // If pixel is outside of spot light's cone - ignore.
-    if ( dot( lightDirection, -dirToLight ) < lightConeMinDot ) {
+    if ( dot( g_lightDirection, -dirToLight ) < g_lightConeMinDot ) {
         g_blurredShadowTexture[ dispatchThreadId.xy ] = 255;
         return;
     }
 
     const float distToOccluder = g_finalDistToOccluderTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
 
-    //const float minBlurRadiusInWorldSpace = g_distToOccluder.SampleLevel( g_linearSamplerState, texcoords, 3.0f );
-    const float pixelSizeInWorldSpace   = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
-    const float maxWorldSpaceBlurRadius = 1.0f; 
+    const float pixelSizeInWorldSpace   = (distToCamera * tan( Pi / 8.0f )) / (g_outputTextureSize.y * 0.5f);
+    const float maxBlurRadiusWorldSpace = 1.0f; 
     const float distLightToOccluder     = distToLight - distToOccluder;
     
-    const float blurRadiusInWorldSpace = min( maxWorldSpaceBlurRadius, lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    const float blurRadiusInWorldSpace = min( maxBlurRadiusWorldSpace, g_lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
 
     // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
     // to decrease search radius when looking at walls/floors at flat angle.
@@ -103,9 +99,6 @@ void main( uint3 groupId : SV_GroupID,
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
 
     float surfaceShadow = 0.0f;
-
-    // TEEEEEEEEEEST
-    //surfaceIllumination = g_hardShadowTexture.SampleLevel( g_pointSamplerState, texcoords, samplingRadius );
 
     if ( samplingRadius <= 0.0001f || samplingRadius > maxBlurRadius )
     {
@@ -130,10 +123,6 @@ void main( uint3 groupId : SV_GroupID,
 
                 //#TODO: When we sample outside of light cone - the sample should be black.
 
-                //float sampleDistToOccluder  = g_distToOccluder.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 1.5f );
-                //const float sampleShadowSoftness = min( 1.0f, sampleBlurRadiusInWorldSpace / 1.0f );
-                //const float sampleShadowHardness = 1.0f - sampleShadowSoftness;
-
                 //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
                 const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
                 //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
@@ -141,29 +130,13 @@ void main( uint3 groupId : SV_GroupID,
                 const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
                 const float positionDiff    = length( samplePosition - centerPosition );
 
-                const float sampleWeight2 = pow( e, -positionDiff * positionDiff / positionThreshold );
+                const float sampleWeight2 = pow( e, -positionDiff * positionDiff / g_positionThreshold );
 
                 float sampleWeight = sampleWeight2;
 
-                //if (samplePointIllumination < 0.8f ) { 
-                //    sampleWeight = max( 0.0f, 1.0f - abs(blurRadius - sampleBlurRadius) / blurRadius );
-                //}
-
                 // #TODO: Increase positionThreshold!! 
-                bool useSample = true;///*sampleBlurRadiusInWorldSpace >= minBlurRadiusInWorldSpace &&*/ canUseSample( surfacePosition, samplePosition, minBlurRadiusInWorldSpace, positionThreshold );
-
-                if ( useSample )
-                {
-                    surfaceShadow += sampleShadow * sampleWeight;
-
-                    // Add fully lit samples twice.
-                    //if ( sampleIllumination > 0.99f )
-                    //    surfaceIllumination += sampleIllumination;
-                    
-                    //const float weightFromIllumination = sampleIllumination * 0.5f + 0.5f; // Note: To correct the transition from black to white, which would otherwise be from black to gray.
-
-                    sampleCount += sampleWeight;// * weightFromIllumination;// * weightFromPositionDiff;
-                }
+                surfaceShadow += sampleShadow * sampleWeight;
+                sampleCount   += sampleWeight;
             }
         }
 
@@ -172,15 +145,4 @@ void main( uint3 groupId : SV_GroupID,
     }
 
     g_blurredShadowTexture[ dispatchThreadId.xy ] = (int)(255.0 * surfaceShadow);
-}
-
-bool canUseSample( const float3 blurCenterPosition, const float3 samplePosition, const float blurRadiusInWorldSpace, const float positionThreshold )
-{
-    // Dev: Tried to compare normals here as well, but it didn't prove to be useful.
-    
-    //#TODO: Could be optimized by using "dot" instead of "length" and comparing against squared position threshold. It would save one square root.
-    const float  posDiff    = length( samplePosition - blurCenterPosition );
-    const float  maxPosDiff = positionThreshold * blurRadiusInWorldSpace;
-
-    return posDiff < maxPosDiff;
 }
