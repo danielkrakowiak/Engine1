@@ -130,7 +130,7 @@ void main( uint3 groupId : SV_GroupID,
         const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;
 
         const float hardShadowBlurRadiusThreshold = 10.0f;
-        const float softShadowBlurRadiusThreshold = 20.0f;
+        const float softShadowBlurRadiusThreshold = 40.0f;
 
         if (blurRadiusInScreenSpace < hardShadowBlurRadiusThreshold)
         {

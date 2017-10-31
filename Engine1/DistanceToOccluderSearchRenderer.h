@@ -35,6 +35,7 @@ namespace Engine1
             const Camera& camera,
             const float searchRadius,
             const float searchStep,
+            const int searchMipmapLevel,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,

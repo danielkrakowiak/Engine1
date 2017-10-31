@@ -39,9 +39,11 @@ namespace Engine1
             const float3& cameraPos,
             const float searchRadius,
             const float searchStep,
+            const int searchMipmapLevel,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+            const int2 outputImageDimensions,
             const Light& light  
         );
 
@@ -65,14 +67,16 @@ namespace Engine1
             float  pad4;
             float  lightEmitterRadius;
             float3 pad5;
-            float2 outputTextureSize;
+            float2 inputTextureSize;
             float2 pad6;
+            float2 outputTextureSize;
+            float2 pad7;
             float  positionThreshold;
-            float3 pad7;
-            float  searchRadius;
             float3 pad8;
-            float  searchStep; // In pixels - distance between neighbor samples.
+            float  searchRadius;
             float3 pad9;
+            float  searchStep; // In pixels - distance between neighbor samples.
+            float3 pad10;
         };
 
         // Copying is not allowed.

@@ -38,6 +38,7 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
     const Camera& camera,
     const float searchRadius,
     const float searchStep,
+    const int searchMipmapLevel,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
@@ -52,9 +53,11 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
         camera.getPosition(), 
         searchRadius,
         searchStep,
+        searchMipmapLevel,
         positionTexture,
         normalTexture, 
         distanceToOccluder, 
+        finalDistanceToOccluderRenderTarget->getDimensions(),
         light 
     );
 
@@ -66,6 +69,9 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
+    //#TODO: Remove thwt clear - just for debug.
+    finalDistanceToOccluderRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4::ZERO, 0 );
+
     unorderedAccessTargetsF1.push_back( finalDistanceToOccluderRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( 
@@ -76,8 +82,8 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
         unorderedAccessTargetsU4 
     );
 
-    const int imageWidth = positionTexture->getWidth();
-    const int imageHeight = positionTexture->getHeight();
+    const int imageWidth = finalDistanceToOccluderRenderTarget->getWidth();
+    const int imageHeight = finalDistanceToOccluderRenderTarget->getHeight();
 
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 

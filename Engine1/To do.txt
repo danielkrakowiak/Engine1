@@ -51,6 +51,8 @@
 07.03.2017
 	- [ Optimization ] Disabling rendering/compute pipelines could be easily delayed until a different pipeline is needed. Simply remove "disable" method and disable when enabling (if needed).
 	  What problems could it cause? Some problems when configuring pipelines? I could enfore that a given pipeline type is enabled by exceptions.
+29.10.17
+    - [Shaders] Rename all constant values to start with "g_" prefix.
 
 For later ######################################################################################################################
 
@@ -608,6 +610,7 @@ Idea:
       - should all file-infos have filename instead of path? Probably not... - but it's misleading if the full path will be used or just a filename...
       - Texture2DFileInfo::PixelType should be probably moved to the texture class itself - pixel-type is a general property of a texture, not just a texture file
       - merging algorithm should probably be able to stretch-up/rescale textures to much some placements... (maybe if given some flag, max stretch-up-down ratios etc)
+      - when calculating how much memory is used in RenderTargetManager - it would be best to be able to read the maximal memory used during a frame - including the short spikes - that would require recalculating that value everytime a texture is acquired and resetting it at some point.
 
 	  FUTURE IMPORTANT:
 	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.
@@ -627,26 +630,33 @@ Idea:
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ///////// Shadows //////////////////////////////////////////////////////////////////////////////////////////
 
-      - Don't use SEPARABLE SHADOW BLUR for tests!!!!
 
-      - increase medium shadow screen-space blur range - shift it more towards soft shadows
       - simplify dist-to-occluder rsearch shader - no need to decide on search radius - just use a given one...
       - play with search-radius, search-step settings for hard, medium, soft shadows...
 
-      - maybe I could split whole shadow processing (occluder search + blur) into two or more phases?
-       It could fix unsolvable problems with hard shadows intersecting and mixing with soft shadows - and in theory it would lead to worse performance.
-       But in practice we could probably decrease sampling rate for soft shadows etc without fear of loosing details of hrder shadows.
-       And we could also limit search radius for hard shadows, reducing cost. Maybe that's a great idea???
+
+       - dist-to-occluder-search should probably not take samples from regions at very different position? It causes some objects spread thair dist-to-occluder to very different objects..
+
+       - blur-shadow stage e should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows.
 
        Remaining issues: 
         - light leaks at layer transitions
         - too complex dist-to-occluder-search and shadow-blur shaders - can be simplified
         - medium shadow is underused and soft shadow is overused
         - non tweaked settings for how each layer is processed (sampling, blur radius)
+        - to ensure smooth transition between shadow layers - dist-to-occluder has to change smoothly in the transition areas.
+          Now it changes abruptly as it is taken only from one selected layer with hard threshold. How to do that? 
+          Some blending of dist-to-occluder values when saving them to the texture, weithed depending on blur-radius?
 
        OPTIMIZATION:
        - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
          And what would result from doing two smaller passer (half radius etc) rather than one big?
+
+         ///////////////////////////////////////////////////////////////////////////////////////////////
+
+         - Ability to change light color, intensity, attenuation etc
+
+         - IMPORTNANT: Text rendering is very time-consuming - disable it during performance testing...
 
 
 	FUN:

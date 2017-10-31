@@ -85,9 +85,11 @@ void DistanceToOccluderSearchComputeShader::setParameters(
     const float3& cameraPos,
     const float searchRadius,
     const float searchStep,
+    const int searchMipmapLevel,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+    const int2 outputImageDimensions,
     const Light& light )
 {
     if ( !m_compiled )
@@ -98,7 +100,7 @@ void DistanceToOccluderSearchComputeShader::setParameters(
         ID3D11ShaderResourceView* resources[ resourceCount ] = {
             positionTexture->getShaderResourceView(),
             normalTexture->getShaderResourceView(),
-            distanceToOccluder->getShaderResourceView(),
+            distanceToOccluder->getShaderResourceView(searchMipmapLevel),
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -118,7 +120,8 @@ void DistanceToOccluderSearchComputeShader::setParameters(
         dataPtr->lightPosition = light.getPosition();
         dataPtr->lightEmitterRadius = light.getEmitterRadius();
 
-        dataPtr->outputTextureSize = float2( (float)positionTexture->getWidth(), (float)positionTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
+        dataPtr->inputTextureSize  = float2( distanceToOccluder->getDimensions( searchMipmapLevel ) );
+        dataPtr->outputTextureSize = float2( outputImageDimensions );
 
         dataPtr->positionThreshold = s_positionThreshold;
 
@@ -134,8 +137,8 @@ void DistanceToOccluderSearchComputeShader::setParameters(
             dataPtr->lightDirection = float3( 0.0f, 1.0f, 0.0f );
         }
 
-        dataPtr->searchRadius = 0.0f;
-        dataPtr->searchStep   = 1.0f;
+        dataPtr->searchRadius = searchRadius;
+        dataPtr->searchStep   = searchStep;
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

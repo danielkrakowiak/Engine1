@@ -88,21 +88,36 @@ namespace Engine1
                 // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
                 bool useSeparableShadowBlur;
 
-                // Shadow processing is split into 3 layers - hard shadows, medium shadows, soft shadows -
-                // depending on the screen-space blur radius. For each layer shadow distance-to-occluder 
-                // is first blurred and spread from shadow areas to lit areas. 
-                // Below params define what is the blur/spread radius and what is the distance between samples.
-                // Increasing search-radius increases blur, spread distance from shadow to lit areas and decreases performance.
-                // Search-step is used to control performance - for larger search-radius larger search step can be used to save performance.
-                // Small search-radius small search-step is required to avoid under sampling artifacts.
-                // Unit: pixels.
-                float distanceToOccluderSearchRadiusForHardShadows;
-                float distanceToOccluderSearchRadiusForMediumShadows;
-                float distanceToOccluderSearchRadiusForSoftShadows;
+                struct
+                {
+                    // Shadow processing is split into 3 layers - hard shadows, medium shadows, soft shadows -
+                    // depending on the screen-space blur radius. For each layer shadow distance-to-occluder 
+                    // is first blurred and spread from shadow areas to lit areas. 
+                    // Below params define what is the blur/spread radius and what is the distance between samples.
+                    // Increasing search-radius increases blur, spread distance from shadow to lit areas and decreases performance.
+                    // Search-step is used to control performance - for larger search-radius larger search step can be used to save performance.
+                    // Small search-radius small search-step is required to avoid under sampling artifacts.
+                    // Instead of increasing search-step it can be a better idea to increase input-mipmap-level - to avoid skipping over some important pixels.
+                    // Search-radius and search-step are given as pixel count at input-mipmap-level.
+                    // It's also best to match output texture dimensions to the input-mipmap dimensions. 
+                    // Input-mipmap-level and output-dimensions-divider should probably be always matching. #TODO: For future refactor?
+                    // Unit: pixels.
+                    float searchRadiusForHardShadows;
+                    float searchRadiusForMediumShadows;
+                    float searchRadiusForSoftShadows;
 
-                float distanceToOccluderSearchStepForHardShadows;
-                float distanceToOccluderSearchStepForMediumShadows;
-                float distanceToOccluderSearchStepForSoftShadows;
+                    float searchStepForHardShadows;
+                    float searchStepForMediumShadows;
+                    float searchStepForSoftShadows;
+
+                    int inputMipmapLevelForHardShadows;
+                    int inputMipmapLevelForMediumShadows;
+                    int inputMipmapLevelForSoftShadows;
+
+                    int outputDimensionsDividerForHardShadows;
+                    int outputDimensionsDividerForMediumShadows;
+                    int outputDimensionsDividerForSoftShadows;
+                } distanceToOccluderSearch;
             } shadows;
 
             struct ReflectionsRefractions

@@ -28,28 +28,28 @@ float main(PixelInputType input) : SV_Target
     const float valueBottomRight = g_textureSrcMipmap.SampleLevel( g_samplerState, input.texCoord + float2(  srcPixelSizeInTexcoords.x,  srcPixelSizeInTexcoords.y ), 0.0f );
 
     float valueSum  = 0.0f;
-    float weightSum = 0.0f;
+    float weightSum = 0.000001f; // Note: Small value to avoid division by zero.
 
     // Equal to "if ( valueTopLeft <= maxAcceptableValue )"
-    const float weightTopLeft = ( maxAcceptableValue - valueTopLeft ) * 1000.0f;
+    const float weightTopLeft = max( 0.0, maxAcceptableValue - valueTopLeft ) * 1000.0f;
     valueSum  += valueTopLeft * weightTopLeft;
     weightSum += weightTopLeft;
 
-    const float weightTopRight = ( maxAcceptableValue - valueTopRight ) * 1000.0f;
+    const float weightTopRight = max(0.0, maxAcceptableValue - valueTopRight) * 1000.0f;
     valueSum  += valueTopRight * weightTopRight;
     weightSum += weightTopRight;
 
-    const float weightBottomLeft = ( maxAcceptableValue - valueBottomLeft ) * 1000.0f;
+    const float weightBottomLeft = max(0.0, maxAcceptableValue - valueBottomLeft) * 1000.0f;
     valueSum  += valueBottomLeft * weightBottomLeft;
     weightSum += weightBottomLeft;
 
-    const float weightBottomRight = ( maxAcceptableValue - valueBottomRight ) * 1000.0f;
+    const float weightBottomRight = max(0.0, maxAcceptableValue - valueBottomRight) * 1000.0f;
     valueSum  += valueBottomRight * weightBottomRight;
     weightSum += weightBottomRight;
 
-    // #TODO: Can we simply return 0 in case we rejected all samples? That would remove that "if".
-    if ( weightSum > 0.0f )
-        return valueSum / weightSum;
-    else
-        return valueBottomRight;
+	// If all samples were rejected - use the original value (instead of returning zero).
+	// We also assume that all rejected samples have the same value. 
+    const float valueIfAllRejected = max(0.0, 1.0 - weightSum) * valueTopLeft;
+
+    return (valueSum / weightSum) + valueIfAllRejected;
 }

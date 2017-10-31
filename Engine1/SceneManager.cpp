@@ -107,7 +107,7 @@ void SceneManager::loadScene( std::string path )
 
     // Wait for all assets to be loaded.
     const Timer loadingStartTime;
-    const float maxLoadingTime = 180.0f;
+    const float maxLoadingTime = 30.0f;
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos ) {
         const Timer currTime;
         const float loadingTime = (float)Timer::getElapsedTime( currTime, loadingStartTime ) / 1000.0f;
@@ -137,7 +137,7 @@ void SceneManager::loadScene( std::string path )
                     blockModel->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
                     blockActor->setModel( blockModel ); // Swap an empty model with a loaded model.
                 } else {
-                    throw std::exception( "SceneTools::loadScene - failed to load one of the scene's models." );
+                    //throw std::exception( "SceneManager::loadScene - failed to load one of the scene's models." );
                 }
             }
         } else if ( actor->getType() == Actor::Type::SkeletonActor ) {
@@ -149,7 +149,7 @@ void SceneManager::loadScene( std::string path )
                     skeletonModel->loadCpuToGpu( *m_device.Get(), *m_deviceContext.Get() );
                     skeletonActor->setModel( skeletonModel ); // Swap an empty model with a loaded model.
                 } else {
-                    throw std::exception( "SceneTools::loadScene - failed to load one of the scene's models." );
+                    //throw std::exception( "SceneManager::loadScene - failed to load one of the scene's models." );
                 }
             }
         }

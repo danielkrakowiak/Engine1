@@ -431,6 +431,15 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
     const auto blockActors = SceneUtil::filterActorsByType< BlockActor >( scene.getActorsVec() );
 
+    auto finalDistanceToOccluderHardShadowImageDimensions = 
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForHardShadows;
+
+    auto finalDistanceToOccluderMediumShadowImageDimensions = 
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForMediumShadows;
+
+    auto finalDistanceToOccluderSoftShadowImageDimensions = 
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForSoftShadows;
+
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
@@ -442,9 +451,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
         auto distanceToOccluderHardShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderHardShadow" );
         auto distanceToOccluderMediumShadowRenderTarget      = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderMediumShadow" );
         auto distanceToOccluderSoftShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccludeSoftShadow" );
-        auto finalDistanceToOccluderHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "finalDistanceToOccluderHardShadow" );
-        auto finalDistanceToOccluderMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "finalDistanceToOccluderMediumShadow" );
-        auto finalDistanceToOccluderSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "finalDistanceToOccluderSoftShadow" );
+        auto finalDistanceToOccluderHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderHardShadowImageDimensions, "finalDistanceToOccluderHardShadow" );
+        auto finalDistanceToOccluderMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderMediumShadowImageDimensions, "finalDistanceToOccluderMediumShadow" );
+        auto finalDistanceToOccluderSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderSoftShadowImageDimensions, "finalDistanceToOccluderSoftShadow" );
 
         if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight 
              && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
@@ -512,17 +521,17 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluderHardShadowRenderTarget, 
-            500.0f, 0, 3 
+            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows
         );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluderMediumShadowRenderTarget, 
-            500.0f, 0, 3 
+            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows 
         );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluderSoftShadowRenderTarget, 
-            500.0f, 0, 3 
+            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows 
         );
         
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
@@ -531,8 +540,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearchRadiusForHardShadows,
-            settings().rendering.shadows.distanceToOccluderSearchStepForHardShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForHardShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchStepForHardShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows,
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
             distanceToOccluderHardShadowRenderTarget,
@@ -542,8 +552,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearchRadiusForMediumShadows,
-            settings().rendering.shadows.distanceToOccluderSearchStepForMediumShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForMediumShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchStepForMediumShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows,
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
             distanceToOccluderMediumShadowRenderTarget,
@@ -553,8 +564,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearchRadiusForSoftShadows,
-            settings().rendering.shadows.distanceToOccluderSearchStepForSoftShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForSoftShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchStepForSoftShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows,
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
             distanceToOccluderSoftShadowRenderTarget,
@@ -579,7 +591,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 hardShadowRenderTarget,
-                distanceToOccluderHardShadowRenderTarget,
+                distanceToOccluderHardShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderHardShadowRenderTarget,
                 blurredHardShadowRenderTarget,
                 blurredShadowTemporaryRenderTarget,
@@ -591,7 +603,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 mediumShadowRenderTarget,
-                distanceToOccluderMediumShadowRenderTarget,
+                distanceToOccluderMediumShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderMediumShadowRenderTarget,
                 blurredMediumShadowRenderTarget,
                 blurredShadowTemporaryRenderTarget,
@@ -603,7 +615,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 softShadowRenderTarget,
-                distanceToOccluderSoftShadowRenderTarget,
+                distanceToOccluderSoftShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderSoftShadowRenderTarget,
                 blurredSoftShadowRenderTarget,
                 blurredShadowTemporaryRenderTarget,
@@ -618,7 +630,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 hardShadowRenderTarget,
-                distanceToOccluderHardShadowRenderTarget,
+                distanceToOccluderHardShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderHardShadowRenderTarget,
                 blurredHardShadowRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
@@ -629,7 +641,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 mediumShadowRenderTarget,
-                distanceToOccluderMediumShadowRenderTarget,
+                distanceToOccluderMediumShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderMediumShadowRenderTarget,
                 blurredMediumShadowRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
@@ -640,7 +652,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 softShadowRenderTarget,
-                distanceToOccluderSoftShadowRenderTarget,
+                distanceToOccluderSoftShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderSoftShadowRenderTarget,
                 blurredSoftShadowRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
@@ -1006,6 +1018,15 @@ void Renderer::renderSecondaryLayer(
         lightsNotCastingShadows
     );
 
+    auto finalDistanceToOccluderHardShadowImageDimensions = 
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForHardShadows;
+
+    auto finalDistanceToOccluderMediumShadowImageDimensions = 
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForMediumShadows;
+
+    auto finalDistanceToOccluderSoftShadowImageDimensions = 
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForSoftShadows;
+
     const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx ) 
     {
@@ -1015,9 +1036,9 @@ void Renderer::renderSecondaryLayer(
         auto distanceToOccluderHardShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderHardShadow" );
         auto distanceToOccluderMediumShadowRenderTarget      = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderMediumShadow" );
         auto distanceToOccluderSoftShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderSoftShadow" );
-        auto finalDistanceToOccluderHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "finalDistanceToOccluderHardShadow" );
-        auto finalDistanceToOccluderMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "finalDistanceToOccluderMediumShadow" );
-        auto finalDistanceToOccluderSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "finalDistanceToOccluderSoftShadow" );
+        auto finalDistanceToOccluderHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderHardShadowImageDimensions, "finalDistanceToOccluderHardShadow" );
+        auto finalDistanceToOccluderMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderMediumShadowImageDimensions, "finalDistanceToOccluderMediumShadow" );
+        auto finalDistanceToOccluderSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderSoftShadowImageDimensions, "finalDistanceToOccluderSoftShadow" );
 
         //if ( light->getType() == Light::Type::SpotLight
         //     && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
@@ -1052,17 +1073,17 @@ void Renderer::renderSecondaryLayer(
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             distanceToOccluderHardShadowRenderTarget,
-            500.0f, 0, 3
+            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows
         );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             distanceToOccluderMediumShadowRenderTarget,
-            500.0f, 0, 3
+            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows
         );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             distanceToOccluderSoftShadowRenderTarget,
-            500.0f, 0, 3
+            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows
         );
 
         // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
@@ -1072,8 +1093,9 @@ void Renderer::renderSecondaryLayer(
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearchRadiusForHardShadows,
-            settings().rendering.shadows.distanceToOccluderSearchStepForHardShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForHardShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchStepForHardShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows,
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
             distanceToOccluderHardShadowRenderTarget,
@@ -1083,8 +1105,9 @@ void Renderer::renderSecondaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearchRadiusForMediumShadows,
-            settings().rendering.shadows.distanceToOccluderSearchStepForMediumShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForMediumShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchStepForMediumShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows,
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
             distanceToOccluderMediumShadowRenderTarget,
@@ -1094,8 +1117,9 @@ void Renderer::renderSecondaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearchRadiusForSoftShadows,
-            settings().rendering.shadows.distanceToOccluderSearchStepForSoftShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForSoftShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.searchStepForSoftShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows,
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
             distanceToOccluderSoftShadowRenderTarget,
@@ -1121,7 +1145,7 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 hardShadowRenderTarget,
-                distanceToOccluderHardShadowRenderTarget,
+                distanceToOccluderHardShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderHardShadowRenderTarget,
                 blurredHardShadowRenderTarget,
                 blurredShadowTemporaryRenderTarget,
@@ -1133,7 +1157,7 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 mediumShadowRenderTarget,
-                distanceToOccluderMediumShadowRenderTarget,
+                distanceToOccluderMediumShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderMediumShadowRenderTarget,
                 blurredMediumShadowRenderTarget,
                 blurredShadowTemporaryRenderTarget,
@@ -1145,7 +1169,7 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 softShadowRenderTarget,
-                distanceToOccluderSoftShadowRenderTarget,
+                distanceToOccluderSoftShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderSoftShadowRenderTarget,
                 blurredSoftShadowRenderTarget,
                 blurredShadowTemporaryRenderTarget,
@@ -1159,7 +1183,7 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 hardShadowRenderTarget,
-                distanceToOccluderHardShadowRenderTarget,
+                distanceToOccluderHardShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderHardShadowRenderTarget,
                 blurredHardShadowRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
@@ -1170,7 +1194,7 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 mediumShadowRenderTarget,
-                distanceToOccluderMediumShadowRenderTarget,
+                distanceToOccluderMediumShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderMediumShadowRenderTarget,
                 blurredMediumShadowRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
@@ -1181,7 +1205,7 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 softShadowRenderTarget,
-                distanceToOccluderSoftShadowRenderTarget,
+                distanceToOccluderSoftShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderSoftShadowRenderTarget,
                 blurredSoftShadowRenderTarget,
                 *lightsCastingShadows[ lightIdx ]
