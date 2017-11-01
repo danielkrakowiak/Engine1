@@ -236,8 +236,6 @@ void Application::run()
     const float profilingDisplayRefreshDelayMs = 200.0f;
     double frameTimeMs = 0.0;
     float totalFrameTimeGPU = 0.0f, totalFrameTimeCPU = 0.0f;
-    float deferredRenderingTime = 0.0f;
-    float mainMipmapGenerationForPositionAndNormalsTime = 0.0f;
     std::array< StageProfilingInfo, (int)Profiler::StageType::MAX_VALUE > stageProfilingInfo;
 
     Timer profilingLastRefreshTime;
@@ -402,11 +400,9 @@ void Application::run()
         {
             profilingLastRefreshTime.reset();
 
-            { // Render profiling results.
-                totalFrameTimeCPU                             = (float)frameTimeMs;
-                totalFrameTimeGPU                             = m_profiler.getEventDuration( Profiler::GlobalEventType::Frame );
-                deferredRenderingTime                         = m_profiler.getEventDuration( Profiler::GlobalEventType::DeferredRendering );
-                mainMipmapGenerationForPositionAndNormalsTime = m_profiler.getEventDuration( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
+            { // Accumulate some profiling results.
+                totalFrameTimeCPU = (float)frameTimeMs;
+                totalFrameTimeGPU = m_profiler.getEventDuration( Profiler::GlobalEventType::Frame );
 
                 for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
                 {
@@ -426,19 +422,30 @@ void Application::run()
                     }
                 }
             }
-
         }
 
         // Drop references to render targets before starting text rendering.
         // (reference counting of render targets).
         output.reset();
 
+        auto textAlbedoRenderTarget = m_renderTargetManager.getRenderTarget< uchar4 >( settings().main.screenDimensions, "text-albedo" );
+        auto textNormalRenderTarget = m_renderTargetManager.getRenderTarget< float4 >( settings().main.screenDimensions, "text-normal" );
+
         { // Render FPS.
             std::stringstream ss;
             ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
             
             if ( settings().debug.renderFps )
-                output = m_renderer.renderText( ss.str(), font, float2( -500.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            {
+                output = m_renderer.renderText( 
+                    ss.str(), 
+                    font, 
+                    float2( -500.0f, 300.0f ), 
+                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+                    textAlbedoRenderTarget,
+                    textNormalRenderTarget 
+                );
+            }
         }
 
         { // Render current view.
@@ -446,7 +453,16 @@ void Application::run()
             ss << "View: " << Renderer::viewToString( m_renderer.getActiveViewType() );
 
             if ( settings().debug.renderFps )
-                output = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 350.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            {
+                output = m_renderer.renderText( 
+                    ss.str(), 
+                    font2, 
+                    float2( -500.0f, 350.0f ), 
+                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+                    textAlbedoRenderTarget,
+                    textNormalRenderTarget
+                );
+            }
         }
 
         { // Render some debug options.
@@ -461,7 +477,16 @@ void Application::run()
             ss << "Exposure: " << m_renderer.getExposure();
 
             if ( settings().debug.renderFps )
-                output = m_renderer.renderText( ss.str(), font2, float2( 150.0f, 300.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            {
+                output = m_renderer.renderText( 
+                    ss.str(), 
+                    font2, 
+                    float2( 150.0f, 300.0f ), 
+                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+                    textAlbedoRenderTarget,
+                    textNormalRenderTarget
+                );
+            }
         }
 
         { // Render profiling results.
@@ -535,7 +560,16 @@ void Application::run()
             }
 
             if ( settings().debug.renderText )
-                output = m_renderer.renderText( ss.str(), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            {
+                output = m_renderer.renderText( 
+                    ss.str(), 
+                    font2, 
+                    float2( -500.0f, 250.0f ), 
+                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+                    textAlbedoRenderTarget,
+                    textNormalRenderTarget 
+                );
+            }
         }
 
         { // Render scene stats and selection stats.
@@ -668,7 +702,16 @@ void Application::run()
             }
 
             if ( settings().debug.renderText )
-                output = m_renderer.renderText( ss.str(), font2, float2( 0.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            {
+                output = m_renderer.renderText( 
+                    ss.str(), 
+                    font2, 
+                    float2( 0.0f, 200.0f ), 
+                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+                    textAlbedoRenderTarget,
+                    textNormalRenderTarget
+                );
+            }
         }
 
         { // Render camera state.

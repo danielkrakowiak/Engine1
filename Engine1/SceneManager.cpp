@@ -107,7 +107,7 @@ void SceneManager::loadScene( std::string path )
 
     // Wait for all assets to be loaded.
     const Timer loadingStartTime;
-    const float maxLoadingTime = 30.0f;
+    const float maxLoadingTime = 60.0f;
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos ) {
         const Timer currTime;
         const float loadingTime = (float)Timer::getElapsedTime( currTime, loadingStartTime ) / 1000.0f;

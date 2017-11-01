@@ -95,11 +95,11 @@ namespace Engine1
 
         struct Output
         {
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > ucharImage;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >        uchar4Image;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >        float4Image;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2 > >        float2Image;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >        floatImage;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > ucharImage;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        uchar4Image;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        float4Image;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float2 > >        float2Image;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float  > >        floatImage;
 
             bool isEmpty()
             {
@@ -191,7 +191,9 @@ namespace Engine1
             const std::string& text, 
             Font& font, 
             float2 position, 
-            float4 color
+            float4 color,
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > albedoRenderTarget,
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > normalRenderTarget
         );
 
         void setActiveViewType( const View view );

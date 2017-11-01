@@ -226,11 +226,13 @@ Renderer::Output Renderer::renderText(
     const std::string& text, 
     Font& font, 
     float2 position, 
-    float4 color )
+    float4 color,
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > albedoRenderTarget,
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > normalRenderTarget )
 {
     Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
-    defferedRenderTargets.albedo = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, "text-albedo" );
-    defferedRenderTargets.normal = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "text-normal" );
+    defferedRenderTargets.albedo = albedoRenderTarget;
+    defferedRenderTargets.normal = normalRenderTarget;
 
     Direct3DDeferredRenderer::Settings defferedSettings;
     defferedSettings.fieldOfView     = 0.0f; // Not used.
@@ -1446,7 +1448,7 @@ Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
             output.float4Image = m_layersRenderTargets.at( level ).hitShaded;
             break;
         case View::Depth:
-            output.uchar4Image = m_layersRenderTargets.at( level ).depth;
+            //output.uchar4Image = m_layersRenderTargets.at( level ).depth;
             return output;
         case View::Position:
             output.float4Image = m_layersRenderTargets.at( level ).hitPosition;
