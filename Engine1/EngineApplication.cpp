@@ -790,6 +790,14 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
         Settings::s_settings.debug.refractiveIndexMulChanged = false;
     }
 
+    { // Update light setup from Settings.
+        auto& selectedLights = m_sceneManager.getSelectedLights();
+
+        for ( auto& light : selectedLights ) {
+            setLightFromSettings( *light );
+        } 
+    }
+
     return modifyingScene;
 }
 
@@ -802,6 +810,13 @@ void EngineApplication::onSelectionChanged()
         auto actor = m_sceneManager.getSelectedBlockActors()[ 0 ];
         if ( actor->getModel() )
             setTextureMultipliersInSettingsFromModel( *actor->getModel() );
+    }
+
+    if ( !m_sceneManager.getSelectedLights().empty() )
+    {
+        auto light = m_sceneManager.getSelectedLights()[ 0 ];
+
+        setSettingsFromLight( *light );
     }
 }
 
@@ -859,4 +874,56 @@ void EngineApplication::setModelTextureMultipliersFromSettings( Model& model )
 
     if ( !refractiveIndexTextures.empty() && settings().debug.refractiveIndexMulChanged )
         refractiveIndexTextures[ 0 ].setColorMultiplier( float4( settings().debug.refractiveIndexMul ) );
+
+    auto& settings = Settings::modify();
+    settings.debug.alphaMulChanged           = false;
+    settings.debug.emissiveMulChanged        = false;
+    settings.debug.albedoMulChanged          = false;
+    settings.debug.metalnessMulChanged       = false;
+    settings.debug.roughnessMulChanged       = false;
+    settings.debug.refractiveIndexMulChanged = false;
+}
+
+void EngineApplication::setSettingsFromLight( const Light& light )
+{
+    auto& settings = Settings::modify();
+
+    settings.debug.lightEnabled                    = light.isEnabled();
+    settings.debug.lightCastShadows                = light.isCastingShadows();
+    settings.debug.lightColor                      = light.getColor();
+    settings.debug.lightColor.normalize();
+    settings.debug.lightIntensity                  = light.getColor().length();
+    settings.debug.lightEmitterRadius              = light.getEmitterRadius();
+    settings.debug.lightLinearAttenuationFactor    = light.getLinearAttenuationFactor();
+    settings.debug.lightQuadraticAttenuationFactor = light.getQuadraticAttenuationFactor();
+}
+
+void EngineApplication::setLightFromSettings( Light& light )
+{
+    if ( settings().debug.lightEnabledChanged )
+        light.setEnabled( settings().debug.lightEnabled ); 
+
+    if ( settings().debug.lightCastShadowsChanged )
+        light.setCastingShadows( settings().debug.lightCastShadows ); 
+
+    if ( settings().debug.lightIntensityChanged || settings().debug.lightColorChanged )
+        light.setColor( settings().debug.lightColor * settings().debug.lightIntensity ); 
+
+    if ( settings().debug.lightEmitterRadiusChanged )
+        light.setEmitterRadius( settings().debug.lightEmitterRadius );    
+
+    //if ( settings().debug.lightLinearAttenuationFactorChanged )
+    //    light.setLinearAttenuationFactor( settings().debug.lightLinearAttenuationFactor ); //#TODO: Uncomment once the member has been added.
+
+    //if ( settings().debug.lightQuadraticAttenuationFactorChanged )
+    //    light.setQuadraticAttenuationFactor( settings().debug.lightQuadraticAttenuationFactor ); //#TODO: Uncomment once the member has been added.
+
+    auto& settings = Settings::modify();
+
+    settings.debug.lightEnabledChanged                    = false;
+    settings.debug.lightCastShadowsChanged                = false;
+    settings.debug.lightIntensityChanged                  = false;
+    settings.debug.lightEmitterRadiusChanged              = false;
+    settings.debug.lightLinearAttenuationFactorChanged    = false;
+    settings.debug.lightQuadraticAttenuationFactorChanged = false;
 }

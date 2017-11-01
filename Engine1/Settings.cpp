@@ -75,6 +75,25 @@ void Settings::initializeInternal()
     s_settings.debug.roughnessMul            = 1.0f;
     s_settings.debug.refractiveIndexMul      = 1.0f;
 
+    
+    s_settings.debug.lightEnabled                    = true;
+    s_settings.debug.lightCastShadows                = true;
+    s_settings.debug.lightColor                      = float3::ONE;
+    s_settings.debug.lightIntensity                  = 1.0f;
+    s_settings.debug.lightEmitterRadius              = 0.0f;
+    s_settings.debug.lightLinearAttenuationFactor    = 1.0f;
+    s_settings.debug.lightQuadraticAttenuationFactor = 0.0f;
+
+    s_settings.debug.lightEnabledChanged                    = false;
+    s_settings.debug.lightCastShadowsChanged                = false;
+    s_settings.debug.lightColorChanged                      = false;
+    s_settings.debug.lightIntensityChanged                  = false;
+    s_settings.debug.lightEmitterRadiusChanged              = false;
+    s_settings.debug.lightLinearAttenuationFactorChanged    = false;
+    s_settings.debug.lightQuadraticAttenuationFactorChanged = false;
+
+    s_settings.debug.lightColorChanged = false;
+
     s_settings.rendering.fieldOfViewDegress = 70.0f;
     s_settings.rendering.exposure           = 1.0f;
     s_settings.rendering.antialiasing       = true;

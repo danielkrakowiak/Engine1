@@ -71,6 +71,22 @@ namespace Engine1
             float  metalnessMul;
             float  roughnessMul;
             float  refractiveIndexMul;
+
+            bool   lightEnabled;
+            bool   lightCastShadows;
+            float3 lightColor;
+            float  lightIntensity;
+            float  lightEmitterRadius;
+            float  lightLinearAttenuationFactor;
+            float  lightQuadraticAttenuationFactor;
+
+            bool lightEnabledChanged;
+            bool lightCastShadowsChanged;
+            bool lightColorChanged;
+            bool lightIntensityChanged;
+            bool lightEmitterRadiusChanged;
+            bool lightLinearAttenuationFactorChanged;
+            bool lightQuadraticAttenuationFactorChanged;
         } debug;
 
         struct Rendering 

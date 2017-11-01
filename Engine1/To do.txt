@@ -633,6 +633,8 @@ Idea:
 
       - play with search-radius, search-step settings for hard, medium, soft shadows...
 
+      - why in New York Loft scene dist-to-occluder-search sometimes fails and this causes medium and soft shadows to be completaly sharp.
+
        - dist-to-occluder-search should probably not take samples from regions at very different position/normals? It causes some objects spread thair dist-to-occluder to very different objects..
 
        - maybe a second dist-to-occluder-search pass could be useful - to smooth out the edges of the final texture - to avoid sharp transitions in case the spread was not sufficent.

@@ -38,8 +38,17 @@ namespace Engine1
         static void TW_CALL onSetRoughnessMul( const void* value, void* /*clientData*/ );
         static void TW_CALL onSetRefractiveIndexMul( const void* value, void* /*clientData*/ );
 
-        static void TW_CALL onGetColorMulFloat( void* value, void* colorMulFloat );
-        static void TW_CALL onGetColorMulFloat3( void* value, void* colorMulFloat3 );
+        static void TW_CALL onSetLightEnabled( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetLightCastShadows( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetLightColor( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetLightIntensity( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetLightEmitterRadius( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetLightLinearAttenuationFactor( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetLightQuadraticAttenuationFactor( const void* value, void* /*clientData*/ );
+
+        static void TW_CALL onGetBool( void* value, void* boolVal );
+        static void TW_CALL onGetFloat( void* value, void* floatVal );
+        static void TW_CALL onGetFloat3( void* value, void* float3Val );
 
         static void TW_CALL onFlipUVs( void* controlPanel );
         static void TW_CALL onFlipTangents( void* controlPanel );
@@ -50,8 +59,9 @@ namespace Engine1
 
         Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;
 
-        TwBar* mainBar;
-        TwBar* meshUtilsBar;
+        TwBar* m_mainBar;
+        TwBar* m_meshUtilsBar;
+        TwBar* m_lightBar;
 
         SceneManager& m_sceneManager;
     };

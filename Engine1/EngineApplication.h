@@ -27,6 +27,9 @@ namespace Engine1
         void setTextureMultipliersInSettingsFromModel( const Model& model );
         void setModelTextureMultipliersFromSettings( Model& model );
 
+        void setSettingsFromLight( const Light& light );
+        void setLightFromSettings( Light& light );
+
         
     };
 }
