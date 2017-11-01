@@ -70,8 +70,8 @@ void main( uint3 groupId : SV_GroupID,
 
     const float2 inputPixelSize = 1.0f / inputTextureSize; // Accounts for the selected mipmap size.
 
-    const float3 surfacePosition     = g_positionTexture[ dispatchThreadId.xy ].xyz;
-    const float3 surfaceNormal       = g_normalTexture[ dispatchThreadId.xy ].xyz;
+    const float3 surfacePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz;
+    const float3 surfaceNormal       = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz;
 
     const float3 vectorToCamera = cameraPos - surfacePosition;
     const float3 dirToCamera    = normalize( vectorToCamera );
@@ -91,7 +91,7 @@ void main( uint3 groupId : SV_GroupID,
     const float3 centerPosition       = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
 
     // #TODO: Replace with call to getPixelSizeInWorldSpace. Check if it caused any errors. Use real FOV instead of hardcoded value.
-    const float pixelSizeInWorldSpace = (distToCamera * tan(Pi / 8.0f)) / (outputTextureSize.y * 0.5f);
+    //const float pixelSizeInWorldSpace = (distToCamera * tan(Pi / 8.0f)) / (outputTextureSize.y * 0.5f);
 
     float2 texCoordShift = float2(0.0f, 0.0f); // x horizontal, y - vertical.
     
