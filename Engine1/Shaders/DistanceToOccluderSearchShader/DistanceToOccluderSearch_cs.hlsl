@@ -21,10 +21,14 @@ cbuffer ConstantBuffer : register( b0 )
     float2 pad7;
     float  positionThreshold;
     float3 pad8;
-    float  g_searchRadius;
+    float  g_searchRadiusInShadow;
     float3 pad9;
-    float  g_searchStep; // In pixels - distance between neighbor samples.
+    float  g_searchStepInShadow; // In pixels - distance between neighbor samples.
     float3 pad10;
+    float  g_searchRadiusInLight;
+    float3 pad11;
+    float  g_searchStepInLight; // In pixels - distance between neighbor samples.
+    float3 pad12;
 };
 
 SamplerState g_linearSamplerState;
@@ -83,13 +87,11 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    //const float  centerDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
-
+    const float  centerDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
     const float3 centerPosition       = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
-    //const float  centerWeight         = saturate( 500.0f - centerDistToOccluder );
 
     // #TODO: Replace with call to getPixelSizeInWorldSpace. Check if it caused any errors. Use real FOV instead of hardcoded value.
-    const float pixelSizeInWorldSpace = (distToCamera * tan( Pi / 8.0f )) / (outputTextureSize.y * 0.5f);
+    const float pixelSizeInWorldSpace = (distToCamera * tan(Pi / 8.0f)) / (outputTextureSize.y * 0.5f);
 
     float2 texCoordShift = float2(0.0f, 0.0f); // x horizontal, y - vertical.
     
@@ -102,11 +104,18 @@ void main( uint3 groupId : SV_GroupID,
     // we don't need any extra precision in that case anyways - 
     // if sample sensity was fine for zoomed out, it will be fine when zoomed in.
 
+    // If center value is available - use it (instead of searching for it).
+    const float centerSampleInShadow = getSampleWeightLowerThan( centerDistToOccluder, 999.0f );
+
 	// #TODO: It should probably be re-enabled.
 	// But beware - it destroys otherise great smoothnes on the result. Can we improve?
     const float mulFromDistToCamera = 4.0 / (0.1 + distToCamera);
-    const float searchRadius = g_searchRadius /** mulFromDistToCamera*/;
-    const float searchStep   = g_searchStep /** mulFromDistToCamera*/;
+
+    // Search-radius and search-step are different when central sample is in shadow or in light.
+    // If it is in shadow, no search is in fact needed (we know the value), so we apply small search-radius
+    // to slightly blur the value (to avoid hard transition between values in shadow and in light).
+    const float searchRadius = lerp( g_searchRadiusInLight, g_searchRadiusInShadow, centerSampleInShadow ) /** mulFromDistToCamera*/;
+    const float searchStep   = lerp( g_searchStepInLight, g_searchStepInShadow, centerSampleInShadow ) /** mulFromDistToCamera*/;
 
     // #TODO: Should we scale this search-radius based on view-angle?
     // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 

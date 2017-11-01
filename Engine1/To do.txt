@@ -631,32 +631,31 @@ Idea:
       ///////// Shadows //////////////////////////////////////////////////////////////////////////////////////////
 
 
-      - simplify dist-to-occluder rsearch shader - no need to decide on search radius - just use a given one...
       - play with search-radius, search-step settings for hard, medium, soft shadows...
 
+       - dist-to-occluder-search should probably not take samples from regions at very different position/normals? It causes some objects spread thair dist-to-occluder to very different objects..
 
-       - dist-to-occluder-search should probably not take samples from regions at very different position? It causes some objects spread thair dist-to-occluder to very different objects..
+       - maybe a second dist-to-occluder-search pass could be useful - to smooth out the edges of the final texture - to avoid sharp transitions in case the spread was not sufficent.
+         It could be run only on black pixels - to not corrupt the original results.
 
-       - blur-shadow stage e should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows.
+       OPTIMIZATION:
+       - blur-shadow stage should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows.
+       - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
+         And what would result from doing two smaller passer (half radius etc) rather than one big?
 
        Remaining issues: 
         - light leaks at layer transitions
         - too complex dist-to-occluder-search and shadow-blur shaders - can be simplified
-        - medium shadow is underused and soft shadow is overused
         - non tweaked settings for how each layer is processed (sampling, blur radius)
         - to ensure smooth transition between shadow layers - dist-to-occluder has to change smoothly in the transition areas.
           Now it changes abruptly as it is taken only from one selected layer with hard threshold. How to do that? 
           Some blending of dist-to-occluder values when saving them to the texture, weithed depending on blur-radius?
 
-       OPTIMIZATION:
-       - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
-         And what would result from doing two smaller passer (half radius etc) rather than one big?
-
          ///////////////////////////////////////////////////////////////////////////////////////////////
 
          - Ability to change light color, intensity, attenuation etc
 
-         - IMPORTNANT: Text rendering is very time-consuming - disable it during performance testing...
+         - IMPORTNANT: Text rendering is very time-consuming in debug mode - disable it during performance testing...
 
 
 	FUN:

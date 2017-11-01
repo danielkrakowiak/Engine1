@@ -82,18 +82,28 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.enabled                = true;
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 
-    s_settings.rendering.shadows.distanceToOccluderSearch.searchRadiusForHardShadows              = 5.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.searchRadiusForMediumShadows            = 10.0f;//20.0f
-    s_settings.rendering.shadows.distanceToOccluderSearch.searchRadiusForSoftShadows              = 10.0f;//40.0f
-    s_settings.rendering.shadows.distanceToOccluderSearch.searchStepForHardShadows                = 1.0f;//2.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.searchStepForMediumShadows              = 1.0f;//5.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.searchStepForSoftShadows                = 1.0f;//8.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows          = 2;
-    s_settings.rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows        = 3;
-    s_settings.rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows          = 4;
-    s_settings.rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForHardShadows   = 4;
-    s_settings.rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForMediumShadows = 8;
-    s_settings.rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForSoftShadows   = 16;
+    s_settings.rendering.shadows.distanceToOccluderSearch.maxDistToOccluder = 500.0f;
+
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight       = 5.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight         = 1.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow      = 2.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow        = 1.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel          = 2;
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider   = 4;
+
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight     = 10.0f; 
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight       = 1.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow    = 5.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow      = 1.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel        = 3;
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider = 8;
+
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight       = 10.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight         = 1.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow      = 7.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow        = 1.0f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel          = 4;
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider   = 16;
 
     s_settings.rendering.reflectionsRefractions.maxLevel           = 1;
     s_settings.rendering.reflectionsRefractions.reflectionsEnabled = false;

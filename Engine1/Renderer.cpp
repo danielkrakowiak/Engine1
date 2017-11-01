@@ -432,13 +432,13 @@ Renderer::Output Renderer::renderPrimaryLayer(
     const auto blockActors = SceneUtil::filterActorsByType< BlockActor >( scene.getActorsVec() );
 
     auto finalDistanceToOccluderHardShadowImageDimensions = 
-        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForHardShadows;
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider;
 
     auto finalDistanceToOccluderMediumShadowImageDimensions = 
-        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForMediumShadows;
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider;
 
     auto finalDistanceToOccluderSoftShadowImageDimensions = 
-        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForSoftShadows;
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider;
 
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
@@ -521,17 +521,23 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluderHardShadowRenderTarget, 
-            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows
+            settings().rendering.shadows.distanceToOccluderSearch.maxDistToOccluder,
+            0, 
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel
         );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluderMediumShadowRenderTarget, 
-            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows 
+            settings().rendering.shadows.distanceToOccluderSearch.maxDistToOccluder, 
+            0, 
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel 
         );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluderSoftShadowRenderTarget, 
-            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows 
+            settings().rendering.shadows.distanceToOccluderSearch.maxDistToOccluder,
+            0, 
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel 
         );
         
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
@@ -540,9 +546,11 @@ Renderer::Output Renderer::renderPrimaryLayer(
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForHardShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.searchStepForHardShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel,
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
             distanceToOccluderHardShadowRenderTarget,
@@ -552,9 +560,11 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForMediumShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.searchStepForMediumShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel,
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
             distanceToOccluderMediumShadowRenderTarget,
@@ -564,9 +574,11 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForSoftShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.searchStepForSoftShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel,
             layerRenderTargets.hitPosition,
             layerRenderTargets.hitNormal,
             distanceToOccluderSoftShadowRenderTarget,
@@ -1019,13 +1031,13 @@ void Renderer::renderSecondaryLayer(
     );
 
     auto finalDistanceToOccluderHardShadowImageDimensions = 
-        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForHardShadows;
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider;
 
     auto finalDistanceToOccluderMediumShadowImageDimensions = 
-        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForMediumShadows;
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider;
 
     auto finalDistanceToOccluderSoftShadowImageDimensions = 
-        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.outputDimensionsDividerForSoftShadows;
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider;
 
     const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx ) 
@@ -1073,17 +1085,23 @@ void Renderer::renderSecondaryLayer(
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             distanceToOccluderHardShadowRenderTarget,
-            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows
+            settings().rendering.shadows.distanceToOccluderSearch.maxDistToOccluder, 
+            0, 
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel
         );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             distanceToOccluderMediumShadowRenderTarget,
-            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows
+            settings().rendering.shadows.distanceToOccluderSearch.maxDistToOccluder,
+            0, 
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel
         );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             distanceToOccluderSoftShadowRenderTarget,
-            500.0f, 0, settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows
+            settings().rendering.shadows.distanceToOccluderSearch.maxDistToOccluder,
+            0, 
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel
         );
 
         // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
@@ -1093,9 +1111,11 @@ void Renderer::renderSecondaryLayer(
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForHardShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.searchStepForHardShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForHardShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel,
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
             distanceToOccluderHardShadowRenderTarget,
@@ -1105,9 +1125,11 @@ void Renderer::renderSecondaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForMediumShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.searchStepForMediumShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForMediumShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel,
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
             distanceToOccluderMediumShadowRenderTarget,
@@ -1117,9 +1139,11 @@ void Renderer::renderSecondaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
-            settings().rendering.shadows.distanceToOccluderSearch.searchRadiusForSoftShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.searchStepForSoftShadows,
-            settings().rendering.shadows.distanceToOccluderSearch.inputMipmapLevelForSoftShadows,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel,
             currLayerRTs.hitPosition,
             currLayerRTs.hitNormal,
             distanceToOccluderSoftShadowRenderTarget,

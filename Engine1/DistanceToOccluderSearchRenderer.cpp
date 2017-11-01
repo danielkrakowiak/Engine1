@@ -36,8 +36,10 @@ void DistanceToOccluderSearchRenderer::initialize( int imageWidth, int imageHeig
 
 void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( 
     const Camera& camera,
-    const float searchRadius,
-    const float searchStep,
+    const float searchRadiusInShadow,
+    const float searchStepInShadow,
+    const float searchRadiusInLight,
+    const float searchStepInLight,
     const int searchMipmapLevel,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
@@ -51,8 +53,10 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
     m_distanceToOccluderSearchComputeShader->setParameters( 
         *m_deviceContext.Get(), 
         camera.getPosition(), 
-        searchRadius,
-        searchStep,
+        searchRadiusInShadow,
+        searchStepInShadow,
+        searchRadiusInLight,
+        searchStepInLight,
         searchMipmapLevel,
         positionTexture,
         normalTexture, 

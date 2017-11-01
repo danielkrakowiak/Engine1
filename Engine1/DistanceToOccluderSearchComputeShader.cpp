@@ -83,8 +83,10 @@ void DistanceToOccluderSearchComputeShader::initialize( ComPtr< ID3D11Device3 >&
 void DistanceToOccluderSearchComputeShader::setParameters( 
     ID3D11DeviceContext3& deviceContext, 
     const float3& cameraPos,
-    const float searchRadius,
-    const float searchStep,
+    const float searchRadiusInShadow,
+    const float searchStepInShadow,
+    const float searchRadiusInLight,
+    const float searchStepInLight,
     const int searchMipmapLevel,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
@@ -137,8 +139,10 @@ void DistanceToOccluderSearchComputeShader::setParameters(
             dataPtr->lightDirection = float3( 0.0f, 1.0f, 0.0f );
         }
 
-        dataPtr->searchRadius = searchRadius;
-        dataPtr->searchStep   = searchStep;
+        dataPtr->searchRadiusInShadow = searchRadiusInShadow;
+        dataPtr->searchStepInShadow   = searchStepInShadow;
+        dataPtr->searchRadiusInLight  = searchRadiusInLight;
+        dataPtr->searchStepInLight    = searchStepInLight;
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

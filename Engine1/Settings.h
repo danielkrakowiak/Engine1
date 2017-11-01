@@ -88,8 +88,12 @@ namespace Engine1
                 // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
                 bool useSeparableShadowBlur;
 
-                struct
+                struct DistanceToOccluderSearch
                 {
+                    // Dist-to-occluder values below that number are valid. 
+                    // Values above that number should be interpreted as lack of value (no information about distance-to-occluder).
+                    float maxDistToOccluder;
+
                     // Shadow processing is split into 3 layers - hard shadows, medium shadows, soft shadows -
                     // depending on the screen-space blur radius. For each layer shadow distance-to-occluder 
                     // is first blurred and spread from shadow areas to lit areas. 
@@ -99,24 +103,27 @@ namespace Engine1
                     // Small search-radius small search-step is required to avoid under sampling artifacts.
                     // Instead of increasing search-step it can be a better idea to increase input-mipmap-level - to avoid skipping over some important pixels.
                     // Search-radius and search-step are given as pixel count at input-mipmap-level.
+                    // Search-radius-in-shadow is used when original pixel has some reasonable value in dist-to-occluder texture (is in shadow),
+                    // while search-radius-in-light is used when original pixel has huge value in dist-to-occluder texture (meaning no value, is in light). 
+                    // Same applies to search-step-in-shadow/light).
                     // It's also best to match output texture dimensions to the input-mipmap dimensions. 
                     // Input-mipmap-level and output-dimensions-divider should probably be always matching. #TODO: For future refactor?
                     // Unit: pixels.
-                    float searchRadiusForHardShadows;
-                    float searchRadiusForMediumShadows;
-                    float searchRadiusForSoftShadows;
 
-                    float searchStepForHardShadows;
-                    float searchStepForMediumShadows;
-                    float searchStepForSoftShadows;
+                    struct Setup
+                    {
+                        float searchRadiusInShadow;
+                        float searchStepInShadow;
+                        float searchRadiusInLight;
+                        float searchStepInLight;
+                        int   inputMipmapLevel;
+                        int   outputDimensionsDivider;
+                    };
 
-                    int inputMipmapLevelForHardShadows;
-                    int inputMipmapLevelForMediumShadows;
-                    int inputMipmapLevelForSoftShadows;
-
-                    int outputDimensionsDividerForHardShadows;
-                    int outputDimensionsDividerForMediumShadows;
-                    int outputDimensionsDividerForSoftShadows;
+                    Setup hardShadows;
+                    Setup mediumShadows;
+                    Setup softShadows;
+                    
                 } distanceToOccluderSearch;
             } shadows;
 

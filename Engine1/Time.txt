@@ -336,6 +336,7 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 --- December 2016 - 48h
 
 --- 2016 - 566h
+--- total 991h
 
 24.01.2017 - 2h - Trying to figure a way to solve soft shadow problems - especially crossing of soft vs hard shadows while deducing dist-to-occluder from a Shadow Map.
 25.01.2017 - 3h - Trying to figure a way to solve soft shadow problems - got good improvement by blurring blur-radius texture. Had to replace all maximum blur radius values with 0 before blurring. Added ReplaceValueRenderer, ReplaceValueComputeShader classes. 
@@ -462,4 +463,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 29.10.2017 - 7h - Refactoring/cleanup of shadow-blur shaders. Improving dist-to-occluder-search to give more smooth results, without jagged edges etc. Fixed a bug in mipmap-generation-with-sample-rejection shader - it was outputting negative values because of missing max(). This was causing jagged edges in dist-to-occluder mipmaps. Added radial weighting in dist-to-occluder-search shader - to improve blending of nearby regions (plus early rejecting samples without sampling the texture).
 30.10.2017 - 2h
 31.10.2017 - 4h - Added sampling different mipmaps during dist-to-occluder-search for hard/medium/soft shadows. It's better than skipping pixels, as it ensure smooth output image rather than undersampling artefacts and patterns. Added a setting to control final-dist-to-occluder texture diemnsions for hard/medium/soft shadows - important as it directly influences the number of executed shader threads (caching hides the benefits I guess). Fixed a bug in generate-mipmaps-with-sample-rejection shader, which was outputting zero if all samples were rejected instead of returning the original value - that caused background switch from white to black and increasing darkening of edges in dist-to-occluder mipmaps.
---- October 2017
+--- October 2017 - 25h
+--- total 1338h
+01.11.2017 - 2h - Added a separate setting for dist-to-occluder-search to control search-radius and search-step for pixels in shadow and in light (those which have a dist-to-occluder value and those which don't). This is supposed to reduce blur of distance values in regions of shadow - to avoid artefacts when object move close to each other etc.

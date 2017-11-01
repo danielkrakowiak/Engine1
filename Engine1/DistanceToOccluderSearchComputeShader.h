@@ -37,8 +37,10 @@ namespace Engine1
         void setParameters( 
             ID3D11DeviceContext3& deviceContext, 
             const float3& cameraPos,
-            const float searchRadius,
-            const float searchStep,
+            const float searchRadiusInShadow,
+            const float searchStepInShadow,
+            const float searchRadiusInLight,
+            const float searchStepInLight,
             const int searchMipmapLevel,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
@@ -73,10 +75,14 @@ namespace Engine1
             float2 pad7;
             float  positionThreshold;
             float3 pad8;
-            float  searchRadius;
+            float  searchRadiusInShadow;
             float3 pad9;
-            float  searchStep; // In pixels - distance between neighbor samples.
+            float  searchStepInShadow; // In pixels - distance between neighbor samples.
             float3 pad10;
+            float  searchRadiusInLight;
+            float3 pad11;
+            float  searchStepInLight; // In pixels - distance between neighbor samples.
+            float3 pad12;
         };
 
         // Copying is not allowed.
