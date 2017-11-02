@@ -195,6 +195,13 @@ namespace Engine1
             float fixedStepDuration; // In seconds.
         } physics;
 
+        struct Importer
+        {
+            // Used when an imported model has color multipliers, but no texture.
+            // We then use default white texture (can be any small resolution white texture).
+            std::string defaultWhiteUchar4TextureFileName;
+        } importer;
+
         private:
 
         // Use this method to modify settings - it marks settings as changed.

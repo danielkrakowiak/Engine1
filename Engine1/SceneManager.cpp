@@ -105,6 +105,8 @@ void SceneManager::loadScene( std::string path )
     for ( const std::shared_ptr<FileInfo>& fileInfo : *fileInfos )
         m_assetManager.loadAsync( *fileInfo );
 
+    int loadedAssetsCount = 0;
+
     // Wait for all assets to be loaded.
     const Timer loadingStartTime;
     const float maxLoadingTime = 60.0f;
@@ -113,8 +115,18 @@ void SceneManager::loadScene( std::string path )
         const float loadingTime = (float)Timer::getElapsedTime( currTime, loadingStartTime ) / 1000.0f;
         const float timeout = std::max( 0.0f, maxLoadingTime - loadingTime );
 
-        m_assetManager.getWhenLoaded( fileInfo->getAssetType(), fileInfo->getPath(), fileInfo->getIndexInFile(), timeout );
+        const auto asset = m_assetManager.getWhenLoaded( fileInfo->getAssetType(), fileInfo->getPath(), fileInfo->getIndexInFile(), timeout );
+
+        if ( asset ) {
+            ++loadedAssetsCount;
+        }
     }
+
+    OutputDebugStringW( StringUtil::widen( 
+        "\n\nSceneManager::loadScene - loaded " 
+        + std::to_string( loadedAssetsCount ) 
+        + "\\" + std::to_string( fileInfos->size() ) + " assets.\n\n" ).c_str() 
+    );
 
     // Swap actors' empty models with the loaded models. Create BVH trees. Load models to GPU.
     const std::unordered_set< std::shared_ptr< Actor > > sceneActors = m_scene->getActors();

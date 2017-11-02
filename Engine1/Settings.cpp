@@ -136,6 +136,8 @@ void Settings::initializeInternal()
     s_settings.rendering.combining.positionNormalThreshold = 1.2f;
 
     s_settings.physics.fixedStepDuration = 1.0f / 60.0f;
+
+    s_settings.importer.defaultWhiteUchar4TextureFileName = "default_white_uchar4.png";
 }
 
 void Settings::initialize(ID3D11Device3& device)

@@ -49,14 +49,24 @@ bool AssetPathManager::initialize()
 
 std::string AssetPathManager::getPathForFileName( const std::string& fileName )
 {
+    if ( fileName.empty() )
+        throw std::exception( "AssetPathManager::getPathForFileName - empty file name passed." );
+
     // Make sure the given file name is really a name, not a path - convert if needed.
     const auto name = FileUtil::getFileNameFromPath( fileName );
 
     const auto it = s_paths.find( name );
 
-    if ( it == s_paths.end() )
-        throw std::exception("AssetPathManager::getPathForFileName - filename not found.");
+    if ( it == s_paths.end() ) 
+    {
+        throw std::exception(
+            ( std::string( "AssetPathManager::getPathForFileName - filename \"" ) 
+            +  fileName + "\" not found." ).c_str()
+        );
+    }
     else
+    {
         return it->second;
+    }
 }
 

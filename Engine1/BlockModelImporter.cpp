@@ -42,6 +42,8 @@ std::vector< std::shared_ptr< BlockModel > > BlockModelImporter::import(
 
     models.reserve( aiscene->mNumMeshes );
 
+    auto defaultWhiteTexture = createDefaultWhiteTexture();
+
     for ( unsigned int meshIndex = 0; meshIndex < aiscene->mNumMeshes; ++meshIndex ) 
     {
         aiMesh& aimesh = *aiscene->mMeshes[ meshIndex ];
@@ -154,8 +156,7 @@ std::vector< std::shared_ptr< BlockModel > > BlockModelImporter::import(
             // Add an empty model texture if none exists.
             if ( model.getAlbedoTextures().empty() )
             {
-                auto emptyTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >();
-                model.addTexture( Model::TextureType::Albedo, emptyTexture );
+                model.addTexture( Model::TextureType::Albedo, defaultWhiteTexture );
             }
 
             auto& albedoModelTexture = model.getAlbedoTextures().front();
@@ -170,5 +171,23 @@ std::vector< std::shared_ptr< BlockModel > > BlockModelImporter::import(
     }
 
     return models;
+}
+
+std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > > 
+BlockModelImporter::createDefaultWhiteTexture()
+{
+    auto defaultWhiteTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >();
+
+    auto fileExtension = FileUtil::getFileExtensionFromPath( settings().importer.defaultWhiteUchar4TextureFileName );
+    auto fileFormat    = Texture2DFileInfo::fromExtension( fileExtension );
+
+    Texture2DFileInfo fileInfo;
+    fileInfo.setPath( settings().importer.defaultWhiteUchar4TextureFileName );
+    fileInfo.setFormat( fileFormat );
+    fileInfo.setPixelType( Texture2DFileInfo::PixelType::UCHAR4 );
+
+    defaultWhiteTexture->setFileInfo( fileInfo );
+
+    return defaultWhiteTexture;
 }
 

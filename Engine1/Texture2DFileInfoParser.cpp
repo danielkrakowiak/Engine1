@@ -6,6 +6,8 @@
 #include "AssetPathManager.h"
 #include "FileUtil.h"
 
+#include "Settings.h"
+
 using namespace Engine1;
 
 std::shared_ptr<Texture2DFileInfo> Texture2DFileInfoParser::parseBinary( std::vector<char>::const_iterator& dataIt )
@@ -13,7 +15,16 @@ std::shared_ptr<Texture2DFileInfo> Texture2DFileInfoParser::parseBinary( std::ve
 	std::shared_ptr<Texture2DFileInfo> fileInfo = std::make_shared<Texture2DFileInfo>( );
 
     const int fileNameSize = BinaryFile::readInt( dataIt );
-    const auto fileName = BinaryFile::readText( dataIt, fileNameSize );
+    auto fileName = BinaryFile::readText( dataIt, fileNameSize );
+
+    // Replace empty file name with default white texture.
+    // Useful to handle textures which are empty, but contain color multipliers.
+    if ( fileName.empty() )
+    {
+        fileName = ( fileInfo->getPixelType() == Texture2DFileInfo::PixelType::UCHAR4 )
+            ? settings().importer.defaultWhiteUchar4TextureFileName 
+            : "";
+    }
 
     const auto filePath = AssetPathManager::getPathForFileName( fileName );
 

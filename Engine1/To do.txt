@@ -630,9 +630,6 @@ Idea:
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ///////// Shadows //////////////////////////////////////////////////////////////////////////////////////////
 
-
-      - play with search-radius, search-step settings for hard, medium, soft shadows...
-
        - dist-to-occluder-search should probably not take samples from regions at very different position/normals? It causes some objects spread thair dist-to-occluder to very different objects..
 
        - maybe a second dist-to-occluder-search pass could be useful - to smooth out the edges of the final texture - to avoid sharp transitions in case the spread was not sufficent.
@@ -652,11 +649,7 @@ Idea:
 
          ///////////////////////////////////////////////////////////////////////////////////////////////
 
-         - cleanup Profiling
-
          - why scenes load only partially?
-
-         - IMPORTNANT: Text rendering is very time-consuming in debug mode - disable it during performance testing...
 
 
 	FUN:

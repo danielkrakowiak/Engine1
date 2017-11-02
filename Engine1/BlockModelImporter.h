@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include "Texture2D.h"
+
 struct ID3D11Device3;
 
 namespace Engine1
@@ -22,6 +24,10 @@ namespace Engine1
             const bool invertVertexWindingOrder, 
             const bool flipUVs
         );
+
+        private:
+
+        static std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > > createDefaultWhiteTexture();
     };
 }
 
