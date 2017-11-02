@@ -174,8 +174,15 @@ Renderer::Output Renderer::renderScene(
     const auto& actors                  = scene.getActorsVec();
     const auto& lights                  = scene.getLightsVec();
     const auto  lightsEnabled           = SceneUtil::filterLightsByState( lights, true );
-    const auto  lightsCastingShadows    = SceneUtil::filterLightsByShadowCasting( lightsEnabled, true );
-    const auto  lightsNotCastingShadows = SceneUtil::filterLightsByShadowCasting( lightsEnabled, false );
+
+    const auto  lightsCastingShadows    = settings().rendering.shadows.enabled 
+        ? SceneUtil::filterLightsByShadowCasting( lightsEnabled, true )
+        : std::vector< std::shared_ptr< Light > >();
+
+    const auto  lightsNotCastingShadows = settings().rendering.shadows.enabled
+        ? SceneUtil::filterLightsByShadowCasting( lightsEnabled, false )
+        : lightsEnabled;
+
     const auto  blockActors             = SceneUtil::filterActorsByType< BlockActor >( actors );
 
     m_layersRenderTargets.reserve( settings().rendering.reflectionsRefractions.maxLevel + 1 );
@@ -512,14 +519,14 @@ Renderer::Output Renderer::renderPrimaryLayer(
         );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
 
         hardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
         mediumShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
         softShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForIllumination );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluderHardShadowRenderTarget, 
@@ -542,7 +549,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel 
         );
         
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder );
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         
         // Distance to occluder search.
@@ -717,8 +724,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
         }
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
 
-        // #TODO: Profile this stage.
         auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
 
         m_utilityRenderer.sumValues(
@@ -728,6 +735,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             blurredSoftShadowRenderTarget  
         );
 
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.

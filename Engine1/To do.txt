@@ -642,18 +642,19 @@ Idea:
        - blur-shadow stage should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows.
        - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
          And what would result from doing two smaller passer (half radius etc) rather than one big?
+         Performance seems to be fine for now - ignore.
 
        Remaining issues: 
         - light leaks at layer transitions
-        - too complex dist-to-occluder-search and shadow-blur shaders - can be simplified
-        - non tweaked settings for how each layer is processed (sampling, blur radius)
         - to ensure smooth transition between shadow layers - dist-to-occluder has to change smoothly in the transition areas.
           Now it changes abruptly as it is taken only from one selected layer with hard threshold. How to do that? 
           Some blending of dist-to-occluder values when saving them to the texture, weithed depending on blur-radius?
 
          ///////////////////////////////////////////////////////////////////////////////////////////////
 
-         - restore Profiler and profiling display
+         - cleanup Profiling
+
+         - why scenes load only partially?
 
          - IMPORTNANT: Text rendering is very time-consuming in debug mode - disable it during performance testing...
 

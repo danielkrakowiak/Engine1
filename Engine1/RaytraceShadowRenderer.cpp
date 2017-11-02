@@ -121,7 +121,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
         actorsToPass.clear();
         while ( actorsToPass.size() < RaytracingShadowsComputeShader::s_maxActorCount && actorIdx < actors.size() )
         {
-            if ( settings().rendering.shadows.enabled && actors[ actorIdx ]->isCastingShadows() )
+            if ( actors[ actorIdx ]->isCastingShadows() )
                 actorsToPass.push_back( actors[ actorIdx ] );
 
             ++actorIdx;

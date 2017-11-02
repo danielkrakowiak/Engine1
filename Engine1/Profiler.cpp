@@ -57,7 +57,8 @@ std::string Profiler::eventTypeToString( const GlobalEventType eventType )
         case GlobalEventType::DeferredRendering:            return "DeferredRendering";
         case GlobalEventType::Bloom:                        return "Bloom";
         case GlobalEventType::ToneMapping:                  return "ToneMapping";
-        case GlobalEventType::CopyFrameToFinalRenderTarget: return "CopyFrameToFinalRenderTarget";
+        case GlobalEventType::CalculateLuminance:           return "CalculateLuminance";
+        case GlobalEventType::Antialiasing:                 return "Antialiasing";
     }
 
     return "";
@@ -87,10 +88,11 @@ std::string Profiler::eventTypeToString( const EventTypePerStagePerLight eventTy
         case EventTypePerStagePerLight::ShadowsMapping:                                     return "ShadowMapping" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::RaytracingShadows:                                  return "RaytracingShadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::MipmapGenerationForPreillumination:                 return "MipmapGenerationForPreillumination" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
-        case EventTypePerStagePerLight::MipmapGenerationForIllumination:                    return "MipmapGenerationForIllumination" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
-        case EventTypePerStagePerLight::MipmapMinimumValueGenerationForDistanceToOccluder:  return "MipmapMinimumValueGenerationForDistanceToOccluder" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::MipmapGenerationForShadows:                         return "MipmapGenerationForShadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder:              return "MipmapGenerationForDistanceToOccluder" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::DistanceToOccluderSearch:                           return "DistanceToOccluderSearch" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::BlurShadows:                                        return "BlurShadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::CombineShadowLayers:                                return "CombineShadowLayers" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::Shadows:                                            return "Shadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::Shading:                                            return "Shading" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
     }
