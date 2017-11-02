@@ -123,10 +123,6 @@ For later ######################################################################
 	- algorithm creating BVH uses the same step when moving dividing planes no matter the size of the model. 
 	That's not too goood. It should use something like 1/1000 of longest bbox dimension or similar.
 
-	- add g-buffer name display in the corner - how to do it elegantly? These are not full rgba textures...
-
-	  - IDEA: try decreasing far neighbors weigth and check how it influences image. It mimics how most rays reflect near center ray, so they have bigger impact.
-
    ----------------------------------------------------
    Refactoring:
 
@@ -176,43 +172,7 @@ Idea:
 	  
 	  -----------------------------
 
-	  - PERFORMANCE IDEA: higher level reflections/refractions could be calculated with smaller work groups - because only some pixels in the group need to be traced and many are black. Large groups cause waste of cores.
-
-	  - MINOR: do we really care about solid object having reflections from backfacing triangles? Like inside a glass wall or aquarium wall? How could we ignore it elegantly with customization?
-
-	  - shading is incorrect for reflection (possibly refraction too). 
-	  When something has white albedo and high metalness, I should not see white albedo in reflection but only the reflected color. At least I think so...
-	  Commenting out specular part in reflection shading fixes the problem. But what should I really do? Or it actually works when roughness is really low.
-
-	  - should alpha impact the surface color used for shading? Yes. Should it also impact shading reflections?
-
-	  - NEXT: dealing with varying refraction index.
-	  - when we enter a surface, we read refractionIndex from screen buffer.
-	  - when we leave a surface, we read refractionIndex from our last refraction index (stored in the buffer?)
-		- maybe use texture array with refraction indices (like a stack) and the other texture as a counter of where we are on that stack for each ray.
-		- when entering a surface - push to stack, when leaving - pop from stack (by decreasing the counter).
-		- what format to use for refraction index
-		- only need to access these textures when generating secondary rays.
-		- store these textures in raytracer like other textures.
-		- where to pass/store initial refractive index? Common for all primary rays.
-
-	  - why mipmaps are not generated on gpu in TTexture? Because that would require them to be RenderTargets... There is already a method for that in TTExtureSpecBind. Should we wait for CPU implemantation of generating mipmaps?
-
-	  - IMPORTANT:  In generate refracted rays shaders - Why HLSL compiler crashes without "skip optimization" flag?
-
-	  - PROBLEM: If we don't enter an object, we don't know what's the refractive index outside of that object... So if we start inside of a glass ball, we don't know which IOR to use when leaving the ball.
-
-	  - IMPORTANT: Investigate whether we need to invert normals during normal shading (for backfacing trangles).
-
-	  - IMPORTANT: Pass refraction index for current and prev object when shading refractions (in refraction shading shader).
-
-	  - PERFORMANCE: Maybe it's faster and still correct to invert normals (when ray hits from backface) in raytracing shader rather than in each other shader separately.
-
-	  IMPORTANT:
-
-	  - we assume that refractions are always computed through shaders/classes with "fisrt" in their name. But that may not be true. And the name is misleading. 
-	  Because it only happens like that if refraction occurs first, and then reflection/refraction. But if reflection is fisrt, then these shaders/classes are not used at all. What kind of bugs can result from this.
-	  Rename shader and classes and replace word "first" with something else.
+	  
 
 	  - support for any resolution. - almost done. Something wrong with higher level reflections/refractions. Maybe the contribution term fill size etc? And there is no refractions...
 	  - reflection/refraction shading renderers also have some buffers which should have lower resolution. Account for that and downsize them to the same size as raytracer's buffers.
@@ -220,34 +180,11 @@ Idea:
 
 	  - suport for any resolution - part 2 - lower resolution should be accounted for correctly in combining shader to avoid increasing roughness globally (as it happens right now).
 
-	  - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
+	  
 
 	  - how to make skybox not receive shadow? To improve performance...
 
-	  NOW:
 
-	  - when I save distance to occluder in shadow map i take distance to the closest-to-light occluder.
-	    But when I do this for ray tracing i get get closest-to-ray origin occluder.
-
-	  - IMPORTANT: what happens with soft shadow when two objects cast shadow which are near to each other, but with different blur radius? On is rather sharp and the other rather soft. How the algorithm should blur the space betweeen them (or covered in both shadows)?
-
-
-	  - it seems it fucked up something when passing SRVs to raytracing shadows shader.... Fix it first using debug layer...
-
-	  - distance to occluder in shadow rasterize shader should be linearized I guess...
-
-	  - be careful about linearizing depth values when writing distance to occluder - zNear and zFar should be passed as param and should be the same as used to render the shadow maps.
-
-	  - try to compile shader with fxc.exe and load the compiled shader....
-
-	  - shader need to have full names.. because they will be stored in a single output folder.
-
-	  //////////////////////
-
-
-	   Maybe I can somehow glue buffers together???????? Send them as one to shader despite being many...
-
-	   Higher shader profile???
 
 	  /////////////////////
 
@@ -273,7 +210,7 @@ Idea:
 
 	  - check which part os lambo has problems? Test1: make everything white, disable shadows and check if shading is ok for everything.
 
-	  - OPTIMIZATION: I probably don't need float for illumination-blur-radius. A BYTE should be enough? We also don't care about fractional parts...
+	  
 
 	  - REFERENCES: Screen space soft shadows - described in GPU Pro 6 !!!!!!!!!! Check it!!! 
 
@@ -282,12 +219,6 @@ Idea:
 	  - IMPORTANT MAJOR FIX: I could fix most of the near-screen-edge problems by rendering the whole thing with a bit larger resolution... 
 	    I could even lower the quality a bit for those regions. A lot of possible ways and not too much of overhead... I could also ignore those extra regions when performing blurs etc.
 
-	  - make sure to avoid raytracing shadow rays outside of spotlight cone... don't depend on preillumination as it may be falsly lit.
-
-	  - point lights are not working correctly - I need to support them through raytracing everything. Without sampling preillumination etc..
-
-	  - IMPORTANT PROBLEM: when writing distance to occluder in rasterizing shadow map step - we always save it for the closest object... But when two objects cast shadow... the distance to occluder should be saved for the one which gives the most sharp shadow..
-	  
 
 	  - OPTIMIZATION: When I read from raw buffers in raytracing shaders I can read multiple values at once. Using Load2, Load3, Load4 methods... I need to try it!!
 
@@ -309,8 +240,6 @@ Idea:
 
 	  - OPTIMIZATION: when detecting pixels for which its useful to trace shadow rays I detect the need for pixels at the edge of spot light cone. There is no point to trace these rays. How to avoid that? Calculate dot in the shader for that light and compare with cone angle?
 
-	  
-
 	  - PROFILING: how to track the total number of traced rays?
 
 	  - what is the size of the penumbra? Source: https://www.nde-ed.org/GeneralResources/Formula/RTFormula/Unsharpness/GeometricUnsharpness.htm
@@ -323,22 +252,11 @@ Idea:
 
 	  - optimization to shadow mapping - use border value and D3D11_TEXTURE_ADDRESS_BORDER and remove if in the shader checking if sample is within texture area.
 
-	  - OPTIMIZATION: make sure to check for max ray distance when intersecting rays with Bounding boxes in view raytracing. As it's done in shadows...
-
 	  - display GPU name and optionally also CPU name on the screen
-
-	  BETTER IDEA: Start merging using with the type (albedo, roughness) which has the most unqiue textures. Then use that texture placement for other texture types.
-	  If some merging is not possible (using texcoords, not pixel values) then throw exception.
-
-	  Is my sorting stable? Not moving items which are in correct order?
-
-	  - fix merging models when all models share one alpha but have different other texutres.
 
 	  - check which shaders are running with "skip optimization" flag? Maybe we slow down because of that... Is raytracing shader still faster with that flag?
 
 	  LATER:
-
-	  - avoid loading models several times - once for each index in file. Especially avoid loading .blockmesh file twice.
 
 	  - all file parsers should:
 		- append data to given buffer when writing (not clearing it as it is now!)
@@ -347,79 +265,107 @@ Idea:
 
 	  - do I have to account for window frame height, borders etc when creating window? Is my image streched down?
 
-	  - support for variable resolution per reflection/refraction depth
-
-	  - OPTIMIZATION: Replace float4 with float3 wherever possible in framebuffers/shaders.
+	  - OPTIMIZATION: support for variable resolution per reflection/refraction depth
 
 	  - OPTIMIZATION: Trace 4 or 8 rays in a single shader. Could give amazing boost, because we construct triangle only once and do a few intersection tests with it. Could be tested in normal raytracing or shadow ray tracing (even soft shadows).
 
-	  - FAILED OPTIMIZATION: - pass 4 meshes at once to shadow raytracing shader.
-
 	  - OPTIMIZATION: Mapping/Unmapping constant buffer each time we setParameters to shaders has to be very costly. How can I avoid that?
 
-	  - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
-
-	  - all paths in models/scene should be relative to main folder or asset folder (could be useful if someone else was trying to test my application)
-	  
-	  - mipmapping
 	  - cubemap texture class - to use for skybox
 
-	  MUCH LATER:
+      - whenever i have an explicit copy constructor, I need to call a base class copy constructor directly - add where missing.
 
+
+      - modify AssetManager so it could load many assets from the same file at once - should there be an option to load just one on many?
+      - should I collect the info about materials somewhere? Like additional data structure? That would have to be stored in AssetManager...dirty
+      - maybe an ability to load .obj files as BlockModel? Then it would read needed info at once without stroign it?
+
+      - make shader debugging work in VS 2017 - debug combining shader to check why the new idea with expected position-difference doesn't work.
+      - probably need to use Dependency Walker to deduce which library or pieco fo code uses VS13 runtime dlls
+      
+
+      In combining shader:
+      // #TODO: Maybe I should calculate the expected difference in positions between center and sample. 
+     // And then use ratio of positon-diff to expected-position-diff as weight?
+     // Because right now we dim outer pixels just because they are naturally further away. 
+     // And it's fine, but it's mixed with filtering pixel in the background.
+     // These two processes should be clearly separated and tweakable. So two kinds of weights calculated...
+
+      - sampling artefacts show in stripes because we sample color at 4-th mipmap and position/normal at 0 mipmap. So weight assigned to sample changes over the samples area...
+        Stripes are more visible than normal erorrs - I should fix that somehow..
+        Should I sample a higher mipmap of position/normal? That could also lead to artefacts as position on the edge would be a mix of two positions...
+        INTERESTING detail: At the outer part of each stripe the sample is correct - no influence of wrong reflection. So Maybe I can sample pixel at corners to deduce it's weight?
+        And use the lowest weight - or simply use the highest position difference...?
+        Or I could make that center pos enough to reject that pixel... But how?
+        IMPORTANT: But I should still fix this as this error appears also for correct samples - as these stripes are visible...
+
+
+	  - my hack for skybox - "don't raytrace if roughness is maximal" causes problems in the mirrors and some other objects - what other trick can i use?
+
+	  - improved roughness handling helper a lot - but it also caused black lines near some rough edges - because correct samples cannot be found.
+	    I should handle such case using if - when samples were not found - and simply use central sample then with some less agressive blur.
+
+	  - make sure to sample buffers using CLAMP sampler - whenever i do some blur etc... To avoid reading the other side of the screen
+
+	  - remove m_imageHeight, m_imageWidth from most renderers? Pass that data in rendering calls instead or deduce it from render targets?
+	    Or deduce it from targetMipmapLevel - as we don't allow for arbitrary image dimensions - rather some multiplies of screen dimensions..
+
+	  - render mode where everything is white/gray - for shadow testing - could be done by forcing default albedo on objects..
+
+	  - refractive index may be working incorrectly - we don't set it up yet in Renderer and it's not set in RaytraceRenderer anymore.
+	    Especially things like currentRefractiveIndex are probably wrong. Check with some glass spheres etc...
+
+	  - mipmapping for raytracing - use UV texcoords stored in g-buffer?
+	    Or use ray differentials - http://graphics.stanford.edu/papers/trd/
+		Right now a funny hack is used to get "some" filtering - log2(hitDistance) is used - but it's stupid and if you have an object far away it will use 1x1 mipamp for sure....
+
+	  - add debug view before bloom, tonemapping? To see if a problem comes from which postprocess.
+
+	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
+
+	  IMPORTANT-BUT-CAN-WAIT:
+      - OPTIMIZATION: Replace float4 with float3 wherever possible in framebuffers/shaders.
+      - OPTIMIZATION: make sure to check for max ray distance when intersecting rays with Bounding boxes in view raytracing. As it's done in shadows...
+      - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
+      - add versioning of files? How to add that for files without versions?
+      - I can remove this index-in-file, format etc from file-infos...
+      - picking objects does not work correctly if window is moved somewhere from top-left corner...
+	  - how to deal with light sources placed inside geometry? It causes artifacts now..
+	  - most shaders are configured for that specific resolution - blur kernels etc should be scaled with resolution...
+	  - improve bloom to use two-pass blur and to use less mipmapping...
+	  - input to antialiasing FXAA is probably not correct- linear vs non-linear, gamma etc... So antialiasing doesn't work optimally...
+	  - account for ray-length in next hit-dist-search?
+	  - account for depth in hit-dist-search
+	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
+	  - shaders that have several quality options, which we want to change only for test could be compiled for each option - then at runtime correct shader could be loaded based on settings...
+	  - make sure that useless rays are not traced...
+	  - almost for sure contributionRoughness has to be rethought - do we still need to accumulate values? Maybe... (to avoid tracing some rays), but should we use that when combining? or another buffer which only has curr layer contriburion and roughness?
+	  - remove rejecting rays based on contribution? Does it even help in real cases? How much screen space do we save by using that information? Mark red non-traced rays from contribution?
+
+	  - Distance-to-camera in RaytraceRenderer doesn't account for initial depth (which should be converted to dist-to-camera).
+        Another shader should be used to calculate dist-to-camera from depth after deferred rendering.
+        * Does this summing work correctly when both refraction/reflections are enabled (but only one dit-to-camera per layer, right?)?
+
+	  NEXT-MINOR:
+      - button to reload textures for all models - useful if I change textures on disk, but don't want to reload the scene, loose selection etc.
+      - add saving/loading light attenuation multipliers to file
+      - rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets. Only to albedo...
+	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
+	  - setting default texture from control panel - to metalness, roughness (defaults should be maxed out).
+	  - select all lights
+	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
+	  - colored shadows
+	  - improve sampling shape in all shaders by taking samples in spherical shape - 
+	    simply exclude samples which are too far from center (box corners) - this could even improve performance, by reading less pixels.
+	  - scale blur kernels based on view-angle assymetrically - horizontally and vertically - ex. for walls we should flatten horizontally and for floors vertically. Assuming that camera is not rotated around view-dir.
+      - should all file-infos have filename instead of path? Probably not... - but it's misleading if the full path will be used or just a filename...
+      - Texture2DFileInfo::PixelType should be probably moved to the texture class itself - pixel-type is a general property of a texture, not just a texture file
+      - merging algorithm should probably be able to stretch-up/rescale textures to much some placements... (maybe if given some flag, max stretch-up-down ratios etc)
+      - when calculating how much memory is used in RenderTargetManager - it would be best to be able to read the maximal memory used during a frame - including the short spikes - that would require recalculating that value everytime a texture is acquired and resetting it at some point.
 	  - I could implement a GPU path tracer to be able to compare normal renderer with physically perfect renderer. That could help a lot in my pursuit of great quality.
 
-	  - BIG PROBLEM: When merging models - we create a texture atlas for albedo textures. But rougness textures or emissive may have completely different dimensions and be placed differently in the atlas.
-	  So we somehow have to enforce layout withing the atlas based on the first created atlas. How to deal with big textures?
 
-	  - Support for multiple UV sets when merging models? Some textures use one UV set, others use a different one.
-
-	  - ideas to optimize blurring using shared memory: http://shiba.hpe.cn/jiaoyanzu/WULI/%E6%96%87%E4%BB%B6/soft/directX/Introduction_to_3D_Game_Programming_with_Directx_12.pdf
-	    page 721
-
-
-		USEFUL NOTES FOR DIST-TO-OCCLUDER SEARCH: -----------------------
-		- using small search area better preserves sharp shadows, but dissallows big, soft shadows
-		- using large search area blurs sharp shadows entirely if softer shadow is nearby.
-
-		older:
-		- be carefull about samples pattern. Take most samples near the center, less further away. 
-		  Try to keep circular shape and avoid very specifi patterns (like cross, star) as they will always miss some data.
-		- When center sample is available, decrease search radius only to get some smoothing - we don't really need to search for anything.
-		- Or if center sample is available, we should give higher weight to samples similar to it?
-		  With no modification, sharp shadows get to blurred when cover in soft shadow.
-		- Or central sample should have very high weight and then we add other samples?
-		- be carefull, because if I take many fa samples they will have bigger impact on final result. But they have decreased impact because they are further in world space.
-		- KEEP ALL INTERNAL PARAMS SMOOTH - a bigger smooth erorr is better than smaller binary error.
-		---------------------------------------------------------------------
-
-		IMPROVE SAMPLING PATTERN FOR ILLUMINATION - as for dist-to-occluder
-
-		- dist-to-camera should not impact the number of samples taken
-		  It can impact their distance from center pixel, but  should not increase their number.
-		  The reason is that when we zoom in, things on screen get bigger, so we don't need to take more samples to keep the same quality.
-		  We only need to spread them on larger area.
-		  * On the other hand we may need more quality when zooming in?
-
-		- or we can simply make non-linear depandancy of number of samples taken from search-radius
-		  * For large search-radius we are probably zoomed in, so not that many more samples are needed.
-		  * But when we are zoomed out, we need very few samples.
-
-		MAYBE GOOD IDEA:
-		- spread shadow only to surfaces further from light source than shadowed surface (or slightly closer). Should be easy to calculate...
-		  May be a better check than comparing positions.. Accounts for light position.
-		  But still doesn't solve blur from mipmapping.
-
-		DESIRED SOLUTION:
-		- keep mipmapping so that we can work on low-res texture and get some free blur
-		- know when to use full-res blur-radius and when to use mipmap. How to know that?
-
-		How to know that something should not receive any shadow from sorrounding pixels? Should I compare distance to light source more than position itself?
-		Shadow cannot be spread on objects closer to light than shadowed surface, right? But we also store nearest distance, which could cause problem. We would also need farthest distance...
-
-	  ---------------------------------------------------------------------------
-
-
-	  //////////////////////////////// REFLECTIONS/ REFRACTIONS //////////////////////////////////////
+      //////////////////////////////// REFLECTIONS/ REFRACTIONS //////////////////////////////////////
 	  ////////////////////////////////////////////////////////////////////////////////////////////////
 
 	  - NOTES REGARDING ARTEFACTS IN REFLECTIONS NEAR OBJECT EDGES:
@@ -453,170 +399,7 @@ Idea:
 		- small values of hit-distance get too blurred with the sky (far samples) - and reflection is too blurred when object touches the reflective surface... 
 		  Maybe weight sky depending on the original hit-dist (before blur)? - DONE - Improves, but not perfect. Works within the object, but not on the outside.
 		  Could look for min hit-dist in sorrounding pixels before deciding on how to weight sky (far) samples.
-	  ----------------------------------------------------------------------
 
-	  BLOOM TODO:
-		- split blur into 2-passes and increase number of taps
-		- rename blur method and remove radius param.
-
-	  OLD TO-DO:
-		- why dist-to-occluder search is no tdone in two passes?
-
-	  NEXT:
-
-      - button to reload textures for all models - useful if I change textures on disk, but don't want to reload the scene, loose selection etc.
-
-      - add versioning of files? How to add that for files without versions?
-      - add saving/loading light attenuation multipliers to file
-      - add options to change light settigns in Control Panel
-
-      - stretching up textures to nearest power-of-two when merging
-
-      - during texcoord recalculation - check if any texcoord exceed 0-1 range - wrap texcoords to 0-1 range.
-      - some UV may be negative, some over 1 - wrap them properly...
-
-      - why textures are not layed out from top-left to bottom-right? Check that...
-
-      - are merged textures saved upside-down compared to what is needed?
-      - drawn vertices on albedo, merged texture are in wrong places - investigate...
-      - calculating texcoords for the merged mesh seems to be incorrect - find the bug.
-      - auto re-scale texture to nearest power-of-two when merging - prefer up-scaling than down-scaling.
-      - additional check whether model texcoords are all zeros should be performed per input model, not per merged model -
-        meaning that a single mesh should have its texcoords offset if all of its texcoords are zeros.
-        - is removing duplicate texture set correct with re-mapping - it's easy to make a mistake there...
-
-      - it's a bit of a mess with textures, each with color multipliers, ModelTexture with empty textures etc...
-
-      - importing sub-meshes with names?
-      - ceiling in the Loft scene leaks light...
-
-      - whenever i have an explicit copy constructor, I need to call a base class copy constructor directly - add where missing.
-
-      - IDEA: I can handle interpreting textures from mtl assuming that they are already renamed to my standard - _R, _A, _AL etc. And ignore the mtl standard.
-        How to read .mtl fields like map_bump in Assimp?
-        Convert textures to proper modes - grayscale vs RGB - remember to rename files/modify .mtl if extension changed
-
-      - AssetManager only has to load internal format assets.
-      - For external formats use separate importers - that will keep the code clean.
-        Also, importing other formats doesn't have to run in multiple threads etc... Simpler implementation.
-
-        - I can remove this index-in-file, format etc from file-infos...
-      
-
-      - modify AssetManager so it could load many assets from the same file at once - should there be an option to load just one on many?
-      - should I collect the info about materials somewhere? Like additional data structure? That would have to be stored in AssetManager...dirty
-      - maybe an ability to load .obj files as BlockModel? Then it would read needed info at once without stroign it?
-
-      - make shader debugging work in VS 2017 - debug combining shader to check why the new idea with expected position-difference doesn't work.
-      - probably need to use Dependency Walker to deduce which library or pieco fo code uses VS13 runtime dlls
-
-      - picking objects does not work correctly if window is moved somewhere from top-left corner...
-
-      - when creating mesh from .obj it could name submeshes based on name in obj file - and then save it with that name, sufffix etc - to simplify applying materials
-
-      In combining shader:
-      // #TODO: Maybe I should calculate the expected difference in positions between center and sample. 
-     // And then use ratio of positon-diff to expected-position-diff as weight?
-     // Because right now we dim outer pixels just because they are naturally further away. 
-     // And it's fine, but it's mixed with filtering pixel in the background.
-     // These two processes should be clearly separated and tweakable. So two kinds of weights calculated...
-
-      - sampling artefacts show in stripes because we sample color at 4-th mipmap and position/normal at 0 mipmap. So weight assigned to sample changes over the samples area...
-        Stripes are more visible than normal erorrs - I should fix that somehow..
-        Should I sample a higher mipmap of position/normal? That could also lead to artefacts as position on the edge would be a mix of two positions...
-        INTERESTING detail: At the outer part of each stripe the sample is correct - no influence of wrong reflection. So Maybe I can sample pixel at corners to deduce it's weight?
-        And use the lowest weight - or simply use the highest position difference...?
-        Or I could make that center pos enough to reject that pixel... But how?
-        IMPORTANT: But I should still fix this as this error appears also for correct samples - as these stripes are visible...
-
-      - display text about which debug view is shown... or maybe in application title...
-
-	  - add some code to generate collision hull for selected object (or all of them?) and create it's physics?
-	  - where to store actor's physics? Should actor has it's separate xform or take it from physics directly? What if ana ctor doesn't have physics?
-
-	  - make it possible to copy one texture to another at different coordinates
-	  - create 1x1 px staging textures in Application - no need for full screen textures.
-
-	  - create EngineApplication class and move "test app" code there
-	  - modify Application class code to only contain basing stuff that app needs - like window initialization, systems etc.
-	  - maybe add some loop methods like render callback, input handling callback?
-
-	  - my hack for skybox - "don't raytrace if roughness is maximal" causes problems in the mirrors and some other objects - what other trick can i use?
-
-	  - improved roughness handling helper a lot - but it also caused black lines near some rough edges - because correct samples cannot be found.
-	    I should handle such case using if - when samples were not found - and simply use central sample then with some less agressive blur.
-
-	  - make sure to sample buffers using CLAMP sampler - whenever i do some blur etc... To avoid reading the other side of the screen
-
-	  - why mirrors contribution is not almost 100%? But it's graysih...
-
-	  - remove unused, commented code from shaders (especially shadows related)
-
-	  - remove m_imageHeight, m_imageWidth from most renderers? Pass that data in rendering calls instead or deduce it from render targets?
-	    Or deduce it from targetMipmapLevel - as we don't allow for arbitrary image dimensions - rather some multiplies of screen dimensions..
-
-	  - render mode where everything is white/gray - for shadow testing - could be done by forcing default albedo on objects..
-
-	  - refractive index may be working incorrectly - we don't set it up yet in Renderer and it's not set in RaytraceRenderer anymore.
-	    Especially things like currentRefractiveIndex are probably wrong. Check with some glass spheres etc...
-
-	  - fix profiling display and try to optimize something? LIke those IFs in mipmapping shaders...
-
-	  - using soft/hard shadow channels causes light leaks - shadows are often not completatly dark - and light goes through - have to be fixed!
-
-	  - mipmapping for raytracing - use UV texcoords stored in g-buffer?
-	    Or use ray differentials - http://graphics.stanford.edu/papers/trd/
-		Right now a funny hack is used to get "some" filtering - log2(hitDistance) is used - but it's stupid and if you have an object far away it will use 1x1 mipamp for sure....
-
-	  - add debug view before bloom, tonemapping? To see if a problem comes from which postprocess.
-
-	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
-
-	  - why shadow changes when switching on/off two-pass blur? Like something besides the blur changes... for soft shadows...
-
-	  IMPORTANT-BUT-CAN-WAIT:
-	  - how to deal with light sources placed inside geometry? It causes artifacts now..
-	  - most shaders are configured for that specific resolution - blur kernels etc should be scaled with resolution...
-	  - improve bloom to use two-pass blur and to use less mipmapping...
-	  - input to antialiasing FXAA is probably not correct- linear vs non-linear, gamma etc... So antialiasing doesn't work optimally...
-	  - account for ray-length in next hit-dist-search?
-	  - account for depth in hit-dist-search
-	  - account for roughness in hit-dist-search? Otherwise setting very rough surfaces doesn't give enough effect as edges are too sharp..
-	  - shaders that have several quality options, which we want to change only for test could be compiled for each option - then at runtime correct shader could be loaded based on settings...
-	  - make sure that useless rays are not traced...
-	  - almost for sure contributionRoughness has to be rethought - do we still need to accumulate values? Maybe... (to avoid tracing some rays), but should we use that when combining? or another buffer which only has curr layer contriburion and roughness?
-	  - remove rejecting rays based on contribution? Does it even help in real cases? How much screen space do we save by using that information? Mark red non-traced rays from contribution?
-
-
-
-	  - rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets.
-		  Only to albedo...
-
-	  - Distance-to-camera in RaytraceRenderer doesn't account for initial depth (which should be converted to dist-to-camera).
-        Another shader should be used to calculate dist-to-camera from depth after deferred rendering.
-        * Does this summing work correctly when both refraction/reflections are enabled (but only one dit-to-camera per layer, right?)?
-
-	  NEXT-MINOR:
-	  - problem with white squares in reflections - caused by very small, bright highlights - thay occupy almost only one pixel and spread using bloom weirdly? Should image be blurred before bloom?
-	  - setting default texture from control panel - to metalness, roughness (defaults should be maxed out).
-	  - select all lights
-	  - debug view with only lighting visible (from all lights) - but all surfaces are gray, non-metallic, without reflections.
-	  - colored shadows
-	  - feature to provide name for the RT when getting it from Render Target Manager - to rename it in DirectX.
-	  - light attenutation
-	  - improve sampling shape in all shaders by taking samples in spherical shape - 
-	    simply exclude samples which are too far from center (box corners) - this could even improve performance, by reading less pixels.
-	  - scale blur kernels based on view-angle assymetrically - horizontally and vertically - ex. for walls we should flatten horizontally and for floors vertically. Assuming that camera is not rotated around view-dir.
-      - should all file-infos have filename instead of path? Probably not... - but it's misleading if the full path will be used or just a filename...
-      - Texture2DFileInfo::PixelType should be probably moved to the texture class itself - pixel-type is a general property of a texture, not just a texture file
-      - merging algorithm should probably be able to stretch-up/rescale textures to much some placements... (maybe if given some flag, max stretch-up-down ratios etc)
-      - when calculating how much memory is used in RenderTargetManager - it would be best to be able to read the maximal memory used during a frame - including the short spikes - that would require recalculating that value everytime a texture is acquired and resetting it at some point.
-
-	  FUTURE IMPORTANT:
-	  - split shadow calculations into two channels - one for sharper shadows, other for softer shadows. Blend shadows on each channel separately and them sum them up.
-	    This way you avoid blending shadows with very different blur radius - increasing quality. Test varius thresholds to divide shadows into two channels.
-	  - How to hanlde cases where a big glass window cast shadow over the whole room? It should not destroy the whole solution. It's usually very bright shadow - can this characteristic be used somehow?
-		
       DIFFUSE REFLECTIONS USING MULTIPLE RAYS
       - if we cast more rays we need larger g-buffers - that limits how many rays we can cast
       - but if split screen into fragments and calculate one fragment at a time - we can store all rays in one image
@@ -627,6 +410,42 @@ Idea:
       - we would probably still need to trace specular reflections as a special fragment or something...
 
 
+      - PERFORMANCE IDEA: higher level reflections/refractions could be calculated with smaller work groups - because only some pixels in the group need to be traced and many are black. Large groups cause waste of cores.
+
+	  - MINOR: do we really care about solid object having reflections from backfacing triangles? Like inside a glass wall or aquarium wall? How could we ignore it elegantly with customization?
+
+	  - should alpha impact the surface color used for shading? Yes. Should it also impact shading reflections?
+
+	  - NEXT: dealing with varying refraction index.
+	  - when we enter a surface, we read refractionIndex from screen buffer.
+	  - when we leave a surface, we read refractionIndex from our last refraction index (stored in the buffer?)
+		- maybe use texture array with refraction indices (like a stack) and the other texture as a counter of where we are on that stack for each ray.
+		- when entering a surface - push to stack, when leaving - pop from stack (by decreasing the counter).
+		- what format to use for refraction index
+		- only need to access these textures when generating secondary rays.
+		- store these textures in raytracer like other textures.
+		- where to pass/store initial refractive index? Common for all primary rays.
+
+
+      - OPTIMIZATION: I probably don't need float for blur-radius. A BYTE should be enough? We also don't care about fractional parts...
+
+	  - IMPORTANT:  In generate refracted rays shaders - Why HLSL compiler crashes without "skip optimization" flag?
+
+	  - PROBLEM: If we don't enter an object, we don't know what's the refractive index outside of that object... So if we start inside of a glass ball, we don't know which IOR to use when leaving the ball.
+
+	  - IMPORTANT: Investigate whether we need to invert normals during normal shading (for backfacing trangles).
+
+	  - IMPORTANT: Pass refraction index for current and prev object when shading refractions (in refraction shading shader).
+
+	  - PERFORMANCE: Maybe it's faster and still correct to invert normals (when ray hits from backface) in raytracing shader rather than in each other shader separately.
+
+	  IMPORTANT:
+
+	  - we assume that refractions are always computed through shaders/classes with "fisrt" in their name. But that may not be true. And the name is misleading. 
+	  Because it only happens like that if refraction occurs first, and then reflection/refraction. But if reflection is fisrt, then these shaders/classes are not used at all. What kind of bugs can result from this.
+	  Rename shader and classes and replace word "first" with something else.
+
+
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ///////// Shadows //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -635,11 +454,15 @@ Idea:
        - maybe a second dist-to-occluder-search pass could be useful - to smooth out the edges of the final texture - to avoid sharp transitions in case the spread was not sufficent.
          It could be run only on black pixels - to not corrupt the original results.
 
+       - replace if's in the shader getWeightLowerThan() and similar with some math calculations.
+
        OPTIMIZATION:
        - blur-shadow stage should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows.
        - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
          And what would result from doing two smaller passer (half radius etc) rather than one big?
          Performance seems to be fine for now - ignore.
+       - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
+       - OPTIMIZATION: I probably don't need float for illumination-blur-radius. A BYTE should be enough? We also don't care about fractional parts...
 
        Remaining issues: 
         - light leaks at layer transitions
@@ -647,15 +470,39 @@ Idea:
           Now it changes abruptly as it is taken only from one selected layer with hard threshold. How to do that? 
           Some blending of dist-to-occluder values when saving them to the texture, weithed depending on blur-radius?
 
-         ///////////////////////////////////////////////////////////////////////////////////////////////
+        MAYBE GOOD IDEA:
+		- spread shadow only to surfaces further from light source than shadowed surface (or slightly closer). Should be easy to calculate...
+		  May be a better check than comparing positions.. Accounts for light position.
+ 		  How to know that something should not receive any shadow from sorrounding pixels? Should I compare distance to light source more than position itself?
+		  Shadow cannot be spread on objects closer to light than shadowed surface, right? But we also store nearest distance, which could cause problem. We would also need farthest distance...
 
-         - why scenes load only partially?
+        - ideas to optimize blurring using shared memory: http://shiba.hpe.cn/jiaoyanzu/WULI/%E6%96%87%E4%BB%B6/soft/directX/Introduction_to_3D_Game_Programming_with_Directx_12.pdf
+	    page 721
 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      /////////  PHYSICS  ///////////////////////////////////////////////////////////////////////////////////////
 
-	FUN:
-	- add PhysX support
-	- add some "Player"?
+	  - add some code to generate collision hull for selected object (or all of them?) and create it's physics?
+	  - where to store actor's physics? Should actor has it's separate xform or take it from physics directly? What if ana ctor doesn't have physics?
 
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ///////////// MERGING MODELS /////////////////////////////////////////////////////////////////////////////
+
+      - stretching up textures to nearest power-of-two when merging
+
+      - why textures are not layed out from top-left to bottom-right? Check that...
+
+      - are merged textures saved upside-down compared to what is needed?
+      - auto re-scale texture to nearest power-of-two when merging - prefer up-scaling than down-scaling.
+      - additional check whether model texcoords are all zeros should be performed per input model, not per merged model -
+        meaning that a single mesh should have its texcoords offset if all of its texcoords are zeros.
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////// POST-PROCESS //////////////////////////////////////////////////////////////////////////////////
+
+        BLOOM TODO:
+		- split blur into 2-passes and increase number of taps
+		- rename blur method and remove radius param.
 
 
 	  -----------------------------
