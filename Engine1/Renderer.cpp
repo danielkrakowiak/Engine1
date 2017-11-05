@@ -555,6 +555,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.positionThreshold,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.normalThreshold,
             settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight,
@@ -569,6 +571,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.positionThreshold,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.normalThreshold,
             settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight,
@@ -583,6 +587,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.positionThreshold,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.normalThreshold,
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight,
@@ -1133,6 +1139,8 @@ void Renderer::renderSecondaryLayer(
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.positionThreshold,
+            settings().rendering.shadows.distanceToOccluderSearch.hardShadows.normalThreshold,
             settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight,
@@ -1147,6 +1155,8 @@ void Renderer::renderSecondaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.positionThreshold,
+            settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.normalThreshold,
             settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight,
@@ -1161,6 +1171,8 @@ void Renderer::renderSecondaryLayer(
 
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
             camera,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.positionThreshold,
+            settings().rendering.shadows.distanceToOccluderSearch.softShadows.normalThreshold,
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow,
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight,

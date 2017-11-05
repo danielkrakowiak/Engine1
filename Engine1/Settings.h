@@ -128,6 +128,8 @@ namespace Engine1
 
                     struct Setup
                     {
+                        float positionThreshold;
+                        float normalThreshold;
                         float searchRadiusInShadow;
                         float searchStepInShadow;
                         float searchRadiusInLight;

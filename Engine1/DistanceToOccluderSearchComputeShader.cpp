@@ -12,8 +12,6 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-float DistanceToOccluderSearchComputeShader::s_positionThreshold = 0.1f;//0.003f;
-
 DistanceToOccluderSearchComputeShader::DistanceToOccluderSearchComputeShader() {}
 
 DistanceToOccluderSearchComputeShader::~DistanceToOccluderSearchComputeShader() {}
@@ -83,6 +81,8 @@ void DistanceToOccluderSearchComputeShader::initialize( ComPtr< ID3D11Device3 >&
 void DistanceToOccluderSearchComputeShader::setParameters( 
     ID3D11DeviceContext3& deviceContext, 
     const float3& cameraPos,
+    const float positionThreshold,
+    const float normalThreshold,
     const float searchRadiusInShadow,
     const float searchStepInShadow,
     const float searchRadiusInLight,
@@ -125,7 +125,8 @@ void DistanceToOccluderSearchComputeShader::setParameters(
         dataPtr->inputTextureSize  = float2( distanceToOccluder->getDimensions( searchMipmapLevel ) );
         dataPtr->outputTextureSize = float2( outputImageDimensions );
 
-        dataPtr->positionThreshold = s_positionThreshold;
+        dataPtr->positionThreshold = positionThreshold;
+        dataPtr->normalThreshold   = normalThreshold;
 
         if ( light.getType() == Light::Type::SpotLight ) {
             const SpotLight& spotLight = static_cast<const SpotLight&>( light );

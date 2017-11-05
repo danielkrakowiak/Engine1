@@ -19,16 +19,18 @@ cbuffer ConstantBuffer : register( b0 )
     float2 pad6;
     float2 outputTextureSize;
     float2 pad7;
-    float  positionThreshold;
+    float  g_positionThreshold;
     float3 pad8;
-    float  g_searchRadiusInShadow;
+    float  g_normalThreshold;
     float3 pad9;
-    float  g_searchStepInShadow; // In pixels - distance between neighbor samples.
+    float  g_searchRadiusInShadow;
     float3 pad10;
-    float  g_searchRadiusInLight;
+    float  g_searchStepInShadow; // In pixels - distance between neighbor samples.
     float3 pad11;
-    float  g_searchStepInLight; // In pixels - distance between neighbor samples.
+    float  g_searchRadiusInLight;
     float3 pad12;
+    float  g_searchStepInLight; // In pixels - distance between neighbor samples.
+    float3 pad13;
 };
 
 SamplerState g_linearSamplerState;
@@ -70,8 +72,9 @@ void main( uint3 groupId : SV_GroupID,
 
     const float2 inputPixelSize = 1.0f / inputTextureSize; // Accounts for the selected mipmap size.
 
-    const float3 surfacePosition     = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz;
-    const float3 surfaceNormal       = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz;
+    const float3 surfacePosition      = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz;
+    const float3 surfaceNormal        = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz;
+    const float  centerDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
 
     const float3 vectorToCamera = cameraPos - surfacePosition;
     const float3 dirToCamera    = normalize( vectorToCamera );
@@ -87,9 +90,6 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    const float  centerDistToOccluder = g_distToOccluder.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
-    const float3 centerPosition       = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
-
     // #TODO: Replace with call to getPixelSizeInWorldSpace. Check if it caused any errors. Use real FOV instead of hardcoded value.
     //const float pixelSizeInWorldSpace = (distToCamera * tan(Pi / 8.0f)) / (outputTextureSize.y * 0.5f);
 
@@ -104,7 +104,6 @@ void main( uint3 groupId : SV_GroupID,
     // we don't need any extra precision in that case anyways - 
     // if sample sensity was fine for zoomed out, it will be fine when zoomed in.
 
-    // If center value is available - use it (instead of searching for it).
     const float centerSampleInShadow = getSampleWeightLowerThan( centerDistToOccluder, 999.0f );
 
 	// #TODO: It should probably be re-enabled.
@@ -150,17 +149,16 @@ void main( uint3 groupId : SV_GroupID,
 				// Discard samples which are off-screen (zero dist-to-occluder).
 				const float sampleWeight3 = getSampleWeightGreaterThan(sampleDistToOccluder, 0.0f);
 
-				//const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
-				//const float positionDiff = length( samplePosition - centerPosition );
+				const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
+                const float3 sampleNormal = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
 
-				//const float sampleWeight3 = 1.0f;//pow( e, -positionDiff * positionDiff / positionThreshold );
+				const float  positionDiff   = length( samplePosition - surfacePosition );
+                const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
 
-				// TEST: The more sample differs from the central one, the less weight it gets.
-				//const float distDiff = max(0.0f, sampleDistToOccluder - centerDistToOccluder);
-				//const float distThreshold = 1.0f;
-				//const float sampleWeight4 = 1.0f;//pow( e, -distDiff * distDiff / distThreshold );
+                const float sampleWeight4 = getSampleWeightSimilarSmooth( positionDiff, g_positionThreshold );
+                const float sampleWeight5 = getSampleWeightSimilarSmooth( normalDiff, g_normalThreshold );
 
-				const float sampleWeight = sampleWeight1 * sampleWeight2 * sampleWeight3;
+				const float sampleWeight = sampleWeight1 * sampleWeight2 * sampleWeight3 * sampleWeight4 * sampleWeight5;
 
                 valueSum += sampleDistToOccluder * sampleWeight;
                 weightSum += sampleWeight;

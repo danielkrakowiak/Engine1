@@ -81,15 +81,25 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     //TwAddSeparator(m_shadowsBar, "", nullptr);
 
     m_shadowsBar = TwNewBar("Shadows");
-    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Hard' ");
-    TwAddVarRW( m_shadowsBar, "Blur pos threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "Blur normal threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Medium' ");
-    TwAddVarRW( m_shadowsBar, "Blur pos threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "Blur normal threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Soft' ");
-    TwAddVarRW( m_shadowsBar, "Blur pos threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "Blur normal threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='(H - hard, M - medium, S - soft) shadows' ");
+
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Dist-to-occluder-search' ");
+    TwAddVarRW( m_shadowsBar, "H pos threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "M pos threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S pos threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddSeparator( m_shadowsBar, "", nullptr );
+    TwAddVarRW( m_shadowsBar, "H normal threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "M normal threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S normal threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Blur' ");
+    TwAddVarRW( m_shadowsBar, "H pos threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "M pos threshold   ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S pos threshold    ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddSeparator( m_shadowsBar, "", nullptr );
+    TwAddVarRW( m_shadowsBar, "H normal threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "M normal threshold   ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S normal threshold    ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

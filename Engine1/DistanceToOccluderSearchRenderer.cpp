@@ -36,6 +36,8 @@ void DistanceToOccluderSearchRenderer::initialize( int imageWidth, int imageHeig
 
 void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch( 
     const Camera& camera,
+    const float positionThreshold,
+    const float normalThreshold,
     const float searchRadiusInShadow,
     const float searchStepInShadow,
     const float searchRadiusInLight,
@@ -53,6 +55,8 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
     m_distanceToOccluderSearchComputeShader->setParameters( 
         *m_deviceContext.Get(), 
         camera.getPosition(), 
+        positionThreshold,
+        normalThreshold,
         searchRadiusInShadow,
         searchStepInShadow,
         searchRadiusInLight,

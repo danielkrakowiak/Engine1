@@ -23,12 +23,6 @@ namespace Engine1
     {
         public:
 
-        // Threshold used to decide whether a sample can be used in search operation.
-        // Samples which are too "different" from the search center pixel are rejected,
-        // because they are parts of completely disconnected objects 
-        // (example: objects near and far from the camera).
-        static float s_positionThreshold;
-
         DistanceToOccluderSearchComputeShader();
         virtual ~DistanceToOccluderSearchComputeShader();
 
@@ -37,6 +31,8 @@ namespace Engine1
         void setParameters( 
             ID3D11DeviceContext3& deviceContext, 
             const float3& cameraPos,
+            const float positionThreshold,
+            const float normalThreshold,
             const float searchRadiusInShadow,
             const float searchStepInShadow,
             const float searchRadiusInLight,
@@ -75,14 +71,16 @@ namespace Engine1
             float2 pad7;
             float  positionThreshold;
             float3 pad8;
-            float  searchRadiusInShadow;
+            float  normalThreshold;
             float3 pad9;
-            float  searchStepInShadow; // In pixels - distance between neighbor samples.
+            float  searchRadiusInShadow;
             float3 pad10;
-            float  searchRadiusInLight;
+            float  searchStepInShadow; // In pixels - distance between neighbor samples.
             float3 pad11;
-            float  searchStepInLight; // In pixels - distance between neighbor samples.
+            float  searchRadiusInLight;
             float3 pad12;
+            float  searchStepInLight; // In pixels - distance between neighbor samples.
+            float3 pad13;
         };
 
         // Copying is not allowed.

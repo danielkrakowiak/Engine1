@@ -33,6 +33,8 @@ namespace Engine1
 
         void performDistanceToOccluderSearch( 
             const Camera& camera,
+            const float positionThreshold,
+            const float normalThreshold,
             const float searchRadiusInShadow,
             const float searchStepInShadow,
             const float searchRadiusInLight,
