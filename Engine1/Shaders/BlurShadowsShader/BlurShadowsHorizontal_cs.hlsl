@@ -19,6 +19,8 @@ cbuffer ConstantBuffer : register( b0 )
     float2 pad6;
     float  g_positionThreshold;
     float3 pad7;
+    float  g_normalThreshold;
+    float3 pad8;
 };
 
 //#define DEBUG
@@ -60,8 +62,8 @@ void main( uint3 groupId : SV_GroupID,
 
     const float2 pixelSize0 = 1.0f / g_outputTextureSize;
 
-    const float3 surfacePosition = g_positionTexture[ dispatchThreadId.xy ].xyz;
-    const float3 surfaceNormal   = g_normalTexture[ dispatchThreadId.xy ].xyz;
+    const float3 surfacePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
+    const float3 surfaceNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
 
     const float3 vectorToCamera = g_cameraPos - surfacePosition;
     const float3 dirToCamera    = normalize( vectorToCamera );
@@ -93,8 +95,6 @@ void main( uint3 groupId : SV_GroupID,
     const float samplingRadius          = blurRadiusInScreenSpace * samplingRadiusMul;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
-    const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
-
     float surfaceShadow = 0.0f;
     float sampleCount   = 0.000001f; // Note: Small value to avoid division by zero.
 
@@ -112,11 +112,15 @@ void main( uint3 groupId : SV_GroupID,
         const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
                 
         const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
-        const float  positionDiff   = length( samplePosition - centerPosition );
+        const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
+
+        const float  positionDiff   = length( samplePosition - surfacePosition );
+        const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
 
         const float sampleWeight1 = getSampleWeightSimilarSmooth( positionDiff, g_positionThreshold );
+        const float sampleWeight2 = getSampleWeightSimilarSmooth( normalDiff, g_normalThreshold );
 
-        float sampleWeight = sampleWeight1;
+        float sampleWeight = sampleWeight1 * sampleWeight2;
 
         surfaceShadow += sampleShadow * sampleWeight;
         sampleCount   += sampleWeight;

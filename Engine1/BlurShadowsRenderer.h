@@ -34,6 +34,7 @@ namespace Engine1
         void blurShadows( 
             const Camera& camera,
             const float positionThreshold,
+            const float normalThreshold,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
@@ -48,6 +49,7 @@ namespace Engine1
         void blurShadowsHorzVert( 
             const Camera& camera,
             const float positionThreshold,
+            const float normalThreshold,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,

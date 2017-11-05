@@ -610,6 +610,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
                 settings().rendering.shadows.blur.hardShadows.positionThreshold,
+                settings().rendering.shadows.blur.hardShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 hardShadowRenderTarget,
@@ -623,6 +624,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
                 settings().rendering.shadows.blur.mediumShadows.positionThreshold,
+                settings().rendering.shadows.blur.mediumShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 mediumShadowRenderTarget,
@@ -636,6 +638,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
                 settings().rendering.shadows.blur.softShadows.positionThreshold,
+                settings().rendering.shadows.blur.softShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 softShadowRenderTarget,
@@ -652,6 +655,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             m_blurShadowsRenderer.blurShadows(
                 camera,
                 settings().rendering.shadows.blur.hardShadows.positionThreshold,
+                settings().rendering.shadows.blur.hardShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 hardShadowRenderTarget,
@@ -664,6 +668,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             m_blurShadowsRenderer.blurShadows(
                 camera,
                 settings().rendering.shadows.blur.mediumShadows.positionThreshold,
+                settings().rendering.shadows.blur.mediumShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 mediumShadowRenderTarget,
@@ -676,6 +681,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             m_blurShadowsRenderer.blurShadows(
                 camera,
                 settings().rendering.shadows.blur.softShadows.positionThreshold,
+                settings().rendering.shadows.blur.softShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
                 softShadowRenderTarget,
@@ -1183,6 +1189,7 @@ void Renderer::renderSecondaryLayer(
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
                 settings().rendering.shadows.blur.hardShadows.positionThreshold,
+                settings().rendering.shadows.blur.hardShadows.normalThreshold,
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 hardShadowRenderTarget,
@@ -1196,6 +1203,7 @@ void Renderer::renderSecondaryLayer(
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
                 settings().rendering.shadows.blur.mediumShadows.positionThreshold,
+                settings().rendering.shadows.blur.mediumShadows.normalThreshold,
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 mediumShadowRenderTarget,
@@ -1209,6 +1217,7 @@ void Renderer::renderSecondaryLayer(
             m_blurShadowsRenderer.blurShadowsHorzVert(
                 camera,
                 settings().rendering.shadows.blur.softShadows.positionThreshold,
+                settings().rendering.shadows.blur.softShadows.normalThreshold,
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 softShadowRenderTarget,
@@ -1224,6 +1233,7 @@ void Renderer::renderSecondaryLayer(
             m_blurShadowsRenderer.blurShadows(
                 camera,
                 settings().rendering.shadows.blur.hardShadows.positionThreshold,
+                settings().rendering.shadows.blur.hardShadows.normalThreshold,
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 hardShadowRenderTarget,
@@ -1236,6 +1246,7 @@ void Renderer::renderSecondaryLayer(
             m_blurShadowsRenderer.blurShadows(
                 camera,
                 settings().rendering.shadows.blur.mediumShadows.positionThreshold,
+                settings().rendering.shadows.blur.mediumShadows.normalThreshold,
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 mediumShadowRenderTarget,
@@ -1248,6 +1259,7 @@ void Renderer::renderSecondaryLayer(
             m_blurShadowsRenderer.blurShadows(
                 camera,
                 settings().rendering.shadows.blur.softShadows.positionThreshold,
+                settings().rendering.shadows.blur.softShadows.normalThreshold,
                 currLayerRTs.hitPosition,
                 currLayerRTs.hitNormal,
                 softShadowRenderTarget,

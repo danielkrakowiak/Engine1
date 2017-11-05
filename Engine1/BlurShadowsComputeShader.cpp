@@ -81,6 +81,7 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 void BlurShadowsComputeShader::setParameters( 
     ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
     const float positionThreshold,
+    const float normalThreshold,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
@@ -120,7 +121,8 @@ void BlurShadowsComputeShader::setParameters(
         
         dataPtr->outputTextureSize = float2( (float)positionTexture->getWidth(), (float)positionTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
 
-        dataPtr->positionThreshold  = positionThreshold;
+        dataPtr->positionThreshold = positionThreshold;
+        dataPtr->normalThreshold   = normalThreshold;
 
         if ( light.getType() == Light::Type::SpotLight )
         {

@@ -151,6 +151,7 @@ namespace Engine1
                         // Increasing a multiplier increases significance of position or normal difference - samples are more strongly "rejected" based on that criteria.
                         // Increasing threshold increases "acceptance" level of error between center sample and neighbors.
                         float positionThreshold;
+                        float normalThreshold;
                     };
 
                     Setup hardShadows;
