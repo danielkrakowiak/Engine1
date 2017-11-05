@@ -124,6 +124,10 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel          = 4;
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider   = 16;
 
+    s_settings.rendering.shadows.blur.hardShadows.positionThreshold   = 0.05f;
+    s_settings.rendering.shadows.blur.mediumShadows.positionThreshold = 0.08f;
+    s_settings.rendering.shadows.blur.softShadows.positionThreshold   = 0.12f;
+
     s_settings.rendering.reflectionsRefractions.maxLevel           = 1;
     s_settings.rendering.reflectionsRefractions.reflectionsEnabled = false;
     s_settings.rendering.reflectionsRefractions.refractionsEnabled = false;

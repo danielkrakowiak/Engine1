@@ -31,26 +31,32 @@ namespace Engine1
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device,
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-        void blurShadows( const Camera& camera,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
-                             const Light& light );
+        void blurShadows( 
+            const Camera& camera,
+            const float positionThreshold,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
+            const Light& light 
+        );
 
         // shadowTemporaryRenderTarget is an extra render target used when 2-pass separable blur is run.
         // It stores horizontally blurred illumination before the vertical pass.
-        void blurShadowsHorzVert( const Camera& camera,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
-                          const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > shadowTemporaryRenderTarget,
-                          const Light& light );
+        void blurShadowsHorzVert( 
+            const Camera& camera,
+            const float positionThreshold,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > shadowTemporaryRenderTarget,
+            const Light& light 
+        );
 
         private:
 

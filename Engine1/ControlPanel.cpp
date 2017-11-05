@@ -13,6 +13,7 @@ ControlPanel::ControlPanel( SceneManager& sceneManager ) :
     m_mainBar( nullptr ),
     m_meshUtilsBar( nullptr ),
     m_lightBar( nullptr ),
+    m_shadowsBar( nullptr ),
     m_sceneManager( sceneManager )
 {}
 
@@ -76,6 +77,16 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarCB( m_lightBar, "Emitter radius", TW_TYPE_FLOAT, ControlPanel::onSetLightEmitterRadius, ControlPanel::onGetFloat, &Settings::s_settings.debug.lightEmitterRadius, "min=0 max=1 step=0.01 precision=2" );
     TwAddVarCB( m_lightBar, "Linear attenuation factor", TW_TYPE_FLOAT, ControlPanel::onSetLightLinearAttenuationFactor, ControlPanel::onGetFloat, &Settings::s_settings.debug.lightLinearAttenuationFactor, "min=0 max=1 step=0.001 precision=3" );
     TwAddVarCB( m_lightBar, "Linear quadratic factor", TW_TYPE_FLOAT, ControlPanel::onSetLightQuadraticAttenuationFactor, ControlPanel::onGetFloat, &Settings::s_settings.debug.lightQuadraticAttenuationFactor, "min=0 max=1 step=0.001 precision=3" );
+
+    //TwAddSeparator(m_shadowsBar, "", nullptr);
+
+    m_shadowsBar = TwNewBar("Shadows");
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Hard' ");
+    TwAddVarRW( m_shadowsBar, "Blur pos threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.positionThreshold, "min=0 max=10 step=0.01 precision=2" );
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Medium' ");
+    TwAddVarRW( m_shadowsBar, "Blur pos threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.positionThreshold, "min=0 max=10 step=0.01 precision=2" );
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Soft' ");
+    TwAddVarRW( m_shadowsBar, "Blur pos threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.positionThreshold, "min=0 max=10 step=0.01 precision=2" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

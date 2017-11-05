@@ -62,6 +62,7 @@ namespace Engine1
         TwBar* m_mainBar;
         TwBar* m_meshUtilsBar;
         TwBar* m_lightBar;
+        TwBar* m_shadowsBar;
 
         SceneManager& m_sceneManager;
     };

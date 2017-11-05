@@ -323,6 +323,11 @@ Idea:
 
 	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
+      NEXT:
+      - move all shader setup thresholds to settings - and add them to Control Panel
+      - reflectivity texture and multipliers
+      - rendering mode showing showing each object with different, random color. To see where different objects are.
+
 	  IMPORTANT-BUT-CAN-WAIT:
       - OPTIMIZATION: Replace float4 with float3 wherever possible in framebuffers/shaders.
       - OPTIMIZATION: make sure to check for max ray distance when intersecting rays with Bounding boxes in view raytracing. As it's done in shadows...
@@ -463,6 +468,7 @@ Idea:
          Performance seems to be fine for now - ignore.
        - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
        - OPTIMIZATION: I probably don't need float for illumination-blur-radius. A BYTE should be enough? We also don't care about fractional parts...
+       - IMPORTANT: Lights should be split into groups, within which lights don't overlap - and only one dist-to-occluder-search and blurring is needed for the whole group.
 
        Remaining issues: 
         - light leaks at layer transitions
@@ -478,6 +484,13 @@ Idea:
 
         - ideas to optimize blurring using shared memory: http://shiba.hpe.cn/jiaoyanzu/WULI/%E6%96%87%E4%BB%B6/soft/directX/Introduction_to_3D_Game_Programming_with_Directx_12.pdf
 	    page 721
+
+        DIFFERENCES COMPARED TO SSSS from GPU PRo 6 - they do blocker search as in PCSS and then save result to screen texture, and then blur in screen-space.
+        Thay do some trick to avoid calculating each light separately - not important right now.
+        I do everything in screen-space (and I have to because of ray tracing) - blocker search (dist-to-occcluder-search) and then blurring.
+        This way I'm able to achieve unlimited resolution, unlike Shadow Mapping. But it's more tricky for me to work in screen-space all the time.
+        I also have huuuuge penumbras compared to them (10 times larger), with near constant cost, proper mixing of hard/soft shadows 
+        (they haven't showned that, has to work bad because of common blocker search phase)
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       /////////  PHYSICS  ///////////////////////////////////////////////////////////////////////////////////////

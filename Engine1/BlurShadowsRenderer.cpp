@@ -38,20 +38,23 @@ void BlurShadowsRenderer::initialize( int imageWidth, int imageHeight, ComPtr< I
     m_initialized = true;
 }
 
-void BlurShadowsRenderer::blurShadows( const Camera& camera,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
-                                       const Light& light )
+void BlurShadowsRenderer::blurShadows( 
+    const Camera& camera,
+    const float positionThreshold,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
+    const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
     m_blurShadowsComputeShader->setParameters( 
         *m_deviceContext.Get(), 
         camera.getPosition(), 
+        positionThreshold,
         positionTexture, 
         normalTexture, 
         shadowTexture, 
@@ -90,15 +93,17 @@ void BlurShadowsRenderer::blurShadows( const Camera& camera,
     m_rendererCore.disableComputePipeline();
 }
 
-void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > shadowTemporaryRenderTarget,
-                                       const Light& light )
+void BlurShadowsRenderer::blurShadowsHorzVert( 
+    const Camera& camera,
+    const float positionThreshold,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > shadowTemporaryRenderTarget,
+    const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -126,6 +131,7 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
         m_blurShadowsHorizontalComputeShader->setParameters( 
             *m_deviceContext.Get(), 
             camera.getPosition(), 
+            positionThreshold,
             positionTexture,
             normalTexture, 
             shadowTexture, 
@@ -149,6 +155,7 @@ void BlurShadowsRenderer::blurShadowsHorzVert( const Camera& camera,
         m_blurShadowsVerticalComputeShader->setParameters( 
             *m_deviceContext.Get(), 
             camera.getPosition(), 
+            positionThreshold,
             positionTexture,
             normalTexture, 
             shadowTemporaryRenderTarget, 

@@ -226,19 +226,6 @@ void EngineApplication::onKeyPress( int key )
         }
     }
 
-    // [P] and ( [+] or [-] ) - Modify shadow blur position threshold and normal threshold.
-    if ( m_sceneManager.getSelectedLights().size() == 1 ) {
-        if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
-        {
-            const float positionThresholdChange = 
-                ( key == InputManager::Keys::plus ) ?
-                0.001f : - 0.001f;
-
-            if ( m_inputManager.isKeyPressed( InputManager::Keys::p ) )
-                BlurShadowsComputeShader::s_positionThreshold += positionThresholdChange;
-        }
-    }
-
     // [R] and [P/N/T/W] and ( [+] or [-] ) - Modify reflection dist-search position diff mul, 
     // normal diff mul or position/normal threshold or "min sample weight based on distance".
     if ( m_sceneManager.isSelectionEmpty() && m_inputManager.isKeyPressed( InputManager::Keys::r ) ) {

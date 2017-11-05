@@ -24,23 +24,20 @@ namespace Engine1
 
         public:
 
-        // Threshold used to decide whether a sample can be used in blur operation.
-        // Samples which are too "different" from the blur central pixel are rejected,
-        // because they can cause blurring of shadows/light of completely disconnected objects 
-        // (example: objects near and far from the camera).
-        static float s_positionThreshold;
-
         BlurShadowsComputeShader();
         virtual ~BlurShadowsComputeShader();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
-        void setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-                            const Light& light );
+        void setParameters( 
+            ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
+            const float positionThreshold,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+            const Light& light 
+        );
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:

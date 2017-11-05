@@ -141,6 +141,22 @@ namespace Engine1
                     Setup softShadows;
                     
                 } distanceToOccluderSearch;
+
+                struct Blur
+                {
+                    struct Setup
+                    {
+                        // Thresholds and multipliers deciding how shadow samples are weighted.
+                        // Sample weight depends on how much a sample differs (in terms of pos/normal) from the central sample (in blur kernel).
+                        // Increasing a multiplier increases significance of position or normal difference - samples are more strongly "rejected" based on that criteria.
+                        // Increasing threshold increases "acceptance" level of error between center sample and neighbors.
+                        float positionThreshold;
+                    };
+
+                    Setup hardShadows;
+                    Setup mediumShadows;
+                    Setup softShadows;
+                } blur;
             } shadows;
 
             struct ReflectionsRefractions

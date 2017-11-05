@@ -12,8 +12,6 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-float BlurShadowsComputeShader::s_positionThreshold = 0.1f;//0.003f;
-
 BlurShadowsComputeShader::BlurShadowsComputeShader() {}
 
 BlurShadowsComputeShader::~BlurShadowsComputeShader() {}
@@ -80,13 +78,15 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
     }
 }
 
-void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-                                              const Light& light )
+void BlurShadowsComputeShader::setParameters( 
+    ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
+    const float positionThreshold,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+    const Light& light )
 {
     if ( !m_compiled )
         throw std::exception( "BlurShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
@@ -120,7 +120,7 @@ void BlurShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceContex
         
         dataPtr->outputTextureSize = float2( (float)positionTexture->getWidth(), (float)positionTexture->getHeight() ); // #TODO: Size should be taken from real output texture, not one of inputs (right now, we are assuming they have the same size).
 
-        dataPtr->positionThreshold  = s_positionThreshold;
+        dataPtr->positionThreshold  = positionThreshold;
 
         if ( light.getType() == Light::Type::SpotLight )
         {

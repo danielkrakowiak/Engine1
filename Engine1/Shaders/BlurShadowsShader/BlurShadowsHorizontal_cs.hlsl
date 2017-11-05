@@ -1,6 +1,7 @@
 #pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
 
 #include "Common\Constants.hlsl"
+#include "Common\SampleWeighting.hlsl"
 
 cbuffer ConstantBuffer : register( b0 )
 {
@@ -113,11 +114,10 @@ void main( uint3 groupId : SV_GroupID,
         const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
         const float  positionDiff   = length( samplePosition - centerPosition );
 
-        const float sampleWeight2 = pow( e, -positionDiff * positionDiff / g_positionThreshold );
+        const float sampleWeight1 = getSampleWeightSimilarSmooth( positionDiff, g_positionThreshold );
 
-        float sampleWeight = sampleWeight2;
+        float sampleWeight = sampleWeight1;
 
-        // #TODO: Increase positionThreshold!! 
         surfaceShadow += sampleShadow * sampleWeight;
         sampleCount   += sampleWeight;
     }

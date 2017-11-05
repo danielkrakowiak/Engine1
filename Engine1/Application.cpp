@@ -650,8 +650,6 @@ void Application::run()
                        << ( light->isCastingShadows() ? "casts shadow" : "does not cast shadow" )
                        << ", cone angle: " << MathUtil::radiansToDegrees( spotLight.getConeAngle() ) << " deg.";
                 }
-
-                ss << "\nBlurShadowsComputeShader::s_positionThreshold: " << BlurShadowsComputeShader::s_positionThreshold;
             }
 
             if ( m_sceneManager.isSelectionEmpty() )

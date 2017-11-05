@@ -22,5 +22,8 @@ float getSampleWeightGreaterThan( const float sample, const float threshold )
 // Returns higher weight for similar samples (smaller difference) - based on Gaussian curve.
 float getSampleWeightSimilarSmooth( const float samplesDifference, const float threshold )
 {
+    // Note: Squaring may not be neeeded - it's just to flatten the curve near zero difference.
+    //const float samplesDifferenceSquared = samplesDifference * samplesDifference;
+
     return pow( e, -samplesDifference / threshold );
 }
