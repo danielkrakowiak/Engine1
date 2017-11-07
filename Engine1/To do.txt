@@ -454,7 +454,8 @@ Idea:
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ///////// Shadows //////////////////////////////////////////////////////////////////////////////////////////
 
-       - dist-to-occluder-search should probably not take samples from regions at very different position/normals? It causes some objects spread thair dist-to-occluder to very different objects..
+      - what if I write dist-to-occluder slithly outside of given shadow layer? But only dist, no shadow value - to ensure smoother change of dist-to-occluder at transtion areas...
+        Because right now it seems that light leaks are caused by different blur radius at the transition area rather then shadow values being too low..
 
        - maybe a second dist-to-occluder-search pass could be useful - to smooth out the edges of the final texture - to avoid sharp transitions in case the spread was not sufficent.
          It could be run only on black pixels - to not corrupt the original results.
@@ -462,12 +463,14 @@ Idea:
        - replace if's in the shader getWeightLowerThan() and similar with some math calculations.
 
        OPTIMIZATION:
-       - blur-shadow stage should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows.
+       - blur-shadow stage should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows. 
+         Or maybe not, as it may cause light halos around foreground objects with shadow in the background. Need to be checked.
+         
        - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
          And what would result from doing two smaller passer (half radius etc) rather than one big?
          Performance seems to be fine for now - ignore.
        - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
-       - OPTIMIZATION: I probably don't need float for illumination-blur-radius. A BYTE should be enough? We also don't care about fractional parts...
+       - OPTIMIZATION: I probably don't need float for illumination-blur-radius. A half should be enough? We also don't care about fractional parts...
        - IMPORTANT: Lights should be split into groups, within which lights don't overlap - and only one dist-to-occluder-search and blurring is needed for the whole group.
 
        Remaining issues: 

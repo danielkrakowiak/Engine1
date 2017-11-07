@@ -163,6 +163,8 @@ $RECYCLE.BIN/
 /Engine1.VC.db
 
 /Assets/*
+/Assets-full/*
+/Temp/*
 /TestAssets/*
 /Assets-old/*
 /Engine1/Assets/*
