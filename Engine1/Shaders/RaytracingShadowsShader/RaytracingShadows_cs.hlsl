@@ -100,7 +100,9 @@ void main( uint3 groupId : SV_GroupID,
     // IMPORTANT: Cannot quit early when pixel is already in shadow, because we need to know if a mesh changed blur radius at that pixel!!!!
     // Or maybe we can rely on blur radius from shadow map?
     
-	// If all position components are zeros - ignore. If face is backfacing the light - ignore (shading will take care of that case). Already in shadow - ignore.
+	// If all position components are zeros or face is backfacing the light - set as in shadow.
+    // It is very important to shadow these areas, as non-shadowed pixels on normalmapped surfaces 
+    // would otherwise brighten shadowed areas after blurring (causing serious light leaks).
     if ( !any( rayOrigin ) || normalLightDot < 0.0f /*|| illuminationUint == 0*//*|| dot( float3( 1.0f, 1.0f, 1.0f ), contributionTerm ) < requiredContributionTerm*/ ) 
     { 
         g_hardShadow[ dispatchThreadId.xy ]   = 255;

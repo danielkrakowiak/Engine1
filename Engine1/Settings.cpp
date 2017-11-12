@@ -104,7 +104,7 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.distanceToOccluderSearch.maxDistToOccluder = 500.0f;
 
     s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.positionThreshold         = 0.2f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.normalThreshold           = 0.2f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.normalThreshold           = 0.7f;
     s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight       = 5.0f;
     s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight         = 1.0f;
     s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow      = 2.0f;
@@ -113,7 +113,7 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider   = 4;
 
     s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.positionThreshold       = 0.2f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.normalThreshold         = 0.2f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.normalThreshold         = 0.7f;
     s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight     = 10.0f; 
     s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight       = 1.0f;
     s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow    = 5.0f;
@@ -122,7 +122,7 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider = 8;
 
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.positionThreshold         = 0.2f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.normalThreshold           = 0.2f;
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.normalThreshold           = 1.0f;
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight       = 10.0f;
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight         = 1.0f;
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow      = 7.0f;

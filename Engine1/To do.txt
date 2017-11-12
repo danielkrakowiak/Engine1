@@ -453,27 +453,7 @@ Idea:
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ///////// Shadows //////////////////////////////////////////////////////////////////////////////////////////
-      
-      BUGS:
-      - When writing to shadow/distance textures in raytrace-shadows-shader I do not account for the fact that all of these textures have different dimensions
-      - Shadow Raytrace Renderer should calculate number of Compute Shader groups based on the dimensions of the largest texture that has to be processed.
-      - In the shader we need to calculate uint texcoords for each texture.
-      - Can we enforce (should we) that hard shadow has the same dimensions as dist-to-occluder-hard-shadow? And the same for other layers?
-
-      Arghh - the bug is somewhere else... Try to simplify the case by setting all texture to the same size etc...
-
-      Solution:
-      - add a separate shader that will write full shadow to those pixels which are not part of given layer
-      - it has to be done after all shadow raytracing -as only then we know dist-to-occluder for each layer
-      No....
-
-      Plan:
-      - check what is the combined shadow value in incorrec regions - why doesn't it sum to 1 - numerical errors?
-      Yes... it's a numerical problem - we round every value to uchar and add them up - we loose some fractional parts...
-      But we should mostly have full shadow - so maybe it's because of 254,999999 rounded to 254.
-      It's blur what introduces that numerical error.
-
-
+          
       - what if I write dist-to-occluder slithly outside of given shadow layer? But only dist, no shadow value - to ensure smoother change of dist-to-occluder at transtion areas...
         Because right now it seems that light leaks are caused by different blur radius at the transition area rather then shadow values being too low..
 
@@ -483,6 +463,7 @@ Idea:
        - replace if's in the shader getWeightLowerThan() and similar with some math calculations.
 
        OPTIMIZATION:
+       - sample-count-per-size in blur-shadow-shaders should not be fixed - it should be different for each layer, probably depending on radius etc.
        - blur-shadow stage should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows. 
          Or maybe not, as it may cause light halos around foreground objects with shadow in the background. Need to be checked.
          
