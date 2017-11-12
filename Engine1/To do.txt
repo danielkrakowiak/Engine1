@@ -456,6 +456,8 @@ Idea:
           
       - what if I write dist-to-occluder slithly outside of given shadow layer? But only dist, no shadow value - to ensure smoother change of dist-to-occluder at transtion areas...
         Because right now it seems that light leaks are caused by different blur radius at the transition area rather then shadow values being too low..
+        But we should do it only from softer layer to harder - not in both directions - because we take min from dist-to-occluder 
+        and it's better if dist-to-occluder which belongs to a given layer overwrites to the one coming form another layer.
 
        - maybe a second dist-to-occluder-search pass could be useful - to smooth out the edges of the final texture - to avoid sharp transitions in case the spread was not sufficent.
          It could be run only on black pixels - to not corrupt the original results.
