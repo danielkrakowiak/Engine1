@@ -25,6 +25,8 @@ namespace Engine1
 
         uint4( uint4_type x, uint4_type y, uint4_type z, uint4_type w ) : x( x ), y( y ), z( z ), w( w ) {}
 
+        explicit uint4( const unsigned int& a ) : x( a ), y( a ), z( a ), w( a ) {}
+
         static int size()
         {
             return 4;

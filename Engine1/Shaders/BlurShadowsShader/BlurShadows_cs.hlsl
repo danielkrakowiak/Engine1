@@ -131,5 +131,5 @@ void main( uint3 groupId : SV_GroupID,
     // Note: We assume that at least the central pixel will get accepted - otherwise division by zero would occur.
     surfaceShadow /= sampleCount;
 
-    g_blurredShadowTexture[ dispatchThreadId.xy ] = (int)(255.0 * surfaceShadow);
+    g_blurredShadowTexture[ dispatchThreadId.xy ] = (uint)( round( surfaceShadow * 255.0 ) );
 }

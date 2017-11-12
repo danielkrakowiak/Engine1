@@ -465,6 +465,9 @@ void EngineApplication::onKeyPress( int key )
         } else if ( key == InputManager::Keys::seven ) {
             m_renderer.setActiveViewType( Renderer::View::BlurredSoftShadows );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::eight ) {
+            m_renderer.setActiveViewType( Renderer::View::BlurredShadows );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f1 ) {
             m_renderer.setActiveViewType( Renderer::View::DistanceToOccluderHardShadow );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;

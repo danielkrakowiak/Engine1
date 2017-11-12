@@ -447,7 +447,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider;
 
     auto finalDistanceToOccluderSoftShadowImageDimensions = 
-        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider;
+        m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider;
 
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
@@ -698,6 +698,20 @@ Renderer::Output Renderer::renderPrimaryLayer(
             );
         }
 
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
+
+        auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
+
+        m_utilityRenderer.sumValues(
+            blurredShadowRenderTarget,
+            blurredHardShadowRenderTarget, 
+            blurredMediumShadowRenderTarget,
+            blurredSoftShadowRenderTarget  
+        );
+
+        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
+
         if ( activeViewLevel.empty() ) {
             Output output;
 
@@ -738,22 +752,12 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 case View::BlurredSoftShadows:
                     output.ucharImage = blurredSoftShadowRenderTarget;
                     return output;
+                case View::BlurredShadows:
+                    output.ucharImage = blurredShadowRenderTarget;
+                    return output;
             }
         }
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
-
-        auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
-
-        m_utilityRenderer.sumValues(
-            blurredShadowRenderTarget,
-            blurredHardShadowRenderTarget, 
-            blurredMediumShadowRenderTarget,
-            blurredSoftShadowRenderTarget  
-        );
-
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
         m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
@@ -1565,6 +1569,7 @@ std::string Renderer::viewToString( const View view )
         case View::BlurredHardShadows:                       return "BlurredHardShadows";
         case View::BlurredMediumShadows:                     return "BlurredMediumShadows";
         case View::BlurredSoftShadows:                       return "BlurredSoftShadows";
+        case View::BlurredShadows:                           return "BlurredShadows";
         case View::SpotlightDepth:                           return "SpotlightDepth";
         case View::DistanceToOccluderHardShadow:             return "DistanceToOccluderHardShadow";
         case View::DistanceToOccluderMediumShadow:           return "DistanceToOccluderMediumShadow";

@@ -69,6 +69,7 @@ namespace Engine1
             BlurredHardShadows,
             BlurredMediumShadows,
             BlurredSoftShadows,
+            BlurredShadows,
             SpotlightDepth,
             DistanceToOccluderHardShadow,
             DistanceToOccluderMediumShadow,

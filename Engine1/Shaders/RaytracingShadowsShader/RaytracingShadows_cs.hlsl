@@ -140,7 +140,7 @@ void main( uint3 groupId : SV_GroupID,
             const float hardShadow = prevHardShadow + shadow;
 
             g_distToOccluderHardShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderHardShadow, surfaceDistToOccluder );
-            g_hardShadow[ dispatchThreadId.xy ]               = (uint)( min(1.0f, hardShadow ) * 255.0f );
+            g_hardShadow[ dispatchThreadId.xy ]               = (uint)( round( min(1.0f, hardShadow ) * 255.0f ) );
         }
         else if (blurRadiusInScreenSpace < softShadowBlurRadiusThreshold)
         {
@@ -150,7 +150,7 @@ void main( uint3 groupId : SV_GroupID,
             const float mediumShadow = prevMediumShadow + shadow;
 
             g_distToOccluderMediumShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderMediumShadow, surfaceDistToOccluder );
-            g_mediumShadow[ dispatchThreadId.xy ]             = (uint)( min(1.0f, mediumShadow ) * 255.0f );
+            g_mediumShadow[ dispatchThreadId.xy ]             = (uint)( round( min(1.0f, mediumShadow ) * 255.0f ) );
         }
         else
         {
@@ -160,7 +160,7 @@ void main( uint3 groupId : SV_GroupID,
             const float softShadow = prevSoftShadow + shadow;
 
             g_distToOccluderSoftShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderSoftShadow, surfaceDistToOccluder );
-            g_softShadow[ dispatchThreadId.xy ]               = (uint)( min(1.0f, softShadow ) * 255.0f );
+            g_softShadow[ dispatchThreadId.xy ]               = (uint)( round( min(1.0f, softShadow ) * 255.0f ) );
         }
     }
 }
