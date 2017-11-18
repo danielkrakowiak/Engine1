@@ -17,6 +17,36 @@ bool s_initialized = AssetPathManager::initialize();
 
 bool AssetPathManager::initialize()
 {
+    scanAllPaths();
+
+    return true;
+}
+
+std::string AssetPathManager::getPathForFileName( const std::string& fileName )
+{
+    if ( fileName.empty() )
+        throw std::exception( "AssetPathManager::getPathForFileName - empty file name passed." );
+
+    // Make sure the given file name is really a name, not a path - convert if needed.
+    const auto name = FileUtil::getFileNameFromPath( fileName );
+
+    const auto it = s_paths.find( name );
+
+    if ( it == s_paths.end() ) 
+    {
+        throw std::exception(
+            ( std::string( "AssetPathManager::getPathForFileName - filename \"" ) 
+            +  fileName + "\" not found." ).c_str()
+        );
+    }
+    else
+    {
+        return it->second;
+    }
+}
+
+void AssetPathManager::scanAllPaths()
+{
     bool duplicatesFound = false;
 
     std::vector< std::string > filePaths = FileSystem::getAllFilesFromDirectory( "Assets" );
@@ -43,30 +73,5 @@ bool AssetPathManager::initialize()
 
     if ( duplicatesFound )
         throw std::exception( "AssetPathManager::initialize - duplicate assets found." );
-
-    return true;
-}
-
-std::string AssetPathManager::getPathForFileName( const std::string& fileName )
-{
-    if ( fileName.empty() )
-        throw std::exception( "AssetPathManager::getPathForFileName - empty file name passed." );
-
-    // Make sure the given file name is really a name, not a path - convert if needed.
-    const auto name = FileUtil::getFileNameFromPath( fileName );
-
-    const auto it = s_paths.find( name );
-
-    if ( it == s_paths.end() ) 
-    {
-        throw std::exception(
-            ( std::string( "AssetPathManager::getPathForFileName - filename \"" ) 
-            +  fileName + "\" not found." ).c_str()
-        );
-    }
-    else
-    {
-        return it->second;
-    }
 }
 

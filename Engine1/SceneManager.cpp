@@ -29,6 +29,8 @@
 
 #include "BlockModelImporter.h"
 
+#include "AssetPathManager.h"
+
 using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
@@ -295,7 +297,12 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
 
                 // Save mesh to .blockmesh format for future use.
                 if ( format != BlockMeshFileInfo::Format::BLOCKMESH )
+                {
                     mesh->saveToFile( filePathWithoutExtension + ( indexInFile != 0 ? "_" + std::to_string( indexInFile ) : "" ) + ".blockmesh", BlockMeshFileInfo::Format::BLOCKMESH );
+
+                    // Re-scan all paths to detect newly exported files.
+                    AssetPathManager::scanAllPaths();
+                }
             } catch ( ... ) {
                 break;
             }
@@ -430,6 +437,9 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                     + modelPath + "\n"  
                 ).c_str( ) );
             }
+
+            // Re-scan all paths to detect newly exported files.
+            AssetPathManager::scanAllPaths();
         }
     }
 

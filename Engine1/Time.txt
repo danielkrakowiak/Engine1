@@ -472,3 +472,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 08.11.2017 - 1h - Trying to find a bug in causing shadows from different layers to overlap - the bug is different. Fixed a bug where medium shadow image divider was used for soft shadows.
 11.11.2017 - 3h - Trying to fill shadow layers with zeros in places where they are not used - to avoid leaking light is some regions. Not working - it seems I don't understand the problem.
 12.11.2017 - 6h - Fixed problem with light leaks - it was caused by casting floats to ints and loosing precision when summing up shadow values - fixed by adding rounding to the nearest integer. Fixing artifacts in Lambo scene - caused by too low normal threshold for dist-to-occluder-search.
+19.11.2017 - 4h - Fixed a problem - reflection/refraction was always slightly blurred (despite zero roughness) - it was caused by bugs in the combining shader - sampling redius was never zero.

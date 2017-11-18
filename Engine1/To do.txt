@@ -324,6 +324,7 @@ Idea:
 	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
       NEXT:
+      - reflections/refractions are never fully sharp - it's because of combinign shader which always does some blurring - fix it!
       - move all shader setup thresholds to settings - and add them to Control Panel
       - reflectivity texture and multipliers
       - rendering mode showing showing each object with different, random color. To see where different objects are.

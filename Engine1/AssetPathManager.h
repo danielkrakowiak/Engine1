@@ -11,6 +11,8 @@ namespace Engine1
 
         static bool initialize();
 
+        static void scanAllPaths();
+
         static std::string getPathForFileName( const std::string& fileName );
 
         private:
