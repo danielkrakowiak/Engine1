@@ -642,6 +642,6 @@ void RaytraceRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
     m_generateRefractedRaysComputeShader->loadAndInitialize( "Engine1/Shaders/GenerateRefractedRaysShader/GenerateRefractedRays_cs.cso", device );
     m_raytracingPrimaryRaysComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingPrimaryRaysShader/RaytracingPrimaryRays_cs.cso", device );
     m_raytracingSecondaryRaysComputeShader->loadAndInitialize( "Engine1/Shaders/RaytracingSecondaryRaysShader/RaytracingSecondaryRays_cs.cso", device );
-    m_sumValueComputeShader->loadAndInitialize( "Engine1/Shaders/SumValuesShader/SumTwoValues_cs.cso", device );
+    m_sumValueComputeShader->loadAndInitialize( "Engine1/Shaders/SumValuesShader/SumTwoFloatValues_cs.cso", device );
 }
 
