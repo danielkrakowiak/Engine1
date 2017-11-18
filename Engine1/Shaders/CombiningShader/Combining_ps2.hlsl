@@ -57,8 +57,7 @@ float4 main(PixelInputType input) : SV_Target
     
     const float roughness  = roughnessMul * contributionTermRoughness.a;
 
-    // Note: clamp min to 1 to ensure correct behavior of log2 further down the code.
-    float blurRadius = max( 1.0f, log2( hitDistance + 1.0f ) * roughness / log2( prevHitDistance + 1.0f ) );
+    float blurRadius = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( prevHitDistance + 1.0f ) );
 
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
@@ -77,7 +76,7 @@ float4 main(PixelInputType input) : SV_Target
     }
 
     const float maxMipmapLevel  = 6.0f; // To avoid sampling overly blocky, aliased mipmaps - limits maximal roughness.
-    const float baseMipmapLevel = min( maxMipmapLevel, log2( blurRadius ) );
+    const float baseMipmapLevel = min( maxMipmapLevel, log2( max( 1.0, blurRadius ) ) ); // Note: clamp min blur radius to 1 to ensure correct behavior of log2.
 
     float4 reflectionColor = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 
@@ -87,8 +86,8 @@ float4 main(PixelInputType input) : SV_Target
     // samples have to ba taken to achieve the same result (but with smoother filtering, rejecting etc).
     // Note: baseMipmapLevel may be fractional so mipmapLevelDecrease may also be fractional.
     const float mipmapLevel         = floor( baseMipmapLevel * 0.666 );
-    const float mipmapLevelDecrease = baseMipmapLevel - mipmapLevel;
-    const float samplingRadius      = pow( 2.0, mipmapLevelDecrease );
+    const float mipmapLevelDecrease = max( 0.0, baseMipmapLevel - mipmapLevel );
+    const float samplingRadius      = max( 0.0, pow( 2.0, mipmapLevelDecrease ) - 1.0 );
     const float samplingRadiusInt   = ceil( samplingRadius );
     ////
 

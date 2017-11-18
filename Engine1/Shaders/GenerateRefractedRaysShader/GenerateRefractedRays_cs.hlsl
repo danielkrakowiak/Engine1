@@ -28,7 +28,7 @@ RWTexture2D<float4> g_rayDirection        : register( u1 );
 RWTexture2D<uint >  g_nextRefractiveIndex : register( u2 ); // Refractive index of the generated rays.
 
 static const float requiredContributionTerm = 0.05f; // Discard rays which color is visible in less than 5% by the camera.
-static const float rayOriginOffset = 0.0001f; // Used to move refracted ray origin along the ray direction to avoid self-collisions.
+static const float rayOriginOffset = 0.0005f; // Used to move refracted ray origin along the ray direction to avoid self-collisions.
 static const float refractiveIndexMin = 1.0f;
 static const float refractiveIndexMax = 3.0f;
 

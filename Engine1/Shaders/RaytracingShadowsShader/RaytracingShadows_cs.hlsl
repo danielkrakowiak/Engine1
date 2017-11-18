@@ -60,7 +60,7 @@ bool     rayMeshIntersect( const float3 rayOrigin, const float3 rayDir, const fl
 
 static const float requiredContributionTerm = 0.35f; // Discard rays which color is visible in less than 5% by the camera.
 
-static const float minAllowedHitDist = 0.001f;
+static const float minAllowedHitDist = 0.0005f;
 
 static const float maxShadowWorldSpaceBlurRadius = 1.0f;
 
