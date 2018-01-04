@@ -324,10 +324,16 @@ Idea:
 	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
       NEXT:
-      - reflections/refractions are never fully sharp - it's because of combinign shader which always does some blurring - fix it!
+      - look like combining2 measures position error differently than combining1 - not using expected possition diff. Fix that! Or maybe it isn't used in the end...
+      - make sure that recent changes in cominign shader were also added to comining2 shader. (Gassian scaling of samples etc, sampling quality).
+      - is specular reflection (as in shading) growing to the bottom onyl, or also to the top? Also to the top, we could improve that - elongate reflection in one direction mostly.
+      - PROBABLY DONE: reflections/refractions are never fully sharp - it's because of combinign shader which always does some blurring - fix it!
+      - add reflection elongation based on surface normal in screen space (should elongate along that normal, based on it's length in screen-space)
+        What is the relation between specular elongation and roughness? Rougher surfaces have lower elongation? And perfect mirrors have zero elongation?
       - move all shader setup thresholds to settings - and add them to Control Panel
       - reflectivity texture and multipliers
-      - rendering mode showing showing each object with different, random color. To see where different objects are.
+      - I think that emissive color is clamped to 0-255 as it is stored in uchar4. It limits the intensity of emission. Should we increase its precision? Change it to floats? Quite wasteful.. Or maybe apply color multiplier later on - per object...
+      
 
 	  IMPORTANT-BUT-CAN-WAIT:
       - OPTIMIZATION: Replace float4 with float3 wherever possible in framebuffers/shaders.
@@ -369,6 +375,7 @@ Idea:
       - merging algorithm should probably be able to stretch-up/rescale textures to much some placements... (maybe if given some flag, max stretch-up-down ratios etc)
       - when calculating how much memory is used in RenderTargetManager - it would be best to be able to read the maximal memory used during a frame - including the short spikes - that would require recalculating that value everytime a texture is acquired and resetting it at some point.
 	  - I could implement a GPU path tracer to be able to compare normal renderer with physically perfect renderer. That could help a lot in my pursuit of great quality.
+      - rendering mode showing showing each object with different, random color. To see where different objects are.
 
 
       //////////////////////////////// REFLECTIONS/ REFRACTIONS //////////////////////////////////////

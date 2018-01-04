@@ -60,6 +60,12 @@ namespace Engine1
             float3 pad8;
             float  roughnessMul;
             float3 pad9;
+            float  elongationMul;
+            float3 pad10;
+            float  radialBlurEnabled; // 1.0 - enabled, 0.0 - disabled.
+            float3 pad11;
+            float  reflectionSamplingQualityInv; // 0 - highest quality, 1 - lowest quality.
+            float3 pad12;
         };
 
         int m_resourceCount;

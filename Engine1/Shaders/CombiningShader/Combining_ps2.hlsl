@@ -32,6 +32,12 @@ cbuffer ConstantBuffer
     float3 pad7;
     float  roughnessMul;
     float3 pad8;
+    float  elongationMul;
+    float3 pad10;
+    float  radialBlurEnabled; // 1.0 - enabled, 0.0 - disabled.
+    float3 pad11;
+    float  reflectionSamplingQualityInv; // 0 - highest quality, 1 - lowest quality.
+    float3 pad12;
 };
 
 struct PixelInputType
@@ -85,7 +91,7 @@ float4 main(PixelInputType input) : SV_Target
     // This code decreases the mipmap level and calculates how many 
     // samples have to ba taken to achieve the same result (but with smoother filtering, rejecting etc).
     // Note: baseMipmapLevel may be fractional so mipmapLevelDecrease may also be fractional.
-    const float mipmapLevel         = floor( baseMipmapLevel * 0.666 );
+    const float mipmapLevel         = floor( baseMipmapLevel * reflectionSamplingQualityInv );
     const float mipmapLevelDecrease = max( 0.0, baseMipmapLevel - mipmapLevel );
     const float samplingRadius      = max( 0.0, pow( 2.0, mipmapLevelDecrease ) - 1.0 );
     const float samplingRadiusInt   = ceil( samplingRadius );
@@ -109,15 +115,20 @@ float4 main(PixelInputType input) : SV_Target
         sampleWeightSum += centerWeight;
     }
 
-    for ( float yInt = -samplingRadiusInt; yInt <= samplingRadiusInt; yInt += samplingStepInt )
+    const float vertSamplingRadius    = samplingRadiusInt * elongationMul;
+    const float horzSamplingRadius    = samplingRadiusInt / elongationMul;
+    const float vertSamplingRadiusSqr = vertSamplingRadius * vertSamplingRadius;
+    const float horzSamplingRadiusSqr = horzSamplingRadius * horzSamplingRadius;
+
+    for ( float yInt = -vertSamplingRadius; yInt <= vertSamplingRadius; yInt += samplingStepInt )
     {
-        const float y = clamp( yInt, -samplingRadius, samplingRadius );
+        const float y = clamp( yInt, -vertSamplingRadius, vertSamplingRadius );
 
         const float sampleWeightY = 1.0 - abs( yInt - y );
 
-        for ( float xInt = -samplingRadiusInt; xInt <= samplingRadiusInt; xInt += samplingStepInt )
+        for ( float xInt = -horzSamplingRadius; xInt <= horzSamplingRadius; xInt += samplingStepInt )
         {
-            const float x = clamp( xInt, -samplingRadius, samplingRadius );
+            const float x = clamp( xInt, -horzSamplingRadius, horzSamplingRadius );
 
             const float sampleWeightX = 1.0 - abs( xInt - x );
 
@@ -130,6 +141,14 @@ float4 main(PixelInputType input) : SV_Target
             // Note: This test will only work if loop iterates over integer x, y.
             // Skip central pixel as it's been already accounted for.
             if (abs(x) < 0.001 && abs(y) < 0.001)
+                continue;
+
+            // Note: Gaussian function approximated with cosine.
+            //const float gaussianInvFactor = 1.0 - ( 1.0 + cos( Pi * min(1.0, distanceInPixelsSqr / ellipseRadiusSqr))) / 2.0;
+            const float gaussianInvFactor = 1.0 - getSampleWeightGaussianEllipse( x*x, y*y, vertSamplingRadiusSqr, horzSamplingRadiusSqr );
+            const float sampleWeight0 = max(0.0, 1.0 - (radialBlurEnabled * gaussianInvFactor));
+
+            if ( sampleWeight0 < 0.001 )
                 continue;
 
             const float2 sampleTexcoords = input.texCoord + float2(x * pixelSize.x, y * pixelSize.y);
@@ -149,7 +168,7 @@ float4 main(PixelInputType input) : SV_Target
 
             const float  sampleWeight1 = getSampleWeightSimilarSmooth( samplesPosNormDiff, positionNormalThreshold );
 
-            const float sampleWeight = sampleWeightXY * sampleWeight1;
+            const float sampleWeight = sampleWeightXY * sampleWeight0 * sampleWeight1;
 
             sampleSum       += sampleValue * sampleWeight;
             sampleWeightSum += sampleWeight;

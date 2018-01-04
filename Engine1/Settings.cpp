@@ -69,7 +69,8 @@ void Settings::initializeInternal()
     s_settings.debug.refractiveIndexMulChanged = false;
 
     s_settings.debug.alphaMul                = 1.0f;
-    s_settings.debug.emissiveMul             = float3( 1.0f, 1.0f, 1.0f );
+    s_settings.debug.emissiveMul             = 1.0f;
+    s_settings.debug.emissiveBaseMul         = float3( 1.0f, 1.0f, 1.0f );
     s_settings.debug.albedoMul               = float3( 1.0f, 1.0f, 1.0f );
     s_settings.debug.metalnessMul            = 1.0f;
     s_settings.debug.roughnessMul            = 1.0f;
@@ -137,10 +138,14 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.blur.softShadows.positionThreshold   = 0.12f;
     s_settings.rendering.shadows.blur.softShadows.normalThreshold     = 0.08f;
 
-    s_settings.rendering.reflectionsRefractions.maxLevel           = 1;
-    s_settings.rendering.reflectionsRefractions.reflectionsEnabled = false;
-    s_settings.rendering.reflectionsRefractions.refractionsEnabled = false;
-    s_settings.rendering.reflectionsRefractions.roughnessBlurMul   = 60.0f;
+    s_settings.rendering.reflectionsRefractions.maxLevel                  = 1;
+    s_settings.rendering.reflectionsRefractions.reflectionsEnabled        = false;
+    s_settings.rendering.reflectionsRefractions.refractionsEnabled        = false;
+    s_settings.rendering.reflectionsRefractions.samplingQuality = 0.666f;
+    s_settings.rendering.reflectionsRefractions.roughnessBlurMul          = 60.0f;
+
+    s_settings.rendering.reflectionsRefractions.elongationMul     = 1.0f;
+    s_settings.rendering.reflectionsRefractions.radialBlurEnabled = true;
 
     s_settings.rendering.hitDistanceSearch.resolutionDivider = 4;
 

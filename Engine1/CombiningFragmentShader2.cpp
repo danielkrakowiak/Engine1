@@ -121,10 +121,14 @@ void CombiningFragmentShader2::setParameters( ID3D11DeviceContext3& deviceContex
     dataPtr->contributionTextureFillSize = float2( (float)contributionTextureFilledWidth, (float)contributionTextureFilledHeight );
     dataPtr->srcTextureFillSize          = float2( (float)srcTextureFilledWidth, (float)srcTextureFilledHeight );
 
-    dataPtr->positionDiffMul         = settings().rendering.combining.positionDiffMul;
-    dataPtr->normalDiffMul           = settings().rendering.combining.normalDiffMul;
-    dataPtr->positionNormalThreshold = settings().rendering.combining.positionNormalThreshold;
-    dataPtr->roughnessMul            = settings().rendering.reflectionsRefractions.roughnessBlurMul;
+    dataPtr->positionDiffMul              = settings().rendering.combining.positionDiffMul;
+    dataPtr->normalDiffMul                = settings().rendering.combining.normalDiffMul;
+    dataPtr->positionNormalThreshold      = settings().rendering.combining.positionNormalThreshold;
+    dataPtr->roughnessMul                 = settings().rendering.reflectionsRefractions.roughnessBlurMul;
+    dataPtr->reflectionSamplingQualityInv = 1.0f - settings().rendering.reflectionsRefractions.samplingQuality;
+
+    dataPtr->elongationMul     = settings().rendering.reflectionsRefractions.elongationMul;
+    dataPtr->radialBlurEnabled = settings().rendering.reflectionsRefractions.radialBlurEnabled ? 1.0f : 0.0f;
 
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

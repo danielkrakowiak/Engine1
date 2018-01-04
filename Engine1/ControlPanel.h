@@ -33,6 +33,7 @@ namespace Engine1
 
         static void TW_CALL onSetAlphaMul( const void* value, void* /*clientData*/ );
         static void TW_CALL onSetEmissiveMul( const void* value, void* /*clientData*/ );
+        static void TW_CALL onSetEmissiveBaseMul( const void* value, void* /*clientData*/ );
         static void TW_CALL onSetAlbedoMul( const void* value, void* /*clientData*/ );
         static void TW_CALL onSetMetalnessMul( const void* value, void* /*clientData*/ );
         static void TW_CALL onSetRoughnessMul( const void* value, void* /*clientData*/ );
@@ -62,6 +63,7 @@ namespace Engine1
         TwBar* m_mainBar;
         TwBar* m_meshUtilsBar;
         TwBar* m_lightBar;
+        TwBar* m_reflectionRefractionBar;
         TwBar* m_shadowsBar;
 
         SceneManager& m_sceneManager;

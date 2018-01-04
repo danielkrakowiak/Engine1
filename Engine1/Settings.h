@@ -66,7 +66,8 @@ namespace Engine1
             bool refractiveIndexMulChanged;
 
             float  alphaMul;
-            float3 emissiveMul;
+            float  emissiveMul;
+            float3 emissiveBaseMul;
             float3 albedoMul;
             float  metalnessMul;
             float  roughnessMul;
@@ -170,8 +171,21 @@ namespace Engine1
                 bool reflectionsEnabled;
                 bool refractionsEnabled;
 
+                // 1 - maximal quality, every sample is taken from zero mipmap, ultra high number of samples (can kill performance).
+                // 0 - worst quality - only one sample taken from the highest possible mipmap for desired blur level.
+                // 0.666 - usual default.
+                float samplingQuality;
+
                 // Multiplier deciding how surface roughness translates to reflection/refraction blur kernel-size.
                 float roughnessBlurMul;
+
+                // How much reflections/refractions should be elongated longitudinally. 1 means no elongation.
+                // The more elongated they are, the thinner they get laterally.
+                float elongationMul;
+
+                // Whether samples should be weighted in radial manner (outer samples have lower weight, Gaussian like).
+                // It can improve quality, but reduce the amount of perceivable blur.
+                bool radialBlurEnabled;
 
             } reflectionsRefractions;
 

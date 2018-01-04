@@ -823,7 +823,13 @@ void EngineApplication::setTextureMultipliersInSettingsFromModel( const Model& m
         Settings::modify().debug.alphaMul = alphaTextures[ 0 ].getColorMultiplier().x;
 
     if ( !emissiveTextures.empty() )
-        Settings::modify().debug.emissiveMul = emissiveTextures[ 0 ].getColorMultiplier();
+    {
+        auto emissiveMul    = emissiveTextures[ 0 ].getColorMultiplier();
+        auto maxEmissiveMul = std::max(std::max(emissiveMul.x, emissiveMul.y), emissiveMul.z);
+
+        Settings::modify().debug.emissiveMul     = maxEmissiveMul;
+        Settings::modify().debug.emissiveBaseMul = emissiveTextures[ 0 ].getColorMultiplier() / maxEmissiveMul;
+    }
 
     if ( !albedoTextures.empty() )
         Settings::modify().debug.albedoMul = albedoTextures[ 0 ].getColorMultiplier();
@@ -851,7 +857,7 @@ void EngineApplication::setModelTextureMultipliersFromSettings( Model& model )
         alphaTextures[ 0 ].setColorMultiplier( float4( settings().debug.alphaMul ) );
 
     if ( !emissiveTextures.empty() && settings().debug.emissiveMulChanged )
-        emissiveTextures[ 0 ].setColorMultiplier( float4( settings().debug.emissiveMul, 0.0f ) );
+        emissiveTextures[ 0 ].setColorMultiplier( float4( settings().debug.emissiveMul * settings().debug.emissiveBaseMul, 0.0f ) );
 
     if ( !albedoTextures.empty() && settings().debug.albedoMulChanged )
         albedoTextures[ 0 ].setColorMultiplier( float4( settings().debug.albedoMul, 0.0f ) );

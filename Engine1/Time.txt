@@ -464,7 +464,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 30.10.2017 - 2h
 31.10.2017 - 4h - Added sampling different mipmaps during dist-to-occluder-search for hard/medium/soft shadows. It's better than skipping pixels, as it ensure smooth output image rather than undersampling artefacts and patterns. Added a setting to control final-dist-to-occluder texture diemnsions for hard/medium/soft shadows - important as it directly influences the number of executed shader threads (caching hides the benefits I guess). Fixed a bug in generate-mipmaps-with-sample-rejection shader, which was outputting zero if all samples were rejected instead of returning the original value - that caused background switch from white to black and increasing darkening of edges in dist-to-occluder mipmaps.
 --- October 2017 - 25h
---- total 1338h
 01.11.2017 - 10h - Added a separate setting for dist-to-occluder-search to control search-radius and search-step for pixels in shadow and in light (those which have a dist-to-occluder value and those which don't). This is supposed to reduce blur of distance values in regions of shadow - to avoid artifacts when object move close to each other etc. Fixed a problem with dist-to-occluder-search shader - it was sampling position/normal textures using integer coords, which caused problems when output dimensions stopped being the same as position texture dimensions. Fixed text rendering.
 02.11.2017 - 6h - Cleaned up Profiler events, added missing ones etc. Disabled unnecessary shadow calculations when shadows are disabled. Fixed a problem when importing models that have no textures, but only texture color multipliers. Null texture was causing problems, so I added a default white texture used in such cases during import/parsing of models. Cleanup of TODO list.
 05.11.2017 - 5h - Added settings in Control Panel to control position threshold in blur shadows shaders. Trying to remove light leaks at the transitions between shadow layers.
@@ -473,3 +472,9 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 11.11.2017 - 3h - Trying to fill shadow layers with zeros in places where they are not used - to avoid leaking light is some regions. Not working - it seems I don't understand the problem.
 12.11.2017 - 6h - Fixed problem with light leaks - it was caused by casting floats to ints and loosing precision when summing up shadow values - fixed by adding rounding to the nearest integer. Fixing artifacts in Lambo scene - caused by too low normal threshold for dist-to-occluder-search.
 19.11.2017 - 4h - Fixed a problem - reflection/refraction was always slightly blurred (despite zero roughness) - it was caused by bugs in the combining shader - sampling redius was never zero.
+--- November 2017 - 36h
+--- total 1374h
+25.12.2017 - 2h - Tested impact of specular elongation in reflections - it is amazing - a must have!
+26.12.2017 - 2h - Testing radial weighting of reflection/refraction samples during combining.
+28.12.2017 - 3h - Tested how reflection lobe differs from specular lobe used in shading. Compared reflection of a small emissive object with a specular lobe of a weak light source - they were very different at the beggining, but after adding Gaussian scaling of reflection samples they got much more similar. It improved overall reflection quality. Added new Control Panel tab for reflections/refractions, added sampling quality setting.
+30.12.2017 - 1h - Added additional emissive color multiplier to Control Panel - to achieve values over 1. Unfortunately they are seemingly clamped anyways by the render target.

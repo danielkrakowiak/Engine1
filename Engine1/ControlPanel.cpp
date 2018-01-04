@@ -34,24 +34,17 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
 
     m_mainBar = TwNewBar("Main");
 
-    TwAddVarRW( m_mainBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
-    TwAddVarRW( m_mainBar, "Max level", TW_TYPE_INT32, &Settings::s_settings.rendering.reflectionsRefractions.maxLevel, "" );
     TwAddVarRW( m_mainBar, "Reflections", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.reflectionsEnabled, "" );
     TwAddVarRW( m_mainBar, "Refractions", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.refractionsEnabled, "" );
     TwAddVarRW( m_mainBar, "Shadows", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.enabled, "" );
 
-    TwAddButton( m_mainBar, "Next - reflection", ControlPanel::onNextLevelReflection, nullptr, "" );
-    TwAddButton( m_mainBar, "Next - transmission", ControlPanel::onNextLevelReflection, nullptr, "" );
-    TwAddButton( m_mainBar, "Back", ControlPanel::onPrevLevel, nullptr, "" );
-
     TwAddButton( m_mainBar, "Reset camera", ControlPanel::onResetCamera, this, "" );
-
-    TwAddVarRW( m_mainBar, "Roughness blur mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.roughnessBlurMul, "min=0 max=1000 step=0.2 precision=1" );
 
     TwAddVarRW( m_mainBar, "Replace selected", TW_TYPE_BOOL8, &Settings::s_settings.debug.replaceSelected, "" );
 
     TwAddVarCB( m_mainBar, "Alpha mul", TW_TYPE_FLOAT, ControlPanel::onSetAlphaMul, ControlPanel::onGetFloat, &Settings::s_settings.debug.alphaMul, "min=0 max=1 step=0.001 precision=3" );
-    TwAddVarCB( m_mainBar, "Emissive mul", TW_TYPE_COLOR3F, ControlPanel::onSetEmissiveMul, ControlPanel::onGetFloat3, &Settings::s_settings.debug.emissiveMul, "colormode=hls" );
+    TwAddVarCB( m_mainBar, "Emissive mul", TW_TYPE_FLOAT, ControlPanel::onSetEmissiveMul, ControlPanel::onGetFloat, &Settings::s_settings.debug.emissiveMul, "min=0 max=100 step=0.01 precision=2" );
+    TwAddVarCB( m_mainBar, "Emissive base mul", TW_TYPE_COLOR3F, ControlPanel::onSetEmissiveBaseMul, ControlPanel::onGetFloat3, &Settings::s_settings.debug.emissiveBaseMul, "colormode=hls" );
     TwAddVarCB( m_mainBar, "Albedo mul", TW_TYPE_COLOR3F, ControlPanel::onSetAlbedoMul, ControlPanel::onGetFloat3, &Settings::s_settings.debug.albedoMul, "colormode=hls" );
     TwAddVarCB( m_mainBar, "Metalness mul", TW_TYPE_FLOAT, ControlPanel::onSetMetalnessMul, ControlPanel::onGetFloat, &Settings::s_settings.debug.metalnessMul, "min=0 max=1 step=0.001 precision=3" );
     TwAddVarCB( m_mainBar, "Roughness mul", TW_TYPE_FLOAT, ControlPanel::onSetRoughnessMul, ControlPanel::onGetFloat, &Settings::s_settings.debug.roughnessMul, "min=0 max=1 step=0.001 precision=3" );
@@ -80,7 +73,20 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
 
     //TwAddSeparator(m_shadowsBar, "", nullptr);
 
+    m_reflectionRefractionBar = TwNewBar("Reflections/Refractions");
+    TwAddVarRW( m_reflectionRefractionBar, "Max level", TW_TYPE_INT32, &Settings::s_settings.rendering.reflectionsRefractions.maxLevel, "" );
+
+    TwAddButton( m_reflectionRefractionBar, "Next - reflection", ControlPanel::onNextLevelReflection, nullptr, "" );
+    TwAddButton( m_reflectionRefractionBar, "Next - transmission", ControlPanel::onNextLevelReflection, nullptr, "" );
+    TwAddButton( m_reflectionRefractionBar, "Back", ControlPanel::onPrevLevel, nullptr, "" );
+
+    TwAddVarRW( m_reflectionRefractionBar, "Sampling quality", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.samplingQuality, "min=0 max=1 step=0.002 precision=3" );
+    TwAddVarRW( m_reflectionRefractionBar, "Roughness blur mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.roughnessBlurMul, "min=0 max=1000 step=0.2 precision=1" );
+    TwAddVarRW( m_reflectionRefractionBar, "Reflection elongation mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.elongationMul, "min=0.1 max=6.0 step=0.01 precision=2" );
+    TwAddVarRW( m_reflectionRefractionBar, "Reflection radial blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.radialBlurEnabled, "" );
+
     m_shadowsBar = TwNewBar("Shadows");
+    TwAddVarRW( m_shadowsBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='(H - hard, M - medium, S - soft) shadows' ");
 
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Dist-to-occluder-search' ");
@@ -153,7 +159,13 @@ void TW_CALL ControlPanel::onSetAlphaMul( const void* value, void* /*clientData*
 
 void TW_CALL ControlPanel::onSetEmissiveMul( const void* value, void* /*clientData*/ )
 {
-    Settings::s_settings.debug.emissiveMul        = *(float3*)value;
+    Settings::s_settings.debug.emissiveMul        = *(float*)value;
+    Settings::s_settings.debug.emissiveMulChanged = true;
+}
+
+void TW_CALL ControlPanel::onSetEmissiveBaseMul( const void* value, void* /*clientData*/ )
+{
+    Settings::s_settings.debug.emissiveBaseMul        = *(float3*)value;
     Settings::s_settings.debug.emissiveMulChanged = true;
 }
 
