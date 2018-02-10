@@ -147,7 +147,9 @@ void Settings::initializeInternal()
     s_settings.rendering.reflectionsRefractions.elongationMul     = 1.0f;
     s_settings.rendering.reflectionsRefractions.radialBlurEnabled = true;
 
-    s_settings.rendering.hitDistanceSearch.resolutionDivider = 4;
+    s_settings.rendering.hitDistanceSearch.resolutionDivider          = 4;
+    s_settings.rendering.hitDistanceSearch.decreaseBlurForSmallValues = true;
+    s_settings.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur = 0.15f;
 
     s_settings.rendering.combining.positionDiffMul         = 6.0f;
     s_settings.rendering.combining.normalDiffMul           = 3.0f;

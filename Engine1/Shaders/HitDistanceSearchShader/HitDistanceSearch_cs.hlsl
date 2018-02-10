@@ -21,6 +21,10 @@ cbuffer ConstantBuffer : register( b0 )
     float3 pad7;
     float  minSampleWeightBasedOnDistance;
     float3 pad8;
+    float  decreaseBlurForSmallValues; // 0 - no, 1 - yes.
+    float3 pad9;
+    float  maxHitDistForDecreasedBlur;
+    float3 pad10;
 };
 
 SamplerState g_linearSamplerState;
@@ -130,7 +134,12 @@ void main( uint3 groupId : SV_GroupID,
         }
     }
 
-    g_finalDistToOccluder[ dispatchThreadId.xy ] = hitDistance / sampleWeightSum;
+    // When blurring hit-distance, near-zero values usually get over blurred,
+    // because of how easily they can be dominated by larger values. This multiplier helps reducing that effect
+    // and maintaining sharp reflections where object touches reflective surface.
+    const float blurMult = max( 1.0 - decreaseBlurForSmallValues, min( 1.0, centerHitDistance / maxHitDistForDecreasedBlur ) );
+
+    g_finalDistToOccluder[ dispatchThreadId.xy ] = lerp( centerHitDistance, hitDistance / sampleWeightSum, blurMult );
 }
 
 void sampleWeightedHitDistance( 

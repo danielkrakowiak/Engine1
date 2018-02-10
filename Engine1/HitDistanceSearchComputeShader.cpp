@@ -4,6 +4,7 @@
 #include "BlockMesh.h"
 #include "Light.h"
 #include "SpotLight.h"
+#include "Settings.h"
 
 #include <d3d11_3.h>
 #include <d3dcompiler.h>
@@ -12,6 +13,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
+// #TODO: Move those settings to Settings.
 float HitDistanceSearchComputeShader::s_positionDiffMul                = 1.0f;
 float HitDistanceSearchComputeShader::s_normalDiffMul                  = 1.0f;
 float HitDistanceSearchComputeShader::s_positionNormalThreshold        = 1.0f;
@@ -119,6 +121,8 @@ void HitDistanceSearchComputeShader::setParameters( ID3D11DeviceContext3& device
         dataPtr->normalDiffMul                  = s_normalDiffMul;
         dataPtr->positionNormalThreshold        = s_positionNormalThreshold;
         dataPtr->minSampleWeightBasedOnDistance = s_minSampleWeightBasedOnDistance;
+        dataPtr->decreaseBlurForSmallValues     = settings().rendering.hitDistanceSearch.decreaseBlurForSmallValues ? 1.0f : 0.0f;
+        dataPtr->maxHitDistForDecreasedBlur     = settings().rendering.hitDistanceSearch.maxHitDistForDecreasedBlur;
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

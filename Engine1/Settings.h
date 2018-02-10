@@ -195,6 +195,15 @@ namespace Engine1
                 // This value decides at what resolution compared to screen the operation will be performed.
                 // It was tested at 1/4 resolution of 1024x768 screen - so divider = 4 worked fine.
                 int resolutionDivider; 
+
+                // When blurring hit-distance, near-zero values usually get over blurred,
+                // because of how easily they can be dominated by larger values. This option helps reducing that effect
+                // and maintaining sharp reflections where object touches reflective surface.
+                bool decreaseBlurForSmallValues;
+
+                // At what hit-distance, decreasing blur should stop. 
+                // The larger the value, the sharper the reflections.
+                float maxHitDistForDecreasedBlur;
             } hitDistanceSearch;
 
             struct Combining

@@ -85,6 +85,10 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_reflectionRefractionBar, "Reflection elongation mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.elongationMul, "min=0.1 max=6.0 step=0.01 precision=2" );
     TwAddVarRW( m_reflectionRefractionBar, "Reflection radial blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.radialBlurEnabled, "" );
 
+    TwAddButton( m_reflectionRefractionBar, "", nullptr, nullptr, " label='Hit-dist search' ");
+    TwAddVarRW( m_reflectionRefractionBar, "Decrease blur for small values", TW_TYPE_BOOL8, &Settings::s_settings.rendering.hitDistanceSearch.decreaseBlurForSmallValues, "" );
+    TwAddVarRW( m_reflectionRefractionBar, "Field of view", TW_TYPE_FLOAT, &Settings::s_settings.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur, "min=0 max=1 step=0.01 precision=2" );
+
     m_shadowsBar = TwNewBar("Shadows");
     TwAddVarRW( m_shadowsBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='(H - hard, M - medium, S - soft) shadows' ");

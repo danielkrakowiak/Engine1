@@ -62,6 +62,10 @@ namespace Engine1
             float3 pad7;
             float  minSampleWeightBasedOnDistance;
             float3 pad8;
+            float  decreaseBlurForSmallValues; // 0 - no, 1 - yes.
+            float3 pad9;
+            float  maxHitDistForDecreasedBlur;
+            float3 pad10;
         };
 
         // Copying is not allowed.
