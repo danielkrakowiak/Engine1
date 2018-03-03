@@ -76,6 +76,26 @@ namespace Engine1
             float4       alphaMul[ s_maxActorCount ]; // (2nd, 3rd, 4th components are padding).
             float3       cameraPos;
             float        pad8;
+            float        shadowHardBlurRadiusStartThreshold;
+            float3       pad9;
+            float        shadowHardBlurRadiusEndThreshold;
+            float3       pad10;
+            float        shadowSoftBlurRadiusStartThreshold;
+            float3       pad11;
+            float        shadowSoftBlurRadiusEndThreshold;
+            float3       pad12;
+            float        shadowHardBlurRadiusTransitionWidth;
+            float3       pad13;
+            float        shadowSoftBlurRadiusTransitionWidth;
+            float3       pad14;
+            float        distToOccluderHardBlurRadiusStartThreshold;
+            float3       pad15;
+            float        distToOccluderHardBlurRadiusEndThreshold;
+            float3       pad16;
+            float        distToOccluderSoftBlurRadiusStartThreshold;
+            float3       pad17;
+            float        distToOccluderSoftBlurRadiusEndThreshold;
+            float3       pad18;
 		};
 
         int m_resourceCount;

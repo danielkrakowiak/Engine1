@@ -102,47 +102,58 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.enabled                = true;
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 
+    s_settings.rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold                     = 10.0f;
+    s_settings.rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold                     = 40.0f;
+    s_settings.rendering.shadows.raytracing.layers.hardLayerBlurRadiusTransitionWidth               = 6.0f;
+    s_settings.rendering.shadows.raytracing.layers.softLayerBlurRadiusTransitionWidth               = 20.0f;
+    s_settings.rendering.shadows.raytracing.layers.distToOccluderHardLayerBlurRadiusTransitionWidth = 6.0f;
+    s_settings.rendering.shadows.raytracing.layers.distToOccluderSoftLayerBlurRadiusTransitionWidth = 20.0f;
+
     s_settings.rendering.shadows.distanceToOccluderSearch.maxDistToOccluder = 500.0f;
 
     s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.positionThreshold         = 0.2f;
     s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.normalThreshold           = 0.7f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight       = 5.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight         = 1.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow      = 2.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow        = 1.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel          = 2;
-    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider   = 4;
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight       = 10.0f;//5.0f
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight         = 1.0f;//1.0f
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow      = 8.0f;//2.0f
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow        = 1.0f;//1.0f
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel          = 2;//2
+    s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider   = 4;//4
 
     s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.positionThreshold       = 0.2f;
     s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.normalThreshold         = 0.7f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight     = 10.0f; 
-    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight       = 1.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow    = 5.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow      = 1.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel        = 3;
-    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider = 8;
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight     = 10.0f;//10.0 
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight       = 1.0f;//1.0
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow    = 7.0f;//5.0
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow      = 1.0f;//1.0
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel        = 3;//3
+    s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider = 8;//8
 
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.positionThreshold         = 0.2f;
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.normalThreshold           = 1.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight       = 10.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight         = 1.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow      = 7.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow        = 1.0f;
-    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel          = 4;
-    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider   = 16;
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight       = 10.0f;//10.0
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight         = 1.0f;//1.0
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow      = 7.0f;//7.0
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow        = 1.0f;//1.0
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel          = 4;//4
+    s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider   = 16;//16
 
-    s_settings.rendering.shadows.blur.hardShadows.positionThreshold   = 0.05f;
-    s_settings.rendering.shadows.blur.hardShadows.normalThreshold     = 0.08f;
-    s_settings.rendering.shadows.blur.mediumShadows.positionThreshold = 0.08f;
-    s_settings.rendering.shadows.blur.mediumShadows.normalThreshold   = 0.08f;
+    // Note: To avoid light leaks at shadow layer transitions,
+    // it's better to keep position/normal threshold the same for all layers.
+    // Otherwise shadow is blurred slightly differently for both layers, 
+    // making a visible transition in the middle.
+    s_settings.rendering.shadows.blur.hardShadows.positionThreshold   = 0.12f; 
+    s_settings.rendering.shadows.blur.hardShadows.normalThreshold     = 0.08f; 
+    s_settings.rendering.shadows.blur.mediumShadows.positionThreshold = 0.12f; 
+    s_settings.rendering.shadows.blur.mediumShadows.normalThreshold   = 0.08f; 
     s_settings.rendering.shadows.blur.softShadows.positionThreshold   = 0.12f;
     s_settings.rendering.shadows.blur.softShadows.normalThreshold     = 0.08f;
 
-    s_settings.rendering.reflectionsRefractions.maxLevel                  = 1;
-    s_settings.rendering.reflectionsRefractions.reflectionsEnabled        = false;
-    s_settings.rendering.reflectionsRefractions.refractionsEnabled        = false;
-    s_settings.rendering.reflectionsRefractions.samplingQuality = 0.666f;
-    s_settings.rendering.reflectionsRefractions.roughnessBlurMul          = 60.0f;
+    s_settings.rendering.reflectionsRefractions.maxLevel            = 1;
+    s_settings.rendering.reflectionsRefractions.reflectionsEnabled  = false;
+    s_settings.rendering.reflectionsRefractions.refractionsEnabled  = false;
+    s_settings.rendering.reflectionsRefractions.samplingQuality     = 0.666f;
+    s_settings.rendering.reflectionsRefractions.roughnessBlurMul    = 60.0f;
 
     s_settings.rendering.reflectionsRefractions.elongationMul     = 1.0f;
     s_settings.rendering.reflectionsRefractions.radialBlurEnabled = true;

@@ -18,6 +18,7 @@
 #include "MipmapRenderer.h"
 #include "DistanceToOccluderSearchRenderer.h"
 #include "BlurShadowsRenderer.h"
+#include "CombineShadowLayersRenderer.h"
 #include "UtilityRenderer.h"
 #include "ExtractBrightPixelsRenderer.h"
 #include "ToneMappingRenderer.h"
@@ -283,6 +284,7 @@ namespace Engine1
         MipmapRenderer                      m_mipmapRenderer;
         DistanceToOccluderSearchRenderer    m_distanceToOccluderSearchRenderer;
         BlurShadowsRenderer                 m_blurShadowsRenderer;
+        CombineShadowLayersRenderer         m_combineShadowLayersRenderer;
         UtilityRenderer                     m_utilityRenderer;
         ExtractBrightPixelsRenderer         m_extractBrightPixelsRenderer;
         ToneMappingRenderer                 m_toneMappingRenderer;

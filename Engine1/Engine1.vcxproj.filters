@@ -475,6 +475,12 @@
     <Filter Include="Header Files\Actor\Animator">
       <UniqueIdentifier>{e96300f4-a22d-447d-b616-f849ceae344c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\CombineShadowLayers">
+      <UniqueIdentifier>{4ccc6a1b-0422-4e0c-8c9e-47238dbc1e57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\CombineShadowLayers">
+      <UniqueIdentifier>{dd159c99-8cad-40f5-b37c-e9a43a49313b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1023,6 +1029,12 @@
     <ClInclude Include="SumValuesComputeShader.h">
       <Filter>Header Files\Shader\Utility\SumValue</Filter>
     </ClInclude>
+    <ClInclude Include="CombineShadowLayersComputeShader.h">
+      <Filter>Header Files\Shader\CombineShadowLayers</Filter>
+    </ClInclude>
+    <ClInclude Include="CombineShadowLayersRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1541,6 +1553,12 @@
     <ClCompile Include="SumValuesComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\SumValue</Filter>
     </ClCompile>
+    <ClCompile Include="CombineShadowLayersComputeShader.cpp">
+      <Filter>Source Files\Shader\CombineShadowLayers</Filter>
+    </ClCompile>
+    <ClCompile Include="CombineShadowLayersRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1784,6 +1802,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\SumValuesShader\SumTwoUcharValues_cs.hlsl">
       <Filter>Source Files\Shader\Utility\SumValue</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CombineShadowLayersShader\CombineShadowLayers_cs.hlsl">
+      <Filter>Source Files\Shader\CombineShadowLayers</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

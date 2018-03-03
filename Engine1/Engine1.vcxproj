@@ -367,6 +367,8 @@
     <ClInclude Include="BVHTreeBuffer.h" />
     <ClInclude Include="BVHTreeBufferParser.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CombineShadowLayersComputeShader.h" />
+    <ClInclude Include="CombineShadowLayersRenderer.h" />
     <ClInclude Include="ControlPanel.h" />
     <ClInclude Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.h" />
     <ClInclude Include="DistanceToOccluderSearchComputeShader.h" />
@@ -551,6 +553,8 @@
     <ClCompile Include="BVHTreeBuffer.cpp" />
     <ClCompile Include="BVHTreeBufferParser.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CombineShadowLayersComputeShader.cpp" />
+    <ClCompile Include="CombineShadowLayersRenderer.cpp" />
     <ClCompile Include="ControlPanel.cpp" />
     <ClCompile Include="ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader.cpp" />
     <ClCompile Include="DistanceToOccluderSearchComputeShader.cpp" />
@@ -971,6 +975,20 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
+    </FxCompile>
+    <FxCompile Include="Shaders\CombineShadowLayersShader\CombineShadowLayers_cs.hlsl">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\CombineShadowLayersShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">$(ProjectDir)Shaders\CombineShadowLayersShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">$(ProjectDir)Shaders\CombineShadowLayersShader\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\CombineShadowLayersShader\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\CombiningShader\Combining_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

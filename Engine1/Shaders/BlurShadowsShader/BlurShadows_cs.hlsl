@@ -62,8 +62,8 @@ void main( uint3 groupId : SV_GroupID,
 
     const float2 pixelSize0 = 1.0f / g_outputTextureSize;
 
-    const float3 surfacePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
-    const float3 surfaceNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f ).xyz; 
+    const float3 surfacePosition = g_positionTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz; 
+    const float3 surfaceNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz; 
 
     const float3 vectorToCamera = g_cameraPos - surfacePosition;
     const float3 dirToCamera    = normalize( vectorToCamera );
@@ -79,7 +79,7 @@ void main( uint3 groupId : SV_GroupID,
         return;
     }
 
-    const float distToOccluder = g_finalDistToOccluderTexture.SampleLevel( g_pointSamplerState, texcoords, 0.0f );
+    const float distToOccluder = g_finalDistToOccluderTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f );
 
     const float pixelSizeInWorldSpace   = (distToCamera * tan( Pi / 8.0f )) / (g_outputTextureSize.y * 0.5f);
     const float maxBlurRadiusWorldSpace = 1.0f; 
@@ -110,8 +110,9 @@ void main( uint3 groupId : SV_GroupID,
 
             //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
             const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
+           
             //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
-                
+               
             const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
             const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
 
@@ -131,5 +132,5 @@ void main( uint3 groupId : SV_GroupID,
     // Note: We assume that at least the central pixel will get accepted - otherwise division by zero would occur.
     surfaceShadow /= sampleCount;
 
-    g_blurredShadowTexture[ dispatchThreadId.xy ] = (uint)( round( surfaceShadow * 255.0 ) );
+    g_blurredShadowTexture[ dispatchThreadId.xy ] = (uint)( ceil( surfaceShadow * 255.0 ) );
 }

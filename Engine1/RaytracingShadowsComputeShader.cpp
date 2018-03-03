@@ -9,6 +9,7 @@
 
 #include "MathUtil.h"
 #include "TextFile.h"
+#include "Settings.h"
 
 #include <d3d11_3.h>
 #include <d3d11_3.h>
@@ -207,6 +208,41 @@ void RaytracingShadowsComputeShader::setParameters(
         }
 
         dataPtr->cameraPos = cameraPosition;
+
+        dataPtr->shadowHardBlurRadiusStartThreshold = 
+            settings().rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold - 
+            settings().rendering.shadows.raytracing.layers.hardLayerBlurRadiusTransitionWidth * 0.5f;
+
+        dataPtr->shadowHardBlurRadiusEndThreshold = 
+            settings().rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold + 
+            settings().rendering.shadows.raytracing.layers.hardLayerBlurRadiusTransitionWidth * 0.5f;
+
+        dataPtr->shadowSoftBlurRadiusStartThreshold = 
+            settings().rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold - 
+            settings().rendering.shadows.raytracing.layers.softLayerBlurRadiusTransitionWidth * 0.5f;
+
+        dataPtr->shadowSoftBlurRadiusEndThreshold = 
+            settings().rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold + 
+            settings().rendering.shadows.raytracing.layers.softLayerBlurRadiusTransitionWidth * 0.5f;
+
+        dataPtr->shadowHardBlurRadiusTransitionWidth = settings().rendering.shadows.raytracing.layers.hardLayerBlurRadiusTransitionWidth;
+        dataPtr->shadowSoftBlurRadiusTransitionWidth = settings().rendering.shadows.raytracing.layers.softLayerBlurRadiusTransitionWidth;
+
+        dataPtr->distToOccluderHardBlurRadiusStartThreshold =
+            settings().rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold - 
+            settings().rendering.shadows.raytracing.layers.distToOccluderHardLayerBlurRadiusTransitionWidth * 0.5f;
+
+        dataPtr->distToOccluderHardBlurRadiusEndThreshold =
+            settings().rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold + 
+            settings().rendering.shadows.raytracing.layers.distToOccluderHardLayerBlurRadiusTransitionWidth * 0.5f;
+
+        dataPtr->distToOccluderSoftBlurRadiusStartThreshold =
+            settings().rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold - 
+            settings().rendering.shadows.raytracing.layers.distToOccluderSoftLayerBlurRadiusTransitionWidth * 0.5f;
+
+        dataPtr->distToOccluderSoftBlurRadiusEndThreshold =
+            settings().rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold + 
+            settings().rendering.shadows.raytracing.layers.distToOccluderSoftLayerBlurRadiusTransitionWidth * 0.5f;
 
 		deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

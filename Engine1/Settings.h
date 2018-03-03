@@ -105,6 +105,24 @@ namespace Engine1
                 // But it's not mathematically correct (because of variable levels of blur per pixel) so may lead to some artifacts.
                 bool useSeparableShadowBlur;
 
+                struct Raytracing
+                {
+                    struct Layers
+                    {
+                        // Decide on how to split shadow into layers based on screen-space blur radius (in pixels).
+                        // Values below hard-threshold go to hard layer.
+                        // Values between hard, soft thresholds go to medium layer.
+                        // Values above soft threshold go to soft layer.
+                        // Threshold width allows for splitting shadow smoothly between two layer in the transition area.
+                        float hardLayerBlurRadiusThreshold;
+                        float softLayerBlurRadiusThreshold;
+                        float hardLayerBlurRadiusTransitionWidth;
+                        float softLayerBlurRadiusTransitionWidth;
+                        float distToOccluderHardLayerBlurRadiusTransitionWidth;
+                        float distToOccluderSoftLayerBlurRadiusTransitionWidth;
+                    } layers;
+                } raytracing;
+
                 struct DistanceToOccluderSearch
                 {
                     // Dist-to-occluder values below that number are valid. 

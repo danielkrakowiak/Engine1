@@ -93,6 +93,14 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_shadowsBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='(H - hard, M - medium, S - soft) shadows' ");
 
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Raytracing, layers' ");
+    TwAddVarRW( m_shadowsBar, "H blur radius threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold, "min=0 max=30 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S blur radius threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold, "min=0 max=70 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "H blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.hardLayerBlurRadiusTransitionWidth, "min=0 max=10 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.softLayerBlurRadiusTransitionWidth, "min=0 max=20 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "dist-to-occluder H blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.distToOccluderHardLayerBlurRadiusTransitionWidth, "min=0 max=10 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "dist-to-occluder S blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.distToOccluderSoftLayerBlurRadiusTransitionWidth, "min=0 max=20 step=0.001 precision=3" );
+
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Dist-to-occluder-search' ");
     TwAddVarRW( m_shadowsBar, "H pos threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
     TwAddVarRW( m_shadowsBar, "M pos threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );

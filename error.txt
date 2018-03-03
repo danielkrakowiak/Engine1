@@ -1,1 +1,1 @@
-ComputeShader::loadFromFile - Failed to create shader
+Direct3DRenderer::displayFrame - swapping frame failed

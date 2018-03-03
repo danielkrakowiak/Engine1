@@ -28,6 +28,26 @@ cbuffer ConstantBuffer : register( b0 )
     float4   alphaMul; // (2nd, 3rd, 4th components are padding).
     float3   cameraPos;
     float    pad8;
+    float    shadowHardBlurRadiusStartThreshold;
+    float3   pad9;
+    float    shadowHardBlurRadiusEndThreshold;
+    float3   pad10;
+    float    shadowSoftBlurRadiusStartThreshold;
+    float3   pad11;
+    float    shadowSoftBlurRadiusEndThreshold;
+    float3   pad12;
+    float    shadowHardBlurRadiusTransitionWidth;
+    float3   pad13;
+    float    shadowSoftBlurRadiusTransitionWidth;
+    float3   pad14;
+    float    distToOccluderHardBlurRadiusStartThreshold;
+    float3   pad15;
+    float    distToOccluderHardBlurRadiusEndThreshold;
+    float3   pad16;
+    float    distToOccluderSoftBlurRadiusStartThreshold;
+    float3   pad17;
+    float    distToOccluderSoftBlurRadiusEndThreshold;
+    float3   pad18;
 };
 
 // Input.
@@ -131,38 +151,109 @@ void main( uint3 groupId : SV_GroupID,
         const float blurRadiusInWorldSpace  = calculateShadowBlurRadius( lightEmitterRadius, surfaceDistToOccluder, occluderDistToLight );
         const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;
 
-        const float hardShadowBlurRadiusThreshold = 10.0f;
-        const float softShadowBlurRadiusThreshold = 40.0f;
+        // #TODO: just in case, to test if there is a bug where shadow has larger value.
+        //shadow = min(1.0, shadow);
 
-        if (blurRadiusInScreenSpace < hardShadowBlurRadiusThreshold)
+        // Write shadow data to texture.
+        if (blurRadiusInScreenSpace <= shadowHardBlurRadiusEndThreshold)
+        {
+            const float prevHardShadowInt = (float)g_hardShadow[ dispatchThreadId.xy ] /*/ 255.0f*/;
+            const float prevMediumShadowInt = (float)g_mediumShadow[ dispatchThreadId.xy ] /*/ 255.0f*/;
+
+            // How much light should go to harder/softer shadow layer.
+            const float shadowRatio = 0.0;//min(1.0, max(0.0, blurRadiusInScreenSpace - shadowHardBlurRadiusStartThreshold) / shadowHardBlurRadiusTransitionWidth);
+            
+            const float extraShadow       = ceil(shadow * 255.0);
+            const float extraHardShadow   = round((1.0 - shadowRatio) * extraShadow);
+            //const float extraMediumShadow = extraShadow - extraHardShadow;
+
+            const float hardShadowInt   = prevHardShadowInt + extraHardShadow;
+            //const float mediumShadowInt = prevMediumShadowInt + extraMediumShadow;
+
+            g_hardShadow[ dispatchThreadId.xy ]   = (uint)( min(255.0f, ceil(hardShadowInt) ) );
+            //g_mediumShadow[ dispatchThreadId.xy ] = (uint)( min(255.0f, ceil(mediumShadowInt) ) );
+
+            // Mark some pixels as "untouchable" during blur - cannot be used as samples or as gather center.
+            //g_distToOccluderMediumShadow[ dispatchThreadId.xy ] = 10000.0;
+            //g_distToOccluderSoftShadow[ dispatchThreadId.xy ]   = 10000.0;
+        }
+
+        if (blurRadiusInScreenSpace > shadowHardBlurRadiusStartThreshold && blurRadiusInScreenSpace <= shadowSoftBlurRadiusEndThreshold)
+        {
+            const float prevMediumShadowInt = (float)g_mediumShadow[ dispatchThreadId.xy ] /*/ 255.0f*/;
+            const float prevSoftShadowInt   = (float)g_softShadow[ dispatchThreadId.xy ] /*/ 255.0f*/;
+
+            // How much light should go to harder/softer shadow layer.
+            const float shadowRatio = 0.0;//min(1.0, max(0.0, blurRadiusInScreenSpace - shadowSoftBlurRadiusStartThreshold) / shadowSoftBlurRadiusTransitionWidth);
+            
+            const float extraShadow       = ceil(shadow * 255.0);
+            const float extraMediumShadow = round((1.0 - shadowRatio) * extraShadow);
+            //const float extraSoftShadow   = extraShadow - extraMediumShadow;
+
+            const float mediumShadow = prevMediumShadowInt + extraMediumShadow;
+            //const float softShadow   = prevSoftShadowInt + extraSoftShadow;
+
+            g_mediumShadow[ dispatchThreadId.xy ] = (uint)( min(255.0f, ceil(mediumShadow) ) );
+            //g_softShadow[ dispatchThreadId.xy ]   = (uint)( min(255.0f, ceil(softShadow) ) );
+
+            // Mark some pixels as "untouchable" during blur - cannot be used as samples or as gather center.
+            //g_distToOccluderHardShadow[ dispatchThreadId.xy ] = 10000.0;
+            //g_distToOccluderSoftShadow[ dispatchThreadId.xy ] = 10000.0;
+        }
+        
+        if (blurRadiusInScreenSpace > shadowSoftBlurRadiusStartThreshold)
+        {
+            const float prevSoftShadowInt = (float)g_softShadow[ dispatchThreadId.xy ] /*/ 255.0f*/;
+            const float softShadow     = prevSoftShadowInt + ceil(shadow * 255.0);
+
+            g_softShadow[ dispatchThreadId.xy ] = (uint)( min(255.0f, ceil(softShadow) ) );
+
+            // Mark some pixels as "untouchable" during blur - cannot be used as samples or as gather center.
+            //g_distToOccluderMediumShadow[ dispatchThreadId.xy ] = 10000.0;
+            //g_distToOccluderHardShadow[ dispatchThreadId.xy ]   = 10000.0;
+        }
+
+        //// Write shadow data to texture.
+        //if (blurRadiusInScreenSpace <= hardShadowBlurRadiusThreshold)
+        //{
+        //    const float prevHardShadow = (float)g_hardShadow[ dispatchThreadId.xy ] / 255.0f;
+        //    const float hardShadow     = prevHardShadow + shadow;
+
+        //    g_hardShadow[ dispatchThreadId.xy ] = (uint)( round( min(1.0f, hardShadow ) * 255.0f ) );
+        //}
+        //else if (blurRadiusInScreenSpace <= softShadowBlurRadiusThreshold)
+        //{
+        //    const float prevMediumShadow = (float)g_mediumShadow[ dispatchThreadId.xy ] / 255.0f;
+        //    const float mediumShadow     = prevMediumShadow + shadow;
+
+        //    g_mediumShadow[ dispatchThreadId.xy ] = (uint)( round( min(1.0f, mediumShadow ) * 255.0f ) );
+        //}
+        //else
+        //{
+        //    const float prevSoftShadow = (float)g_softShadow[ dispatchThreadId.xy ] / 255.0f;
+        //    const float softShadow     = prevSoftShadow + shadow;
+
+        //    g_softShadow[ dispatchThreadId.xy ] = (uint)( round( min(1.0f, softShadow ) * 255.0f ) );
+        //}
+
+        // Write dist-to-occluder data to texture.
+        if (blurRadiusInScreenSpace <= distToOccluderHardBlurRadiusEndThreshold)
         {
             const float prevDistToOccluderHardShadow = g_distToOccluderHardShadow[ dispatchThreadId.xy ];
-            const float prevHardShadow               = (float)g_hardShadow[ dispatchThreadId.xy ] / 255.0f;
-
-            const float hardShadow = prevHardShadow + shadow;
-
             g_distToOccluderHardShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderHardShadow, surfaceDistToOccluder );
-            g_hardShadow[ dispatchThreadId.xy ]               = (uint)( round( min(1.0f, hardShadow ) * 255.0f ) );
         }
-        else if (blurRadiusInScreenSpace < softShadowBlurRadiusThreshold)
+
+        if (blurRadiusInScreenSpace > distToOccluderHardBlurRadiusStartThreshold && 
+            blurRadiusInScreenSpace <= distToOccluderSoftBlurRadiusEndThreshold)
         {
             const float prevDistToOccluderMediumShadow = g_distToOccluderMediumShadow[ dispatchThreadId.xy ];
-            const float prevMediumShadow               = (float)g_mediumShadow[ dispatchThreadId.xy ] / 255.0f;
-
-            const float mediumShadow = prevMediumShadow + shadow;
-
             g_distToOccluderMediumShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderMediumShadow, surfaceDistToOccluder );
-            g_mediumShadow[ dispatchThreadId.xy ]             = (uint)( round( min(1.0f, mediumShadow ) * 255.0f ) );
         }
-        else
+
+        if (blurRadiusInScreenSpace > distToOccluderSoftBlurRadiusStartThreshold)
         {
             const float prevDistToOccluderSoftShadow = g_distToOccluderSoftShadow[ dispatchThreadId.xy ];
-            const float prevSoftShadow               = (float)g_softShadow[ dispatchThreadId.xy ] / 255.0f;
-
-            const float softShadow = prevSoftShadow + shadow;
-
             g_distToOccluderSoftShadow[ dispatchThreadId.xy ] = min( prevDistToOccluderSoftShadow, surfaceDistToOccluder );
-            g_softShadow[ dispatchThreadId.xy ]               = (uint)( round( min(1.0f, softShadow ) * 255.0f ) );
         }
     }
 }

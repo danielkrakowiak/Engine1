@@ -473,8 +473,20 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 12.11.2017 - 6h - Fixed problem with light leaks - it was caused by casting floats to ints and loosing precision when summing up shadow values - fixed by adding rounding to the nearest integer. Fixing artifacts in Lambo scene - caused by too low normal threshold for dist-to-occluder-search.
 19.11.2017 - 4h - Fixed a problem - reflection/refraction was always slightly blurred (despite zero roughness) - it was caused by bugs in the combining shader - sampling redius was never zero.
 --- November 2017 - 36h
---- total 1374h
 25.12.2017 - 2h - Tested impact of specular elongation in reflections - it is amazing - a must have!
 26.12.2017 - 2h - Testing radial weighting of reflection/refraction samples during combining.
 28.12.2017 - 3h - Tested how reflection lobe differs from specular lobe used in shading. Compared reflection of a small emissive object with a specular lobe of a weak light source - they were very different at the beggining, but after adding Gaussian scaling of reflection samples they got much more similar. It improved overall reflection quality. Added new Control Panel tab for reflections/refractions, added sampling quality setting.
 30.12.2017 - 1h - Added additional emissive color multiplier to Control Panel - to achieve values over 1. Unfortunately they are seemingly clamped anyways by the render target.
+--- December 2017 - 8h
+
+--- 2017 - 391h
+
+10.02.2018 - 2h - When blurring hit-distance, near-zero values usually get over blurred, because of how easily they can be dominated by larger values. Added a setting which helps reducing that effect and maintains sharp reflections where object touches reflective surface. It lerps between blurred hit-distance and original hit-distance.
+25.02.2018 - 5h - Trying to fix light leaks between shadow layers through overlapping those layers (sharply/smoothly), overlapping dist-to-occluder data etc. Achieved big improvment, but shadow "fluidity" on camera movement is now worse.
+26.02.2018 - 0h - Added ceil() in raytracing shadow shader to handle numerical errors and prefer slight overshadowing rather than light leaks. It helped just the tiny bit that was needed.
+27.02.2018 - 4h - Trying to fix light leaks on shadow layer transitions through multiplying final shadow value by 104%. It helps a bit, but makes shadow edge a bit harder. New problem understood: shadows on different layers are partly the same shadow (same part os source light occluded). But we treat them as independent and this causes overshadowing and shadow bubbles. Added CombineShadowLayersRenderer to make some math operations on layers when adding them. LIke substracing hard shadow from medium, and hard.medium from soft. It fixes shadow bubbles nicely, but exposes light leaks on layer transitions.
+28.02.2018 - 2h - Tried to remove blurring of shadows on layer transitions by marking regions occupied by other layers in dist-to-occluder texture (using some extreme value). It worked and actually removed light leaks on layer transitions. But how to tell layer transtion from normal shadow intersection? Because that solution corrupts shadow intersections between layers.
+--- February 2018 - 13h
+--- total 1395h
+
+03.03.2018 - 2h - Finally found the solution! Shadows work perfectly! Substracting hard shadow from medium one, and hard/medium from soft is needed. And then the layers can overlap, even at great extents, and everythings stays fine. So making them overlap (with hard transitions) solves the problem of light leaking. Great!!!!

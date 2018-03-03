@@ -52,6 +52,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, Rend
     m_mipmapRenderer( rendererCore ),
     m_distanceToOccluderSearchRenderer( rendererCore ),
     m_blurShadowsRenderer( rendererCore ),
+    m_combineShadowLayersRenderer( rendererCore ),
     m_utilityRenderer( rendererCore ),
     m_extractBrightPixelsRenderer( rendererCore ),
     m_toneMappingRenderer( rendererCore ),
@@ -91,6 +92,7 @@ void Renderer::initialize(
     m_mipmapRenderer.initialize( device, deviceContext );
     m_distanceToOccluderSearchRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_blurShadowsRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+    m_combineShadowLayersRenderer.initialize( device, deviceContext );
     m_utilityRenderer.initialize( device, deviceContext );
     m_extractBrightPixelsRenderer.initialize( device, deviceContext );
     m_toneMappingRenderer.initialize( device, deviceContext );
@@ -703,11 +705,18 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
 
-        m_utilityRenderer.sumValues(
+        /*m_utilityRenderer.sumValues(
             blurredShadowRenderTarget,
             blurredHardShadowRenderTarget, 
             blurredMediumShadowRenderTarget,
             blurredSoftShadowRenderTarget  
+        );*/
+
+        m_combineShadowLayersRenderer.combineShadowLayers(
+            blurredShadowRenderTarget,
+            *blurredHardShadowRenderTarget, 
+            *blurredMediumShadowRenderTarget,
+            *blurredSoftShadowRenderTarget  
         );
 
         m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
