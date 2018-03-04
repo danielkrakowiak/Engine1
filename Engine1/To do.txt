@@ -454,6 +454,8 @@ Idea:
 
 	  IMPORTANT:
 
+      - some problem with refraction - when seen in mirror it doesn't work? Or works at some angles only? Weird...
+
 	  - we assume that refractions are always computed through shaders/classes with "fisrt" in their name. But that may not be true. And the name is misleading. 
 	  Because it only happens like that if refraction occurs first, and then reflection/refraction. But if reflection is fisrt, then these shaders/classes are not used at all. What kind of bugs can result from this.
 	  Rename shader and classes and replace word "first" with something else.

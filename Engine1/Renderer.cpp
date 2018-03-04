@@ -705,13 +705,6 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
 
-        /*m_utilityRenderer.sumValues(
-            blurredShadowRenderTarget,
-            blurredHardShadowRenderTarget, 
-            blurredMediumShadowRenderTarget,
-            blurredSoftShadowRenderTarget  
-        );*/
-
         m_combineShadowLayersRenderer.combineShadowLayers(
             blurredShadowRenderTarget,
             *blurredHardShadowRenderTarget, 
@@ -1297,11 +1290,11 @@ void Renderer::renderSecondaryLayer(
 
         auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
 
-        m_utilityRenderer.sumValues(
+        m_combineShadowLayersRenderer.combineShadowLayers(
             blurredShadowRenderTarget,
-            blurredHardShadowRenderTarget, 
-            blurredMediumShadowRenderTarget,
-            blurredSoftShadowRenderTarget  
+            *blurredHardShadowRenderTarget, 
+            *blurredMediumShadowRenderTarget,
+            *blurredSoftShadowRenderTarget  
         );
 
         // Perform shading on the main image.
