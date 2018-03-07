@@ -1,6 +1,8 @@
 # Engine1
 
 ![alt text](https://warsztat.gd/screens/147d87ff0736e81737c7bff66a782c21.png)
+![alt text](https://warsztat.gd/screens/e63da22f6f38e1cbe89fa2053c9bb2ab.png)
+![alt text](https://warsztat.gd/screens/e00cef0668a4d04b963a600ce6e97379.jpg)
 
 The aim of this project is to create a renderer which almost matches Path Tracing in quality, while generating noiseless images hundreds times faster. 
 Instead of tracing thousands of rays per pixel to get soft shadows and diffuse reflections, it uses "intelligent" blur in screen space. 
@@ -32,5 +34,3 @@ It also uses standard Deferred Rendering for rasterizing main image. One of the 
 &bull; Dynamic caustics <br>
 &bull; Volumetric effects, patricles - smoke, fire, clouds <br>
 &bull; Creating a sandbox game for testing <br>
-
-Note: FPS for above image is around 23.
