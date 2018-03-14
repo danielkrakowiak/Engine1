@@ -160,7 +160,7 @@ void TW_CALL ControlPanel::onPrevLevel( void* /*clientData*/ )
 
 void TW_CALL ControlPanel::onResetCamera( void* controlPanel )
 {
-    ( (ControlPanel*)controlPanel )->m_sceneManager.getCamera().setPosition( float3::ZERO );
+    ( (ControlPanel*)controlPanel )->m_sceneManager.getCamera()->setPosition( float3::ZERO );
 }
 
 void TW_CALL ControlPanel::onSetAlphaMul( const void* value, void* /*clientData*/ )

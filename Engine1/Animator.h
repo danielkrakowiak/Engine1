@@ -23,6 +23,8 @@ namespace Engine1
 
         void playPause( std::shared_ptr< T >& obj );
 
+        bool isPlaying( std::shared_ptr< T >& obj );
+
         float getSpeedMultiplier( std::shared_ptr< T >& obj ) const;
         void  setSpeedMultiplier( std::shared_ptr< T >& obj, const float speedMultiplier );
 
@@ -59,7 +61,7 @@ namespace Engine1
             std::weak_ptr< T >, 
             Animation,
             std::owner_less< std::weak_ptr< T > >
-        > keyframes;
+        > animations;
     };
 
     template< typename T >
@@ -79,10 +81,10 @@ namespace Engine1
         // #TODO: Maybe remove only once a second - not at every update.
         removeKeyframesForDeletedObjects();
 
-        for ( auto& lightKeyframes : keyframes )
+        for ( auto& animation : animations )
         {
-            auto& objWeakPtr = lightKeyframes.first;
-            auto& anim         = lightKeyframes.second;
+            auto& objWeakPtr = animation.first;
+            auto& anim       = animation.second;
 
             // Skip lights with 0 or 1 keyframes or the ones with animation disabled.
             if ( anim.keyframes.size() <= 1 || !anim.enabled)
@@ -159,10 +161,10 @@ namespace Engine1
     template< typename T >
     void Animator< T >::addKeyframe( std::shared_ptr< T >& obj, float time )
     {
-        std::weak_ptr< SpotLight > objWeakPtr = obj;
+        std::weak_ptr< T > objWeakPtr = obj;
 
         // Insert or find the key.
-        auto  result = keyframes.insert( std::make_pair( objWeakPtr, Animation() ) );
+        auto  result = animations.insert( std::make_pair( objWeakPtr, Animation() ) );
         auto& anim   = result.first->second;
 
         if ( time < 0.0f && !anim.keyframes.empty() )
@@ -176,10 +178,10 @@ namespace Engine1
     template< typename T >
     void Animator< T >::playPause( std::shared_ptr< T >& obj )
     {
-        std::weak_ptr< SpotLight > objWeakPtr = obj;
+        std::weak_ptr< T > objWeakPtr = obj;
 
-        auto resultIt = keyframes.find( objWeakPtr );
-        if ( resultIt == keyframes.end() )
+        auto resultIt = animations.find( objWeakPtr );
+        if ( resultIt == animations.end() )
             return;
 
         auto& anim = resultIt->second;
@@ -188,12 +190,26 @@ namespace Engine1
     }
 
     template< typename T >
+    bool Animator< T >::isPlaying( std::shared_ptr< T >& obj )
+    {
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        auto resultIt = animations.find( objWeakPtr );
+        if ( resultIt == animations.end() )
+            return false;
+
+        auto& anim = resultIt->second;
+
+        return anim.enabled;
+    }
+
+    template< typename T >
     float Animator< T >::getSpeedMultiplier( std::shared_ptr< T >& obj ) const
     {
-        std::weak_ptr< SpotLight > objWeakPtr = obj;
+        std::weak_ptr< T > objWeakPtr = obj;
 
-        auto resultIt = keyframes.find( objWeakPtr );
-        if ( resultIt == keyframes.end() )
+        auto resultIt = animations.find( objWeakPtr );
+        if ( resultIt == animations.end() )
             return 0.0f;
 
         auto& anim = resultIt->second;
@@ -204,10 +220,10 @@ namespace Engine1
     template< typename T >
     void  Animator< T >::setSpeedMultiplier( std::shared_ptr< T >& obj, const float speedMultiplier )
     {
-        std::weak_ptr< SpotLight > objWeakPtr = obj;
+        std::weak_ptr< T > objWeakPtr = obj;
 
-        auto resultIt = keyframes.find( objWeakPtr );
-        if ( resultIt == keyframes.end() )
+        auto resultIt = animations.find( objWeakPtr );
+        if ( resultIt == animations.end() )
             return;
 
         auto& anim = resultIt->second;
@@ -218,10 +234,10 @@ namespace Engine1
     template< typename T >
     void Animator< T >::removeKeyframesForDeletedObjects()
     {
-        for ( auto it = keyframes.cbegin(); it != keyframes.cend(); ) 
+        for ( auto it = animations.cbegin(); it != animations.cend(); ) 
         {
             if ( it->first.expired() )
-                it = keyframes.erase( it );
+                it = animations.erase( it );
             else
                 ++it;
         }

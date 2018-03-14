@@ -35,8 +35,8 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-        FreeCamera& getCamera();
-        Scene&     getScene();
+        std::shared_ptr< FreeCamera >& getCamera();
+        std::shared_ptr< Scene >&      getScene();
 
         const Selection&                                       getSelection();
         const std::vector< std::shared_ptr< Light > >&         getSelectedLights();
@@ -109,7 +109,8 @@ namespace Engine1
         AssetManager& m_assetManager;
 
         std::string m_cameraPath;
-        FreeCamera m_camera;
+        
+        std::shared_ptr< FreeCamera > m_camera;
 
         std::string m_scenePath;
         std::shared_ptr< Scene > m_scene;

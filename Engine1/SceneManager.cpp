@@ -38,12 +38,13 @@ SceneManager::SceneManager( AssetManager& assetManager ) :
     m_assetManager( assetManager ),
     m_scenePath( "Assets/Scenes/new.scene" ),
     m_cameraPath( "Assets/Scenes/new.camera" ),
+    m_camera( std::make_shared< FreeCamera >() ),
     m_scene( std::make_shared< Scene >() )
 {
     // Setup the camera.
-    m_camera.setUp( float3( 0.0f, 1.0f, 0.0f ) );
-    m_camera.setPosition( float3( 30.0f, 4.0f, -53.0f ) );
-    m_camera.rotate( float3( 0.0f, MathUtil::piHalf, 0.0f ) );
+    m_camera->setUp( float3( 0.0f, 1.0f, 0.0f ) );
+    m_camera->setPosition( float3( 30.0f, 4.0f, -53.0f ) );
+    m_camera->rotate( float3( 0.0f, MathUtil::piHalf, 0.0f ) );
 }
 
 void SceneManager::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext )
@@ -52,14 +53,14 @@ void SceneManager::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, M
     m_deviceContext = deviceContext;
 }
 
-FreeCamera& SceneManager::getCamera()
+std::shared_ptr< FreeCamera >& SceneManager::getCamera()
 {
     return m_camera;
 }
 
-Scene& SceneManager::getScene()
+std::shared_ptr< Scene >& SceneManager::getScene()
 {
-    return *m_scene;
+    return m_scene;
 }
 
 const Selection& SceneManager::getSelection()
@@ -89,12 +90,12 @@ std::shared_ptr< BlockMesh > SceneManager::getSelectionVolumeMesh()
 
 void SceneManager::loadCamera( std::string path )
 {
-    m_camera = *FreeCamera::createFromFile( path );
+    m_camera = FreeCamera::createFromFile( path );
 }
 
 void SceneManager::saveCamera( std::string path )
 {
-    m_camera.saveToFile( path );
+    m_camera->saveToFile( path );
 }
 
 void SceneManager::loadScene( std::string path )
@@ -246,7 +247,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
     }
 
     float43 pose = float43::IDENTITY;
-    pose.setTranslation( m_camera.getPosition() + m_camera.getDirection() );
+    pose.setTranslation( m_camera->getPosition() + m_camera->getDirection() );
 
     if ( isBlockMesh ) {
         BlockMeshFileInfo::Format format = BlockMeshFileInfo::Format::OBJ;
@@ -502,14 +503,14 @@ std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > >
 SceneManager::pickActorOrLight( const float2& targetPixel, const float screenWidth, const float screenHeight, const float fieldOfView )
 {
     float43 cameraPose;
-    cameraPose.setRow1( m_camera.getRight() );
-    cameraPose.setRow2( m_camera.getUp() );
-    cameraPose.setRow3( m_camera.getDirection() );
-    cameraPose.setTranslation( m_camera.getPosition() );
+    cameraPose.setRow1( m_camera->getRight() );
+    cameraPose.setRow2( m_camera->getUp() );
+    cameraPose.setRow3( m_camera->getDirection() );
+    cameraPose.setTranslation( m_camera->getPosition() );
 
     const float2 screenDimensions( screenWidth, screenHeight );
 
-    const float3 rayOriginWorld = m_camera.getPosition();
+    const float3 rayOriginWorld = m_camera->getPosition();
     const float3 rayDirWorld = MathUtil::getRayDirectionAtPixel( cameraPose, targetPixel, screenDimensions, fieldOfView );
 
     float                    minHitDistance = FLT_MAX;
@@ -819,7 +820,7 @@ std::tuple< int, int > SceneManager::getSceneVertexAndTriangleCount()
 
 void SceneManager::addPointLight()
 {
-    float3 lightPosition = m_camera.getPosition() + m_camera.getDirection();
+    float3 lightPosition = m_camera->getPosition() + m_camera->getDirection();
 
     std::shared_ptr< Light > light = std::make_shared< PointLight >( lightPosition );
 
@@ -831,9 +832,9 @@ void SceneManager::addPointLight()
 
 void SceneManager::addSpotLight()
 {
-    float3 lightPosition = m_camera.getPosition() + m_camera.getDirection();
+    float3 lightPosition = m_camera->getPosition() + m_camera->getDirection();
 
-    std::shared_ptr< Light > light = std::make_shared< SpotLight >( lightPosition, m_camera.getDirection(), MathUtil::pi / 8.0f );
+    std::shared_ptr< Light > light = std::make_shared< SpotLight >( lightPosition, m_camera->getDirection(), MathUtil::pi / 8.0f );
 
     m_scene->addLight( light );
 

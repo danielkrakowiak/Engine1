@@ -23,6 +23,8 @@ namespace Engine1
         float3 getLookAtPoint() const;
         float  getFieldOfView() const;
 
+        virtual void setInterpolated( const Camera& camera1, const Camera& camera2, float ratio );
+
         protected:
         float3 m_position;
         float3 m_direction;

@@ -490,3 +490,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 --- total 1395h
 
 03.03.2018 - 2h - Finally found the solution! Shadows work perfectly! Substracting hard shadow from medium one, and hard/medium from soft is needed. And then the layers can overlap, even at great extents, and everythings stays fine. So making them overlap (with hard transitions) solves the problem of light leaking. Great!!!!
+14.03.2018 - 2h - Modified Animator to be a template class to support animation of any kind of object. Added animation playback for Camera.

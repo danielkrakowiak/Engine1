@@ -71,4 +71,26 @@ float Camera::getFieldOfView() const
     return m_fieldOfView; 
 }
 
+void Camera::setInterpolated( const Camera& camera1, const Camera& camera2, float ratio )
+{
+    ratio = std::min( 1.0f, std::max( 0.0f, ratio ) );
+
+    float33 orientation1;
+    orientation1.setRow1( cross(camera1.m_up, camera1.m_direction) );
+    orientation1.setRow2(camera1.m_up);
+    orientation1.setRow3(camera1.m_direction);
+
+    float33 orientation2;
+    orientation2.setRow1( cross(camera2.m_up, camera2.m_direction) );
+    orientation2.setRow2(camera2.m_up);
+    orientation2.setRow3(camera2.m_direction);
+
+    auto slerpedOrientation = float33::slerp( orientation1, orientation2, ratio );
+
+    m_position    = MathUtil::lerp( camera1.m_position, camera2.m_position, ratio );
+    m_direction   = slerpedOrientation.getRow3();
+    m_up          = slerpedOrientation.getRow2();
+    m_fieldOfView = MathUtil::lerp( camera1.m_fieldOfView, camera2.m_fieldOfView, ratio );
+}
+
 

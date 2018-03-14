@@ -87,6 +87,7 @@ namespace Engine1
         SceneManager     m_sceneManager;
 
         Animator< SpotLight > m_spotlightAnimator;
+        Animator< Camera >    m_cameraAnimator;
 
 	    Direct3DRendererCore      m_rendererCore;
         Direct3DFrameRenderer     m_frameRenderer;

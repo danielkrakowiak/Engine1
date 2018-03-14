@@ -244,7 +244,7 @@ void Application::run()
     float physicsTimeAccumulator = 0.0f;
     bool physicsStepFinished = true;
 
-    m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+    m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
 
     bool updateProfiling = true;
 
@@ -290,12 +290,12 @@ void Application::run()
         m_renderer.clear();
 
         if ( modifyingScene )
-            m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+            m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
 
         Renderer::Output output;
         output = m_renderer.renderScene( 
-            m_sceneManager.getScene(), 
-            m_sceneManager.getCamera(), 
+            *m_sceneManager.getScene(), 
+            *m_sceneManager.getCamera(), 
             settings().debug.debugWireframeMode, 
             m_sceneManager.getSelection(), 
             m_sceneManager.getSelectionVolumeMesh() 
@@ -579,7 +579,7 @@ void Application::run()
             int selectedLightsCount   = (int)m_sceneManager.getSelectedLights().size();
             int totalVertexCount      = 0;
             int totalTriangleCount    = 0;
-            int totalActors           = (int)m_sceneManager.getScene().getActors().size();
+            int totalActors           = (int)m_sceneManager.getScene()->getActors().size();
             
 
             std::tie( selectedVertexCount, selectedTriangleCount ) = m_sceneManager.getSelectedActorsVertexAndTriangleCount();

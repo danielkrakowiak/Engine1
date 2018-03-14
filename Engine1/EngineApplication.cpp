@@ -123,12 +123,12 @@ void EngineApplication::onKeyPress( int key )
     if ( key == InputManager::Keys::l && m_inputManager.isKeyPressed( InputManager::Keys::p ) ) 
     {
         m_sceneManager.addPointLight();
-        m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+        m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
     }
     else if ( key == InputManager::Keys::l && m_inputManager.isKeyPressed( InputManager::Keys::s ) )
     {
         m_sceneManager.addSpotLight();
-        m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+        m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
     }
     
     // [Ctrl + S] - save scene or selected models.
@@ -161,7 +161,7 @@ void EngineApplication::onKeyPress( int key )
     if ( key == InputManager::Keys::delete_ ) 
     {
         m_sceneManager.deleteSelected();
-        m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+        m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
     }
 
     // [+] or [-] - Change light brightness.
@@ -298,23 +298,41 @@ void EngineApplication::onKeyPress( int key )
     if ( key == InputManager::Keys::enter && shiftPressed )
     {
         m_sceneManager.enableDisableCastingShadowsForSelected();
-        m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+        m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
     }
 
     // [K] - Add keyframe to spot light.
-    if ( key == InputManager::Keys::k && m_sceneManager.getSelection().containsOnlyOneSpotLight() )
+    if ( key == InputManager::Keys::k )
     {
-        std::shared_ptr< SpotLight > spotlight = m_sceneManager.getSelection().getSpotLights().front();
+        if ( m_sceneManager.getSelection().isEmpty() )
+        {
+            auto& camera = m_sceneManager.getCamera();
 
-        m_spotlightAnimator.addKeyframe( spotlight );
+            m_cameraAnimator.addKeyframe( std::static_pointer_cast< Camera >( camera ) );
+        }
+        else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
+        {
+            auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
+
+            m_spotlightAnimator.addKeyframe( spotlight );
+        }
     }
 
     // [Space] - Play/pause animation on a spot light.
-    if ( key == InputManager::Keys::spacebar && m_sceneManager.getSelection().containsOnlyOneSpotLight() ) 
+    if ( key == InputManager::Keys::spacebar )
     {
-        std::shared_ptr< SpotLight > spotlight = m_sceneManager.getSelection().getSpotLights().front();
+        if ( m_sceneManager.getSelection().isEmpty() )
+        {
+            auto camera = m_sceneManager.getCamera();
 
-        m_spotlightAnimator.playPause( spotlight );
+            m_cameraAnimator.playPause( std::static_pointer_cast< Camera >( camera ) );
+        }
+        else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
+        {
+            auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
+
+            m_spotlightAnimator.playPause( spotlight );
+        }
     }
 
     // [Shift + C] - Clone the actors, but share their models with the original actors.
@@ -529,7 +547,7 @@ void EngineApplication::onMouseButtonPress( int button )
         int2 mousePos = m_inputManager.getMousePos();
         mousePos -= m_windowPosition; 
 
-        const float fieldOfView = m_sceneManager.getCamera().getFieldOfView();
+        const float fieldOfView = m_sceneManager.getCamera()->getFieldOfView();
 
         std::shared_ptr< Actor > pickedActor;
         std::shared_ptr< Light > pickedLight;
@@ -593,7 +611,7 @@ void EngineApplication::onDragAndDropFile( std::string filePath, bool replaceSel
 
     m_sceneManager.loadAsset( filePath, replaceSelected, invertZ );
 
-    m_renderer.renderShadowMaps( m_sceneManager.getScene() );
+    m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
 }
 
 bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor )
@@ -602,7 +620,10 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
 
     bool modifyingScene = false;
 
-    m_spotlightAnimator.update( (float)(frameTimeMs / 1000.0) );
+    const auto frameTimeS = (frameTimeMs / 1000.0);
+
+    m_spotlightAnimator.update( (float)frameTimeS );
+    m_cameraAnimator.update( (float)frameTimeS );
 
     // Set renderer exposure from settings.
     m_renderer.setExposure( settings().rendering.exposure );
@@ -710,40 +731,44 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
         if ( light.getType() == Light::Type::SpotLight ) {
             const SpotLight& spotLight = static_cast<const SpotLight&>( light );
 
-            m_sceneManager.getCamera().setFieldOfView( spotLight.getConeAngle() );
-            m_sceneManager.getCamera().setPosition( spotLight.getPosition() );
-            m_sceneManager.getCamera().setDirection( spotLight.getDirection() );
+            m_sceneManager.getCamera()->setFieldOfView( spotLight.getConeAngle() );
+            m_sceneManager.getCamera()->setPosition( spotLight.getPosition() );
+            m_sceneManager.getCamera()->setDirection( spotLight.getDirection() );
         }
     }
     else
     {
         // Update camera FOV from settings.
-        m_sceneManager.getCamera().setFieldOfView( MathUtil::degreesToRadians( settings().rendering.fieldOfViewDegress ) );
+        m_sceneManager.getCamera()->setFieldOfView( MathUtil::degreesToRadians( settings().rendering.fieldOfViewDegress ) );
     }
 
     // Update the camera.
-    if ( m_windowFocused && !modifyingScene && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) {
-        const float cameraRotationSensitivity = settings().debug.slowmotionMode ? 0.00002f : 0.0001f;
-        const float acceleration = settings().debug.slowmotionMode ? 0.02f : 0.25f;
+    const auto isCameraAnimPlaying = m_cameraAnimator.isPlaying( std::static_pointer_cast< Camera >( m_sceneManager.getCamera() ) );
+    if (!isCameraAnimPlaying)
+    {
+        if ( m_windowFocused && !modifyingScene && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) {
+            const float cameraRotationSensitivity = settings().debug.slowmotionMode ? 0.00002f : 0.0001f;
+            const float acceleration = settings().debug.slowmotionMode ? 0.02f : 0.25f;
 
-        if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) )      m_sceneManager.getCamera().accelerateForward( (float)frameTimeMs * acceleration );
-        else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_sceneManager.getCamera().accelerateReverse( (float)frameTimeMs * acceleration );
-        if ( m_inputManager.isKeyPressed( InputManager::Keys::d ) )      m_sceneManager.getCamera().accelerateRight( (float)frameTimeMs * acceleration );
-        else if ( m_inputManager.isKeyPressed( InputManager::Keys::a ) ) m_sceneManager.getCamera().accelerateLeft( (float)frameTimeMs * acceleration );
-        if ( m_inputManager.isKeyPressed( InputManager::Keys::e ) )      m_sceneManager.getCamera().accelerateUp( (float)frameTimeMs * acceleration );
-        else if ( m_inputManager.isKeyPressed( InputManager::Keys::q ) ) m_sceneManager.getCamera().accelerateDown( (float)frameTimeMs * acceleration );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::w ) )      m_sceneManager.getCamera()->accelerateForward( (float)frameTimeMs * acceleration );
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::s ) ) m_sceneManager.getCamera()->accelerateReverse( (float)frameTimeMs * acceleration );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::d ) )      m_sceneManager.getCamera()->accelerateRight( (float)frameTimeMs * acceleration );
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::a ) ) m_sceneManager.getCamera()->accelerateLeft( (float)frameTimeMs * acceleration );
+            if ( m_inputManager.isKeyPressed( InputManager::Keys::e ) )      m_sceneManager.getCamera()->accelerateUp( (float)frameTimeMs * acceleration );
+            else if ( m_inputManager.isKeyPressed( InputManager::Keys::q ) ) m_sceneManager.getCamera()->accelerateDown( (float)frameTimeMs * acceleration );
 
-        int2 mouseMove = m_inputManager.getMouseMove();
-        m_sceneManager.getCamera().rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTimeMs * cameraRotationSensitivity );
+            int2 mouseMove = m_inputManager.getMouseMove();
+            m_sceneManager.getCamera()->rotate( float3( -(float)mouseMove.y, -(float)mouseMove.x, 0.0f ) * (float)frameTimeMs * cameraRotationSensitivity );
+        }
+
+        m_sceneManager.getCamera()->updateState( (float)frameTimeMs );
     }
 
     m_inputManager.lockCursor( lockCursor );
     m_inputManager.updateMouseState();
 
-    m_sceneManager.getCamera().updateState( (float)frameTimeMs );
-
     { // Update animations.
-        const std::unordered_set< std::shared_ptr<Actor> >& sceneActors = m_sceneManager.getScene().getActors();
+        const std::unordered_set< std::shared_ptr<Actor> >& sceneActors = m_sceneManager.getScene()->getActors();
 
         for ( const std::shared_ptr<Actor>& actor : sceneActors ) {
             if ( actor->getType() != Actor::Type::SkeletonActor )
