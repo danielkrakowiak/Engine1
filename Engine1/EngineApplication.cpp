@@ -306,7 +306,7 @@ void EngineApplication::onKeyPress( int key )
     {
         std::shared_ptr< SpotLight > spotlight = m_sceneManager.getSelection().getSpotLights().front();
 
-        m_animator.addKeyframe( spotlight );
+        m_spotlightAnimator.addKeyframe( spotlight );
     }
 
     // [Space] - Play/pause animation on a spot light.
@@ -314,7 +314,7 @@ void EngineApplication::onKeyPress( int key )
     {
         std::shared_ptr< SpotLight > spotlight = m_sceneManager.getSelection().getSpotLights().front();
 
-        m_animator.playPause( spotlight );
+        m_spotlightAnimator.playPause( spotlight );
     }
 
     // [Shift + C] - Clone the actors, but share their models with the original actors.
@@ -602,7 +602,7 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
 
     bool modifyingScene = false;
 
-    m_animator.update( (float)(frameTimeMs / 1000.0) );
+    m_spotlightAnimator.update( (float)(frameTimeMs / 1000.0) );
 
     // Set renderer exposure from settings.
     m_renderer.setExposure( settings().rendering.exposure );

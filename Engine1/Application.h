@@ -85,7 +85,8 @@ namespace Engine1
 	    InputManager     m_inputManager;
         AssetManager     m_assetManager;
         SceneManager     m_sceneManager;
-        Animator         m_animator;
+
+        Animator< SpotLight > m_spotlightAnimator;
 
 	    Direct3DRendererCore      m_rendererCore;
         Direct3DFrameRenderer     m_frameRenderer;

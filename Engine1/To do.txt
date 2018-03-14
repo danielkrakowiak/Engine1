@@ -455,6 +455,7 @@ Idea:
 	  IMPORTANT:
 
       - some problem with refraction - when seen in mirror it doesn't work? Or works at some angles only? Weird...
+      Is it caused by incorrectly calculated contribution?
 
 	  - we assume that refractions are always computed through shaders/classes with "fisrt" in their name. But that may not be true. And the name is misleading. 
 	  Because it only happens like that if refraction occurs first, and then reflection/refraction. But if reflection is fisrt, then these shaders/classes are not used at all. What kind of bugs can result from this.
@@ -532,6 +533,22 @@ Idea:
         BLOOM TODO:
 		- split blur into 2-passes and increase number of taps
 		- rename blur method and remove radius param.
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////// TESTING / BENCHMARKING/ DEMO /////////////////////////////////////////////////////////////////////
+
+        - Creating/storing keyframes for camera
+        - Saving/loading camera paths to a file (text file is preferred to enable editing)
+        - Saving/loading light path to a file (text file is preferred to enable editing)
+        - Playback of camera path, smoothing rotations, movement
+        
+        - Benchmark tool:
+        - number of repeated runs per setup
+        - list of settings to test, scenes to test, camera paths, light paths
+        - calculating average, max, min FPS, frame time
+        - calculating accumulated total shadowing time, time per layer, reflection time etc.
+        - repeating the same camera path for many settings 
+
 
 
 	  -----------------------------
