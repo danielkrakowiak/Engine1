@@ -15,14 +15,14 @@ namespace Engine1
         public:
 
         static std::shared_ptr< FreeCamera > createFromFile( const std::string& path );
-        static std::shared_ptr< FreeCamera > createFromMemory( std::vector< char >::const_iterator dataIt, std::vector< char >::const_iterator dataEndIt );
+        static std::shared_ptr< FreeCamera > createFromMemory( std::vector< char >::const_iterator& dataIt, const std::vector< char >::const_iterator& dataEndIt );
 
         FreeCamera();
         FreeCamera( float3 position, float3 rotationAngles, float fieldOfView );
         ~FreeCamera();
 
-        void saveToMemory( std::vector< char >& data );
-        void saveToFile( const std::string& path );
+        void saveToMemory( std::vector< char >& data ) const;
+        void saveToFile( const std::string& path ) const;
 
         void setDirection( float3 direction );
         void setUp( float3 up );

@@ -22,7 +22,8 @@ std::tuple< std::shared_ptr<Scene>, std::shared_ptr<std::vector< std::shared_ptr
 {
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
-    std::vector<char>::const_iterator dataIt = data.begin();
+    auto       dataIt    = data.cbegin();
+    const auto dataEndIt = data.cend();
 
     // Assigns each unique FileInfo an unique temporary id (index in the vector).
     std::shared_ptr < std::vector< std::shared_ptr< FileInfo > > > fileInfos = std::make_shared< std::vector<std::shared_ptr< FileInfo > > >();
@@ -85,7 +86,7 @@ std::tuple< std::shared_ptr<Scene>, std::shared_ptr<std::vector< std::shared_ptr
 
         // Read spot lights.
         for ( int i = 0; i < spotLightCount; ++i )
-            scene->addLight( SpotLight::createFromMemory( dataIt ) );
+            scene->addLight( SpotLight::createFromMemory( dataIt, dataEndIt ) );
     }
     
     return std::make_pair( scene, fileInfos );

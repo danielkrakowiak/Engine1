@@ -198,3 +198,8 @@ void BlockActor::createPhysics( const PxRigidActor& otherPhysics )
     m_physics = std::unique_ptr< PxRigidActor, std::function< void( PxRigidActor* ) > >
         ( physicsActor, []( PxRigidActor* p ) { p->release(); } );
 }
+
+void BlockActor::setInterpolated( const BlockActor& actor1, const BlockActor& actor2, float ratio )
+{
+    m_pose = float43::slerp( actor1.getPose(), actor2.getPose(), ratio );
+}

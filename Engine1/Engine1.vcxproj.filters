@@ -451,9 +451,6 @@
     <Filter Include="Source Files\RenderTargetManager">
       <UniqueIdentifier>{54fe07db-eb44-43e7-a0c4-53bc4b783309}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Animator">
-      <UniqueIdentifier>{af22374d-3ee0-4ae6-b459-24f14c098b30}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Shader\Antialiasing">
       <UniqueIdentifier>{31146567-5599-455b-8b70-f3f1b51606b4}</UniqueIdentifier>
     </Filter>
@@ -478,7 +475,7 @@
     <Filter Include="Header Files\Shader\CombineShadowLayers">
       <UniqueIdentifier>{dd159c99-8cad-40f5-b37c-e9a43a49313b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Animator">
+    <Filter Include="Header Files\Animation">
       <UniqueIdentifier>{e96300f4-a22d-447d-b616-f849ceae344c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -1009,7 +1006,7 @@
       <Filter>Header Files\RenderTargetManager</Filter>
     </ClInclude>
     <ClInclude Include="Animator.h">
-      <Filter>Header Files\Animator</Filter>
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
     <ClInclude Include="AntialiasingRenderer.h">
       <Filter>Header Files\Renderer</Filter>
@@ -1034,6 +1031,12 @@
     </ClInclude>
     <ClInclude Include="CombineShadowLayersRenderer.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationParser.h">
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1531,9 +1534,6 @@
     </ClCompile>
     <ClCompile Include="RenderTargetManager.cpp">
       <Filter>Source Files\RenderTargetManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Animator.cpp">
-      <Filter>Source Files\Animator</Filter>
     </ClCompile>
     <ClCompile Include="AntialiasingRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>

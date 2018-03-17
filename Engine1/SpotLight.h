@@ -21,15 +21,15 @@ namespace Engine1
         static const float s_shadowMapZFar;
 
         static std::shared_ptr< SpotLight > createFromFile( const std::string& path );
-        static std::shared_ptr< SpotLight > createFromMemory( std::vector< char >::const_iterator& dataIt );
+        static std::shared_ptr< SpotLight > createFromMemory( std::vector< char >::const_iterator& dataIt, const std::vector<char>::const_iterator& dataEndIt );
 
         SpotLight();
         SpotLight( const SpotLight& light );
         SpotLight( const float3& position, const float3& direction, const float coneAngle, const float3& color = float3( 1.0f, 0.9f, 0.75f ) );
         ~SpotLight();
 
-        void saveToMemory( std::vector< char >& data );
-        void saveToFile( const std::string& path );
+        void saveToMemory( std::vector< char >& data ) const;
+        void saveToFile( const std::string& path ) const;
 
         virtual Type getType() const;
 

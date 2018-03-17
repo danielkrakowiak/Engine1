@@ -11,6 +11,7 @@
 #include "Texture2DGeneric.h"
 
 #include "Selection.h"
+#include "Animator.h"
 
 struct ID3D11Device3;
 struct ID3D11DeviceContext3;
@@ -94,6 +95,10 @@ namespace Engine1
         void modifySelectionVolume( const float3 minChange, const float3 maxChange );
         void selectAllInsideSelectionVolume();
 
+        Animator< SpotLight >&  getLightAnimator();
+        Animator< FreeCamera >& getCameraAnimator();
+        Animator< BlockActor >& getActorAnimator();
+
         void rebuildBoundingBoxAndBVH();
 
         void flipTexcoordsVerticallyAndResaveMesh();
@@ -119,6 +124,10 @@ namespace Engine1
 
         BoundingBox                   m_selectionVolume;
         std::shared_ptr< BlockMesh > m_selectionVolumeMesh;
+
+        Animator< SpotLight >  m_spotlightAnimator;
+        Animator< FreeCamera > m_cameraAnimator;
+        Animator< BlockActor > m_actorAnimator;
 
         std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > > m_texturesToMerge;
         std::vector< std::shared_ptr< BlockMesh > >                         m_meshesToMerge;

@@ -15,13 +15,19 @@ std::shared_ptr< FreeCamera > FreeCamera::createFromFile( const std::string& pat
 {
     std::shared_ptr< std::vector< char > > fileData = BinaryFile::load( path );
 
-    std::shared_ptr< FreeCamera > camera = createFromMemory( fileData->cbegin(), fileData->cend() );
+    auto       fileDataBeginIt = fileData->cbegin();
+    const auto fileDataEndIt = fileData->cbegin();
+
+    std::shared_ptr< FreeCamera > camera = createFromMemory( fileDataBeginIt, fileDataEndIt );
 
     return camera;
 }
 
-std::shared_ptr< FreeCamera > FreeCamera::createFromMemory( std::vector< char >::const_iterator dataIt, std::vector< char >::const_iterator dataEndIt )
+std::shared_ptr< FreeCamera > FreeCamera::createFromMemory( std::vector< char >::const_iterator& dataIt, const std::vector< char >::const_iterator& dataEndIt )
 {
+    // #TODO: parser should check if dataIt doesn't exceed dataEndIt while readign data.
+    dataEndIt;
+
     return FreeCameraParser::parseBinary( dataIt );
 }
 
@@ -59,12 +65,12 @@ FreeCamera::FreeCamera( float3 position, float3 rotationAngles, float fieldOfVie
 
 FreeCamera::~FreeCamera() {}
 
-void FreeCamera::saveToMemory( std::vector<char>& data )
+void FreeCamera::saveToMemory( std::vector<char>& data ) const
 {
     FreeCameraParser::writeBinary( data, *this );
 }
 
-void FreeCamera::saveToFile( const std::string& path )
+void FreeCamera::saveToFile( const std::string& path ) const
 {
     std::vector<char> data;
 

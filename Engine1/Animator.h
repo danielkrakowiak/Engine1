@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 
+#include "Animation.h"
 #include "MathUtil.h"
 
 namespace Engine1
@@ -16,50 +17,36 @@ namespace Engine1
         Animator();
         ~Animator();
 
+        void loadAnimationFromMemory( const std::shared_ptr< T >& obj, const std::vector< char >& data );
+        void loadAnimationFromFile( const std::shared_ptr< T >& obj, const std::string& path );
+
+        void saveAnimationToMemory( const std::shared_ptr< T >& obj, std::vector< char >& data );
+        void saveAnimationToFile( const std::shared_ptr< T >& obj, const std::string& path );
+
         void update( float timeDelta );
 
         // Negative time is treated as last keyframe time + 1 second (or 0 if there are no keyframes yet).
-        void addKeyframe( std::shared_ptr< T >& obj, float time = -1.0f );
+        void addKeyframe( const std::shared_ptr< T >& obj, float time = -1.0f );
 
-        void playPause( std::shared_ptr< T >& obj );
+        void playPause( const std::shared_ptr< T >& obj );
+        void setSmoothstepInterpolation( const std::shared_ptr< T >& obj, bool smoothstep );
 
-        bool isPlaying( std::shared_ptr< T >& obj );
+        bool isPlaying( const std::shared_ptr< T >& obj );
 
-        float getSpeedMultiplier( std::shared_ptr< T >& obj ) const;
-        void  setSpeedMultiplier( std::shared_ptr< T >& obj, const float speedMultiplier );
+        float getSpeedMultiplier( const std::shared_ptr< T >& obj ) const;
+        void  setSpeedMultiplier( const std::shared_ptr< T >& obj, const float speedMultiplier );
 
         // Deletes key frames for objects which got deleted (ref count = 0)
         void removeKeyframesForDeletedObjects();
 
         private:
 
-        struct Animation
-        {
-            std::vector< std::tuple< T, float > > keyframes;
-
-            bool  enabled;
-            int   lastUsedKeyframe;
-            float speedMultiplier;
-            float currentPlaybackTime;
-            float currentPlaybackDirection; // Equals 1 or -1.
-            bool  smoothstep;
-
-            Animation() : 
-                enabled(false),
-                lastUsedKeyframe(0),
-                speedMultiplier(1.0f),
-                currentPlaybackTime(0.0f),
-                currentPlaybackDirection(1.0f),
-                smoothstep(false)
-            {}
-        };
-
         // #WARNING: Using weak_ptr in the map is potentially dangerous
         // as weak_ptr changes over time and that may influence the way it's sorted inside the map.
         // #TODO: Think how to overcome this problem. Use raw data ptr as key?
         std::map< 
             std::weak_ptr< T >, 
-            Animation,
+            Animation< T >,
             std::owner_less< std::weak_ptr< T > >
         > animations;
     };
@@ -71,6 +58,64 @@ namespace Engine1
     template< typename T >
     Animator< T >::~Animator()
     {}
+
+    template< typename T >
+    void Animator< T >::loadAnimationFromMemory( const std::shared_ptr< T >& obj, const std::vector< char >& data )
+    {
+        auto animation = Animation< T >::createFromMemory( data.begin(), data.end() );
+
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        // Insert or find the key.
+        auto  result = animations.insert( std::make_pair( objWeakPtr, Animation< T >() ) );
+        auto& anim   = result.first->second;
+
+        anim.clearKeyframes();
+        anim = std::move( *animation );
+    }
+
+    template< typename T >
+    void Animator< T >::loadAnimationFromFile( const std::shared_ptr< T >& obj, const std::string& path )
+    {
+        auto animation = Animation< T >::createFromFile( path );
+
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        // Insert or find the key.
+        auto  result = animations.insert( std::make_pair( objWeakPtr, Animation< T >() ) );
+        auto& anim   = result.first->second;
+
+        anim.clearKeyframes();
+        anim = std::move( *animation );
+    }
+
+    template< typename T >
+    void Animator< T >::saveAnimationToMemory( const std::shared_ptr< T >& obj, std::vector< char >& data )
+    {
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        auto resultIt = animations.find( objWeakPtr );
+        if ( resultIt == animations.end() )
+            return;
+
+        auto& anim = resultIt->second;
+
+        anim.saveToMemory( data );
+    }
+
+    template< typename T >
+    void Animator< T >::saveAnimationToFile( const std::shared_ptr< T >& obj, const std::string& path )
+    {
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        auto resultIt = animations.find( objWeakPtr );
+        if ( resultIt == animations.end() )
+            return;
+
+        auto& anim = resultIt->second;
+
+        anim.saveToFile( path );
+    }
 
     template< typename T >
     void Animator< T >::update( float timeDelta )
@@ -87,35 +132,38 @@ namespace Engine1
             auto& anim       = animation.second;
 
             // Skip lights with 0 or 1 keyframes or the ones with animation disabled.
-            if ( anim.keyframes.size() <= 1 || !anim.enabled)
+            if ( anim.getKeyframes().size() <= 1 || !anim.isEnabled())
                 continue;
 
-            const float animDuration = std::get< 1 >( anim.keyframes.back() );
-            anim.currentPlaybackTime += timeDelta * anim.speedMultiplier * anim.currentPlaybackDirection;
+            const float animDuration = anim.getDuration();
+
+            auto newPlaybackTime = anim.getCurrentPlaybackTime() + timeDelta * anim.getSpeedMultiplier() * anim.getCurrentPlaybackDirection();
 
             // Reverse the animation direction if finished playback.
-            if (anim.currentPlaybackDirection >= 0.0f && anim.currentPlaybackTime > animDuration) 
+            if (anim.getCurrentPlaybackDirection() >= 0.0f && newPlaybackTime > animDuration) 
             {
-                anim.currentPlaybackTime = animDuration - (anim.currentPlaybackTime - animDuration);
-                anim.currentPlaybackTime = std::max( 0.0f, anim.currentPlaybackTime );
-                anim.currentPlaybackDirection *= -1.0f;
+                newPlaybackTime = animDuration - (newPlaybackTime - animDuration);
+                newPlaybackTime = std::max( 0.0f, newPlaybackTime );
+                anim.setCurrentPlaybackDirection( anim.getCurrentPlaybackDirection() * -1.0f );
             } 
-            else if (anim.currentPlaybackDirection < 0.0f && anim.currentPlaybackTime <= 0.0f) 
+            else if (anim.getCurrentPlaybackDirection() < 0.0f && newPlaybackTime <= 0.0f) 
             {
-                anim.currentPlaybackTime = -anim.currentPlaybackTime;
-                anim.currentPlaybackTime = std::min( animDuration, anim.currentPlaybackTime );
-                anim.currentPlaybackDirection *= -1.0f;
+                newPlaybackTime = -newPlaybackTime;
+                newPlaybackTime = std::min( animDuration, newPlaybackTime );
+                anim.setCurrentPlaybackDirection( anim.getCurrentPlaybackDirection() * -1.0f );
             }
+
+            anim.setCurrentPlaybackTime( newPlaybackTime );
 
             // Find the closest keyframe before the desired playback time.
             int idx, prevIdx, nextIdx;
-            if ( anim.currentPlaybackDirection > 0.0f ) 
+            if ( anim.getCurrentPlaybackDirection() > 0.0f ) 
             {
-                for ( idx = 0; idx < (int)anim.keyframes.size(); ++idx ) 
+                for ( idx = 0; idx < (int)anim.getKeyframes().size(); ++idx ) 
                 {
-                    const float keyframeTime = std::get< 1 >( anim.keyframes[ idx ] );
+                    const float keyframeTime = std::get< 1 >( anim.getKeyframes()[ idx ] );
 
-                    if ( keyframeTime > anim.currentPlaybackTime )
+                    if ( keyframeTime > anim.getCurrentPlaybackTime() )
                         break;
                 }
 
@@ -124,11 +172,11 @@ namespace Engine1
             }
             else
             {
-                for ( idx = (int)anim.keyframes.size() - 1; idx >= 0; --idx ) 
+                for ( idx = (int)anim.getKeyframes().size() - 1; idx >= 0; --idx ) 
                 {
-                    const float keyframeTime = std::get< 1 >( anim.keyframes[ idx ] );
+                    const float keyframeTime = std::get< 1 >( anim.getKeyframes()[ idx ] );
 
-                    if ( keyframeTime < anim.currentPlaybackTime )
+                    if ( keyframeTime < anim.getCurrentPlaybackTime() )
                         break;
                 }
 
@@ -137,10 +185,10 @@ namespace Engine1
             }
 
             // Get keyframes before and after the desired playback time.
-            const auto& obj1 = std::get< 0 >( anim.keyframes[ prevIdx ] );
-            const float time1  = std::get< 1 >( anim.keyframes[ prevIdx ] );
-            const auto& obj2 = std::get< 0 >( anim.keyframes[ nextIdx ] );
-            const float time2  = std::get< 1 >( anim.keyframes[ nextIdx ] );
+            const auto& obj1 = std::get< 0 >( anim.getKeyframes()[ prevIdx ] );
+            const float time1  = std::get< 1 >( anim.getKeyframes()[ prevIdx ] );
+            const auto& obj2 = std::get< 0 >( anim.getKeyframes()[ nextIdx ] );
+            const float time2  = std::get< 1 >( anim.getKeyframes()[ nextIdx ] );
 
             auto obj = objWeakPtr.lock();
 
@@ -149,9 +197,9 @@ namespace Engine1
                 continue;
 
             // Interpolate the keyframes.
-            float ratio = (anim.currentPlaybackTime - time1) / (time2 - time1);
+            float ratio = (anim.getCurrentPlaybackTime() - time1) / (time2 - time1);
 
-            if ( anim.smoothstep )
+            if ( anim.isSmoothstepInterpolated() )
                 ratio = MathUtil::smoothstep(ratio);
 
             obj->setInterpolated( obj1, obj2, ratio );
@@ -159,24 +207,24 @@ namespace Engine1
     }
 
     template< typename T >
-    void Animator< T >::addKeyframe( std::shared_ptr< T >& obj, float time )
+    void Animator< T >::addKeyframe( const std::shared_ptr< T >& obj, float time )
     {
         std::weak_ptr< T > objWeakPtr = obj;
 
         // Insert or find the key.
-        auto  result = animations.insert( std::make_pair( objWeakPtr, Animation() ) );
+        auto  result = animations.insert( std::make_pair( objWeakPtr, Animation< T >() ) );
         auto& anim   = result.first->second;
 
-        if ( time < 0.0f && !anim.keyframes.empty() )
-            time = std::get< 1 >( anim.keyframes.back() ) + 1.0f;
+        if ( time < 0.0f && !anim.getKeyframes().empty() )
+            time = std::get< 1 >( anim.getKeyframes().back() ) + 1.0f;
         else
             time = 0.0f;
 
-        anim.keyframes.push_back( std::make_tuple( *obj, time ) );
+        anim.addKeyframe( *obj, time );
     }
 
     template< typename T >
-    void Animator< T >::playPause( std::shared_ptr< T >& obj )
+    void Animator< T >::playPause( const std::shared_ptr< T >& obj )
     {
         std::weak_ptr< T > objWeakPtr = obj;
 
@@ -186,11 +234,25 @@ namespace Engine1
 
         auto& anim = resultIt->second;
 
-        anim.enabled = !anim.enabled;
+        anim.setEnabled( !anim.isEnabled() );
     }
 
     template< typename T >
-    bool Animator< T >::isPlaying( std::shared_ptr< T >& obj )
+    void Animator< T >::setSmoothstepInterpolation( const std::shared_ptr< T >& obj, bool smoothstep )
+    {
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        auto resultIt = animations.find( objWeakPtr );
+        if ( resultIt == animations.end() )
+            return;
+
+        auto& anim = resultIt->second;
+
+        anim.setSmoothstepInterpolation( smoothstep );
+    }
+
+    template< typename T >
+    bool Animator< T >::isPlaying( const std::shared_ptr< T >& obj )
     {
         std::weak_ptr< T > objWeakPtr = obj;
 
@@ -200,11 +262,11 @@ namespace Engine1
 
         auto& anim = resultIt->second;
 
-        return anim.enabled;
+        return anim.isEnabled();
     }
 
     template< typename T >
-    float Animator< T >::getSpeedMultiplier( std::shared_ptr< T >& obj ) const
+    float Animator< T >::getSpeedMultiplier( const std::shared_ptr< T >& obj ) const
     {
         std::weak_ptr< T > objWeakPtr = obj;
 
@@ -218,7 +280,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void  Animator< T >::setSpeedMultiplier( std::shared_ptr< T >& obj, const float speedMultiplier )
+    void  Animator< T >::setSpeedMultiplier( const std::shared_ptr< T >& obj, const float speedMultiplier )
     {
         std::weak_ptr< T > objWeakPtr = obj;
 

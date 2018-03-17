@@ -138,6 +138,26 @@ void EngineApplication::onKeyPress( int key )
         m_sceneManager.saveSceneOrSelectedModels();
     }
 
+    // [Ctrl + Shift + S] - save animation for selected camera/actor/light.
+    if ( ( key == InputManager::Keys::ctrl || key == InputManager::Keys::shift || key == InputManager::Keys::s ) &&
+       ( ctrlPressed && shiftPressed && m_inputManager.isKeyPressed( InputManager::Keys::s ) ) )
+    {
+        if ( m_sceneManager.getSelection().isEmpty() )
+        {
+            m_sceneManager.getCameraAnimator().saveAnimationToFile( 
+                m_sceneManager.getCamera(), 
+                "Assets/Animations/camera.cameraanim" 
+            );
+        }
+        else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
+        {
+            m_sceneManager.getLightAnimator().saveAnimationToFile( 
+                m_sceneManager.getSelection().getSpotLights().front(), 
+                "Assets/Animations/spotlight.spotlightanim" 
+            );
+        }
+    }
+
     // [Ctrl + A] - Select all actors and lights.
     if ( ( key == InputManager::Keys::ctrl || key == InputManager::Keys::a ) &&
        ( ctrlPressed && m_inputManager.isKeyPressed( InputManager::Keys::a ) ) )
@@ -301,37 +321,50 @@ void EngineApplication::onKeyPress( int key )
         m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
     }
 
-    // [K] - Add keyframe to spot light.
+    // [K] - Add keyframe to a spotlight/camera/actor.
     if ( key == InputManager::Keys::k )
-    {
-        if ( m_sceneManager.getSelection().isEmpty() )
-        {
-            auto& camera = m_sceneManager.getCamera();
-
-            m_cameraAnimator.addKeyframe( std::static_pointer_cast< Camera >( camera ) );
-        }
-        else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
-        {
-            auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
-
-            m_spotlightAnimator.addKeyframe( spotlight );
-        }
-    }
-
-    // [Space] - Play/pause animation on a spot light.
-    if ( key == InputManager::Keys::spacebar )
     {
         if ( m_sceneManager.getSelection().isEmpty() )
         {
             auto camera = m_sceneManager.getCamera();
 
-            m_cameraAnimator.playPause( std::static_pointer_cast< Camera >( camera ) );
+            m_sceneManager.getCameraAnimator().addKeyframe( camera );
+            m_sceneManager.getCameraAnimator().setSmoothstepInterpolation( camera, true );
         }
         else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
         {
             auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
 
-            m_spotlightAnimator.playPause( spotlight );
+            m_sceneManager.getLightAnimator().addKeyframe( spotlight );
+            m_sceneManager.getLightAnimator().setSmoothstepInterpolation( spotlight, true );
+        }
+        else if ( m_sceneManager.getSelection().containsOnlyOneBlockActor() )
+        {
+            auto actor = m_sceneManager.getSelection().getBlockActors().front();
+
+            m_sceneManager.getActorAnimator().addKeyframe( actor );
+            m_sceneManager.getActorAnimator().setSmoothstepInterpolation( actor, true );
+        }
+    }
+
+    // [Space] - Play/pause animation on a spotlight/camera/actor.
+    if ( key == InputManager::Keys::spacebar )
+    {
+        if ( m_sceneManager.getSelection().isEmpty() )
+        {
+            m_sceneManager.getCameraAnimator().playPause( m_sceneManager.getCamera() );
+        }
+        else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
+        {
+            auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
+
+            m_sceneManager.getLightAnimator().playPause( spotlight );
+        }
+        else if ( m_sceneManager.getSelection().containsOnlyOneBlockActor() )
+        {
+            auto actor = m_sceneManager.getSelection().getBlockActors().front();
+
+            m_sceneManager.getActorAnimator().playPause( actor );
         }
     }
 
@@ -622,8 +655,9 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
 
     const auto frameTimeS = (frameTimeMs / 1000.0);
 
-    m_spotlightAnimator.update( (float)frameTimeS );
-    m_cameraAnimator.update( (float)frameTimeS );
+    m_sceneManager.getLightAnimator().update( (float)frameTimeS );
+    m_sceneManager.getCameraAnimator().update( (float)frameTimeS );
+    m_sceneManager.getActorAnimator().update( (float)frameTimeS );
 
     // Set renderer exposure from settings.
     m_renderer.setExposure( settings().rendering.exposure );
@@ -724,6 +758,8 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
         }
     }
 
+    const auto isCameraAnimPlaying = m_sceneManager.getCameraAnimator().isPlaying( m_sceneManager.getCamera() );
+
     // Set camera to align with a spot light.
     if ( m_windowFocused && m_sceneManager.getSelectedLights().size() == 1 && m_inputManager.isKeyPressed( InputManager::Keys::ctrl ) && m_inputManager.isKeyPressed( InputManager::Keys::l ) ) {
         const Light& light = *m_sceneManager.getSelectedLights()[ 0 ];
@@ -739,11 +775,12 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
     else
     {
         // Update camera FOV from settings.
-        m_sceneManager.getCamera()->setFieldOfView( MathUtil::degreesToRadians( settings().rendering.fieldOfViewDegress ) );
+        if ( !isCameraAnimPlaying ) {
+            m_sceneManager.getCamera()->setFieldOfView( MathUtil::degreesToRadians( settings().rendering.fieldOfViewDegress ) );
+        }
     }
 
     // Update the camera.
-    const auto isCameraAnimPlaying = m_cameraAnimator.isPlaying( std::static_pointer_cast< Camera >( m_sceneManager.getCamera() ) );
     if (!isCameraAnimPlaying)
     {
         if ( m_windowFocused && !modifyingScene && m_inputManager.isMouseButtonPressed( InputManager::MouseButtons::right ) ) {

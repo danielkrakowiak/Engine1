@@ -537,9 +537,12 @@ Idea:
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////// TESTING / BENCHMARKING/ DEMO /////////////////////////////////////////////////////////////////////
 
+        - add animation to blockactors
+
         - Creating/storing keyframes for camera
-        - Saving/loading camera paths to a file (text file is preferred to enable editing)
-        - Saving/loading light path to a file (text file is preferred to enable editing)
+        - Editing keyframes in Control Panel - and saving/loading from file
+        - Saving/loading camera animation to a file (text file is preferred to enable editing)
+        - Saving/loading light animation to a file (text file is preferred to enable editing)
         - Playback of camera path, smoothing rotations, movement
         
         - Benchmark tool:
@@ -548,6 +551,12 @@ Idea:
         - calculating average, max, min FPS, frame time
         - calculating accumulated total shadowing time, time per layer, reflection time etc.
         - repeating the same camera path for many settings 
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////// BUGS TO FIX ///////////////////////////////////////////////////////////////////////////////////////
+
+        - the problem when we have a box with one face missing - it causes soft shadow in the middle of hard shadow and light leaks - how to fix that?
+          - can be tested using Cornel Box meshes which have this problem.
 
 
 

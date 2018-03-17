@@ -336,6 +336,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationParser.h" />
     <ClInclude Include="Animator.h" />
     <ClInclude Include="AntialiasingComputeShader.h" />
     <ClInclude Include="AntialiasingRenderer.h" />
@@ -522,7 +524,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
-    <ClCompile Include="Animator.cpp" />
     <ClCompile Include="AntialiasingComputeShader.cpp" />
     <ClCompile Include="AntialiasingRenderer.cpp" />
     <ClCompile Include="Application.cpp" />

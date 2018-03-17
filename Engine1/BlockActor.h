@@ -41,6 +41,8 @@ namespace Engine1
         void createKinematicPhysics();
         void createPhysics( const physx::PxRigidActor& otherPhysics );
 
+        void setInterpolated( const BlockActor& actor1, const BlockActor& actor2, float ratio );
+
         private:
 
         float43 m_pose;

@@ -17,13 +17,17 @@ std::shared_ptr< SpotLight > SpotLight::createFromFile( const std::string& path 
     std::shared_ptr< std::vector<char> > fileData = BinaryFile::load( path );
 
     //#TODO: check file identifier.
-    std::vector<char>::const_iterator dataIt = fileData->cbegin();
+    auto       dataIt    = fileData->cbegin();
+    const auto dataEndIt = fileData->cbegin();
 
-    return createFromMemory( dataIt );
+    return createFromMemory( dataIt, dataEndIt );
 }
 
-std::shared_ptr< SpotLight > SpotLight::createFromMemory( std::vector<char>::const_iterator& dataIt )
+std::shared_ptr< SpotLight > SpotLight::createFromMemory( std::vector<char>::const_iterator& dataIt, const std::vector<char>::const_iterator& dataEndIt )
 {
+    //#TODO: Should check if dataIt doesn't exceed dataEndIt while parsing.
+    dataEndIt;
+
     return SpotLightParser::parseBinary( dataIt );
 }
 
@@ -53,12 +57,12 @@ Light::Type SpotLight::getType() const
     return Light::Type::SpotLight;
 }
 
-void SpotLight::saveToMemory( std::vector<char>& data )
+void SpotLight::saveToMemory( std::vector<char>& data ) const
 {
     SpotLightParser::writeBinary( data, *this );
 }
 
-void SpotLight::saveToFile( const std::string& path )
+void SpotLight::saveToFile( const std::string& path ) const
 {
     std::vector<char> data;
 

@@ -13,7 +13,6 @@
 #include "AssetManager.h"
 #include "ControlPanel.h"
 #include "StagingTexture2D.h"
-#include "Animator.h"
 #include "RenderTargetManager.h"
 
 namespace Engine1
@@ -85,9 +84,6 @@ namespace Engine1
 	    InputManager     m_inputManager;
         AssetManager     m_assetManager;
         SceneManager     m_sceneManager;
-
-        Animator< SpotLight > m_spotlightAnimator;
-        Animator< Camera >    m_cameraAnimator;
 
 	    Direct3DRendererCore      m_rendererCore;
         Direct3DFrameRenderer     m_frameRenderer;

@@ -188,23 +188,27 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
     std::string filePathWithoutExtension = StringUtil::toLowercase( filePath.substr( 0, dotIndex ) );
     std::string extension = StringUtil::toLowercase( filePath.substr( dotIndex + 1 ) );
 
-    std::array< const std::string, 3 > blockMeshExtensions     = { "dae", "fbx", "blockmesh" };
-    std::array< const std::string, 1 > skeletonkMeshExtensions = { "dae" };
-    std::array< const std::string, 9 > textureExtensions       = { "bmp", "dds", "jpg", "jpeg", "png", "raw", "tga", "tiff", "tif" };
-    std::array< const std::string, 2 > blockModelExtensions    = { "blockmodel", "obj" };
-    std::array< const std::string, 1 > skeletonModelExtensions = { "skeletonmodel" };
-    std::array< const std::string, 1 > animationExtensions     = { "xaf" };
-    std::array< const std::string, 1 > sceneExtensions         = { "scene" };
-    std::array< const std::string, 1 > cameraExtensions        = { "camera" };
+    std::array< const std::string, 3 > blockMeshExtensions             = { "dae", "fbx", "blockmesh" };
+    std::array< const std::string, 1 > skeletonkMeshExtensions         = { "dae" };
+    std::array< const std::string, 9 > textureExtensions               = { "bmp", "dds", "jpg", "jpeg", "png", "raw", "tga", "tiff", "tif" };
+    std::array< const std::string, 2 > blockModelExtensions            = { "blockmodel", "obj" };
+    std::array< const std::string, 1 > skeletonModelExtensions         = { "skeletonmodel" };
+    std::array< const std::string, 1 > skeletonAnimationExtensions     = { "xaf" };
+    std::array< const std::string, 1 > sceneExtensions                 = { "scene" };
+    std::array< const std::string, 1 > cameraExtensions                = { "camera" };
+    std::array< const std::string, 1 > cameraAnimationExtensions       = { "cameraanim" };
+    std::array< const std::string, 1 > spotlightAnimationExtensions    = { "spotlightanim" };
 
-    bool isBlockMesh     = false;
-    bool isSkeletonMesh  = false;
-    bool isTexture       = false;
-    bool isBlockModel    = false;
-    bool isSkeletonModel = false;
-    bool isAnimation     = false;
-    bool isScene         = false;
-    bool isCamera        = false;
+    bool isBlockMesh          = false;
+    bool isSkeletonMesh       = false;
+    bool isTexture            = false;
+    bool isBlockModel         = false;
+    bool isSkeletonModel      = false;
+    bool isSkeletonAnimation  = false;
+    bool isScene              = false;
+    bool isCamera             = false;
+    bool isCameraAnimation    = false;
+    bool isSpotlightAnimation = false;
 
     for ( const std::string& blockMeshExtension : blockMeshExtensions ) {
         if ( extension.compare( blockMeshExtension ) == 0 )
@@ -231,9 +235,9 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             isSkeletonModel = true;
     }
 
-    for ( const std::string& animationExtension : animationExtensions ) {
-        if ( extension.compare( animationExtension ) == 0 )
-            isAnimation = true;
+    for ( const std::string& skeletonAnimationExtension : skeletonAnimationExtensions ) {
+        if ( extension.compare( skeletonAnimationExtension ) == 0 )
+            isSkeletonAnimation = true;
     }
 
     for ( const std::string& sceneExtension : sceneExtensions ) {
@@ -244,6 +248,16 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
     for ( const std::string& cameraExtension : cameraExtensions ) {
         if ( extension.compare( cameraExtension ) == 0 )
             isCamera = true;
+    }
+
+    for ( const std::string& cameraAnimationExtension : cameraAnimationExtensions ) {
+        if ( extension.compare( cameraAnimationExtension ) == 0 )
+            isCameraAnimation = true;
+    }
+
+    for ( const std::string& spotlightAnimationExtension : spotlightAnimationExtensions ) {
+        if ( extension.compare( spotlightAnimationExtension ) == 0 )
+            isSpotlightAnimation = true;
     }
 
     float43 pose = float43::IDENTITY;
@@ -347,7 +361,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
 
         // #TODO: THis should be replaced by a call to an utility method - but PixelType is in the wrong class
         // (should be a part of the texture), not texture-file-info.
-        Texture2DFileInfo::PixelType pixelType;
+        Texture2DFileInfo::PixelType pixelType = Texture2DFileInfo::PixelType::UCHAR;
         if ( textureType == Model::TextureType::Albedo ||
              textureType == Model::TextureType::Normal ||
              textureType == Model::TextureType::Emissive ) 
@@ -368,7 +382,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
 
         for ( auto& actor : m_selection.getActors() ) 
         {
-            auto&     model        = actor->getBaseModel();
+            auto      model        = actor->getBaseModel();
             const int textureCount = model->getTextureCount( textureType );
 
             if ( !replaceSelected && textureCount > 0 && model->getTexture( textureType ) )
@@ -458,7 +472,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
         m_selection.add( newActor );
     }
 
-    if ( isAnimation ) {
+    if ( isSkeletonAnimation ) {
         for ( auto& actor : m_selection.getSkeletonActors() ) {
             if ( actor->getModel() && actor->getModel()->getMesh() ) {
                 SkeletonMeshFileInfo&     referenceMeshFileInfo = actor->getModel()->getMesh()->getFileInfo();
@@ -496,6 +510,14 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
     if ( isCamera ) {
         loadCamera( filePath );
         m_cameraPath = filePath;
+    }
+
+    if ( isCameraAnimation ) {
+        m_cameraAnimator.loadAnimationFromFile( m_camera, filePath );
+    }
+
+    if ( isSpotlightAnimation && getSelection().containsOnlyOneSpotLight() ) {
+        m_spotlightAnimator.loadAnimationFromFile( getSelection().getSpotLights().front(), filePath );
     }
 }
 
@@ -1216,6 +1238,21 @@ void SceneManager::selectAllInsideSelectionVolume()
     }
 }
 
+Animator< SpotLight >& SceneManager::getLightAnimator()
+{
+    return m_spotlightAnimator;
+}
+
+Animator< FreeCamera >& SceneManager::getCameraAnimator()
+{
+    return m_cameraAnimator;
+}
+
+Animator< BlockActor >& SceneManager::getActorAnimator()
+{
+    return m_actorAnimator;
+}
+
 void SceneManager::rebuildBoundingBoxAndBVH()
 {
     for ( auto& actor : m_selection.getBlockActors() ) 
@@ -1238,7 +1275,7 @@ void SceneManager::flipTexcoordsVerticallyAndResaveMesh()
         if ( !actor->getModel() || !actor->getModel()->getMesh() )
             continue;
 
-        auto& mesh = actor->getModel()->getMesh();
+        auto mesh = actor->getModel()->getMesh();
 
         MeshUtil::flipTexcoordsVertically( *mesh );
 
@@ -1255,7 +1292,7 @@ void SceneManager::flipTangentsAndResaveMesh()
         if ( !actor->getModel() || !actor->getModel()->getMesh() )
             continue;
 
-        auto& mesh = actor->getModel()->getMesh();
+        auto mesh = actor->getModel()->getMesh();
 
         MeshUtil::flipTangents( *mesh );
 
@@ -1272,7 +1309,7 @@ void SceneManager::flipNormalsAndResaveMesh()
         if ( !actor->getModel() || !actor->getModel()->getMesh() )
             continue;
 
-        auto& mesh = actor->getModel()->getMesh();
+        auto mesh = actor->getModel()->getMesh();
 
         MeshUtil::flipNormals( *mesh );
 
@@ -1289,7 +1326,7 @@ void SceneManager::invertVertexWindingOrderAndResaveMesh()
         if ( !actor->getModel() || !actor->getModel()->getMesh() )
             continue;
 
-        auto& mesh = actor->getModel()->getMesh();
+        auto mesh = actor->getModel()->getMesh();
 
         MeshUtil::invertVertexWindingOrder( *mesh );
 
