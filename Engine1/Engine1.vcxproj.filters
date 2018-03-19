@@ -478,6 +478,12 @@
     <Filter Include="Header Files\Animation">
       <UniqueIdentifier>{e96300f4-a22d-447d-b616-f849ceae344c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Benchmark">
+      <UniqueIdentifier>{1ff32405-0880-497c-ad87-df3e58a9a584}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Benchmark">
+      <UniqueIdentifier>{72f19228-0255-40ee-92b1-d178e57ebdab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1038,6 +1044,9 @@
     <ClInclude Include="AnimationParser.h">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
+    <ClInclude Include="Benchmark.h">
+      <Filter>Header Files\Benchmark</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1558,6 +1567,9 @@
     </ClCompile>
     <ClCompile Include="CombineShadowLayersRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Benchmark.cpp">
+      <Filter>Source Files\Benchmark</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

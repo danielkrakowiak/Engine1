@@ -63,7 +63,8 @@ Application::Application() :
 	m_windowFocused( false ),
     m_assetManager(),
     m_sceneManager( m_assetManager ),
-    m_controlPanel( m_sceneManager )
+    m_controlPanel( m_sceneManager ),
+    m_benchmark( m_sceneManager )
 {
 	windowsMessageReceiver = this;
 }
@@ -245,6 +246,8 @@ void Application::run()
     bool physicsStepFinished = true;
 
     m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
+
+    setupBenchmark();
 
     bool updateProfiling = true;
 
@@ -762,6 +765,8 @@ void Application::run()
 		Timer frameEndTime;
 		frameTimeMs = Timer::getElapsedTime( frameEndTime, frameStartTime );
 
+        m_benchmark.onFrameEnd();
+
         if (settings().main.limitFPS)
         {
             const double targetFrameTimeMs = 1000.0 / 10.0;
@@ -1066,4 +1071,36 @@ int2 Application::screenPosToWindowPos( int2 screenPos ) const
     ScreenToClient(m_windowHandle, &pos );
 
     return int2( pos.x, pos.y );
+}
+
+void Application::setupBenchmark()
+{
+    Settings initialSettings( settings() );
+
+    for ( int shadowsEnabled = 0; shadowsEnabled <= 1; ++shadowsEnabled ) {
+        for ( int reflectionsEnabled = 0; reflectionsEnabled <= 1; ++reflectionsEnabled ) {
+            for ( int refractionsEnabled = 0; refractionsEnabled <= 1; ++refractionsEnabled ) 
+            {
+                Settings testSettings( initialSettings );
+
+                testSettings.rendering.shadows.enabled                           = (shadowsEnabled != 0);
+                testSettings.rendering.reflectionsRefractions.reflectionsEnabled = (reflectionsEnabled != 0);
+                testSettings.rendering.reflectionsRefractions.refractionsEnabled = (refractionsEnabled != 0);
+
+                m_benchmark.addSettingsToTest( testSettings );
+            }
+        }
+    }
+
+    m_benchmark.addSceneToTest( 
+        AssetPathManager::getPathForFileName( "example.scene" ),
+        AssetPathManager::getPathForFileName( "example_camera1.cameraanim" )
+    );
+
+    /*m_benchmark.addSceneToTest( 
+        AssetPathManager::getPathForFileName( "Cornel Box Original.scene" ),
+        AssetPathManager::getPathForFileName( "example_camera1.cameraanim" )
+    );*/
+
+    m_benchmark.performTests( 5.0f );
 }

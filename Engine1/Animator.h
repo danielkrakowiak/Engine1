@@ -28,7 +28,8 @@ namespace Engine1
         // Negative time is treated as last keyframe time + 1 second (or 0 if there are no keyframes yet).
         void addKeyframe( const std::shared_ptr< T >& obj, float time = -1.0f );
 
-        void playPause( const std::shared_ptr< T >& obj );
+        void setPlaying( const std::shared_ptr< T >& obj, const bool playing );
+        void setPlaybackTime( const std::shared_ptr< T >& obj, const float time );
         void setSmoothstepInterpolation( const std::shared_ptr< T >& obj, bool smoothstep );
 
         bool isPlaying( const std::shared_ptr< T >& obj );
@@ -224,7 +225,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void Animator< T >::playPause( const std::shared_ptr< T >& obj )
+    void Animator< T >::setPlaying( const std::shared_ptr< T >& obj, const bool playing )
     {
         std::weak_ptr< T > objWeakPtr = obj;
 
@@ -234,7 +235,21 @@ namespace Engine1
 
         auto& anim = resultIt->second;
 
-        anim.setEnabled( !anim.isEnabled() );
+        anim.setEnabled( playing );
+    }
+
+    template< typename T >
+    void Animator< T >::setPlaybackTime( const std::shared_ptr< T >& obj, const float time )
+    {
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        auto resultIt = animations.find( objWeakPtr );
+        if ( resultIt == animations.end() )
+            return;
+
+        auto& anim = resultIt->second;
+
+        anim.setCurrentPlaybackTime( time );
     }
 
     template< typename T >

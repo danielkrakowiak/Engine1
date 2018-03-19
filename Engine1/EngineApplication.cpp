@@ -352,19 +352,23 @@ void EngineApplication::onKeyPress( int key )
     {
         if ( m_sceneManager.getSelection().isEmpty() )
         {
-            m_sceneManager.getCameraAnimator().playPause( m_sceneManager.getCamera() );
+            const auto isPlaying = m_sceneManager.getCameraAnimator().isPlaying( m_sceneManager.getCamera() );
+
+            m_sceneManager.getCameraAnimator().setPlaying( m_sceneManager.getCamera(), !isPlaying );
         }
         else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
         {
-            auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
+            const auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
+            const auto isPlaying = m_sceneManager.getLightAnimator().isPlaying( spotlight );
 
-            m_sceneManager.getLightAnimator().playPause( spotlight );
+            m_sceneManager.getLightAnimator().setPlaying( spotlight, !isPlaying );
         }
         else if ( m_sceneManager.getSelection().containsOnlyOneBlockActor() )
         {
-            auto actor = m_sceneManager.getSelection().getBlockActors().front();
+            const auto actor     = m_sceneManager.getSelection().getBlockActors().front();
+            const auto isPlaying = m_sceneManager.getActorAnimator().isPlaying( actor );
 
-            m_sceneManager.getActorAnimator().playPause( actor );
+            m_sceneManager.getActorAnimator().setPlaying( actor, !isPlaying );
         }
     }
 

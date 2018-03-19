@@ -14,6 +14,8 @@ namespace Engine1
         ~Timer();
         void reset();
 
+        void operator =(const Timer& timer);
+
         private:
         static double getTimerFrequencyInKHz();
         static double timerFrequencyInKHz;
@@ -23,8 +25,6 @@ namespace Engine1
 
         // Copying is not allowed.
         Timer( const Timer& ) = delete;
-        Timer& operator=(const Timer&) = delete;
-
     };
 }
 

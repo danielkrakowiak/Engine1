@@ -27,3 +27,8 @@ Timer::~Timer() {}
 void Timer::reset() {
 	QueryPerformanceCounter( &m_time );
 }
+
+void Timer::operator =(const Timer& timer)
+{
+    m_time = timer.m_time;
+}

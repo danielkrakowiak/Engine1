@@ -345,6 +345,7 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Asset.h" />
     <ClInclude Include="AssetPathManager.h" />
+    <ClInclude Include="Benchmark.h" />
     <ClInclude Include="BinaryFile.h" />
     <ClInclude Include="BlockActor.h" />
     <ClInclude Include="BlockMesh.h" />
@@ -530,6 +531,7 @@
     <ClCompile Include="Asset.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="AssetPathManager.cpp" />
+    <ClCompile Include="Benchmark.cpp" />
     <ClCompile Include="BinaryFile.cpp" />
     <ClCompile Include="BlockActor.cpp" />
     <ClCompile Include="BlockMesh.cpp" />

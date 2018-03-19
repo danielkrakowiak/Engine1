@@ -19,6 +19,7 @@ namespace Engine1
         friend class Application;
         friend class EngineApplication;
         friend class ControlPanel;
+        friend class Benchmark;
 
         public:
 

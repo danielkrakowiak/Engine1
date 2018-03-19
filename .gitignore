@@ -190,3 +190,6 @@ $RECYCLE.BIN/
 /Engine1/Shaders/GenerateMipmapShader/GenerateMipmapMinValue_ps.hlsl
 /.vs/Engine1/v15
 /error.txt
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
+/.vs/ProjectSettings.json

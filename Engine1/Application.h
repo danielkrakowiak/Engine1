@@ -7,6 +7,7 @@
 #include "Direct3DFrameRenderer.h"
 #include "FreeCamera.h"
 #include "Profiler.h"
+#include "Benchmark.h"
 #include "ImageLibrary.h"
 #include "FontLibrary.h"
 #include "PhysicsLibrary.h"
@@ -73,6 +74,8 @@ namespace Engine1
 
         int2 screenPosToWindowPos( int2 screenPos ) const;
 
+        void setupBenchmark();
+
 	    // Basic application handles.
 	    HINSTANCE m_applicationInstance;
 	    HWND      m_windowHandle;
@@ -89,6 +92,7 @@ namespace Engine1
         Direct3DFrameRenderer     m_frameRenderer;
         Renderer                  m_renderer;
         Profiler                  m_profiler;
+        Benchmark                 m_benchmark;
         RenderTargetManager       m_renderTargetManager;
 
         ControlPanel m_controlPanel;

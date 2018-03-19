@@ -54,7 +54,7 @@ void Settings::initializeInternal()
     s_settings.debug.debugRenderAlpha          = false;
     s_settings.debug.debugWireframeMode        = false;
     s_settings.debug.debugDisplayedMipmapLevel = 0;
-    s_settings.debug.renderText                = true;
+    s_settings.debug.renderText                = false;
     s_settings.debug.renderFps                 = true;
     s_settings.debug.slowmotionMode            = false;
     s_settings.debug.snappingMode              = false;

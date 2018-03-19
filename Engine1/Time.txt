@@ -493,4 +493,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 14.03.2018 - 2h - Modified Animator to be a template class to support animation of any kind of object. Added animation playback for Camera.
 15.03.2018 - 3h - Refactored Animation struct into a separate template class. Added AnimationParser.
 16.03.2018 - 2h - Added saving/loading camera/spotlight animation to/from file.
-17.03.2018 - 0h - Added animation to block actors (without saving/loading to file).
+17.03.2018 - 2h - Added animation to block actors (without saving/loading to file). Added Benchmark class to run tests and collect performance data.
+19.03.2018 - 1h - Minor fixes in how Benchmark works.
