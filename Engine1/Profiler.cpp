@@ -4,10 +4,39 @@
 
 #include <exception>
 #include <string>
+#include <assert.h>
+
+#include "MathUtil.h"
 
 using Microsoft::WRL::ComPtr;
 
 using namespace Engine1;
+
+Profiler::StageType Profiler::getNextStageType( const StageType prevStageType, bool reflection )
+{
+    const auto prevStageTypeInt = (int)prevStageType << 1;
+    const auto reflectionBit = reflection ? 0 : 1;
+
+    const auto nextStageTypeInt = prevStageTypeInt | reflectionBit;
+
+    return (StageType)nextStageTypeInt;
+}
+
+Profiler::StageType Profiler::getStageType( const std::vector< bool >& layers )
+{
+    auto stage = (int)Profiler::StageType::Main;
+
+    // Supports only couple of levels for now (new stage enums need to be added if needed).
+    assert(layers.size() <= 4);
+
+    for ( const auto layer : layers )
+    {
+        stage = stage << 1;
+        stage |= (layer ? 0 : 1);
+    }
+
+    return (StageType)stage;
+}
 
 std::string Profiler::stageTypeToString( const StageType stageType )
 {
@@ -71,11 +100,12 @@ std::string Profiler::eventTypeToString( const EventTypePerStage eventType )
         case EventTypePerStage::MipmapGenerationForPositionAndNormals: return "MipmapGenerationForPositionAndNormals";
         case EventTypePerStage::EmissiveShading:                       return "EmissiveShading";
         case EventTypePerStage::ReflectionTransmissionShading:         return "ReflectionTransmissionShading";
-        case EventTypePerStage::Raytracing:                            return "Raytracing";
+        case EventTypePerStage::RaytracingReflectedRefractedRays:                            return "Raytracing";
         case EventTypePerStage::ShadingNoShadows:                      return "ShadingNoShadows";
         case EventTypePerStage::Shading:                               return "Shading";
         case EventTypePerStage::MipmapGenerationForShadedImage:        return "MipmapGenerationForShadedImage";
         case EventTypePerStage::CombiningWithMainImage:                return "CombiningWithMainImage";
+        case EventTypePerStage::Stage:                                 return "Stage";
     }
 
     return "";

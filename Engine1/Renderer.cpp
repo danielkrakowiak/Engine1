@@ -927,6 +927,8 @@ void Renderer::renderSecondaryLayer(
     {
         if ( level <= 1 )
         {
+            m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+
             m_reflectionRefractionShadingRenderer.performFirstReflectionShading(
                 camera,
                 prevLayerRTs.hitPosition,
@@ -936,6 +938,8 @@ void Renderer::renderSecondaryLayer(
                 prevLayerRTs.hitRoughness,
                 currLayerRTs.contributionRoughness
             );
+
+            m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
         }
         else
         {
@@ -955,6 +959,8 @@ void Renderer::renderSecondaryLayer(
     {
         if ( level <= 1 )
         {
+            m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+
             m_reflectionRefractionShadingRenderer.performFirstRefractionShading(
                 camera,
                 prevLayerRTs.hitPosition,
@@ -964,6 +970,8 @@ void Renderer::renderSecondaryLayer(
                 prevLayerRTs.hitRoughness,
                 currLayerRTs.contributionRoughness
             );
+
+            m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
         }
         else
         {
@@ -1009,12 +1017,16 @@ void Renderer::renderSecondaryLayer(
     {
         if ( level <= 1 )
         {
+            m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+
             m_raytraceRenderer.generateAndTraceFirstReflectedRays(
                 camera,
                 raytracerInputs,
                 raytracerRTs,
                 blockActors
             );
+
+            m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
         }
         else
         {
@@ -1029,12 +1041,16 @@ void Renderer::renderSecondaryLayer(
     {
         if ( level <= 1 )
         {
+            m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+
             m_raytraceRenderer.generateAndTraceFirstRefractedRays(
                 camera,
                 raytracerInputs,
                 raytracerRTs,
                 blockActors
             );
+
+            m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
         }
         else
         {

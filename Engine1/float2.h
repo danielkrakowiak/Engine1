@@ -5,6 +5,7 @@
 #define NOMINMAX
 
 #include <cmath>
+#include <string>
 
 namespace Engine1
 {
@@ -132,6 +133,18 @@ namespace Engine1
         }
 
         explicit operator int2() const;
+
+        std::string toString() const
+        {
+            std::string text = "(";
+
+            text += std::to_string(x);
+            text += ", ";
+            text += std::to_string(y);
+            text += ")";
+
+            return std::move( text );
+        }
     };
 
     float2 max( const float2& vec1, const float2& vec2 );

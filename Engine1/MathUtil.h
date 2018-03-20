@@ -86,6 +86,8 @@ namespace Engine1
         float calcDistToTriangle( const float3& rayOrigin, const float3& rayDir, const float3& vertexPos1, const float3& vertexPos2, const float3& vertexPos3 );
 
         bool isPowerOfTwo( unsigned int number );
+        uint32_t ceilToNextPowerOfTwo( uint32_t value );
+        uint64_t ceilToNextPowerOfTwo( uint64_t value );
 
         BoundingBox boundingBoxLocalToWorld( const BoundingBox& bboxInLocalSpace, const float43& bboxPose );
 

@@ -537,6 +537,9 @@ Idea:
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////// TESTING / BENCHMARKING/ DEMO /////////////////////////////////////////////////////////////////////
 
+        - some universal way of tracking rendering Stage - maybe take it from Profiler and use it everywhere...?
+        But add missing levels up to 8th? A bit cumbersome...
+
         - Editing keyframes in Control Panel - and saving/loading from file
         
         - Benchmark tool:
@@ -547,10 +550,15 @@ Idea:
         - print out results - list common settings only once
         - communicate with Profiler to get results.
 
+        - NEXT: to measure secondary layers we need to get StageType in the renderer.
+        - measure whole stage duration.
+
         - list of settings to test, scenes to test, camera paths, light paths
         - calculating average, max, min FPS, frame time
         - calculating accumulated total shadowing time, time per layer, reflection time etc.
         - repeating the same camera path for many settings 
+
+        - add Ambient Occlusion :) Only for Main pass, multiply NoShadows light sources by it.
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////// BUGS TO FIX ///////////////////////////////////////////////////////////////////////////////////////

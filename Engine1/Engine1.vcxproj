@@ -427,6 +427,7 @@
     <ClInclude Include="SceneUtil.h" />
     <ClInclude Include="Selection.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="SettingsHelper.h" />
     <ClInclude Include="ShadingComputeShader0.h" />
     <ClInclude Include="ShadingComputeShader2.h" />
     <ClInclude Include="ShadingNoShadowsComputeShader.h" />
@@ -612,6 +613,7 @@
     <ClCompile Include="SceneUtil.cpp" />
     <ClCompile Include="Selection.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="SettingsHelper.cpp" />
     <ClCompile Include="ShadingComputeShader0.cpp" />
     <ClCompile Include="ShadingComputeShader2.cpp" />
     <ClCompile Include="ShadingNoShadowsComputeShader.cpp" />

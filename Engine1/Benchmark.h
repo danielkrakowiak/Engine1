@@ -2,9 +2,11 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 
 #include "Settings.h"
 #include "Timer.h"
+#include "Profiler.h"
 
 namespace Engine1
 {
@@ -15,7 +17,7 @@ namespace Engine1
     {
         public:
 
-        Benchmark( SceneManager& sceneManager );
+        Benchmark( SceneManager& sceneManager, Profiler& profiler );
         ~Benchmark();
 
         void addSceneToTest( const std::string& scenePath, const std::string& cameraAnimationPath );
@@ -26,24 +28,92 @@ namespace Engine1
 
         private:
 
-        bool  m_performingTests = false;
-        float m_testDuration    = 0.0f;
-        float m_testPassedTime  = 0.0f;
-        int   m_sceneIdx        = 0;
-        int   m_settingsIdx     = 0;
-
-        Timer m_lastFrameTick;
-
         struct SceneDescriptor
         {
             std::string scenePath;
             std::string cameraAnimationPath;
         };
 
-        std::vector< SceneDescriptor > m_sceneDescriptors;
-        std::vector< Settings > m_settings;
+        struct Statistics
+        {
+            std::array< 
+                float, 
+                (int)Profiler::GlobalEventType::MAX_VALUE 
+            > global;
+
+            std::array<
+                std::array<
+                    float,
+                    (int)Profiler::EventTypePerStage::MAX_VALUE
+                >,
+                (int)Profiler::StageType::MAX_VALUE
+            > perStage;
+
+            std::array< 
+                std::array< 
+                    std::array< float, (int)Profiler::EventTypePerStagePerLight::MAX_VALUE >,
+                    Profiler::s_maxLightCount
+                >,
+                (int)Profiler::StageType::MAX_VALUE 
+            > perStagePerLight;
+        };
+
+        struct TestResult
+        {
+            std::string cameraAnimationPath;
+            Settings    settings;
+            int         framesCollected;
+            Statistics  statsAveraged;
+        };
+
+        void resetFrameStats();
+        void collectFrameStats();
+        void saveSingleTestResults();
+        
+        void saveTestResultsToFile( const std::string& path );
+
+        void writeGlobalEventTimings( 
+            const std::vector< TestResult >& testResults, 
+            std::string& text, 
+            Profiler::GlobalEventType eventType, 
+            const std::string& description 
+        );
+
+        void writePerStageEventTimings( 
+            const std::vector< TestResult >& testResults, 
+            std::string& text, 
+            Profiler::StageType stageType, 
+            Profiler::EventTypePerStage eventType, 
+            const std::string& description 
+        );
+
+        enum class State : int
+        {
+            TESTING = 0,
+            BREAK,
+            FINISHED,
+        } m_state = State::FINISHED;
+
+        float m_testDuration    = 0.0f;
+        float m_breakDuration   = 1.0f;
+        float m_testPassedTime  = 0.0f;
+        float m_breakPassedTime = 0.0f;
+        int   m_sceneIdx        = 0;
+        int   m_settingsIdx     = 0;
+
+        Timer m_lastFrameTick;
+
+        std::vector< SceneDescriptor > m_scenesToTest;
+        std::vector< Settings >        m_settingsToTest;
 
         SceneManager& m_sceneManager;
+        Profiler&     m_profiler;
+
+        int        m_framesCollected;
+        Statistics m_statsAccumulated;
+
+        // Key: scene path, value: test results for that scene.
+        std::map< std::string, std::vector< TestResult > > m_testResults;
     };
 }
 

@@ -361,6 +361,33 @@ bool MathUtil::isPowerOfTwo( unsigned int number )
     return number != 0 && !( number & ( number - 1 ) );
 }
 
+uint32_t MathUtil::ceilToNextPowerOfTwo( uint32_t value )
+{
+    value--;
+    value |= value >> 1;
+    value |= value >> 2;
+    value |= value >> 4;
+    value |= value >> 8;
+    value |= value >> 16;
+    value++;
+
+    return value;
+}
+
+uint64_t MathUtil::ceilToNextPowerOfTwo( uint64_t value )
+{
+    value--;
+    value |= value >> 1;
+    value |= value >> 2;
+    value |= value >> 4;
+    value |= value >> 8;
+    value |= value >> 16;
+    value |= value >> 32;
+    value++;
+
+    return value;
+}
+
 BoundingBox MathUtil::boundingBoxLocalToWorld( const BoundingBox& bboxInLocalSpace, const float43& bboxPose )
 {
     const float3 localMin = bboxInLocalSpace.getMin();

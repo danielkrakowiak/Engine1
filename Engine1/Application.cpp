@@ -64,7 +64,7 @@ Application::Application() :
     m_assetManager(),
     m_sceneManager( m_assetManager ),
     m_controlPanel( m_sceneManager ),
-    m_benchmark( m_sceneManager )
+    m_benchmark( m_sceneManager, m_profiler )
 {
 	windowsMessageReceiver = this;
 }
@@ -1076,6 +1076,7 @@ int2 Application::screenPosToWindowPos( int2 screenPos ) const
 void Application::setupBenchmark()
 {
     Settings initialSettings( settings() );
+    m_benchmark.addSettingsToTest( initialSettings );
 
     for ( int shadowsEnabled = 0; shadowsEnabled <= 1; ++shadowsEnabled ) {
         for ( int reflectionsEnabled = 0; reflectionsEnabled <= 1; ++reflectionsEnabled ) {
@@ -1102,5 +1103,5 @@ void Application::setupBenchmark()
         AssetPathManager::getPathForFileName( "example_camera1.cameraanim" )
     );*/
 
-    m_benchmark.performTests( 5.0f );
+    m_benchmark.performTests( 2.0f );
 }

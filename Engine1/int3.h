@@ -4,6 +4,8 @@
 #undef max
 #define NOMINMAX
 
+#include <string>
+
 namespace Engine1
 {
     class float3;
@@ -133,6 +135,20 @@ namespace Engine1
         explicit operator float3() const;
 
         explicit operator int2() const;
+
+        std::string toString() const
+        {
+            std::string text = "(";
+
+            text += std::to_string(x);
+            text += ", ";
+            text += std::to_string(y);
+            text += ", ";
+            text += std::to_string(z);
+            text += ")";
+
+            return std::move( text );
+        }
     };
 }
 

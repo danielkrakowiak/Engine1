@@ -1047,6 +1047,9 @@
     <ClInclude Include="Benchmark.h">
       <Filter>Header Files\Benchmark</Filter>
     </ClInclude>
+    <ClInclude Include="SettingsHelper.h">
+      <Filter>Header Files\Settings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1570,6 +1573,9 @@
     </ClCompile>
     <ClCompile Include="Benchmark.cpp">
       <Filter>Source Files\Benchmark</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsHelper.cpp">
+      <Filter>Source Files\Settings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

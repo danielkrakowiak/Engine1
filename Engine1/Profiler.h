@@ -70,11 +70,12 @@ namespace Engine1
             MipmapGenerationForPositionAndNormals = 0,
             EmissiveShading,
             ReflectionTransmissionShading,
-            Raytracing,
+            RaytracingReflectedRefractedRays,
             ShadingNoShadows,
             Shading,
             MipmapGenerationForShadedImage,
             CombiningWithMainImage,
+            Stage,
             MAX_VALUE
         };
 
@@ -92,6 +93,11 @@ namespace Engine1
             Shading,
             MAX_VALUE
         };
+
+        static StageType getNextStageType( const StageType prevStageType, bool reflection );
+
+        // Converts a vector of booleans into stage-type, where True means reflection, False means transmission at given layer.
+        static StageType getStageType( const std::vector< bool >& layers );
 
         static std::string stageTypeToString( const StageType stageType );
         static std::string eventTypeToString( const GlobalEventType eventType );

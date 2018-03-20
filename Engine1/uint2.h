@@ -58,5 +58,17 @@ namespace Engine1
                 (float)y
                 );
         }
+
+        std::string toString() const
+        {
+            std::string text = "(";
+
+            text += std::to_string(x);
+            text += ", ";
+            text += std::to_string(y);
+            text += ")";
+
+            return std::move( text );
+        }
     };
 }

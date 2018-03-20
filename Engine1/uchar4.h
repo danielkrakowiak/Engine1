@@ -5,6 +5,7 @@
 #define NOMINMAX
 
 #include <cmath>
+#include <string>
 
 namespace Engine1
 {
@@ -151,6 +152,22 @@ namespace Engine1
         explicit operator float4() const;
 
         explicit operator uint4() const;
+
+        std::string toString() const
+        {
+            std::string text = "(";
+
+            text += std::to_string(x);
+            text += ", ";
+            text += std::to_string(y);
+            text += ", ";
+            text += std::to_string(z);
+            text += ", ";
+            text += std::to_string(w);
+            text += ")";
+
+            return std::move( text );
+        }
 
     };
 
