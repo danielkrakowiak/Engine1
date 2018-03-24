@@ -4,6 +4,8 @@
 #include <vector>
 #include <array>
 
+#include "RenderingStage.h"
+
 struct ID3D11Device3;
 struct ID3D11DeviceContext3;
 struct ID3D11Query;
@@ -13,46 +15,6 @@ namespace Engine1
     class Profiler
     {
         public:
-
-        // Note: Main - main image, R - reflection, T - transmission (refraction).
-        enum class StageType : int
-        {
-            Main = 1,
-            R = 0b10,
-            T = 0b11,
-            // Level 2
-            RR = 0b100,
-            RT = 0b101,
-            TR = 0b110,
-            TT = 0b111,
-            // Level 3
-            RRR = 0b1000,
-            RRT = 0b1001,
-            RTR = 0b1010,
-            RTT = 0b1011,
-            TRR = 0b1100,
-            TRT = 0b1101,
-            TTR = 0b1110,
-            TTT = 0b1111,
-            // Level 4
-            RRRR = 0b10000,
-            RRRT = 0b10001,
-            RRTR = 0b10010,
-            RRTT = 0b10011,
-            RTRR = 0b10100,
-            RTRT = 0b10101,
-            RTTR = 0b10110,
-            RTTT = 0b10111,
-            TRRR = 0b11000,
-            TRRT = 0b11001,
-            TRTR = 0b11010,
-            TRTT = 0b11011,
-            TTRR = 0b11100,
-            TTRT = 0b11101,
-            TTTR = 0b11110,
-            TTTT = 0b11111,
-            MAX_VALUE = 32
-        };
 
         enum class GlobalEventType : int
         {
@@ -94,12 +56,6 @@ namespace Engine1
             MAX_VALUE
         };
 
-        static StageType getNextStageType( const StageType prevStageType, bool reflection );
-
-        // Converts a vector of booleans into stage-type, where True means reflection, False means transmission at given layer.
-        static StageType getStageType( const std::vector< bool >& layers );
-
-        static std::string stageTypeToString( const StageType stageType );
         static std::string eventTypeToString( const GlobalEventType eventType );
         static std::string eventTypeToString( const EventTypePerStage eventType );
         static std::string eventTypeToString( const EventTypePerStagePerLight eventType, const int lightIdx = -1 );
@@ -122,11 +78,11 @@ namespace Engine1
         void beginEvent( const GlobalEventType event );
         void endEvent( const GlobalEventType event );
 
-        void beginEvent( const StageType stage, const EventTypePerStage event );
-        void endEvent( const StageType stage, const EventTypePerStage event );
+        void beginEvent( const RenderingStage stage, const EventTypePerStage event );
+        void endEvent( const RenderingStage stage, const EventTypePerStage event );
 
-        void beginEvent( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event );
-        void endEvent( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event );
+        void beginEvent( const RenderingStage stage, const int lightIndex, const EventTypePerStagePerLight event );
+        void endEvent( const RenderingStage stage, const int lightIndex, const EventTypePerStagePerLight event );
 
         void beginFrameProfiling();
         void endFrameProfiling();
@@ -137,8 +93,8 @@ namespace Engine1
         void pauseProfiling();
 
         float getEventDuration( const GlobalEventType event );
-        float getEventDuration( const StageType stage, const EventTypePerStage event );
-        float getEventDuration( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event );
+        float getEventDuration( const RenderingStage stage, const EventTypePerStage event );
+        float getEventDuration( const RenderingStage stage, const int lightIndex, const EventTypePerStagePerLight event );
 
         private:
 
@@ -184,7 +140,7 @@ namespace Engine1
                     Event,
                     (int)EventTypePerStage::MAX_VALUE
                 >,
-                (int)StageType::MAX_VALUE
+                (int)RenderingStage::MAX_VALUE
             >,
             queryFrameCount
         > m_eventsPerStage;
@@ -195,7 +151,7 @@ namespace Engine1
                     std::array< Event, (int)EventTypePerStagePerLight::MAX_VALUE >,
                     s_maxLightCount
                 >,
-                (int)StageType::MAX_VALUE 
+                (int)RenderingStage::MAX_VALUE 
             >,
             queryFrameCount 
         > m_eventsPerStagePerLight;

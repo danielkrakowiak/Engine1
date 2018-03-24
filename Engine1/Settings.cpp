@@ -215,8 +215,11 @@ void Settings::initialize(ID3D11Device3& device)
 void Settings::onChanged()
 {
     // Active-level should not exceed max-level.
-    while ( s_settings.rendering.reflectionsRefractions.activeView.size() > s_settings.rendering.reflectionsRefractions.maxLevel )
-        s_settings.rendering.reflectionsRefractions.activeView.pop_back();
+    while ( getRenderingStageLevel( s_settings.rendering.reflectionsRefractions.debugViewStage ) > s_settings.rendering.reflectionsRefractions.maxLevel )
+    {
+        s_settings.rendering.reflectionsRefractions.debugViewStage =
+            getPrevRenderingStage( s_settings.rendering.reflectionsRefractions.debugViewStage );
+    }
 
     // Max-level has to be >= 0.
     s_settings.rendering.reflectionsRefractions.maxLevel

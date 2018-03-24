@@ -140,7 +140,7 @@ void Benchmark::resetFrameStats()
         m_statsAccumulated.global[ eventTypeIdx ] = 0.0f;
     }
 
-    for ( int stageIdx = 0; stageIdx < (int)Profiler::StageType::MAX_VALUE; ++stageIdx ) 
+    for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
     {
         for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventTypeIdx ) 
         {
@@ -148,7 +148,7 @@ void Benchmark::resetFrameStats()
         }
     }
 
-    for ( int stageIdx = 0; stageIdx < (int)Profiler::StageType::MAX_VALUE; ++stageIdx ) 
+    for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
     {
         for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
         {
@@ -173,9 +173,9 @@ void Benchmark::collectFrameStats()
         m_statsAccumulated.global[ eventTypeIdx ] += (eventDuration > 0.0f ? eventDuration : 0.0f);
     }
 
-    for ( int stageIdx = 0; stageIdx < (int)Profiler::StageType::MAX_VALUE; ++stageIdx ) 
+    for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
     {
-        const auto stage = static_cast< Profiler::StageType >( stageIdx );
+        const auto stage = static_cast< RenderingStage >( stageIdx );
 
         for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventTypeIdx ) 
         {
@@ -187,9 +187,9 @@ void Benchmark::collectFrameStats()
         }
     }
 
-    for ( int stageIdx = 0; stageIdx < (int)Profiler::StageType::MAX_VALUE; ++stageIdx ) 
+    for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
     {
-        const auto stage = static_cast< Profiler::StageType >( stageIdx );
+        const auto stage = static_cast< RenderingStage >( stageIdx );
 
         for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
         {
@@ -224,7 +224,7 @@ void Benchmark::saveSingleTestResults()
         testResult.statsAveraged.global[ eventTypeIdx ] = m_statsAccumulated.global[ eventTypeIdx ] / (float)m_framesCollected;
     }
 
-    for ( int stageIdx = 0; stageIdx < (int)Profiler::StageType::MAX_VALUE; ++stageIdx ) 
+    for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
     {
         for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventTypeIdx ) 
         {
@@ -232,7 +232,7 @@ void Benchmark::saveSingleTestResults()
         }
     }
 
-    for ( int stageIdx = 0; stageIdx < (int)Profiler::StageType::MAX_VALUE; ++stageIdx ) 
+    for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
     {
         for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
         {
@@ -293,8 +293,8 @@ void Benchmark::saveTestResultsToFile( const std::string& path )
             writeGlobalEventTimings( testResults.second, text, Profiler::GlobalEventType::ToneMapping, "Av. tone mapping" );
             writeGlobalEventTimings( testResults.second, text, Profiler::GlobalEventType::Antialiasing, "Av. antialiasing" );
 
-            writePerStageEventTimings( testResults.second, text, Profiler::StageType::R ,Profiler::EventTypePerStage::RaytracingReflectedRefractedRays, "Av. raytracing refl. rays" );
-            writePerStageEventTimings( testResults.second, text, Profiler::StageType::T ,Profiler::EventTypePerStage::RaytracingReflectedRefractedRays, "Av. raytracing trans. rays" );
+            writePerStageEventTimings( testResults.second, text, RenderingStage::R ,Profiler::EventTypePerStage::RaytracingReflectedRefractedRays, "Av. raytracing refl. rays" );
+            writePerStageEventTimings( testResults.second, text, RenderingStage::T ,Profiler::EventTypePerStage::RaytracingReflectedRefractedRays, "Av. raytracing trans. rays" );
         }
     }
 
@@ -325,7 +325,7 @@ void Benchmark::writeGlobalEventTimings(
 void Benchmark::writePerStageEventTimings( 
     const std::vector< TestResult >& testResults, 
     std::string& text, 
-    Profiler::StageType stageType, 
+    RenderingStage stageType, 
     Profiler::EventTypePerStage eventType, 
     const std::string& description )
 {

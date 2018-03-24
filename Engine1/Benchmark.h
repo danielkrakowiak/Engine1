@@ -46,7 +46,7 @@ namespace Engine1
                     float,
                     (int)Profiler::EventTypePerStage::MAX_VALUE
                 >,
-                (int)Profiler::StageType::MAX_VALUE
+                (int)RenderingStage::MAX_VALUE
             > perStage;
 
             std::array< 
@@ -54,7 +54,7 @@ namespace Engine1
                     std::array< float, (int)Profiler::EventTypePerStagePerLight::MAX_VALUE >,
                     Profiler::s_maxLightCount
                 >,
-                (int)Profiler::StageType::MAX_VALUE 
+                (int)RenderingStage::MAX_VALUE 
             > perStagePerLight;
         };
 
@@ -82,7 +82,7 @@ namespace Engine1
         void writePerStageEventTimings( 
             const std::vector< TestResult >& testResults, 
             std::string& text, 
-            Profiler::StageType stageType, 
+            RenderingStage stageType, 
             Profiler::EventTypePerStage eventType, 
             const std::string& description 
         );

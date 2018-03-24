@@ -6,6 +6,7 @@
 #include "float3.h"
 
 #include "Texture2D.h"
+#include "RenderingStage.h"
 
 struct ID3D11Device3;
 
@@ -186,7 +187,7 @@ namespace Engine1
             {
                 int maxLevel; // 0 - no reflections or refractions.
                 // true - reflection, false - refraction. Number of elements defines the current view level.
-                std::vector< bool > activeView; 
+                RenderingStage debugViewStage; 
                 bool reflectionsEnabled;
                 bool refractionsEnabled;
 

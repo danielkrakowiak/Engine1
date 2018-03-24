@@ -1050,6 +1050,9 @@
     <ClInclude Include="SettingsHelper.h">
       <Filter>Header Files\Settings</Filter>
     </ClInclude>
+    <ClInclude Include="RenderingStage.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1576,6 +1579,9 @@
     </ClCompile>
     <ClCompile Include="SettingsHelper.cpp">
       <Filter>Source Files\Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingStage.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

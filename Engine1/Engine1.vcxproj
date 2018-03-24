@@ -398,6 +398,7 @@
     <ClInclude Include="HitDistanceSearchComputeShader.h" />
     <ClInclude Include="HitDistanceSearchRenderer.h" />
     <ClInclude Include="PhysicsLibrary.h" />
+    <ClInclude Include="RenderingStage.h" />
     <ClInclude Include="RenderTargetManager.h" />
     <ClInclude Include="ResampleTextureFragmentShader.h" />
     <ClInclude Include="GenerateMipmapMinValueComputeShader.h" />
@@ -584,6 +585,7 @@
     <ClCompile Include="HitDistanceSearchComputeShader.cpp" />
     <ClCompile Include="HitDistanceSearchRenderer.cpp" />
     <ClCompile Include="PhysicsLibrary.cpp" />
+    <ClCompile Include="RenderingStage.cpp" />
     <ClCompile Include="RenderTargetManager.cpp" />
     <ClCompile Include="ResampleTextureFragmentShader.cpp" />
     <ClCompile Include="GenerateMipmapMinValueComputeShader.cpp" />

@@ -24,6 +24,8 @@
 #include "ToneMappingRenderer.h"
 #include "AntialiasingRenderer.h"
 
+#include "RenderingStage.h"
+
 #include "uchar4.h"
 #include "float4.h"
 #include "float2.h"
@@ -86,11 +88,6 @@ namespace Engine1
             HitDistanceBlurred,
             HitDistanceToCamera,
 			Test
-        };
-
-        enum class LayerType : char {
-            Reflection = 0,
-            Refraction
         };
 
         static std::string viewToString( const View view );
@@ -213,24 +210,24 @@ namespace Engine1
             const Scene& scene, const Camera& camera, 
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-            const std::vector< bool >& activeViewLevel, const View activeViewType,
+            const RenderingStage debugViewStage, const View debugViewType,
             const bool wireframeMode,
             const Selection& selection,
             const std::shared_ptr< BlockMesh > selectionVolumeMesh 
         );
 
         Output renderSecondaryLayers( 
-            const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
+            const int maxLevelCount, const Camera& camera,
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-            std::vector< bool >& renderedViewLevel,
-            const std::vector< bool >& activeViewLevel,
-            const View activeViewType
+            const RenderingStage renderingStage,
+            const RenderingStage debugViewStage,
+            const View debugViewType
         );
 
         void renderSecondaryLayer(
-            const LayerType layerType, const int level, const int refractionLevel, const Camera& camera,
+            const RenderingStage renderingStage, const Camera& camera,
             const std::vector< std::shared_ptr< BlockActor > >& blockActors,
             const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows
@@ -256,7 +253,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;
 
-        View m_activeViewType;
+        View m_debugViewType;
 
         int2 m_imageDimensions;
 

@@ -12,72 +12,6 @@ using Microsoft::WRL::ComPtr;
 
 using namespace Engine1;
 
-Profiler::StageType Profiler::getNextStageType( const StageType prevStageType, bool reflection )
-{
-    const auto prevStageTypeInt = (int)prevStageType << 1;
-    const auto reflectionBit = reflection ? 0 : 1;
-
-    const auto nextStageTypeInt = prevStageTypeInt | reflectionBit;
-
-    return (StageType)nextStageTypeInt;
-}
-
-Profiler::StageType Profiler::getStageType( const std::vector< bool >& layers )
-{
-    auto stage = (int)Profiler::StageType::Main;
-
-    // Supports only couple of levels for now (new stage enums need to be added if needed).
-    assert(layers.size() <= 4);
-
-    for ( const auto layer : layers )
-    {
-        stage = stage << 1;
-        stage |= (layer ? 0 : 1);
-    }
-
-    return (StageType)stage;
-}
-
-std::string Profiler::stageTypeToString( const StageType stageType )
-{
-    switch (stageType)
-    {
-        case StageType::Main: return "Main";
-        case StageType::R:    return "R";
-        case StageType::T:    return "T";
-        case StageType::RR:    return "RR";
-        case StageType::RT:    return "RT";
-        case StageType::TR:    return "TR";
-        case StageType::TT:    return "TT";
-        case StageType::RRR:    return "RRR";
-        case StageType::RRT:    return "RRT";
-        case StageType::RTR:    return "RTR";
-        case StageType::RTT:    return "RTT";
-        case StageType::TRR:    return "TRR";
-        case StageType::TRT:    return "TRT";
-        case StageType::TTR:    return "TTR";
-        case StageType::TTT:    return "TTT";
-        case StageType::RRRR:    return "RRRR";
-        case StageType::RRRT:    return "RRRT";
-        case StageType::RRTR:    return "RRTR";
-        case StageType::RRTT:    return "RRTT";
-        case StageType::RTRR:    return "RTRR";
-        case StageType::RTRT:    return "RTRT";
-        case StageType::RTTR:    return "RTTR";
-        case StageType::RTTT:    return "RTTT";
-        case StageType::TRRR:    return "TRRR";
-        case StageType::TRRT:    return "TRRT";
-        case StageType::TRTR:    return "TRTR";
-        case StageType::TRTT:    return "TRTT";
-        case StageType::TTRR:    return "TTRR";
-        case StageType::TTRT:    return "TTRT";
-        case StageType::TTTR:    return "TTTR";
-        case StageType::TTTT:    return "TTTT";
-    }
-
-    return "";
-}
-
 std::string Profiler::eventTypeToString( const GlobalEventType eventType )
 {
     switch (eventType)
@@ -156,14 +90,14 @@ void Profiler::initialize( ComPtr< ID3D11Device3 > device, ComPtr< ID3D11DeviceC
             m_globalEvents[ frameIdx ][ eventTypeIdx ] = createEvent( *m_device.Get() );
 
         // Create timestamp queries for events occurring at each rendering stage.
-        for ( int stageIdx = 0; stageIdx < (int)StageType::MAX_VALUE; ++stageIdx ) 
+        for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
         {
             for ( int eventTypeIdx = 0; eventTypeIdx < (int)EventTypePerStage::MAX_VALUE; ++eventTypeIdx )
                 m_eventsPerStage[ frameIdx ][ stageIdx ][ eventTypeIdx ] = createEvent( *m_device.Get() );
         }
 
         // Create timestamp queries for events occurring at each rendering stage for each light source.
-        for ( int stageIdx = 0; stageIdx < (int)StageType::MAX_VALUE; ++stageIdx ) 
+        for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
         {
             for ( int lightIdx = 0; lightIdx < s_maxLightCount; ++lightIdx ) 
             {
@@ -192,7 +126,7 @@ void Profiler::endEvent( const GlobalEventType event )
     m_deviceContext->End( m_globalEvents[ m_currentSubmitQueryFrameIndex ][ (int)event ].queryEnd.Get() );
 }
 
-void Profiler::beginEvent( const StageType stage, const EventTypePerStage event )
+void Profiler::beginEvent( const RenderingStage stage, const EventTypePerStage event )
 {
     if ( m_profilingPaused )
         return;
@@ -200,7 +134,7 @@ void Profiler::beginEvent( const StageType stage, const EventTypePerStage event 
      m_deviceContext->End( m_eventsPerStage[ m_currentSubmitQueryFrameIndex ][ (int)stage ][ (int)event ].queryBegin.Get() );
 }
 
-void Profiler::endEvent( const StageType stage, const EventTypePerStage event )
+void Profiler::endEvent( const RenderingStage stage, const EventTypePerStage event )
 {
     if ( m_profilingPaused )
         return;
@@ -210,7 +144,7 @@ void Profiler::endEvent( const StageType stage, const EventTypePerStage event )
     m_deviceContext->End( m_eventsPerStage[ m_currentSubmitQueryFrameIndex ][ (int)stage ][ (int)event ].queryEnd.Get() );
 }
 
-void Profiler::beginEvent( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event )
+void Profiler::beginEvent( const RenderingStage stage, const int lightIndex, const EventTypePerStagePerLight event )
 {
     if ( m_profilingPaused )
         return;
@@ -221,7 +155,7 @@ void Profiler::beginEvent( const StageType stage, const int lightIndex, const Ev
     m_deviceContext->End( m_eventsPerStagePerLight[ m_currentSubmitQueryFrameIndex ][ (int)stage ][ lightIndex ][ (int)event ].queryBegin.Get() );
 }
 
-void Profiler::endEvent( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event )
+void Profiler::endEvent( const RenderingStage stage, const int lightIndex, const EventTypePerStagePerLight event )
 {
     if ( m_profilingPaused )
         return;
@@ -281,7 +215,7 @@ void Profiler::endFrameProfiling()
             }
 
             // Save events per stage duration.
-            for ( int stageIdx = 0; stageIdx < (int)StageType::MAX_VALUE; ++stageIdx ) 
+            for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
             {
                 for ( int eventTypeIdx = 0; eventTypeIdx < (int)EventTypePerStage::MAX_VALUE; ++eventTypeIdx ) 
                 {
@@ -296,7 +230,7 @@ void Profiler::endFrameProfiling()
             }
 
             // Save events per stage per light duration.
-            for ( int stageIdx = 0; stageIdx < (int)StageType::MAX_VALUE; ++stageIdx ) 
+            for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
             {
                 for ( int lightIdx = 0; lightIdx < s_maxLightCount; ++lightIdx ) 
                 {
@@ -338,7 +272,7 @@ float Profiler::getEventDuration( const GlobalEventType event )
 }
 
 // Negative value means that event hasn't occurred.
-float Profiler::getEventDuration( const StageType stage, const EventTypePerStage event )
+float Profiler::getEventDuration( const RenderingStage stage, const EventTypePerStage event )
 {
     if ( m_currentReadResultsFrameIndex < 0 )
         return 0.0f; // Results are not ready yet in the first few frames.
@@ -347,7 +281,7 @@ float Profiler::getEventDuration( const StageType stage, const EventTypePerStage
 }
 
 // Negative value means that event hasn't occurred.
-float Profiler::getEventDuration( const StageType stage, const int lightIndex, const EventTypePerStagePerLight event )
+float Profiler::getEventDuration( const RenderingStage stage, const int lightIndex, const EventTypePerStagePerLight event )
 {
     if ( lightIndex >= s_maxLightCount )
         throw std::exception( "Profiler::getEventDuration - given lightIndex exceeds the number of profiled lights." );
@@ -407,7 +341,7 @@ void Profiler::resetEvents( const int frameIdx )
     }
 
     // Reset events per stage duration.
-    for ( int stageIdx = 0; stageIdx < (int)StageType::MAX_VALUE; ++stageIdx ) {
+    for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) {
         for ( int eventTypeIdx = 0; eventTypeIdx < (int)EventTypePerStage::MAX_VALUE; ++eventTypeIdx ) 
         {
             m_eventsPerStage[ frameIdx ][ stageIdx ][ eventTypeIdx ].measured             = false;
@@ -416,7 +350,7 @@ void Profiler::resetEvents( const int frameIdx )
     }
 
     // Reset events per stage per light duration.
-    for ( int stageIdx = 0; stageIdx < (int)StageType::MAX_VALUE; ++stageIdx ) {
+    for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) {
         for ( int lightIdx = 0; lightIdx < s_maxLightCount; ++lightIdx ) {
             for ( int eventTypeIdx = 0; eventTypeIdx < (int)EventTypePerStagePerLight::MAX_VALUE; ++eventTypeIdx )
             {

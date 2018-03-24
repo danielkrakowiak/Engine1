@@ -57,7 +57,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, Rend
     m_extractBrightPixelsRenderer( rendererCore ),
     m_toneMappingRenderer( rendererCore ),
     m_antialiasingRenderer( rendererCore ),
-    m_activeViewType( View::Final ),
+    m_debugViewType( View::Final ),
     m_exposure( 1.0f ),
     m_minBrightness( 1.0f )
 {}
@@ -192,14 +192,14 @@ Renderer::Output Renderer::renderScene(
     Output output; 
     output = renderPrimaryLayer( 
         scene, camera, lightsCastingShadows, lightsNotCastingShadows, 
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType, wireframeMode,
+        settings().rendering.reflectionsRefractions.debugViewStage, m_debugViewType, wireframeMode,
         selection, selectionVolumeMesh 
     );
 
     // Release all temporary render targets.
     m_layersRenderTargets.clear();
     
-    if ( !output.isEmpty() && m_activeViewType != Renderer::View::Final )
+    if ( !output.isEmpty() && m_debugViewType != Renderer::View::Final )
         return output;
 
     assert( output.float4Image );
@@ -207,7 +207,7 @@ Renderer::Output Renderer::renderScene(
     // Perform post-effects.
     performBloom( output.float4Image, m_minBrightness );
 
-    if ( m_activeViewType == View::BloomBrightPixels ) {
+    if ( m_debugViewType == View::BloomBrightPixels ) {
         output.reset();
         output.float4Image = m_temporaryRenderTarget2;
 
@@ -262,7 +262,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
     const Scene& scene, const Camera& camera, 
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-    const std::vector< bool >& activeViewLevel, const View activeViewType,
+    const RenderingStage debugViewStage, const View debugViewType,
     const bool wireframeMode,
     const Selection& selection,
     const std::shared_ptr< BlockMesh > selectionVolumeMesh )
@@ -411,21 +411,21 @@ Renderer::Output Renderer::renderPrimaryLayer(
     }
 
     m_profiler.endEvent( Profiler::GlobalEventType::DeferredRendering );
-    m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
+    m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
 
     // #TODO: Do we need these mipmaps? I don't think so anymore...
     // Generate mipmaps for normal and position g-buffers.
     layerRenderTargets.hitNormal->generateMipMapsOnGpu( *m_deviceContext.Get() );
     layerRenderTargets.hitPosition->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-    m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
-    m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
+    m_profiler.endEvent( RenderingStage::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
+    m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
     m_shadingRenderer.performShading( layerRenderTargets.hitShaded, layerRenderTargets.hitEmissive );
 
-    m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::EmissiveShading );
-    m_profiler.beginEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
+    m_profiler.endEvent( RenderingStage::Main, Profiler::EventTypePerStage::EmissiveShading );
+    m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows( 
         camera, 
@@ -438,7 +438,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
         lightsNotCastingShadows 
     );
 
-    m_profiler.endEvent( Profiler::StageType::Main, Profiler::EventTypePerStage::ShadingNoShadows );
+    m_profiler.endEvent( RenderingStage::Main, Profiler::EventTypePerStage::ShadingNoShadows );
 
     const auto blockActors = SceneUtil::filterActorsByType< BlockActor >( scene.getActorsVec() );
 
@@ -454,7 +454,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
     const int lightCount = (int)lightsCastingShadows.size();
 	for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx )
 	{
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
         auto hardShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hardShadow" );
         auto mediumShadowRenderTarget                        = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "mediumShadow" );
@@ -470,7 +470,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
              && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
         )
         {
-            //m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+            //m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
 
             //m_rasterizeShadowRenderer.performShadowMapping(
             //    camera.getPosition(),
@@ -479,13 +479,13 @@ Renderer::Output Renderer::renderPrimaryLayer(
             //    m_deferredRenderer.getNormalRenderTarget()
             //);
 
-            //m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
-            //m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
+            //m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::ShadowsMapping );
+            //m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
 
             ////#TODO: Should not generate all mipmaps. Maybe only two or three...
             //m_rasterizeShadowRenderer.getShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-            //m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
+            //m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         }
 
         // #TODO: Should be profiled.
@@ -502,7 +502,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
         //auto distanceToOccluder = m_rasterizeShadowRenderer.getDistanceToOccluder();
 
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
 
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
             camera,
@@ -520,15 +520,15 @@ Renderer::Output Renderer::renderPrimaryLayer(
             blockActors
         );
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
 
         hardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
         mediumShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
         softShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection( 
             distanceToOccluderHardShadowRenderTarget, 
@@ -551,8 +551,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel 
         );
         
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         
         // Distance to occluder search.
         m_distanceToOccluderSearchRenderer.performDistanceToOccluderSearch(
@@ -603,8 +603,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
             *lightsCastingShadows[ lightIdx ]
         );
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
         auto blurredHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredHardShadow" );
         auto blurredMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredMediumShadow" );
@@ -700,8 +700,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
             );
         }
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
 
         auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
 
@@ -712,12 +712,12 @@ Renderer::Output Renderer::renderPrimaryLayer(
             *blurredSoftShadowRenderTarget  
         );
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
 
-        if ( activeViewLevel.empty() ) {
+        if ( debugViewStage == RenderingStage::Main ) {
             Output output;
 
-            switch ( activeViewType ) {
+            switch ( debugViewType ) {
                 case View::HardShadow:
                     output.ucharImage = hardShadowRenderTarget;
                     return output;
@@ -760,7 +760,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             }
         }
 
-        m_profiler.beginEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
 		// Perform shading on the main image.
 		m_shadingRenderer.performShading( 
@@ -775,15 +775,15 @@ Renderer::Output Renderer::renderPrimaryLayer(
             *lightsCastingShadows[ lightIdx ] 
         );
 
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
-        m_profiler.endEvent( Profiler::StageType::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 	}
 
     layerRenderTargets.shadedCombined = layerRenderTargets.hitShaded;
 
-    if ( activeViewLevel.empty() )
+    if ( debugViewStage == RenderingStage::Main )
     {
-        Output output = getLayerRenderTarget( activeViewType, 0 );
+        Output output = getLayerRenderTarget( debugViewType, 0 );
 
         if ( !output.isEmpty() )
             return output;
@@ -794,22 +794,20 @@ Renderer::Output Renderer::renderPrimaryLayer(
     Output output;
 
     output = renderSecondaryLayers(
-        true, 1, 0,
         settings().rendering.reflectionsRefractions.maxLevel,
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
-        renderedViewType,
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType
+        RenderingStage::R,
+        settings().rendering.reflectionsRefractions.debugViewStage, m_debugViewType
     );
 
     if ( !output.isEmpty() )
         return output;
 
     output = renderSecondaryLayers(
-        false, 1, 0,
         settings().rendering.reflectionsRefractions.maxLevel,
         camera, blockActors, lightsCastingShadows, lightsNotCastingShadows,
-        renderedViewType,
-        settings().rendering.reflectionsRefractions.activeView, m_activeViewType
+        RenderingStage::T,
+        settings().rendering.reflectionsRefractions.debugViewStage, m_debugViewType
     );
 
     if ( !output.isEmpty() )
@@ -821,19 +819,22 @@ Renderer::Output Renderer::renderPrimaryLayer(
 }
 
 Renderer::Output Renderer::renderSecondaryLayers( 
-    const bool reflectionFirst, const int level, const int refractionLevel, const int maxLevelCount, const Camera& camera,
+    const int maxLevelCount, const Camera& camera,
     const std::vector< std::shared_ptr< BlockActor > >& blockActors,
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows,
-    std::vector< bool >& renderedViewLevel,
-    const std::vector< bool >& activeViewLevel,
-    const View activeViewType )
+    const RenderingStage renderingStage,
+    const RenderingStage debugViewStage,
+    const View debugViewType )
 {
-    if ( level > maxLevelCount )
+    const auto renderingStageType  = getLastRenderingStageType(renderingStage);
+    const auto renderingStageLevel = getRenderingStageLevel( renderingStage );
+
+    if ( renderingStageLevel > maxLevelCount )
         return Output();
 
-    if ( ( reflectionFirst && !settings().rendering.reflectionsRefractions.reflectionsEnabled ) ||
-       ( !reflectionFirst && !settings().rendering.reflectionsRefractions.refractionsEnabled ) )
+    if ( ( renderingStageType == RenderingStageType::Reflection && !settings().rendering.reflectionsRefractions.reflectionsEnabled ) ||
+       ( renderingStageType == RenderingStageType::Transmission && !settings().rendering.reflectionsRefractions.refractionsEnabled ) )
         return Output();
 
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
@@ -842,16 +843,11 @@ Renderer::Output Renderer::renderSecondaryLayers(
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > >        frameFloat2;
     std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
 
-    renderedViewLevel.push_back( reflectionFirst );
+    renderSecondaryLayer( renderingStage, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
 
-    if ( reflectionFirst )
-        renderSecondaryLayer( LayerType::Reflection, level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
-    else
-        renderSecondaryLayer( LayerType::Refraction, level, refractionLevel, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
-
-    if ( renderedViewLevel == activeViewLevel )
+    if ( renderingStage == debugViewStage )
     {
-        Output output = getLayerRenderTarget( activeViewType, level );
+        Output output = getLayerRenderTarget( debugViewType, renderingStageLevel );
 
         if ( !output.isEmpty() )
             return output;
@@ -862,47 +858,47 @@ Renderer::Output Renderer::renderSecondaryLayers(
 
     Output output;
     output = renderSecondaryLayers( 
-        true, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        renderedViewLevel, activeViewLevel, activeViewType
+        getNextRenderingStage(renderingStage, RenderingStageType::Reflection), debugViewStage, debugViewType
     );
 
     if ( !output.isEmpty() )
         return output;
 
     output = renderSecondaryLayers( 
-        false, level + 1, refractionLevel + (int)(!reflectionFirst), 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        renderedViewLevel, activeViewLevel, activeViewType
+        getNextRenderingStage(renderingStage, RenderingStageType::Transmission), debugViewStage, debugViewType
     );
 
     if ( !output.isEmpty() )
         return output;
 
     // Combine current layer with previous layer.
-    combineLayers( level, camera );
+    combineLayers( renderingStageLevel, camera );
 
-    auto& currLayerRTs = m_layersRenderTargets.at( level );
+    auto& currLayerRTs = m_layersRenderTargets.at( renderingStageLevel );
 
-    if ( activeViewLevel == renderedViewLevel && activeViewType == View::ShadedCombined )
+    if ( debugViewStage == renderingStage && debugViewType == View::ShadedCombined )
         output.float4Image = currLayerRTs.shadedCombined;
-
-    renderedViewLevel.pop_back();
 
     return output;
 }
 
 void Renderer::renderSecondaryLayer(
-    const LayerType layerType, const int level, const int refractionLevel, const Camera& camera,
+    const RenderingStage renderingStage, const Camera& camera,
     const std::vector< std::shared_ptr< BlockActor > >& blockActors,
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
-    if ( m_layersRenderTargets.size() <= level )
+    const auto renderingStageType                 = getLastRenderingStageType( renderingStage );
+    const auto renderingStageLevel                = getRenderingStageLevel( renderingStage );
+    const auto renderingStageRefractionLevelCount = getRenderingStageRefractionLevelCount( renderingStage );
+
+    if ( m_layersRenderTargets.size() <= renderingStageLevel )
         m_layersRenderTargets.emplace_back();
 
-    auto& prevLayerRTs  = m_layersRenderTargets.at( level - 1 ); // Previous layer render targets.
-    auto& currLayerRTs  = m_layersRenderTargets.at( level );     // Current layer render targets.
+    auto& prevLayerRTs  = m_layersRenderTargets.at( renderingStageLevel - 1 ); // Previous layer render targets.
+    auto& currLayerRTs  = m_layersRenderTargets.at( renderingStageLevel );     // Current layer render targets.
 
     const int2 hitDistSearchDimensions = m_imageDimensions / settings().rendering.hitDistanceSearch.resolutionDivider;
 
@@ -923,11 +919,11 @@ void Renderer::renderSecondaryLayer(
     currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitShaded" );
     currLayerRTs.shadedCombined         = nullptr; // It's important to reset this - it may contain results from same layer reflection/refraction.
 
-    if (layerType == Renderer::LayerType::Reflection)
+    if (renderingStageType == RenderingStageType::Reflection)
     {
-        if ( level <= 1 )
+        if ( renderingStageLevel <= 1 )
         {
-            m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+            m_profiler.beginEvent( RenderingStage::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
             m_reflectionRefractionShadingRenderer.performFirstReflectionShading(
                 camera,
@@ -939,7 +935,7 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.contributionRoughness
             );
 
-            m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+            m_profiler.endEvent( RenderingStage::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
         }
         else
         {
@@ -955,11 +951,11 @@ void Renderer::renderSecondaryLayer(
             );
         }
     }
-    else if (layerType == Renderer::LayerType::Refraction)
+    else if (renderingStageType == RenderingStageType::Transmission)
     {
-        if ( level <= 1 )
+        if ( renderingStageLevel <= 1 )
         {
-            m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+            m_profiler.beginEvent( RenderingStage::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
             m_reflectionRefractionShadingRenderer.performFirstRefractionShading(
                 camera,
@@ -971,7 +967,7 @@ void Renderer::renderSecondaryLayer(
                 currLayerRTs.contributionRoughness
             );
 
-            m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+            m_profiler.beginEvent( RenderingStage::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
         }
         else
         {
@@ -997,7 +993,9 @@ void Renderer::renderSecondaryLayer(
     raytracerInputs.prevHitDistanceToCamera        = prevLayerRTs.hitDistanceToCamera;
     raytracerInputs.prevHitRefractiveIndex         = prevLayerRTs.hitRefractiveIndex;
     raytracerInputs.prevCurrentRefractiveIndex     = prevLayerRTs.currentRefractiveIndex;
-    raytracerInputs.prevPrevCurrentRefractiveIndex = refractionLevel - 2 >= 0 ? m_layersRenderTargets.at( refractionLevel - 2 ).currentRefractiveIndex : nullptr;
+    raytracerInputs.prevPrevCurrentRefractiveIndex = (renderingStageRefractionLevelCount - 2 >= 0 
+        ? m_layersRenderTargets.at( renderingStageRefractionLevelCount - 2 ).currentRefractiveIndex 
+        : nullptr);
 
     RaytraceRenderer::RenderTargets raytracerRTs;
     raytracerRTs.rayOrigin              = currLayerRTs.rayOrigin;
@@ -1013,11 +1011,11 @@ void Renderer::renderSecondaryLayer(
     raytracerRTs.hitDistance            = currLayerRTs.hitDistance;
     raytracerRTs.hitDistanceToCamera    = currLayerRTs.hitDistanceToCamera;
 
-    if ( layerType == Renderer::LayerType::Reflection )
+    if ( renderingStageType == RenderingStageType::Reflection )
     {
-        if ( level <= 1 )
+        if ( renderingStageLevel <= 1 )
         {
-            m_profiler.beginEvent( Profiler::StageType::R, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+            m_profiler.beginEvent( RenderingStage::R, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
 
             m_raytraceRenderer.generateAndTraceFirstReflectedRays(
                 camera,
@@ -1026,7 +1024,7 @@ void Renderer::renderSecondaryLayer(
                 blockActors
             );
 
-            m_profiler.endEvent( Profiler::StageType::R, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+            m_profiler.endEvent( RenderingStage::R, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
         }
         else
         {
@@ -1037,11 +1035,11 @@ void Renderer::renderSecondaryLayer(
             );
         }
     }
-    else if ( layerType == Renderer::LayerType::Refraction )
+    else if ( renderingStageType == RenderingStageType::Transmission )
     {
-        if ( level <= 1 )
+        if ( renderingStageLevel <= 1 )
         {
-            m_profiler.beginEvent( Profiler::StageType::T, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+            m_profiler.beginEvent( RenderingStage::T, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
 
             m_raytraceRenderer.generateAndTraceFirstRefractedRays(
                 camera,
@@ -1050,12 +1048,12 @@ void Renderer::renderSecondaryLayer(
                 blockActors
             );
 
-            m_profiler.endEvent( Profiler::StageType::T, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+            m_profiler.endEvent( RenderingStage::T, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
         }
         else
         {
             m_raytraceRenderer.generateAndTraceRefractedRays(
-                refractionLevel,
+                renderingStageRefractionLevelCount,
                 raytracerInputs,
                 raytracerRTs,
                 blockActors
@@ -1455,12 +1453,12 @@ void Renderer::performAntialiasing(
 
 void Renderer::setActiveViewType( const View view )
 {
-    m_activeViewType = view;
+    m_debugViewType = view;
 }
 
 Renderer::View Renderer::getActiveViewType() const
 {
-    return m_activeViewType;
+    return m_debugViewType;
 }
 
 float Renderer::getExposure()

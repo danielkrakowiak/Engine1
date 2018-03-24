@@ -237,7 +237,7 @@ void Application::run()
     const float profilingDisplayRefreshDelayMs = 200.0f;
     double frameTimeMs = 0.0;
     float totalFrameTimeGPU = 0.0f, totalFrameTimeCPU = 0.0f;
-    std::array< StageProfilingInfo, (int)Profiler::StageType::MAX_VALUE > stageProfilingInfo;
+    std::array< StageProfilingInfo, (int)RenderingStage::MAX_VALUE > stageProfilingInfo;
 
     Timer profilingLastRefreshTime;
 
@@ -407,15 +407,15 @@ void Application::run()
                 totalFrameTimeCPU = (float)frameTimeMs;
                 totalFrameTimeGPU = m_profiler.getEventDuration( Profiler::GlobalEventType::Frame );
 
-                for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
+                for ( int stage = (int)RenderingStage::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)RenderingStage::MAX_VALUE; ++stage )
                 {
                     stageProfilingInfo[ stage ].shadowsTotal = 0.0f;
                     stageProfilingInfo[ stage ].shadingTotal = 0.0f;
 
                     for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
                     {
-                        const float shadowPerLight  = m_profiler.getEventDuration( (Profiler::StageType)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
-                        const float shadingPerLight = m_profiler.getEventDuration( (Profiler::StageType)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
+                        const float shadowPerLight  = m_profiler.getEventDuration( (RenderingStage)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+                        const float shadingPerLight = m_profiler.getEventDuration( (RenderingStage)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
                         
                         if ( shadowPerLight >= 0.0f )
                             stageProfilingInfo[ stage ].shadowsTotal += shadowPerLight;
@@ -508,10 +508,10 @@ void Application::run()
                 ss << eventName << ": " << eventDuration << "ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
             }
 
-            for ( int stage = (int)Profiler::StageType::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)Profiler::StageType::MAX_VALUE; ++stage )
+            for ( int stage = (int)RenderingStage::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)RenderingStage::MAX_VALUE; ++stage )
             {
                 // Print stage name.
-                const std::string stageName = Profiler::stageTypeToString( (Profiler::StageType)stage );
+                const std::string stageName = renderingStageToString( (RenderingStage)stage );
                 ss << stageName << "\n";
 
                 // Print total duration of shadow calculations.
@@ -527,7 +527,7 @@ void Application::run()
                 // Print duration of events occurring at each stage.
                 for ( int eventType = (int)Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals; eventType < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventType )
                 {
-                    const float       eventDuration = m_profiler.getEventDuration( (Profiler::StageType)stage, (Profiler::EventTypePerStage)eventType );
+                    const float       eventDuration = m_profiler.getEventDuration( (RenderingStage)stage, (Profiler::EventTypePerStage)eventType );
                     const std::string eventName     = Profiler::eventTypeToString( (Profiler::EventTypePerStage)eventType );
 
                     if ( eventDuration >= 0.0f )
@@ -544,7 +544,7 @@ void Application::run()
 
                     for ( int eventType = (int)Profiler::EventTypePerStagePerLight::ShadowsMapping; eventType < (int)Profiler::EventTypePerStagePerLight::MAX_VALUE; ++eventType )
                     {
-                        const float       eventDuration = m_profiler.getEventDuration( ( Profiler::StageType )stage, lightIdx, ( Profiler::EventTypePerStagePerLight )eventType );
+                        const float       eventDuration = m_profiler.getEventDuration( ( RenderingStage)stage, lightIdx, ( Profiler::EventTypePerStagePerLight )eventType );
                         const std::string eventName     = Profiler::eventTypeToString( ( Profiler::EventTypePerStagePerLight )eventType );
 
                         if ( eventDuration > 0.0f )

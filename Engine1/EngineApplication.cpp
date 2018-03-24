@@ -556,22 +556,6 @@ void EngineApplication::onKeyPress( int key )
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }
     }
-
-    if ( m_sceneManager.isSelectionEmpty() )
-    {
-        if ( key == InputManager::Keys::up && ctrlPressed )
-            Settings::modify().rendering.reflectionsRefractions.maxLevel++;
-        else if ( key == InputManager::Keys::down && ctrlPressed )
-            Settings::modify().rendering.reflectionsRefractions.maxLevel--;
-        else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::r ) )
-            Settings::modify().rendering.reflectionsRefractions.activeView.push_back( true );
-        else if ( key == InputManager::Keys::plus && m_inputManager.isKeyPressed( InputManager::Keys::t ) )
-            Settings::modify().rendering.reflectionsRefractions.activeView.push_back( false );
-        else if ( key == InputManager::Keys::minus && !Settings::modify().rendering.reflectionsRefractions.activeView.empty() )
-            Settings::modify().rendering.reflectionsRefractions.activeView.pop_back();
-        else if ( key == InputManager::Keys::b )
-            Settings::modify().rendering.shadows.useSeparableShadowBlur = !settings().rendering.shadows.useSeparableShadowBlur;
-    }
 }
 
 void EngineApplication::onMouseButtonPress( int button )

@@ -143,22 +143,27 @@ void ControlPanel::draw()
 
 void TW_CALL ControlPanel::onNextLevelReflection( void* /*clientData*/ )
 {
-    Settings::modify().rendering.reflectionsRefractions.activeView.push_back( true );
+    Settings::modify().rendering.reflectionsRefractions.debugViewStage = 
+        getNextRenderingStage( settings().rendering.reflectionsRefractions.debugViewStage, RenderingStageType::Reflection );
 
     Settings::onChanged();
 }
 
 void TW_CALL ControlPanel::onNextLevelRefraction( void* /*clientData*/ )
 {
-    Settings::modify().rendering.reflectionsRefractions.activeView.push_back( false );
+    Settings::modify().rendering.reflectionsRefractions.debugViewStage = 
+        getNextRenderingStage( settings().rendering.reflectionsRefractions.debugViewStage, RenderingStageType::Transmission );
 
     Settings::onChanged();
 }
 
 void TW_CALL ControlPanel::onPrevLevel( void* /*clientData*/ )
 {
-    if ( !settings().rendering.reflectionsRefractions.activeView.empty() )
-        Settings::modify().rendering.reflectionsRefractions.activeView.pop_back();
+    if ( settings().rendering.reflectionsRefractions.debugViewStage != RenderingStage::Main )
+    {
+        Settings::modify().rendering.reflectionsRefractions.debugViewStage = 
+            getPrevRenderingStage( settings().rendering.reflectionsRefractions.debugViewStage );
+    }
 
     Settings::onChanged();
 }
