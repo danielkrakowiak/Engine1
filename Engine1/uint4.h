@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #undef min
 #undef max
 #define NOMINMAX

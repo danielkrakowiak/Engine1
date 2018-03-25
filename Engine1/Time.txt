@@ -497,3 +497,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 19.03.2018 - 4h - Minor fixes in how Benchmark works. Reading frame stats from Profiler by Benchmark, saving test results to a file. Added comparing two Settings objects to print out differences in benchmark results.
 20.03.2018 - 6h - Generating a perf stats file that could be imported by Excel. Aded toString() method to many math types.
 24.03.2018 - 1h - Added universal rendering stage enum - and used it to track layers in Renderer and in Profiler. Refactored Renderer renderSecondaryLayer(s) methods to use only one RenderingStage argument instead of 3/4 arguments describing the same thing.
+25.03.2018 - 1h - Added profiling to secondary layers rendering.

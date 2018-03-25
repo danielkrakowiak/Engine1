@@ -35,9 +35,10 @@ namespace Engine1
             RaytracingReflectedRefractedRays,
             ShadingNoShadows,
             Shading,
-            MipmapGenerationForShadedImage,
-            CombiningWithMainImage,
-            Stage,
+            MipmapGenerationForLayer,
+            CombiningWithPreviousLayer,
+            HitDistanceMipmapGeneration,
+            HitDistanceSearch,
             MAX_VALUE
         };
 

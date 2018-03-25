@@ -35,7 +35,7 @@ namespace Engine1
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-        void performShading( 
+        void performEmissiveShading( 
             std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture 
         );

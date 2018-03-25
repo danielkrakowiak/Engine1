@@ -44,7 +44,7 @@ void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D1
 	m_initialized = true;
 }
 
-void ShadingRenderer::performShading( 
+void ShadingRenderer::performEmissiveShading( 
     std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
     const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture )
 {

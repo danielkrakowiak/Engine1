@@ -422,7 +422,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
     m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( layerRenderTargets.hitShaded, layerRenderTargets.hitEmissive );
+    m_shadingRenderer.performEmissiveShading( layerRenderTargets.hitShaded, layerRenderTargets.hitEmissive );
 
     m_profiler.endEvent( RenderingStage::Main, Profiler::EventTypePerStage::EmissiveShading );
     m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::ShadingNoShadows );
@@ -859,7 +859,8 @@ Renderer::Output Renderer::renderSecondaryLayers(
     Output output;
     output = renderSecondaryLayers( 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        getNextRenderingStage(renderingStage, RenderingStageType::Reflection), debugViewStage, debugViewType
+        getNextRenderingStage (renderingStage, RenderingStageType::Reflection ), 
+        debugViewStage, debugViewType
     );
 
     if ( !output.isEmpty() )
@@ -867,14 +868,15 @@ Renderer::Output Renderer::renderSecondaryLayers(
 
     output = renderSecondaryLayers( 
         maxLevelCount, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows, 
-        getNextRenderingStage(renderingStage, RenderingStageType::Transmission), debugViewStage, debugViewType
+        getNextRenderingStage( renderingStage, RenderingStageType::Transmission ), 
+        debugViewStage, debugViewType
     );
 
     if ( !output.isEmpty() )
         return output;
 
     // Combine current layer with previous layer.
-    combineLayers( renderingStageLevel, camera );
+    combineLayers( renderingStage, camera );
 
     auto& currLayerRTs = m_layersRenderTargets.at( renderingStageLevel );
 
@@ -919,12 +921,12 @@ void Renderer::renderSecondaryLayer(
     currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitShaded" );
     currLayerRTs.shadedCombined         = nullptr; // It's important to reset this - it may contain results from same layer reflection/refraction.
 
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::ReflectionTransmissionShading );
+
     if (renderingStageType == RenderingStageType::Reflection)
     {
         if ( renderingStageLevel <= 1 )
         {
-            m_profiler.beginEvent( RenderingStage::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
-
             m_reflectionRefractionShadingRenderer.performFirstReflectionShading(
                 camera,
                 prevLayerRTs.hitPosition,
@@ -934,8 +936,6 @@ void Renderer::renderSecondaryLayer(
                 prevLayerRTs.hitRoughness,
                 currLayerRTs.contributionRoughness
             );
-
-            m_profiler.endEvent( RenderingStage::R, Profiler::EventTypePerStage::ReflectionTransmissionShading );
         }
         else
         {
@@ -955,8 +955,6 @@ void Renderer::renderSecondaryLayer(
     {
         if ( renderingStageLevel <= 1 )
         {
-            m_profiler.beginEvent( RenderingStage::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
-
             m_reflectionRefractionShadingRenderer.performFirstRefractionShading(
                 camera,
                 prevLayerRTs.hitPosition,
@@ -966,8 +964,6 @@ void Renderer::renderSecondaryLayer(
                 prevLayerRTs.hitRoughness,
                 currLayerRTs.contributionRoughness
             );
-
-            m_profiler.beginEvent( RenderingStage::T, Profiler::EventTypePerStage::ReflectionTransmissionShading );
         }
         else
         {
@@ -983,6 +979,8 @@ void Renderer::renderSecondaryLayer(
             );
         }
     }
+
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::ReflectionTransmissionShading );
 
     RaytraceRenderer::InputTextures2 raytracerInputs;
     raytracerInputs.contribution                   = currLayerRTs.contributionRoughness;
@@ -1011,20 +1009,18 @@ void Renderer::renderSecondaryLayer(
     raytracerRTs.hitDistance            = currLayerRTs.hitDistance;
     raytracerRTs.hitDistanceToCamera    = currLayerRTs.hitDistanceToCamera;
 
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+
     if ( renderingStageType == RenderingStageType::Reflection )
     {
         if ( renderingStageLevel <= 1 )
         {
-            m_profiler.beginEvent( RenderingStage::R, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
-
             m_raytraceRenderer.generateAndTraceFirstReflectedRays(
                 camera,
                 raytracerInputs,
                 raytracerRTs,
                 blockActors
             );
-
-            m_profiler.endEvent( RenderingStage::R, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
         }
         else
         {
@@ -1039,7 +1035,7 @@ void Renderer::renderSecondaryLayer(
     {
         if ( renderingStageLevel <= 1 )
         {
-            m_profiler.beginEvent( RenderingStage::T, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+            
 
             m_raytraceRenderer.generateAndTraceFirstRefractedRays(
                 camera,
@@ -1047,8 +1043,6 @@ void Renderer::renderSecondaryLayer(
                 raytracerRTs,
                 blockActors
             );
-
-            m_profiler.endEvent( RenderingStage::T, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
         }
         else
         {
@@ -1061,11 +1055,17 @@ void Renderer::renderSecondaryLayer(
         }
     }
 
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::EmissiveShading );
+
     // Initialize shading output with emissive color.
-    m_shadingRenderer.performShading( 
+    m_shadingRenderer.performEmissiveShading( 
         currLayerRTs.hitShaded, 
         currLayerRTs.hitEmissive 
     );
+
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::EmissiveShading );
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::ShadingNoShadows );
 
     m_shadingRenderer.performShadingNoShadows(
         currLayerRTs.hitShaded,
@@ -1077,6 +1077,8 @@ void Renderer::renderSecondaryLayer(
         currLayerRTs.hitNormal,
         lightsNotCastingShadows
     );
+
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::ShadingNoShadows );
 
     auto finalDistanceToOccluderHardShadowImageDimensions = 
         m_imageDimensions / settings().rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider;
@@ -1090,6 +1092,8 @@ void Renderer::renderSecondaryLayer(
     const int lightCount = (int)lightsCastingShadows.size();
     for ( int lightIdx = 0; lightIdx < lightCount; ++lightIdx ) 
     {
+        m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+
         auto hardShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hardShadow" );
         auto mediumShadowRenderTarget                        = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "mediumShadow" );
         auto softShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "softShadow" );
@@ -1112,6 +1116,8 @@ void Renderer::renderSecondaryLayer(
         //    );
         //}
 
+        m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
+
         m_raytraceShadowRenderer.generateAndTraceShadowRays(
             camera,
             lightsCastingShadows[ lightIdx ],
@@ -1127,9 +1133,15 @@ void Renderer::renderSecondaryLayer(
             blockActors
         );
 
+        m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
+        m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
+
         hardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
         mediumShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
         softShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+        m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
+        m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
 
         m_mipmapRenderer.generateMipmapsWithSampleRejection(
             distanceToOccluderHardShadowRenderTarget,
@@ -1151,6 +1163,9 @@ void Renderer::renderSecondaryLayer(
             0, 
             settings().rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel
         );
+
+        m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
+        m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
 
         // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
         // #TODO RENDER: Distance to occluder shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
@@ -1204,6 +1219,9 @@ void Renderer::renderSecondaryLayer(
             finalDistanceToOccluderSoftShadowRenderTarget,
             *lightsCastingShadows[ lightIdx ]
         );
+
+        m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
+        m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
         auto blurredHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredHardShadow" );
         auto blurredMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredMediumShadow" );
@@ -1302,6 +1320,9 @@ void Renderer::renderSecondaryLayer(
             );
         }
 
+        m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
+        m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
+
         auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
 
         m_combineShadowLayersRenderer.combineShadowLayers(
@@ -1310,6 +1331,9 @@ void Renderer::renderSecondaryLayer(
             *blurredMediumShadowRenderTarget,
             *blurredSoftShadowRenderTarget  
         );
+
+        m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
+        m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
 
         // Perform shading on the main image.
         m_shadingRenderer.performShading(
@@ -1323,6 +1347,9 @@ void Renderer::renderSecondaryLayer(
             blurredShadowRenderTarget,
             *lightsCastingShadows[ lightIdx ]
         );
+
+        m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
+        m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
     }
 
     const int contributionTextureFillWidth = prevLayerRTs.hitAlbedo->getWidth();
@@ -1331,11 +1358,16 @@ void Renderer::renderSecondaryLayer(
     const int colorTextureFillWidth = currLayerRTs.rayOrigin->getWidth();
     const int colorTextureFillHeight = currLayerRTs.rayOrigin->getHeight();
 
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::HitDistanceMipmapGeneration );
+
     //#TODO: Fill pixels for which all samples were rejected with max value.
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
         currLayerRTs.hitDistance,
         50.0f, 0, 0
     );
+
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::HitDistanceMipmapGeneration );
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::HitDistanceSearch );
 
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
         camera,
@@ -1344,10 +1376,14 @@ void Renderer::renderSecondaryLayer(
         currLayerRTs.hitDistance,
         currLayerRTs.hitDistanceBlurred
     );
+
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::HitDistanceSearch );
 }
 
-void Renderer::combineLayers( const int currentLevel, const Camera& camera )
+void Renderer::combineLayers( const RenderingStage renderingStage, const Camera& camera )
 {
+    const int currentLevel = getRenderingStageLevel( renderingStage );
+
     if ( currentLevel < 1 || currentLevel >= m_layersRenderTargets.size() )
         throw std::exception( "Renderer::combineLayers - given level is 0 (nothing to combine then) or higher-equal to number of layers available." );
 
@@ -1366,8 +1402,13 @@ void Renderer::combineLayers( const int currentLevel, const Camera& camera )
         prevLayerRTs.hitShaded = nullptr;
     }
 
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForLayer );
+
     // Generate mipmaps for the current layer shaded-combined image.
     currLayerRTs.shadedCombined->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForLayer );
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::CombiningWithPreviousLayer );
 
     if ( currentLevel == 1 ) {
         m_combiningRenderer.combine(
@@ -1400,6 +1441,8 @@ void Renderer::combineLayers( const int currentLevel, const Camera& camera )
             m_finalRenderTargetHDR->getHeight()
         );
     }
+
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::CombiningWithPreviousLayer );
 }
 
 void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )

@@ -37,9 +37,10 @@ std::string Profiler::eventTypeToString( const EventTypePerStage eventType )
         case EventTypePerStage::RaytracingReflectedRefractedRays:                            return "Raytracing";
         case EventTypePerStage::ShadingNoShadows:                      return "ShadingNoShadows";
         case EventTypePerStage::Shading:                               return "Shading";
-        case EventTypePerStage::MipmapGenerationForShadedImage:        return "MipmapGenerationForShadedImage";
-        case EventTypePerStage::CombiningWithMainImage:                return "CombiningWithMainImage";
-        case EventTypePerStage::Stage:                                 return "Stage";
+        case EventTypePerStage::MipmapGenerationForLayer:              return "MipmapGenerationForLayer";
+        case EventTypePerStage::CombiningWithPreviousLayer:            return "CombiningWithPreviousLayer";
+        case EventTypePerStage::HitDistanceMipmapGeneration:           return "HitDistanceMipmapGeneration";
+        case EventTypePerStage::HitDistanceSearch:                     return "HitDistanceSearch";
     }
 
     return "";
@@ -128,7 +129,7 @@ void Profiler::endEvent( const GlobalEventType event )
 
 void Profiler::beginEvent( const RenderingStage stage, const EventTypePerStage event )
 {
-    if ( m_profilingPaused )
+    if ( m_profilingPaused || (int)stage >= (int)RenderingStage::MAX_VALUE )
         return;
 
      m_deviceContext->End( m_eventsPerStage[ m_currentSubmitQueryFrameIndex ][ (int)stage ][ (int)event ].queryBegin.Get() );
@@ -136,7 +137,7 @@ void Profiler::beginEvent( const RenderingStage stage, const EventTypePerStage e
 
 void Profiler::endEvent( const RenderingStage stage, const EventTypePerStage event )
 {
-    if ( m_profilingPaused )
+    if ( m_profilingPaused || (int)stage >= (int)RenderingStage::MAX_VALUE )
         return;
 
     m_eventsPerStage[ m_currentSubmitQueryFrameIndex ][ (int)stage ][ (int)event ].measured = true;
@@ -146,7 +147,7 @@ void Profiler::endEvent( const RenderingStage stage, const EventTypePerStage eve
 
 void Profiler::beginEvent( const RenderingStage stage, const int lightIndex, const EventTypePerStagePerLight event )
 {
-    if ( m_profilingPaused )
+    if ( m_profilingPaused || (int)stage >= (int)RenderingStage::MAX_VALUE )
         return;
 
     if ( lightIndex < 0 || lightIndex >= s_maxLightCount )
@@ -157,7 +158,7 @@ void Profiler::beginEvent( const RenderingStage stage, const int lightIndex, con
 
 void Profiler::endEvent( const RenderingStage stage, const int lightIndex, const EventTypePerStagePerLight event )
 {
-    if ( m_profilingPaused )
+    if ( m_profilingPaused || (int)stage >= (int)RenderingStage::MAX_VALUE )
         return;
 
     if ( lightIndex < 0 || lightIndex >= s_maxLightCount )

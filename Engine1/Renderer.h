@@ -233,7 +233,7 @@ namespace Engine1
             const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows
         );
 
-        void combineLayers( const int currentLevel, const Camera& camera );
+        void combineLayers( const RenderingStage renderingStage, const Camera& camera );
 
         void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness );
 

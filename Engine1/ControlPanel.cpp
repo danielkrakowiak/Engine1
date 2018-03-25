@@ -33,7 +33,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwWindowSize( windowDimensions.x, windowDimensions.y );
 
     m_mainBar = TwNewBar("Main");
-    TwDefine(" Main visible=false ");
+    TwDefine(" Main visible=true ");
 
     TwAddVarRW( m_mainBar, "Reflections", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.reflectionsEnabled, "" );
     TwAddVarRW( m_mainBar, "Refractions", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.refractionsEnabled, "" );
@@ -56,7 +56,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_mainBar, "Antialiasing", TW_TYPE_BOOL8, &Settings::s_settings.rendering.antialiasing, "" );
 
     m_meshUtilsBar = TwNewBar("Mesh_Utils");
-    TwDefine(" Mesh_Utils visible=false ");
+    TwDefine(" Mesh_Utils visible=true ");
 
     TwAddButton( m_meshUtilsBar, "Flip UVs (vertically)", ControlPanel::onFlipUVs, this, "" );
     TwAddButton( m_meshUtilsBar, "Flip Tangents", ControlPanel::onFlipTangents, this, "" );
@@ -64,7 +64,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddButton( m_meshUtilsBar, "Invert vertex winding order", ControlPanel::onInvertVertexWindingOrder, this, "" );
 
     m_lightBar = TwNewBar("Light");
-    TwDefine(" Light visible=false ");
+    TwDefine(" Light visible=true ");
 
     TwAddVarCB( m_lightBar, "Enabled", TW_TYPE_BOOL8, ControlPanel::onSetLightEnabled, ControlPanel::onGetBool, &Settings::s_settings.debug.lightEnabled, "" );
     TwAddVarCB( m_lightBar, "Cast shadows", TW_TYPE_BOOL8, ControlPanel::onSetLightCastShadows, ControlPanel::onGetBool, &Settings::s_settings.debug.lightCastShadows, "" );
@@ -77,7 +77,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     //TwAddSeparator(m_shadowsBar, "", nullptr);
 
     m_reflectionRefractionBar = TwNewBar("Reflections_Refractions");
-    TwDefine(" Reflections_Refractions visible=false ");
+    TwDefine(" Reflections_Refractions visible=true ");
     TwAddVarRW( m_reflectionRefractionBar, "Max level", TW_TYPE_INT32, &Settings::s_settings.rendering.reflectionsRefractions.maxLevel, "" );
 
     TwAddButton( m_reflectionRefractionBar, "Next - reflection", ControlPanel::onNextLevelReflection, nullptr, "" );
@@ -94,7 +94,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_reflectionRefractionBar, "Field of view", TW_TYPE_FLOAT, &Settings::s_settings.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur, "min=0 max=1 step=0.01 precision=2" );
 
     m_shadowsBar = TwNewBar("Shadows");
-    TwDefine(" Shadows visible=false ");
+    TwDefine(" Shadows visible=true ");
     TwAddVarRW( m_shadowsBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='(H - hard, M - medium, S - soft) shadows' ");
 
