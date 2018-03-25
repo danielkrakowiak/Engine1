@@ -84,9 +84,8 @@ void EngineApplication::onKeyPress( int key )
     const bool ctrlPressed  = m_inputManager.isKeyPressed( InputManager::Keys::ctrl );
     const bool shiftPressed = m_inputManager.isKeyPressed( InputManager::Keys::shift );
 
-    // [\] - Hide/show text.
-    if ( key == InputManager::Keys::backslash )
-    {
+    // [\] - Hide/show extra text.
+    if ( key == InputManager::Keys::backslash ) {
         Settings::modify().debug.renderText = !settings().debug.renderText;
     }
 

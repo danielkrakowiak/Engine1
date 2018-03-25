@@ -33,7 +33,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwWindowSize( windowDimensions.x, windowDimensions.y );
 
     m_mainBar = TwNewBar("Main");
-    TwDefine(" Main visible=true ");
+    TwDefine(" Main iconified=true ");
 
     TwAddVarRW( m_mainBar, "Reflections", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.reflectionsEnabled, "" );
     TwAddVarRW( m_mainBar, "Refractions", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.refractionsEnabled, "" );
@@ -56,7 +56,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_mainBar, "Antialiasing", TW_TYPE_BOOL8, &Settings::s_settings.rendering.antialiasing, "" );
 
     m_meshUtilsBar = TwNewBar("Mesh_Utils");
-    TwDefine(" Mesh_Utils visible=true ");
+    TwDefine(" Mesh_Utils iconified=true ");
 
     TwAddButton( m_meshUtilsBar, "Flip UVs (vertically)", ControlPanel::onFlipUVs, this, "" );
     TwAddButton( m_meshUtilsBar, "Flip Tangents", ControlPanel::onFlipTangents, this, "" );
@@ -64,7 +64,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddButton( m_meshUtilsBar, "Invert vertex winding order", ControlPanel::onInvertVertexWindingOrder, this, "" );
 
     m_lightBar = TwNewBar("Light");
-    TwDefine(" Light visible=true ");
+    TwDefine(" Light iconified=true ");
 
     TwAddVarCB( m_lightBar, "Enabled", TW_TYPE_BOOL8, ControlPanel::onSetLightEnabled, ControlPanel::onGetBool, &Settings::s_settings.debug.lightEnabled, "" );
     TwAddVarCB( m_lightBar, "Cast shadows", TW_TYPE_BOOL8, ControlPanel::onSetLightCastShadows, ControlPanel::onGetBool, &Settings::s_settings.debug.lightCastShadows, "" );
@@ -77,7 +77,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     //TwAddSeparator(m_shadowsBar, "", nullptr);
 
     m_reflectionRefractionBar = TwNewBar("Reflections_Refractions");
-    TwDefine(" Reflections_Refractions visible=true ");
+    TwDefine(" Reflections_Refractions iconified=true ");
     TwAddVarRW( m_reflectionRefractionBar, "Max level", TW_TYPE_INT32, &Settings::s_settings.rendering.reflectionsRefractions.maxLevel, "" );
 
     TwAddButton( m_reflectionRefractionBar, "Next - reflection", ControlPanel::onNextLevelReflection, nullptr, "" );
@@ -94,7 +94,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_reflectionRefractionBar, "Field of view", TW_TYPE_FLOAT, &Settings::s_settings.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur, "min=0 max=1 step=0.01 precision=2" );
 
     m_shadowsBar = TwNewBar("Shadows");
-    TwDefine(" Shadows visible=true ");
+    TwDefine(" Shadows iconified=true ");
     TwAddVarRW( m_shadowsBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='(H - hard, M - medium, S - soft) shadows' ");
 
@@ -123,6 +123,14 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_shadowsBar, "H normal threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
     TwAddVarRW( m_shadowsBar, "M normal threshold   ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
     TwAddVarRW( m_shadowsBar, "S normal threshold    ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+
+     m_profilingBar = TwNewBar("Profiling");
+    TwDefine(" Profiling iconified=true ");
+    TwAddVarRW( m_profilingBar, "Display", TW_TYPE_BOOL8, &Settings::s_settings.profiling.display.enabled, "" );
+    TwAddVarRW( m_profilingBar, "Colored", TW_TYPE_BOOL8, &Settings::s_settings.profiling.display.coloredByTimeTaken, "" );
+    TwAddButton( m_profilingBar, "Next - reflection", ControlPanel::onDisplayNextStageProfilingReflection, nullptr, "" );
+    TwAddButton( m_profilingBar, "Next - transmission", ControlPanel::onDisplayNextStageProfilingTransmission, nullptr, "" );
+    TwAddButton( m_profilingBar, "Back", ControlPanel::onDisplayPrevStageProfiling, nullptr, "" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )
@@ -302,4 +310,34 @@ void TW_CALL ControlPanel::onInvertVertexWindingOrder( void* controlPanel )
         return;
 
     ( (ControlPanel*)controlPanel )->m_sceneManager.invertVertexWindingOrderAndResaveMesh();
+}
+
+void TW_CALL ControlPanel::onDisplayNextStageProfilingReflection( void* clientData )
+{
+    clientData; // Unused.
+
+    Settings::modify().profiling.display.startWithStage = 
+        getNextRenderingStage( settings().profiling.display.startWithStage, RenderingStageType::Reflection );
+
+    Settings::onChanged();
+}
+
+void TW_CALL ControlPanel::onDisplayNextStageProfilingTransmission( void* clientData )
+{
+    clientData; // Unused.
+
+    Settings::modify().profiling.display.startWithStage = 
+        getNextRenderingStage( settings().profiling.display.startWithStage, RenderingStageType::Transmission );
+
+    Settings::onChanged();
+}
+
+void TW_CALL ControlPanel::onDisplayPrevStageProfiling( void* clientData )
+{
+    clientData; // Unused.
+
+    Settings::modify().profiling.display.startWithStage = 
+        getPrevRenderingStage( settings().profiling.display.startWithStage );
+
+    Settings::onChanged();
 }

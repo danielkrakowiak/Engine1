@@ -492,12 +492,16 @@ void Application::run()
             }
         }
 
-        { // Render profiling results.
+        // Render profiling results.
+        if ( settings().profiling.display.enabled ) 
+        { 
             std::stringstream ss, ss2;
             ss << std::fixed << std::setprecision( 2 );
             ss2 << std::fixed << std::setprecision( 2 );
             ss << "Profiling: \n";
             ss << "Total: " << totalFrameTimeGPU << " ms \n";
+
+            const float colorRedForDurationMs = 1.0f;
 
             // Print global events duration.
             for (int globalEventType = (int)Profiler::GlobalEventType::DeferredRendering; globalEventType < (int)Profiler::GlobalEventType::MAX_VALUE; ++globalEventType)
@@ -505,10 +509,15 @@ void Application::run()
                 const std::string eventName     = Profiler::eventTypeToString( (Profiler::GlobalEventType)globalEventType );
                 const float       eventDuration = m_profiler.getEventDuration( (Profiler::GlobalEventType)globalEventType );
 
+                float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
+                ss << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
+
                 ss << eventName << ": " << eventDuration << "ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+                ss << "<color/>";
             }
 
-            for ( int stage = (int)RenderingStage::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)RenderingStage::MAX_VALUE; ++stage )
+            for ( int stage = (int)settings().profiling.display.startWithStage; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)RenderingStage::MAX_VALUE; ++stage )
             {
                 // Print stage name.
                 const std::string stageName = renderingStageToString( (RenderingStage)stage );
@@ -531,7 +540,14 @@ void Application::run()
                     const std::string eventName     = Profiler::eventTypeToString( (Profiler::EventTypePerStage)eventType );
 
                     if ( eventDuration >= 0.0f )
+                    {
+                        float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
+                        ss << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
+
                         ss << "    " << eventName << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+                        ss << "<color/>";
+                    }
                 }
 
                 for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx )
@@ -549,7 +565,12 @@ void Application::run()
 
                         if ( eventDuration > 0.0f )
                         {
+                            float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
+                            ss2 << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
+
                             ss2 << "                " << eventName << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%\n";
+
+                            ss2 << "<color/>";
                             display = true;
                         }
                     }
@@ -562,20 +583,19 @@ void Application::run()
                 }
             }
 
-            if ( settings().debug.renderText )
-            {
-                output = m_renderer.renderText( 
-                    ss.str(), 
-                    font2, 
-                    float2( -500.0f, 250.0f ), 
-                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
-                    textAlbedoRenderTarget,
-                    textNormalRenderTarget 
-                );
-            }
+            output = m_renderer.renderText( 
+                ss.str(), 
+                font2, 
+                float2( -500.0f, 250.0f ), 
+                float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+                textAlbedoRenderTarget,
+                textNormalRenderTarget 
+            );
         }
 
-        { // Render scene stats and selection stats.
+        // Render scene stats and selection stats.
+        if ( settings().debug.renderText ) 
+        { 
             int selectedVertexCount   = 0;
             int selectedTriangleCount = 0;
             int selectedMeshesCount   = (int)(m_sceneManager.getSelectedBlockActors().size() + m_sceneManager.getSelectedSkeletonActors().size()); 
@@ -702,17 +722,14 @@ void Application::run()
                 }
             }
 
-            if ( settings().debug.renderText )
-            {
-                output = m_renderer.renderText( 
-                    ss.str(), 
-                    font2, 
-                    float2( 0.0f, 200.0f ), 
-                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
-                    textAlbedoRenderTarget,
-                    textNormalRenderTarget
-                );
-            }
+            output = m_renderer.renderText( 
+                ss.str(), 
+                font2, 
+                float2( 0.0f, 200.0f ), 
+                float4::ONE,
+                textAlbedoRenderTarget,
+                textNormalRenderTarget
+            );
         }
 
         { // Render camera state.
@@ -1075,6 +1092,8 @@ int2 Application::screenPosToWindowPos( int2 screenPos ) const
 
 void Application::setupBenchmark()
 {
+    return;
+
     Settings initialSettings( settings() );
     m_benchmark.addSettingsToTest( initialSettings );
 

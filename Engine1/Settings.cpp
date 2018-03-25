@@ -54,8 +54,8 @@ void Settings::initializeInternal()
     s_settings.debug.debugRenderAlpha          = false;
     s_settings.debug.debugWireframeMode        = false;
     s_settings.debug.debugDisplayedMipmapLevel = 0;
-    s_settings.debug.renderText                = false;
     s_settings.debug.renderFps                 = true;
+    s_settings.debug.renderText                = true;
     s_settings.debug.slowmotionMode            = false;
     s_settings.debug.snappingMode              = false;
 
@@ -152,7 +152,7 @@ void Settings::initializeInternal()
     s_settings.rendering.reflectionsRefractions.maxLevel            = 1;
     s_settings.rendering.reflectionsRefractions.reflectionsEnabled  = false;
     s_settings.rendering.reflectionsRefractions.refractionsEnabled  = false;
-    s_settings.rendering.reflectionsRefractions.samplingQuality     = 0.666f;
+    s_settings.rendering.reflectionsRefractions.samplingQuality     = 0.5f;
     s_settings.rendering.reflectionsRefractions.roughnessBlurMul    = 60.0f;
 
     s_settings.rendering.reflectionsRefractions.elongationMul     = 1.0f;
@@ -169,6 +169,10 @@ void Settings::initializeInternal()
     s_settings.physics.fixedStepDuration = 1.0f / 60.0f;
 
     s_settings.importer.defaultWhiteUchar4TextureFileName = "default_white_uchar4.png";
+
+    s_settings.profiling.display.enabled            = false;
+    s_settings.profiling.display.coloredByTimeTaken = true;
+    s_settings.profiling.display.startWithStage     = RenderingStage::Main;
 }
 
 void Settings::initialize(ID3D11Device3& device)

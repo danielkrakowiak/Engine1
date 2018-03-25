@@ -48,8 +48,8 @@ namespace Engine1
             bool debugRenderAlpha;
             bool debugWireframeMode;
             int  debugDisplayedMipmapLevel;
-            bool renderText;
             bool renderFps;
+            bool renderText;
 
             bool slowmotionMode;
             bool snappingMode;
@@ -263,6 +263,17 @@ namespace Engine1
             // We then use default white texture (can be any small resolution white texture).
             std::string defaultWhiteUchar4TextureFileName;
         } importer;
+
+        struct Profiling
+        {
+            struct Display
+            {
+                bool enabled;
+                bool coloredByTimeTaken;
+
+                RenderingStage startWithStage;
+            } display;
+        } profiling;
 
         private:
 

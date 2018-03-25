@@ -56,6 +56,10 @@ namespace Engine1
         static void TW_CALL onFlipNormals( void* controlPanel );
         static void TW_CALL onInvertVertexWindingOrder( void* controlPanel );
 
+        static void TW_CALL onDisplayNextStageProfilingReflection( void* clientData );
+        static void TW_CALL onDisplayNextStageProfilingTransmission( void* clientData );
+        static void TW_CALL onDisplayPrevStageProfiling( void* clientData );
+
         private:
 
         Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;
@@ -65,6 +69,7 @@ namespace Engine1
         TwBar* m_lightBar;
         TwBar* m_reflectionRefractionBar;
         TwBar* m_shadowsBar;
+        TwBar* m_profilingBar;
 
         SceneManager& m_sceneManager;
     };

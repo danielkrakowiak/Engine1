@@ -378,8 +378,6 @@ void Direct3DDeferredRenderer::render(
 
     m_rendererCore.setViewport( settings.imageDimensions );
 
-    color; // Unused.
-
 	{ // Enable render targets.
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
         std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
@@ -403,12 +401,47 @@ void Direct3DDeferredRenderer::render(
 	float44 viewMatrix;
 	viewMatrix.identity();
 
-	const char *charText = text.c_str(), *p;
+    const std::string colorTag         = "<color %f,%f,%f>";
+    const std::string colorTagStart    = "<color ";
+    const std::string colorClosingTag  = "<color/>";
+    float4            colorTagValue    = float4::ONE;
+    bool              useColorTagValue = false;
+
+	const char* charText = text.c_str(), *p;
+    const char* charTextEnd = charText + text.size();
 	const FontCharacter* character = nullptr;
 	float2 pos = position;
 
-	for ( p = charText; *p; p++ ) {
-		character = font.getCharacter( *p, *m_device.Get( ) );
+	for ( p = charText; *p; p++ ) 
+    {
+        // Look for color tag.
+        if ((size_t)(charTextEnd - p) > colorTag.size() 
+            && strncmp( p, colorTagStart.c_str(), colorTagStart.size() ) == 0)
+        {
+            p += colorTagStart.size();
+
+            // Parse color tag.
+            useColorTagValue = ( sscanf_s( p, "%f,%f,%f", &colorTagValue.x, &colorTagValue.y, &colorTagValue.z) == 3 );
+
+            // Skip the rest of color tag.
+            while ( *p != '>' && *p && *(p + 1) ) {
+                ++p;
+            }
+
+            continue;
+        }
+
+        // Look for color closing tag.
+        if ((size_t)(charTextEnd - p) > colorClosingTag.size() 
+            && strncmp( p, colorClosingTag.c_str(), colorClosingTag.size() ) == 0) 
+        {
+            useColorTagValue = false;
+            p += (colorClosingTag.size() - 1);
+
+            continue;
+        }
+
+        character = font.getCharacter( *p, *m_device.Get( ) );
 
 		if ( character ) {
 			if ( character->getCharcode() == '\n' ) {
@@ -418,8 +451,18 @@ void Direct3DDeferredRenderer::render(
 				worldMatrix.setTranslation( float3( pos.x + character->getPos().x, pos.y + character->getPos().y, 0.0f ) );
 
 				// Configure the shaders.
-				m_textVertexShader.setParameters( *m_deviceContext.Get( ), worldMatrix, viewMatrix, projectionMatrix );
-				m_textFragmentShader.setParameters( *m_deviceContext.Get( ), character->getTextureResource( ) );
+				m_textVertexShader.setParameters(
+                    *m_deviceContext.Get( ), 
+                    worldMatrix, 
+                    viewMatrix, 
+                    projectionMatrix 
+                );
+				
+                m_textFragmentShader.setParameters( 
+                    *m_deviceContext.Get( ), 
+                    character->getTextureResource( ), 
+                    (useColorTagValue ? colorTagValue : color)
+                );
 
 				// Draw the character.
 				m_rendererCore.draw( *character );
@@ -429,6 +472,8 @@ void Direct3DDeferredRenderer::render(
 			}
 		}
 	}
+
+    m_textFragmentShader.unsetParameters( *m_deviceContext.Get() );
 }
 
 ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( ID3D11Device3& device )

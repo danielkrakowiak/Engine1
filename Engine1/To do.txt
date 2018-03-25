@@ -560,6 +560,8 @@ Idea:
 
         - add Ambient Occlusion :) Only for Main pass, multiply NoShadows light sources by it.
 
+        - combining sampling quality (useually set 0.666) could be set separately for higher layers - and set to lower values. It impacts perf greatly.
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////// BUGS TO FIX ///////////////////////////////////////////////////////////////////////////////////////
 

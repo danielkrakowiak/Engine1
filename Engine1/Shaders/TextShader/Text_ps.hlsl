@@ -1,6 +1,11 @@
 Texture2D characterTexture;
 SamplerState samplerState;
 
+cbuffer ConstantBuffer : register( b0 )
+{
+    float4 color;
+};
+
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -19,7 +24,7 @@ PixelOutputType main( PixelInputType input )
 	float4 textureColor = characterTexture.Sample( samplerState, input.texCoord );
 
 	output.normal = float2( 0.0f, 0.0f );
-    output.albedo = float4( textureColor.r, textureColor.r, textureColor.r, textureColor.r );
+    output.albedo = color * float4( textureColor.r, textureColor.r, textureColor.r, textureColor.r );
 
 	return output;
 }
