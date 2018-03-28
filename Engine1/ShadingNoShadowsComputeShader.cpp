@@ -38,19 +38,21 @@ void ShadingNoShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceC
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
                                           const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > ambientOcclusionTexture,
                                           const std::vector< std::shared_ptr< Light > >& lights )
 {
     if ( !m_compiled ) 
         throw std::exception( "ShadingNoShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 5;
+        const unsigned int resourceCount = 6;
         ID3D11ShaderResourceView* resources[ resourceCount ] = {
             positionTexture->getShaderResourceView(),
             albedoTexture->getShaderResourceView(),
             metalnessTexture->getShaderResourceView(),
             roughnessTexture->getShaderResourceView(),
-            normalTexture->getShaderResourceView()
+            normalTexture->getShaderResourceView(),
+            ambientOcclusionTexture ? ambientOcclusionTexture->getShaderResourceView() : nullptr
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );
@@ -91,6 +93,8 @@ void ShadingNoShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceC
         for ( unsigned int i = pointLightCount; i < maxPointLightCount; ++i )
             dataPtr->pointLightColors[ i ] = float4::ZERO;
 
+        dataPtr->ambientOcclusionAvailable = (ambientOcclusionTexture ? 1.0f : 0.0f);
+
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
         deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
@@ -99,9 +103,10 @@ void ShadingNoShadowsComputeShader::setParameters( ID3D11DeviceContext3& deviceC
 
 void ShadingNoShadowsComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
-    if ( !m_compiled ) throw std::exception( "ShadingNoShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+    if ( !m_compiled ) 
+        throw std::exception( "ShadingNoShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
-    ID3D11ShaderResourceView* nullResources[ 5 ] = { nullptr };
-    deviceContext.CSSetShaderResources( 0, 5, nullResources );
+    ID3D11ShaderResourceView* nullResources[ 6 ] = { nullptr };
+    deviceContext.CSSetShaderResources( 0, 6, nullResources );
 }

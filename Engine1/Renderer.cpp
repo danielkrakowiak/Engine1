@@ -39,6 +39,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, Rend
     m_profiler( profiler ),
     m_renderTargetManager( renderTargetManager ),
     m_deferredRenderer( rendererCore ),
+    m_ASSAORenderer(),
     m_raytraceRenderer( rendererCore ),
     m_shadingRenderer( rendererCore ),
     m_reflectionRefractionShadingRenderer( rendererCore ),
@@ -79,6 +80,7 @@ void Renderer::initialize(
     m_imageDimensions = imageDimensions;
 
 	m_deferredRenderer.initialize( device, deviceContext );
+    m_ASSAORenderer.initialize( device, deviceContext );
     m_raytraceRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_shadingRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_reflectionRefractionShadingRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
@@ -279,6 +281,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
     layerRenderTargets.hitRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hitRefractiveIndex" );
     layerRenderTargets.depth              = m_renderTargetManager.getRenderTargetDepth( m_imageDimensions, "depth" );
     layerRenderTargets.hitShaded          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitShaded" );
+    layerRenderTargets.ambientOcclusion   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "ambientOcclusion" );
 
     // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
     // Be careful when changing!
@@ -291,7 +294,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
     layerRenderTargets.hitRefractiveIndex->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
     layerRenderTargets.depth->clearDepthStencilView( *m_deviceContext.Get(), true, 1.0f, false, 0 );
 
-    { // Render meshes using DeferredRenderer.
+    { // Render meshes using DeferredRenderer and render Ambient Occlusion.
         Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
         defferedRenderTargets.position        = layerRenderTargets.hitPosition;
         defferedRenderTargets.emissive        = layerRenderTargets.hitEmissive;
@@ -408,9 +411,33 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 viewMatrix
             );
         }
-    }
 
-    m_profiler.endEvent( Profiler::GlobalEventType::DeferredRendering );
+        m_rendererCore.disableRenderTargetViews();
+
+        m_profiler.endEvent( Profiler::GlobalEventType::DeferredRendering );
+        m_profiler.beginEvent( Profiler::GlobalEventType::ASSAO );
+
+        if ( settings().rendering.ambientOcclusion.assao.enabled )
+        {
+            const float44 projectionMatrix = MathUtil::perspectiveProjectionTransformation(
+                defferedSettings.fieldOfView,
+                defferedSettings.imageDimensions.x / defferedSettings.imageDimensions.y,
+                defferedSettings.zNear,
+                defferedSettings.zFar
+            );
+
+            m_ASSAORenderer.renderAmbientOcclusion( 
+                layerRenderTargets.ambientOcclusion, 
+                layerRenderTargets.hitNormal, 
+                layerRenderTargets.depth, 
+                projectionMatrix,
+                viewMatrix.getScaleOrientationTranslationInverse()
+            );
+        }
+
+        m_profiler.endEvent( Profiler::GlobalEventType::ASSAO );
+    }
+    
     m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
 
     // #TODO: Do we need these mipmaps? I don't think so anymore...
@@ -435,6 +462,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
         layerRenderTargets.hitMetalness,
         layerRenderTargets.hitRoughness, 
         layerRenderTargets.hitNormal, 
+        settings().rendering.ambientOcclusion.assao.enabled ? layerRenderTargets.ambientOcclusion : nullptr,
         lightsNotCastingShadows 
     );
 
@@ -756,6 +784,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
                     return output;
                 case View::BlurredShadows:
                     output.ucharImage = blurredShadowRenderTarget;
+                    return output;
+                case View::AmbientOcclusion:
+                    output.ucharImage = layerRenderTargets.ambientOcclusion;
                     return output;
             }
         }
@@ -1618,6 +1649,7 @@ std::string Renderer::viewToString( const View view )
         case View::Metalness:                                return "Metalness";
         case View::Roughness:                                return "Roughness";
         case View::IndexOfRefraction:                        return "IndexOfRefraction";
+        case View::AmbientOcclusion:                         return "AmbientOcclusion";
         case View::RayDirections:                            return "RayDirections";
         case View::Contribution:                             return "Contribution";
         case View::CurrentRefractiveIndex:                   return "CurrentRefractiveIndex";

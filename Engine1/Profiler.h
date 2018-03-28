@@ -20,6 +20,7 @@ namespace Engine1
         {
             Frame = 0,
             DeferredRendering,
+            ASSAO,
             Bloom,
             ToneMapping,
             CalculateLuminance,

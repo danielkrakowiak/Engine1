@@ -124,13 +124,31 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_shadowsBar, "M normal threshold   ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
     TwAddVarRW( m_shadowsBar, "S normal threshold    ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
 
-     m_profilingBar = TwNewBar("Profiling");
+    m_profilingBar = TwNewBar("Profiling");
     TwDefine(" Profiling iconified=true ");
     TwAddVarRW( m_profilingBar, "Display", TW_TYPE_BOOL8, &Settings::s_settings.profiling.display.enabled, "" );
     TwAddVarRW( m_profilingBar, "Colored", TW_TYPE_BOOL8, &Settings::s_settings.profiling.display.coloredByTimeTaken, "" );
     TwAddButton( m_profilingBar, "Next - reflection", ControlPanel::onDisplayNextStageProfilingReflection, nullptr, "" );
     TwAddButton( m_profilingBar, "Next - transmission", ControlPanel::onDisplayNextStageProfilingTransmission, nullptr, "" );
     TwAddButton( m_profilingBar, "Back", ControlPanel::onDisplayPrevStageProfiling, nullptr, "" );
+
+    m_assaoBar = TwNewBar("ASSAO");
+    TwDefine(" ASSAO iconified=true ");
+    TwAddVarRW( m_assaoBar, "Enabled",                              TW_TYPE_BOOL8, &Settings::s_settings.rendering.ambientOcclusion.assao.enabled, "" );
+    TwAddVarRW( m_assaoBar, "Radius",                               TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.radius, "min=0 max=10 step=0.01 precision=2" );
+    TwAddVarRW( m_assaoBar, "Shadow Multiplier",                    TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.shadowMultiplier, "min=0 max=5 step=0.001 precision=3" );
+    TwAddVarRW( m_assaoBar, "Shadow Power",                         TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.shadowPower, "min=0.5 max=5 step=0.001 precision=3" );
+    TwAddVarRW( m_assaoBar, "Shadow Clamp",                         TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.shadowClamp, "min=0 max=1 step=0.001 precision=3" );
+    TwAddVarRW( m_assaoBar, "Horizon Angle Threshold",              TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.horizonAngleThreshold, "min=0 max=0.2 step=0.001 precision=3" );
+    TwAddVarRW( m_assaoBar, "Fade Out From",                        TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.fadeOutFrom, "min=0 max=500 step=0.1 precision=1" );
+    TwAddVarRW( m_assaoBar, "Fade Out To",                          TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.fadeOutTo, "min=0 max=500 step=0.1 precision=1" );
+    TwAddVarRW( m_assaoBar, "Quality Level",                        TW_TYPE_INT32, &Settings::s_settings.rendering.ambientOcclusion.assao.qualityLevel, "min=-1 max=3 step=1" );
+    TwAddVarRW( m_assaoBar, "Adaptive Quality Limit",               TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.adaptiveQualityLimit, "min=0 max=1 step=0.001 precision=3" );
+    TwAddVarRW( m_assaoBar, "Blur Pass Count",                      TW_TYPE_INT32, &Settings::s_settings.rendering.ambientOcclusion.assao.blurPassCount, "min=0 max=6 step=1" );
+    TwAddVarRW( m_assaoBar, "Sharpness",                            TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.sharpness, "min=0 max=1 step=0.001 precision=3" );
+    TwAddVarRW( m_assaoBar, "Temporal Supersampling Angle Offset",  TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.temporalSupersamplingAngleOffset, "min=0 max=3.14 step=0.001 precision=3" );
+    TwAddVarRW( m_assaoBar, "Temporal Supersampling Radius Offset", TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.temporalSupersamplingRadiusOffset, "min=0 max=2 step=0.001 precision=3" );
+    TwAddVarRW( m_assaoBar, "Detail Shadow Strength",               TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.detailShadowStrength, "min=0 max=5 step=0.001 precision=3" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

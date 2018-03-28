@@ -43,7 +43,7 @@ Settings& Settings::modify()
 
 void Settings::initializeInternal()
 {
-    s_settings.main.fullscreen       = false;
+    s_settings.main.fullscreen       = true;
     s_settings.main.screenDimensions = int2( 1024 /*1920*/, 768 /*1080*/ );
     s_settings.main.verticalSync     = false;
     s_settings.main.limitFPS         = false;
@@ -99,6 +99,22 @@ void Settings::initializeInternal()
     s_settings.rendering.exposure           = 1.0f;
     s_settings.rendering.antialiasing       = true;
 
+    s_settings.rendering.ambientOcclusion.assao.enabled                             = true;
+    s_settings.rendering.ambientOcclusion.assao.radius                              = 1.35f;
+    s_settings.rendering.ambientOcclusion.assao.shadowMultiplier                    = 0.65f;
+    s_settings.rendering.ambientOcclusion.assao.shadowPower                         = 0.75f;
+    s_settings.rendering.ambientOcclusion.assao.shadowClamp                         = 0.98f;
+    s_settings.rendering.ambientOcclusion.assao.horizonAngleThreshold               = 0.06f;
+    s_settings.rendering.ambientOcclusion.assao.fadeOutFrom                         = 50.0f;
+    s_settings.rendering.ambientOcclusion.assao.fadeOutTo                           = 300.0f;
+    s_settings.rendering.ambientOcclusion.assao.adaptiveQualityLimit                = 0.45f;
+    s_settings.rendering.ambientOcclusion.assao.qualityLevel                        = 3;
+    s_settings.rendering.ambientOcclusion.assao.blurPassCount                       = 2;
+    s_settings.rendering.ambientOcclusion.assao.sharpness                           = 0.98f;
+    s_settings.rendering.ambientOcclusion.assao.temporalSupersamplingAngleOffset    = 0.0f;
+    s_settings.rendering.ambientOcclusion.assao.temporalSupersamplingRadiusOffset   = 1.0f;
+    s_settings.rendering.ambientOcclusion.assao.detailShadowStrength                = 0.5f;
+
     s_settings.rendering.shadows.enabled                = true;
     s_settings.rendering.shadows.useSeparableShadowBlur = true;
 
@@ -150,6 +166,7 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.blur.softShadows.normalThreshold     = 0.08f;
 
     s_settings.rendering.reflectionsRefractions.maxLevel            = 1;
+    s_settings.rendering.reflectionsRefractions.debugViewStage      = RenderingStage::Main;
     s_settings.rendering.reflectionsRefractions.reflectionsEnabled  = false;
     s_settings.rendering.reflectionsRefractions.refractionsEnabled  = false;
     s_settings.rendering.reflectionsRefractions.samplingQuality     = 0.5f;

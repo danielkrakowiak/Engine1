@@ -342,6 +342,8 @@
     <ClInclude Include="AntialiasingComputeShader.h" />
     <ClInclude Include="AntialiasingRenderer.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="ASSAOCoreRenderer.h" />
+    <ClInclude Include="ASSAORenderer.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Asset.h" />
     <ClInclude Include="AssetPathManager.h" />
@@ -530,6 +532,8 @@
     <ClCompile Include="AntialiasingComputeShader.cpp" />
     <ClCompile Include="AntialiasingRenderer.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="ASSAOCoreRenderer.cpp" />
+    <ClCompile Include="ASSAORenderer.cpp" />
     <ClCompile Include="Asset.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="AssetPathManager.cpp" />
@@ -756,6 +760,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\ASSAOShader\ASSAO.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\BlockMeshShader\BlockMesh_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

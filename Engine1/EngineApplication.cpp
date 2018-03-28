@@ -494,6 +494,9 @@ void EngineApplication::onKeyPress( int key )
         } else if ( key == InputManager::Keys::f5 ) {
             m_renderer.setActiveViewType( Renderer::View::BloomBrightPixels );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::f6 ) {
+            m_renderer.setActiveViewType( Renderer::View::AmbientOcclusion );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }
     }
     else if ( sKeyPressed )

@@ -5,6 +5,7 @@
 #include "Texture2D.h"
 
 #include "Direct3DDeferredRenderer.h"
+#include "ASSAORenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
 #include "ReflectionRefractionShadingRenderer.h"
@@ -62,6 +63,7 @@ namespace Engine1
             Metalness,
             Roughness,
             IndexOfRefraction,
+            AmbientOcclusion,
             RayDirections,
             Contribution,
             CurrentRefractiveIndex,
@@ -141,6 +143,7 @@ namespace Engine1
                 hitDistanceToCamera    = nullptr;
                 hitShaded              = nullptr;
                 shadedCombined         = nullptr;
+                ambientOcclusion       = nullptr;
             }
 
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        contributionRoughness;
@@ -160,6 +163,7 @@ namespace Engine1
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceToCamera;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitShaded;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        shadedCombined;
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > ambientOcclusion;
         };
 
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager );
@@ -268,6 +272,7 @@ namespace Engine1
         RenderTargetManager&      m_renderTargetManager;
 
         Direct3DDeferredRenderer            m_deferredRenderer;
+        ASSAORenderer                       m_ASSAORenderer;
         RaytraceRenderer                    m_raytraceRenderer;
         ShadingRenderer                     m_shadingRenderer;
         ReflectionRefractionShadingRenderer m_reflectionRefractionShadingRenderer;

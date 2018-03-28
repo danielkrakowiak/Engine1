@@ -98,6 +98,28 @@ namespace Engine1
             float exposure;
             bool  antialiasing;
 
+            struct AmbientOcclusion
+            {
+                struct ASSAO
+                {
+                    bool  enabled;
+                    float radius;                             // [0.0,  ~ ] World (view) space size of the occlusion sphere.
+                    float shadowMultiplier;                   // [0.0, 5.0] Effect strength linear multiplier
+                    float shadowPower;                        // [0.5, 5.0] Effect strength pow modifier
+                    float shadowClamp;                        // [0.0, 1.0] Effect max limit (applied after multiplier but before blur)
+                    float horizonAngleThreshold;              // [0.0, 0.2] Limits self-shadowing (makes the sampling area less of a hemisphere, more of a spherical cone, to avoid self-shadowing and various artifacts due to low tessellation and depth buffer imprecision, etc.)
+                    float fadeOutFrom;                        // [0.0,  ~ ] Distance to start start fading out the effect.
+                    float fadeOutTo;                          // [0.0,  ~ ] Distance at which the effect is faded out.
+                    int   qualityLevel;                       // [ -1,  3 ] Effect quality; -1 - lowest (low, half res checkerboard), 0 - low, 1 - medium, 2 - high, 3 - very high / adaptive; each quality level is roughly 2x more costly than the previous, except the q3 which is variable but, in general, above q2.
+                    float adaptiveQualityLimit;               // [0.0, 1.0] (only for Quality Level 3)
+                    int   blurPassCount;                      // [  0,   6] Number of edge-sensitive smart blur passes to apply. Quality 0 is an exception with only one 'dumb' blur pass used.
+                    float sharpness;                          // [0.0, 1.0] (How much to bleed over edges; 1: not at all, 0.5: half-half; 0.0: completely ignore edges)
+                    float temporalSupersamplingAngleOffset;   // [0.0,  PI] Used to rotate sampling kernel; If using temporal AA / supersampling, suggested to rotate by ( (frame%3)/3.0*PI ) or similar. Kernel is already symmetrical, which is why we use PI and not 2*PI.
+                    float temporalSupersamplingRadiusOffset;  // [0.0, 2.0] Used to scale sampling kernel; If using temporal AA / supersampling, suggested to scale by ( 1.0f + (((frame%3)-1.0)/3.0)*0.1 ) or similar.
+                    float detailShadowStrength;               // [0.0, 5.0] Used for high-res detail AO using neighboring depth pixels: adds a lot of detail but also reduces temporal stability (adds aliasing).
+                } assao;
+            } ambientOcclusion;
+
             struct Shadows
             {
                 bool enabled;

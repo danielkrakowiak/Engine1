@@ -70,6 +70,7 @@ namespace Engine1
         TwBar* m_reflectionRefractionBar;
         TwBar* m_shadowsBar;
         TwBar* m_profilingBar;
+        TwBar* m_assaoBar;
 
         SceneManager& m_sceneManager;
     };

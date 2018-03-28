@@ -484,6 +484,9 @@
     <Filter Include="Source Files\Benchmark">
       <UniqueIdentifier>{72f19228-0255-40ee-92b1-d178e57ebdab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\ASSAO">
+      <UniqueIdentifier>{2c4b4ff9-3933-404c-a8df-6affaaad7088}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1053,6 +1056,12 @@
     <ClInclude Include="RenderingStage.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="ASSAOCoreRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ASSAORenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1583,6 +1592,12 @@
     <ClCompile Include="RenderingStage.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="ASSAOCoreRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ASSAORenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1829,6 +1844,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\CombineShadowLayersShader\CombineShadowLayers_cs.hlsl">
       <Filter>Source Files\Shader\CombineShadowLayers</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ASSAOShader\ASSAO.hlsl">
+      <Filter>Source Files\Shader\ASSAO</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

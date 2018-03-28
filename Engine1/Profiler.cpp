@@ -18,6 +18,7 @@ std::string Profiler::eventTypeToString( const GlobalEventType eventType )
     {
         case GlobalEventType::Frame:                        return "Frame";
         case GlobalEventType::DeferredRendering:            return "DeferredRendering";
+        case GlobalEventType::ASSAO:                        return "ASSAO";
         case GlobalEventType::Bloom:                        return "Bloom";
         case GlobalEventType::ToneMapping:                  return "ToneMapping";
         case GlobalEventType::CalculateLuminance:           return "CalculateLuminance";

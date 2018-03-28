@@ -62,6 +62,7 @@ namespace Engine1
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
+            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > ambientOcclusionTexture,
             const std::vector< std::shared_ptr< Light > > lights 
         );
 
