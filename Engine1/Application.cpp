@@ -434,6 +434,23 @@ void Application::run()
         auto textAlbedoRenderTarget = m_renderTargetManager.getRenderTarget< uchar4 >( settings().main.screenDimensions, "text-albedo" );
         auto textNormalRenderTarget = m_renderTargetManager.getRenderTarget< float4 >( settings().main.screenDimensions, "text-normal" );
 
+        { // Render GPU name.
+            std::stringstream ss;
+            ss << "GPU: " << m_frameRenderer.getGPUName();
+            
+            if ( settings().debug.renderFps )
+            {
+                output = m_renderer.renderText( 
+                    ss.str(), 
+                    font2, 
+                    float2( -496.0f, 335.0f ), 
+                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+                    textAlbedoRenderTarget,
+                    textNormalRenderTarget 
+                );
+            }
+        }
+
         { // Render FPS.
             std::stringstream ss;
             ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
@@ -451,23 +468,6 @@ void Application::run()
             }
         }
 
-        { // Render current view.
-            std::stringstream ss;
-            ss << "View: " << Renderer::viewToString( m_renderer.getActiveViewType() );
-
-            if ( settings().debug.renderFps )
-            {
-                output = m_renderer.renderText( 
-                    ss.str(), 
-                    font2, 
-                    float2( -500.0f, 350.0f ), 
-                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
-                    textAlbedoRenderTarget,
-                    textNormalRenderTarget
-                );
-            }
-        }
-
         { // Render some debug options.
             std::stringstream ss;
 
@@ -479,7 +479,7 @@ void Application::run()
 
             ss << "Exposure: " << m_renderer.getExposure();
 
-            if ( settings().debug.renderFps )
+            if ( settings().debug.renderText )
             {
                 output = m_renderer.renderText( 
                     ss.str(), 

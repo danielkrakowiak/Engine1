@@ -542,6 +542,8 @@ Idea:
         - ability to add/remove keyframes from Control Panel
         - ability to save/load animation from Control Panel onto specific objects
 
+        - setup sky color from settings (Control Panel)
+
         - Editing keyframes in Control Panel - and saving/loading from file
         
         - Benchmark tool:

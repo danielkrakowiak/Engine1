@@ -58,6 +58,8 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11Device3 > getDevice();
         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > getDeviceContext();
 
+        std::string getGPUName() const;
+
         private:
 
         Direct3DRendererCore& m_rendererCore;

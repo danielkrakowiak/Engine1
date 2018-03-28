@@ -633,3 +633,8 @@ ComPtr< ID3D11DeviceContext3 > Direct3DFrameRenderer::getDeviceContext()
 
 	return m_deviceContext;
 }
+
+std::string Direct3DFrameRenderer::getGPUName() const
+{
+    return m_gpuDescription;
+}
