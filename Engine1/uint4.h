@@ -9,6 +9,7 @@
 namespace Engine1
 {
     class float4;
+    class uint3;
 
     class uint4
     {
@@ -24,6 +25,7 @@ namespace Engine1
 
         uint4() {}
         uint4( const uint4& a ) : x( a.x ), y( a.y ), z( a.z ), w( a.w ) {}
+        uint4( const uint3& xyz, const unsigned int w );
 
         uint4( uint4_type x, uint4_type y, uint4_type z, uint4_type w ) : x( x ), y( y ), z( z ), w( w ) {}
 

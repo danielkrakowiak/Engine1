@@ -13,6 +13,7 @@ namespace Engine1
 {
     class float4;
     class int3;
+    class uint3;
 
     class float3
     {
@@ -172,6 +173,7 @@ namespace Engine1
         void rotate( const float3& rotationAngles );
 
         explicit operator int3() const;
+        explicit operator uint3() const;
 
         // Implicit conversion to PhysX vector type.
         operator physx::PxVec3() 

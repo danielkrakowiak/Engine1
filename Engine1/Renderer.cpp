@@ -286,7 +286,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
     // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
     // Be careful when changing!
     layerRenderTargets.hitPosition->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    layerRenderTargets.hitEmissive->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    layerRenderTargets.hitEmissive->clearRenderTargetView( *m_deviceContext.Get(), float4( settings().rendering.skyColor, 0.0f ) );
     layerRenderTargets.hitAlbedo->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
     layerRenderTargets.hitMetalness->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
     layerRenderTargets.hitRoughness->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );

@@ -61,3 +61,12 @@ float3::operator int3() const
         (int)z
     );
 }
+
+float3::operator uint3() const
+{
+    return uint3(
+        (int)x,
+        (int)y,
+        (int)z
+    );
+}

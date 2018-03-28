@@ -500,3 +500,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 25.03.2018 - 3h - Added profiling to secondary layers rendering. Added coloring in text rendering and support for <color> tag in text. Added coloring of profiling results based on time sth took.
 26.03.2018 - 3h - Adding ASSAO - Adaptive Screen-Space Ambient Occlusion - an available implementation for DX11.
 27.03.2018 - 2h - Adding ASSAO settings to Control Panel.
+28.03.2018 - 2h - Added sky color.

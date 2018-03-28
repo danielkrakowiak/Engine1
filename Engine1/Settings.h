@@ -98,6 +98,9 @@ namespace Engine1
             float exposure;
             bool  antialiasing;
 
+            // Color used when ray doesn't hit any geometry.
+            float3 skyColor;
+
             struct AmbientOcclusion
             {
                 struct ASSAO

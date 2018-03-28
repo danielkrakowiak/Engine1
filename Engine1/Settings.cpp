@@ -55,7 +55,7 @@ void Settings::initializeInternal()
     s_settings.debug.debugWireframeMode        = false;
     s_settings.debug.debugDisplayedMipmapLevel = 0;
     s_settings.debug.renderFps                 = true;
-    s_settings.debug.renderText                = true;
+    s_settings.debug.renderText                = false;
     s_settings.debug.slowmotionMode            = false;
     s_settings.debug.snappingMode              = false;
 
@@ -98,6 +98,8 @@ void Settings::initializeInternal()
     s_settings.rendering.fieldOfViewDegress = 70.0f;
     s_settings.rendering.exposure           = 1.0f;
     s_settings.rendering.antialiasing       = true;
+
+    s_settings.rendering.skyColor = float3(0.12f, 0.53f, 1.0f);
 
     s_settings.rendering.ambientOcclusion.assao.enabled                             = true;
     s_settings.rendering.ambientOcclusion.assao.radius                              = 1.35f;

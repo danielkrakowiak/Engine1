@@ -471,7 +471,7 @@ void RaytraceRenderer::traceSecondaryRays(
     const float maxDist = 15000.0f; // Note: Should be less than max dist in the raytracing shader!
    renderTargets.hitPosition->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
    renderTargets.hitDistance->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
-   renderTargets.hitEmissive->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+   renderTargets.hitEmissive->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( (uint3)(settings().rendering.skyColor * 255.0f), 0 ) );
    renderTargets.hitAlbedo->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
    renderTargets.hitMetalness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
    renderTargets.hitRoughness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );

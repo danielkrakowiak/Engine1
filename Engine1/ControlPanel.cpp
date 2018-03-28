@@ -43,6 +43,8 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
 
     TwAddVarRW( m_mainBar, "Replace selected", TW_TYPE_BOOL8, &Settings::s_settings.debug.replaceSelected, "" );
 
+    TwAddVarRW( m_mainBar, "Sky color", TW_TYPE_COLOR3F, &Settings::s_settings.rendering.skyColor, "colormode=hls" );
+
     TwAddVarCB( m_mainBar, "Alpha mul", TW_TYPE_FLOAT, ControlPanel::onSetAlphaMul, ControlPanel::onGetFloat, &Settings::s_settings.debug.alphaMul, "min=0 max=1 step=0.001 precision=3" );
     TwAddVarCB( m_mainBar, "Emissive mul", TW_TYPE_FLOAT, ControlPanel::onSetEmissiveMul, ControlPanel::onGetFloat, &Settings::s_settings.debug.emissiveMul, "min=0 max=100 step=0.01 precision=2" );
     TwAddVarCB( m_mainBar, "Emissive base mul", TW_TYPE_COLOR3F, ControlPanel::onSetEmissiveBaseMul, ControlPanel::onGetFloat3, &Settings::s_settings.debug.emissiveBaseMul, "colormode=hls" );
