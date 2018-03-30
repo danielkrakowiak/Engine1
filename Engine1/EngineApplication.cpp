@@ -148,12 +148,16 @@ void EngineApplication::onKeyPress( int key )
                 "Assets/Animations/camera.cameraanim" 
             );
         }
-        else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
+        else
         {
-            m_sceneManager.getLightAnimator().saveAnimationToFile( 
-                m_sceneManager.getSelection().getSpotLights().front(), 
-                "Assets/Animations/spotlight.spotlightanim" 
-            );
+            const auto& selectedSpotlights = m_sceneManager.getSelection().getSpotLights();
+            for ( int i = 0; i < selectedSpotlights.size(); ++i )
+            {
+                m_sceneManager.getLightAnimator().saveAnimationToFile( 
+                    selectedSpotlights[ i ], 
+                    "Assets/Animations/spotlight" + std::to_string( i ) + ".spotlightanim"
+                );
+            }
         }
     }
 
@@ -330,19 +334,19 @@ void EngineApplication::onKeyPress( int key )
             m_sceneManager.getCameraAnimator().addKeyframe( camera );
             m_sceneManager.getCameraAnimator().setSmoothstepInterpolation( camera, true );
         }
-        else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
-        {
-            auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
 
-            m_sceneManager.getLightAnimator().addKeyframe( spotlight );
-            m_sceneManager.getLightAnimator().setSmoothstepInterpolation( spotlight, true );
+        const auto& selectedSpotlights = m_sceneManager.getSelection().getSpotLights();
+        for ( int i = 0; i < selectedSpotlights.size(); ++i )
+        {
+            m_sceneManager.getLightAnimator().addKeyframe( selectedSpotlights[ i ] );
+            m_sceneManager.getLightAnimator().setSmoothstepInterpolation( selectedSpotlights[ i ], true );
         }
-        else if ( m_sceneManager.getSelection().containsOnlyOneBlockActor() )
-        {
-            auto actor = m_sceneManager.getSelection().getBlockActors().front();
 
-            m_sceneManager.getActorAnimator().addKeyframe( actor );
-            m_sceneManager.getActorAnimator().setSmoothstepInterpolation( actor, true );
+        const auto& selectedActors = m_sceneManager.getSelection().getBlockActors();
+        for ( int i = 0; i < selectedActors.size(); ++i )
+        {
+            m_sceneManager.getActorAnimator().addKeyframe( selectedActors[ i ] );
+            m_sceneManager.getActorAnimator().setSmoothstepInterpolation( selectedActors[ i ], true );
         }
     }
 
@@ -355,19 +359,19 @@ void EngineApplication::onKeyPress( int key )
 
             m_sceneManager.getCameraAnimator().setPlaying( m_sceneManager.getCamera(), !isPlaying );
         }
-        else if ( m_sceneManager.getSelection().containsOnlyOneSpotLight() )
-        {
-            const auto spotlight = m_sceneManager.getSelection().getSpotLights().front();
-            const auto isPlaying = m_sceneManager.getLightAnimator().isPlaying( spotlight );
 
-            m_sceneManager.getLightAnimator().setPlaying( spotlight, !isPlaying );
+        const auto& selectedSpotlights = m_sceneManager.getSelection().getSpotLights();
+        const auto isPlayingLight = !selectedSpotlights.empty() ? m_sceneManager.getLightAnimator().isPlaying( selectedSpotlights[ 0 ] ) : false;
+        for ( int i = 0; i < selectedSpotlights.size(); ++i )
+        {
+            m_sceneManager.getLightAnimator().setPlaying( selectedSpotlights[ i ], !isPlayingLight );
         }
-        else if ( m_sceneManager.getSelection().containsOnlyOneBlockActor() )
-        {
-            const auto actor     = m_sceneManager.getSelection().getBlockActors().front();
-            const auto isPlaying = m_sceneManager.getActorAnimator().isPlaying( actor );
 
-            m_sceneManager.getActorAnimator().setPlaying( actor, !isPlaying );
+        const auto& selectedActors = m_sceneManager.getSelection().getBlockActors();
+        const auto isPlayingActor = !selectedActors.empty() ? m_sceneManager.getActorAnimator().isPlaying( selectedActors[ 0 ] ) : false;
+        for ( int i = 0; i < selectedActors.size(); ++i )
+        {
+            m_sceneManager.getActorAnimator().setPlaying( selectedActors[ i ], !isPlayingActor );
         }
     }
 
@@ -405,8 +409,8 @@ void EngineApplication::onKeyPress( int key )
     if ( key == InputManager::Keys::b && ctrlPressed )
         m_sceneManager.rebuildBoundingBoxAndBVH();
 
-    // [Spacebar] - Enable/disable snapping when rotating/translating actors.
-    if ( key == InputManager::Keys::spacebar )
+    // [Ctr + Spacebar] - Enable/disable snapping when rotating/translating actors.
+    if ( key == InputManager::Keys::spacebar && ctrlPressed )
         Settings::modify().debug.snappingMode = !settings().debug.snappingMode;
 
     // [left/right] - Select next/prev actor or light.

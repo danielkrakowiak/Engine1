@@ -536,32 +536,21 @@ Idea:
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////// TESTING / BENCHMARKING/ DEMO /////////////////////////////////////////////////////////////////////
-
-        - ability to play animation on multiple objects at once
-        - ability to add keyframes to many obejcts at once
-        - ability to add/remove keyframes from Control Panel
-        - ability to save/load animation from Control Panel onto specific objects
-
-        - setup sky color from settings (Control Panel)
-
-        - Editing keyframes in Control Panel - and saving/loading from file
         
-        - Benchmark tool:
-        - load all scenes first, check if everything works
-
-        - number of repeated runs per setup, scene, camera anim
-        - collect all stats, then calculate desired statistics - per scene, per setup etc
-        - print out results - list common settings only once
-        - communicate with Profiler to get results.
-
         - measure whole stage duration.
 
-        - list of settings to test, scenes to test, camera paths, light paths
+        - convert normal/position textures to float3 instead of float4 (but benchamrk first!)
+
+        - option to hide light sources (good for videos)
+
         - calculating average, max, min FPS, frame time
         - calculating accumulated total shadowing time, time per layer, reflection time etc.
-        - repeating the same camera path for many settings 
 
         - combining sampling quality (useually set 0.666) could be set separately for higher layers - and set to lower values. It impacts perf greatly.
+
+        - ability to add/remove keyframes from Control Panel
+        - ability to save/load animation from Control Panel onto specific objects - many at once - with added numbers at the end of files
+        - Editing keyframes in Control Panel - and saving/loading from file
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////// BUGS TO FIX ///////////////////////////////////////////////////////////////////////////////////////
