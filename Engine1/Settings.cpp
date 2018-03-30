@@ -101,6 +101,10 @@ void Settings::initializeInternal()
 
     s_settings.rendering.skyColor = float3(0.12f, 0.53f, 1.0f);
 
+    s_settings.rendering.optimization.useHalfFloatsForRayDirections  = true;
+    s_settings.rendering.optimization.useHalfFloatsForNormals        = true;
+    s_settings.rendering.optimization.useHalfFLoatsForDistToOccluder = false;
+
     s_settings.rendering.ambientOcclusion.assao.enabled                             = true;
     s_settings.rendering.ambientOcclusion.assao.radius                              = 1.35f;
     s_settings.rendering.ambientOcclusion.assao.shadowMultiplier                    = 0.65f;

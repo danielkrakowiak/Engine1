@@ -60,7 +60,7 @@ void SpreadValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContex
                                               const int offset,
                                               const int2 textureSize,
                                               const float3 cameraPos,
-                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture )
+                                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture )
 {
     if ( !m_compiled )
         throw std::exception( "SpreadValueComputeShader::setParameters - Shader hasn't been compiled yet." );

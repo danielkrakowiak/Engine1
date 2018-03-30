@@ -115,8 +115,8 @@ void Renderer::clear()
 void Renderer::clear2()
 {
     // #TODO: Ugly - clearing some random render targets - find a more elegant way to clean render targets.
-    m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions )->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions )->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, false )->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
+    m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, false )->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
 }
 
 void Renderer::renderShadowMaps( const Scene& scene )
@@ -272,16 +272,16 @@ Renderer::Output Renderer::renderPrimaryLayer(
     m_layersRenderTargets.emplace_back();
     auto& layerRenderTargets = m_layersRenderTargets.back();
 
-    layerRenderTargets.hitPosition        = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitPosition" );
-    layerRenderTargets.hitEmissive        = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, "hitEmissive" );
-    layerRenderTargets.hitAlbedo          = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, "hitAlbedo" );
-    layerRenderTargets.hitMetalness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hitMetalness" );
-    layerRenderTargets.hitRoughness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hitRoughness" );
-    layerRenderTargets.hitNormal          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitNormal" );
-    layerRenderTargets.hitRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hitRefractiveIndex" );
+    layerRenderTargets.hitPosition        = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, false, "hitPosition" );
+    layerRenderTargets.hitEmissive        = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, false, "hitEmissive" );
+    layerRenderTargets.hitAlbedo          = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, false, "hitAlbedo" );
+    layerRenderTargets.hitMetalness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "hitMetalness" );
+    layerRenderTargets.hitRoughness       = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "hitRoughness" );
+    layerRenderTargets.hitNormal          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, settings().rendering.optimization.useHalfFloatsForNormals, "hitNormal" );
+    layerRenderTargets.hitRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "hitRefractiveIndex" );
     layerRenderTargets.depth              = m_renderTargetManager.getRenderTargetDepth( m_imageDimensions, "depth" );
-    layerRenderTargets.hitShaded          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitShaded" );
-    layerRenderTargets.ambientOcclusion   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "ambientOcclusion" );
+    layerRenderTargets.hitShaded          = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, false, "hitShaded" );
+    layerRenderTargets.ambientOcclusion   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "ambientOcclusion" );
 
     // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
     // Be careful when changing!
@@ -484,15 +484,15 @@ Renderer::Output Renderer::renderPrimaryLayer(
 	{
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
-        auto hardShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hardShadow" );
-        auto mediumShadowRenderTarget                        = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "mediumShadow" );
-        auto softShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "softShadow" );
-        auto distanceToOccluderHardShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderHardShadow" );
-        auto distanceToOccluderMediumShadowRenderTarget      = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderMediumShadow" );
-        auto distanceToOccluderSoftShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccludeSoftShadow" );
-        auto finalDistanceToOccluderHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderHardShadowImageDimensions, "finalDistanceToOccluderHardShadow" );
-        auto finalDistanceToOccluderMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderMediumShadowImageDimensions, "finalDistanceToOccluderMediumShadow" );
-        auto finalDistanceToOccluderSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderSoftShadowImageDimensions, "finalDistanceToOccluderSoftShadow" );
+        auto hardShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "hardShadow" );
+        auto mediumShadowRenderTarget                        = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "mediumShadow" );
+        auto softShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "softShadow" );
+        auto distanceToOccluderHardShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "distanceToOccluderHardShadow" );
+        auto distanceToOccluderMediumShadowRenderTarget      = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "distanceToOccluderMediumShadow" );
+        auto distanceToOccluderSoftShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "distanceToOccludeSoftShadow" );
+        auto finalDistanceToOccluderHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderHardShadowImageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "finalDistanceToOccluderHardShadow" );
+        auto finalDistanceToOccluderMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderMediumShadowImageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "finalDistanceToOccluderMediumShadow" );
+        auto finalDistanceToOccluderSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderSoftShadowImageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "finalDistanceToOccluderSoftShadow" );
 
         if ( lightsCastingShadows[ lightIdx ]->getType() == Light::Type::SpotLight 
              && std::static_pointer_cast< SpotLight >( lightsCastingShadows[ lightIdx ] )->getShadowMap() 
@@ -634,13 +634,13 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
-        auto blurredHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredHardShadow" );
-        auto blurredMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredMediumShadow" );
-        auto blurredSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredSoftShadow" );
+        auto blurredHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredHardShadow" );
+        auto blurredMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredMediumShadow" );
+        auto blurredSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredSoftShadow" );
 
         if ( settings().rendering.shadows.useSeparableShadowBlur )
         {
-            auto blurredShadowTemporaryRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadowTemporary" );
+            auto blurredShadowTemporaryRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredShadowTemporary" );
 
             // Blur shadows in two passes - horizontal and vertical.
             m_blurShadowsRenderer.blurShadowsHorzVert(
@@ -731,7 +731,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
 
-        auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
+        auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredShadow" );
 
         m_combineShadowLayersRenderer.combineShadowLayers(
             blurredShadowRenderTarget,
@@ -935,21 +935,21 @@ void Renderer::renderSecondaryLayer(
 
     const int2 hitDistSearchDimensions = m_imageDimensions / settings().rendering.hitDistanceSearch.resolutionDivider;
 
-    currLayerRTs.contributionRoughness  = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, "contributionRoughness" );
-    currLayerRTs.rayOrigin              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "rayOrigin" );
-    currLayerRTs.rayDirection           = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "rayDirection" );
-    currLayerRTs.hitPosition            = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitPosition" );
-    currLayerRTs.hitEmissive            = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, "hitEmissive" );
-    currLayerRTs.hitAlbedo              = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, "hitAlbedo" );
-    currLayerRTs.hitMetalness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hitMetalness" );
-    currLayerRTs.hitRoughness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hitRoughness" );
-    currLayerRTs.hitNormal              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitNormal" );
-    currLayerRTs.hitRefractiveIndex     = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hitRefractiveIndex" );
-    currLayerRTs.currentRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "currentRefractiveIndex" );
-    currLayerRTs.hitDistance            = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "hitDistance" );
-    currLayerRTs.hitDistanceBlurred     = m_renderTargetManager.getRenderTarget< float >( hitDistSearchDimensions, "hitDistanceBlurred" );
-    currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "hitDistanceToCamera" );
-    currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, "hitShaded" );
+    currLayerRTs.contributionRoughness  = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, false, "contributionRoughness" );
+    currLayerRTs.rayOrigin              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, false, "rayOrigin" );
+    currLayerRTs.rayDirection           = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, settings().rendering.optimization.useHalfFloatsForRayDirections, "rayDirection" );
+    currLayerRTs.hitPosition            = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, false, "hitPosition" );
+    currLayerRTs.hitEmissive            = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, false, "hitEmissive" );
+    currLayerRTs.hitAlbedo              = m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, false, "hitAlbedo" );
+    currLayerRTs.hitMetalness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "hitMetalness" );
+    currLayerRTs.hitRoughness           = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "hitRoughness" );
+    currLayerRTs.hitNormal              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, settings().rendering.optimization.useHalfFloatsForNormals, "hitNormal" );
+    currLayerRTs.hitRefractiveIndex     = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "hitRefractiveIndex" );
+    currLayerRTs.currentRefractiveIndex = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "currentRefractiveIndex" );
+    currLayerRTs.hitDistance            = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, false, "hitDistance" );
+    currLayerRTs.hitDistanceBlurred     = m_renderTargetManager.getRenderTarget< float >( hitDistSearchDimensions, false, "hitDistanceBlurred" );
+    currLayerRTs.hitDistanceToCamera    = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, false, "hitDistanceToCamera" );
+    currLayerRTs.hitShaded              = m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, false, "hitShaded" );
     currLayerRTs.shadedCombined         = nullptr; // It's important to reset this - it may contain results from same layer reflection/refraction.
 
     m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::ReflectionTransmissionShading );
@@ -1125,15 +1125,15 @@ void Renderer::renderSecondaryLayer(
     {
         m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
 
-        auto hardShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "hardShadow" );
-        auto mediumShadowRenderTarget                        = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "mediumShadow" );
-        auto softShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "softShadow" );
-        auto distanceToOccluderHardShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderHardShadow" );
-        auto distanceToOccluderMediumShadowRenderTarget      = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderMediumShadow" );
-        auto distanceToOccluderSoftShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, "distanceToOccluderSoftShadow" );
-        auto finalDistanceToOccluderHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderHardShadowImageDimensions, "finalDistanceToOccluderHardShadow" );
-        auto finalDistanceToOccluderMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderMediumShadowImageDimensions, "finalDistanceToOccluderMediumShadow" );
-        auto finalDistanceToOccluderSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderSoftShadowImageDimensions, "finalDistanceToOccluderSoftShadow" );
+        auto hardShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "hardShadow" );
+        auto mediumShadowRenderTarget                        = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "mediumShadow" );
+        auto softShadowRenderTarget                          = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "softShadow" );
+        auto distanceToOccluderHardShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "distanceToOccluderHardShadow" );
+        auto distanceToOccluderMediumShadowRenderTarget      = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "distanceToOccluderMediumShadow" );
+        auto distanceToOccluderSoftShadowRenderTarget        = m_renderTargetManager.getRenderTarget< float >( m_imageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "distanceToOccluderSoftShadow" );
+        auto finalDistanceToOccluderHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderHardShadowImageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "finalDistanceToOccluderHardShadow" );
+        auto finalDistanceToOccluderMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderMediumShadowImageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "finalDistanceToOccluderMediumShadow" );
+        auto finalDistanceToOccluderSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< float >( finalDistanceToOccluderSoftShadowImageDimensions, settings().rendering.optimization.useHalfFLoatsForDistToOccluder, "finalDistanceToOccluderSoftShadow" );
 
         //if ( light->getType() == Light::Type::SpotLight
         //     && std::static_pointer_cast<SpotLight>( light )->getShadowMap()
@@ -1254,9 +1254,9 @@ void Renderer::renderSecondaryLayer(
         m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
         m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
-        auto blurredHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredHardShadow" );
-        auto blurredMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredMediumShadow" );
-        auto blurredSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredSoftShadow" );
+        auto blurredHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredHardShadow" );
+        auto blurredMediumShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredMediumShadow" );
+        auto blurredSoftShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredSoftShadow" );
         
         // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
         // #TODO RENDER: Blur shadow shader need to calculate blur radius in screen-space so it need to account for distance along the ray + dist to camera.
@@ -1264,7 +1264,7 @@ void Renderer::renderSecondaryLayer(
         // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
         if ( settings().rendering.shadows.useSeparableShadowBlur ) 
         {
-            auto blurredShadowTemporaryRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions );
+            auto blurredShadowTemporaryRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false );
 
             // Blur shadows in two passes - horizontal and vertical.
             m_blurShadowsRenderer.blurShadowsHorzVert(
@@ -1354,7 +1354,7 @@ void Renderer::renderSecondaryLayer(
         m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
         m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::CombineShadowLayers );
 
-        auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, "blurredShadow" );
+        auto blurredShadowRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredShadow" );
 
         m_combineShadowLayersRenderer.combineShadowLayers(
             blurredShadowRenderTarget,

@@ -23,8 +23,6 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-const int RaytraceRenderer::maxRenderTargetCount = 10;
-
 RaytraceRenderer::RaytraceRenderer( Direct3DRendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
@@ -233,6 +231,7 @@ void RaytraceRenderer::generateFirstRefractedRays(
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
@@ -243,6 +242,7 @@ void RaytraceRenderer::generateFirstRefractedRays(
     m_rendererCore.enableUnorderedAccessTargets( 
         unorderedAccessTargetsF1, 
         unorderedAccessTargetsF2, 
+        unorderedAccessTargetsF3, 
         unorderedAccessTargetsF4, 
         unorderedAccessTargetsU1, 
         unorderedAccessTargetsU4 
@@ -325,6 +325,7 @@ void RaytraceRenderer::generateRefractedRays(
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
@@ -335,6 +336,7 @@ void RaytraceRenderer::generateRefractedRays(
     m_rendererCore.enableUnorderedAccessTargets( 
         unorderedAccessTargetsF1, 
         unorderedAccessTargetsF2, 
+        unorderedAccessTargetsF3, 
         unorderedAccessTargetsF4, 
         unorderedAccessTargetsU1, 
         unorderedAccessTargetsU4 
@@ -368,6 +370,7 @@ void RaytraceRenderer::tracePrimaryRays(
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
@@ -383,7 +386,8 @@ void RaytraceRenderer::tracePrimaryRays(
 
     m_rendererCore.enableUnorderedAccessTargets( 
         unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2, 
+        unorderedAccessTargetsF2,
+        unorderedAccessTargetsF3,
         unorderedAccessTargetsF4, 
         unorderedAccessTargetsU1, 
         unorderedAccessTargetsU4 
@@ -480,6 +484,7 @@ void RaytraceRenderer::traceSecondaryRays(
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
@@ -496,6 +501,7 @@ void RaytraceRenderer::traceSecondaryRays(
     m_rendererCore.enableUnorderedAccessTargets( 
         unorderedAccessTargetsF1, 
         unorderedAccessTargetsF2, 
+        unorderedAccessTargetsF3,
         unorderedAccessTargetsF4, 
         unorderedAccessTargetsU1, 
         unorderedAccessTargetsU4 
@@ -588,6 +594,7 @@ void RaytraceRenderer::calculateHitDistanceToCamera( InputTextures2& inputs, Ren
 {
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
@@ -598,7 +605,8 @@ void RaytraceRenderer::calculateHitDistanceToCamera( InputTextures2& inputs, Ren
 
     m_rendererCore.enableUnorderedAccessTargets( 
         unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2, 
+        unorderedAccessTargetsF2,
+        unorderedAccessTargetsF3,
         unorderedAccessTargetsF4, 
         unorderedAccessTargetsU1, 
         unorderedAccessTargetsU4 

@@ -86,7 +86,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddButton( m_reflectionRefractionBar, "Next - transmission", ControlPanel::onNextLevelReflection, nullptr, "" );
     TwAddButton( m_reflectionRefractionBar, "Back", ControlPanel::onPrevLevel, nullptr, "" );
 
-    TwAddVarRW( m_reflectionRefractionBar, "Sampling quality", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.samplingQuality, "min=0 max=1 step=0.002 precision=3" );
+    TwAddVarRW( m_reflectionRefractionBar, "Combining sampling quality", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.samplingQuality, "min=0 max=1 step=0.002 precision=3" );
     TwAddVarRW( m_reflectionRefractionBar, "Roughness blur mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.roughnessBlurMul, "min=0 max=1000 step=0.2 precision=1" );
     TwAddVarRW( m_reflectionRefractionBar, "Reflection elongation mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.elongationMul, "min=0.1 max=6.0 step=0.01 precision=2" );
     TwAddVarRW( m_reflectionRefractionBar, "Reflection radial blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.radialBlurEnabled, "" );
@@ -151,6 +151,14 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_assaoBar, "Temporal Supersampling Angle Offset",  TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.temporalSupersamplingAngleOffset, "min=0 max=3.14 step=0.001 precision=3" );
     TwAddVarRW( m_assaoBar, "Temporal Supersampling Radius Offset", TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.temporalSupersamplingRadiusOffset, "min=0 max=2 step=0.001 precision=3" );
     TwAddVarRW( m_assaoBar, "Detail Shadow Strength",               TW_TYPE_FLOAT, &Settings::s_settings.rendering.ambientOcclusion.assao.detailShadowStrength, "min=0 max=5 step=0.001 precision=3" );
+
+    m_optimizationBar = TwNewBar("Optimization");
+    TwDefine(" Optimization iconified=true ");
+    TwAddVarRW( m_optimizationBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
+    TwAddVarRW( m_optimizationBar, "Combining sampling quality", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.samplingQuality, "min=0 max=1 step=0.002 precision=3" );
+    TwAddVarRW( m_optimizationBar, "Use half normals", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFloatsForNormals, "" );
+    TwAddVarRW( m_optimizationBar, "Use half ray directions", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFloatsForRayDirections, "" );
+    TwAddVarRW( m_optimizationBar, "Use half dist-to-occluder", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFLoatsForDistToOccluder, "" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

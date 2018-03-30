@@ -32,15 +32,15 @@ std::shared_ptr<Texture2DFileInfo> Texture2DFileInfo::createFromMemory( std::vec
 }
 
 Texture2DFileInfo::Texture2DFileInfo( ) :
-path( "" ),
-format( Format::BMP ),
-pixelType( PixelType::UCHAR4 )
+m_path( "" ),
+m_format( Format::BMP ),
+m_pixelType( PixelType::UCHAR4 )
 {}
 
 Texture2DFileInfo::Texture2DFileInfo( std::string path, Format format, PixelType pixelType ) :
-path( path ),
-format( format ),
-pixelType( pixelType )
+m_path( path ),
+m_format( format ),
+m_pixelType( pixelType )
 {}
 
 Texture2DFileInfo::~Texture2DFileInfo( )
@@ -58,22 +58,22 @@ void Texture2DFileInfo::saveToMemory( std::vector<char>& data ) const
 
 void Texture2DFileInfo::setPath( std::string path )
 {
-	this->path = path;
+	m_path = path;
 }
 
 void Texture2DFileInfo::setFormat( Format format )
 {
-	this->format = format;
+	m_format = format;
 }
 
 void Texture2DFileInfo::setPixelType( PixelType pixelType )
 {
-    this->pixelType = pixelType;
+    m_pixelType = pixelType;
 }
 
 std::string Texture2DFileInfo::getPath() const
 {
-	return path;
+	return m_path;
 }
 
 int Texture2DFileInfo::getIndexInFile() const
@@ -98,10 +98,10 @@ bool Texture2DFileInfo::canHaveSubAssets() const
 
 Texture2DFileInfo::Format Texture2DFileInfo::getFormat( ) const
 {
-	return format;
+	return m_format;
 }
 
 Texture2DFileInfo::PixelType Texture2DFileInfo::getPixelType() const
 {
-    return pixelType;
+    return m_pixelType;
 }

@@ -57,6 +57,8 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11Texture2D > getTextureResource();
         const Microsoft::WRL::ComPtr< ID3D11Texture2D > getTextureResource() const;
 
+        DXGI_FORMAT getTextureFormat() const;
+
         void loadCpuToGpu( ID3D11Device3& device, ID3D11DeviceContext3& deviceContext, const bool reload = false );
         void unloadFromCpu();
         void unloadFromGpu();
@@ -995,6 +997,12 @@ namespace Engine1
     }
 
     template< typename PixelType >
+    DXGI_FORMAT Texture2DGeneric< PixelType >::getTextureFormat() const
+    {
+        return m_textureFormat;
+    }
+
+    template< typename PixelType >
     void Texture2DGeneric< PixelType >
         ::loadCpuToGpu( ID3D11Device3& device, ID3D11DeviceContext3& deviceContext, const bool reload )
     {
@@ -1311,6 +1319,13 @@ namespace Engine1
     }
 
     template<>
+    inline float3 Texture2DGeneric< float3 >
+        ::average( float3 val1, float3 val2, float3 val3, float3 val4 ) const
+    {
+        return (val1 + val2 + val3 + val4) / 4.0f;
+    }
+
+    template<>
     inline float4 Texture2DGeneric< float4 >
         ::average( float4 val1, float4 val2, float4 val3, float4 val4 ) const
     {
@@ -1359,6 +1374,21 @@ namespace Engine1
             float val2, float weight2,
             float val3, float weight3,
             float val4, float weight4 ) const
+    {
+        return 
+            val1 * weight1 + 
+            val2 * weight2 + 
+            val3 * weight3 + 
+            val4 * weight4;
+    }
+
+    template<>
+    inline float3 Texture2DGeneric< float3 >
+        ::weightedAverage( 
+            float3 val1, float weight1,
+            float3 val2, float weight2,
+            float3 val3, float weight3,
+            float3 val4, float weight4 ) const
     {
         return 
             val1 * weight1 + 

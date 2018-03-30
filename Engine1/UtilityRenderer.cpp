@@ -54,13 +54,17 @@ void UtilityRenderer::replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
+        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4, 
+        mipmapLevel 
+    );
 
     m_replaceValueComputeShader->setParameters( *m_deviceContext.Get(), replaceFromValue, replaceToValue );
 
@@ -86,7 +90,7 @@ void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBi
                                        const int mipmapLevel,
                                        const int repeatCount,
                                        const float ignorePixelIfBelowValue,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture )
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture )
 {
     if ( !m_initialized )
         throw std::exception( "SpreadValueRenderer::spreadMaxValues - renderer has not been initialized." );
@@ -95,13 +99,17 @@ void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBi
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3, 
+        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4, 
+        mipmapLevel 
+    );
 
     uint3 groupCount( 
         texture->getWidth( mipmapLevel ) / 8, 
@@ -140,7 +148,7 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBi
                                        const int repeatCount,
                                        const float ignorePixelIfBelowValue,
                                        const float3 cameraPosition,
-                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                                       const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture,
                                        const int totalPreviousSpread, 
                                        const int spreadDistance,
                                        const int offset )
@@ -152,13 +160,17 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBi
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
+        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4, 
+        mipmapLevel 
+    );
 
     const bool useSparseSpread = (spreadDistance > 0);
 
@@ -217,13 +229,15 @@ void UtilityRenderer::mergeMinValues( std::shared_ptr< Texture2DSpecBind< TexBin
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
+        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
 
     m_mergeMinValueComputeShader->setParameters( *m_deviceContext.Get(), *texture2 );
 
@@ -244,7 +258,7 @@ void UtilityRenderer::mergeMinValues( std::shared_ptr< Texture2DSpecBind< TexBin
 void UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
                                                                   const int mipmapLevel,
                                                                   const float3& cameraPos,
-                                                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture )
+                                                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture )
 {
     if ( !m_initialized )
         throw std::exception( "UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace - renderer has not been initialized." );
@@ -253,13 +267,17 @@ void UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace( std::shared_pt
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, mipmapLevel );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
+        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4, 
+        mipmapLevel 
+    );
 
     m_convertDistanceFromScreenSpaceToWorldSpaceComputeShader->setParameters( *m_deviceContext.Get(), cameraPos, positionTexture, texture->getDimensions( mipmapLevel ) );
 
@@ -293,13 +311,17 @@ void UtilityRenderer::blurValues( std::shared_ptr< Texture2DSpecBind< TexBind::U
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF4.push_back( outputTexture );
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, outputMipmapLevel );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
+        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4, 
+        outputMipmapLevel 
+    );
 
     m_blurValueComputeShader->setParameters( *m_deviceContext.Get(), *inputTexture, inputMipmapLevel, outputTexture->getDimensions( outputMipmapLevel ) );
 
@@ -333,13 +355,17 @@ void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< Texture2DSpecBind< Te
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF4.push_back( destinationTexture );
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4, 0 );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, unorderedAccessTargetsF2,  unorderedAccessTargetsF3,
+        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4, 
+        0 
+    );
 
     m_mergeMipmapsValueComputeShader->setParameters( *m_deviceContext.Get(), destinationTexture->getDimensions( 0 ), *inputTexture, firstMipmapLevel, lastMipmapLevel );
 
@@ -375,13 +401,15 @@ void UtilityRenderer::sumValues(
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsU1.push_back( outputTexture );
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                 unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+    m_rendererCore.enableUnorderedAccessTargets( 
+        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
+        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
 
     if (!inputTexture3)
     {

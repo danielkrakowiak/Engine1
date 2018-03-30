@@ -43,6 +43,13 @@ int RenderTargetManager::getTotalRenderTargetDepthCount()
 }
 
 template<>
+std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float3 > > >&
+RenderTargetManager::getAllRenderTargets()
+{
+    return m_renderTargetsFloat3;
+}
+
+template<>
 std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > >&
 RenderTargetManager::getAllRenderTargets()
 {
@@ -91,30 +98,54 @@ RenderTargetManager::createRenderTargetDepth( const int2 imageDimensions )
 }
 
 template<>
-std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > RenderTargetManager::getViewFormatsForPixelType< float >()
+std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > 
+RenderTargetManager::getViewFormatsForPixelType< float >( const bool reducedPrecision )
 {
+    DXGI_FORMAT format = (reducedPrecision ? DXGI_FORMAT_R16_FLOAT : DXGI_FORMAT_R32_FLOAT);
+
     return std::make_tuple( 
-        DXGI_FORMAT_R32_FLOAT, 
-        DXGI_FORMAT_R32_FLOAT, 
-        DXGI_FORMAT_R32_FLOAT, 
-        DXGI_FORMAT_R32_FLOAT 
+        format, 
+        format, 
+        format, 
+        format 
     );
 }
 
 template<>
-std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > RenderTargetManager::getViewFormatsForPixelType< float4 >()
+std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > 
+RenderTargetManager::getViewFormatsForPixelType< float4 >( const bool reducedPrecision )
 {
+    DXGI_FORMAT format = (reducedPrecision ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R32G32B32A32_FLOAT);
+
     return std::make_tuple( 
-        DXGI_FORMAT_R32G32B32A32_FLOAT, 
-        DXGI_FORMAT_R32G32B32A32_FLOAT, 
-        DXGI_FORMAT_R32G32B32A32_FLOAT, 
-        DXGI_FORMAT_R32G32B32A32_FLOAT 
+        format, 
+        format, 
+        format, 
+        format 
     );
 }
 
 template<>
-std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > RenderTargetManager::getViewFormatsForPixelType< unsigned char >()
+std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > 
+RenderTargetManager::getViewFormatsForPixelType< float3 >( const bool reducedPrecision )
 {
+    // Note: DXGI_FORMAT_R32G32B32_FLOAT is not supported on any GPU yet.
+    DXGI_FORMAT format = (reducedPrecision ? DXGI_FORMAT_R11G11B10_FLOAT : DXGI_FORMAT_R32G32B32_FLOAT);
+
+    return std::make_tuple( 
+        format,  
+        format, 
+        format, 
+        format 
+    );
+}
+
+template<>
+std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > 
+RenderTargetManager::getViewFormatsForPixelType< unsigned char >( const bool reducedPrecision )
+{
+    reducedPrecision; // Unused.
+
     return std::make_tuple( 
         DXGI_FORMAT_R8_TYPELESS,
         DXGI_FORMAT_R8_UNORM,
@@ -124,8 +155,11 @@ std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > RenderTargetMan
 }
 
 template<>
-std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > RenderTargetManager::getViewFormatsForPixelType< uchar4 >()
+std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > 
+RenderTargetManager::getViewFormatsForPixelType< uchar4 >( const bool reducedPrecision )
 {
+    reducedPrecision; // Unused.
+
     return std::make_tuple(
         DXGI_FORMAT_R8G8B8A8_TYPELESS,
         DXGI_FORMAT_R8G8B8A8_UNORM,

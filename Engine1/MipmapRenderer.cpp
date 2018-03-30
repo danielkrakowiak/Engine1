@@ -54,6 +54,7 @@ void MipmapRenderer::resampleTexture(
 
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
@@ -64,7 +65,7 @@ void MipmapRenderer::resampleTexture(
 	m_rendererCore.enableBlendState( *m_blendState.Get() );
 	m_rendererCore.enableRenderingShaders( m_generateMipmapVertexShader, m_resampleTextureFragmentShader );
 	m_rendererCore.setViewport( (float2)destTexture->getDimensions( destMipmapLevel ) );
-	m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+	m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
 
 	m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
 	m_resampleTextureFragmentShader->setParameters( *m_deviceContext.Get(), *srcTexture, srcMipmapLevel );
@@ -84,6 +85,7 @@ void MipmapRenderer::generateMipmaps( std::shared_ptr< Texture2D< TexUsage::Defa
 
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
 	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
@@ -107,7 +109,7 @@ void MipmapRenderer::generateMipmaps( std::shared_ptr< Texture2D< TexUsage::Defa
 
 		m_rendererCore.setViewport( (float2)texture->getDimensions( destMipmapLevel ) );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
 
 		m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
 		m_resampleTextureFragmentShader->setParameters( *m_deviceContext.Get(), *texture, srcMipmapLevel );
@@ -163,6 +165,7 @@ void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsa
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
@@ -181,7 +184,7 @@ void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsa
 
         m_rendererCore.setViewport( (float2)texture->getDimensions( destMipmapLevel ) );
 
-        m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+        m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
 
         m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
         m_generateMipmapMinValueFragmentShader->setParameters( *m_deviceContext.Get(), *texture, srcMipmapLevel );
@@ -213,6 +216,7 @@ void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< 
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
@@ -228,7 +232,7 @@ void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< 
 
         m_rendererCore.setViewport( (float2)texture->getDimensions( destMipmapLevel ) );
 
-        m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+        m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
 
         m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
         m_generateMipmapWithSampleRejectionFragmentShader->setParameters( 

@@ -104,7 +104,7 @@ void main( uint3 groupId : SV_GroupID,
     // we don't need any extra precision in that case anyways - 
     // if sample sensity was fine for zoomed out, it will be fine when zoomed in.
 
-    const float centerSampleInShadow = getSampleWeightLowerThan( centerDistToOccluder, 999.0f );
+    const float centerSampleInShadow = getSampleWeightLowerThan( centerDistToOccluder, 750.0f );
 
 	// #TODO: It should probably be re-enabled.
 	// But beware - it destroys otherise great smoothnes on the result. Can we improve?
@@ -144,13 +144,13 @@ void main( uint3 groupId : SV_GroupID,
 				#endif /////////////////////////////////////////////////////////////
 
 				// Discarding samples which are fully lit - not even in partial shadow (huge dist-to-ccluder).
-				const float sampleWeight2 = getSampleWeightLowerThan(sampleDistToOccluder, 999.0f);
+				const float sampleWeight2 = getSampleWeightLowerThan(sampleDistToOccluder, 750.0f);
 
 				// Discard samples which are off-screen (zero dist-to-occluder).
 				const float sampleWeight3 = getSampleWeightGreaterThan(sampleDistToOccluder, 0.0f);
 
 				const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
-                const float3 sampleNormal = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
+                const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
 
 				const float  positionDiff   = length( samplePosition - surfacePosition );
                 const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));

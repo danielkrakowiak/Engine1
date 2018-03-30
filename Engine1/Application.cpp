@@ -431,8 +431,8 @@ void Application::run()
         // (reference counting of render targets).
         output.reset();
 
-        auto textAlbedoRenderTarget = m_renderTargetManager.getRenderTarget< uchar4 >( settings().main.screenDimensions, "text-albedo" );
-        auto textNormalRenderTarget = m_renderTargetManager.getRenderTarget< float4 >( settings().main.screenDimensions, "text-normal" );
+        auto textAlbedoRenderTarget = m_renderTargetManager.getRenderTarget< uchar4 >( settings().main.screenDimensions, false, "text-albedo" );
+        auto textNormalRenderTarget = m_renderTargetManager.getRenderTarget< float4 >( settings().main.screenDimensions, false, "text-normal" );
 
         { // Render GPU name.
             std::stringstream ss;
@@ -1113,8 +1113,8 @@ void Application::setupBenchmark()
     }
 
     m_benchmark.addSceneToTest( 
-        AssetPathManager::getPathForFileName( "example.scene" ),
-        AssetPathManager::getPathForFileName( "example_camera1.cameraanim" )
+        AssetPathManager::getPathForFileName( "sponza_reduced.scene" ),
+        AssetPathManager::getPathForFileName( "sponza_benchmark_camera.cameraanim" )
     );
 
     /*m_benchmark.addSceneToTest( 
@@ -1122,5 +1122,5 @@ void Application::setupBenchmark()
         AssetPathManager::getPathForFileName( "example_camera1.cameraanim" )
     );*/
 
-    m_benchmark.performTests( 2.0f );
+    m_benchmark.performTests( 20.0f );
 }

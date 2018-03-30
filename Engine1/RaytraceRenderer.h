@@ -188,11 +188,6 @@ namespace Engine1
         // Render targets.
         int m_imageWidth, m_imageHeight;
 
-        static const int maxRenderTargetCount;
-
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > > m_rayOriginsTexture;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, float4 > > > m_rayDirectionsTexture;
-
         // Shaders.
         std::shared_ptr< GenerateRaysComputeShader >               m_generateRaysComputeShader;
         std::shared_ptr< GenerateFirstReflectedRaysComputeShader > m_generateFirstReflectedRaysComputeShader;

@@ -23,7 +23,7 @@ namespace Engine1
 
         template < typename T >
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > > 
-            getRenderTarget( const int2 imageDimensions, const std::string debugName = "" );
+            getRenderTarget( const int2 imageDimensions, const bool reducedPrecision, const std::string debugName = "" );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > 
             getRenderTargetDepth( const int2 imageDimensions, const std::string debugName = "" );
@@ -42,18 +42,19 @@ namespace Engine1
 
         template < typename T >
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > > 
-            createRenderTarget( const int2 imageDimensions );
+            createRenderTarget( const int2 imageDimensions, const bool reducedPrecision );
 
         std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
             createRenderTargetDepth( const int2 imageDimensions );
 
         template< typename T >
         std::tuple< DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT, DXGI_FORMAT > 
-            getViewFormatsForPixelType();
+            getViewFormatsForPixelType( const bool reducedPrecision );
 
         Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;
 
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > >         m_renderTargetsFloat;
+        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float3 > > >        m_renderTargetsFloat3;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > >        m_renderTargetsFloat4;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > > m_renderTargetsUchar;
         std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > >        m_renderTargetsUchar4;
@@ -62,11 +63,13 @@ namespace Engine1
 
     template < typename T >
     std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > >
-        RenderTargetManager::getRenderTarget( const int2 imageDimensions, const std::string debugName )
+        RenderTargetManager::getRenderTarget( const int2 imageDimensions, const bool reducedPrecision, const std::string debugName )
     {
         auto& renderTargets = getAllRenderTargets< T >();
         for ( auto& renderTarget : renderTargets ) {
-            if ( renderTarget.use_count() == 1 && renderTarget->getDimensions() == imageDimensions )
+            if ( renderTarget.use_count() == 1 
+                && renderTarget->getDimensions() == imageDimensions 
+                && (reducedPrecision == isReducedPrecisionFormat( renderTarget->getTextureFormat() ) ))
             {
                 Direct3DUtil::setResourceName( *renderTarget->getTextureResource().Get(), debugName );
 
@@ -75,7 +78,7 @@ namespace Engine1
         }
 
         // Render target not found - create a new one.
-        auto renderTarget = createRenderTarget< T >( imageDimensions );
+        auto renderTarget = createRenderTarget< T >( imageDimensions, reducedPrecision );
 
         renderTargets.push_back( renderTarget );
 
@@ -84,10 +87,10 @@ namespace Engine1
 
     template < typename T >
     std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > >
-        RenderTargetManager::createRenderTarget( const int2 imageDimensions )
+        RenderTargetManager::createRenderTarget( const int2 imageDimensions, const bool reducedPrecision )
     {
         DXGI_FORMAT view1, view2, view3, view4;
-        std::tie( view1, view2, view3, view4 ) = getViewFormatsForPixelType< T >();
+        std::tie( view1, view2, view3, view4 ) = getViewFormatsForPixelType< T >( reducedPrecision );
 
         const bool storeOnCpu      = false;
         const bool storeOnGpu      = true;
@@ -111,6 +114,13 @@ namespace Engine1
     int RenderTargetManager::getTotalRenderTargetCount()
     {
         return (int)getAllRenderTargets< T >().size();
+    }
+
+    static bool isReducedPrecisionFormat(DXGI_FORMAT format)
+    {
+        return (format == DXGI_FORMAT_R11G11B10_FLOAT 
+            || format == DXGI_FORMAT_R16G16B16A16_FLOAT
+            || format == DXGI_FORMAT_R16_FLOAT);
     }
 }
 

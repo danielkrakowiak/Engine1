@@ -26,7 +26,7 @@ namespace Engine1
                             const int offset,
                             const int2 textureSize,
                             const float3 cameraPos,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture );
+                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture );
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:

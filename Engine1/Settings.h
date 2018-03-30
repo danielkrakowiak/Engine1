@@ -101,6 +101,13 @@ namespace Engine1
             // Color used when ray doesn't hit any geometry.
             float3 skyColor;
 
+            struct Optimization
+            {
+                bool useHalfFloatsForRayDirections;
+                bool useHalfFloatsForNormals;
+                bool useHalfFLoatsForDistToOccluder;
+            } optimization;
+
             struct AmbientOcclusion
             {
                 struct ASSAO

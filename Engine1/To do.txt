@@ -56,6 +56,8 @@
 
 For later ######################################################################################################################
 
+- PERF: convert normal/position textures to float3 instead of float4 (FAILED!! No GPU supports R32G32B32_FLOAT formats as of 03.2018).
+
 //////////
  - Add some math functions to measure corruption of matrices
 
@@ -539,7 +541,7 @@ Idea:
         
         - measure whole stage duration.
 
-        - convert normal/position textures to float3 instead of float4 (but benchamrk first!)
+        
 
         - option to hide light sources (good for videos)
 
@@ -558,7 +560,13 @@ Idea:
         - the problem when we have a box with one face missing - it causes soft shadow in the middle of hard shadow and light leaks - how to fix that?
           - can be tested using Cornel Box meshes which have this problem.
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////// PERFORMANCE NOTES /////////////////////////////////////////////////////////////////////////////////
 
+        - the biggest cost is dist-to-occluder search. It's because it happens so often, for each light and for each layer.
+        - it takes around 1 ms (for 3 shadow layers), but the cost doesn't come from sampling dist-to-occluder values (float or half)
+        - it comes from sampling position/normal textures (0.85 ms)
+        - sampling a lower mipmap of those textures could give great improvement in performance (maybe a special mipmap needs to be created - with some preference of some pixels over others)
 
 	  -----------------------------
 

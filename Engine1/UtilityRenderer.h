@@ -39,7 +39,7 @@ namespace Engine1
                               const int mipmapLevel,
                               const int repeatCount,
                               const float ignorePixelIfBelowValue,
-                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture );
+                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture );
 
         // @param totalPreviousSpread How far (in pixels) it has been spread already (in previous passes)
         void spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
@@ -47,7 +47,7 @@ namespace Engine1
                               const int repeatCount,
                               const float ignorePixelIfBelowValue,
                               const float3 cameraPosition,
-                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
+                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture,
                               const int totalPreviousSpread, 
                               const int spreadDistance = -1,
                               const int offset = 0 );
@@ -59,7 +59,7 @@ namespace Engine1
         void convertDistanceFromScreenSpaceToWorldSpace( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
                                                          const int mipmapLevel,
                                                          const float3& cameraPos,
-                                                         const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture );
+                                                         const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture );
 
         void blurValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > outputTexture,
                          const int outputMipmapLevel,

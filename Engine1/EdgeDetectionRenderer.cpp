@@ -50,14 +50,17 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
 
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
     std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
     
     { // Mark edges with value of 0.
         unorderedAccessTargetsU1.push_back( m_valueRenderTargetDest );
-        m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                   unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+        m_rendererCore.enableUnorderedAccessTargets( 
+            unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
+            unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 
+        );
 
         m_edgeDetectionComputeShader->setParameters( *m_deviceContext.Get(), *positionTexture, *normalTexture );
 
@@ -86,8 +89,10 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
              // Enable new destination render target.
              unorderedAccessTargetsU1.clear();
              unorderedAccessTargetsU1.push_back( m_valueRenderTargetDest );
-             m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
-                                                        unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+             m_rendererCore.enableUnorderedAccessTargets( 
+                 unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
+                 unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 
+             );
 
              m_edgeDistanceComputeShader->setParameters( *m_deviceContext.Get(), *m_valueRenderTargetSrc, (unsigned char)i );
 
