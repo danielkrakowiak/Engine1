@@ -98,6 +98,7 @@ namespace Engine1
         Animator< SpotLight >&  getLightAnimator();
         Animator< FreeCamera >& getCameraAnimator();
         Animator< BlockActor >& getActorAnimator();
+        Animator< BlockModel >& getModelAnimator();
 
         void rebuildBoundingBoxAndBVH();
 
@@ -128,6 +129,7 @@ namespace Engine1
         Animator< SpotLight >  m_spotlightAnimator;
         Animator< FreeCamera > m_cameraAnimator;
         Animator< BlockActor > m_actorAnimator;
+        Animator< BlockModel > m_modelAnimator;
 
         std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > > m_texturesToMerge;
         std::vector< std::shared_ptr< BlockMesh > >                         m_meshesToMerge;

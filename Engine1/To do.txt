@@ -539,6 +539,8 @@ Idea:
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////// TESTING / BENCHMARKING/ DEMO /////////////////////////////////////////////////////////////////////
         
+        - why, when sampling level 1 pos/normal in dist-to-occluder - shadows become sharp for reflections? Is it caused by lack of position/normal mipmaps at those levels?
+
         - measure whole stage duration.
 
         - storing material multipliers in actor keyframe - so that we can animate material changes - can be done by adding keyframes to models at the same time and playing them together

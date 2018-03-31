@@ -502,4 +502,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 27.03.2018 - 2h - Adding ASSAO settings to Control Panel.
 28.03.2018 - 2h - Added sky color. Playing with setups and test scenes.
 30.03.2018 - 10h - Added options to playback/pause anim on many objects at once, add keyframe to many objects at once. Tried to use R32G32B32_FLOAT format for normals and ray directions instead of R32G32B32A32_FLOAT (3 components instead of 4). But failed, as no GPU supports that format for render targets, UAVs etc. But converted normals/ray directions to R16G16B16A16_FLOAT and it resulted in 20% performance improvement on average. Added support for float3 textures in rendering related code.
-31.03.2018 - 2h - Added options to change position/normal sampled mipmap levels in some shaders from Control Panel (as optimization).
+31.03.2018 - 8h - Added options to change position/normal sampled mipmap levels in some shaders from Control Panel (as optimization). Preparing test scenes for demo clip. Added ability to play animation on BlockModel - to animate texture multipliers.

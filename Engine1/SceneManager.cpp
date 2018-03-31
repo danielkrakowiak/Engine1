@@ -1253,6 +1253,11 @@ Animator< BlockActor >& SceneManager::getActorAnimator()
     return m_actorAnimator;
 }
 
+Animator< BlockModel >& SceneManager::getModelAnimator()
+{
+    return m_modelAnimator;
+}
+
 void SceneManager::rebuildBoundingBoxAndBVH()
 {
     for ( auto& actor : m_selection.getBlockActors() ) 

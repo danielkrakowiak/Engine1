@@ -347,6 +347,11 @@ void EngineApplication::onKeyPress( int key )
         {
             m_sceneManager.getActorAnimator().addKeyframe( selectedActors[ i ] );
             m_sceneManager.getActorAnimator().setSmoothstepInterpolation( selectedActors[ i ], true );
+
+            if ( selectedActors[ i ]->getModel() ) {
+                m_sceneManager.getModelAnimator().addKeyframe( selectedActors[ i ]->getModel() );
+                m_sceneManager.getModelAnimator().setSmoothstepInterpolation( selectedActors[ i ]->getModel(), true );
+            }
         }
     }
 
@@ -372,6 +377,10 @@ void EngineApplication::onKeyPress( int key )
         for ( int i = 0; i < selectedActors.size(); ++i )
         {
             m_sceneManager.getActorAnimator().setPlaying( selectedActors[ i ], !isPlayingActor );
+
+            if ( selectedActors[ i ]->getModel() ) {
+                m_sceneManager.getModelAnimator().setPlaying( selectedActors[ i ]->getModel(), !isPlayingActor );
+            }
         }
     }
 
@@ -652,6 +661,7 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
     m_sceneManager.getLightAnimator().update( (float)frameTimeS );
     m_sceneManager.getCameraAnimator().update( (float)frameTimeS );
     m_sceneManager.getActorAnimator().update( (float)frameTimeS );
+    m_sceneManager.getModelAnimator().update( (float)frameTimeS );
 
     // Set renderer exposure from settings.
     m_renderer.setExposure( settings().rendering.exposure );

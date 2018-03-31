@@ -84,6 +84,9 @@ namespace Engine1
         std::shared_ptr< Asset > getTexture( const TextureType type, int index = 0 ) const;
 
         float4 getTextureColorMultiplier( const TextureType type, int index = 0 ) const;
+        void   setTextureColorMultiplier( const float4& colorMul, const TextureType type, int index = 0 );
+
+        virtual void setInterpolated( const Model& model1, const Model& model2, float ratio );
 
         protected:
 

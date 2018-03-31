@@ -2,6 +2,8 @@
 
 #include <tuple>
 
+#include "MathUtil.h"
+
 using namespace Engine1;
 
 std::string Model::textureTypeToString( Model::TextureType type )
@@ -361,6 +363,9 @@ std::vector< ModelTexture2D< unsigned char > >& Model::getRefractiveIndexTexture
 
 std::shared_ptr< Asset > Model::getTexture( const TextureType type, int index ) const
 {
+    if ( index >= getTextureCount( type ) )
+        return nullptr;
+
     switch ( type ) 
     {
         case TextureType::Alpha: 
@@ -406,6 +411,9 @@ std::shared_ptr< Asset > Model::getTexture( const TextureType type, int index ) 
 
 float4 Model::getTextureColorMultiplier( const TextureType type, int index ) const
 {
+    if ( index >= getTextureCount( type ) )
+        return float4::ZERO;
+
     switch ( type ) 
     {
         case TextureType::Alpha: 
@@ -447,4 +455,85 @@ float4 Model::getTextureColorMultiplier( const TextureType type, int index ) con
 
     assert( false );
     return float4::ZERO;
+}
+
+void Model::setTextureColorMultiplier( const float4& colorMul, const TextureType type, int index )
+{
+    if ( index >= getTextureCount( type ) )
+        return;
+
+    switch ( type ) 
+    {
+        case TextureType::Alpha: 
+        {
+            auto& modelTexture = m_alphaTextures.at( index );
+            modelTexture.setColorMultiplier( colorMul );
+            return;
+        }
+        case TextureType::Emissive:
+        {
+            auto& modelTexture = m_emissiveTextures.at( index );
+            modelTexture.setColorMultiplier( colorMul );
+            return;
+        }
+        case TextureType::Albedo:
+        {
+            auto& modelTexture = m_albedoTextures.at( index );
+            modelTexture.setColorMultiplier( colorMul );
+            return;
+        }
+        case TextureType::Metalness:
+        {
+            auto& modelTexture = m_metalnessTextures.at( index );
+            modelTexture.setColorMultiplier( colorMul );
+            return;
+        }
+        case TextureType::Roughness:
+        {
+            auto& modelTexture = m_roughnessTextures.at( index );
+            modelTexture.setColorMultiplier( colorMul );
+            return;
+        }
+        case TextureType::Normal:
+        {
+            auto& modelTexture = m_normalTextures.at( index );
+            modelTexture.setColorMultiplier( colorMul );
+            return;
+        }
+        case TextureType::RefractiveIndex:
+        {
+            auto& modelTexture = m_refractiveIndexTextures.at( index );
+            modelTexture.setColorMultiplier( colorMul );
+            return;
+        }
+    }
+
+    assert( false );
+    return;
+}
+
+void Model::setInterpolated( const Model& model1, const Model& model2, float ratio )
+{
+    for ( int typeIdx = 0; typeIdx < static_cast< int >( TextureType::COUNT ); ++typeIdx )
+    {
+        const auto type = static_cast< TextureType >( typeIdx );
+
+        const auto textureCount = std::min( 
+            getTextureCount( type ), 
+            std::min( 
+                model1.getTextureCount( type ), 
+                model2.getTextureCount( type ) 
+            ) 
+        );
+
+        for ( int textureIdx = 0; textureIdx < textureCount; ++textureIdx )
+        {
+            const auto colorMul1 = model1.getTextureColorMultiplier( type, textureIdx );
+            const auto colorMul2 = model2.getTextureColorMultiplier( type, textureIdx );
+
+            const auto lerpedColorMul = MathUtil::lerp( colorMul1, colorMul2, ratio );
+
+            setTextureColorMultiplier( lerpedColorMul, type, textureIdx );
+        }
+    }
 }
