@@ -440,7 +440,6 @@ Renderer::Output Renderer::renderPrimaryLayer(
     
     m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
 
-    // #TODO: Do we need these mipmaps? I don't think so anymore...
     // Generate mipmaps for normal and position g-buffers.
     layerRenderTargets.hitNormal->generateMipMapsOnGpu( *m_deviceContext.Get() );
     layerRenderTargets.hitPosition->generateMipMapsOnGpu( *m_deviceContext.Get() );
@@ -1087,6 +1086,13 @@ void Renderer::renderSecondaryLayer(
     }
 
     m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::RaytracingReflectedRefractedRays );
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
+
+    // Generate mipmaps for normal and position g-buffers.
+    currLayerRTs.hitNormal->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    currLayerRTs.hitPosition->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
     m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::EmissiveShading );
 
     // Initialize shading output with emissive color.
