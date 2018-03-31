@@ -81,6 +81,10 @@ namespace Engine1
             float3 pad12;
             float  searchStepInLight; // In pixels - distance between neighbor samples.
             float3 pad13;
+            float  positionSampleMipmapLevel; // Can be used to improve performance by sampling higher level mipmaps.
+            float  pad14;
+            float  normalSampleMipmapLevel;
+            float  pad15;
         };
 
         // Copying is not allowed.

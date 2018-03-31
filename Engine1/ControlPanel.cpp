@@ -158,7 +158,12 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_optimizationBar, "Combining sampling quality", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.samplingQuality, "min=0 max=1 step=0.002 precision=3" );
     TwAddVarRW( m_optimizationBar, "Use half normals", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFloatsForNormals, "" );
     TwAddVarRW( m_optimizationBar, "Use half ray directions", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFloatsForRayDirections, "" );
-    TwAddVarRW( m_optimizationBar, "Use half dist-to-occluder", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFLoatsForDistToOccluder, "" );
+    TwAddVarRW( m_optimizationBar, "Use half hit-distance", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFloatsForHitDistance, "" );
+    TwAddVarRW( m_optimizationBar, "Use half dist-to-occluder", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFLoatsForDistanceToOccluder, "" );
+    TwAddVarRW( m_optimizationBar, "Dist-to-occluder position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.distToOccluderPositionSampleMipmapLevel, "min=0 max=4" );
+    TwAddVarRW( m_optimizationBar, "Dist-to-occluder normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel, "min=0 max=4" );
+    TwAddVarRW( m_optimizationBar, "Blur shadows position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel, "min=0 max=4" );
+    TwAddVarRW( m_optimizationBar, "Blur shadows normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowsNormalSampleMipmapLevel, "min=0 max=4" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

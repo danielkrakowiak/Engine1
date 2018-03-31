@@ -4,6 +4,7 @@
 #include "BlockMesh.h"
 #include "Light.h"
 #include "SpotLight.h"
+#include "Settings.h"
 
 #include <d3d11_3.h>
 #include <d3dcompiler.h>
@@ -124,6 +125,9 @@ void BlurShadowsComputeShader::setParameters(
         dataPtr->positionThreshold = positionThreshold;
         dataPtr->normalThreshold   = normalThreshold;
 
+        dataPtr->positionSampleMipmapLevel = (float)settings().rendering.optimization.blurShadowsPositionSampleMipmapLevel;
+        dataPtr->normalSampleMipmapLevel   = (float)settings().rendering.optimization.blurShadowsNormalSampleMipmapLevel;
+        
         if ( light.getType() == Light::Type::SpotLight )
         {
             const SpotLight& spotLight = static_cast<const SpotLight&>( light );

@@ -4,6 +4,7 @@
 #include "BlockMesh.h"
 #include "Light.h"
 #include "SpotLight.h"
+#include "Settings.h"
 
 #include <d3d11_3.h>
 #include <d3dcompiler.h>
@@ -144,6 +145,9 @@ void DistanceToOccluderSearchComputeShader::setParameters(
         dataPtr->searchStepInShadow   = searchStepInShadow;
         dataPtr->searchRadiusInLight  = searchRadiusInLight;
         dataPtr->searchStepInLight    = searchStepInLight;
+
+        dataPtr->positionSampleMipmapLevel = (float)settings().rendering.optimization.distToOccluderPositionSampleMipmapLevel;
+        dataPtr->normalSampleMipmapLevel   = (float)settings().rendering.optimization.distToOccluderNormalSampleMipmapLevel;
 
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 

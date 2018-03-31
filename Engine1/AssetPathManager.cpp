@@ -47,6 +47,8 @@ std::string AssetPathManager::getPathForFileName( const std::string& fileName )
 
 void AssetPathManager::scanAllPaths()
 {
+    s_paths.clear();
+
     bool duplicatesFound = false;
 
     std::vector< std::string > filePaths = FileSystem::getAllFilesFromDirectory( "Assets" );

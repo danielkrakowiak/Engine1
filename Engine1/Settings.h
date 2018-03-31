@@ -105,7 +105,16 @@ namespace Engine1
             {
                 bool useHalfFloatsForRayDirections;
                 bool useHalfFloatsForNormals;
-                bool useHalfFLoatsForDistToOccluder;
+                bool useHalfFloatsForHitDistance;
+                bool useHalfFLoatsForDistanceToOccluder;
+
+                int distToOccluderPositionSampleMipmapLevel;
+                int distToOccluderNormalSampleMipmapLevel;
+
+                int blurShadowsPositionSampleMipmapLevel;
+                int blurShadowsNormalSampleMipmapLevel;
+
+                // #TODO: Add the same settings for combining stage - separate for primary/secondary reflections
             } optimization;
 
             struct AmbientOcclusion

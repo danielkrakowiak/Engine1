@@ -21,6 +21,10 @@ cbuffer ConstantBuffer : register( b0 )
     float3 pad7;
     float  g_normalThreshold;
     float3 pad8;
+    float  g_positionSampleMipmapLevel; // Can be used to improve performance by sampling higher level mipmaps.
+    float  pad9;
+    float  g_normalSampleMipmapLevel;
+    float  pad10;
 };
 
 //#define DEBUG
@@ -113,8 +117,8 @@ void main( uint3 groupId : SV_GroupID,
            
             //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
                
-            const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
-            const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0f ).xyz; 
+            const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_positionSampleMipmapLevel ).xyz; 
+            const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_normalSampleMipmapLevel ).xyz; 
 
             const float  positionDiff   = length( samplePosition - surfacePosition );
             const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));

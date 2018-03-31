@@ -101,9 +101,14 @@ void Settings::initializeInternal()
 
     s_settings.rendering.skyColor = float3(0.12f, 0.53f, 1.0f);
 
-    s_settings.rendering.optimization.useHalfFloatsForRayDirections  = true;
-    s_settings.rendering.optimization.useHalfFloatsForNormals        = true;
-    s_settings.rendering.optimization.useHalfFLoatsForDistToOccluder = false;
+    s_settings.rendering.optimization.useHalfFloatsForRayDirections           = true;
+    s_settings.rendering.optimization.useHalfFloatsForNormals                 = true;
+    s_settings.rendering.optimization.useHalfFLoatsForDistanceToOccluder      = false;
+    s_settings.rendering.optimization.useHalfFloatsForHitDistance             = false;
+    s_settings.rendering.optimization.distToOccluderPositionSampleMipmapLevel = 1;
+    s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel   = 1;
+    s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel    = 0;
+    s_settings.rendering.optimization.blurShadowsNormalSampleMipmapLevel      = 0;
 
     s_settings.rendering.ambientOcclusion.assao.enabled                             = true;
     s_settings.rendering.ambientOcclusion.assao.radius                              = 1.35f;

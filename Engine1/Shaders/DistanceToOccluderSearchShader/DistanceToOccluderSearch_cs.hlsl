@@ -31,6 +31,10 @@ cbuffer ConstantBuffer : register( b0 )
     float3 pad12;
     float  g_searchStepInLight; // In pixels - distance between neighbor samples.
     float3 pad13;
+    float  g_positionSampleMipmapLevel; // Can be used to improve performance by sampling higher level mipmaps.
+    float  pad14;
+    float  g_normalSampleMipmapLevel;
+    float  pad15;
 };
 
 SamplerState g_linearSamplerState;
@@ -149,8 +153,8 @@ void main( uint3 groupId : SV_GroupID,
 				// Discard samples which are off-screen (zero dist-to-occluder).
 				const float sampleWeight3 = getSampleWeightGreaterThan(sampleDistToOccluder, 0.0f);
 
-				const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
-                const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
+				const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, g_positionSampleMipmapLevel ).xyz; 
+                const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, g_normalSampleMipmapLevel ).xyz; 
 
 				const float  positionDiff   = length( samplePosition - surfacePosition );
                 const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));

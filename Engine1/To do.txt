@@ -541,7 +541,7 @@ Idea:
         
         - measure whole stage duration.
 
-        
+        - storing material multipliers in actor keyframe - so that we can animate material changes - can be done by adding keyframes to models at the same time and playing them together
 
         - option to hide light sources (good for videos)
 
@@ -567,6 +567,10 @@ Idea:
         - it takes around 1 ms (for 3 shadow layers), but the cost doesn't come from sampling dist-to-occluder values (float or half)
         - it comes from sampling position/normal textures (0.85 ms)
         - sampling a lower mipmap of those textures could give great improvement in performance (maybe a special mipmap needs to be created - with some preference of some pixels over others)
+
+        - sampling pos/normal is also costly during shadow blur (1.5 ms) and combining layers (1ms - depending on samplign quality)
+
+        - combining reflection layer takes 4 ms while combining transmission layer only 0.05 ms - why? Even when most screen is covered by glass.
 
 	  -----------------------------
 
