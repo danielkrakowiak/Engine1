@@ -722,6 +722,18 @@ void Application::run()
                 }
             }
 
+            { // Render animation details.
+                ss << "\n\nCamera anim keyframes: " << m_sceneManager.getCameraAnimator().getKeyframeCount( m_sceneManager.getCamera() );
+
+                if ( m_sceneManager.getSelection().getBlockActors().size() == 1 ) {
+                    ss << "\nActor anim keyframes: " << m_sceneManager.getActorAnimator().getKeyframeCount( m_sceneManager.getSelectedBlockActors().front() );
+                }
+
+                if ( m_sceneManager.getSelection().getSpotLights().size() == 1 ) {
+                    ss << "\nLight anim keyframes: " << m_sceneManager.getLightAnimator().getKeyframeCount( m_sceneManager.getSelection().getSpotLights().front() );
+                }
+            }
+
             output = m_renderer.renderText( 
                 ss.str(), 
                 font2, 
@@ -1092,6 +1104,17 @@ int2 Application::screenPosToWindowPos( int2 screenPos ) const
 
 void Application::setupBenchmark()
 {
+    return;
+
+    m_benchmark.addSceneToTest( 
+        AssetPathManager::getPathForFileName( "office - original.scene" ),
+        ""/*AssetPathManager::getPathForFileName( "" )*/
+    );
+
+    m_benchmark.addSettingsToTest( settings() );
+
+    m_benchmark.performTests( 0.01f );
+
     return;
 
     Settings initialSettings( settings() );

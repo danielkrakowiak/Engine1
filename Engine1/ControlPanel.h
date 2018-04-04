@@ -72,6 +72,7 @@ namespace Engine1
         TwBar* m_profilingBar;
         TwBar* m_assaoBar;
         TwBar* m_optimizationBar;
+        TwBar* m_animationBar;
 
         SceneManager& m_sceneManager;
     };

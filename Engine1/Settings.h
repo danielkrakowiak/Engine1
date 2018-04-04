@@ -92,6 +92,13 @@ namespace Engine1
             bool lightQuadraticAttenuationFactorChanged;
         } debug;
 
+        struct Animation
+        {
+            float cameraPlaybackSpeed;
+            float lightsPlaybackSpeed;
+            float actorsPlaybackSpeed;
+        } animation;
+
         struct Rendering 
         {
             float fieldOfViewDegress;

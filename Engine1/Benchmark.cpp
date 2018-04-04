@@ -112,7 +112,10 @@ void Benchmark::onFrameEnd(bool init)
         const auto& cameraAnimationPath = m_scenesToTest[ m_sceneIdx ].cameraAnimationPath;
 
         m_sceneManager.loadScene( scenePath );
-        m_sceneManager.getCameraAnimator().loadAnimationFromFile( m_sceneManager.getCamera(), cameraAnimationPath );
+
+        if ( !cameraAnimationPath.empty() ) {
+            m_sceneManager.getCameraAnimator().loadAnimationFromFile( m_sceneManager.getCamera(), cameraAnimationPath );
+        }
 
         m_lastFrameTick.reset();
     }

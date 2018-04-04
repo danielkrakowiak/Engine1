@@ -28,6 +28,10 @@ namespace Engine1
         // Negative time is treated as last keyframe time + 1 second (or 0 if there are no keyframes yet).
         void addKeyframe( const std::shared_ptr< T >& obj, float time = -1.0f );
 
+        void removeLastKeyframe( const std::shared_ptr< T >& obj );
+
+        int getKeyframeCount( const std::shared_ptr< T >& obj );
+
         void setPlaying( const std::shared_ptr< T >& obj, const bool playing );
         void setPlaybackTime( const std::shared_ptr< T >& obj, const float time );
         void setSmoothstepInterpolation( const std::shared_ptr< T >& obj, bool smoothstep );
@@ -222,6 +226,37 @@ namespace Engine1
             time = 0.0f;
 
         anim.addKeyframe( *obj, time );
+    }
+
+    template< typename T >
+    void Animator< T >::removeLastKeyframe( const std::shared_ptr< T >& obj )
+    {
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        auto result = animations.find( objWeakPtr );
+        if ( result != animations.end() )
+        {
+            auto& anim = result->second;
+
+            if ( !anim.getKeyframes().empty() )
+                anim.getKeyframes().pop_back();
+        }
+    }
+
+    template< typename T >
+    int Animator< T >::getKeyframeCount( const std::shared_ptr< T >& obj )
+    {
+        std::weak_ptr< T > objWeakPtr = obj;
+
+        auto result = animations.find( objWeakPtr );
+        if ( result != animations.end() )
+        {
+            auto& anim = result->second;
+
+            return static_cast< int > ( anim.getKeyframes().size() );
+        }
+
+        return 0;
     }
 
     template< typename T >

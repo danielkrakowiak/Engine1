@@ -164,6 +164,12 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_optimizationBar, "Dist-to-occluder normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Blur shadows position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Blur shadows normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowsNormalSampleMipmapLevel, "min=0 max=4" );
+
+    m_animationBar = TwNewBar("Animation");
+    TwDefine(" Animation iconified=true ");
+    TwAddVarRW( m_animationBar, "Camera playback speed", TW_TYPE_FLOAT, &Settings::s_settings.animation.cameraPlaybackSpeed, "min=0 max=5 step=0.01 precision=2" );
+    TwAddVarRW( m_animationBar, "Lights playback speed", TW_TYPE_FLOAT, &Settings::s_settings.animation.lightsPlaybackSpeed, "min=0 max=5 step=0.01 precision=2" );
+    TwAddVarRW( m_animationBar, "Actors playback speed", TW_TYPE_FLOAT, &Settings::s_settings.animation.actorsPlaybackSpeed, "min=0 max=5 step=0.01 precision=2" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

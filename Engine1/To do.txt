@@ -361,6 +361,7 @@ Idea:
         * Does this summing work correctly when both refraction/reflections are enabled (but only one dit-to-camera per layer, right?)?
 
 	  NEXT-MINOR:
+      - continuing ray tracing if hit zero alpha pixel (and/or maximal roughness?) - to not waste transmission layers on things such as foliage
       - button to reload textures for all models - useful if I change textures on disk, but don't want to reload the scene, loose selection etc.
       - add saving/loading light attenuation multipliers to file
       - rendering text should be moved to a separate renderer - TextRenderer. No point having it in deffered as it's not outputting to most render targets. Only to albedo...
@@ -510,6 +511,16 @@ Idea:
         This way I'm able to achieve unlimited resolution, unlike Shadow Mapping. But it's more tricky for me to work in screen-space all the time.
         I also have huuuuge penumbras compared to them (10 times larger), with near constant cost, proper mixing of hard/soft shadows 
         (they haven't showned that, has to work bad because of common blocker search phase)
+
+        FUTURE:
+        - we trace only 1 shadow ray and we get shadow shape and dist-to-occluder
+        - we could also trace 1 more cheap ray (without dist-to-occluder) to tell us if another part of the light sources is visible
+        - by casting those cheap rays in a specific pattern, where neighbor pixels aim at different parts of the same light source, we could get an estimation
+          of the percentage of light that reaches those pixels.
+        - and it is then used to color the shape of the shadow that we had already - brightening it at some places, where shadow is soft
+        - this also leads to reduce in blur radius by a factor of 5 (if we trace additional 4 rays and use them together)
+        - additional rays could be traced only where a shodow was found - ignoring non-shadowed parts of the screen (if doable)
+        - could work!
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       /////////  PHYSICS  ///////////////////////////////////////////////////////////////////////////////////////

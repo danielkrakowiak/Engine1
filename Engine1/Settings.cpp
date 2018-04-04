@@ -43,7 +43,7 @@ Settings& Settings::modify()
 
 void Settings::initializeInternal()
 {
-    s_settings.main.fullscreen       = false;
+    s_settings.main.fullscreen       = true;
     s_settings.main.screenDimensions = int2( 1024 /*1920*/, 768 /*1080*/ );
     s_settings.main.verticalSync     = false;
     s_settings.main.limitFPS         = false;
@@ -109,6 +109,10 @@ void Settings::initializeInternal()
     s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel   = 1;
     s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel    = 0;
     s_settings.rendering.optimization.blurShadowsNormalSampleMipmapLevel      = 0;
+
+    s_settings.animation.cameraPlaybackSpeed = 1.0f;
+    s_settings.animation.lightsPlaybackSpeed = 1.0f;
+    s_settings.animation.actorsPlaybackSpeed = 1.0f;
 
     s_settings.rendering.ambientOcclusion.assao.enabled                             = true;
     s_settings.rendering.ambientOcclusion.assao.radius                              = 1.35f;

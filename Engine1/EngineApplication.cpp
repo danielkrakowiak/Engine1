@@ -187,6 +187,31 @@ void EngineApplication::onKeyPress( int key )
         m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
     }
 
+    // [Ctrl + Shift] and [+] or [-] - Modify number of reflection/refraction layers.
+    if ( ctrlPressed && shiftPressed )
+    {
+        if ( key == InputManager::Keys::plus || key == InputManager::Keys::minus ) 
+        {
+            auto newMaxLevel = settings().rendering.reflectionsRefractions.maxLevel;
+            newMaxLevel = (key == InputManager::Keys::plus) ? newMaxLevel + 1 : newMaxLevel - 1;
+            newMaxLevel = std::max( 0, std::min( 6, newMaxLevel ) );
+
+            Settings::modify().rendering.reflectionsRefractions.maxLevel = newMaxLevel;
+        }
+    }
+
+    // [Ctrl + Shift + R] - Enable/disable reflections.
+    if ( key == InputManager::Keys::r && ctrlPressed && shiftPressed )
+    {
+        Settings::modify().rendering.reflectionsRefractions.reflectionsEnabled = !settings().rendering.reflectionsRefractions.reflectionsEnabled;
+    }
+
+    // [Ctrl + Shift + T] - Enable/disable transmission.
+    if ( key == InputManager::Keys::t && ctrlPressed && shiftPressed )
+    {
+        Settings::modify().rendering.reflectionsRefractions.refractionsEnabled = !settings().rendering.reflectionsRefractions.refractionsEnabled;
+    }
+
     // [+] or [-] - Change light brightness.
     if ( !ctrlPressed && !shiftPressed 
          && !m_inputManager.isKeyPressed( InputManager::Keys::p ) )
@@ -325,7 +350,7 @@ void EngineApplication::onKeyPress( int key )
     }
 
     // [K] - Add keyframe to a spotlight/camera/actor.
-    if ( key == InputManager::Keys::k )
+    if ( key == InputManager::Keys::k && !ctrlPressed )
     {
         if ( m_sceneManager.getSelection().isEmpty() )
         {
@@ -355,13 +380,39 @@ void EngineApplication::onKeyPress( int key )
         }
     }
 
+    // [Ctrl + K] - Remove last keyframe from a spotlight/camera/actor.
+    if ( key == InputManager::Keys::k && ctrlPressed )
+    {
+        if ( m_sceneManager.getSelection().isEmpty() )
+        {
+            auto camera = m_sceneManager.getCamera();
+
+            m_sceneManager.getCameraAnimator().removeLastKeyframe( camera );
+        }
+
+        const auto& selectedSpotlights = m_sceneManager.getSelection().getSpotLights();
+        for ( int i = 0; i < selectedSpotlights.size(); ++i )
+        {
+            m_sceneManager.getLightAnimator().removeLastKeyframe( selectedSpotlights[ i ] );
+        }
+
+        const auto& selectedActors = m_sceneManager.getSelection().getBlockActors();
+        for ( int i = 0; i < selectedActors.size(); ++i )
+        {
+            m_sceneManager.getActorAnimator().removeLastKeyframe( selectedActors[ i ] );
+
+            if ( selectedActors[ i ]->getModel() ) {
+                m_sceneManager.getModelAnimator().removeLastKeyframe( selectedActors[ i ]->getModel() );
+            }
+        }
+    }
+
     // [Space] - Play/pause animation on a spotlight/camera/actor.
-    if ( key == InputManager::Keys::spacebar )
+    if ( key == InputManager::Keys::spacebar && !ctrlPressed )
     {
         if ( m_sceneManager.getSelection().isEmpty() )
         {
             const auto isPlaying = m_sceneManager.getCameraAnimator().isPlaying( m_sceneManager.getCamera() );
-
             m_sceneManager.getCameraAnimator().setPlaying( m_sceneManager.getCamera(), !isPlaying );
         }
 
@@ -378,9 +429,52 @@ void EngineApplication::onKeyPress( int key )
         {
             m_sceneManager.getActorAnimator().setPlaying( selectedActors[ i ], !isPlayingActor );
 
-            if ( selectedActors[ i ]->getModel() ) {
+            if ( selectedActors[ i ]->getModel() ) 
+            {
                 m_sceneManager.getModelAnimator().setPlaying( selectedActors[ i ]->getModel(), !isPlayingActor );
             }
+        }
+    }
+
+    // [Ctrl + Space] - play anims on all selected objects from the beginning (and then unselect everything).
+    if ( key == InputManager::Keys::spacebar && ctrlPressed )
+    {
+        const auto isPlaying = m_sceneManager.getCameraAnimator().isPlaying( m_sceneManager.getCamera() );
+
+        if ( !isPlaying ) {
+            m_sceneManager.getCameraAnimator().setPlaybackTime( m_sceneManager.getCamera(), 0.0f );
+        }
+        m_sceneManager.getCameraAnimator().setPlaying( m_sceneManager.getCamera(), !isPlaying );
+
+        const auto& selectedSpotlights = m_sceneManager.getSelection().getSpotLights();
+        for ( int i = 0; i < selectedSpotlights.size(); ++i )
+        {
+            if ( !isPlaying ) {
+                m_sceneManager.getLightAnimator().setPlaybackTime( selectedSpotlights[ i ], 0.0f );
+            }
+            m_sceneManager.getLightAnimator().setPlaying( selectedSpotlights[ i ], !isPlaying );
+        }
+
+        const auto& selectedActors = m_sceneManager.getSelection().getBlockActors();
+        const auto isPlayingActor = !selectedActors.empty() ? m_sceneManager.getActorAnimator().isPlaying( selectedActors[ 0 ] ) : false;
+        for ( int i = 0; i < selectedActors.size(); ++i )
+        {
+            if ( !isPlaying ) {
+                m_sceneManager.getActorAnimator().setPlaybackTime( selectedActors[ i ], 0.0f );
+            }
+            m_sceneManager.getActorAnimator().setPlaying( selectedActors[ i ], !isPlaying );
+
+            if ( selectedActors[ i ]->getModel() ) 
+            {
+                if ( !isPlaying ) {
+                    m_sceneManager.getModelAnimator().setPlaybackTime( selectedActors[ i ]->getModel(), 0.0f );
+                }
+                m_sceneManager.getModelAnimator().setPlaying( selectedActors[ i ]->getModel(), !isPlaying );
+            }
+        }
+
+        if ( !isPlaying ) {
+            m_sceneManager.clearSelection();
         }
     }
 
@@ -418,8 +512,8 @@ void EngineApplication::onKeyPress( int key )
     if ( key == InputManager::Keys::b && ctrlPressed )
         m_sceneManager.rebuildBoundingBoxAndBVH();
 
-    // [Ctr + Spacebar] - Enable/disable snapping when rotating/translating actors.
-    if ( key == InputManager::Keys::spacebar && ctrlPressed )
+    // [Ctr + Shift + Spacebar] - Enable/disable snapping when rotating/translating actors.
+    if ( key == InputManager::Keys::spacebar && ctrlPressed && shiftPressed )
         Settings::modify().debug.snappingMode = !settings().debug.snappingMode;
 
     // [left/right] - Select next/prev actor or light.
@@ -658,10 +752,10 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
 
     const auto frameTimeS = (frameTimeMs / 1000.0);
 
-    m_sceneManager.getLightAnimator().update( (float)frameTimeS );
-    m_sceneManager.getCameraAnimator().update( (float)frameTimeS );
-    m_sceneManager.getActorAnimator().update( (float)frameTimeS );
-    m_sceneManager.getModelAnimator().update( (float)frameTimeS );
+    m_sceneManager.getLightAnimator().update( (float)frameTimeS * settings().animation.lightsPlaybackSpeed );
+    m_sceneManager.getCameraAnimator().update( (float)frameTimeS * settings().animation.cameraPlaybackSpeed );
+    m_sceneManager.getActorAnimator().update( (float)frameTimeS * settings().animation.actorsPlaybackSpeed );
+    m_sceneManager.getModelAnimator().update( (float)frameTimeS * settings().animation.actorsPlaybackSpeed );
 
     // Set renderer exposure from settings.
     m_renderer.setExposure( settings().rendering.exposure );
