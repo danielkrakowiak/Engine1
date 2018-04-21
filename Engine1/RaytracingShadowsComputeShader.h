@@ -96,6 +96,8 @@ namespace Engine1
             float3       pad17;
             float        distToOccluderSoftBlurRadiusEndThreshold;
             float3       pad18;
+            float        enableAlteringRayDirection; // If enabled, rays at different pixels aim at different parts of area light. 1 - enabled, 0 - disabled.
+            float3       pad19;
 		};
 
         int m_resourceCount;

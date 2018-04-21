@@ -487,6 +487,12 @@
     <Filter Include="Source Files\Shader\ASSAO">
       <UniqueIdentifier>{2c4b4ff9-3933-404c-a8df-6affaaad7088}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shader\BlurShadowPattern">
+      <UniqueIdentifier>{0d3d3a1f-516e-4dc2-a49a-c9d02c43efa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader\BlurShadowPattern">
+      <UniqueIdentifier>{6c2e7520-9693-4ee7-ae38-e39571c0746d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1062,6 +1068,12 @@
     <ClInclude Include="ASSAORenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="BlurShadowPatternRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurShadowPatternComputeShader.h">
+      <Filter>Header Files\Shader\BlurShadowPattern</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1598,6 +1610,12 @@
     <ClCompile Include="ASSAORenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="BlurShadowPatternRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="BlurShadowPatternComputeShader.cpp">
+      <Filter>Source Files\Shader\BlurShadowPattern</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1847,6 +1865,15 @@
     </FxCompile>
     <FxCompile Include="Shaders\ASSAOShader\ASSAO.hlsl">
       <Filter>Source Files\Shader\ASSAO</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlurShadowPatternShader\BlurShadowPattern_cs.hlsl">
+      <Filter>Source Files\Shader\BlurShadowPattern</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlurShadowPatternShader\BlurShadowPatternHorizontal_cs.hlsl">
+      <Filter>Source Files\Shader\BlurShadowPattern</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BlurShadowPatternShader\BlurShadowPatternVertical_cs.hlsl">
+      <Filter>Source Files\Shader\BlurShadowPattern</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

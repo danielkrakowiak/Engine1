@@ -185,6 +185,8 @@ void RaytracingShadowsComputeShader::setParameters(
             dataPtr->isOpaque[ passedActorsCount ]           = isOpaque ? float4::ONE : float4::ZERO;
             dataPtr->alphaMul[ passedActorsCount ]           = !actor->getModel()->getAlphaTextures().empty() ? actor->getModel()->getAlphaTextures()[ 0 ].getColorMultiplier() : float4::ONE;
 
+            dataPtr->enableAlteringRayDirection = (settings().rendering.shadows.enableAlteringRayDirection ? 1.0f : 0.0f);
+
             ++passedActorsCount;
         }
 

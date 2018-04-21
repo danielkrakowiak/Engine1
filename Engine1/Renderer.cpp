@@ -52,6 +52,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, Rend
 	m_shadowMapRenderer( rendererCore ),
     m_mipmapRenderer( rendererCore ),
     m_distanceToOccluderSearchRenderer( rendererCore ),
+    m_blurShadowPatternRenderer( rendererCore ),
     m_blurShadowsRenderer( rendererCore ),
     m_combineShadowLayersRenderer( rendererCore ),
     m_utilityRenderer( rendererCore ),
@@ -93,6 +94,7 @@ void Renderer::initialize(
 	m_shadowMapRenderer.initialize( device, deviceContext );
     m_mipmapRenderer.initialize( device, deviceContext );
     m_distanceToOccluderSearchRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
+    m_blurShadowPatternRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_blurShadowsRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_combineShadowLayersRenderer.initialize( device, deviceContext );
     m_utilityRenderer.initialize( device, deviceContext );
@@ -631,6 +633,115 @@ Renderer::Output Renderer::renderPrimaryLayer(
         );
 
         m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::DistanceToOccluderSearch );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadowPattern );
+
+        auto smoothedPatternHardShadowRenderTarget   = (settings().rendering.shadows.enableBlurShadowPattern 
+            ? m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "smoothedPatternHardShadow" )
+            : hardShadowRenderTarget );
+
+        auto smoothedPatternMediumShadowRenderTarget = (settings().rendering.shadows.enableBlurShadowPattern 
+            ? m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "smoothedPatternMediumShadow" )
+            : mediumShadowRenderTarget);
+
+        auto smoothedPatternSoftShadowRenderTarget   = (settings().rendering.shadows.enableBlurShadowPattern 
+            ? m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "smoothedPatternSoftShadow" )
+            : softShadowRenderTarget);
+
+        if ( settings().rendering.shadows.enableBlurShadowPattern )
+        {
+            if ( settings().rendering.shadows.useSeparableShadowPatternBlur )
+            {
+                auto smoothedPatternShadowTemporaryRenderTarget = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "smoothedPatternShadowTemporary" );
+
+                // Blur shadow pattern in two passes - horizontal and vertical.
+                m_blurShadowPatternRenderer.blurShadowPatternHorzVert(
+                    camera,
+                    settings().rendering.shadows.blurPattern.hardShadows.positionThreshold,
+                    settings().rendering.shadows.blurPattern.hardShadows.normalThreshold,
+                    layerRenderTargets.hitPosition,
+                    layerRenderTargets.hitNormal,
+                    hardShadowRenderTarget,
+                    distanceToOccluderHardShadowRenderTarget, //#TODO: Not needed anymore?
+                    finalDistanceToOccluderHardShadowRenderTarget,
+                    smoothedPatternHardShadowRenderTarget,
+                    smoothedPatternShadowTemporaryRenderTarget,
+                    *lightsCastingShadows[ lightIdx ]
+                );
+
+                m_blurShadowPatternRenderer.blurShadowPatternHorzVert(
+                    camera,
+                    settings().rendering.shadows.blurPattern.mediumShadows.positionThreshold,
+                    settings().rendering.shadows.blurPattern.mediumShadows.normalThreshold,
+                    layerRenderTargets.hitPosition,
+                    layerRenderTargets.hitNormal,
+                    mediumShadowRenderTarget,
+                    distanceToOccluderMediumShadowRenderTarget, //#TODO: Not needed anymore?
+                    finalDistanceToOccluderMediumShadowRenderTarget,
+                    smoothedPatternMediumShadowRenderTarget,
+                    smoothedPatternShadowTemporaryRenderTarget,
+                    *lightsCastingShadows[ lightIdx ]
+                );
+
+                m_blurShadowPatternRenderer.blurShadowPatternHorzVert(
+                    camera,
+                    settings().rendering.shadows.blurPattern.softShadows.positionThreshold,
+                    settings().rendering.shadows.blurPattern.softShadows.normalThreshold,
+                    layerRenderTargets.hitPosition,
+                    layerRenderTargets.hitNormal,
+                    softShadowRenderTarget,
+                    distanceToOccluderSoftShadowRenderTarget, //#TODO: Not needed anymore?
+                    finalDistanceToOccluderSoftShadowRenderTarget,
+                    smoothedPatternSoftShadowRenderTarget,
+                    smoothedPatternShadowTemporaryRenderTarget,
+                    *lightsCastingShadows[ lightIdx ]
+                );
+            }
+            else
+            {
+                // Blur shadow pattern in a single pass.
+                m_blurShadowPatternRenderer.blurShadowPattern(
+                    camera,
+                    settings().rendering.shadows.blurPattern.hardShadows.positionThreshold,
+                    settings().rendering.shadows.blurPattern.hardShadows.normalThreshold,
+                    layerRenderTargets.hitPosition,
+                    layerRenderTargets.hitNormal,
+                    hardShadowRenderTarget,
+                    distanceToOccluderHardShadowRenderTarget, //#TODO: Not needed anymore?
+                    finalDistanceToOccluderHardShadowRenderTarget,
+                    smoothedPatternHardShadowRenderTarget,
+                    *lightsCastingShadows[ lightIdx ]
+                );
+
+                m_blurShadowPatternRenderer.blurShadowPattern(
+                    camera,
+                    settings().rendering.shadows.blurPattern.mediumShadows.positionThreshold,
+                    settings().rendering.shadows.blurPattern.mediumShadows.normalThreshold,
+                    layerRenderTargets.hitPosition,
+                    layerRenderTargets.hitNormal,
+                    mediumShadowRenderTarget,
+                    distanceToOccluderMediumShadowRenderTarget, //#TODO: Not needed anymore?
+                    finalDistanceToOccluderMediumShadowRenderTarget,
+                    smoothedPatternMediumShadowRenderTarget,
+                    *lightsCastingShadows[ lightIdx ]
+                );
+
+                m_blurShadowPatternRenderer.blurShadowPattern(
+                    camera,
+                    settings().rendering.shadows.blurPattern.softShadows.positionThreshold,
+                    settings().rendering.shadows.blurPattern.softShadows.normalThreshold,
+                    layerRenderTargets.hitPosition,
+                    layerRenderTargets.hitNormal,
+                    softShadowRenderTarget,
+                    distanceToOccluderSoftShadowRenderTarget, //#TODO: Not needed anymore?
+                    finalDistanceToOccluderSoftShadowRenderTarget,
+                    smoothedPatternSoftShadowRenderTarget,
+                    *lightsCastingShadows[ lightIdx ]
+                );
+            }
+        }
+
+
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadowPattern );
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
         auto blurredHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredHardShadow" );
@@ -648,7 +759,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 settings().rendering.shadows.blur.hardShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
-                hardShadowRenderTarget,
+                smoothedPatternHardShadowRenderTarget,
                 distanceToOccluderHardShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderHardShadowRenderTarget,
                 blurredHardShadowRenderTarget,
@@ -662,7 +773,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 settings().rendering.shadows.blur.mediumShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
-                mediumShadowRenderTarget,
+                smoothedPatternMediumShadowRenderTarget,
                 distanceToOccluderMediumShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderMediumShadowRenderTarget,
                 blurredMediumShadowRenderTarget,
@@ -676,7 +787,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 settings().rendering.shadows.blur.softShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
-                softShadowRenderTarget,
+                smoothedPatternSoftShadowRenderTarget,
                 distanceToOccluderSoftShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderSoftShadowRenderTarget,
                 blurredSoftShadowRenderTarget,
@@ -693,7 +804,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 settings().rendering.shadows.blur.hardShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
-                hardShadowRenderTarget,
+                smoothedPatternHardShadowRenderTarget,
                 distanceToOccluderHardShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderHardShadowRenderTarget,
                 blurredHardShadowRenderTarget,
@@ -706,7 +817,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 settings().rendering.shadows.blur.mediumShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
-                mediumShadowRenderTarget,
+                smoothedPatternMediumShadowRenderTarget,
                 distanceToOccluderMediumShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderMediumShadowRenderTarget,
                 blurredMediumShadowRenderTarget,
@@ -719,7 +830,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
                 settings().rendering.shadows.blur.softShadows.normalThreshold,
                 layerRenderTargets.hitPosition,
                 layerRenderTargets.hitNormal,
-                softShadowRenderTarget,
+                smoothedPatternSoftShadowRenderTarget,
                 distanceToOccluderSoftShadowRenderTarget, //#TODO: Not needed anymore?
                 finalDistanceToOccluderSoftShadowRenderTarget,
                 blurredSoftShadowRenderTarget,
@@ -771,6 +882,15 @@ Renderer::Output Renderer::renderPrimaryLayer(
                     return output;
                 case View::FinalDistanceToOccluderSoftShadow:
                     output.floatImage = finalDistanceToOccluderSoftShadowRenderTarget;
+                    return output;
+                case View::SmoothedPatternHardShadows:
+                    output.ucharImage = smoothedPatternHardShadowRenderTarget;
+                    return output;
+                case View::SmoothedPatternMediumShadows:
+                    output.ucharImage = smoothedPatternMediumShadowRenderTarget;
+                    return output;
+                case View::SmoothedPatternSoftShadows:
+                    output.ucharImage = smoothedPatternSoftShadowRenderTarget;
                     return output;
                 case View::BlurredHardShadows:
                     output.ucharImage = blurredHardShadowRenderTarget;
@@ -1663,6 +1783,9 @@ std::string Renderer::viewToString( const View view )
         case View::HardShadow:                               return "HardShadow";
         case View::MediumShadow:                             return "MediumShadow";
         case View::SoftShadow:                               return "SoftShadow";
+        case View::SmoothedPatternHardShadows:               return "SmoothedPatternHardShadows";
+        case View::SmoothedPatternMediumShadows:             return "SmoothedPatternMediumShadows";
+        case View::SmoothedPatternSoftShadows:               return "SmoothedPatternSoftShadows";
         case View::BlurredHardShadows:                       return "BlurredHardShadows";
         case View::BlurredMediumShadows:                     return "BlurredMediumShadows";
         case View::BlurredSoftShadows:                       return "BlurredSoftShadows";

@@ -13,7 +13,7 @@ cbuffer ConstantBuffer : register( b0 )
     float3   pad1;
     float2   outputTextureSize;
     float2   pad2;
-	float3   lightPosition;
+	float3   lightCenterPosition;
 	float    pad3;
     float    lightConeMinDot;
     float3   pad4;
@@ -48,6 +48,8 @@ cbuffer ConstantBuffer : register( b0 )
     float3   pad17;
     float    distToOccluderSoftBlurRadiusEndThreshold;
     float3   pad18;
+    float    enableAlteringRayDirection; // If enabled, rays at different pixels aim at different parts of area light. 1 - enabled, 0 - disabled.
+    float3   pad19;
 };
 
 // Input.
@@ -97,8 +99,39 @@ void main( uint3 groupId : SV_GroupID,
     // Note: Calculate texcoords for the pixel center.
     const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
-	const float3 rayOrigin = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
-	const float3 rayDir    = normalize( lightPosition - rayOrigin );
+	const float3 rayOrigin                = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
+	const float3 rayDirTowardsLightCenter = normalize( lightCenterPosition - rayOrigin );
+
+    const float3 worldUpDir      = float3(0.0, 1.0, 0.0);
+    const float3 lightForwardDir = -rayDirTowardsLightCenter;
+    const float3 lightSideDir    = cross( lightForwardDir, worldUpDir );
+    const float3 lightUpDir      = cross( lightSideDir, lightForwardDir );
+
+    float3 lightPosition = lightCenterPosition;
+
+    if (enableAlteringRayDirection > 0.5)
+    {
+        const float threadHorzSeed = (float)dispatchThreadId.x + (float)dispatchThreadId.y * 0.5;
+        const float threadVertSeed = (float)dispatchThreadId.x * 0.5 + (float)dispatchThreadId.y;
+
+        // Note: More samples are better, because the transition between full shadow and full light is smoother,
+        // but larger sample count means that shadow fluctuations appear over larger distances - making the pattern more visible.
+        // TODO: Would be best to adjust sample count based on dist-to-occluder - larger when expecting a thick shadow edge?
+        const float seedMult                 = 12.0; // Useful, when taking many light samples, to avoid regular shadow patterns.
+        const float lightSideSampleCount     = 40.0;
+        const float lightSideSampleCountHalf = lightSideSampleCount * 0.5;
+
+        const float  lightPosSideOffsetRatio = (fmod(threadHorzSeed * seedMult, lightSideSampleCount) - lightSideSampleCountHalf) / lightSideSampleCountHalf;
+        const float  lightPosUpOffsetRatio = (fmod(threadVertSeed * seedMult, lightSideSampleCount) - lightSideSampleCountHalf) / lightSideSampleCountHalf;
+
+        const float3 lightSideOffset     = enableAlteringRayDirection * (lightEmitterRadius * lightSideDir * lightPosSideOffsetRatio);
+        const float3 lightUpOffset       = enableAlteringRayDirection * (lightEmitterRadius * lightUpDir * lightPosUpOffsetRatio);
+        
+        // Alter light position.
+        lightPosition += lightSideOffset + lightUpOffset;
+    }
+
+    const float3 rayDir = normalize( lightPosition - rayOrigin );
 
     const float3 vectorToCamera = cameraPos - rayOrigin;
     const float3 dirToCamera    = normalize( vectorToCamera );

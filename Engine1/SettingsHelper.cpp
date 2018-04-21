@@ -28,8 +28,11 @@ std::string SettingsHelper::compareSettings( const Settings& settings1, const Se
     text += (settings1.rendering.exposure               != settings2.rendering.exposure)               ? std::string("rendering.exposure = ")               + std::to_string(settings1.rendering.exposure) + "\n" : "";
     text += (settings1.rendering.antialiasing           != settings2.rendering.antialiasing)           ? std::string("rendering.antialiasing = ")           + (settings1.rendering.antialiasing ? "true" : "false") + "\n" : "";
 
-    text += (settings1.rendering.shadows.enabled                != settings2.rendering.shadows.enabled)                 ? std::string("rendering.shadows.enabled = ")                + (settings1.rendering.shadows.enabled ? "true" : "false") + "\n" : "";
-    text += (settings1.rendering.shadows.useSeparableShadowBlur != settings2.rendering.shadows.useSeparableShadowBlur)  ? std::string("rendering.shadows.useSeparableShadowBlur = ") + (settings1.rendering.shadows.useSeparableShadowBlur ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.shadows.enabled                       != settings2.rendering.shadows.enabled)                        ? std::string("rendering.shadows.enabled = ")                       + (settings1.rendering.shadows.enabled ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.shadows.enableAlteringRayDirection    != settings2.rendering.shadows.enableAlteringRayDirection)     ? std::string("rendering.shadows.enableAlteringRayDirection = ")    + (settings1.rendering.shadows.enableAlteringRayDirection ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.shadows.enableBlurShadowPattern       != settings2.rendering.shadows.enableBlurShadowPattern)        ? std::string("rendering.shadows.enableBlurShadowPattern = ")       + (settings1.rendering.shadows.enableBlurShadowPattern ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.shadows.useSeparableShadowPatternBlur != settings2.rendering.shadows.useSeparableShadowPatternBlur)  ? std::string("rendering.shadows.useSeparableShadowPatternBlur = ") + (settings1.rendering.shadows.useSeparableShadowPatternBlur ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.shadows.useSeparableShadowBlur        != settings2.rendering.shadows.useSeparableShadowBlur)         ? std::string("rendering.shadows.useSeparableShadowBlur = ")        + (settings1.rendering.shadows.useSeparableShadowBlur ? "true" : "false") + "\n" : "";
 
     text += (settings1.rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold                        != settings2.rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold)                     ? std::string("rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold = ")                      + std::to_string(settings1.rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold) + "\n" : "";
     text += (settings1.rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold                        != settings2.rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold)                     ? std::string("rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold = ")                      + std::to_string(settings1.rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold) + "\n" : "";
@@ -66,6 +69,13 @@ std::string SettingsHelper::compareSettings( const Settings& settings1, const Se
     settings1.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow;
     settings1.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel;
     settings1.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider;
+
+    settings1.rendering.shadows.blurPattern.hardShadows.positionThreshold;
+    settings1.rendering.shadows.blurPattern.hardShadows.normalThreshold;
+    settings1.rendering.shadows.blurPattern.mediumShadows.positionThreshold;
+    settings1.rendering.shadows.blurPattern.mediumShadows.normalThreshold;
+    settings1.rendering.shadows.blurPattern.softShadows.positionThreshold;
+    settings1.rendering.shadows.blurPattern.softShadows.normalThreshold;
 
     settings1.rendering.shadows.blur.hardShadows.positionThreshold;
     settings1.rendering.shadows.blur.hardShadows.normalThreshold;

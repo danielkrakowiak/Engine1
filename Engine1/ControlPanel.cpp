@@ -72,7 +72,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarCB( m_lightBar, "Cast shadows", TW_TYPE_BOOL8, ControlPanel::onSetLightCastShadows, ControlPanel::onGetBool, &Settings::s_settings.debug.lightCastShadows, "" );
     TwAddVarCB( m_lightBar, "Color", TW_TYPE_COLOR3F, ControlPanel::onSetLightColor, ControlPanel::onGetFloat3, &Settings::s_settings.debug.lightColor, "colormode=hls" );
     TwAddVarCB( m_lightBar, "Intensity", TW_TYPE_FLOAT, ControlPanel::onSetLightIntensity, ControlPanel::onGetFloat, &Settings::s_settings.debug.lightIntensity, "min=0 max=10000 step=0.05 precision=2" );
-    TwAddVarCB( m_lightBar, "Emitter radius", TW_TYPE_FLOAT, ControlPanel::onSetLightEmitterRadius, ControlPanel::onGetFloat, &Settings::s_settings.debug.lightEmitterRadius, "min=0 max=1 step=0.01 precision=2" );
+    TwAddVarCB( m_lightBar, "Emitter radius", TW_TYPE_FLOAT, ControlPanel::onSetLightEmitterRadius, ControlPanel::onGetFloat, &Settings::s_settings.debug.lightEmitterRadius, "min=0 max=1 step=0.002 precision=3" );
     TwAddVarCB( m_lightBar, "Linear attenuation factor", TW_TYPE_FLOAT, ControlPanel::onSetLightLinearAttenuationFactor, ControlPanel::onGetFloat, &Settings::s_settings.debug.lightLinearAttenuationFactor, "min=0 max=1 step=0.001 precision=3" );
     TwAddVarCB( m_lightBar, "Linear quadratic factor", TW_TYPE_FLOAT, ControlPanel::onSetLightQuadraticAttenuationFactor, ControlPanel::onGetFloat, &Settings::s_settings.debug.lightQuadraticAttenuationFactor, "min=0 max=1 step=0.001 precision=3" );
 
@@ -97,16 +97,20 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
 
     m_shadowsBar = TwNewBar("Shadows");
     TwDefine(" Shadows iconified=true ");
+    TwAddVarRW( m_shadowsBar, "Alter ray directions", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.enableAlteringRayDirection, "" );
+    TwAddVarRW( m_shadowsBar, "Blur shadow pattern", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.enableBlurShadowPattern, "" );
+    TwAddVarRW( m_shadowsBar, "Use separable shadow pattern blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowPatternBlur, "" );
     TwAddVarRW( m_shadowsBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
+    TwAddVarRW( m_shadowsBar, "Global blur radius multiplier", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.radiusMultiplier, "min=0 max=3 step=0.001 precision=3" );
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='(H - hard, M - medium, S - soft) shadows' ");
 
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Raytracing, layers' ");
     TwAddVarRW( m_shadowsBar, "H blur radius threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold, "min=0 max=30 step=0.001 precision=3" );
     TwAddVarRW( m_shadowsBar, "S blur radius threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold, "min=0 max=70 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "H blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.hardLayerBlurRadiusTransitionWidth, "min=0 max=10 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "S blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.softLayerBlurRadiusTransitionWidth, "min=0 max=20 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "dist-to-occluder H blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.distToOccluderHardLayerBlurRadiusTransitionWidth, "min=0 max=10 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "dist-to-occluder S blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.distToOccluderSoftLayerBlurRadiusTransitionWidth, "min=0 max=20 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "H blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.hardLayerBlurRadiusTransitionWidth, "min=0 max=15 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.softLayerBlurRadiusTransitionWidth, "min=0 max=30 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "dist-to-occluder H blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.distToOccluderHardLayerBlurRadiusTransitionWidth, "min=0 max=15 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "dist-to-occluder S blur radius threshold width", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.raytracing.layers.distToOccluderSoftLayerBlurRadiusTransitionWidth, "min=0 max=30 step=0.001 precision=3" );
 
     TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Dist-to-occluder-search' ");
     TwAddVarRW( m_shadowsBar, "H pos threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.hardShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
@@ -117,14 +121,23 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_shadowsBar, "M normal threshold ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
     TwAddVarRW( m_shadowsBar, "S normal threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
 
-    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Blur' ");
-    TwAddVarRW( m_shadowsBar, "H pos threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "M pos threshold   ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "S pos threshold    ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Blur Pattern' ");
+    TwAddVarRW( m_shadowsBar, "H pos threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blurPattern.hardShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "M pos threshold   ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blurPattern.mediumShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S pos threshold    ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blurPattern.softShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
     TwAddSeparator( m_shadowsBar, "", nullptr );
-    TwAddVarRW( m_shadowsBar, "H normal threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "M normal threshold   ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
-    TwAddVarRW( m_shadowsBar, "S normal threshold    ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "H normal threshold  ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blurPattern.hardShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "M normal threshold   ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blurPattern.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S normal threshold    ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blurPattern.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+
+    TwAddButton( m_shadowsBar, "", nullptr, nullptr, " label='Blur' ");
+    TwAddVarRW( m_shadowsBar, "H pos threshold     ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "M pos threshold      ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S pos threshold       ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.positionThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddSeparator( m_shadowsBar, "", nullptr );
+    TwAddVarRW( m_shadowsBar, "H normal threshold     ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.hardShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "M normal threshold      ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.mediumShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
+    TwAddVarRW( m_shadowsBar, "S normal threshold       ", TW_TYPE_FLOAT, &Settings::s_settings.rendering.shadows.blur.softShadows.normalThreshold, "min=0 max=3 step=0.001 precision=3" );
 
     m_profilingBar = TwNewBar("Profiling");
     TwDefine(" Profiling iconified=true ");
@@ -154,6 +167,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
 
     m_optimizationBar = TwNewBar("Optimization");
     TwDefine(" Optimization iconified=true ");
+    TwAddVarRW( m_optimizationBar, "Use separable shadow pattern blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowPatternBlur, "" );
     TwAddVarRW( m_optimizationBar, "Use separable shadow blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.shadows.useSeparableShadowBlur, "" );
     TwAddVarRW( m_optimizationBar, "Combining sampling quality", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.samplingQuality, "min=0 max=1 step=0.002 precision=3" );
     TwAddVarRW( m_optimizationBar, "Use half normals", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFloatsForNormals, "" );
@@ -162,6 +176,8 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_optimizationBar, "Use half dist-to-occluder", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFLoatsForDistanceToOccluder, "" );
     TwAddVarRW( m_optimizationBar, "Dist-to-occluder position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.distToOccluderPositionSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Dist-to-occluder normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel, "min=0 max=4" );
+    TwAddVarRW( m_optimizationBar, "Blur shadow pattern position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowPatternPositionSampleMipmapLevel, "min=0 max=4" );
+    TwAddVarRW( m_optimizationBar, "Blur shadow pattern normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowPatternNormalSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Blur shadows position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Blur shadows normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowsNormalSampleMipmapLevel, "min=0 max=4" );
 

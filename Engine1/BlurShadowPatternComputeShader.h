@@ -19,13 +19,13 @@ namespace Engine1
 {
     class Light;
 
-    class BlurShadowsComputeShader : public ComputeShader
+    class BlurShadowPatternComputeShader : public ComputeShader
     {
 
         public:
 
-        BlurShadowsComputeShader();
-        virtual ~BlurShadowsComputeShader();
+        BlurShadowPatternComputeShader();
+        virtual ~BlurShadowPatternComputeShader();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( 
@@ -69,13 +69,11 @@ namespace Engine1
             float  pad9;
             float  normalSampleMipmapLevel;
             float  pad10;
-            float  blurRadiusMultiplier;
-            float3 pad11;
         };
 
         // Copying is not allowed.
-        BlurShadowsComputeShader( const BlurShadowsComputeShader& ) = delete;
-        BlurShadowsComputeShader& operator=( const BlurShadowsComputeShader& ) = delete;
+        BlurShadowPatternComputeShader( const BlurShadowPatternComputeShader& ) = delete;
+        BlurShadowPatternComputeShader& operator=( const BlurShadowPatternComputeShader& ) = delete;
     };
 }
 

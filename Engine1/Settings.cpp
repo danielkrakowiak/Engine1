@@ -43,7 +43,7 @@ Settings& Settings::modify()
 
 void Settings::initializeInternal()
 {
-    s_settings.main.fullscreen       = true;
+    s_settings.main.fullscreen       = false;
     s_settings.main.screenDimensions = int2( 1024 /*1920*/, 768 /*1080*/ );
     s_settings.main.verticalSync     = false;
     s_settings.main.limitFPS         = false;
@@ -101,14 +101,16 @@ void Settings::initializeInternal()
 
     s_settings.rendering.skyColor = float3(0.12f, 0.53f, 1.0f);
 
-    s_settings.rendering.optimization.useHalfFloatsForRayDirections           = true;
-    s_settings.rendering.optimization.useHalfFloatsForNormals                 = true;
-    s_settings.rendering.optimization.useHalfFLoatsForDistanceToOccluder      = false;
-    s_settings.rendering.optimization.useHalfFloatsForHitDistance             = false;
-    s_settings.rendering.optimization.distToOccluderPositionSampleMipmapLevel = 1;
-    s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel   = 1;
-    s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel    = 0;
-    s_settings.rendering.optimization.blurShadowsNormalSampleMipmapLevel      = 0;
+    s_settings.rendering.optimization.useHalfFloatsForRayDirections              = true;
+    s_settings.rendering.optimization.useHalfFloatsForNormals                    = true;
+    s_settings.rendering.optimization.useHalfFLoatsForDistanceToOccluder         = false;
+    s_settings.rendering.optimization.useHalfFloatsForHitDistance                = false;
+    s_settings.rendering.optimization.distToOccluderPositionSampleMipmapLevel    = 1;
+    s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel      = 1;
+    s_settings.rendering.optimization.blurShadowPatternPositionSampleMipmapLevel = 0;
+    s_settings.rendering.optimization.blurShadowPatternNormalSampleMipmapLevel   = 0;
+    s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel       = 0;
+    s_settings.rendering.optimization.blurShadowsNormalSampleMipmapLevel         = 0;
 
     s_settings.animation.cameraPlaybackSpeed = 1.0f;
     s_settings.animation.lightsPlaybackSpeed = 1.0f;
@@ -130,8 +132,11 @@ void Settings::initializeInternal()
     s_settings.rendering.ambientOcclusion.assao.temporalSupersamplingRadiusOffset   = 1.0f;
     s_settings.rendering.ambientOcclusion.assao.detailShadowStrength                = 0.5f;
 
-    s_settings.rendering.shadows.enabled                = true;
-    s_settings.rendering.shadows.useSeparableShadowBlur = true;
+    s_settings.rendering.shadows.enabled                       = true;
+    s_settings.rendering.shadows.enableAlteringRayDirection    = false;
+    s_settings.rendering.shadows.enableBlurShadowPattern       = true;
+    s_settings.rendering.shadows.useSeparableShadowPatternBlur = false;
+    s_settings.rendering.shadows.useSeparableShadowBlur        = true;
 
     s_settings.rendering.shadows.raytracing.layers.hardLayerBlurRadiusThreshold                     = 10.0f;
     s_settings.rendering.shadows.raytracing.layers.softLayerBlurRadiusThreshold                     = 40.0f;
@@ -168,6 +173,15 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow        = 1.0f;//1.0
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel          = 4;//4
     s_settings.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider   = 16;//16
+
+    s_settings.rendering.shadows.blurPattern.hardShadows.positionThreshold   = 0.08f; 
+    s_settings.rendering.shadows.blurPattern.hardShadows.normalThreshold     = 0.08f; 
+    s_settings.rendering.shadows.blurPattern.mediumShadows.positionThreshold = 0.08f; 
+    s_settings.rendering.shadows.blurPattern.mediumShadows.normalThreshold   = 0.08f; 
+    s_settings.rendering.shadows.blurPattern.softShadows.positionThreshold   = 0.08f;
+    s_settings.rendering.shadows.blurPattern.softShadows.normalThreshold     = 0.08f;
+
+    s_settings.rendering.shadows.blur.radiusMultiplier = 1.0f;
 
     // Note: To avoid light leaks at shadow layer transitions,
     // it's better to keep position/normal threshold the same for all layers.

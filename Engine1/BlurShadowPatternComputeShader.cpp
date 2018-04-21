@@ -1,4 +1,4 @@
-#include "BlurShadowsComputeShader.h"
+#include "BlurShadowPatternComputeShader.h"
 
 #include "StringUtil.h"
 #include "BlockMesh.h"
@@ -13,11 +13,11 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-BlurShadowsComputeShader::BlurShadowsComputeShader() {}
+BlurShadowPatternComputeShader::BlurShadowPatternComputeShader() {}
 
-BlurShadowsComputeShader::~BlurShadowsComputeShader() {}
+BlurShadowPatternComputeShader::~BlurShadowPatternComputeShader() {}
 
-void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
+void BlurShadowPatternComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
     {
         // Create constant buffer.
@@ -31,7 +31,7 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 
         HRESULT result = device->CreateBuffer( &desc, nullptr, m_constantInputBuffer.ReleaseAndGetAddressOf() );
         if ( result < 0 )
-            throw std::exception( "BlurShadowsComputeShader::compileFromFile - creating constant buffer failed." );
+            throw std::exception( "BlurShadowPatternComputeShader::compileFromFile - creating constant buffer failed." );
     }
 
     { // Create linear sampler configuration.
@@ -53,7 +53,7 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
         // Create the texture sampler state.
         HRESULT result = device->CreateSamplerState( &desc, m_linearSamplerState.ReleaseAndGetAddressOf() );
         if ( result < 0 )
-            throw std::exception( "BlurShadowsComputeShader::compileFromFile - Failed to create texture sampler state." );
+            throw std::exception( "BlurShadowPatternComputeShader::compileFromFile - Failed to create texture sampler state." );
     }
 
     { // Create point sampler configuration.
@@ -75,11 +75,11 @@ void BlurShadowsComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
         // Create the texture sampler state.
         HRESULT result = device->CreateSamplerState( &desc, m_pointSamplerState.ReleaseAndGetAddressOf() );
         if ( result < 0 )
-            throw std::exception( "BlurShadowsComputeShader::compileFromFile - Failed to create texture sampler state." );
+            throw std::exception( "BlurShadowPatternComputeShader::compileFromFile - Failed to create texture sampler state." );
     }
 }
 
-void BlurShadowsComputeShader::setParameters( 
+void BlurShadowPatternComputeShader::setParameters( 
     ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
     const float positionThreshold,
     const float normalThreshold,
@@ -91,7 +91,7 @@ void BlurShadowsComputeShader::setParameters(
     const Light& light )
 {
     if ( !m_compiled )
-        throw std::exception( "BlurShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
+        throw std::exception( "BlurShadowPatternComputeShader::setParameters - Shader hasn't been compiled yet." );
 
     { // Set input buffers and textures.
         const unsigned int resourceCount = 5;
@@ -112,7 +112,7 @@ void BlurShadowsComputeShader::setParameters(
 
         HRESULT result = deviceContext.Map( m_constantInputBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
         if ( result < 0 )
-            throw std::exception( "BlurShadowsComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
+            throw std::exception( "BlurShadowPatternComputeShader::setParameters - mapping constant buffer to CPU memory failed." );
 
         dataPtr = (ConstantBuffer*)mappedResource.pData;
 
@@ -125,8 +125,8 @@ void BlurShadowsComputeShader::setParameters(
         dataPtr->positionThreshold = positionThreshold;
         dataPtr->normalThreshold   = normalThreshold;
 
-        dataPtr->positionSampleMipmapLevel = (float)settings().rendering.optimization.blurShadowsPositionSampleMipmapLevel;
-        dataPtr->normalSampleMipmapLevel   = (float)settings().rendering.optimization.blurShadowsNormalSampleMipmapLevel;
+        dataPtr->positionSampleMipmapLevel = (float)settings().rendering.optimization.blurShadowPatternPositionSampleMipmapLevel;
+        dataPtr->normalSampleMipmapLevel   = (float)settings().rendering.optimization.blurShadowPatternNormalSampleMipmapLevel;
         
         if ( light.getType() == Light::Type::SpotLight )
         {
@@ -143,8 +143,6 @@ void BlurShadowsComputeShader::setParameters(
             dataPtr->lightDirection  = float3( 0.0f, 1.0f, 0.0f );
         }
 
-        dataPtr->blurRadiusMultiplier = settings().rendering.shadows.blur.radiusMultiplier;
-
         deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
         deviceContext.CSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );
@@ -156,10 +154,10 @@ void BlurShadowsComputeShader::setParameters(
     }
 }
 
-void BlurShadowsComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
+void BlurShadowPatternComputeShader::unsetParameters( ID3D11DeviceContext3& deviceContext )
 {
     if ( !m_compiled )
-        throw std::exception( "BlurShadowsComputeShader::unsetParameters - Shader hasn't been compiled yet." );
+        throw std::exception( "BlurShadowPatternComputeShader::unsetParameters - Shader hasn't been compiled yet." );
 
     // Unset buffers and textures.
     ID3D11ShaderResourceView* nullResources[ 6 ] = { nullptr };
@@ -169,3 +167,4 @@ void BlurShadowsComputeShader::unsetParameters( ID3D11DeviceContext3& deviceCont
     ID3D11SamplerState* nullSamplers[ 2 ] = { nullptr };
     deviceContext.CSSetSamplers( 0, 2, nullSamplers );
 }
+

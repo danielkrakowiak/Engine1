@@ -487,7 +487,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 27.02.2018 - 4h - Trying to fix light leaks on shadow layer transitions through multiplying final shadow value by 104%. It helps a bit, but makes shadow edge a bit harder. New problem understood: shadows on different layers are partly the same shadow (same part os source light occluded). But we treat them as independent and this causes overshadowing and shadow bubbles. Added CombineShadowLayersRenderer to make some math operations on layers when adding them. LIke substracing hard shadow from medium, and hard.medium from soft. It fixes shadow bubbles nicely, but exposes light leaks on layer transitions.
 28.02.2018 - 2h - Tried to remove blurring of shadows on layer transitions by marking regions occupied by other layers in dist-to-occluder texture (using some extreme value). It worked and actually removed light leaks on layer transitions. But how to tell layer transtion from normal shadow intersection? Because that solution corrupts shadow intersections between layers.
 --- February 2018 - 13h
---- total 1395h
 
 03.03.2018 - 2h - Finally found the solution! Shadows work perfectly! Substracting hard shadow from medium one, and hard/medium from soft is needed. And then the layers can overlap, even at great extents, and everythings stays fine. So making them overlap (with hard transitions) solves the problem of light leaking. Great!!!!
 14.03.2018 - 2h - Modified Animator to be a template class to support animation of any kind of object. Added animation playback for Camera.
@@ -503,4 +502,9 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 28.03.2018 - 2h - Added sky color. Playing with setups and test scenes.
 30.03.2018 - 10h - Added options to playback/pause anim on many objects at once, add keyframe to many objects at once. Tried to use R32G32B32_FLOAT format for normals and ray directions instead of R32G32B32A32_FLOAT (3 components instead of 4). But failed, as no GPU supports that format for render targets, UAVs etc. But converted normals/ray directions to R16G16B16A16_FLOAT and it resulted in 20% performance improvement on average. Added support for float3 textures in rendering related code.
 31.03.2018 - 8h - Added options to change position/normal sampled mipmap levels in some shaders from Control Panel (as optimization). Preparing test scenes for demo clip. Added ability to play animation on BlockModel - to animate texture multipliers.
---- March
+--- March 2018 - 50h
+--- total 1445h
+
+05.04.2018 - 4h - Testing approach with altering shadow ray directions - neighbor pixels aim at different positions on area light - got great results - but pattenrs in shadow texture need to be averaged (blurred).
+09.04.2018 - 5h - Added BlurShadowPatternRenderer to blur 6x6 patches of pixels when using "shadow ray direction altering" option. Testing shadow behavior on various scenes.
+10.04.2018 - 3h - Added rejecting samples in pattern-blur shader based on position/normal (to avoid halos around lit objects). Added global shadow blur-radius multiplier to experiment with needed blur amount when altering shadow ray directions.

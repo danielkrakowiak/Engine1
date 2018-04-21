@@ -25,8 +25,6 @@ cbuffer ConstantBuffer : register( b0 )
     float  pad9;
     float  g_normalSampleMipmapLevel;
     float  pad10;
-    float  g_blurRadiusMultiplier;
-    float3 pad11;
 };
 
 //#define DEBUG
@@ -91,7 +89,7 @@ void main( uint3 groupId : SV_GroupID,
     const float maxBlurRadiusWorldSpace = 1.0f; 
     const float distLightToOccluder     = distToLight - distToOccluder;
     
-    const float blurRadiusInWorldSpace = min( maxBlurRadiusWorldSpace, g_blurRadiusMultiplier * g_lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    const float blurRadiusInWorldSpace = min( maxBlurRadiusWorldSpace, g_lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
 
     // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
     // to decrease search radius when looking at walls/floors at flat angle.
@@ -102,13 +100,14 @@ void main( uint3 groupId : SV_GroupID,
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
     float surfaceShadow = 0.0f;
-    float sampleCount   = 0.000001f; // Note: Small value to avoid division by zero.
+
+    float sampleCount = 0.000001f; // Note: Small value to avoid division by zero.
 
     const float samplingStep = max(1.0, samplingRadius / sampleCountPerSide);
 
-    const float y = 0.0f;
+    const float x = 0.0f;
 
-    for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
+    for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
     {
         const float2 texCoordShift = float2( pixelSize0.x * x, pixelSize0.y * y );
 
@@ -116,11 +115,12 @@ void main( uint3 groupId : SV_GroupID,
 
         //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
         const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
-                
+            
+        //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
         const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_positionSampleMipmapLevel ).xyz; 
         const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_normalSampleMipmapLevel ).xyz; 
 
-        const float  positionDiff   = length( samplePosition - surfacePosition );
+        const float positionDiff    = length( samplePosition - surfacePosition );
         const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
 
         const float sampleWeight1 = getSampleWeightSimilarSmooth( positionDiff, g_positionThreshold );

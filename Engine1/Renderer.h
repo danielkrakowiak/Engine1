@@ -18,6 +18,7 @@
 #include "ShadowMapRenderer.h"
 #include "MipmapRenderer.h"
 #include "DistanceToOccluderSearchRenderer.h"
+#include "BlurShadowPatternRenderer.h"
 #include "BlurShadowsRenderer.h"
 #include "CombineShadowLayersRenderer.h"
 #include "UtilityRenderer.h"
@@ -71,6 +72,9 @@ namespace Engine1
             HardShadow,
             MediumShadow,
             SoftShadow,
+            SmoothedPatternHardShadows,
+            SmoothedPatternMediumShadows,
+            SmoothedPatternSoftShadows,
             BlurredHardShadows,
             BlurredMediumShadows,
             BlurredSoftShadows,
@@ -285,6 +289,7 @@ namespace Engine1
 		ShadowMapRenderer                   m_shadowMapRenderer;
         MipmapRenderer                      m_mipmapRenderer;
         DistanceToOccluderSearchRenderer    m_distanceToOccluderSearchRenderer;
+        BlurShadowPatternRenderer           m_blurShadowPatternRenderer;
         BlurShadowsRenderer                 m_blurShadowsRenderer;
         CombineShadowLayersRenderer         m_combineShadowLayersRenderer;
         UtilityRenderer                     m_utilityRenderer;

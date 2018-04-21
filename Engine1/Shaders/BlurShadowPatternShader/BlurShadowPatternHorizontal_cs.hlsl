@@ -25,8 +25,6 @@ cbuffer ConstantBuffer : register( b0 )
     float  pad9;
     float  g_normalSampleMipmapLevel;
     float  pad10;
-    float  g_blurRadiusMultiplier;
-    float3 pad11;
 };
 
 //#define DEBUG
@@ -91,7 +89,7 @@ void main( uint3 groupId : SV_GroupID,
     const float maxBlurRadiusWorldSpace = 1.0f; 
     const float distLightToOccluder     = distToLight - distToOccluder;
     
-    const float blurRadiusInWorldSpace = min( maxBlurRadiusWorldSpace, g_blurRadiusMultiplier * g_lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    const float blurRadiusInWorldSpace = min( maxBlurRadiusWorldSpace, g_lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
 
     // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
     // to decrease search radius when looking at walls/floors at flat angle.

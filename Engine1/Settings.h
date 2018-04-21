@@ -118,6 +118,9 @@ namespace Engine1
                 int distToOccluderPositionSampleMipmapLevel;
                 int distToOccluderNormalSampleMipmapLevel;
 
+                int blurShadowPatternPositionSampleMipmapLevel;
+                int blurShadowPatternNormalSampleMipmapLevel;
+
                 int blurShadowsPositionSampleMipmapLevel;
                 int blurShadowsNormalSampleMipmapLevel;
 
@@ -149,6 +152,18 @@ namespace Engine1
             struct Shadows
             {
                 bool enabled;
+
+                // If enabled, rays at different pixels aim at different parts of area light.
+                // Averaging values from neighboring pixels gives correct shadow value.
+                // It makes shadow edges smooth, and fixes a lot of artifacts for large area lights.
+                // If shadow averaging from neighbor pixels is done well, this gives huge quality improvements.
+                bool enableAlteringRayDirection; 
+
+                // When altering shadow ray directions, a pattern of bright and dark pixels appears in shadow texture.
+                // This enables a pass which blurs this pattern into a smooth image.
+                bool enableBlurShadowPattern;
+
+                bool useSeparableShadowPatternBlur;
 
                 // Debug option to enable/disable blurring shadows in two passes - horizontal and vertical.
                 // It reduces blurring complexity from n^2 to 2n, where n is blurring kernel size.
@@ -213,7 +228,7 @@ namespace Engine1
                     
                 } distanceToOccluderSearch;
 
-                struct Blur
+                struct BlurPattern
                 {
                     struct Setup
                     {
@@ -228,6 +243,29 @@ namespace Engine1
                     Setup hardShadows;
                     Setup mediumShadows;
                     Setup softShadows;
+                } blurPattern;
+
+                struct Blur
+                {
+                    // Can be used to reduce overall amount of blur applied to shadows.
+                    // Added, because shadows generated using altered ray directions probably need less blur 
+                    // than hard-edged shadows without altered ray directions.
+                    // For hard edges shadows - value of 1 is default.
+                    float radiusMultiplier;
+
+                    struct SetupBlur
+                    {
+                        // Thresholds and multipliers deciding how shadow samples are weighted.
+                        // Sample weight depends on how much a sample differs (in terms of pos/normal) from the central sample (in blur kernel).
+                        // Increasing a multiplier increases significance of position or normal difference - samples are more strongly "rejected" based on that criteria.
+                        // Increasing threshold increases "acceptance" level of error between center sample and neighbors.
+                        float positionThreshold;
+                        float normalThreshold;
+                    };
+
+                    SetupBlur hardShadows;
+                    SetupBlur mediumShadows;
+                    SetupBlur softShadows;
                 } blur;
             } shadows;
 

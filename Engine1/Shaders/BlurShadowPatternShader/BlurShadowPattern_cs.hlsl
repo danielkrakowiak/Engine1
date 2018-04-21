@@ -25,8 +25,6 @@ cbuffer ConstantBuffer : register( b0 )
     float  pad9;
     float  g_normalSampleMipmapLevel;
     float  pad10;
-    float  g_blurRadiusMultiplier;
-    float3 pad11;
 };
 
 //#define DEBUG
@@ -72,7 +70,7 @@ void main( uint3 groupId : SV_GroupID,
     const float3 surfaceNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz; 
 
     const float3 vectorToCamera = g_cameraPos - surfacePosition;
-    const float3 dirToCamera    = normalize( vectorToCamera );
+    //const float3 dirToCamera    = normalize( vectorToCamera );
     const float  distToCamera   = length( vectorToCamera );
 
     const float3 vectorToLight  = g_lightPosition.xyz - surfacePosition;
@@ -91,45 +89,47 @@ void main( uint3 groupId : SV_GroupID,
     const float maxBlurRadiusWorldSpace = 1.0f; 
     const float distLightToOccluder     = distToLight - distToOccluder;
     
-    const float blurRadiusInWorldSpace = min( maxBlurRadiusWorldSpace, g_blurRadiusMultiplier * g_lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
+    const float blurRadiusInWorldSpace = min( maxBlurRadiusWorldSpace, g_lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
 
     // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
     // to decrease search radius when looking at walls/floors at flat angle.
-    const float samplingRadiusMul = saturate( abs( dot( surfaceNormal, dirToCamera ) ) );
+    //const float samplingRadiusMul = saturate( abs( dot( surfaceNormal, dirToCamera ) ) );
 
     const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
-    const float samplingRadius          = blurRadiusInScreenSpace * samplingRadiusMul;
+
+    // Decrease blur for smaller dist-to-occluder pixels or when pixel is lit.
+    // #TODO: Or could use blur-in-screen-space here.
+    const float samplingRadius = min( 8.0, blurRadiusInScreenSpace ) * getSampleWeightLowerThan( distToOccluder, 750.0 );//blurRadiusInScreenSpace * samplingRadiusMul;
     //float samplingMipmapLevel = log2( blurRadius / 2.0f );
 
     float surfaceShadow = 0.0f;
     float sampleCount   = 0.000001f; // Note: Small value to avoid division by zero.
 
-    const float samplingStep = max(1.0, samplingRadius / sampleCountPerSide);
-
-    const float y = 0.0f;
-
-    for ( float x = -samplingRadius; x <= samplingRadius; x += samplingStep ) 
+    for ( float y = -samplingRadius; y <= samplingRadius; y += 1.0) 
     {
-        const float2 texCoordShift = float2( pixelSize0.x * x, pixelSize0.y * y );
+        for ( float x = -samplingRadius; x <= samplingRadius; x += 1.0 ) 
+        {
+            const float2 texCoordShift = float2( x, y ) * pixelSize0;
+            //#TODO: Sampel out of screen samples.
+            // #TODO: Why tex.Load() fails here? Sample is more expensive and is not required here.
+            const float sampleShadow = g_shadowTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0 );
+            //const float sampleShadow3 = g_shadowTexture[ dispatchThreadId.xy + 2 ];///*+ uint2( 1, 1 )*/, 0) );
+            //const float sampleShadow4 = g_shadowTexture.Load( uint3(dispatchThreadId.xy /*+ uint2( 0, 1 )*/, 0) );
+           
+            const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_positionSampleMipmapLevel ).xyz; 
+            const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_normalSampleMipmapLevel ).xyz; 
 
-        //#TODO: When we sample outside of light cone - the sample should be black.
+            const float  positionDiff   = length( samplePosition - surfacePosition );
+            const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
 
-        //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
-        const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
-                
-        const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_positionSampleMipmapLevel ).xyz; 
-        const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_normalSampleMipmapLevel ).xyz; 
+            const float sampleWeight1 = getSampleWeightSimilarSmooth( positionDiff, g_positionThreshold );
+            const float sampleWeight2 = getSampleWeightSimilarSmooth( normalDiff, g_normalThreshold );
 
-        const float  positionDiff   = length( samplePosition - surfacePosition );
-        const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
+            float sampleWeight = sampleWeight1 * sampleWeight2;
 
-        const float sampleWeight1 = getSampleWeightSimilarSmooth( positionDiff, g_positionThreshold );
-        const float sampleWeight2 = getSampleWeightSimilarSmooth( normalDiff, g_normalThreshold );
-
-        float sampleWeight = sampleWeight1 * sampleWeight2;
-
-        surfaceShadow += sampleShadow * sampleWeight;
-        sampleCount   += sampleWeight;
+            surfaceShadow += (sampleShadow * sampleWeight);
+            sampleCount   += sampleWeight;
+        }
     }
 
     surfaceShadow /= sampleCount;

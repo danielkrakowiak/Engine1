@@ -522,6 +522,9 @@ Idea:
         - additional rays could be traced only where a shodow was found - ignoring non-shadowed parts of the screen (if doable)
         - could work!
 
+        - add intense blur, after dist-to-occluder was calculated - and blur shadow values (radius up to a few pixels) before the final shadow blur is run.
+          To fill gaps between pixels and avoid patterns in shadow texture.
+
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       /////////  PHYSICS  ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -576,6 +579,18 @@ Idea:
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////// PERFORMANCE NOTES /////////////////////////////////////////////////////////////////////////////////
 
+        - add two pass version of pattern-blur shaders - submit!
+
+        - new shadow pattern should be more dense when further from camera - 6 pixels cover larger part of screen and tearing of shadow is visible.
+          The further a pixel is, the smaller the pattern area should be.
+
+        - add position/normal based sample rejection in shadow-pattern-blur shader. To avoid glow around objects.
+        - add two pass shadow-pattern-blur shader.
+
+        - extend range of shadow layer mixing.
+
+        - IMPORTANT: Improve common shader functions for sample weighting - they use ifs instead of multiplication etc- this could have big perf impact!!!
+
         - the biggest cost is dist-to-occluder search. It's because it happens so often, for each light and for each layer.
         - it takes around 1 ms (for 3 shadow layers), but the cost doesn't come from sampling dist-to-occluder values (float or half)
         - it comes from sampling position/normal textures (0.85 ms)
@@ -585,6 +600,7 @@ Idea:
 
         - combining reflection layer takes 4 ms while combining transmission layer only 0.05 ms - why? Even when most screen is covered by glass.
 
+        - it costs a lot to calculate blur-radius-in-screen-space for shadows in many shaders - and they all need to read position texture - maybe I should just generate blur-radius-in-screen-space texture once and then read it.
 	  -----------------------------
 
 	  - MINOR: Center texcoord doesn't really point to pixel center on input texture. It points to center in output texture. This can cause problems.

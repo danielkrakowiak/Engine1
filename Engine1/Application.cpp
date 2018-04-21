@@ -473,11 +473,7 @@ void Application::run()
 
             ss << "Active view type: " + Renderer::viewToString( m_renderer.getActiveViewType() );
 
-            ss << "\n\nUse separable shadow blur: " << ( settings().rendering.shadows.useSeparableShadowBlur ? "enabled" : "disabled" );
-
             ss << "\n\n";
-
-            ss << "Exposure: " << m_renderer.getExposure();
 
             if ( settings().debug.renderText )
             {

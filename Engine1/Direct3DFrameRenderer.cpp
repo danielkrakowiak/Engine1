@@ -143,6 +143,36 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
         /////////////////////////////////////////////////////////////
     }
 
+    { // Configure debug layer.
+        ID3D11Debug *d3dDebug = nullptr;
+        if( SUCCEEDED( m_device->QueryInterface( __uuidof(ID3D11Debug), (void**)&d3dDebug ) ) )
+        {
+            ID3D11InfoQueue *d3dInfoQueue = nullptr;
+            if( SUCCEEDED( d3dDebug->QueryInterface( __uuidof(ID3D11InfoQueue), (void**)&d3dInfoQueue ) ) )
+            {
+                #ifdef _DEBUG
+                d3dInfoQueue->SetBreakOnSeverity( D3D11_MESSAGE_SEVERITY_CORRUPTION, true );
+                d3dInfoQueue->SetBreakOnSeverity( D3D11_MESSAGE_SEVERITY_ERROR, true );
+                #endif
+ 
+                D3D11_MESSAGE_ID ignoredMessages [] =
+                {
+                    // Ignore warnings related to debug naming objects - such as duplicated names.
+                    D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS, 
+                    // Ignore warnings related to events (used in Profiler) - such as not calling GetData() before calling End().
+                    D3D11_MESSAGE_ID_QUERY_END_ABANDONING_PREVIOUS_RESULTS
+                };
+ 
+                D3D11_INFO_QUEUE_FILTER filter;
+                memset( &filter, 0, sizeof(filter) );
+                filter.DenyList.NumIDs = _countof(ignoredMessages);
+                filter.DenyList.pIDList = ignoredMessages;
+                d3dInfoQueue->AddStorageFilterEntries( &filter );
+                d3dInfoQueue->Release();
+            }
+        }
+    }
+
 	m_swapChain = createSwapChain( 
         *factory.Get(), *m_device.Get(), 
         windowHandle, fullscreen, verticalSync, 
