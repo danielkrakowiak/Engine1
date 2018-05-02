@@ -508,3 +508,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 05.04.2018 - 4h - Testing approach with altering shadow ray directions - neighbor pixels aim at different positions on area light - got great results - but pattenrs in shadow texture need to be averaged (blurred).
 09.04.2018 - 5h - Added BlurShadowPatternRenderer to blur 6x6 patches of pixels when using "shadow ray direction altering" option. Testing shadow behavior on various scenes.
 10.04.2018 - 3h - Added rejecting samples in pattern-blur shader based on position/normal (to avoid halos around lit objects). Added global shadow blur-radius multiplier to experiment with needed blur amount when altering shadow ray directions.
+
+03.05.2018 - 4h - Fixed many bugs in blur-shadow-pattern shaders - differences between similar shaders, wrong values, mistakes in constant buffer structure etc. Added option to sample higher level raw-shadow-texture and weighting samples based on expected position diff. Can't really sample higher level mipmaps as it causes shadow leaks - can only be used in soft shadow regions - such selection is not done yet.

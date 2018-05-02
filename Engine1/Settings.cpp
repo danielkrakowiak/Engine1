@@ -107,6 +107,8 @@ void Settings::initializeInternal()
     s_settings.rendering.optimization.useHalfFloatsForHitDistance                = false;
     s_settings.rendering.optimization.distToOccluderPositionSampleMipmapLevel    = 1;
     s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel      = 1;
+
+    s_settings.rendering.optimization.blurShadowPatternShadowSampleMipmapLevel   = 0;
     s_settings.rendering.optimization.blurShadowPatternPositionSampleMipmapLevel = 0;
     s_settings.rendering.optimization.blurShadowPatternNormalSampleMipmapLevel   = 0;
     s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel       = 0;

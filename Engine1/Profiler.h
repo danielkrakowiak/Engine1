@@ -52,6 +52,7 @@ namespace Engine1
             MipmapGenerationForDistanceToOccluder,
             DistanceToOccluderSearch,
             BlurShadowPattern,
+            MipmapGenerationForSmoothedShadowPattern,
             BlurShadows,
             CombineShadowLayers,
             Shadows,

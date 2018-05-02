@@ -58,6 +58,7 @@ std::string Profiler::eventTypeToString( const EventTypePerStagePerLight eventTy
         case EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder:              return "MipmapGenerationForDistanceToOccluder" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::DistanceToOccluderSearch:                           return "DistanceToOccluderSearch" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::BlurShadowPattern:                                  return "BlurShadowPattern" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
+        case EventTypePerStagePerLight::MipmapGenerationForSmoothedShadowPattern:           return "MipmapGenerationForSmoothedShadowPattern" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::BlurShadows:                                        return "BlurShadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::CombineShadowLayers:                                return "CombineShadowLayers" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );
         case EventTypePerStagePerLight::Shadows:                                            return "Shadows" + std::string( lightIdx >= 0 ? " Light" + std::to_string( lightIdx ) : "" );

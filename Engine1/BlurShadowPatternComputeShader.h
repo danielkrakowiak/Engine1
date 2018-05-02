@@ -66,9 +66,11 @@ namespace Engine1
             float  normalThreshold;
             float3 pad8;
             float  positionSampleMipmapLevel; // Can be used to improve performance by sampling higher level mipmaps.
-            float  pad9;
+            float3 pad9;
             float  normalSampleMipmapLevel;
-            float  pad10;
+            float3 pad10;
+            float  shadowSampleMipmapLevel; // Can be used to improve performance by sampling higher level mipmaps.
+            float3 pad11;
         };
 
         // Copying is not allowed.

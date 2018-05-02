@@ -1875,5 +1875,8 @@
     <FxCompile Include="Shaders\BlurShadowPatternShader\BlurShadowPatternVertical_cs.hlsl">
       <Filter>Source Files\Shader\BlurShadowPattern</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\BlurShadowPatternShader\BlurShadowPatternCommon_cs.hlsl">
+      <Filter>Source Files\Shader\BlurShadowPattern</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

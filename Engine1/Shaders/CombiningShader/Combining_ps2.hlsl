@@ -162,6 +162,8 @@ float4 main(PixelInputType input) : SV_Target
             const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
             const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, sampleTexcoords, 0.0f ).xyz; 
 
+            //#TODO: Not using expected position diff here? Why? It probably should be used - same as in combining_ps.hlsl.
+
             const float  positionDiff       = length( samplePosition - centerPosition );
             const float  normalDiff         = 1.0f - max( 0.0, dot( sampleNormal, centerNormal ) );  
             const float  samplesPosNormDiff = positionDiffMul * positionDiff + normalDiffMul * normalDiff;

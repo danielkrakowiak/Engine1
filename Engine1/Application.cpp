@@ -316,7 +316,7 @@ void Application::run()
                 );
 
 		        m_frameRenderer.renderTexture( 
-                    *ucharDisplayFrame, 0.0f, 0.0f, 
+                    *output.ucharImage, 0.0f, 0.0f, 
                     (float)settings().main.screenDimensions.x, 
                     (float)settings().main.screenDimensions.y, 
                     false, 

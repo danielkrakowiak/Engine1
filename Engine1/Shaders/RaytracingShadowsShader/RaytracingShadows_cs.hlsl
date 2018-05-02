@@ -102,23 +102,28 @@ void main( uint3 groupId : SV_GroupID,
 	const float3 rayOrigin                = g_rayOrigins.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz;
 	const float3 rayDirTowardsLightCenter = normalize( lightCenterPosition - rayOrigin );
 
-    const float3 worldUpDir      = float3(0.0, 1.0, 0.0);
-    const float3 lightForwardDir = -rayDirTowardsLightCenter;
-    const float3 lightSideDir    = cross( lightForwardDir, worldUpDir );
-    const float3 lightUpDir      = cross( lightSideDir, lightForwardDir );
-
     float3 lightPosition = lightCenterPosition;
 
     if (enableAlteringRayDirection > 0.5)
     {
+        const float3 surfaceToCameraDist = length(rayOrigin - cameraPos);
+
+        const float3 worldUpDir      = float3(0.0, 1.0, 0.0);
+        const float3 lightForwardDir = -rayDirTowardsLightCenter;
+        const float3 lightSideDir    = cross( lightForwardDir, worldUpDir );
+        const float3 lightUpDir      = cross( lightSideDir, lightForwardDir );
+
         const float threadHorzSeed = (float)dispatchThreadId.x + (float)dispatchThreadId.y * 0.5;
         const float threadVertSeed = (float)dispatchThreadId.x * 0.5 + (float)dispatchThreadId.y;
 
+        const float surfaceToCameraDistForMinAltering = 50.0f;
+        const float alteringStrength = 1.0 - clamp(surfaceToCameraDist / surfaceToCameraDistForMinAltering, 0.0, 1.0);
+
         // Note: More samples are better, because the transition between full shadow and full light is smoother,
-        // but larger sample count means that shadow fluctuations appear over larger distances - making the pattern more visible.
+        // but larger sample count means that shadow fluctuations appear over larger screen-space distances - making the pattern more visible.
         // TODO: Would be best to adjust sample count based on dist-to-occluder - larger when expecting a thick shadow edge?
         const float seedMult                 = 12.0; // Useful, when taking many light samples, to avoid regular shadow patterns.
-        const float lightSideSampleCount     = 40.0;
+        const float lightSideSampleCount     = 40.0;//lerp(2.0, 40.0, alteringStrength);
         const float lightSideSampleCountHalf = lightSideSampleCount * 0.5;
 
         const float  lightPosSideOffsetRatio = (fmod(threadHorzSeed * seedMult, lightSideSampleCount) - lightSideSampleCountHalf) / lightSideSampleCountHalf;

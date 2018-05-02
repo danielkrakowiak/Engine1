@@ -482,6 +482,7 @@ Idea:
        - sample-count-per-size in blur-shadow-shaders should not be fixed - it should be different for each layer, probably depending on radius etc.
        - blur-shadow stage should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows. 
          Or maybe not, as it may cause light halos around foreground objects with shadow in the background. Need to be checked.
+         It can probably work, but we should sample higher mipmap levels only for soft shadows - not to blur/alias hard shadow details.
          
        - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
          And what would result from doing two smaller passer (half radius etc) rather than one big?
@@ -524,6 +525,17 @@ Idea:
 
         - add intense blur, after dist-to-occluder was calculated - and blur shadow values (radius up to a few pixels) before the final shadow blur is run.
           To fill gaps between pixels and avoid patterns in shadow texture.
+
+          - when blurring shadow pattern - it is proably important to do it in 2D (one pass) rather than 1D in two passes. 
+            It's because it's very important to get correct average and avoid secondary pattern in blurred image.
+            How to do it quickly, while avoiding shadow leaks through the egdes?
+
+            Generate mipmaps for shadow pattern image. 
+            Then, when smoothing pattern, sample 2nd or 3rd mipmap and sample only a couple of samples with positon/normal filtering.
+            But be careful, sample higher mipmaps only when shadow is soft - otherwise, hard shadow details will get blurred and aliased.
+
+            Be careful about position/normal thresholds - they are too restrictive right now and cause reducing of blur - making pattern visible even after smoothing.
+            Commenting them out improves smoothing greatly, but causes shadow leaking - so there cleary is a good value/solution.
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       /////////  PHYSICS  ///////////////////////////////////////////////////////////////////////////////////////

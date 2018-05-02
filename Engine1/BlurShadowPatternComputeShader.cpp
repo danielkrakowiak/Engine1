@@ -127,6 +127,7 @@ void BlurShadowPatternComputeShader::setParameters(
 
         dataPtr->positionSampleMipmapLevel = (float)settings().rendering.optimization.blurShadowPatternPositionSampleMipmapLevel;
         dataPtr->normalSampleMipmapLevel   = (float)settings().rendering.optimization.blurShadowPatternNormalSampleMipmapLevel;
+        dataPtr->shadowSampleMipmapLevel   = (float)settings().rendering.optimization.blurShadowPatternShadowSampleMipmapLevel;
         
         if ( light.getType() == Light::Type::SpotLight )
         {

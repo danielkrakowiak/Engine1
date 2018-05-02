@@ -1,49 +1,4 @@
-#pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
-
-#include "Common\Constants.hlsl"
-#include "Common\SampleWeighting.hlsl"
-
-cbuffer ConstantBuffer : register( b0 )
-{
-    float3 g_cameraPos;
-    float  pad1;
-    float3 g_lightPosition;
-    float  pad2;
-    float  g_lightConeMinDot;
-    float3 pad3;
-    float3 g_lightDirection;
-    float  pad4;
-    float  g_lightEmitterRadius;
-    float3 pad5;
-    float2 g_outputTextureSize;
-    float2 pad6;
-    float  g_positionThreshold;
-    float3 pad7;
-    float  g_normalThreshold;
-    float3 pad8;
-    float  g_positionSampleMipmapLevel; // Can be used to improve performance by sampling higher level mipmaps.
-    float  pad9;
-    float  g_normalSampleMipmapLevel;
-    float  pad10;
-};
-
-//#define DEBUG
-//#define DEBUG2
-
-SamplerState g_linearSamplerState;
-SamplerState g_pointSamplerState;
-
-// Input.
-Texture2D<float4> g_positionTexture            : register( t0 );
-Texture2D<float4> g_normalTexture              : register( t1 ); 
-Texture2D<float>  g_shadowTexture              : register( t2 ); 
-Texture2D<float>  g_distToOccluderTexture      : register( t3 );
-Texture2D<float>  g_finalDistToOccluderTexture : register( t4 );
-
-// Input / Output.
-RWTexture2D<uint> g_blurredShadowTexture : register( u0 );
-
-static const float sampleCountPerSide = 20.0;
+#include "BlurShadowPatternCommon_cs.hlsl"
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -91,16 +46,17 @@ void main( uint3 groupId : SV_GroupID,
     
     const float blurRadiusInWorldSpace = min( maxBlurRadiusWorldSpace, g_lightEmitterRadius * ( distToOccluder / distLightToOccluder ) );
 
-    // Scale search-radius by abs( dot( surface-normal, camera-dir ) ) - 
-    // to decrease search radius when looking at walls/floors at flat angle.
-    //const float samplingRadiusMul = saturate( abs( dot( surfaceNormal, dirToCamera ) ) );
-
     const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
 
     // Decrease blur for smaller dist-to-occluder pixels or when pixel is lit.
     // #TODO: Or could use blur-in-screen-space here.
-    const float samplingRadius = min( 8.0, blurRadiusInScreenSpace ) * getSampleWeightLowerThan( distToOccluder, 750.0 );//blurRadiusInScreenSpace * samplingRadiusMul;
-    //float samplingMipmapLevel = log2( blurRadius / 2.0f );
+
+    // #TODO: pixelSizeMul should depend on blurRadiusInScreenSpace - so only soft shadow samples higher shadow mipmaps.
+    // Otherwise hard shadow will get blurred and aliased (as it is now).
+    const float  pixelSizeMul = pow(2.0, g_shadowSampleMipmapLevel);
+    const float2 pixelSize    = pixelSize0 * pixelSizeMul;
+
+    const float samplingRadius = max(1.0, min( samplingRadiusBase, blurRadiusInScreenSpace ) * getSampleWeightLowerThan( distToOccluder, 750.0 ) / pixelSizeMul);
 
     float surfaceShadow = 0.0f;
     float sampleCount   = 0.000001f; // Note: Small value to avoid division by zero.
@@ -109,20 +65,28 @@ void main( uint3 groupId : SV_GroupID,
     {
         for ( float x = -samplingRadius; x <= samplingRadius; x += 1.0 ) 
         {
-            const float2 texCoordShift = float2( x, y ) * pixelSize0;
-            //#TODO: Sampel out of screen samples.
+            const float2 texCoordShift = float2( x, y ) * pixelSize;
+
+            //#TODO: Discard out-of-screen samples.
+
             // #TODO: Why tex.Load() fails here? Sample is more expensive and is not required here.
-            const float sampleShadow = g_shadowTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, 0.0 );
-            //const float sampleShadow3 = g_shadowTexture[ dispatchThreadId.xy + 2 ];///*+ uint2( 1, 1 )*/, 0) );
-            //const float sampleShadow4 = g_shadowTexture.Load( uint3(dispatchThreadId.xy /*+ uint2( 0, 1 )*/, 0) );
+            const float sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, g_shadowSampleMipmapLevel );
            
-            const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_positionSampleMipmapLevel ).xyz; 
-            const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_normalSampleMipmapLevel ).xyz; 
+            const float3 samplePosition = g_positionTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, g_positionSampleMipmapLevel ).xyz; 
+            const float3 sampleNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, g_normalSampleMipmapLevel ).xyz; 
 
-            const float  positionDiff   = length( samplePosition - surfacePosition );
-            const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
+            // Calculate expected distance in world space between sample and center 
+            // assuming they are on flat surface facing the camera.
+            const float distanceInPixelsSqr  = x*x + y*y;
+            const float distanceInPixels     = sqrt(distanceInPixelsSqr);
+            const float expectedPositionDiff = distanceInPixels * pixelSizeInWorldSpace;
 
-            const float sampleWeight1 = getSampleWeightSimilarSmooth( positionDiff, g_positionThreshold );
+            const float positionDiff           = length( samplePosition - surfacePosition );
+            const float positionDiffErrorRatio = max( 0.0, positionDiff - expectedPositionDiff) / expectedPositionDiff;
+            const float normalDiff             = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
+
+            //#TODO: g_positionThreshold is unused. Should I use getSampleWeightSimilarSmooth for positionDiffErrorRatio?
+            const float sampleWeight1 = lerp( 1.0, 0.0, saturate( positionDiffErrorRatio ) ); 
             const float sampleWeight2 = getSampleWeightSimilarSmooth( normalDiff, g_normalThreshold );
 
             float sampleWeight = sampleWeight1 * sampleWeight2;

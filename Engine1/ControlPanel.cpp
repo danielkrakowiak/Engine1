@@ -176,6 +176,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_optimizationBar, "Use half dist-to-occluder", TW_TYPE_BOOL8, &Settings::s_settings.rendering.optimization.useHalfFLoatsForDistanceToOccluder, "" );
     TwAddVarRW( m_optimizationBar, "Dist-to-occluder position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.distToOccluderPositionSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Dist-to-occluder normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.distToOccluderNormalSampleMipmapLevel, "min=0 max=4" );
+    TwAddVarRW( m_optimizationBar, "Blur shadow pattern shadow sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowPatternShadowSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Blur shadow pattern position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowPatternPositionSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Blur shadow pattern normal sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowPatternNormalSampleMipmapLevel, "min=0 max=4" );
     TwAddVarRW( m_optimizationBar, "Blur shadows position sampled mipmap level", TW_TYPE_INT32, &Settings::s_settings.rendering.optimization.blurShadowsPositionSampleMipmapLevel, "min=0 max=4" );

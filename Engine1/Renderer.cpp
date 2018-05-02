@@ -742,6 +742,13 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
 
         m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadowPattern );
+        m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForSmoothedShadowPattern );
+
+        smoothedPatternHardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        smoothedPatternMediumShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        smoothedPatternSoftShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+
+        m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForSmoothedShadowPattern );
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
 
         auto blurredHardShadowRenderTarget   = m_renderTargetManager.getRenderTarget< unsigned char >( m_imageDimensions, false, "blurredHardShadow" );

@@ -118,6 +118,7 @@ namespace Engine1
                 int distToOccluderPositionSampleMipmapLevel;
                 int distToOccluderNormalSampleMipmapLevel;
 
+                int blurShadowPatternShadowSampleMipmapLevel;
                 int blurShadowPatternPositionSampleMipmapLevel;
                 int blurShadowPatternNormalSampleMipmapLevel;
 

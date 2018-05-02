@@ -1,49 +1,4 @@
-#pragma pack_matrix(column_major) //informs only about the memory layout of input matrices
-
-#include "Common\Constants.hlsl"
-#include "Common\SampleWeighting.hlsl"
-
-cbuffer ConstantBuffer : register( b0 )
-{
-    float3 g_cameraPos;
-    float  pad1;
-    float3 g_lightPosition;
-    float  pad2;
-    float  g_lightConeMinDot;
-    float3 pad3;
-    float3 g_lightDirection;
-    float  pad4;
-    float  g_lightEmitterRadius;
-    float3 pad5;
-    float2 g_outputTextureSize;
-    float2 pad6;
-    float  g_positionThreshold;
-    float3 pad7;
-    float  g_normalThreshold;
-    float3 pad8;
-    float  g_positionSampleMipmapLevel; // Can be used to improve performance by sampling higher level mipmaps.
-    float  pad9;
-    float  g_normalSampleMipmapLevel;
-    float  pad10;
-};
-
-//#define DEBUG
-//#define DEBUG2
-
-SamplerState g_linearSamplerState;
-SamplerState g_pointSamplerState;
-
-// Input.
-Texture2D<float4> g_positionTexture            : register( t0 );
-Texture2D<float4> g_normalTexture              : register( t1 ); 
-Texture2D<float>  g_shadowTexture              : register( t2 ); 
-Texture2D<float>  g_distToOccluderTexture      : register( t3 );
-Texture2D<float>  g_finalDistToOccluderTexture : register( t4 );
-
-// Input / Output.
-RWTexture2D<uint> g_blurredShadowTexture : register( u0 );
-
-static const float sampleCountPerSide = 20.0;
+#include "BlurShadowPatternCommon_cs.hlsl"
 
 // SV_GroupID - group id in the whole computation.
 // SV_GroupThreadID - thread id within its group.
@@ -65,7 +20,7 @@ void main( uint3 groupId : SV_GroupID,
     const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / g_outputTextureSize;
 
     const float2 pixelSize0 = 1.0f / g_outputTextureSize;
-
+    
     const float3 surfacePosition = g_positionTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz; 
     const float3 surfaceNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, texcoords, 0.0f ).xyz; 
 
@@ -96,34 +51,47 @@ void main( uint3 groupId : SV_GroupID,
     const float samplingRadiusMul = saturate( abs( dot( surfaceNormal, dirToCamera ) ) );
 
     const float blurRadiusInScreenSpace = blurRadiusInWorldSpace / pixelSizeInWorldSpace;/// log2( distToCamera + 1.0f );
-    const float samplingRadius          = blurRadiusInScreenSpace * samplingRadiusMul;
-    //float samplingMipmapLevel = log2( blurRadius / 2.0f );
+
+    // #TODO: pixelSizeMul should depend on blurRadiusInScreenSpace - so only soft shadow samples higher shadow mipmaps.
+    // Otherwise hard shadow will get blurred and aliased (as it is now).
+    const float  pixelSizeMul = pow(2.0, g_shadowSampleMipmapLevel);
+    const float2 pixelSize    = pixelSize0 * pixelSizeMul;
+
+    const float samplingRadius          = max(1.0, min( samplingRadiusBase, blurRadiusInScreenSpace)  * getSampleWeightLowerThan( distToOccluder, 750.0 ) / pixelSizeMul);
 
     float surfaceShadow = 0.0f;
 
     float sampleCount = 0.000001f; // Note: Small value to avoid division by zero.
 
-    const float samplingStep = max(1.0, samplingRadius / sampleCountPerSide);
-
     const float x = 0.0f;
 
-    for ( float y = -samplingRadius; y <= samplingRadius; y += samplingStep) 
+    for ( float y = -samplingRadius; y <= samplingRadius; y += 1.0) 
     {
-        const float2 texCoordShift = float2( pixelSize0.x * x, pixelSize0.y * y );
+        const float2 texCoordShift = float2( x, y ) * pixelSize;
 
         //#TODO: When we sample outside of light cone - the sample should be black.
 
+        //#TODO: Discard out-of-screen samples.
+
         //#TODO: Sampling could be optimized by sampling higher level mipmap. But be carefull, because such samples are blurred by themselves and can cause shadow leaking etc.
-        const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, 0.0f );
+        const float  sampleShadow = g_shadowTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, g_shadowSampleMipmapLevel );
             
         //#TODO: Should I sample position (bilinear) at the same level as illumination? At the same level so it could contain the same amount of influence from sorounding pixels.
-        const float3 samplePosition = g_positionTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_positionSampleMipmapLevel ).xyz; 
-        const float3 sampleNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, texcoords + texCoordShift, g_normalSampleMipmapLevel ).xyz; 
+        const float3 samplePosition = g_positionTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, g_positionSampleMipmapLevel ).xyz; 
+        const float3 sampleNormal   = g_normalTexture.SampleLevel( g_linearSamplerState, texcoords + texCoordShift, g_normalSampleMipmapLevel ).xyz; 
 
-        const float positionDiff    = length( samplePosition - surfacePosition );
-        const float  normalDiff     = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
+        // Calculate expected distance in world space between sample and center 
+        // assuming they are on flat surface facing the camera.
+        const float distanceInPixelsSqr  = x*x + y*y;
+        const float distanceInPixels     = sqrt(distanceInPixelsSqr);
+        const float expectedPositionDiff = distanceInPixels * pixelSizeInWorldSpace;
 
-        const float sampleWeight1 = getSampleWeightSimilarSmooth( positionDiff, g_positionThreshold );
+        const float positionDiff           = length( samplePosition - surfacePosition );
+        const float positionDiffErrorRatio = max( 0.0, positionDiff - expectedPositionDiff) / expectedPositionDiff;
+        const float normalDiff             = 1.0 - max( 0.0, dot( sampleNormal, surfaceNormal ));
+
+        //#TODO: g_positionThreshold is unused. Should I use getSampleWeightSimilarSmooth for positionDiffErrorRatio?
+        const float sampleWeight1 = lerp( 1.0, 0.0, saturate( positionDiffErrorRatio ) ); 
         const float sampleWeight2 = getSampleWeightSimilarSmooth( normalDiff, g_normalThreshold );
 
         float sampleWeight = sampleWeight1 * sampleWeight2;
