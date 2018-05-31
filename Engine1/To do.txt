@@ -486,7 +486,6 @@ Idea:
          
        - can we split dist-to-occluder-search into horizontal and vertical pass? HOw many samples that would save?
          And what would result from doing two smaller passer (half radius etc) rather than one big?
-         Performance seems to be fine for now - ignore.
        - raytracing shadows can be done at half resolution (or much less for reflections). And then sampled with interpolation.
        - OPTIMIZATION: I probably don't need float for illumination-blur-radius. A half should be enough? We also don't care about fractional parts...
        - IMPORTANT: Lights should be split into groups, within which lights don't overlap - and only one dist-to-occluder-search and blurring is needed for the whole group.
@@ -590,6 +589,13 @@ Idea:
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////// PERFORMANCE NOTES /////////////////////////////////////////////////////////////////////////////////
+
+        - sample count per side in blur-shadows should be in settings!!!
+        - have I considered doing dist-to-occluder search in two passes?
+
+        - benchmark should first set scene and settings to test, then wait, and only then start benchmarking. Otherwise part of the first moment average is from previous test/settings etc.
+
+        - POTENTIAL BUG: Am I generating mipmaps for smothed shadow texture? Is that the reason for decresed shadow blur and quality?
 
         - add two pass version of pattern-blur shaders - submit!
 

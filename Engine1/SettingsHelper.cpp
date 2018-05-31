@@ -93,13 +93,25 @@ std::string SettingsHelper::compareSettings( const Settings& settings1, const Se
     settings1.rendering.reflectionsRefractions.elongationMul;
     settings1.rendering.reflectionsRefractions.radialBlurEnabled;
 
-    settings1.rendering.hitDistanceSearch.resolutionDivider;
-    settings1.rendering.hitDistanceSearch.decreaseBlurForSmallValues;
-    settings1.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur;
+    text += (settings1.rendering.hitDistanceSearch.resolutionDivider          != settings2.rendering.hitDistanceSearch.resolutionDivider)          ? std::string("rendering.hitDistanceSearch.resolutionDivider = ")          + std::to_string(settings1.rendering.hitDistanceSearch.resolutionDivider) + "\n" : "";
+    text += (settings1.rendering.hitDistanceSearch.decreaseBlurForSmallValues != settings2.rendering.hitDistanceSearch.decreaseBlurForSmallValues) ? std::string("rendering.hitDistanceSearch.decreaseBlurForSmallValues = ") + (settings1.rendering.hitDistanceSearch.decreaseBlurForSmallValues ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur != settings2.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur) ? std::string("rendering.hitDistanceSearch.maxHitDistForDecreasedBlur = ") + std::to_string(settings1.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur) + "\n" : "";
 
     settings1.rendering.combining.positionDiffMul;
     settings1.rendering.combining.normalDiffMul;
     settings1.rendering.combining.positionNormalThreshold;
+
+    text += (settings1.rendering.optimization.useHalfFloatsForRayDirections              != settings2.rendering.optimization.useHalfFloatsForRayDirections )              ? std::string("rendering.optimization.useHalfFloatsForRayDirections = ")               + (settings1.rendering.optimization.useHalfFloatsForRayDirections ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.optimization.useHalfFloatsForNormals                    != settings2.rendering.optimization.useHalfFloatsForNormals)                     ? std::string("rendering.optimization.useHalfFloatsForNormals = ")                     + (settings1.rendering.optimization.useHalfFloatsForNormals ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.optimization.useHalfFLoatsForDistanceToOccluder         != settings2.rendering.optimization.useHalfFLoatsForDistanceToOccluder)          ? std::string("rendering.optimization.useHalfFLoatsForDistanceToOccluder = ")          + (settings1.rendering.optimization.useHalfFLoatsForDistanceToOccluder ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.optimization.useHalfFloatsForHitDistance                != settings2.rendering.optimization.useHalfFloatsForHitDistance)                 ? std::string("rendering.optimization.useHalfFloatsForHitDistance = ")                 + (settings1.rendering.optimization.useHalfFloatsForHitDistance ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.optimization.distToOccluderPositionSampleMipmapLevel    != settings2.rendering.optimization.distToOccluderPositionSampleMipmapLevel)     ? std::string("rendering.optimization.distToOccluderPositionSampleMipmapLevel = ")     + std::to_string(settings1.rendering.optimization.distToOccluderPositionSampleMipmapLevel) + "\n" : "";
+    text += (settings1.rendering.optimization.distToOccluderNormalSampleMipmapLevel      != settings2.rendering.optimization.distToOccluderNormalSampleMipmapLevel)       ? std::string("rendering.optimization.distToOccluderNormalSampleMipmapLevel = ")       + std::to_string(settings1.rendering.optimization.distToOccluderNormalSampleMipmapLevel) + "\n" : "";
+    text += (settings1.rendering.optimization.blurShadowPatternShadowSampleMipmapLevel   != settings2.rendering.optimization.blurShadowPatternShadowSampleMipmapLevel)    ? std::string("rendering.optimization.blurShadowPatternShadowSampleMipmapLevel = ")    + std::to_string(settings1.rendering.optimization.blurShadowPatternShadowSampleMipmapLevel) + "\n" : "";
+    text += (settings1.rendering.optimization.blurShadowPatternPositionSampleMipmapLevel != settings2.rendering.optimization.blurShadowPatternPositionSampleMipmapLevel)  ? std::string("rendering.optimization.blurShadowPatternPositionSampleMipmapLevel = ")  + std::to_string(settings1.rendering.optimization.blurShadowPatternPositionSampleMipmapLevel) + "\n" : "";
+    text += (settings1.rendering.optimization.blurShadowPatternNormalSampleMipmapLevel   != settings2.rendering.optimization.blurShadowPatternNormalSampleMipmapLevel)    ? std::string("rendering.optimization.blurShadowPatternNormalSampleMipmapLevel = ")    + std::to_string(settings1.rendering.optimization.blurShadowPatternNormalSampleMipmapLevel) + "\n" : "";
+    text += (settings1.rendering.optimization.blurShadowsPositionSampleMipmapLevel       != settings2.rendering.optimization.blurShadowsPositionSampleMipmapLevel)        ? std::string("rendering.optimization.blurShadowsPositionSampleMipmapLevel = ")        + std::to_string(settings1.rendering.optimization.blurShadowsPositionSampleMipmapLevel) + "\n" : "";
+    text += (settings1.rendering.optimization.blurShadowsNormalSampleMipmapLevel         != settings2.rendering.optimization.blurShadowsNormalSampleMipmapLevel)          ? std::string("rendering.optimization.blurShadowsNormalSampleMipmapLevel = ")          + std::to_string(settings1.rendering.optimization.blurShadowsNormalSampleMipmapLevel) + "\n" : "";
 
     settings1.physics.fixedStepDuration;
 

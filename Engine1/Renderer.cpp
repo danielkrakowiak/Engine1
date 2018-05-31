@@ -208,6 +208,8 @@ Renderer::Output Renderer::renderScene(
 
     assert( output.float4Image );
 
+    m_profiler.beginEvent( Profiler::GlobalEventType::PostProcess );
+
     // Perform post-effects.
     performBloom( output.float4Image, m_minBrightness );
 
@@ -231,6 +233,8 @@ Renderer::Output Renderer::renderScene(
     {
         finalOutput.uchar4Image = m_temporaryRenderTargetLDR;
     }
+
+    m_profiler.endEvent( Profiler::GlobalEventType::PostProcess );
 
     return finalOutput;
 }
@@ -271,6 +275,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
     const Selection& selection,
     const std::shared_ptr< BlockMesh > selectionVolumeMesh )
 {
+    m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::Total_WO_Combining );
+
     m_layersRenderTargets.emplace_back();
     auto& layerRenderTargets = m_layersRenderTargets.back();
 
@@ -938,6 +944,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
 
     layerRenderTargets.shadedCombined = layerRenderTargets.hitShaded;
 
+    m_profiler.endEvent( RenderingStage::Main, Profiler::EventTypePerStage::Total_WO_Combining );
+
     if ( debugViewStage == RenderingStage::Main )
     {
         Output output = getLayerRenderTarget( debugViewType, 0 );
@@ -1049,6 +1057,8 @@ void Renderer::renderSecondaryLayer(
     const std::vector< std::shared_ptr< Light > >& lightsCastingShadows,
     const std::vector< std::shared_ptr< Light > >& lightsNotCastingShadows )
 {
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::Total_WO_Combining );
+
     const auto renderingStageType                 = getLastRenderingStageType( renderingStage );
     const auto renderingStageLevel                = getRenderingStageLevel( renderingStage );
     const auto renderingStageRefractionLevelCount = getRenderingStageRefractionLevelCount( renderingStage );
@@ -1522,7 +1532,7 @@ void Renderer::renderSecondaryLayer(
     const int colorTextureFillWidth = currLayerRTs.rayOrigin->getWidth();
     const int colorTextureFillHeight = currLayerRTs.rayOrigin->getHeight();
 
-    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::HitDistanceMipmapGeneration );
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForHitDistance );
 
     //#TODO: Fill pixels for which all samples were rejected with max value.
     m_mipmapRenderer.generateMipmapsWithSampleRejection(
@@ -1530,7 +1540,7 @@ void Renderer::renderSecondaryLayer(
         50.0f, 0, 0
     );
 
-    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::HitDistanceMipmapGeneration );
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForHitDistance );
     m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::HitDistanceSearch );
 
     m_hitDistanceSearchRenderer.performHitDistanceSearch(
@@ -1542,10 +1552,12 @@ void Renderer::renderSecondaryLayer(
     );
 
     m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::HitDistanceSearch );
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::Total_WO_Combining );
 }
 
 void Renderer::combineLayers( const RenderingStage renderingStage, const Camera& camera )
 {
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::CombiningWithPreviousLayer );
     const int currentLevel = getRenderingStageLevel( renderingStage );
 
     if ( currentLevel < 1 || currentLevel >= m_layersRenderTargets.size() )
@@ -1566,13 +1578,12 @@ void Renderer::combineLayers( const RenderingStage renderingStage, const Camera&
         prevLayerRTs.hitShaded = nullptr;
     }
 
-    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForLayer );
+    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForShadedLayer );
 
     // Generate mipmaps for the current layer shaded-combined image.
     currLayerRTs.shadedCombined->generateMipMapsOnGpu( *m_deviceContext.Get() );
 
-    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForLayer );
-    m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::CombiningWithPreviousLayer );
+    m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForShadedLayer );
 
     if ( currentLevel == 1 ) {
         m_combiningRenderer.combine(

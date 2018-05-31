@@ -90,7 +90,9 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
         flags |= D3D11_CREATE_DEVICE_PREVENT_ALTERING_LAYER_SETTINGS_FROM_REGISTRY;
         #endif
 
-        
+        // Note: Needed for long rendering.
+        flags |= D3D11_CREATE_DEVICE_DISABLE_GPU_TIMEOUT; 
+
 
         D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 

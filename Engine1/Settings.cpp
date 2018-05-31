@@ -136,7 +136,7 @@ void Settings::initializeInternal()
 
     s_settings.rendering.shadows.enabled                       = true;
     s_settings.rendering.shadows.enableAlteringRayDirection    = false;
-    s_settings.rendering.shadows.enableBlurShadowPattern       = true;
+    s_settings.rendering.shadows.enableBlurShadowPattern       = false;
     s_settings.rendering.shadows.useSeparableShadowPatternBlur = false;
     s_settings.rendering.shadows.useSeparableShadowBlur        = true;
 
@@ -198,16 +198,16 @@ void Settings::initializeInternal()
 
     s_settings.rendering.reflectionsRefractions.maxLevel            = 1;
     s_settings.rendering.reflectionsRefractions.debugViewStage      = RenderingStage::Main;
-    s_settings.rendering.reflectionsRefractions.reflectionsEnabled  = false;
-    s_settings.rendering.reflectionsRefractions.refractionsEnabled  = false;
-    s_settings.rendering.reflectionsRefractions.samplingQuality     = 0.5f;
+    s_settings.rendering.reflectionsRefractions.reflectionsEnabled  = true;
+    s_settings.rendering.reflectionsRefractions.refractionsEnabled  = true;
+    s_settings.rendering.reflectionsRefractions.samplingQuality     = 0.45f;
     s_settings.rendering.reflectionsRefractions.roughnessBlurMul    = 60.0f;
 
     s_settings.rendering.reflectionsRefractions.elongationMul     = 1.0f;
     s_settings.rendering.reflectionsRefractions.radialBlurEnabled = true;
 
     s_settings.rendering.hitDistanceSearch.resolutionDivider          = 4;
-    s_settings.rendering.hitDistanceSearch.decreaseBlurForSmallValues = true;
+    s_settings.rendering.hitDistanceSearch.decreaseBlurForSmallValues = false;
     s_settings.rendering.hitDistanceSearch.maxHitDistForDecreasedBlur = 0.15f;
 
     s_settings.rendering.combining.positionDiffMul         = 6.0f;

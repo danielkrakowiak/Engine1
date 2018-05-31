@@ -1,5 +1,8 @@
 #include "Benchmark.h"
 
+#include <sstream>
+#include <iomanip>
+
 #include "SceneManager.h"
 #include "TextFile.h"
 #include "SettingsHelper.h"
@@ -133,6 +136,8 @@ void Benchmark::onFrameEnd(bool init)
         m_testPassedTime = 0.0f;
 
         m_sceneManager.getCameraAnimator().setPlaying( m_sceneManager.getCamera(), true );
+
+        resetFrameStats();
     }
 }
 
@@ -141,6 +146,8 @@ void Benchmark::resetFrameStats()
     for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::GlobalEventType::MAX_VALUE; ++eventTypeIdx )
     {
         m_statsAccumulated.global[ eventTypeIdx ] = 0.0f;
+        m_statsMaximal.global[ eventTypeIdx ]     = 0.0f;
+        m_statsMinimal.global[ eventTypeIdx ]     = 0.0f;
     }
 
     for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
@@ -148,6 +155,8 @@ void Benchmark::resetFrameStats()
         for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventTypeIdx ) 
         {
             m_statsAccumulated.perStage[ stageIdx ][ eventTypeIdx ] = 0.0f;
+            m_statsMaximal.perStage[ stageIdx ][ eventTypeIdx ]     = 0.0f;
+            m_statsMinimal.perStage[ stageIdx ][ eventTypeIdx ]     = 0.0f;
         }
     }
 
@@ -158,6 +167,8 @@ void Benchmark::resetFrameStats()
             for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::EventTypePerStagePerLight::MAX_VALUE; ++eventTypeIdx ) 
             {
                 m_statsAccumulated.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ] = 0.0f;
+                m_statsMaximal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ]     = 0.0f;
+                m_statsMinimal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ]     = 0.0f;
             }
         }
     }
@@ -173,7 +184,12 @@ void Benchmark::collectFrameStats()
 
         const auto eventDuration = m_profiler.getEventDuration( eventType );
 
-        m_statsAccumulated.global[ eventTypeIdx ] += (eventDuration > 0.0f ? eventDuration : 0.0f);
+        if (eventDuration > 0.0f)
+        {
+            m_statsAccumulated.global[ eventTypeIdx ] += (eventDuration > 0.0f ? eventDuration : 0.0f);
+            m_statsMaximal.global[ eventTypeIdx ] = std::max(m_statsMaximal.global[ eventTypeIdx ], eventDuration);
+            m_statsMinimal.global[ eventTypeIdx ] = std::min(m_statsMinimal.global[ eventTypeIdx ], eventDuration);
+        }
     }
 
     for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
@@ -186,7 +202,12 @@ void Benchmark::collectFrameStats()
 
             const auto eventDuration = m_profiler.getEventDuration( stage, eventType );
 
-            m_statsAccumulated.perStage[ stageIdx ][ eventTypeIdx ] += (eventDuration > 0.0f ? eventDuration : 0.0f);
+            if (eventDuration > 0.0f)
+            {
+                m_statsAccumulated.perStage[ stageIdx ][ eventTypeIdx ] += (eventDuration > 0.0f ? eventDuration : 0.0f);
+                m_statsMaximal.perStage[ stageIdx ][ eventTypeIdx ] = std::max(m_statsMaximal.perStage[ stageIdx ][ eventTypeIdx ], eventDuration);
+                m_statsMinimal.perStage[ stageIdx ][ eventTypeIdx ] = std::min(m_statsMinimal.perStage[ stageIdx ][ eventTypeIdx ], eventDuration);
+            }
         }
     }
 
@@ -202,7 +223,12 @@ void Benchmark::collectFrameStats()
                 
                 const auto eventDuration = m_profiler.getEventDuration( stage, lightIdx, eventType );
 
-                m_statsAccumulated.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ] += (eventDuration > 0.0f ? eventDuration : 0.0f);
+                if (eventDuration > 0.0f)
+                {
+                    m_statsAccumulated.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ] += (eventDuration > 0.0f ? eventDuration : 0.0f);
+                    m_statsMaximal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ] = std::max(m_statsMaximal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ], eventDuration);
+                    m_statsMinimal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ] = std::min(m_statsMinimal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ], eventDuration);
+                }
             }
         }
     }
@@ -225,6 +251,8 @@ void Benchmark::saveSingleTestResults()
     for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::GlobalEventType::MAX_VALUE; ++eventTypeIdx )
     {
         testResult.statsAveraged.global[ eventTypeIdx ] = m_statsAccumulated.global[ eventTypeIdx ] / (float)m_framesCollected;
+        testResult.statsMaximal.global[ eventTypeIdx ]  = m_statsMaximal.global[ eventTypeIdx ];
+        testResult.statsMinimal.global[ eventTypeIdx ]  = m_statsMinimal.global[ eventTypeIdx ];
     }
 
     for ( int stageIdx = 0; stageIdx < (int)RenderingStage::MAX_VALUE; ++stageIdx ) 
@@ -232,6 +260,8 @@ void Benchmark::saveSingleTestResults()
         for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventTypeIdx ) 
         {
             testResult.statsAveraged.perStage[ stageIdx ][ eventTypeIdx ] = m_statsAccumulated.perStage[ stageIdx ][ eventTypeIdx ] / (float)m_framesCollected;
+            testResult.statsMaximal.perStage[ stageIdx ][ eventTypeIdx ]  = m_statsMaximal.perStage[ stageIdx ][ eventTypeIdx ];
+            testResult.statsMinimal.perStage[ stageIdx ][ eventTypeIdx ]  = m_statsMinimal.perStage[ stageIdx ][ eventTypeIdx ];
         }
     }
 
@@ -242,6 +272,8 @@ void Benchmark::saveSingleTestResults()
             for ( int eventTypeIdx = 0; eventTypeIdx < (int)Profiler::EventTypePerStagePerLight::MAX_VALUE; ++eventTypeIdx ) 
             {
                 testResult.statsAveraged.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ] = m_statsAccumulated.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ] / (float)m_framesCollected;
+                testResult.statsMaximal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ]  = m_statsMaximal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ];
+                testResult.statsMinimal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ]  = m_statsMinimal.perStagePerLight[ stageIdx ][ lightIdx ][ eventTypeIdx ];
             }
         }
     }
@@ -250,54 +282,86 @@ void Benchmark::saveSingleTestResults()
 void Benchmark::saveTestResultsToFile( const std::string& path )
 {
     std::string text;
-    text.reserve( 50000 );
+    text.reserve( 5000000 ); // reserve 5MB
+
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2);
 
     if (!m_testResults.empty())
     {
         const auto& referenceSettings = m_testResults.begin()->second.front().settings;
 
-        text += "\"Scenes\\Settings\";";
+        ss << "\"Scenes\\Settings\";";
 
         // Print all tested settings in a row.
         for ( const auto& testResults : m_testResults.begin()->second ) {
-            text += "\"" + SettingsHelper::compareSettings( testResults.settings, referenceSettings ) + "\";";
+            ss << "\"" + SettingsHelper::compareSettings( testResults.settings, referenceSettings ) << "\"; ;";
         }
 
-        text += "\n";
+        ss << "\n";
+        text += ss.str();
+        ss.str("");
 
         for ( const auto& testResults : m_testResults )
         {
             // Print scene path.
-            text += "\"" + testResults.first + "\";";
+            ss << "\"" << testResults.first << "\";";
 
-            text += "\n\"Av. frame\";";
+            ss << "\n\"Av. frame\";";
 
             for ( const auto& testResult : testResults.second ) 
             {
                 const auto frameTime = testResult.statsAveraged.global[ (int)Profiler::GlobalEventType::Frame ];
 
-                text += "\"" + std::to_string( frameTime ) + "\"; ";
+                ss << "\"" << frameTime << "\"; ; ";
             }
 
-            text += "\n\"Av. FPS\";";
+            ss << "\n\"Av. FPS\";";
 
             for ( const auto& testResult : testResults.second )
             {
                 const auto frameTime = testResult.statsAveraged.global[ (int)Profiler::GlobalEventType::Frame ];
 
-                text += "\"" + std::to_string( 1000.0f / frameTime ) + "\"; ";
+                ss << "\"" << (1000.0f / frameTime) << "\"; ; ";
             }
 
-            text += "\n";
+            ss << "\n\"Max. frame\";";
 
-            writeGlobalEventTimings( testResults.second, text, Profiler::GlobalEventType::DeferredRendering, "Av. deferred" );
-            writeGlobalEventTimings( testResults.second, text, Profiler::GlobalEventType::Bloom, "Av. bloom" );
-            writeGlobalEventTimings( testResults.second, text, Profiler::GlobalEventType::CalculateLuminance, "Av. calculate luminance" );
-            writeGlobalEventTimings( testResults.second, text, Profiler::GlobalEventType::ToneMapping, "Av. tone mapping" );
-            writeGlobalEventTimings( testResults.second, text, Profiler::GlobalEventType::Antialiasing, "Av. antialiasing" );
+            for ( const auto& testResult : testResults.second ) 
+            {
+                const auto frameTime = testResult.statsMaximal.global[ (int)Profiler::GlobalEventType::Frame ];
 
-            writePerStageEventTimings( testResults.second, text, RenderingStage::R ,Profiler::EventTypePerStage::RaytracingReflectedRefractedRays, "Av. raytracing refl. rays" );
-            writePerStageEventTimings( testResults.second, text, RenderingStage::T ,Profiler::EventTypePerStage::RaytracingReflectedRefractedRays, "Av. raytracing trans. rays" );
+                ss << "\"" << frameTime << "\"; ; ";
+            }
+
+            ss << "\n\"Min. FPS\";";
+
+            for ( const auto& testResult : testResults.second )
+            {
+                const auto frameTime = testResult.statsMaximal.global[ (int)Profiler::GlobalEventType::Frame ];
+
+                ss << "\"" << (1000.0f / frameTime) << "\"; ; ";
+            }
+
+            ss << "\n";
+
+            text += ss.str();
+            ss.str("");
+
+            for ( int eventTypeIdx = 0; eventTypeIdx < static_cast<int>(Profiler::GlobalEventType::MAX_VALUE); ++eventTypeIdx )
+            {
+                const auto eventType = static_cast<Profiler::GlobalEventType>( eventTypeIdx );
+                writeGlobalEventTimings( testResults.second, text, eventType, "Av. " + Profiler::eventTypeToString( eventType ) );
+            }
+
+            writeStageTimings( testResults.second, text, RenderingStage::Main );
+            writeStageTimings( testResults.second, text, RenderingStage::R );
+            writeStageTimings( testResults.second, text, RenderingStage::T );
+
+            writeStageTimings( testResults.second, text, RenderingStage::RR );
+            writeStageTimings( testResults.second, text, RenderingStage::RT );
+            writeStageTimings( testResults.second, text, RenderingStage::TR );
+            writeStageTimings( testResults.second, text, RenderingStage::TT );
         }
     }
 
@@ -312,17 +376,48 @@ void Benchmark::writeGlobalEventTimings(
     Profiler::GlobalEventType eventType, 
     const std::string& description )
 {
-    text += "\"" + description + "\";";
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2);
+
+    ss << "\"" << description << "\";";
 
     for ( const auto& testResult : testResults ) 
     {
         const auto frameTime = testResult.statsAveraged.global[ (int)Profiler::GlobalEventType::Frame ];
         const auto eventTime = testResult.statsAveraged.global[ (int)eventType ];
 
-        text += "\"" + std::to_string( eventTime ) + " (" + std::to_string( eventTime * 100.0f / frameTime  ) + "%)\"; ";
+        if ( eventTime > 0.0f ) {
+            ss << "\"" << eventTime << "\"; \"" << (eventTime * 100.0f / frameTime) << "%\"; ";
+        } else {
+            ss << "; ; ";
+        }
     }
 
-    text += "\n";
+    ss << "\n";
+
+    text += ss.str();
+}
+
+void Benchmark::writeStageTimings( 
+    const std::vector< TestResult >& testsResults, 
+    std::string& text,
+    RenderingStage stageType )
+{
+    const auto stageName = renderingStageToString( stageType );
+
+    for ( int eventTypeIdx = 0; eventTypeIdx < static_cast<int>(Profiler::EventTypePerStage::MAX_VALUE); ++eventTypeIdx )
+    {
+        const auto eventType = static_cast<Profiler::EventTypePerStage>( eventTypeIdx );
+
+        writePerStageEventTimings( testsResults, text, stageType, eventType, stageName + " Av. " + Profiler::eventTypeToString( eventType ) );
+    }
+
+    for ( int eventTypeIdx = 0; eventTypeIdx < static_cast<int>(Profiler::EventTypePerStagePerLight::MAX_VALUE); ++eventTypeIdx )
+    {
+        const auto eventType = static_cast<Profiler::EventTypePerStagePerLight>( eventTypeIdx );
+
+        writePerStagePerLightEventTimings( testsResults, text, stageType, eventType, stageName + " Av. " + Profiler::eventTypeToString( eventType ) );
+    }
 }
 
 void Benchmark::writePerStageEventTimings( 
@@ -332,15 +427,64 @@ void Benchmark::writePerStageEventTimings(
     Profiler::EventTypePerStage eventType, 
     const std::string& description )
 {
-    text += "\"" + description + "\";";
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2);
+
+    ss << "\"" << description << "\";";
 
     for ( const auto& testResult : testResults ) 
     {
         const auto frameTime = testResult.statsAveraged.global[ (int)Profiler::GlobalEventType::Frame ];
         const auto eventTime = testResult.statsAveraged.perStage[ (int)stageType ][ (int)eventType ];
 
-        text += "\"" + std::to_string( eventTime ) + " (" + std::to_string( eventTime * 100.0f / frameTime  ) + "%)\"; ";
+        if ( eventTime > 0.0f ) {
+            ss << "\"" << eventTime << " \"; \"" << (eventTime * 100.0f / frameTime) << "%\"; ";
+        } else {
+            ss << "; ; ";
+        }
     }
 
-    text += "\n";
+    ss << "\n";
+
+    text += ss.str();
+}
+
+void Benchmark::writePerStagePerLightEventTimings( 
+    const std::vector< TestResult >& testResults, 
+    std::string& text, 
+    RenderingStage stageType, 
+    Profiler::EventTypePerStagePerLight eventType, 
+    const std::string& description 
+)
+{
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2);
+
+    ss << "\"" << description << "\";";
+
+    for ( const auto& testResult : testResults ) 
+    {
+        const auto frameTime = testResult.statsAveraged.global[ (int)Profiler::GlobalEventType::Frame ];
+
+        float accumulatedEventTime = 0.0f;
+
+        for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx )
+        {
+            const auto eventTime = testResult.statsAveraged.perStagePerLight[ (int)stageType ][ lightIdx ][ (int)eventType ];
+
+            if ( eventTime > 0.0f ) {
+                accumulatedEventTime += eventTime;
+            }
+        }
+
+        if ( accumulatedEventTime > 0.0f ) {
+            ss << "\"" << accumulatedEventTime << "\"; \"" << (accumulatedEventTime * 100.0f / frameTime) << "%\"; ";
+        } else {
+            ss << "; ; ";
+        }
+    }
+
+    ss << "\n";
+
+    text += ss.str();
 }

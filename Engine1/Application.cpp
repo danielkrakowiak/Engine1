@@ -247,7 +247,7 @@ void Application::run()
 
     m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
 
-    setupBenchmark();
+    setupBenchmark4();
 
     bool updateProfiling = true;
 
@@ -292,8 +292,10 @@ void Application::run()
 
         m_renderer.clear();
 
-        if ( modifyingScene )
-            m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
+        //if ( modifyingScene )
+        //    m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
+
+        m_profiler.beginEvent( Profiler::GlobalEventType::RenderSceneToFrame );
 
         Renderer::Output output;
         output = m_renderer.renderScene( 
@@ -303,6 +305,9 @@ void Application::run()
             m_sceneManager.getSelection(), 
             m_sceneManager.getSelectionVolumeMesh() 
         );
+
+        m_profiler.endEvent( Profiler::GlobalEventType::RenderSceneToFrame );
+        m_profiler.beginEvent( Profiler::GlobalEventType::RenderFrameToScreen );
 
         const int2 mousePos = m_inputManager.getMousePos();
 
@@ -397,6 +402,9 @@ void Application::run()
         catch( ... )
         {}
 
+        m_profiler.endEvent( Profiler::GlobalEventType::RenderFrameToScreen );
+        m_profiler.beginEvent( Profiler::GlobalEventType::RenderTextToFrame );
+
         m_renderer.clear2();
 
         if ( updateProfiling )
@@ -454,6 +462,12 @@ void Application::run()
         { // Render FPS.
             std::stringstream ss;
             ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
+            
+            // Render GPU FPS only if it is significantly higher than CPU FPS - to warn about CPU bottleneck.
+            // Note: GPU FPS is slightly delayed (3-4 frames of delay), so may cause fake warnings when sudden frame drop occurs.
+            if ( totalFrameTimeGPU < (0.98f * totalFrameTimeCPU) ) {
+                ss << "\nGPU FPS: " << (int)( 1000.0 / totalFrameTimeGPU ) << " / " << totalFrameTimeGPU << "ms";
+            }
             
             if ( settings().debug.renderFps )
             {
@@ -774,10 +788,18 @@ void Application::run()
         // TODO: Should  be refactored somehow. Such method should not be called here.
         //deferredRenderer.disableRenderTargets();
 
+        m_profiler.endEvent( Profiler::GlobalEventType::RenderTextToFrame );
+        m_profiler.beginEvent( Profiler::GlobalEventType::RenderTextFrameToScreen );
+
         if ( output.uchar4Image )
             m_frameRenderer.renderTexture( *output.uchar4Image, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, true );
 
+        m_profiler.endEvent( Profiler::GlobalEventType::RenderTextFrameToScreen );
+        m_profiler.beginEvent( Profiler::GlobalEventType::RenderControlPanelToScreen );
+
         m_controlPanel.draw();
+
+        m_profiler.endEvent( Profiler::GlobalEventType::RenderControlPanelToScreen );
 
 		m_frameRenderer.displayFrame();
 
@@ -1098,19 +1120,8 @@ int2 Application::screenPosToWindowPos( int2 screenPos ) const
     return int2( pos.x, pos.y );
 }
 
-void Application::setupBenchmark()
+void Application::setupBenchmark1()
 {
-    return;
-
-    m_benchmark.addSceneToTest( 
-        AssetPathManager::getPathForFileName( "office - original.scene" ),
-        ""/*AssetPathManager::getPathForFileName( "" )*/
-    );
-
-    m_benchmark.addSettingsToTest( settings() );
-
-    m_benchmark.performTests( 0.01f );
-
     return;
 
     Settings initialSettings( settings() );
@@ -1118,28 +1129,287 @@ void Application::setupBenchmark()
 
     for ( int shadowsEnabled = 0; shadowsEnabled <= 1; ++shadowsEnabled ) {
         for ( int reflectionsEnabled = 0; reflectionsEnabled <= 1; ++reflectionsEnabled ) {
-            for ( int refractionsEnabled = 0; refractionsEnabled <= 1; ++refractionsEnabled ) 
-            {
-                Settings testSettings( initialSettings );
+            for ( int refractionsEnabled = 0; refractionsEnabled <= 1; ++refractionsEnabled ) {
+                for ( int lightBounceCount = 0; lightBounceCount <= 2; ++lightBounceCount  ) 
+                {
+                    // Skip repetitive settings configurations.
+                    if ((lightBounceCount > 0 && !reflectionsEnabled && !refractionsEnabled) ||
+                        (lightBounceCount == 0 && (reflectionsEnabled || refractionsEnabled)))
+                        continue;
 
-                testSettings.rendering.shadows.enabled                           = (shadowsEnabled != 0);
-                testSettings.rendering.reflectionsRefractions.reflectionsEnabled = (reflectionsEnabled != 0);
-                testSettings.rendering.reflectionsRefractions.refractionsEnabled = (refractionsEnabled != 0);
+                    Settings testSettings( initialSettings );
 
-                m_benchmark.addSettingsToTest( testSettings );
+                    testSettings.rendering.shadows.enabled                           = (shadowsEnabled != 0);
+                    testSettings.rendering.reflectionsRefractions.reflectionsEnabled = (reflectionsEnabled != 0);
+                    testSettings.rendering.reflectionsRefractions.refractionsEnabled = (refractionsEnabled != 0);
+                    testSettings.rendering.reflectionsRefractions.maxLevel           = lightBounceCount;
+
+                    m_benchmark.addSettingsToTest( testSettings );
+                }
             }
         }
     }
 
+    setupBenchmarkScenes();
+
+    m_benchmark.performTests( 12.0f );
+}
+
+void Application::setupBenchmark2()
+{
+    Settings initialSettings( settings() );
+
+    initialSettings.rendering.shadows.enabled                 = true;
+    initialSettings.rendering.shadows.useSeparableShadowBlur  = true;
+    initialSettings.rendering.reflectionsRefractions.maxLevel = 1;
+    initialSettings.rendering.reflectionsRefractions.reflectionsEnabled = true;
+    initialSettings.rendering.reflectionsRefractions.refractionsEnabled = true;
+
+    initialSettings.rendering.optimization.useHalfFloatsForRayDirections              = false;
+    initialSettings.rendering.optimization.useHalfFloatsForNormals                    = false;
+    initialSettings.rendering.optimization.useHalfFLoatsForDistanceToOccluder         = false;
+    initialSettings.rendering.optimization.useHalfFloatsForHitDistance                = false;
+    initialSettings.rendering.optimization.distToOccluderPositionSampleMipmapLevel    = 0;
+    initialSettings.rendering.optimization.distToOccluderNormalSampleMipmapLevel      = 0;
+
+    initialSettings.rendering.hitDistanceSearch.resolutionDivider = 1;
+
+    m_benchmark.addSettingsToTest( initialSettings );
+
+    Settings testSettings1( initialSettings );
+
+    testSettings1.rendering.optimization.useHalfFloatsForRayDirections              = true;
+    testSettings1.rendering.optimization.useHalfFloatsForNormals                    = true;
+    testSettings1.rendering.optimization.useHalfFLoatsForDistanceToOccluder         = true;
+    testSettings1.rendering.optimization.useHalfFloatsForHitDistance                = true;
+    testSettings1.rendering.optimization.distToOccluderPositionSampleMipmapLevel    = 1;
+    testSettings1.rendering.optimization.distToOccluderNormalSampleMipmapLevel      = 1;
+
+    testSettings1.rendering.hitDistanceSearch.resolutionDivider = 4;
+
+    m_benchmark.addSettingsToTest( testSettings1 );
+
+    /*for ( int separableShadowBlurEnabled = 0; separableShadowBlurEnabled <= 1; ++separableShadowBlurEnabled ) 
+    {
+        Settings testSettings( initialSettings );
+
+        testSettings.rendering.shadows.useSeparableShadowBlur = (separableShadowBlurEnabled != 0);
+
+        m_benchmark.addSettingsToTest( testSettings );
+    }*/
+
+    /*
+    for ( float combiningSamplingQuality = 0.4f; combiningSamplingQuality <= 0.8f; combiningSamplingQuality += 0.1f ) 
+    {
+        Settings testSettings( initialSettings );
+
+        testSettings.rendering.reflectionsRefractions.samplingQuality = combiningSamplingQuality;
+
+        m_benchmark.addSettingsToTest( testSettings );
+    }*/
+
+    for ( int useHalfFloatsForRayDirections = 0; useHalfFloatsForRayDirections <= 1; ++useHalfFloatsForRayDirections ) 
+    {
+        Settings testSettings( initialSettings );
+
+        testSettings.rendering.optimization.useHalfFloatsForRayDirections = (useHalfFloatsForRayDirections != 0);
+
+        m_benchmark.addSettingsToTest( testSettings );
+    }
+
+    for ( int useHalfFloatsForNormals = 0; useHalfFloatsForNormals <= 1; ++useHalfFloatsForNormals ) 
+    {
+        Settings testSettings( initialSettings );
+
+        testSettings.rendering.optimization.useHalfFloatsForNormals = (useHalfFloatsForNormals != 0);
+
+        m_benchmark.addSettingsToTest( testSettings );
+    }
+
+    for ( int useHalfFLoatsForDistanceToOccluder = 0; useHalfFLoatsForDistanceToOccluder <= 1; ++useHalfFLoatsForDistanceToOccluder ) 
+    {
+        Settings testSettings( initialSettings );
+
+        testSettings.rendering.optimization.useHalfFLoatsForDistanceToOccluder = (useHalfFLoatsForDistanceToOccluder != 0);
+
+        m_benchmark.addSettingsToTest( testSettings );
+    }
+
+    for ( int useHalfFloatsForHitDistance = 0; useHalfFloatsForHitDistance <= 1; ++useHalfFloatsForHitDistance ) 
+    {
+        Settings testSettings( initialSettings );
+
+        testSettings.rendering.optimization.useHalfFloatsForHitDistance = (useHalfFloatsForHitDistance != 0);
+
+        m_benchmark.addSettingsToTest( testSettings );
+    }
+
+    for ( int distToOccluderPositionSampleMipmapLevel = 0; distToOccluderPositionSampleMipmapLevel <= 1; ++distToOccluderPositionSampleMipmapLevel ) 
+    {
+        for ( int distToOccluderNormalSampleMipmapLevel = 0; distToOccluderNormalSampleMipmapLevel <= 1; ++distToOccluderNormalSampleMipmapLevel) 
+        {
+            Settings testSettings( initialSettings );
+
+            testSettings.rendering.optimization.distToOccluderPositionSampleMipmapLevel = distToOccluderPositionSampleMipmapLevel;
+            testSettings.rendering.optimization.distToOccluderNormalSampleMipmapLevel   = distToOccluderNormalSampleMipmapLevel;
+
+            m_benchmark.addSettingsToTest( testSettings );
+        }
+    }
+
+    for ( int resolutionDivider = 1; resolutionDivider <= 4; ++resolutionDivider) 
+    {
+        Settings testSettings( initialSettings );
+
+        testSettings.rendering.hitDistanceSearch.resolutionDivider = resolutionDivider;
+
+        m_benchmark.addSettingsToTest( testSettings );
+    }
+
+    setupBenchmarkScenes();
+
+    m_benchmark.performTests( 12.0f );
+}
+
+void Application::setupBenchmark3()
+{
+    return;
+
+    Settings initialSettings( settings() );
+
+    initialSettings.rendering.shadows.enabled                 = true;
+    initialSettings.rendering.shadows.useSeparableShadowBlur  = true;
+    initialSettings.rendering.reflectionsRefractions.maxLevel = 1;
+    initialSettings.rendering.reflectionsRefractions.reflectionsEnabled = true;
+    initialSettings.rendering.reflectionsRefractions.refractionsEnabled = true;
+
+    m_benchmark.addSettingsToTest( initialSettings );
+
+    for ( float combiningSamplingQuality = 0.4f; combiningSamplingQuality <= 1.01f; combiningSamplingQuality += 0.1f ) 
+    {
+        Settings testSettings( initialSettings );
+
+        testSettings.rendering.reflectionsRefractions.samplingQuality = combiningSamplingQuality;
+
+        m_benchmark.addSettingsToTest( testSettings );
+    }
+
+    setupBenchmarkScenes();
+
+    m_benchmark.performTests( 55.0f );
+}
+
+void Application::setupBenchmark4()
+{
+    return;
+
+    Settings initialSettings( settings() );
+
+    m_benchmark.addSettingsToTest( initialSettings );
+
+    // All layers use same mipmap level - same as hard layer, but make larger steps.
+    Settings settings2( settings() );
+
+    settings2.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight       = 10.0f;//5.0f
+    settings2.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight         = 1.0f;//1.0f
+    settings2.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow      = 8.0f;//2.0f
+    settings2.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow        = 1.0f;//1.0f
+    settings2.rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel          = 2;//2
+    settings2.rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider   = 4;//4
+
+    settings2.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight     = 20.0f;//10.0 
+    settings2.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight       = 2.0f;//1.0
+    settings2.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow    = 14.0f;//5.0
+    settings2.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow      = 2.0f;//1.0
+    settings2.rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel        = 2;//3
+    settings2.rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider = 4;//8
+
+    settings2.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight       = 40.0f;//10.0
+    settings2.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight         = 4.0f;//1.0
+    settings2.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow      = 28.0f;//7.0
+    settings2.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow        = 4.0f;//1.0
+    settings2.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel          = 2;//4
+    settings2.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider   = 4;//16
+
+    m_benchmark.addSettingsToTest( settings2 );
+
+    // All layers use same mipmap level - same as hard layer, and make step size = 1.
+    Settings settings3( settings() );
+
+    settings3.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight       = 10.0f;//5.0f
+    settings3.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight         = 1.0f;//1.0f
+    settings3.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow      = 8.0f;//2.0f
+    settings3.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow        = 1.0f;//1.0f
+    settings3.rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel          = 2;//2
+    settings3.rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider   = 4;//4
+
+    settings3.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight     = 20.0f;//10.0 
+    settings3.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight       = 1.0f;//1.0
+    settings3.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow    = 14.0f;//5.0
+    settings3.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow      = 1.0f;//1.0
+    settings3.rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel        = 2;//3
+    settings3.rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider = 4;//8
+
+    settings3.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight       = 40.0f;//10.0
+    settings3.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight         = 1.0f;//1.0
+    settings3.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow      = 28.0f;//7.0
+    settings3.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow        = 1.0f;//1.0
+    settings3.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel          = 2;//4
+    settings3.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider   = 4;//16
+
+    m_benchmark.addSettingsToTest( settings3 );
+
+    // All layers use zero level mipmap, and make step size = 1.
+    Settings settings4( settings() );
+
+    settings4.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInLight       = 40.0f;//5.0f
+    settings4.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInLight         = 1.0f;//1.0f
+    settings4.rendering.shadows.distanceToOccluderSearch.hardShadows.searchRadiusInShadow      = 32.0f;//2.0f
+    settings4.rendering.shadows.distanceToOccluderSearch.hardShadows.searchStepInShadow        = 1.0f;//1.0f
+    settings4.rendering.shadows.distanceToOccluderSearch.hardShadows.inputMipmapLevel          = 0;//2
+    settings4.rendering.shadows.distanceToOccluderSearch.hardShadows.outputDimensionsDivider   = 1;//4
+
+    settings4.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInLight     = 80.0f;//10.0 
+    settings4.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInLight       = 1.0f;//1.0
+    settings4.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchRadiusInShadow    = 56.0f;//5.0
+    settings4.rendering.shadows.distanceToOccluderSearch.mediumShadows.searchStepInShadow      = 1.0f;//1.0
+    settings4.rendering.shadows.distanceToOccluderSearch.mediumShadows.inputMipmapLevel        = 0;//3
+    settings4.rendering.shadows.distanceToOccluderSearch.mediumShadows.outputDimensionsDivider = 1;//8
+
+    settings4.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInLight       = 160.0f;//10.0
+    settings4.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInLight         = 1.0f;//1.0
+    settings4.rendering.shadows.distanceToOccluderSearch.softShadows.searchRadiusInShadow      = 112.0f;//7.0
+    settings4.rendering.shadows.distanceToOccluderSearch.softShadows.searchStepInShadow        = 1.0f;//1.0
+    settings4.rendering.shadows.distanceToOccluderSearch.softShadows.inputMipmapLevel          = 0;//4
+    settings4.rendering.shadows.distanceToOccluderSearch.softShadows.outputDimensionsDivider   = 1;//16
+
+    m_benchmark.addSettingsToTest( settings4 );
+
+    setupBenchmarkScenes();
+
+    m_benchmark.performTests( 55.0f );
+}
+
+void Application::setupBenchmarkScenes()
+{
     m_benchmark.addSceneToTest( 
-        AssetPathManager::getPathForFileName( "sponza_reduced.scene" ),
-        AssetPathManager::getPathForFileName( "sponza_benchmark_camera.cameraanim" )
+        AssetPathManager::getPathForFileName( "benchmark0 - cornelbox.scene" ),
+        AssetPathManager::getPathForFileName( "benchmark0 - cornelbox.cameraanim" )
     );
 
     /*m_benchmark.addSceneToTest( 
-        AssetPathManager::getPathForFileName( "Cornel Box Original.scene" ),
-        AssetPathManager::getPathForFileName( "example_camera1.cameraanim" )
+        AssetPathManager::getPathForFileName( "benchmark1 - sponza.scene" ),
+        AssetPathManager::getPathForFileName( "benchmark1 - sponza.cameraanim" )
     );*/
 
-    m_benchmark.performTests( 20.0f );
+    /*m_benchmark.addSceneToTest( 
+        AssetPathManager::getPathForFileName( "benchmark2 - office.scene" ),
+        AssetPathManager::getPathForFileName( "benchmark2 - office.cameraanim" )
+    );*/
+
+    /*m_benchmark.addSceneToTest( 
+        AssetPathManager::getPathForFileName( "benchmark3 - loft.scene" ),
+        AssetPathManager::getPathForFileName( "benchmark3 - loft.cameraanim" )
+    );*/
 }
+
