@@ -1044,9 +1044,12 @@ Renderer::Output Renderer::renderSecondaryLayers(
     combineLayers( renderingStage, camera );
 
     auto& currLayerRTs = m_layersRenderTargets.at( renderingStageLevel );
+    auto& prevLayerRTs = m_layersRenderTargets.at( renderingStageLevel - 1 );
 
-    if ( debugViewStage == renderingStage && debugViewType == View::ShadedCombined )
+    if ( debugViewStage == renderingStage && debugViewType == View::Shaded )
         output.float4Image = currLayerRTs.shadedCombined;
+    else if ( debugViewStage == renderingStage && debugViewType == View::ShadedCombined )
+        output.float4Image = prevLayerRTs.shadedCombined;
 
     return output;
 }
@@ -1782,8 +1785,8 @@ Renderer::Output Renderer::getLayerRenderTarget( View view, int level )
 std::string Renderer::viewToString( const View view )
 {
     switch ( view ) {
-        case View::ShadedCombined:                           return "ShadedCombined";
         case View::Final:                                    return "Final";
+        case View::ShadedCombined:                           return "ShadedCombined";
         case View::Shaded:                                   return "Shaded";
         case View::Depth:                                    return "Depth";
         case View::Position:                                 return "Position";
