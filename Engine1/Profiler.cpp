@@ -17,7 +17,13 @@ std::string Profiler::eventTypeToString( const GlobalEventType eventType )
     switch (eventType)
     {
         case GlobalEventType::Frame:                        return "Frame";
+        case GlobalEventType::RenderSceneToFrame:           return "RenderSceneToFrame";
+        case GlobalEventType::RenderFrameToScreen:          return "RenderFrameToScreen";
+        case GlobalEventType::RenderTextToFrame:            return "RenderTextToFrame";
+        case GlobalEventType::RenderTextFrameToScreen:      return "RenderTextFrameToScreen";
+        case GlobalEventType::RenderControlPanelToScreen:   return "RenderControlPanelToScreen";
         case GlobalEventType::DeferredRendering:            return "DeferredRendering";
+        case GlobalEventType::PostProcess:                  return "PostProcess";
         case GlobalEventType::ASSAO:                        return "ASSAO";
         case GlobalEventType::Bloom:                        return "Bloom";
         case GlobalEventType::ToneMapping:                  return "ToneMapping";
@@ -32,15 +38,16 @@ std::string Profiler::eventTypeToString( const EventTypePerStage eventType )
 {
     switch ( eventType ) 
     {
+        case EventTypePerStage::Total_WO_Combining:                    return "Total_WO_Combining";
         case EventTypePerStage::MipmapGenerationForPositionAndNormals: return "MipmapGenerationForPositionAndNormals";
         case EventTypePerStage::EmissiveShading:                       return "EmissiveShading";
         case EventTypePerStage::ReflectionTransmissionShading:         return "ReflectionTransmissionShading";
-        case EventTypePerStage::RaytracingReflectedRefractedRays:                            return "Raytracing";
+        case EventTypePerStage::RaytracingReflectedRefractedRays:      return "RaytracingReflectedRefractedRays";
         case EventTypePerStage::ShadingNoShadows:                      return "ShadingNoShadows";
         case EventTypePerStage::Shading:                               return "Shading";
-        case EventTypePerStage::MipmapGenerationForLayer:              return "MipmapGenerationForLayer";
+        case EventTypePerStage::MipmapGenerationForShadedLayer:        return "MipmapGenerationForShadedLayer";
         case EventTypePerStage::CombiningWithPreviousLayer:            return "CombiningWithPreviousLayer";
-        case EventTypePerStage::HitDistanceMipmapGeneration:           return "HitDistanceMipmapGeneration";
+        case EventTypePerStage::MipmapGenerationForHitDistance:        return "MipmapGenerationForHitDistance";
         case EventTypePerStage::HitDistanceSearch:                     return "HitDistanceSearch";
     }
 

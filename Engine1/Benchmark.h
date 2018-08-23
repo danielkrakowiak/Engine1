@@ -64,6 +64,8 @@ namespace Engine1
             Settings    settings;
             int         framesCollected;
             Statistics  statsAveraged;
+            Statistics  statsMaximal;
+            Statistics  statsMinimal;
         };
 
         void resetFrameStats();
@@ -79,11 +81,25 @@ namespace Engine1
             const std::string& description 
         );
 
+        void writeStageTimings( 
+            const std::vector< TestResult >& testsResults, 
+            std::string& text,
+            RenderingStage stageType 
+        );
+
         void writePerStageEventTimings( 
             const std::vector< TestResult >& testResults, 
             std::string& text, 
             RenderingStage stageType, 
             Profiler::EventTypePerStage eventType, 
+            const std::string& description 
+        );
+
+        void writePerStagePerLightEventTimings( 
+            const std::vector< TestResult >& testResults, 
+            std::string& text, 
+            RenderingStage stageType, 
+            Profiler::EventTypePerStagePerLight eventType, 
             const std::string& description 
         );
 
@@ -95,7 +111,7 @@ namespace Engine1
         } m_state = State::FINISHED;
 
         float m_testDuration    = 0.0f;
-        float m_breakDuration   = 1.0f;
+        float m_breakDuration   = 5.0f;
         float m_testPassedTime  = 0.0f;
         float m_breakPassedTime = 0.0f;
         int   m_sceneIdx        = 0;
@@ -111,6 +127,8 @@ namespace Engine1
 
         int        m_framesCollected;
         Statistics m_statsAccumulated;
+        Statistics m_statsMaximal;
+        Statistics m_statsMinimal;
 
         // Key: scene path, value: test results for that scene.
         std::map< std::string, std::vector< TestResult > > m_testResults;

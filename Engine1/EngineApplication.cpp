@@ -560,48 +560,48 @@ void EngineApplication::onKeyPress( int key )
             m_renderer.setActiveViewType( Renderer::View::Final );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::one ) {
-            m_renderer.setActiveViewType( Renderer::View::Shaded );
+            m_renderer.setActiveViewType( Renderer::View::ShadedCombined );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::two ) {
-            m_renderer.setActiveViewType( Renderer::View::Depth );
+            m_renderer.setActiveViewType( Renderer::View::Shaded );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::three ) {
-            m_renderer.setActiveViewType( Renderer::View::Position );
+            m_renderer.setActiveViewType( Renderer::View::Depth );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::four ) {
-            m_renderer.setActiveViewType( Renderer::View::Emissive );
+            m_renderer.setActiveViewType( Renderer::View::Position );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::five ) {
-            m_renderer.setActiveViewType( Renderer::View::Albedo );
+            m_renderer.setActiveViewType( Renderer::View::Emissive );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::six ) {
-            m_renderer.setActiveViewType( Renderer::View::Normal );
+            m_renderer.setActiveViewType( Renderer::View::Albedo );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::seven ) {
-            m_renderer.setActiveViewType( Renderer::View::Metalness );
+            m_renderer.setActiveViewType( Renderer::View::Normal );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::eight ) {
-            m_renderer.setActiveViewType( Renderer::View::Roughness );
+            m_renderer.setActiveViewType( Renderer::View::Metalness );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::nine ) {
+            m_renderer.setActiveViewType( Renderer::View::Roughness );
+            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
+        } else if ( key == InputManager::Keys::zero ) {
             m_renderer.setActiveViewType( Renderer::View::IndexOfRefraction );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         } else if ( key == InputManager::Keys::f1 ) {
-            m_renderer.setActiveViewType( Renderer::View::ShadedCombined );
-            Settings::modify().debug.debugDisplayedMipmapLevel = 0;
-        } else if ( key == InputManager::Keys::f2 ) {
             m_renderer.setActiveViewType( Renderer::View::RayDirections );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
-        } else if ( key == InputManager::Keys::f3 ) {
+        } else if ( key == InputManager::Keys::f2 ) {
             m_renderer.setActiveViewType( Renderer::View::Contribution );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
-        } else if ( key == InputManager::Keys::f4 ) {
+        } else if ( key == InputManager::Keys::f3 ) {
             m_renderer.setActiveViewType( Renderer::View::CurrentRefractiveIndex );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
-        } else if ( key == InputManager::Keys::f5 ) {
+        } else if ( key == InputManager::Keys::f4 ) {
             m_renderer.setActiveViewType( Renderer::View::BloomBrightPixels );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
-        } else if ( key == InputManager::Keys::f6 ) {
+        } else if ( key == InputManager::Keys::f5 ) {
             m_renderer.setActiveViewType( Renderer::View::AmbientOcclusion );
             Settings::modify().debug.debugDisplayedMipmapLevel = 0;
         }

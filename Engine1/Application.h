@@ -74,7 +74,11 @@ namespace Engine1
 
         int2 screenPosToWindowPos( int2 screenPos ) const;
 
-        void setupBenchmark();
+        void setupBenchmark1();
+        void setupBenchmark2();
+        void setupBenchmark3();
+        void setupBenchmark4();
+        void setupBenchmarkScenes();
 
 	    // Basic application handles.
 	    HINSTANCE m_applicationInstance;
