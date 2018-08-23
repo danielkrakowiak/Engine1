@@ -617,6 +617,18 @@ Idea:
 
 	  - MINOR: Center texcoord doesn't really point to pixel center on input texture. It points to center in output texture. This can cause problems.
 
+
+	  ANTIALIASING/EDGES:
+
+	  - we could do edge detection for each layer
+	  - then, copy those pixels to sides of the normal g-buffers (in a very specific order - to find it later on)
+	  - each pixel could be copied several times, with slight modification of origin position/normal etc
+	  - then we trace rays for those pixels as usual, we shade them
+	  - and at the end - when combining layers - we copy them back to the orginal position - and average their value to achieve antialiasing
+	  - if done properly, it could even handle multiple level of reflections/refractions. Or we could just ignore reflection/refraction and focus on normal shading.
+	  - we could also increase shadow quality at edges - by sampling edge image - and tracing more rays in that case. 
+	    This could fix the problem with tracing 1 ray to a "random" point on light, which after weighted blur can lead to overly bright/dark/jagged edges.
+
 	  Sources: 
 
 	  Another idea for shadows with quality of full ray tracing:
