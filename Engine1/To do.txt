@@ -643,6 +643,11 @@ Idea:
 
 	  ANTIALIASING/EDGES:
 
+	  - as a simple test - we could run antialiasing on each layer, before merging with the previous one, and after all are merged. To antialias reflections/refractions.
+	  - how to increase FXAA agressivness to blur those hard egdes more?
+	  - add settings for FXAA to Control Panel - test how they influence the result.
+
+	  FUTURE:
 	  - we could do edge detection for each layer
 	  - then, copy those pixels to sides of the normal g-buffers (in a very specific order - to find it later on)
 	  - each pixel could be copied several times, with slight modification of origin position/normal etc
