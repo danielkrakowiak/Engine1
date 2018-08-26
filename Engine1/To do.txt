@@ -478,6 +478,11 @@ Idea:
 
        - replace if's in the shader getWeightLowerThan() and similar with some math calculations.
 
+	   - shadows from semi-transparent, colored objects - how to avoid extra cost of storing/writing/reading color information in shadow?
+	     Maybe we should store shadow in two buffers - as intensity and color and write/read color only where needed - where shadow sample is not fully dark?
+	     Maybe this could work also when blurring shadow - using two buffers, and reading from the color one only if needed. 
+	     A bit more expensive if all shadows are colored, but the cost for normal shadows would stay the same.
+
        OPTIMIZATION:
        - sample-count-per-size in blur-shadow-shaders should not be fixed - it should be different for each layer, probably depending on radius etc.
        - blur-shadow stage should also be able to operate on different mipmap levels (output texture sizes) for hard/medium/soft shadows. 
