@@ -90,6 +90,7 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_reflectionRefractionBar, "Roughness blur mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.roughnessBlurMul, "min=0 max=1000 step=0.2 precision=1" );
     TwAddVarRW( m_reflectionRefractionBar, "Reflection elongation mul", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.elongationMul, "min=0.1 max=6.0 step=0.01 precision=2" );
     TwAddVarRW( m_reflectionRefractionBar, "Reflection radial blur", TW_TYPE_BOOL8, &Settings::s_settings.rendering.reflectionsRefractions.radialBlurEnabled, "" );
+    TwAddVarRW( m_reflectionRefractionBar, "Debug hit-dist power", TW_TYPE_FLOAT, &Settings::s_settings.rendering.reflectionsRefractions.debugHitDistPower, "min=0.01 max=2.0 step=0.01 precision=2" );
 
     TwAddButton( m_reflectionRefractionBar, "", nullptr, nullptr, " label='Hit-dist search' ");
     TwAddVarRW( m_reflectionRefractionBar, "Decrease blur for small values", TW_TYPE_BOOL8, &Settings::s_settings.rendering.hitDistanceSearch.decreaseBlurForSmallValues, "" );

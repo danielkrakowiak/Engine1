@@ -288,7 +288,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                     mesh->loadBvhTreeToGpu( *m_device.Get() );
                 }
 
-                if ( replaceSelected ) {
+                if ( replaceSelected && !m_selection.isEmpty() ) {
                     // Replace a mesh of an existing model.
                     for ( auto& actor : m_selection.getBlockActors() )
                     {

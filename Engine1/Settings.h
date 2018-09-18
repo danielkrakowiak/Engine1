@@ -294,6 +294,10 @@ namespace Engine1
                 // It can improve quality, but reduce the amount of perceivable blur.
                 bool radialBlurEnabled;
 
+                // Temporarily added just to test how roughness will look if we raise hit-distance to different powers.
+                // To test how roughness could impact blur radius depending on hit-distance.
+                float debugHitDistPower;
+
             } reflectionsRefractions;
 
             struct HitDistanceSearch

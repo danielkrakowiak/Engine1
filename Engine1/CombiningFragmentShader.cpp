@@ -130,6 +130,8 @@ void CombiningFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext
     dataPtr->elongationMul     = settings().rendering.reflectionsRefractions.elongationMul;
     dataPtr->radialBlurEnabled = settings().rendering.reflectionsRefractions.radialBlurEnabled ? 1.0f : 0.0f;
 
+    dataPtr->debugHitDistPower = settings().rendering.reflectionsRefractions.debugHitDistPower;
+
     deviceContext.Unmap( m_constantInputBuffer.Get(), 0 );
 
     deviceContext.PSSetConstantBuffers( 0, 1, m_constantInputBuffer.GetAddressOf() );

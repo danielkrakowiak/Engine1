@@ -205,6 +205,7 @@ void Settings::initializeInternal()
 
     s_settings.rendering.reflectionsRefractions.elongationMul     = 1.0f;
     s_settings.rendering.reflectionsRefractions.radialBlurEnabled = true;
+    s_settings.rendering.reflectionsRefractions.debugHitDistPower = 0.5f;
 
     s_settings.rendering.hitDistanceSearch.resolutionDivider          = 4;
     s_settings.rendering.hitDistanceSearch.decreaseBlurForSmallValues = false;

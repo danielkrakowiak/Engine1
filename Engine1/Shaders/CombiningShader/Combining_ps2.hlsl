@@ -38,6 +38,8 @@ cbuffer ConstantBuffer
     float3 pad11;
     float  reflectionSamplingQualityInv; // 0 - highest quality, 1 - lowest quality.
     float3 pad12;
+    float  debugHitDistPower;
+    float3 pad13;
 };
 
 struct PixelInputType
@@ -61,9 +63,13 @@ float4 main(PixelInputType input) : SV_Target
     const float  hitDistance               = g_hitDistanceTexture.SampleLevel( g_linearSamplerState, input.texCoord, 0.0f );
     const float4 contributionTermRoughness = g_contributionTermRoughnessTexture.SampleLevel( g_linearSamplerState, input.texCoord * contributionTextureFillSize / imageSize, 0.0f );
     
-    const float roughness  = roughnessMul * contributionTermRoughness.a;
-
-    float blurRadius = max( 0.0f, log2( hitDistance + 1.0f ) * roughness / log2( prevHitDistance + 1.0f ) );
+    const float roughness  = contributionTermRoughness.a;
+    
+    // #TODO: accounting for dist-to-camera should use FOV in calculations.
+    // Note: log2 for hit-dist is used only to avoid very intense blur that we cannot achieve anyways.
+    // - but why are we getting those colorful artifacts for high blur?
+    const float fov = Pi / 8.0f; //#TODO: Vert/horz may differ. Tan( fov ) could be calculated earlier and passed to shader.
+    float blurRadius = max( 0.0f, log2( hitDistance + 1.0f ) * roughnessMul * tan(roughness * PiHalf) / ((prevHitDistance + 1.0) * tan( fov )) );
 
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
@@ -91,6 +97,9 @@ float4 main(PixelInputType input) : SV_Target
     // This code decreases the mipmap level and calculates how many 
     // samples have to ba taken to achieve the same result (but with smoother filtering, rejecting etc).
     // Note: baseMipmapLevel may be fractional so mipmapLevelDecrease may also be fractional.
+
+    //#TODO: This calculationd cause mipmap level changes appear visible - ugly!
+    // Try to fix that.
     const float mipmapLevel         = floor( baseMipmapLevel * reflectionSamplingQualityInv );
     const float mipmapLevelDecrease = max( 0.0, baseMipmapLevel - mipmapLevel );
     const float samplingRadius      = max( 0.0, pow( 2.0, mipmapLevelDecrease ) - 1.0 );
