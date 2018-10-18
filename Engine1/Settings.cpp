@@ -184,7 +184,7 @@ void Settings::initializeInternal()
     s_settings.rendering.shadows.blurPattern.softShadows.normalThreshold     = 0.08f;
 
     s_settings.rendering.shadows.blur.radiusMultiplier = 1.0f;
-
+        
     // Note: To avoid light leaks at shadow layer transitions,
     // it's better to keep position/normal threshold the same for all layers.
     // Otherwise shadow is blurred slightly differently for both layers, 
@@ -201,7 +201,7 @@ void Settings::initializeInternal()
     s_settings.rendering.reflectionsRefractions.reflectionsEnabled  = true;
     s_settings.rendering.reflectionsRefractions.refractionsEnabled  = true;
     s_settings.rendering.reflectionsRefractions.samplingQuality     = 0.45f;
-    s_settings.rendering.reflectionsRefractions.roughnessBlurMul    = 60.0f;
+    s_settings.rendering.reflectionsRefractions.roughnessBlurMul    = 30.0f;
 
     s_settings.rendering.reflectionsRefractions.elongationMul     = 1.0f;
     s_settings.rendering.reflectionsRefractions.radialBlurEnabled = true;

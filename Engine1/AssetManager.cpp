@@ -224,6 +224,7 @@ std::shared_ptr<Asset> AssetManager::getWhenLoaded( Asset::Type type, std::strin
         }
 
 		// Wait until some asset finish loading or timeout.
+        // #TODO: Could use wait_for instead. No need to check current time.
 		std::_Cv_status status = m_assetLoadedOrError.wait_until( loadedAssetsLock, timoutTime );
 
 		// Exit method on timeout.

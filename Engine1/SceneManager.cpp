@@ -856,7 +856,7 @@ void SceneManager::addSpotLight()
 {
     float3 lightPosition = m_camera->getPosition() + m_camera->getDirection();
 
-    std::shared_ptr< Light > light = std::make_shared< SpotLight >( lightPosition, m_camera->getDirection(), MathUtil::pi / 8.0f );
+    std::shared_ptr< Light > light = std::make_shared< SpotLight >( lightPosition, m_camera->getDirection(), MathUtil::pi );
 
     m_scene->addLight( light );
 

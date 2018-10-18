@@ -33,7 +33,7 @@ std::shared_ptr< SpotLight > SpotLight::createFromMemory( std::vector<char>::con
 
 SpotLight::SpotLight() :
     m_direction( 0.0f, 0.0f, 1.0f ),
-    m_coneAngle( 0.5f )
+    m_coneAngle( MathUtil::pi )
 {}
 
 SpotLight::SpotLight( const SpotLight& light ) :
