@@ -69,7 +69,9 @@ float4 main(PixelInputType input) : SV_Target
     // Note: log2 for hit-dist is used only to avoid very intense blur that we cannot achieve anyways.
     // - but why are we getting those colorful artifacts for high blur?
     const float fov = Pi / 8.0f; //#TODO: Vert/horz may differ. Tan( fov ) could be calculated earlier and passed to shader.
+	//#TODO: Should also account for vertical resolution - as in shadow-blur - use that pixelSizeinWorldSpace calculations.
     float blurRadius = max( 0.0f, log2( hitDistance + 1.0f ) * roughnessMul * tan(roughness * PiHalf) / ((prevHitDistance + 1.0) * tan( fov )) );
+
 
     const float3 centerPosition = g_positionTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz; 
     const float3 centerNormal   = g_normalTexture.SampleLevel( g_pointSamplerState, input.texCoord, 0.0f ).xyz;
