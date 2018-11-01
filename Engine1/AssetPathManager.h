@@ -1,7 +1,6 @@
 #pragma once
 
-#include <unordered_map>
-#include <vector>
+#include "PathManager.h"
 
 namespace Engine1
 {
@@ -9,18 +8,13 @@ namespace Engine1
     {
         public:
 
-        static bool initialize();
-
-        static void scanAllPaths();
-
-        static std::string getPathForFileName( const std::string& fileName );
+        static PathManager& get();
 
         private:
 
-        // Key - file name (with extension), value - path to the file.
-        static std::unordered_map< std::string, std::string > s_paths;
+        static bool initialize();
 
-        static bool s_initialized;
+        static bool        s_initialized;
+        static PathManager s_assetPathManager;
     };
 }
-

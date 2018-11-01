@@ -51,11 +51,18 @@ void Settings::initializeInternal()
     s_settings.main.screenColorDepth = 32;
     s_settings.main.zBufferDepth     = 32;
 
+    s_settings.paths.assets                    = "Assets";
+    s_settings.paths.testAssets                = "TestAssets";
+    s_settings.paths.renderingTests.testCases  = "RenderingTests//TestCases";
+    s_settings.paths.renderingTests.references = "RenderingTests//References";
+    s_settings.paths.renderingTests.results    = "RenderingTests//Results";
+
     s_settings.debug.debugRenderAlpha          = false;
     s_settings.debug.debugWireframeMode        = false;
     s_settings.debug.debugDisplayedMipmapLevel = 0;
     s_settings.debug.renderFps                 = true;
     s_settings.debug.renderText                = false;
+    s_settings.debug.renderLightSources        = true;
     s_settings.debug.slowmotionMode            = false;
     s_settings.debug.snappingMode              = false;
 

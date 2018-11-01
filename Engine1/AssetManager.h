@@ -36,6 +36,8 @@ namespace Engine1
         std::shared_ptr<Asset> getOrLoad( const FileInfo& fileInfo );
         std::shared_ptr<Asset> getWhenLoaded( Asset::Type type, std::string path, const int indexInFile = 0, const float timeout = 10.0f );
 
+        void unloadAll();
+
         private:
 
         Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;

@@ -11,12 +11,14 @@ struct ID3D11Device3;
 namespace Engine1
 {
     class SceneManager;
+    class RenderingTester;
+    class AssetManager;
 
     class ControlPanel
     {
         public:
 
-        ControlPanel( SceneManager& sceneManager );
+        ControlPanel( SceneManager& sceneManager, AssetManager& assetManager, RenderingTester& renderingTester );
         ~ControlPanel();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, const int2 windowDimensions );
@@ -24,6 +26,8 @@ namespace Engine1
         int processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam );
 
         void draw();
+
+        private:
 
         static void TW_CALL onNextLevelReflection( void* clientData );
         static void TW_CALL onNextLevelRefraction( void* clientData );
@@ -60,7 +64,10 @@ namespace Engine1
         static void TW_CALL onDisplayNextStageProfilingTransmission( void* clientData );
         static void TW_CALL onDisplayPrevStageProfiling( void* clientData );
 
-        private:
+        static void TW_CALL onAddTestCase( void* controlPanel );
+        static void TW_CALL onSwitchToTestAssets( void* controlPanel );
+        static void TW_CALL onGenerateReference( void* controlPanel );
+        static void TW_CALL onRunTests( void* controlPanel );
 
         Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;
 
@@ -73,8 +80,11 @@ namespace Engine1
         TwBar* m_assaoBar;
         TwBar* m_optimizationBar;
         TwBar* m_animationBar;
+        TwBar* m_renderingTesterBar;
 
         SceneManager& m_sceneManager;
+        AssetManager& m_assetManager;
+        RenderingTester& m_renderingTester;
     };
 }
 

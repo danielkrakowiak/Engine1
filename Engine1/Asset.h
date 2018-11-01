@@ -20,7 +20,9 @@ namespace Engine1
             Texture2D = 2,
             BlockModel = 3,
             SkeletonModel = 4,
-            SkeletonAnimation = 5
+            SkeletonAnimation = 5,
+            Scene = 6,
+            StagingTexture2D = 7,
         };
 
         static std::string toString( const Type type );

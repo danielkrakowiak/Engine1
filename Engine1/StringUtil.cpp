@@ -1,6 +1,10 @@
 #include "StringUtil.h"
 
 #include <Windows.h>
+#undef max
+#undef min
+
+#include <algorithm>
 
 using namespace Engine1;
 
@@ -114,4 +118,40 @@ std::string StringUtil::replaceAllSubstrings( const std::string& str, const std:
     while( true );
 
     return result;
+}
+
+std::string StringUtil::getSubstrBefore( const std::string& str, const std::string& pivot )
+{
+    const auto pivotIdx = str.find( pivot );
+
+    if ( pivotIdx != std::string::npos )
+        return str.substr( 0, pivotIdx );
+    else
+        return str;
+}
+
+std::string StringUtil::getSubstrAfter( const std::string& str, const std::string& pivot )
+{
+    const auto pivotIdx = str.rfind( pivot );
+
+    if ( pivotIdx != std::string::npos )
+        return str.substr( pivotIdx + 1 );
+    else
+        return str;
+}
+
+std::string StringUtil::getSubstrBetween( const std::string& str, const std::string& leftLimit, const std::string& rightLimit )
+{
+    auto leftIdx = str.find( leftLimit );
+    auto rightIdx = str.rfind( rightLimit );
+
+    if ( leftIdx == std::string::npos )
+        return "";
+    else
+        leftIdx += leftLimit.size();
+
+    if ( rightIdx == std::string::npos )
+        return "";
+
+    return str.substr( leftIdx, std::max( (size_t)0, rightIdx - leftIdx ) );
 }

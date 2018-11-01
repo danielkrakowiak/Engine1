@@ -233,6 +233,29 @@ std::shared_ptr<Asset> AssetManager::getWhenLoaded( Asset::Type type, std::strin
 	}
 }
 
+void AssetManager::unloadAll()
+{
+    {
+        std::lock_guard<std::mutex> lock( m_loadedAssetsMutex );
+	    m_loadedAssets.clear();
+    }
+
+    {
+        std::lock_guard<std::mutex> lock( m_complexAssetsToParseMutex );
+	    m_complexAssetsToParse.clear();
+    }
+
+    {
+        std::lock_guard<std::mutex> lock( m_basicAssetsToParseMutex );
+	    m_basicAssetsToParse.clear();
+    }
+
+    {
+        std::lock_guard<std::mutex> lock( m_assetsMutex );
+	    m_assets.clear();
+    }
+}
+
 void AssetManager::readAssetsFromDisk() {
 	std::shared_ptr< const FileInfo > fileInfo = nullptr;
 	std::shared_ptr< std::vector<char> > fileData = nullptr;

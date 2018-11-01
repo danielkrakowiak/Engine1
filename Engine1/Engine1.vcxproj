@@ -249,8 +249,12 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -308,7 +312,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3_x64.lib;PhysX3Common_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;PhysX3Extensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\Engine1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -333,6 +337,13 @@
       <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\Projekty\Engine1\Engine1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
@@ -347,6 +358,7 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Asset.h" />
     <ClInclude Include="AssetPathManager.h" />
+    <ClInclude Include="PathManager.h" />
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="BinaryFile.h" />
     <ClInclude Include="BlockActor.h" />
@@ -403,6 +415,7 @@
     <ClInclude Include="HitDistanceSearchRenderer.h" />
     <ClInclude Include="PhysicsLibrary.h" />
     <ClInclude Include="RenderingStage.h" />
+    <ClInclude Include="RenderingTester.h" />
     <ClInclude Include="RenderTargetManager.h" />
     <ClInclude Include="ResampleTextureFragmentShader.h" />
     <ClInclude Include="GenerateMipmapMinValueComputeShader.h" />
@@ -428,6 +441,7 @@
     <ClInclude Include="RefractionShadingComputeShader.h" />
     <ClInclude Include="RefractionShadingComputeShader2.h" />
     <ClInclude Include="ReplaceValueComputeShader.h" />
+    <ClInclude Include="SceneFileInfo.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneUtil.h" />
     <ClInclude Include="Selection.h" />
@@ -468,6 +482,7 @@
     <ClInclude Include="SpotLightParser.h" />
     <ClInclude Include="SpreadValueComputeShader.h" />
     <ClInclude Include="SumValuesComputeShader.h" />
+    <ClInclude Include="TextureBase.h" />
     <ClInclude Include="ToneMappingComputeShader.h" />
     <ClInclude Include="ToneMappingRenderer.h" />
     <ClInclude Include="UtilityRenderer.h" />
@@ -539,6 +554,7 @@
     <ClCompile Include="Asset.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="AssetPathManager.cpp" />
+    <ClCompile Include="PathManager.cpp" />
     <ClCompile Include="Benchmark.cpp" />
     <ClCompile Include="BinaryFile.cpp" />
     <ClCompile Include="BlockActor.cpp" />
@@ -594,6 +610,7 @@
     <ClCompile Include="HitDistanceSearchRenderer.cpp" />
     <ClCompile Include="PhysicsLibrary.cpp" />
     <ClCompile Include="RenderingStage.cpp" />
+    <ClCompile Include="RenderingTester.cpp" />
     <ClCompile Include="RenderTargetManager.cpp" />
     <ClCompile Include="ResampleTextureFragmentShader.cpp" />
     <ClCompile Include="GenerateMipmapMinValueComputeShader.cpp" />
@@ -619,6 +636,7 @@
     <ClCompile Include="RefractionShadingComputeShader.cpp" />
     <ClCompile Include="RefractionShadingComputeShader2.cpp" />
     <ClCompile Include="ReplaceValueComputeShader.cpp" />
+    <ClCompile Include="SceneFileInfo.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneUtil.cpp" />
     <ClCompile Include="Selection.cpp" />
@@ -718,6 +736,7 @@
     <Text Include="Notes2.txt" />
     <Text Include="Optimizations.txt" />
     <Text Include="Rules.txt" />
+    <Text Include="Testing Notes.txt" />
     <Text Include="Tests To do.txt" />
     <Text Include="Time.txt" />
     <Text Include="To do.txt" />

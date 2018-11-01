@@ -661,6 +661,7 @@ Idea:
 	  - if done properly, it could even handle multiple level of reflections/refractions. Or we could just ignore reflection/refraction and focus on normal shading.
 	  - we could also increase shadow quality at edges - by sampling edge image - and tracing more rays in that case. 
 	    This could fix the problem with tracing 1 ray to a "random" point on light, which after weighted blur can lead to overly bright/dark/jagged edges.
+      - Is uploading BRG texutres to GPU faster than uploading RGB textures? Is GPU storing them natively in BGR?
 
 	  Sources: 
 

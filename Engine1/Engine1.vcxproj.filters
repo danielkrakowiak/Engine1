@@ -493,6 +493,12 @@
     <Filter Include="Header Files\Shader\BlurShadowPattern">
       <UniqueIdentifier>{6c2e7520-9693-4ee7-ae38-e39571c0746d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\RenderingTester">
+      <UniqueIdentifier>{f7ad1470-3349-4fd9-b088-c39ee6d4a6bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RenderingTester">
+      <UniqueIdentifier>{16aedf44-e70c-4181-9b74-be5d29d78e67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -966,9 +972,6 @@
     <ClInclude Include="FileSystem.h">
       <Filter>Header Files\File</Filter>
     </ClInclude>
-    <ClInclude Include="AssetPathManager.h">
-      <Filter>Header Files\AssetManager</Filter>
-    </ClInclude>
     <ClInclude Include="FileUtil.h">
       <Filter>Header Files\File</Filter>
     </ClInclude>
@@ -1073,6 +1076,21 @@
     </ClInclude>
     <ClInclude Include="BlurShadowPatternComputeShader.h">
       <Filter>Header Files\Shader\BlurShadowPattern</Filter>
+    </ClInclude>
+    <ClInclude Include="PathManager.h">
+      <Filter>Header Files\AssetManager</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetPathManager.h">
+      <Filter>Header Files\AssetManager</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingTester.h">
+      <Filter>Header Files\RenderingTester</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneFileInfo.h">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureBase.h">
+      <Filter>Header Files\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1517,9 +1535,6 @@
     <ClCompile Include="FileSystem.cpp">
       <Filter>Source Files\File</Filter>
     </ClCompile>
-    <ClCompile Include="AssetPathManager.cpp">
-      <Filter>Source Files\AssetManager</Filter>
-    </ClCompile>
     <ClCompile Include="FileUtil.cpp">
       <Filter>Source Files\File</Filter>
     </ClCompile>
@@ -1616,6 +1631,18 @@
     <ClCompile Include="BlurShadowPatternComputeShader.cpp">
       <Filter>Source Files\Shader\BlurShadowPattern</Filter>
     </ClCompile>
+    <ClCompile Include="PathManager.cpp">
+      <Filter>Source Files\AssetManager</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetPathManager.cpp">
+      <Filter>Source Files\AssetManager</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingTester.cpp">
+      <Filter>Source Files\RenderingTester</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneFileInfo.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Time.txt">
@@ -1643,6 +1670,9 @@
       <Filter>Source Files\Notes</Filter>
     </Text>
     <Text Include="Optimizations.txt">
+      <Filter>Source Files\Notes</Filter>
+    </Text>
+    <Text Include="Testing Notes.txt">
       <Filter>Source Files\Notes</Filter>
     </Text>
   </ItemGroup>

@@ -2,6 +2,7 @@
 
 #include "SceneParser.h"
 #include "BinaryFile.h"
+#include "SceneFileInfo.h"
 
 #include <tuple>
 
@@ -11,7 +12,12 @@ std::tuple< std::shared_ptr<Scene>, std::shared_ptr<std::vector< std::shared_ptr
 {
     std::shared_ptr<std::vector<char>> data = BinaryFile::load( path );
 
-    return SceneParser::parseBinary( *data );
+    auto sceneAndModels = SceneParser::parseBinary( *data );
+
+    SceneFileInfo sceneFileInfo( path );
+    std::get< 0 >( sceneAndModels )->setFileInfo( sceneFileInfo );
+
+    return sceneAndModels;
 }
 
 Scene::Scene()
@@ -20,6 +26,21 @@ Scene::Scene()
 
 Scene::~Scene()
 {}
+
+void Scene::setFileInfo( const SceneFileInfo& fileInfo )
+{
+    m_fileInfo = fileInfo;
+}
+
+const SceneFileInfo& Scene::getFileInfo() const
+{
+    return m_fileInfo;
+}
+
+SceneFileInfo& Scene::getFileInfo()
+{
+    return m_fileInfo;
+}
 
 void Scene::addActor( std::shared_ptr<Actor> actor )
 {

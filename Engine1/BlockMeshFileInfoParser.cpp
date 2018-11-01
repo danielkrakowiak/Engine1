@@ -15,7 +15,7 @@ std::shared_ptr<BlockMeshFileInfo> BlockMeshFileInfoParser::parseBinary( std::ve
 	const int fileNameSize = BinaryFile::readInt( dataIt );
     const auto fileName = BinaryFile::readText( dataIt, fileNameSize );
 
-    const auto filePath = AssetPathManager::getPathForFileName( fileName );
+    const auto filePath = AssetPathManager::get().getPathForFileName( fileName );
 
 	fileInfo->setPath(                     filePath );
 	fileInfo->setIndexInFile(              BinaryFile::readInt( dataIt ) );

@@ -172,5 +172,6 @@ namespace Engine1
     };
 
     uchar4 operator * (const unsigned char value, const uchar4& vec);
+
 }
 

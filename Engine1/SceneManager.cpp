@@ -30,6 +30,7 @@
 #include "BlockModelImporter.h"
 
 #include "AssetPathManager.h"
+#include "Settings.h"
 
 using namespace Engine1;
 using Microsoft::WRL::ComPtr;
@@ -316,7 +317,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
                     mesh->saveToFile( filePathWithoutExtension + ( indexInFile != 0 ? "_" + std::to_string( indexInFile ) : "" ) + ".blockmesh", BlockMeshFileInfo::Format::BLOCKMESH );
 
                     // Re-scan all paths to detect newly exported files.
-                    AssetPathManager::scanAllPaths();
+                    AssetPathManager::get().scanDirectory( settings().paths.assets );
                 }
             } catch ( ... ) {
                 break;
@@ -454,7 +455,7 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
             }
 
             // Re-scan all paths to detect newly exported files.
-            AssetPathManager::scanAllPaths();
+            AssetPathManager::get().scanDirectory( settings().paths.assets );
         }
     }
 
@@ -519,6 +520,22 @@ void SceneManager::loadAsset( std::string filePath, const bool replaceSelected, 
     if ( isSpotlightAnimation && getSelection().containsOnlyOneSpotLight() ) {
         m_spotlightAnimator.loadAnimationFromFile( getSelection().getSpotLights().front(), filePath );
     }
+}
+
+void SceneManager::unloadAll()
+{
+    m_scenePath = "";
+    m_scene = std::make_shared< Scene >();
+
+    m_cameraPath = "";
+    m_camera = std::make_shared< FreeCamera >();
+
+    m_selection.clear();
+
+    m_cameraAnimator.removeKeyframesForDeletedObjects();
+    m_spotlightAnimator.removeKeyframesForDeletedObjects();
+    m_actorAnimator.removeKeyframesForDeletedObjects();
+    m_modelAnimator.removeKeyframesForDeletedObjects();
 }
 
 std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > >

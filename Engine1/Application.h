@@ -15,6 +15,7 @@
 #include "ControlPanel.h"
 #include "StagingTexture2D.h"
 #include "RenderTargetManager.h"
+#include "RenderingTester.h"
 
 namespace Engine1
 {
@@ -100,6 +101,8 @@ namespace Engine1
         RenderTargetManager       m_renderTargetManager;
 
         ControlPanel m_controlPanel;
+
+        RenderingTester m_renderingTester;
 
 	    bool m_windowFocused;
 

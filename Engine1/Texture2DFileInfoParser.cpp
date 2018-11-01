@@ -26,7 +26,7 @@ std::shared_ptr<Texture2DFileInfo> Texture2DFileInfoParser::parseBinary( std::ve
             : "";
     }
 
-    const auto filePath = AssetPathManager::getPathForFileName( fileName );
+    const auto filePath = AssetPathManager::get().getPathForFileName( fileName );
 
 	fileInfo->setPath( filePath );
 	fileInfo->setFormat( static_cast<Texture2DFileInfo::Format>( BinaryFile::readInt( dataIt ) ) );

@@ -1,20 +1,29 @@
 #include "ControlPanel.h"
 
 #include <d3d11_3.h>
+#include <memory>
+
 #include "SceneManager.h"
+#include "RenderingTester.h"
+#include "AssetPathManager.h"
+#include "AssetManager.h"
 
 #include "Settings.h"
+#include "Scene.h"
+#include "FileUtil.h"
 
 using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-ControlPanel::ControlPanel( SceneManager& sceneManager ) :
+ControlPanel::ControlPanel( SceneManager& sceneManager, AssetManager& assetManager, RenderingTester& renderingTester ) :
     m_mainBar( nullptr ),
     m_meshUtilsBar( nullptr ),
     m_lightBar( nullptr ),
     m_shadowsBar( nullptr ),
-    m_sceneManager( sceneManager )
+    m_sceneManager( sceneManager ),
+    m_assetManager( assetManager ),
+    m_renderingTester( renderingTester )
 {}
 
 ControlPanel::~ControlPanel()
@@ -188,6 +197,13 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_animationBar, "Camera playback speed", TW_TYPE_FLOAT, &Settings::s_settings.animation.cameraPlaybackSpeed, "min=0 max=5 step=0.01 precision=2" );
     TwAddVarRW( m_animationBar, "Lights playback speed", TW_TYPE_FLOAT, &Settings::s_settings.animation.lightsPlaybackSpeed, "min=0 max=5 step=0.01 precision=2" );
     TwAddVarRW( m_animationBar, "Actors playback speed", TW_TYPE_FLOAT, &Settings::s_settings.animation.actorsPlaybackSpeed, "min=0 max=5 step=0.01 precision=2" );
+
+    m_renderingTesterBar = TwNewBar("Rendering Tester");
+    TwDefine(" Animation iconified=true ");
+    TwAddButton( m_renderingTesterBar, "", ControlPanel::onSwitchToTestAssets, this, " label='Switch to test assets' ");
+    TwAddButton( m_renderingTesterBar, "", ControlPanel::onAddTestCase, this, " label='Add test case' ");
+    TwAddButton( m_renderingTesterBar, "", ControlPanel::onGenerateReference, this, " label='Generate reference' ");
+    TwAddButton( m_renderingTesterBar, "", ControlPanel::onRunTests, this, " label='Run tests (debug)' ");
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )
@@ -397,4 +413,38 @@ void TW_CALL ControlPanel::onDisplayPrevStageProfiling( void* clientData )
         getPrevRenderingStage( settings().profiling.display.startWithStage );
 
     Settings::onChanged();
+}
+
+void TW_CALL ControlPanel::onAddTestCase( void* controlPanel )
+{
+    auto& panel = *static_cast<ControlPanel*>( controlPanel );
+
+    auto scene     = panel.m_sceneManager.getScene();
+    auto camera    = panel.m_sceneManager.getCamera();
+    auto scenePath = (scene ? scene->getFileInfo().getPath() : "");
+    auto sceneName = FileUtil::getFileNameFromPath( scenePath, false );
+
+    if ( !sceneName.empty() && camera )
+        panel.m_renderingTester.addAndSaveTestCase( sceneName, *camera );
+}
+
+void TW_CALL ControlPanel::onSwitchToTestAssets( void* controlPanel )
+{
+    auto& panel = *static_cast<ControlPanel*>( controlPanel );
+
+    panel.m_renderingTester.switchToUsingTestAssets();
+}
+
+void TW_CALL ControlPanel::onGenerateReference( void* controlPanel )
+{
+    auto& panel = *static_cast<ControlPanel*>( controlPanel );
+    
+    panel.m_renderingTester.generateReference();
+}
+
+void TW_CALL ControlPanel::onRunTests( void* controlPanel )
+{
+    auto& panel = *static_cast<ControlPanel*>( controlPanel );
+    
+    panel.m_renderingTester.runTests();
 }

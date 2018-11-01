@@ -30,3 +30,8 @@
 	- loading a model sync/async containing sub-assets which were already loaded. Should't throw exception.
 06.12.2015
 	- test whether an asset loaded with AssetManager has correct file info.
+
+
+Tests should use PathManager to find assets. Or hardcoded paths.
+
+Have some common function to set proper current-path for all tests.

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 
+#include <experimental/filesystem>
 #include <d3d11_3.h>
 
 #include "Texture2D.h"
@@ -22,8 +23,8 @@ namespace UnitTests
 	{
 		private:
 
-		ID3D11Device* testDevice;
-		ID3D11DeviceContext* testDeviceContext;
+		Microsoft::WRL::ComPtr< ID3D11Device3 > testDevice;
+		Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > testDeviceContext;
 
 		TEST_METHOD_INITIALIZE( initTest ) 
         {
@@ -35,24 +36,39 @@ namespace UnitTests
             // Enable debug layer if in debug mode.
 	        unsigned int flags = D3D11_CREATE_DEVICE_DEBUG;
 
-			HRESULT result = D3D11CreateDevice( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, &featureLevel, 1, D3D11_SDK_VERSION, &testDevice, nullptr, &testDeviceContext );
-			if ( result < 0 ) throw std::exception( "Device creation failed." );
+            Microsoft::WRL::ComPtr< ID3D11Device > basicDevice;
+            Microsoft::WRL::ComPtr< ID3D11DeviceContext > basicDeviceContext;
 
-            BOOL success = SetCurrentDirectoryW( L"F:/Projekty/Engine1/" );
-            if ( !success ) throw std::exception( "Failed to set current path for tests." );
+			HRESULT result = D3D11CreateDevice( 
+                nullptr, D3D_DRIVER_TYPE_HARDWARE, 
+                nullptr, flags, &featureLevel, 1, 
+                D3D11_SDK_VERSION, 
+                basicDevice.ReleaseAndGetAddressOf(), 
+                nullptr, 
+                basicDeviceContext.ReleaseAndGetAddressOf() );
+
+			if ( result < 0 ) {
+                throw std::exception( "Device creation failed." );
+            }
+
+            result = basicDevice.As( &testDevice );
+            basicDeviceContext.As( &testDeviceContext );
+
+            if ( result < 0 ) {
+                throw std::exception( "Creation of DirectX 11.3 device failed" );
+            }
+
+            // Modify current path to point to root project directory.
+            auto currentPath = std::experimental::filesystem::v1::current_path();
+            currentPath = currentPath.parent_path();
+            currentPath = currentPath.parent_path();
+            std::experimental::filesystem::v1::current_path(currentPath);
 		}
 
 		TEST_METHOD_CLEANUP( cleanupTest ) 
         {
-			if ( testDeviceContext ) {
-				testDeviceContext->Release( );
-				testDeviceContext = nullptr;
-			}
-
-			if ( testDevice ) {
-				testDevice->Release( );
-				testDevice = nullptr;
-			}
+			testDeviceContext.Reset();
+			testDevice.Reset();
 		}
 
         template< typename PixelType >
@@ -61,7 +77,7 @@ namespace UnitTests
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > textures;
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -72,7 +88,7 @@ namespace UnitTests
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > textures;
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -83,7 +99,7 @@ namespace UnitTests
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > > > textures;
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -95,7 +111,7 @@ namespace UnitTests
 
             textures.push_back(
                 std::make_shared< Texture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
-                    ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
+                    ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
                 );
 
             return textures;
@@ -108,7 +124,7 @@ namespace UnitTests
 
             textures.push_back( 
                 std::make_shared< Texture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
-                    ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) 
+                    ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) 
             );
 
             return textures;
@@ -121,7 +137,7 @@ namespace UnitTests
 
             textures.push_back( 
                 std::make_shared< Texture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
-                    ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) 
+                    ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) 
             );
 
             return textures;
@@ -134,7 +150,7 @@ namespace UnitTests
 
             textures.push_back( 
                 std::make_shared< Texture2D< TexUsage::Dynamic, TexBind::ShaderResource, PixelType > >
-                    ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) 
+                    ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) 
             );
 
             return textures;
@@ -146,31 +162,31 @@ namespace UnitTests
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, PixelType > >
-                                ( *testDevice, width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                                ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -181,31 +197,31 @@ namespace UnitTests
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, PixelType > >
-                ( *testDevice, fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -216,31 +232,31 @@ namespace UnitTests
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, PixelType > >
-                ( *testDevice, dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -251,31 +267,31 @@ namespace UnitTests
             std::vector< std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > > > textures;
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R24_UNORM_X8_TYPELESS ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_ShaderResource, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             textures.push_back( std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, PixelType > >
-                ( *testDevice, data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -499,17 +515,17 @@ namespace UnitTests
                     = createTexturesDefaultUsageFromRawData< PixelType >( data, width, height, storeOnCpu, storeOnGpu, generateMipmaps );
 
                 for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Immutable, PixelType > >& texture : texturesImmutableUsage ) {
-                    texture->loadCpuToGpu( *testDevice, *testDeviceContext );
+                    texture->loadCpuToGpu( *testDevice.Get(), *testDeviceContext.Get() );
                     verifyTexture( *texture, width, height, storeOnCpu, true, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
 
                 for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Dynamic, PixelType > >& texture : texturesDynamicUsage ) {
-                    texture->loadCpuToGpu( *testDevice, *testDeviceContext );
+                    texture->loadCpuToGpu( *testDevice.Get(), *testDeviceContext.Get() );
                     verifyTexture( *texture, width, height, storeOnCpu, true, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
 
                 for ( std::shared_ptr< Texture2DSpecUsage< TexUsage::Default, PixelType > >& texture : texturesDefaultUsage ) {
-                    texture->loadCpuToGpu( *testDevice, *testDeviceContext );
+                    texture->loadCpuToGpu( *testDevice.Get(), *testDeviceContext.Get() );
                     verifyTexture( *texture, width, height, storeOnCpu, true, expectedBytesPerPixel, excpectedLineSize, excpectedSize );
                 }
             }

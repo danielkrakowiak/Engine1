@@ -5,6 +5,7 @@
 //#include "OBJMeshFileParser.h"
 #include "MathUtil.h"
 
+#include <experimental/filesystem>
 #include <d3d11_3.h>
 
 using namespace Engine1;
@@ -15,8 +16,8 @@ namespace UnitTests {
 
 	private:
 
-		ID3D11Device* testDevice;
-		ID3D11DeviceContext* testDeviceContext;
+		Microsoft::WRL::ComPtr< ID3D11Device3 > testDevice;
+		Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > testDeviceContext;
 
 		TEST_METHOD_INITIALIZE( initTest ) {
 
@@ -25,26 +26,42 @@ namespace UnitTests {
 
 			D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-			HRESULT result = D3D11CreateDevice( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, &featureLevel, 1, D3D11_SDK_VERSION, &testDevice, nullptr, &testDeviceContext );
-			if ( result < 0 )
-				throw std::exception( "Device creation failed." );
+            // Enable debug layer if in debug mode.
+	        unsigned int flags = D3D11_CREATE_DEVICE_DEBUG;
 
-            BOOL success = SetCurrentDirectoryW( L"F:/Projekty/Engine1/" );
-            if ( !success )
-                throw std::exception( "Failed to set current path for tests." );
+			Microsoft::WRL::ComPtr< ID3D11Device > basicDevice;
+            Microsoft::WRL::ComPtr< ID3D11DeviceContext > basicDeviceContext;
+
+			HRESULT result = D3D11CreateDevice( 
+                nullptr, D3D_DRIVER_TYPE_HARDWARE, 
+                nullptr, flags, &featureLevel, 1, 
+                D3D11_SDK_VERSION, 
+                basicDevice.ReleaseAndGetAddressOf(), 
+                nullptr, 
+                basicDeviceContext.ReleaseAndGetAddressOf() );
+
+			if ( result < 0 ) {
+                throw std::exception( "Device creation failed." );
+            }
+
+            result = basicDevice.As( &testDevice );
+            basicDeviceContext.As( &testDeviceContext );
+
+            if ( result < 0 ) {
+                throw std::exception( "Creation of DirectX 11.3 device failed" );
+            }
+
+            // Modify current path to point to root project directory.
+            auto currentPath = std::experimental::filesystem::v1::current_path();
+            currentPath = currentPath.parent_path();
+            currentPath = currentPath.parent_path();
+            std::experimental::filesystem::v1::current_path(currentPath);
 		}
 
 		TEST_METHOD_CLEANUP( cleanupTest ) {
 
-			if ( testDeviceContext ) {
-				testDeviceContext->Release();
-				testDeviceContext = nullptr;
-			}
-
-			if ( testDevice ) {
-				testDevice->Release();
-				testDevice = nullptr;
-			}
+			testDeviceContext.Reset();
+			testDevice.Reset();
 		}
 
 	public:
@@ -94,7 +111,7 @@ namespace UnitTests {
 			} catch ( ... ) {}
 
 			try {
-				mesh.loadCpuToGpu( *testDevice );
+				mesh.loadCpuToGpu( *testDevice.Get() );
 				Assert::Fail( L"BlockMesh::loadCpuToGpu() - Exception not thrown on illegal operation" );
 			} catch ( ... ) {}
 			try {
@@ -119,7 +136,7 @@ namespace UnitTests {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
 			try {
-				mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 				
                 Assert::IsTrue( mesh->isInCpuMemory(), L"BlockMesh::isInCpuMemory() returned false" );
 				Assert::IsFalse( mesh->isInGpuMemory(), L"BlockMesh::isInGpuMemory() returned true" );
@@ -171,7 +188,7 @@ namespace UnitTests {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
 			try {
-				mesh = BlockMesh::createFromFile( "TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			} catch ( ... ) {
 				Assert::Fail( L"BlockMesh::createFromFile() threw an exception" );
 			}
@@ -262,21 +279,12 @@ namespace UnitTests {
 
 		TEST_METHOD( Mesh_Loading_Cpu_To_Gpu_1 )
 		{
-            std::string currentPath;
-            {
-                const DWORD charCount = GetCurrentDirectoryW( 0, nullptr );
-                std::vector<wchar_t> currentPathBufferW;
-                currentPathBufferW.resize( charCount );
-                GetCurrentDirectoryW( charCount, (LPWSTR)currentPathBufferW.data() );
-                std::wstring currentPathW( currentPathBufferW.data(), charCount - 1 );
-            }
-
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
-			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 
 			try {
-				mesh->loadCpuToGpu( *testDevice );
+				mesh->loadCpuToGpu( *testDevice.Get() );
 			} catch ( ... ) {
 				Assert::Fail( L"BlockMesh::loadCpuToGpu() threw an exception" );
 			}
@@ -309,12 +317,12 @@ namespace UnitTests {
 			try {
 				mesh1 = BlockMesh::createFromFile( "TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 				mesh2 = BlockMesh::createFromFile( "TestAssets/Meshes/bunny.obj", BlockMeshFileInfo::Format::OBJ ).front( );
-				mesh3 = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
-				mesh4 = BlockMesh::createFromFile( "TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh3 = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh4 = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 				mesh5 = BlockMesh::createFromFile( "TestAssets/Meshes/bunny.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 				mesh6 = BlockMesh::createFromFile( "TestAssets/Meshes/dragon.obj", BlockMeshFileInfo::Format::OBJ ).front( );
-				mesh7 = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
-				mesh8 = BlockMesh::createFromFile( "TestAssets/Meshes/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh7 = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+				mesh8 = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/triangle.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 			} catch ( ... ) {
 				Assert::Fail( L"BlockMesh::createFromFile() threw incorrect exception" );
 			}
@@ -333,7 +341,7 @@ namespace UnitTests {
 		TEST_METHOD( Mesh_Unloading_From_Cpu_1 ) {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
-			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
 
 			try {
 				mesh->unloadFromCpu();
@@ -375,7 +383,7 @@ namespace UnitTests {
 			} catch ( ... ) {}
 
 			try {
-				mesh->loadCpuToGpu( *testDevice );
+				mesh->loadCpuToGpu( *testDevice.Get() );
 				Assert::Fail( L"BlockMesh::loadCpuToGpu() - Exception not thrown on illegal operation" );
 			} catch ( ... ) {}
 			try {
@@ -399,8 +407,8 @@ namespace UnitTests {
 		TEST_METHOD( Mesh_Unloading_From_Cpu_Gpu_1 ) {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
-			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
-			mesh->loadCpuToGpu( *testDevice );
+			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+			mesh->loadCpuToGpu( *testDevice.Get() );
 
 			try {
 				mesh->unloadFromCpu();
@@ -448,7 +456,7 @@ namespace UnitTests {
 			} catch ( ... ) {}
 
 			try {
-				mesh->loadCpuToGpu( *testDevice );
+				mesh->loadCpuToGpu( *testDevice.Get() );
 				Assert::Fail( L"BlockMesh::loadCpuToGpu() - Exception not thrown on illegal operation" );
 			} catch ( ... ) {}
 			try {
@@ -472,8 +480,8 @@ namespace UnitTests {
 		TEST_METHOD( Mesh_Unloading_From_Gpu_Cpu_1 ) {
 			std::shared_ptr<BlockMesh> mesh = nullptr;
 
-			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
-			mesh->loadCpuToGpu( *testDevice );
+			mesh = BlockMesh::createFromFile( "TestAssets/Meshes/Basic/Pyramid.obj", BlockMeshFileInfo::Format::OBJ ).front( );
+			mesh->loadCpuToGpu( *testDevice.Get() );
 
 			try {
 				mesh->unloadFromGpu();
@@ -521,7 +529,7 @@ namespace UnitTests {
 			} catch ( ... ) {}
 
 			try {
-				mesh->loadCpuToGpu( *testDevice );
+				mesh->loadCpuToGpu( *testDevice.Get() );
 				Assert::Fail( L"BlockMesh::loadCpuToGpu() - Exception not thrown on illegal operation" );
 			} catch ( ... ) {}
 			try {

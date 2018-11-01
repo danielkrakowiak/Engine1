@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include "SceneFileInfo.h"
+
 namespace Engine1
 {
     class Actor;
@@ -23,6 +25,10 @@ namespace Engine1
         Scene();
         ~Scene();
 
+        void                 setFileInfo( const SceneFileInfo& fileInfo );
+        const SceneFileInfo& getFileInfo() const;
+        SceneFileInfo&       getFileInfo();
+
         void addActor( std::shared_ptr<Actor> actor );
         void removeActor( std::shared_ptr<Actor> actor );
         void removeAllActors();
@@ -39,6 +45,8 @@ namespace Engine1
         void saveToFile( const std::string& path ) const;
 
         private:
+
+        SceneFileInfo m_fileInfo;
 
         std::unordered_set< std::shared_ptr<Actor> > m_actors;
         std::unordered_set< std::shared_ptr<Light> > m_lights;

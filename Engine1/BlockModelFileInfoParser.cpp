@@ -15,7 +15,7 @@ std::shared_ptr<BlockModelFileInfo> BlockModelFileInfoParser::parseBinary( std::
     const int fileNameSize = BinaryFile::readInt( dataIt );
     const auto fileName = BinaryFile::readText( dataIt, fileNameSize );
 
-    const auto filePath = AssetPathManager::getPathForFileName( fileName );
+    const auto filePath = AssetPathManager::get().getPathForFileName( fileName );
 
     fileInfo->setPath( filePath );
     fileInfo->setFormat( static_cast<BlockModelFileInfo::Format>(BinaryFile::readInt( dataIt )) );

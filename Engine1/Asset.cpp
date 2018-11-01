@@ -19,6 +19,8 @@ std::string Asset::toString( const Type type )
             return "SkeletonModel";
         case Type::SkeletonAnimation:
             return "SkeletonAnimation";
+        case Type::Scene:
+            return "Scene";
     }
 
     assert( false );

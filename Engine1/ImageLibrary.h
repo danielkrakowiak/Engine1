@@ -1,5 +1,8 @@
 #pragma once
 
+// Always use RGB (instead of BGR) in FreeImage.
+#define FREEIMAGE_COLORORDER FREEIMAGE_COLORORDER_RGB
+
 #include "FreeImage/FreeImagePlus.h"
 
 /* 

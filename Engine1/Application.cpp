@@ -63,8 +63,9 @@ Application::Application() :
 	m_windowFocused( false ),
     m_assetManager(),
     m_sceneManager( m_assetManager ),
-    m_controlPanel( m_sceneManager ),
-    m_benchmark( m_sceneManager, m_profiler )
+    m_controlPanel( m_sceneManager, m_assetManager, m_renderingTester ),
+    m_benchmark( m_sceneManager, m_profiler ),
+    m_renderingTester( m_sceneManager, m_assetManager, m_rendererCore, m_renderer )
 {
 	windowsMessageReceiver = this;
 }
@@ -92,6 +93,8 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
     m_sceneManager.initialize( device, deviceContext );
 
+    m_renderingTester.initialize();
+
     createUcharDisplayFrame( settings().main.screenDimensions.x, settings().main.screenDimensions.y, device );
     createDebugFrames( settings().main.screenDimensions.x, settings().main.screenDimensions.y, device );
 
@@ -99,7 +102,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 	std::shared_ptr<BlockModel> lightModel;
 	try
 	{
-        const auto path = AssetPathManager::getPathForFileName( "light_bulb.blockmodel" );
+        const auto path = AssetPathManager::get().getPathForFileName( "light_bulb.blockmodel" );
 		BlockModelFileInfo lightModelFileInfo( path, BlockModelFileInfo::Format::BLOCKMODEL, 0);
 		lightModel = std::static_pointer_cast<BlockModel>( m_assetManager.getOrLoad( lightModelFileInfo ) );
 		lightModel->loadCpuToGpu( *m_frameRenderer.getDevice().Get(), *m_frameRenderer.getDeviceContext().Get() );
@@ -228,10 +231,10 @@ void Application::run()
 	MSG msg;
 
 	Font font( settings().main.screenDimensions );
-	font.loadFromFile( AssetPathManager::getPathForFileName( "consola.ttf" ), 35 );
+	font.loadFromFile( AssetPathManager::get().getPathForFileName( "consola.ttf" ), 35 );
 
     Font font2( settings().main.screenDimensions );
-    font2.loadFromFile( AssetPathManager::getPathForFileName( "consola.ttf" ), 13 );
+    font2.loadFromFile( AssetPathManager::get().getPathForFileName( "consola.ttf" ), 13 );
 
     // Profiling.
     const float profilingDisplayRefreshDelayMs = 200.0f;
@@ -1393,23 +1396,23 @@ void Application::setupBenchmark4()
 void Application::setupBenchmarkScenes()
 {
     m_benchmark.addSceneToTest( 
-        AssetPathManager::getPathForFileName( "benchmark0 - cornelbox.scene" ),
-        AssetPathManager::getPathForFileName( "benchmark0 - cornelbox.cameraanim" )
+        AssetPathManager::get().getPathForFileName( "benchmark0 - cornelbox.scene" ),
+        AssetPathManager::get().getPathForFileName( "benchmark0 - cornelbox.cameraanim" )
     );
 
     /*m_benchmark.addSceneToTest( 
-        AssetPathManager::getPathForFileName( "benchmark1 - sponza.scene" ),
-        AssetPathManager::getPathForFileName( "benchmark1 - sponza.cameraanim" )
+        AssetAssetPathManager::get().getPathForFileName( "benchmark1 - sponza.scene" ),
+        AssetAssetPathManager::get().getPathForFileName( "benchmark1 - sponza.cameraanim" )
     );*/
 
     /*m_benchmark.addSceneToTest( 
-        AssetPathManager::getPathForFileName( "benchmark2 - office.scene" ),
-        AssetPathManager::getPathForFileName( "benchmark2 - office.cameraanim" )
+        AssetAssetPathManager::get().getPathForFileName( "benchmark2 - office.scene" ),
+        AssetAssetPathManager::get().getPathForFileName( "benchmark2 - office.cameraanim" )
     );*/
 
     /*m_benchmark.addSceneToTest( 
-        AssetPathManager::getPathForFileName( "benchmark3 - loft.scene" ),
-        AssetPathManager::getPathForFileName( "benchmark3 - loft.cameraanim" )
+        AssetAssetPathManager::get().getPathForFileName( "benchmark3 - loft.scene" ),
+        AssetAssetPathManager::get().getPathForFileName( "benchmark3 - loft.cameraanim" )
     );*/
 }
 

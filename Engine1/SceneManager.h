@@ -8,6 +8,11 @@
 #include "FreeCamera.h"
 #include "BoundingBox.h"
 
+#include "SpotLight.h" 
+#include "FreeCamera.h"
+#include "BlockActor.h"
+#include "BlockModel.h"
+
 #include "Texture2DGeneric.h"
 
 #include "Selection.h"
@@ -19,14 +24,12 @@ struct ID3D11DeviceContext3;
 namespace Engine1
 {
     class Light;
-    class BlockActor;
     class SkeletonActor;
     class AssetManager;
-    class AssetPathManager;
+    class PathManager;
     class Scene;
     class Actor;
     class BlockMesh;
-    class BlockModel;
 
     class SceneManager
     {
@@ -53,6 +56,8 @@ namespace Engine1
         void saveScene( std::string path );
 
         void loadAsset( std::string fileName, const bool replaceSelected = false, const bool invertZ = true, const bool invertVertexWindingOrder = true, const bool invertUVs = true );
+
+        void unloadAll();
 
         std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > >
             pickActorOrLight( const float2& targetPixel, const float screenWidth, const float screenHeight, const float fieldOfView );

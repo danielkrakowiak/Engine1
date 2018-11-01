@@ -15,7 +15,7 @@ std::shared_ptr<SkeletonModelFileInfo> SkeletonModelFileInfoParser::parseBinary(
     const int fileNameSize = BinaryFile::readInt( dataIt );
     const auto fileName = BinaryFile::readText( dataIt, fileNameSize );
 
-    const auto filePath = AssetPathManager::getPathForFileName( fileName );
+    const auto filePath = AssetPathManager::get().getPathForFileName( fileName );
 
     fileInfo->setPath( filePath );
     fileInfo->setFormat( static_cast<SkeletonModelFileInfo::Format>(BinaryFile::readInt( dataIt )) );

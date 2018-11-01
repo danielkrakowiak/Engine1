@@ -14,8 +14,8 @@
 #include "uint4.h"
 #include "Texture2DEnums.h"
 #include "ImageLibrary.h"
-#include "Texture2DFileInfo.h"
 #include "BinaryFile.h"
+#include "TextureBase.h"
 
 #include "Direct3DUtil.h"
 
@@ -35,7 +35,7 @@
 namespace Engine1
 {
     template< typename PixelType >
-    class Texture2DGeneric : public Asset
+    class Texture2DGeneric : public TextureBase< PixelType >
     {
         public:
 
@@ -45,7 +45,8 @@ namespace Engine1
         Asset::Type                                 getType() const;
         std::vector< std::shared_ptr<const Asset> > getSubAssets() const;
         std::vector< std::shared_ptr<Asset> >       getSubAssets();
-        void                                        swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset );
+
+        void swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset );
 
         void                     setFileInfo( const Texture2DFileInfo& fileInfo );
         const Texture2DFileInfo& getFileInfo() const;
@@ -66,8 +67,10 @@ namespace Engine1
         int  getMipMapCountOnCpu()  const;
         int  getMipMapCountOnGpu() const;
         int  getBytesPerPixel() const;
-        int  getWidth( unsigned int mipMapLevel = 0 ) const;
-        int  getHeight( unsigned int mipMapLevel = 0 ) const;
+        int  getWidth() const { return getWidth( 0 ); };
+        int  getHeight() const { return getHeight( 0 ); };
+        int  getWidth( unsigned int mipMapLevel ) const;
+        int  getHeight( unsigned int mipMapLevel ) const;
         int2 getDimensions( unsigned int mipMapLevel = 0 ) const;
         int  getSize( unsigned int mipMapLevel = 0 ) const;
         int  getLineSize( unsigned int mipMapLevel = 0 ) const;
@@ -77,10 +80,13 @@ namespace Engine1
         void setDataPixel( float2 texcoords, PixelType color, unsigned int mipMapLevel = 0 );
         void setDataPixel( int2 position, PixelType color, unsigned int mipMapLevel = 0 );
 
-        const std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 ) const;
-        std::vector< PixelType >& getData( unsigned int mipMapLevel = 0 );
+        PixelType getDataPixel( float2 texcoords, unsigned int mipMapLevel = 0 );
+        PixelType getDataPixel( int2 position, unsigned int mipMapLevel = 0 );
 
-        void saveToFile( const std::string path, const Texture2DFileInfo::Format format ) const;
+        const std::vector< PixelType >& getData() const { return getData( 0 ); };
+        std::vector< PixelType >& getData() { return getData( 0 ); };
+        const std::vector< PixelType >& getData( unsigned int mipMapLevel ) const;
+        std::vector< PixelType >& getData( unsigned int mipMapLevel );
 
         protected:
 
@@ -156,8 +162,6 @@ namespace Engine1
         UINT        getTextureBindFlags();
         D3D11_MAP   getMapForWriteFlag();
         UINT        getTextureMiscFlags();
-
-        int formatToFreeImagePlusSaveFlag( Texture2DFileInfo::Format format ) const;
 
         // Special averaging method used to avoid overflow for small integer types during mipmap calculations.
         PixelType average( PixelType val1, PixelType val2, PixelType val3, PixelType val4 ) const;
@@ -424,58 +428,6 @@ namespace Engine1
         m_hasMipmapsOnGpu  = false;
 
         createTextureViewsOnGpu( device, 0, 0, false, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN );
-    }
-
-    template< typename PixelType >
-    void Texture2DGeneric< PixelType >
-        ::saveToFile( const std::string path, const Texture2DFileInfo::Format format ) const
-    {
-        if ( path.empty() )
-            throw std::exception( "Texture2DGeneric::saveToFile - path cannot be empty." );
-
-        if ( !isInCpuMemory() )
-            throw std::exception( "Texture2DGeneric::saveToFile - texture not in CPU memory." );
-
-        // #TODO: Could be improved significantly by avoiding copying memory to FreeImage image. Is it possible?
-
-        fipImage image( FIT_BITMAP, getWidth(), getHeight(), sizeof( PixelType ) * 8 );
-
-        const bool isPadded = image.getWidth() * sizeof( PixelType ) != image.getScanWidth();
-
-        if ( !isPadded ) 
-        {
-            // Copy entire image.
-            std::memcpy( image.accessPixels(), getData().data(), getWidth() * getHeight() * sizeof( PixelType ) );
-        } 
-        else 
-        {
-            // Copy image - line by line to account for padding at the end of each line.
-            for ( int y = 0; y < getHeight(); ++y )
-                std::memcpy( image.getScanLine( y ), getData().data() + y * getWidth(), getWidth() * sizeof( PixelType ) );
-        }
-
-        if ( !image.save( path.c_str(), formatToFreeImagePlusSaveFlag( format ) ) )
-            throw std::exception( "Texture2DGeneric::saveToFile - saving texture failed." );
-    }
-
-    template< typename PixelType >
-    int Texture2DGeneric< PixelType >
-        ::formatToFreeImagePlusSaveFlag( const Texture2DFileInfo::Format format ) const
-    {
-        //#TODO: How about quality of the output file? Compression etc?
-
-        if ( format == Texture2DFileInfo::Format::BMP )
-            return BMP_DEFAULT;
-        else if ( format == Texture2DFileInfo::Format::JPEG )
-            return JPEG_QUALITYNORMAL;
-        else if ( format == Texture2DFileInfo::Format::PNG )
-            return PNG_Z_DEFAULT_COMPRESSION;
-        else if ( format == Texture2DFileInfo::Format::TIFF )
-            return TIFF_DEFAULT;
-        else {
-            assert( false );
-            return 0;
-        }
     }
 
     template< typename PixelType >
@@ -1153,7 +1105,7 @@ namespace Engine1
 
     template< typename PixelType >
     const std::vector< PixelType >& Texture2DGeneric< PixelType >
-        ::getData( unsigned int mipMapLevel = 0 ) const
+        ::getData( unsigned int mipMapLevel ) const
     {
         if ( !isInCpuMemory() )
             throw std::exception( "Texture2DGeneric::getData - texture is not in CPU memory." );
@@ -1165,7 +1117,7 @@ namespace Engine1
 
     template< typename PixelType >
     std::vector< PixelType >& Texture2DGeneric< PixelType >
-        ::getData( unsigned int mipMapLevel = 0 )
+        ::getData( unsigned int mipMapLevel )
     {
         if ( !isInCpuMemory() )
             throw std::exception( "Texture2DGeneric::getData - texture is not in CPU memory." );
@@ -1438,6 +1390,33 @@ namespace Engine1
         position.y = std::min( dimensions.y - 1, position.y );
 
         getData( mipMapLevel )[ position.y * dimensions.x + position.x ] = color;
+    }
+
+    template< typename PixelType >
+    PixelType Texture2DGeneric< PixelType >
+    ::getDataPixel( float2 texcoords, unsigned int mipMapLevel = 0 )
+    {
+        // Clamp texcoords to <0, 1> range.
+        texcoords.x = std::max( 0.0f, texcoords.x );
+        texcoords.y = std::max( 0.0f, texcoords.y );
+        texcoords.x = std::min( 1.0f, texcoords.x );
+        texcoords.y = std::min( 1.0f, texcoords.y );
+
+        getDataPixel( 
+            (int2)(texcoords * (float2)getDimensions( mipMapLevel )), 
+            mipMapLevel
+        );
+    }
+
+    template< typename PixelType >
+    PixelType Texture2DGeneric< PixelType >
+    ::getDataPixel( int2 position, unsigned int mipMapLevel = 0 )
+    {
+        const int2 dimensions = getDimensions( mipMapLevel );
+        position.x = std::min( dimensions.x - 1, position.x );
+        position.y = std::min( dimensions.y - 1, position.y );
+
+        return getData( mipMapLevel )[ position.y * dimensions.x + position.x ];
     }
 }
 

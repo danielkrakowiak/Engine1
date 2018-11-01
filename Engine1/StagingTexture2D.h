@@ -3,12 +3,13 @@
 #include <d3d11_3.h>
 #include <wrl.h>
 
+#include "TextureBase.h"
 #include "Direct3DUtil.h"
 
 namespace Engine1
 {
     template< typename PixelType >
-    class StagingTexture2D
+    class StagingTexture2D : public TextureBase< PixelType >
     {
         public:
         StagingTexture2D( ID3D11Device3& device, const int width, const int height, DXGI_FORMAT textureFormat );
@@ -23,7 +24,24 @@ namespace Engine1
         // @param dimensions - width, height of the fragment to be loaded.
         void loadGpuToCpu( ID3D11DeviceContext3& deviceContext, const int2 coords, const int2 dimensions );
 
+        Asset::Type getType() const;
+
+        std::vector< std::shared_ptr<const Asset> > getSubAssets() const;
+        std::vector< std::shared_ptr<Asset> >       getSubAssets();
+
+        void swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset );
+
+        const Texture2DFileInfo& getFileInfo() const;
+        Texture2DFileInfo&       getFileInfo();
+
+        bool isInCpuMemory() const;
+        bool isInGpuMemory() const;
+
+        const std::vector< PixelType >& getData() const;
+        std::vector< PixelType >& getData();
+
         PixelType getPixel( const int2 coords ) const;
+        void setPixel( const PixelType& pixel, const int2 coords );
 
         int getBytesPerPixel() const;
 
@@ -43,7 +61,14 @@ namespace Engine1
         std::vector< PixelType > m_data;
 
         Microsoft::WRL::ComPtr< ID3D11Texture2D > m_texture;
+
+        // Temporary fix for base class Asset requiring getFileInfo() to always return some file-info.
+        // #TODO: getFileInfo should return std::optional.
+        static Texture2DFileInfo s_emptyFileinfo;
     };
+
+    template< typename PixelType >
+    Texture2DFileInfo StagingTexture2D< PixelType >::s_emptyFileinfo;
 
     template< typename PixelType >
     StagingTexture2D< PixelType >
@@ -164,6 +189,82 @@ namespace Engine1
     }
 
     template< typename PixelType >
+    Asset::Type StagingTexture2D< PixelType >
+        ::getType() const
+    {
+	    return Asset::Type::StagingTexture2D;
+    }
+
+    template< typename PixelType >
+    std::vector< std::shared_ptr<const Asset> > StagingTexture2D< PixelType >
+        ::getSubAssets( ) const
+    {
+        return {};
+    }
+
+    template< typename PixelType >
+    std::vector< std::shared_ptr<Asset> > StagingTexture2D< PixelType >
+        ::getSubAssets()
+    {
+        return {};
+    }
+
+    template< typename PixelType >
+    void StagingTexture2D< PixelType >
+        ::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<Asset> newAsset )
+    {
+	    throw std::exception( "StagingTexture2D::swapSubAsset - there are no sub-assets to be swapped." );
+    }
+
+    template< typename PixelType >
+    const Texture2DFileInfo& StagingTexture2D< PixelType >
+        ::getFileInfo() const
+    {
+        return s_emptyFileinfo;
+    }
+
+    template< typename PixelType >
+    Texture2DFileInfo& StagingTexture2D< PixelType >
+        ::getFileInfo()
+    {
+        return s_emptyFileinfo;
+    }
+
+    template< typename PixelType >
+    bool StagingTexture2D< PixelType >
+        ::isInCpuMemory() const
+    {
+	    return !m_data.empty();
+    }
+    
+    template< typename PixelType >
+    bool StagingTexture2D< PixelType >
+        ::isInGpuMemory() const
+    {
+	    return m_texture != nullptr;
+    }
+
+    template< typename PixelType >
+    const std::vector< PixelType >& StagingTexture2D< PixelType >
+        ::getData() const
+    {
+        if ( !isInCpuMemory() )
+            throw std::exception( "StagingTexture2D::getData - texture is not in CPU memory." );
+
+        return m_data;
+    }
+
+    template< typename PixelType >
+    std::vector< PixelType >& StagingTexture2D< PixelType >
+        ::getData()
+    {
+        if ( !isInCpuMemory() )
+            throw std::exception( "StagingTexture2D::getData - texture is not in CPU memory." );
+
+        return m_data;
+    }
+
+    template< typename PixelType >
     PixelType StagingTexture2D< PixelType >
         ::getPixel( const int2 coords ) const
     {
@@ -176,6 +277,15 @@ namespace Engine1
         }
 
         return m_data[ coords.y * getWidth() + coords.x ];
+    }
+
+    template< typename PixelType >
+    void StagingTexture2D< PixelType >
+        ::setPixel( const PixelType& pixel, const int2 coords )
+    {
+        assert(coords.x >= 0 && coords.y >= 0 && coords.x < getWidth() && coords.y < getHeight());
+
+        m_data[ coords.y * getWidth() + coords.x ] = pixel;
     }
 
     template< typename PixelType >

@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Texture2D">
       <UniqueIdentifier>{8a89a667-6c7c-4f9f-8494-02cdf5db608f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Rendering">
+      <UniqueIdentifier>{2bda16f9-5f4f-4117-b9e9-cdb248e98169}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -64,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="Texture2DTests.cpp">
       <Filter>Source Files\Texture2D</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingTests.cpp">
+      <Filter>Source Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

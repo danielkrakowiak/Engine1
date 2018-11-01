@@ -384,7 +384,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
         float4 lightDisabledEmissiveColor( 0.0f, 1.0f, 0.0f, 1.0f );
 
         // Render light sources in the scene.
-        if ( m_lightModel ) 
+        if ( m_lightModel && settings().debug.renderLightSources ) 
         {
             float43 lightPose( float43::IDENTITY );
             for ( const auto& light : scene.getLights() ) 

@@ -23,6 +23,10 @@ namespace Engine1
         std::string replaceSubstring( const std::string& str, const std::string& from, const std::string& to );
         std::string replaceAllSubstrings( const std::string& str, const std::string& from, const std::string& to );
 
+        std::string getSubstrBefore( const std::string& str, const std::string& pivot );
+        std::string getSubstrAfter( const std::string& str, const std::string& pivot );
+        std::string getSubstrBetween( const std::string& str, const std::string& leftLimit, const std::string& rightLimit );
+
         extern std::locale locale;
         extern const std::string localeName;
 

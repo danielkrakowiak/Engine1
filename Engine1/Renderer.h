@@ -212,6 +212,9 @@ namespace Engine1
         // Temporary - for debug.
         const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > > debugGetCurrentRefractiveIndexTextures();
 
+        Microsoft::WRL::ComPtr< ID3D11Device3 >        getDevice() const        { return m_device; }
+        Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > getDeviceContext() const { return m_deviceContext; };
+
         private:
 
         Output renderPrimaryLayer( 

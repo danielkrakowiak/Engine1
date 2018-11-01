@@ -1,0 +1,20 @@
+When you get assertions from tests that normally run fine, 
+check for hanging processes under Visual Studio (in Taks Manager). Kill them before running tests.
+Look for vstest.executionengine.exe.
+
+---------------------
+
+To test x64 version of the code you need to change one setting: Menu->Test->Test Settings->Default Proessor Architecture->X64.
+
+If Unit Test project crashes at startup it can be caused by incorrect project configuration and linking to missing libraries. 
+Programs called "Dependacy Walker" or "ProcessMonitor" are useful for checking if UnitTest.dll or Engine.exe have such problems.
+
+---------------------
+
+If you get "Failed to setup execution context" error while running tests, 
+it's probably caused by using a wrong version of .lib or .dll in Engine1 or UntiTest project (they should match).
+
+Check for things such as Engine1 linking PhysX_x64.lib, while UnitTest linking PhysXCHECKED_x64.lib. 
+
+
+

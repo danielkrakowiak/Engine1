@@ -503,10 +503,23 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 30.03.2018 - 10h - Added options to playback/pause anim on many objects at once, add keyframe to many objects at once. Tried to use R32G32B32_FLOAT format for normals and ray directions instead of R32G32B32A32_FLOAT (3 components instead of 4). But failed, as no GPU supports that format for render targets, UAVs etc. But converted normals/ray directions to R16G16B16A16_FLOAT and it resulted in 20% performance improvement on average. Added support for float3 textures in rendering related code.
 31.03.2018 - 8h - Added options to change position/normal sampled mipmap levels in some shaders from Control Panel (as optimization). Preparing test scenes for demo clip. Added ability to play animation on BlockModel - to animate texture multipliers.
 --- March 2018 - 50h
---- total 1445h
 
 05.04.2018 - 4h - Testing approach with altering shadow ray directions - neighbor pixels aim at different positions on area light - got great results - but pattenrs in shadow texture need to be averaged (blurred).
 09.04.2018 - 5h - Added BlurShadowPatternRenderer to blur 6x6 patches of pixels when using "shadow ray direction altering" option. Testing shadow behavior on various scenes.
 10.04.2018 - 3h - Added rejecting samples in pattern-blur shader based on position/normal (to avoid halos around lit objects). Added global shadow blur-radius multiplier to experiment with needed blur amount when altering shadow ray directions.
+--- April 2018 - 12h
 
 03.05.2018 - 4h - Fixed many bugs in blur-shadow-pattern shaders - differences between similar shaders, wrong values, mistakes in constant buffer structure etc. Added option to sample higher level raw-shadow-texture and weighting samples based on expected position diff. Can't really sample higher level mipmaps as it causes shadow leaks - can only be used in soft shadow regions - such selection is not done yet.
+--- May 2018 - 4h
+--- total 1461h
+
+18.10.2018 - 3h - Added RenderingTester - loading test-cases from files. Modifed PathManager to not be a singleton.
+19.10.2018 - 2h - Adding a test case from ControlPanel. Added SceneFileInfo.
+21.10.2018 - 1h - Unloading assets, re-scanning paths from TestAssets directory, resetting current scene etc.
+23.10.2018 - 2h - Loading test-cases from files, loading scene, camera.
+26.10.2018 - 3.5h - Saving rendering test results to files. Added TextureBase class to store code shared by Texture2DGeneric and StagingTexture2D (and moved method saveToFile there). Trying to invert red/blue channels in saved image.
+27.10.2018 - 4.5h - Saving output image to file, inverting red, blue channels, removing alpha channel, flipping vertically, calculating diff with reference image. Running tests works.
+28.10.2018 - 2h - Generating reference images and saving them to a folder. Fixing UnitTests project - fixing compilation errors.
+29.10.2018 - 2.5h - Fixed UnitTest compilation and fixed all tests. All tests are passing. Added the RenderingTest and initialization of all neeeded modules. RenderingTest is working.
+
+01.11.2018 - 2h - Fixed UnitTest release config ("failed to setup execution context" error). Caused by mismatch of PhysX and Assimp libraries in Engine1 and UnitTests.

@@ -21,6 +21,7 @@ namespace Engine1
         friend class EngineApplication;
         friend class ControlPanel;
         friend class Benchmark;
+        friend class RenderingTester;
 
         public:
 
@@ -43,6 +44,18 @@ namespace Engine1
             char zBufferDepth;
         } main;
 
+        struct Paths
+        {
+            std::string assets;
+            std::string testAssets;
+            struct RenderingTests
+            {
+                std::string references;
+                std::string testCases;
+                std::string results;
+            } renderingTests;
+        } paths;
+
         struct Debug
         {
             bool debugRenderAlpha;
@@ -50,6 +63,7 @@ namespace Engine1
             int  debugDisplayedMipmapLevel;
             bool renderFps;
             bool renderText;
+            bool renderLightSources;
 
             bool slowmotionMode;
             bool snappingMode;
