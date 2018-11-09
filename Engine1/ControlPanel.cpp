@@ -63,8 +63,6 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarCB( m_mainBar, "Refractive index mul", TW_TYPE_FLOAT, ControlPanel::onSetRefractiveIndexMul, ControlPanel::onGetFloat, &Settings::s_settings.debug.refractiveIndexMul, "min=0 max=1 step=0.001 precision=3" );
 
     TwAddVarRW( m_mainBar, "Field of view", TW_TYPE_FLOAT, &Settings::s_settings.rendering.fieldOfViewDegress, "min=30 max=180 step=0.1 precision=1" );
-    TwAddVarRW( m_mainBar, "Exposure", TW_TYPE_FLOAT, &Settings::s_settings.rendering.exposure, "min=-10 max=10 step=0.01 precision=2" );
-    TwAddVarRW( m_mainBar, "Antialiasing", TW_TYPE_BOOL8, &Settings::s_settings.rendering.antialiasing, "" );
 
     m_meshUtilsBar = TwNewBar("Mesh_Utils");
     TwDefine(" Mesh_Utils iconified=true ");
@@ -198,12 +196,27 @@ void ControlPanel::initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device, 
     TwAddVarRW( m_animationBar, "Lights playback speed", TW_TYPE_FLOAT, &Settings::s_settings.animation.lightsPlaybackSpeed, "min=0 max=5 step=0.01 precision=2" );
     TwAddVarRW( m_animationBar, "Actors playback speed", TW_TYPE_FLOAT, &Settings::s_settings.animation.actorsPlaybackSpeed, "min=0 max=5 step=0.01 precision=2" );
 
-    m_renderingTesterBar = TwNewBar("Rendering Tester");
-    TwDefine(" Animation iconified=true ");
+    m_renderingTesterBar = TwNewBar("Rendering_Tester");
+    TwDefine(" Rendering_Tester iconified=true ");
     TwAddButton( m_renderingTesterBar, "", ControlPanel::onSwitchToTestAssets, this, " label='Switch to test assets' ");
     TwAddButton( m_renderingTesterBar, "", ControlPanel::onAddTestCase, this, " label='Add test case' ");
     TwAddButton( m_renderingTesterBar, "", ControlPanel::onGenerateReference, this, " label='Generate reference' ");
     TwAddButton( m_renderingTesterBar, "", ControlPanel::onRunTests, this, " label='Run tests (debug)' ");
+
+    m_postProcessBar = TwNewBar("Post_Process");
+    TwDefine(" Post_Process iconified=true ");
+    TwAddVarRW( m_postProcessBar, "DOF", TW_TYPE_BOOL8, &Settings::s_settings.rendering.postProcess.depthOfField.enabled, "" );
+    TwAddVarRW( m_postProcessBar, "Aperture diameter", TW_TYPE_FLOAT, &Settings::s_settings.rendering.postProcess.depthOfField.apertureDiameter, "min=0.001 max=0.05 step=0.001 precision=3" );
+    TwAddVarRW( m_postProcessBar, "Focal length", TW_TYPE_FLOAT, &Settings::s_settings.rendering.postProcess.depthOfField.focalLength, "min=0.005 max=0.4 step=0.001 precision=3" );
+    TwAddVarRW( m_postProcessBar, "Focus distance", TW_TYPE_FLOAT, &Settings::s_settings.rendering.postProcess.depthOfField.cameraFocusDist, "min=0.001 max=10000.0 step=0.02 precision=2" );
+    TwAddVarRW( m_postProcessBar, "Set focus to clicked object", TW_TYPE_BOOL8, &Settings::s_settings.rendering.postProcess.depthOfField.setFocusAtClickedObject, "" );
+    TwAddVarRW( m_postProcessBar, "CoC Mul (pixels per meter)", TW_TYPE_FLOAT, &Settings::s_settings.rendering.postProcess.depthOfField.coCMul, "min=500 max=10000 step=10 precision=0" );
+    TwAddVarRW( m_postProcessBar, "Max CoC (radius in pixels)", TW_TYPE_FLOAT, &Settings::s_settings.rendering.postProcess.depthOfField.maxCoC, "min=0 max=500 step=1 precision=0" );
+    TwAddVarRW( m_postProcessBar, "Depth threshold", TW_TYPE_FLOAT, &Settings::s_settings.rendering.postProcess.depthOfField.relativeDepthThreshold, "min=0.01 max=10 step=0.01 precision=2" );
+    TwAddSeparator( m_postProcessBar, "", nullptr );
+    TwAddVarRW( m_postProcessBar, "Bloom", TW_TYPE_BOOL8, &Settings::s_settings.rendering.postProcess.bloom, "" );
+    TwAddVarRW( m_postProcessBar, "Exposure", TW_TYPE_FLOAT, &Settings::s_settings.rendering.postProcess.exposure, "min=-10 max=10 step=0.01 precision=2" );
+    TwAddVarRW( m_postProcessBar, "Antialiasing", TW_TYPE_BOOL8, &Settings::s_settings.rendering.postProcess.antialiasing, "" );
 }
 
 int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W64 wParam, __int64 _W64 lParam )

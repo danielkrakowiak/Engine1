@@ -538,7 +538,7 @@ void SceneManager::unloadAll()
     m_modelAnimator.removeKeyframesForDeletedObjects();
 }
 
-std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > >
+std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light >, float >
 SceneManager::pickActorOrLight( const float2& targetPixel, const float screenWidth, const float screenHeight, const float fieldOfView )
 {
     float43 cameraPose;
@@ -604,9 +604,9 @@ SceneManager::pickActorOrLight( const float2& targetPixel, const float screenWid
     }
 
     if ( hitActor )
-        return std::make_tuple( hitActor, nullptr );
+        return std::make_tuple( hitActor, nullptr, minHitDistance );
     else
-        return std::make_tuple( nullptr, hitLight );
+        return std::make_tuple( nullptr, hitLight, minHitDistance );
 }
 
 void SceneManager::mergeSelectedActors()

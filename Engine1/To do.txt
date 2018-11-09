@@ -566,6 +566,25 @@ Idea:
 		- split blur into 2-passes and increase number of taps
 		- rename blur method and remove radius param.
 
+        DOF:
+        - averaging within Circle-of-confusion causes background to spill over foreground. 
+          What should exactly blend with what? Check online. Can objects from behind overlap with objects in front? How much? Based on what?
+        - a very simple model of lens is used - onlu one point/plane is in focus.
+          Use more complex lens model to have some depth-of-field, a range of distance in focus.
+        - object close to camera are not blurred - this has to be done with split rendering of foreground/focused part/background layers. Or even more layers.
+        - aperture could have any shape (circle right now). We could read a texture where aperture shape is stored. 
+          And loop over pixels within the aperture shape.
+        - performance of sampling is very low (as we use brute force, sampling each pixel). 
+          For larger CoC it would be nice to sample higher mipmaps (at least 1st, 2nd level). 
+        - OPTIMIZATION: right now we search for large CoC pixels within max-radius. 
+          But we could instead generate a max-value depth map mipmap chain, 
+          sample a low-res mipamp and know the max CoC of sorrounding pixels. That would limit the max-radius.
+        - it seems that DOF effect works also for reflections/refractions (dah!). So maybe we need to apply it per ref/refr layer?
+          https://blender.stackexchange.com/questions/115292/dof-with-a-mirror
+        - FUN: we could simulate dirt and hair on the lens or human vision imperfections (blood cells etc)
+          if we create such aperture/bokeh texture. Could be intresting...
+        - Bokeh edges could be slightly softened. A simple weight change near Bokeh edge would suffice.
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////// TESTING / BENCHMARKING/ DEMO /////////////////////////////////////////////////////////////////////
         
@@ -626,6 +645,8 @@ Idea:
         - it costs a lot to calculate blur-radius-in-screen-space for shadows in many shaders - and they all need to read position texture - maybe I should just generate blur-radius-in-screen-space texture once and then read it.
 	  
       NEXT: 
+      - option to clear the render target with given color when getting it from RenderTargetManager.
+      - warning C4100: 'positionThreshold': unreferenced formal parameter in CombiningFragmentShader.cpp
       - can we debug render layers with blurred color? From back to front? I guess we can - add it.
       - add ray tracing min-hit-dist and origin-offset for reflected/refracted rays to settings and pass them to shaders.
       - On further layers pixels are often ignored as contribution is zero. But neighbor pixels may be used, and maybe we should fill those pixels with black rather than sky color.
@@ -640,6 +661,9 @@ Idea:
       Adding that would be useful. But if there is no globabl contriubution - are further layers darker? Seems yes, because that contribution is used in combining, 
       where total combined image is multiplied by all consecutive contribution images at each comibnation. So further layers are multiplied by more contribution textures than early layers.
 
+      MINOR:
+      - m_compiled in ComputeShader should be renamed to m_initialized.
+      - remove "Shader" from shader folder names on disk.
 
       -----------------------------
 
@@ -653,6 +677,7 @@ Idea:
 	  - add settings for FXAA to Control Panel - test how they influence the result.
 
 	  FUTURE:
+      - why combining shader is a pixel shader rather than compute shader?
 	  - we could do edge detection for each layer
 	  - then, copy those pixels to sides of the normal g-buffers (in a very specific order - to find it later on)
 	  - each pixel could be copied several times, with slight modification of origin position/normal etc
@@ -662,6 +687,15 @@ Idea:
 	  - we could also increase shadow quality at edges - by sampling edge image - and tracing more rays in that case. 
 	    This could fix the problem with tracing 1 ray to a "random" point on light, which after weighted blur can lead to overly bright/dark/jagged edges.
       - Is uploading BRG texutres to GPU faster than uploading RGB textures? Is GPU storing them natively in BGR?
+
+      Interesting, funny tests TODO:
+      - Bokeh via blur with a kernel (on a float image, before color correction)
+      - disturbing reflected/refracted rays
+      - rewrite texture class to be SharedBuffer of given dimension. Remove all those options for bidning and give a couple of versions.
+        And only differentiate between texture and buffer at the very end (as DX12 possibly doesn't differentiate them).
+      - 2,3,4 layer materials
+      - improve Bloom quality
+
 
 	  Sources: 
 

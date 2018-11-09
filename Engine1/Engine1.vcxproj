@@ -225,6 +225,9 @@
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">
     <ClCompile>
@@ -249,7 +252,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
       <AdditionalDependencies>
@@ -315,6 +318,9 @@
       <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\Engine1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">
     <ClCompile>
@@ -358,6 +364,8 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Asset.h" />
     <ClInclude Include="AssetPathManager.h" />
+    <ClInclude Include="BokehBlurComputeShader.h" />
+    <ClInclude Include="BokehBlurRenderer.h" />
     <ClInclude Include="PathManager.h" />
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="BinaryFile.h" />
@@ -554,6 +562,8 @@
     <ClCompile Include="Asset.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="AssetPathManager.cpp" />
+    <ClCompile Include="BokehBlurComputeShader.cpp" />
+    <ClCompile Include="BokehBlurRenderer.cpp" />
     <ClCompile Include="PathManager.cpp" />
     <ClCompile Include="Benchmark.cpp" />
     <ClCompile Include="BinaryFile.cpp" />
@@ -1083,6 +1093,24 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
+    </FxCompile>
+    <FxCompile Include="Shaders\BokehBlur\BokehBlur_cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">$(ProjectDir)Shaders\BokehBlur\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\BokehBlur\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">$(ProjectDir)Shaders\BokehBlur\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders\BokehBlur\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseEngineLibrary|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugEngineLibrary|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Shaders</AdditionalIncludeDirectories>
     </FxCompile>
     <FxCompile Include="Shaders\CombineShadowLayersShader\CombineShadowLayers_cs.hlsl">
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Shaders\CombineShadowLayersShader\%(Filename).cso</ObjectFileOutput>

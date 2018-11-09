@@ -20,7 +20,6 @@ std::string Profiler::eventTypeToString( const GlobalEventType eventType )
         case GlobalEventType::RenderSceneToFrame:           return "RenderSceneToFrame";
         case GlobalEventType::RenderFrameToScreen:          return "RenderFrameToScreen";
         case GlobalEventType::RenderTextToFrame:            return "RenderTextToFrame";
-        case GlobalEventType::RenderTextFrameToScreen:      return "RenderTextFrameToScreen";
         case GlobalEventType::RenderControlPanelToScreen:   return "RenderControlPanelToScreen";
         case GlobalEventType::DeferredRendering:            return "DeferredRendering";
         case GlobalEventType::PostProcess:                  return "PostProcess";

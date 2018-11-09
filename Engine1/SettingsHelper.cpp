@@ -24,9 +24,10 @@ std::string SettingsHelper::compareSettings( const Settings& settings1, const Se
     text += (settings1.debug.slowmotionMode             != settings2.debug.slowmotionMode)             ? std::string("debug.slowmotionMode = ")             + (settings1.debug.slowmotionMode ? "true" : "false") + "\n" : "";
     text += (settings1.debug.snappingMode               != settings2.debug.snappingMode)               ? std::string("debug.snappingMode = ")               + (settings1.debug.snappingMode ? "true" : "false") + "\n" : "";
 
-    text += (settings1.rendering.fieldOfViewDegress     != settings2.rendering.fieldOfViewDegress)     ? std::string("rendering.fieldOfViewDegress = ")     + std::to_string(settings1.rendering.fieldOfViewDegress) + "\n" : "";
-    text += (settings1.rendering.exposure               != settings2.rendering.exposure)               ? std::string("rendering.exposure = ")               + std::to_string(settings1.rendering.exposure) + "\n" : "";
-    text += (settings1.rendering.antialiasing           != settings2.rendering.antialiasing)           ? std::string("rendering.antialiasing = ")           + (settings1.rendering.antialiasing ? "true" : "false") + "\n" : "";
+    text += (settings1.rendering.fieldOfViewDegress       != settings2.rendering.fieldOfViewDegress)     ? std::string("rendering.fieldOfViewDegress = ")     + std::to_string(settings1.rendering.fieldOfViewDegress) + "\n" : "";
+    
+    text += (settings1.rendering.postProcess.exposure     != settings2.rendering.postProcess.exposure)               ? std::string("rendering.postProcess.exposure = ")               + std::to_string(settings1.rendering.postProcess.exposure) + "\n" : "";
+    text += (settings1.rendering.postProcess.antialiasing != settings2.rendering.postProcess.antialiasing)           ? std::string("rendering.postProcess.antialiasing = ")           + (settings1.rendering.postProcess.antialiasing ? "true" : "false") + "\n" : "";
 
     text += (settings1.rendering.shadows.enabled                       != settings2.rendering.shadows.enabled)                        ? std::string("rendering.shadows.enabled = ")                       + (settings1.rendering.shadows.enabled ? "true" : "false") + "\n" : "";
     text += (settings1.rendering.shadows.enableAlteringRayDirection    != settings2.rendering.shadows.enableAlteringRayDirection)     ? std::string("rendering.shadows.enableAlteringRayDirection = ")    + (settings1.rendering.shadows.enableAlteringRayDirection ? "true" : "false") + "\n" : "";

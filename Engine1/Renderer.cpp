@@ -56,6 +56,7 @@ Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, Rend
     m_blurShadowsRenderer( rendererCore ),
     m_combineShadowLayersRenderer( rendererCore ),
     m_utilityRenderer( rendererCore ),
+    m_bokehBlurRenderer( rendererCore ),
     m_extractBrightPixelsRenderer( rendererCore ),
     m_toneMappingRenderer( rendererCore ),
     m_antialiasingRenderer( rendererCore ),
@@ -98,27 +99,10 @@ void Renderer::initialize(
     m_blurShadowsRenderer.initialize( imageDimensions.x, imageDimensions.y, device, deviceContext );
     m_combineShadowLayersRenderer.initialize( device, deviceContext );
     m_utilityRenderer.initialize( device, deviceContext );
+    m_bokehBlurRenderer.initialize( device, deviceContext );
     m_extractBrightPixelsRenderer.initialize( device, deviceContext );
     m_toneMappingRenderer.initialize( device, deviceContext );
     m_antialiasingRenderer.initialize( device, deviceContext );
-
-    createRenderTargets( imageDimensions.x, imageDimensions.y, *device.Get() );
-}
-
-// Should be called at the beginning of each frame, before calling renderScene(). 
-void Renderer::clear()
-{
-    // Note: this color is important. It's used to check which pixels haven't been changed when spawning secondary rays. 
-    // Be careful when changing!
-    //m_deferredRenderer.clearRenderTargets( float4( 0.0f, 0.0f, 0.0f, 1.0f ), 1.0f ); 
-
-}
-
-void Renderer::clear2()
-{
-    // #TODO: Ugly - clearing some random render targets - find a more elegant way to clean render targets.
-    m_renderTargetManager.getRenderTarget< uchar4 >( m_imageDimensions, false )->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
-    m_renderTargetManager.getRenderTarget< float4 >( m_imageDimensions, false )->clearRenderTargetView( *m_deviceContext.Get(), float4::ZERO );
 }
 
 void Renderer::renderShadowMaps( const Scene& scene )
@@ -210,28 +194,54 @@ Renderer::Output Renderer::renderScene(
 
     m_profiler.beginEvent( Profiler::GlobalEventType::PostProcess );
 
-    // Perform post-effects.
-    performBloom( output.float4Image, m_minBrightness );
+    decltype(output.float4Image) currentRenderTargetHDR = output.float4Image;
+    output.float4Image.reset();
 
-    if ( m_debugViewType == View::BloomBrightPixels ) {
-        output.reset();
-        output.float4Image = m_temporaryRenderTarget2;
+    if ( settings().rendering.postProcess.depthOfField.enabled ) 
+    {
+        auto renderTargetHDR = m_renderTargetManager.getRenderTarget< float4 >(
+            m_imageDimensions, false, "renderTargetHDR" );
 
-        return output;
+        m_bokehBlurRenderer.bokehBlur( renderTargetHDR, *currentRenderTargetHDR, *output.depthUchar4Image );
+        currentRenderTargetHDR = renderTargetHDR;
     }
 
-    performToneMapping( output.float4Image, m_temporaryRenderTargetLDR, m_exposure );
+    // Perform post-effects.
+    if ( settings().rendering.postProcess.bloom )
+    {
+        auto renderTargetHDR = m_renderTargetManager.getRenderTarget< float4 >(
+            m_imageDimensions, false, "renderTargetHDR" );
+
+        performBloom( renderTargetHDR, currentRenderTargetHDR, m_minBrightness );
+        currentRenderTargetHDR = renderTargetHDR;
+
+        if ( m_debugViewType == View::BloomBrightPixels ) 
+        {
+            output.reset();
+            output.float4Image = currentRenderTargetHDR;
+
+            return output;
+        }
+    }
+
+    auto currentRenderTargetLDR = m_renderTargetManager.getRenderTarget< uchar4 >(
+        m_imageDimensions, false, "renderTargetLDR" );
+
+    performToneMapping( currentRenderTargetLDR, currentRenderTargetHDR, m_exposure );
 
     Output finalOutput;
 
-    if ( settings().rendering.antialiasing )
+    if ( settings().rendering.postProcess.antialiasing )
     {
-        performAntialiasing( m_temporaryRenderTargetLDR, m_finalRenderTargetLDR );
-        finalOutput.uchar4Image = m_finalRenderTargetLDR;
+        auto finalRenderTargetLDR = m_renderTargetManager.getRenderTarget< uchar4 >( 
+            m_imageDimensions, false, "finalRenderTargetLDR" );
+
+        performAntialiasing( finalRenderTargetLDR, currentRenderTargetLDR );
+        finalOutput.uchar4Image = finalRenderTargetLDR;
     }
     else
     {
-        finalOutput.uchar4Image = m_temporaryRenderTargetLDR;
+        finalOutput.uchar4Image = currentRenderTargetLDR;
     }
 
     m_profiler.endEvent( Profiler::GlobalEventType::PostProcess );
@@ -239,17 +249,15 @@ Renderer::Output Renderer::renderScene(
     return finalOutput;
 }
 
-Renderer::Output Renderer::renderText( 
+void Renderer::renderText( 
     const std::string& text, 
     Font& font, 
     float2 position, 
     float4 color,
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > albedoRenderTarget,
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > normalRenderTarget )
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > colorRenderTarget )
 {
     Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
-    defferedRenderTargets.albedo = albedoRenderTarget;
-    defferedRenderTargets.normal = normalRenderTarget;
+    defferedRenderTargets.albedo = colorRenderTarget;
 
     Direct3DDeferredRenderer::Settings defferedSettings;
     defferedSettings.fieldOfView     = 0.0f; // Not used.
@@ -259,11 +267,6 @@ Renderer::Output Renderer::renderText(
     defferedSettings.zFar            = 1000.0f;
 
     m_deferredRenderer.render( defferedRenderTargets, defferedSettings, text, font, position, color );
-
-    Renderer::Output output;
-    output.uchar4Image = defferedRenderTargets.albedo;
-
-    return output;
 }
 
 Renderer::Output Renderer::renderPrimaryLayer( 
@@ -980,6 +983,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
     else
         output.float4Image = layerRenderTargets.shadedCombined;
 
+    output.depthUchar4Image = layerRenderTargets.depth;
+
     return output;
 }
 
@@ -1600,8 +1605,8 @@ void Renderer::combineLayers( const RenderingStage renderingStage, const Camera&
             camera.getPosition(),
             currLayerRTs.contributionRoughness->getWidth(),
             currLayerRTs.contributionRoughness->getHeight(),
-            m_finalRenderTargetHDR->getWidth(),
-            m_finalRenderTargetHDR->getHeight()
+            m_imageDimensions.x,
+            m_imageDimensions.y
         );
     } else {
         m_combiningRenderer.combine(
@@ -1615,38 +1620,47 @@ void Renderer::combineLayers( const RenderingStage renderingStage, const Camera&
             prevLayerRTs.rayOrigin,  //#TODO: IMPORTANT: previous or current??
             currLayerRTs.contributionRoughness->getWidth(),
             currLayerRTs.contributionRoughness->getHeight(),
-            m_finalRenderTargetHDR->getWidth(),
-            m_finalRenderTargetHDR->getHeight()
+            m_imageDimensions.x,
+            m_imageDimensions.y
         );
     }
 
     m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::CombiningWithPreviousLayer );
 }
 
-void Renderer::performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness )
+void Renderer::performBloom( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture, 
+    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture,
+    const float minBrightness )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::Bloom );
 
-    m_extractBrightPixelsRenderer.extractBrightPixels( colorTexture, m_temporaryRenderTarget1, minBrightness );
+    auto tempRenderTarget1 = m_renderTargetManager.getRenderTarget< float4 >(
+        m_imageDimensions, false, "tempRenderTarget1" );
 
-    const int mipmapCount = m_temporaryRenderTarget1->getMipMapCountOnGpu();
+    auto tempRenderTarget2 = m_renderTargetManager.getRenderTarget< float4 >(
+        m_imageDimensions, false, "tempRenderTarget2" );
+
+    m_extractBrightPixelsRenderer.extractBrightPixels( colorTexture, tempRenderTarget1, minBrightness );
+
+    const int mipmapCount = tempRenderTarget1->getMipMapCountOnGpu();
     const int skipLastMipmapsCount = 6;
     const int maxMipmapLevel = std::max( 0, mipmapCount - skipLastMipmapsCount ); 
 
 	for (int mipmapLevel = 0; mipmapLevel <= maxMipmapLevel; ++mipmapLevel)
 	{
-		m_utilityRenderer.blurValues( m_temporaryRenderTarget2, mipmapLevel, m_temporaryRenderTarget1, mipmapLevel );
-		m_mipmapRenderer.resampleTexture( m_temporaryRenderTarget1, mipmapLevel + 1, m_temporaryRenderTarget2, mipmapLevel );
+		m_utilityRenderer.blurValues( tempRenderTarget2, mipmapLevel, tempRenderTarget1, mipmapLevel );
+		m_mipmapRenderer.resampleTexture( tempRenderTarget1, mipmapLevel + 1, tempRenderTarget2, mipmapLevel );
 	}
 
-    m_utilityRenderer.mergeMipmapsValues( m_finalRenderTargetHDR, m_temporaryRenderTarget2, 0, maxMipmapLevel );
+    m_utilityRenderer.mergeMipmapsValues( destTexture, tempRenderTarget2, 0, maxMipmapLevel );
 
     m_profiler.endEvent( Profiler::GlobalEventType::Bloom );
 }
 
 void Renderer::performToneMapping( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, 
     std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
+    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, 
     const float exposure )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::ToneMapping );
@@ -1657,8 +1671,8 @@ void Renderer::performToneMapping(
 }
 
 void Renderer::performAntialiasing( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > srcTexture,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture )
+    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > srcTexture )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::CalculateLuminance );
 
@@ -1690,24 +1704,6 @@ float Renderer::getExposure()
 void Renderer::setExposure( const float exposure )
 {
     m_exposure = std::max( -10.0f, std::min( 10.0f, exposure ) );
-}
-
-void Renderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device3& device )
-{
-    m_finalRenderTargetLDR = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM );
-
-    m_temporaryRenderTargetLDR = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM );
-
-    m_finalRenderTargetHDR = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
-
-    m_temporaryRenderTarget1 = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
-        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
-
-    m_temporaryRenderTarget2 = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >
-        ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
 const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > > Renderer::debugGetCurrentRefractiveIndexTextures()

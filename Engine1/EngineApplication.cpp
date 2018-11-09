@@ -691,7 +691,13 @@ void EngineApplication::onMouseButtonPress( int button )
 
         std::shared_ptr< Actor > pickedActor;
         std::shared_ptr< Light > pickedLight;
-        std::tie( pickedActor, pickedLight ) = m_sceneManager.pickActorOrLight( float2( (float)mousePos.x, (float)mousePos.y ), (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, fieldOfView );
+        float rayHitDistance;
+        std::tie( pickedActor, pickedLight, rayHitDistance ) = m_sceneManager.pickActorOrLight( float2( (float)mousePos.x, (float)mousePos.y ), (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, fieldOfView );
+
+        if ( settings().rendering.postProcess.depthOfField.setFocusAtClickedObject )
+        {
+            Settings::modify().rendering.postProcess.depthOfField.cameraFocusDist = rayHitDistance;
+        }
 
         if ( pickedActor )
         {
@@ -768,7 +774,7 @@ bool EngineApplication::onFrame( const double frameTimeMs, const bool lockCursor
     m_sceneManager.getModelAnimator().update( (float)frameTimeS * settings().animation.actorsPlaybackSpeed );
 
     // Set renderer exposure from settings.
-    m_renderer.setExposure( settings().rendering.exposure );
+    m_renderer.setExposure( settings().rendering.postProcess.exposure );
 
     // Translate / rotate the selected actors.
     if ( m_windowFocused && ( !m_sceneManager.getSelectedBlockActors().empty() || !m_sceneManager.getSelectedSkeletonActors().empty() ) ) {

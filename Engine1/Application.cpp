@@ -240,7 +240,7 @@ void Application::run()
     const float profilingDisplayRefreshDelayMs = 200.0f;
     double frameTimeMs = 0.0;
     float totalFrameTimeGPU = 0.0f, totalFrameTimeCPU = 0.0f;
-    std::array< StageProfilingInfo, (int)RenderingStage::MAX_VALUE > stageProfilingInfo;
+    StageProfilingInfos stageProfilingInfos;
 
     Timer profilingLastRefreshTime;
 
@@ -293,8 +293,6 @@ void Application::run()
 
         modifyingScene = onFrame( frameTimeMs, lockCursor );
 
-        m_renderer.clear();
-
         //if ( modifyingScene )
         //    m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
 
@@ -310,105 +308,12 @@ void Application::run()
         );
 
         m_profiler.endEvent( Profiler::GlobalEventType::RenderSceneToFrame );
-        m_profiler.beginEvent( Profiler::GlobalEventType::RenderFrameToScreen );
 
         const int2 mousePos = m_inputManager.getMousePos();
 
-        try 
-        {
-            if ( output.ucharImage ) 
-            {
-                m_rendererCore.copyTextureGpu( 
-                    *ucharDisplayFrame, *output.ucharImage, 
-                    int2( 0, 0 ), output.ucharImage->getDimensions() 
-                );
-
-		        m_frameRenderer.renderTexture( 
-                    *output.ucharImage, 0.0f, 0.0f, 
-                    (float)settings().main.screenDimensions.x, 
-                    (float)settings().main.screenDimensions.y, 
-                    false, 
-                    settings().debug.debugDisplayedMipmapLevel 
-                );
-
-                if ( m_inputManager.isMouseButtonPressed(0) ) 
-                    debugDisplayTextureValue( *output.ucharImage, mousePos );
-            } 
-            else if ( output.uchar4Image )
-            {
-                if ( settings().debug.debugRenderAlpha )
-                {
-		            m_frameRenderer.renderTextureAlpha( 
-                        *output.uchar4Image, 0.0f, 0.0f, 
-                        (float)settings().main.screenDimensions.x, 
-                        (float)settings().main.screenDimensions.y, 
-                        false, 
-                        settings().debug.debugDisplayedMipmapLevel 
-                    );
-                }
-                else
-                {
-                    m_frameRenderer.renderTexture( 
-                        *output.uchar4Image, 0.0f, 0.0f, 
-                        (float)settings().main.screenDimensions.x, 
-                        (float)settings().main.screenDimensions.y, 
-                        false, 
-                        settings().debug.debugDisplayedMipmapLevel 
-                    );
-                }
-
-                if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *output.uchar4Image, mousePos );
-            } 
-            else if ( output.float4Image )
-            {
-                m_frameRenderer.renderTexture( 
-                    *output.float4Image, 0.0f, 0.0f, 
-                    (float)settings().main.screenDimensions.x, 
-                    (float)settings().main.screenDimensions.y, 
-                    false, 
-                    settings().debug.debugDisplayedMipmapLevel 
-                );
-
-                if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *output.float4Image, mousePos );
-            }
-            else if ( output.float2Image )
-            {
-                m_frameRenderer.renderTexture( 
-                    *output.float2Image, 0.0f, 0.0f, 
-                    (float)settings().main.screenDimensions.x, 
-                    (float)settings().main.screenDimensions.y, 
-                    false, 
-                    settings().debug.debugDisplayedMipmapLevel 
-                );
-            }
-            else if ( output.floatImage ) 
-            {
-                m_frameRenderer.renderTexture( 
-                    *output.floatImage, 0.0f, 0.0f, 
-                    (float)settings().main.screenDimensions.x, 
-                    (float)settings().main.screenDimensions.y, 
-                    false, 
-                    settings().debug.debugDisplayedMipmapLevel 
-                );
-
-                if ( m_inputManager.isMouseButtonPressed( 0 ) )
-                    debugDisplayTextureValue( *output.floatImage, mousePos );
-            }
-
-            if ( m_inputManager.isMouseButtonPressed( 0 ) && m_renderer.getActiveViewType() == Renderer::View::CurrentRefractiveIndex )
-            {
-                debugDisplayTexturesValue( m_renderer.debugGetCurrentRefractiveIndexTextures(), mousePos );
-            }
+        if ( m_inputManager.isMouseButtonPressed( 0 ) ) {
+            displayPixelColorAsWindowTitle( output, mousePos );
         }
-        catch( ... )
-        {}
-
-        m_profiler.endEvent( Profiler::GlobalEventType::RenderFrameToScreen );
-        m_profiler.beginEvent( Profiler::GlobalEventType::RenderTextToFrame );
-
-        m_renderer.clear2();
 
         if ( updateProfiling )
         {
@@ -418,386 +323,26 @@ void Application::run()
                 totalFrameTimeCPU = (float)frameTimeMs;
                 totalFrameTimeGPU = m_profiler.getEventDuration( Profiler::GlobalEventType::Frame );
 
-                for ( int stage = (int)RenderingStage::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)RenderingStage::MAX_VALUE; ++stage )
-                {
-                    stageProfilingInfo[ stage ].shadowsTotal = 0.0f;
-                    stageProfilingInfo[ stage ].shadingTotal = 0.0f;
-
-                    for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
-                    {
-                        const float shadowPerLight  = m_profiler.getEventDuration( (RenderingStage)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
-                        const float shadingPerLight = m_profiler.getEventDuration( (RenderingStage)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
-                        
-                        if ( shadowPerLight >= 0.0f )
-                            stageProfilingInfo[ stage ].shadowsTotal += shadowPerLight;
-
-                        if ( shadingPerLight )
-                            stageProfilingInfo[ stage ].shadingTotal += shadingPerLight;
-                    }
-                }
+                accumulateStageProfilingData( stageProfilingInfos );
             }
         }
 
-        // Drop references to render targets before starting text rendering.
-        // (reference counting of render targets).
-        output.reset();
+        m_profiler.beginEvent( Profiler::GlobalEventType::RenderTextToFrame );
 
-        auto textAlbedoRenderTarget = m_renderTargetManager.getRenderTarget< uchar4 >( settings().main.screenDimensions, false, "text-albedo" );
-        auto textNormalRenderTarget = m_renderTargetManager.getRenderTarget< float4 >( settings().main.screenDimensions, false, "text-normal" );
+        auto renderTarget = output.uchar4Image;
 
-        { // Render GPU name.
-            std::stringstream ss;
-            ss << "GPU: " << m_frameRenderer.getGPUName();
-            
-            if ( settings().debug.renderFps )
-            {
-                output = m_renderer.renderText( 
-                    ss.str(), 
-                    font2, 
-                    float2( -496.0f, 335.0f ), 
-                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
-                    textAlbedoRenderTarget,
-                    textNormalRenderTarget 
-                );
-            }
-        }
-
-        { // Render FPS.
-            std::stringstream ss;
-            ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
-            
-            // Render GPU FPS only if it is significantly higher than CPU FPS - to warn about CPU bottleneck.
-            // Note: GPU FPS is slightly delayed (3-4 frames of delay), so may cause fake warnings when sudden frame drop occurs.
-            if ( totalFrameTimeGPU < (0.98f * totalFrameTimeCPU) ) {
-                ss << "\nGPU FPS: " << (int)( 1000.0 / totalFrameTimeGPU ) << " / " << totalFrameTimeGPU << "ms";
-            }
-            
-            if ( settings().debug.renderFps )
-            {
-                output = m_renderer.renderText( 
-                    ss.str(), 
-                    font, 
-                    float2( -500.0f, 300.0f ), 
-                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
-                    textAlbedoRenderTarget,
-                    textNormalRenderTarget 
-                );
-            }
-        }
-
-        { // Render some debug options.
-            std::stringstream ss;
-
-            ss << "Active view type: " + Renderer::viewToString( m_renderer.getActiveViewType() );
-
-            ss << "\n\n";
-
-            if ( settings().debug.renderText )
-            {
-                output = m_renderer.renderText( 
-                    ss.str(), 
-                    font2, 
-                    float2( 150.0f, 300.0f ), 
-                    float4( 1.0f, 1.0f, 1.0f, 1.0f ),
-                    textAlbedoRenderTarget,
-                    textNormalRenderTarget
-                );
-            }
-        }
-
-        // Render profiling results.
-        if ( settings().profiling.display.enabled ) 
-        { 
-            std::stringstream ss, ss2;
-            ss << std::fixed << std::setprecision( 2 );
-            ss2 << std::fixed << std::setprecision( 2 );
-            ss << "Profiling: \n";
-            ss << "Total: " << totalFrameTimeGPU << " ms \n";
-
-            const float colorRedForDurationMs = 1.0f;
-
-            // Print global events duration.
-            for (int globalEventType = (int)Profiler::GlobalEventType::DeferredRendering; globalEventType < (int)Profiler::GlobalEventType::MAX_VALUE; ++globalEventType)
-            {
-                const std::string eventName     = Profiler::eventTypeToString( (Profiler::GlobalEventType)globalEventType );
-                const float       eventDuration = m_profiler.getEventDuration( (Profiler::GlobalEventType)globalEventType );
-
-                float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
-                ss << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
-
-                ss << eventName << ": " << eventDuration << "ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
-
-                ss << "<color/>";
-            }
-
-            for ( int stage = (int)settings().profiling.display.startWithStage; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)RenderingStage::MAX_VALUE; ++stage )
-            {
-                // Print stage name.
-                const std::string stageName = renderingStageToString( (RenderingStage)stage );
-                ss << stageName << "\n";
-
-                // Print total duration of shadow calculations.
-                const float totalShadowsDuration = stageProfilingInfo[ stage ].shadowsTotal;
-                if ( totalShadowsDuration > 0.0f )
-                    ss << "Total shadows: " << totalShadowsDuration << "ms " << ( totalShadowsDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
-
-                // Print total duration of shading calculations.
-                const float totalShadingDuration = stageProfilingInfo[ stage ].shadingTotal;
-                if ( totalShadingDuration > 0.0f )
-                    ss << "Total shading: " << totalShadingDuration << "ms " << ( totalShadingDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
-
-                // Print duration of events occurring at each stage.
-                for ( int eventType = (int)Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals; eventType < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventType )
-                {
-                    const float       eventDuration = m_profiler.getEventDuration( (RenderingStage)stage, (Profiler::EventTypePerStage)eventType );
-                    const std::string eventName     = Profiler::eventTypeToString( (Profiler::EventTypePerStage)eventType );
-
-                    if ( eventDuration >= 0.0f )
-                    {
-                        float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
-                        ss << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
-
-                        ss << "    " << eventName << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
-
-                        ss << "<color/>";
-                    }
-                }
-
-                for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx )
-                {
-                    bool display = false;
-                    ss2.str( "" ); // Clear stream.
-                    ss2.clear();   // Clear stream errors.
-
-                    ss2 << "        Light " << lightIdx << "\n";
-
-                    for ( int eventType = (int)Profiler::EventTypePerStagePerLight::ShadowsMapping; eventType < (int)Profiler::EventTypePerStagePerLight::MAX_VALUE; ++eventType )
-                    {
-                        const float       eventDuration = m_profiler.getEventDuration( ( RenderingStage)stage, lightIdx, ( Profiler::EventTypePerStagePerLight )eventType );
-                        const std::string eventName     = Profiler::eventTypeToString( ( Profiler::EventTypePerStagePerLight )eventType );
-
-                        if ( eventDuration > 0.0f )
-                        {
-                            float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
-                            ss2 << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
-
-                            ss2 << "                " << eventName << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%\n";
-
-                            ss2 << "<color/>";
-                            display = true;
-                        }
-                    }
-
-                    ss2 << "\n";
-
-                    // If accumulated events duration for that light is non-zero - display it's info.
-                    if ( display )
-                        ss << ss2.str();
-                }
-            }
-
-            output = m_renderer.renderText( 
-                ss.str(), 
-                font2, 
-                float2( -500.0f, 250.0f ), 
-                float4( 1.0f, 1.0f, 1.0f, 1.0f ),
-                textAlbedoRenderTarget,
-                textNormalRenderTarget 
-            );
-        }
-
-        // Render scene stats and selection stats.
-        if ( settings().debug.renderText ) 
-        { 
-            int selectedVertexCount   = 0;
-            int selectedTriangleCount = 0;
-            int selectedMeshesCount   = (int)(m_sceneManager.getSelectedBlockActors().size() + m_sceneManager.getSelectedSkeletonActors().size()); 
-            int selectedLightsCount   = (int)m_sceneManager.getSelectedLights().size();
-            int totalVertexCount      = 0;
-            int totalTriangleCount    = 0;
-            int totalActors           = (int)m_sceneManager.getScene()->getActors().size();
-            
-
-            std::tie( selectedVertexCount, selectedTriangleCount ) = m_sceneManager.getSelectedActorsVertexAndTriangleCount();
-            std::tie( totalVertexCount, totalTriangleCount )       = m_sceneManager.getSceneVertexAndTriangleCount();
-
-            std::stringstream ss;
-            ss << "Selected: " << selectedVertexCount << " verts / " << selectedTriangleCount << " tris " << selectedMeshesCount << " actors \n";
-            ss << "Scene:    " << totalVertexCount    << " verts / " << totalTriangleCount    << " tris " << totalActors         << " actors \n";
-
-            if ( selectedMeshesCount >= 1 )
-            {
-                std::string modelPath, meshPath;
-                int bvhNodes = 0, bvhNodesExtents = 0, bvhTriangles = 0;
-
-                if ( !m_sceneManager.getSelectedBlockActors().empty() && 
-                     m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel() && 
-                     m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel()->getMesh() )
-                {
-                    const auto& model = m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel();
-
-                    modelPath = model->getFileInfo().getPath();
-                    meshPath  = model->getMesh()->getFileInfo().getPath();
-
-                    if ( model->getMesh()->getBvhTree() )
-                    {
-                        bvhNodes        = (int)model->getMesh()->getBvhTree()->getNodes().size();
-                        bvhNodesExtents = (int)model->getMesh()->getBvhTree()->getNodesExtents().size();
-                        bvhTriangles    = (int)model->getMesh()->getBvhTree()->getTriangles().size();
-                    }
-                }
-                else if ( !m_sceneManager.getSelectedSkeletonActors().empty() &&
-                     m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel() &&
-                     m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel()->getMesh() )
-                {
-                    const auto& model = m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel();
-
-                    modelPath = model->getFileInfo().getPath();
-                    meshPath  = model->getMesh()->getFileInfo().getPath();
-                }
-
-                const size_t modelPathStartIndex = modelPath.rfind( "\\" );
-                const size_t meshPathStartIndex  = meshPath.rfind( "\\" );
-
-                modelPath = modelPath.substr( modelPathStartIndex != std::string::npos ? modelPathStartIndex : 0 );
-                meshPath  = meshPath.substr( meshPathStartIndex != std::string::npos ? meshPathStartIndex : 0 );
-
-                ss << modelPath << "\n" << meshPath << "\n";
-
-                ss << "BVH nodes: " << bvhNodes << ", extents: " << bvhNodesExtents << " triangles: " << bvhTriangles;
-            }
-
-            if ( selectedLightsCount >= 1 && selectedMeshesCount == 0 )
-            {
-                auto& light = m_sceneManager.getSelectedLights().front();
-
-                if ( light->getType() == Light::Type::PointLight )
-                {
-                    ss << "Point light - emitter radius: " << light->getEmitterRadius() << "\n"
-                        << ", color: (" << light->getColor().x << ", " << light->getColor().y << ", " << light->getColor().z << "), " << "\n"
-                        << ( light->isCastingShadows() ? "casts shadow" : "does not cast shadow" );
-                }
-                else if ( light->getType() == Light::Type::SpotLight )
-                {
-                    SpotLight& spotLight = static_cast< SpotLight& >( *light );
-
-                    ss << "Spot light - emitter radius: " << light->getEmitterRadius() << "\n"
-                       << ", color: (" << light->getColor().x << ", " << light->getColor().y << ", " << light->getColor().z << "), " << "\n"
-                       << ( light->isCastingShadows() ? "casts shadow" : "does not cast shadow" )
-                       << ", cone angle: " << MathUtil::radiansToDegrees( spotLight.getConeAngle() ) << " deg.";
-                }
-            }
-
-            if ( m_sceneManager.isSelectionEmpty() )
-            {
-                ss << "\nrendering.combining.positionDiffMul: "                       << settings().rendering.combining.positionDiffMul << " [C + P]";
-                ss << "\nrendering.combining.normalDiffMul: "                         << settings().rendering.combining.normalDiffMul << " [C + N]";
-                ss << "\nrendering.combining.positionNormalThreshold: "               << settings().rendering.combining.positionNormalThreshold << " [C + T]";
-                ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: "                << HitDistanceSearchComputeShader::s_positionDiffMul << " [R + P]";
-                ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: "                  << HitDistanceSearchComputeShader::s_normalDiffMul << " [R + N]";
-                ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: "        << HitDistanceSearchComputeShader::s_positionNormalThreshold << " [R + T]";
-                ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance << " [R + W]";
-
-                const float screenPixelCount = (float)(settings().main.screenDimensions.x * settings().main.screenDimensions.y);
-                const float bytesInMegabyte = 1024.0f * 1024.0f;
-
-                const int renderTargetFloat4Count      = m_renderTargetManager.getTotalRenderTargetCount< float4 >();
-                const int renderTargetFloatCount       = m_renderTargetManager.getTotalRenderTargetCount< float >();
-                const int renderTargetUchar4Count      = m_renderTargetManager.getTotalRenderTargetCount< uchar4 >();
-                const int renderTargetUcharCount       = m_renderTargetManager.getTotalRenderTargetCount< unsigned char >();
-                const int renderTargetUchar4DepthCount = m_renderTargetManager.getTotalRenderTargetDepthCount();
-
-                ss << "\n\nRender target usage:";
-                ss << "\n float4: " << renderTargetFloat4Count << ", approx.: " << (float)renderTargetFloat4Count * ( screenPixelCount * 16.0f ) / bytesInMegabyte << " MB";
-                ss << "\n float:  " << renderTargetFloatCount << ", approx.: " << (float)renderTargetFloatCount * ( screenPixelCount * 4.0f ) / bytesInMegabyte << " MB";
-                ss << "\n uchar4: " << renderTargetUchar4Count << ", approx.: " << (float)renderTargetUchar4Count * ( screenPixelCount * 4.0f ) / bytesInMegabyte << " MB";
-                ss << "\n uchar:  " << renderTargetUcharCount << ", approx.: " << (float)renderTargetUcharCount * ( screenPixelCount * 1.0f ) / bytesInMegabyte << " MB";
-                ss << "\n uchar4 depth: " << renderTargetUchar4DepthCount << ", approx.: " << (float)renderTargetUchar4DepthCount * ( screenPixelCount * 4.0f ) / bytesInMegabyte << " MB";
-            }
-
-            // Print model textures.
-            if ( m_sceneManager.getSelection().containsOnlyOneBlockActor() )
-            {
-                ss << "\n\nModel textures:";
-
-                BlockActor& selectedBlockActor = *m_sceneManager.getSelection().getBlockActors().front();
-
-                for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
-                {
-                    const auto textures = selectedBlockActor.getModel()->getTextures( (Model::TextureType)textureType );
-                    for ( auto& texture : textures )
-                    {
-                        const auto& tex = std::get< 0 >( texture );
-                        
-                        if ( tex && !tex->getFileInfo().getPath().empty() )
-                            ss << "\n" << tex->getFileInfo().getPath();
-                    }
-                }
-            }
-
-            { // Render animation details.
-                ss << "\n\nCamera anim keyframes: " << m_sceneManager.getCameraAnimator().getKeyframeCount( m_sceneManager.getCamera() );
-
-                if ( m_sceneManager.getSelection().getBlockActors().size() == 1 ) {
-                    ss << "\nActor anim keyframes: " << m_sceneManager.getActorAnimator().getKeyframeCount( m_sceneManager.getSelectedBlockActors().front() );
-                }
-
-                if ( m_sceneManager.getSelection().getSpotLights().size() == 1 ) {
-                    ss << "\nLight anim keyframes: " << m_sceneManager.getLightAnimator().getKeyframeCount( m_sceneManager.getSelection().getSpotLights().front() );
-                }
-            }
-
-            output = m_renderer.renderText( 
-                ss.str(), 
-                font2, 
-                float2( 0.0f, 200.0f ), 
-                float4::ONE,
-                textAlbedoRenderTarget,
-                textNormalRenderTarget
-            );
-        }
-
-        { // Render camera state.
-            //std::stringstream ss;
-            //ss << "Cam pos: " << camera.getPosition( ).x << ", " << camera.getPosition( ).y << ", " << camera.getPosition( ).z;
-            //deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-        }
-
-        { // Render keyboard state.
-            //std::stringstream ss;
-            //ss << "";
-            //if ( inputManager.isKeyPressed( InputManager::Keys::w ) ) ss << "W";
-            //if ( inputManager.isKeyPressed( InputManager::Keys::s ) ) ss << "S";
-            //if ( inputManager.isKeyPressed( InputManager::Keys::a ) ) ss << "A";
-            //if ( inputManager.isKeyPressed( InputManager::Keys::d ) ) ss << "D";
-
-            //direct3DRenderer.renderText( ss.str(), font, float2( -500.0f, 270.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-        }
-
-        { // Render mouse state.
-            //std::stringstream ss;
-            //ss << "Mouse pos: " << inputManager.getMousePos().x << ", " << inputManager.getMousePos().y << ", ";
-            //deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 100.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-        }
-
-        { // Render combining renderer position/normal thresholds.
-            //std::stringstream ss;
-            //ss << "Combining renderer normal threshold:   " << combiningRenderer.getNormalThreshold() << std::endl;
-            //ss << "Combining renderer position threshold: " << combiningRenderer.getPositionThreshold() << std::endl;
-            //deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 250.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-        }
-
-        // Required to be able to display depth-stencil buffer.
-        // TODO: Should  be refactored somehow. Such method should not be called here.
-        //deferredRenderer.disableRenderTargets();
+        renderActiveViewText( renderTarget, font2 );
+        renderGPUNameText( renderTarget, font2 );
+        renderFPSText( totalFrameTimeCPU, totalFrameTimeGPU, renderTarget, font );
+        renderProfilingText( totalFrameTimeGPU, stageProfilingInfos, renderTarget, font2 );
+        renderSceneStatisticsText( renderTarget, font2 );
 
         m_profiler.endEvent( Profiler::GlobalEventType::RenderTextToFrame );
-        m_profiler.beginEvent( Profiler::GlobalEventType::RenderTextFrameToScreen );
+        m_profiler.beginEvent( Profiler::GlobalEventType::RenderFrameToScreen );
 
-        if ( output.uchar4Image )
-            m_frameRenderer.renderTexture( *output.uchar4Image, 0.0f, 0.0f, (float)settings().main.screenDimensions.x, (float)settings().main.screenDimensions.y, true );
+        displayFinalFrame( output );
 
-        m_profiler.endEvent( Profiler::GlobalEventType::RenderTextFrameToScreen );
+        m_profiler.endEvent( Profiler::GlobalEventType::RenderFrameToScreen );
         m_profiler.beginEvent( Profiler::GlobalEventType::RenderControlPanelToScreen );
 
         m_controlPanel.draw();
@@ -827,6 +372,465 @@ void Application::run()
             frameTimeMs = Timer::getElapsedTime( frameDelayedEndTime, frameStartTime );
         }
 	}
+}
+
+void Application::accumulateStageProfilingData( StageProfilingInfos& stageProfilingInfos )
+{
+    for ( int stage = (int)RenderingStage::Main; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)RenderingStage::MAX_VALUE; ++stage )
+    {
+        stageProfilingInfos[ stage ].shadowsTotal = 0.0f;
+        stageProfilingInfos[ stage ].shadingTotal = 0.0f;
+
+        for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx ) 
+        {
+            const float shadowPerLight  = m_profiler.getEventDuration( (RenderingStage)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shadows );
+            const float shadingPerLight = m_profiler.getEventDuration( (RenderingStage)stage, lightIdx, Profiler::EventTypePerStagePerLight::Shading );
+                        
+            if ( shadowPerLight >= 0.0f )
+                stageProfilingInfos[ stage ].shadowsTotal += shadowPerLight;
+
+            if ( shadingPerLight )
+                stageProfilingInfos[ stage ].shadingTotal += shadingPerLight;
+        }
+    }
+}
+
+void Application::renderActiveViewText( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    Font& font )
+{
+    if ( !settings().debug.renderText )
+        return;
+
+    std::stringstream ss;
+
+    ss << "Active view type: " + Renderer::viewToString( m_renderer.getActiveViewType() );
+
+    ss << "\n\n";
+
+    m_renderer.renderText( 
+        ss.str(), 
+        font, 
+        float2( 150.0f, 300.0f ), 
+        float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+        renderTarget
+    );
+}
+
+void Application::renderGPUNameText( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    Font& font )
+{
+    if ( !settings().debug.renderFps )
+        return;
+
+    std::stringstream ss;
+    ss << "GPU: " << m_frameRenderer.getGPUName();
+            
+    m_renderer.renderText( 
+        ss.str(), 
+        font, 
+        float2( -496.0f, 335.0f ), 
+        float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+        renderTarget
+    );
+}
+
+void Application::renderFPSText( 
+    float totalFrameTimeCPU,
+    float totalFrameTimeGPU,
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    Font& font )
+{
+    if ( !settings().debug.renderFps )
+        return;
+
+    std::stringstream ss;
+    ss << "FPS: " << (int)( 1000.0 / totalFrameTimeCPU ) << " / " << totalFrameTimeCPU << "ms";
+            
+    // Render GPU FPS only if it is significantly higher than CPU FPS - to warn about CPU bottleneck.
+    // Note: GPU FPS is slightly delayed (3-4 frames of delay), so may cause fake warnings when sudden frame drop occurs.
+    if ( totalFrameTimeGPU < (0.98f * totalFrameTimeCPU) ) {
+        ss << "\nGPU FPS: " << (int)( 1000.0 / totalFrameTimeGPU ) << " / " << totalFrameTimeGPU << "ms";
+    }
+            
+    m_renderer.renderText( 
+        ss.str(), 
+        font, 
+        float2( -500.0f, 300.0f ), 
+        float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+        renderTarget
+    );
+}
+
+void Application::renderProfilingText( 
+    float totalFrameTimeGPU,
+    const StageProfilingInfos& stageProfilingInfos,
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    Font& font )
+{
+    if ( !settings().profiling.display.enabled ) 
+        return;
+
+    std::stringstream ss, ss2;
+    ss << std::fixed << std::setprecision( 2 );
+    ss2 << std::fixed << std::setprecision( 2 );
+    ss << "Profiling: \n";
+    ss << "Total: " << totalFrameTimeGPU << " ms \n";
+
+    const float colorRedForDurationMs = 1.0f;
+
+    // Print global events duration.
+    for (int globalEventType = (int)Profiler::GlobalEventType::DeferredRendering; globalEventType < (int)Profiler::GlobalEventType::MAX_VALUE; ++globalEventType)
+    {
+        const std::string eventName     = Profiler::eventTypeToString( (Profiler::GlobalEventType)globalEventType );
+        const float       eventDuration = m_profiler.getEventDuration( (Profiler::GlobalEventType)globalEventType );
+
+        float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
+        ss << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
+
+        ss << eventName << ": " << eventDuration << "ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+        ss << "<color/>";
+    }
+
+    for ( int stage = (int)settings().profiling.display.startWithStage; stage < pow( 2, settings().rendering.reflectionsRefractions.maxLevel + 1 ) && stage < (int)RenderingStage::MAX_VALUE; ++stage )
+    {
+        // Print stage name.
+        const std::string stageName = renderingStageToString( (RenderingStage)stage );
+        ss << stageName << "\n";
+
+        // Print total duration of shadow calculations.
+        const float totalShadowsDuration = stageProfilingInfos[ stage ].shadowsTotal;
+        if ( totalShadowsDuration > 0.0f )
+            ss << "Total shadows: " << totalShadowsDuration << "ms " << ( totalShadowsDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+        // Print total duration of shading calculations.
+        const float totalShadingDuration = stageProfilingInfos[ stage ].shadingTotal;
+        if ( totalShadingDuration > 0.0f )
+            ss << "Total shading: " << totalShadingDuration << "ms " << ( totalShadingDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+        // Print duration of events occurring at each stage.
+        for ( int eventType = (int)Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals; eventType < (int)Profiler::EventTypePerStage::MAX_VALUE; ++eventType )
+        {
+            const float       eventDuration = m_profiler.getEventDuration( (RenderingStage)stage, (Profiler::EventTypePerStage)eventType );
+            const std::string eventName     = Profiler::eventTypeToString( (Profiler::EventTypePerStage)eventType );
+
+            if ( eventDuration >= 0.0f )
+            {
+                float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
+                ss << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
+
+                ss << "    " << eventName << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "% \n";
+
+                ss << "<color/>";
+            }
+        }
+
+        for ( int lightIdx = 0; lightIdx < Profiler::s_maxLightCount; ++lightIdx )
+        {
+            bool display = false;
+            ss2.str( "" ); // Clear stream.
+            ss2.clear();   // Clear stream errors.
+
+            ss2 << "        Light " << lightIdx << "\n";
+
+            for ( int eventType = (int)Profiler::EventTypePerStagePerLight::ShadowsMapping; eventType < (int)Profiler::EventTypePerStagePerLight::MAX_VALUE; ++eventType )
+            {
+                const float       eventDuration = m_profiler.getEventDuration( ( RenderingStage)stage, lightIdx, ( Profiler::EventTypePerStagePerLight )eventType );
+                const std::string eventName     = Profiler::eventTypeToString( ( Profiler::EventTypePerStagePerLight )eventType );
+
+                if ( eventDuration > 0.0f )
+                {
+                    float greenBlueColor = 1.0f - std::min(1.0f, eventDuration / colorRedForDurationMs );
+                    ss2 << "<color " << 1.0f << "," << greenBlueColor << "," << greenBlueColor << ">";
+
+                    ss2 << "                " << eventName << ": " << eventDuration << " ms " << ( eventDuration / totalFrameTimeGPU ) * 100.0f << "%\n";
+
+                    ss2 << "<color/>";
+                    display = true;
+                }
+            }
+
+            ss2 << "\n";
+
+            // If accumulated events duration for that light is non-zero - display it's info.
+            if ( display )
+                ss << ss2.str();
+        }
+    }
+
+    m_renderer.renderText( 
+        ss.str(), 
+        font, 
+        float2( -500.0f, 250.0f ), 
+        float4( 1.0f, 1.0f, 1.0f, 1.0f ),
+        renderTarget
+    );
+}
+
+void Application::renderSceneStatisticsText( 
+    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    Font& font )
+{
+    // Render scene stats and selection stats.
+    if ( !settings().debug.renderText )
+        return;
+
+    int selectedVertexCount = 0;
+    int selectedTriangleCount = 0;
+    int selectedMeshesCount = (int)(m_sceneManager.getSelectedBlockActors().size() + m_sceneManager.getSelectedSkeletonActors().size());
+    int selectedLightsCount = (int)m_sceneManager.getSelectedLights().size();
+    int totalVertexCount = 0;
+    int totalTriangleCount = 0;
+    int totalActors = (int)m_sceneManager.getScene()->getActors().size();
+
+
+    std::tie( selectedVertexCount, selectedTriangleCount ) = m_sceneManager.getSelectedActorsVertexAndTriangleCount();
+    std::tie( totalVertexCount, totalTriangleCount ) = m_sceneManager.getSceneVertexAndTriangleCount();
+
+    std::stringstream ss;
+    ss << "Selected: " << selectedVertexCount << " verts / " << selectedTriangleCount << " tris " << selectedMeshesCount << " actors \n";
+    ss << "Scene:    " << totalVertexCount << " verts / " << totalTriangleCount << " tris " << totalActors << " actors \n";
+
+    if ( selectedMeshesCount >= 1 )
+    {
+        std::string modelPath, meshPath;
+        int bvhNodes = 0, bvhNodesExtents = 0, bvhTriangles = 0;
+
+        if ( !m_sceneManager.getSelectedBlockActors().empty() &&
+            m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel() &&
+            m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel()->getMesh() )
+        {
+            const auto& model = m_sceneManager.getSelectedBlockActors()[ 0 ]->getModel();
+
+            modelPath = model->getFileInfo().getPath();
+            meshPath = model->getMesh()->getFileInfo().getPath();
+
+            if ( model->getMesh()->getBvhTree() )
+            {
+                bvhNodes = (int)model->getMesh()->getBvhTree()->getNodes().size();
+                bvhNodesExtents = (int)model->getMesh()->getBvhTree()->getNodesExtents().size();
+                bvhTriangles = (int)model->getMesh()->getBvhTree()->getTriangles().size();
+            }
+        }
+        else if ( !m_sceneManager.getSelectedSkeletonActors().empty() &&
+            m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel() &&
+            m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel()->getMesh() )
+        {
+            const auto& model = m_sceneManager.getSelectedSkeletonActors()[ 0 ]->getModel();
+
+            modelPath = model->getFileInfo().getPath();
+            meshPath = model->getMesh()->getFileInfo().getPath();
+        }
+
+        const size_t modelPathStartIndex = modelPath.rfind( "\\" );
+        const size_t meshPathStartIndex = meshPath.rfind( "\\" );
+
+        modelPath = modelPath.substr( modelPathStartIndex != std::string::npos ? modelPathStartIndex : 0 );
+        meshPath = meshPath.substr( meshPathStartIndex != std::string::npos ? meshPathStartIndex : 0 );
+
+        ss << modelPath << "\n" << meshPath << "\n";
+
+        ss << "BVH nodes: " << bvhNodes << ", extents: " << bvhNodesExtents << " triangles: " << bvhTriangles;
+    }
+
+    if ( selectedLightsCount >= 1 && selectedMeshesCount == 0 )
+    {
+        auto& light = m_sceneManager.getSelectedLights().front();
+
+        if ( light->getType() == Light::Type::PointLight )
+        {
+            ss << "Point light - emitter radius: " << light->getEmitterRadius() << "\n"
+                << ", color: (" << light->getColor().x << ", " << light->getColor().y << ", " << light->getColor().z << "), " << "\n"
+                << (light->isCastingShadows() ? "casts shadow" : "does not cast shadow");
+        }
+        else if ( light->getType() == Light::Type::SpotLight )
+        {
+            SpotLight& spotLight = static_cast<SpotLight&>(*light);
+
+            ss << "Spot light - emitter radius: " << light->getEmitterRadius() << "\n"
+                << ", color: (" << light->getColor().x << ", " << light->getColor().y << ", " << light->getColor().z << "), " << "\n"
+                << (light->isCastingShadows() ? "casts shadow" : "does not cast shadow")
+                << ", cone angle: " << MathUtil::radiansToDegrees( spotLight.getConeAngle() ) << " deg.";
+        }
+    }
+
+    if ( m_sceneManager.isSelectionEmpty() )
+    {
+        ss << "\nrendering.combining.positionDiffMul: " << settings().rendering.combining.positionDiffMul << " [C + P]";
+        ss << "\nrendering.combining.normalDiffMul: " << settings().rendering.combining.normalDiffMul << " [C + N]";
+        ss << "\nrendering.combining.positionNormalThreshold: " << settings().rendering.combining.positionNormalThreshold << " [C + T]";
+        ss << "\nHitDistanceSearchComputeShader::s_positionDiffMul: " << HitDistanceSearchComputeShader::s_positionDiffMul << " [R + P]";
+        ss << "\nHitDistanceSearchComputeShader::s_normalDiffMul: " << HitDistanceSearchComputeShader::s_normalDiffMul << " [R + N]";
+        ss << "\nHitDistanceSearchComputeShader::s_positionNormalThreshold: " << HitDistanceSearchComputeShader::s_positionNormalThreshold << " [R + T]";
+        ss << "\nHitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance: " << HitDistanceSearchComputeShader::s_minSampleWeightBasedOnDistance << " [R + W]";
+
+        const float screenPixelCount = (float)(settings().main.screenDimensions.x * settings().main.screenDimensions.y);
+        const float bytesInMegabyte = 1024.0f * 1024.0f;
+
+        const int renderTargetFloat4Count = m_renderTargetManager.getTotalRenderTargetCount< float4 >();
+        const int renderTargetFloatCount = m_renderTargetManager.getTotalRenderTargetCount< float >();
+        const int renderTargetUchar4Count = m_renderTargetManager.getTotalRenderTargetCount< uchar4 >();
+        const int renderTargetUcharCount = m_renderTargetManager.getTotalRenderTargetCount< unsigned char >();
+        const int renderTargetUchar4DepthCount = m_renderTargetManager.getTotalRenderTargetDepthCount();
+
+        ss << "\n\nRender target usage:";
+        ss << "\n float4: " << renderTargetFloat4Count << ", approx.: " << (float)renderTargetFloat4Count * (screenPixelCount * 16.0f) / bytesInMegabyte << " MB";
+        ss << "\n float:  " << renderTargetFloatCount << ", approx.: " << (float)renderTargetFloatCount * (screenPixelCount * 4.0f) / bytesInMegabyte << " MB";
+        ss << "\n uchar4: " << renderTargetUchar4Count << ", approx.: " << (float)renderTargetUchar4Count * (screenPixelCount * 4.0f) / bytesInMegabyte << " MB";
+        ss << "\n uchar:  " << renderTargetUcharCount << ", approx.: " << (float)renderTargetUcharCount * (screenPixelCount * 1.0f) / bytesInMegabyte << " MB";
+        ss << "\n uchar4 depth: " << renderTargetUchar4DepthCount << ", approx.: " << (float)renderTargetUchar4DepthCount * (screenPixelCount * 4.0f) / bytesInMegabyte << " MB";
+    }
+
+    // Print model textures.
+    if ( m_sceneManager.getSelection().containsOnlyOneBlockActor() )
+    {
+        ss << "\n\nModel textures:";
+
+        BlockActor& selectedBlockActor = *m_sceneManager.getSelection().getBlockActors().front();
+
+        for ( int textureType = 0; textureType < (int)Model::TextureType::COUNT; ++textureType )
+        {
+            const auto textures = selectedBlockActor.getModel()->getTextures( (Model::TextureType)textureType );
+            for ( auto& texture : textures )
+            {
+                const auto& tex = std::get< 0 >( texture );
+
+                if ( tex && !tex->getFileInfo().getPath().empty() )
+                    ss << "\n" << tex->getFileInfo().getPath();
+            }
+        }
+    }
+
+    { // Render animation details.
+        ss << "\n\nCamera anim keyframes: " << m_sceneManager.getCameraAnimator().getKeyframeCount( m_sceneManager.getCamera() );
+
+        if ( m_sceneManager.getSelection().getBlockActors().size() == 1 ) {
+            ss << "\nActor anim keyframes: " << m_sceneManager.getActorAnimator().getKeyframeCount( m_sceneManager.getSelectedBlockActors().front() );
+        }
+
+        if ( m_sceneManager.getSelection().getSpotLights().size() == 1 ) {
+            ss << "\nLight anim keyframes: " << m_sceneManager.getLightAnimator().getKeyframeCount( m_sceneManager.getSelection().getSpotLights().front() );
+        }
+    }
+
+    { // Render camera state.
+        //std::stringstream ss;
+        //ss << "Cam pos: " << camera.getPosition( ).x << ", " << camera.getPosition( ).y << ", " << camera.getPosition( ).z;
+        //deferredRenderer.render( ss.str( ), font2, float2( -500.0f, 200.0f ), float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+    }
+
+    m_renderer.renderText(
+        ss.str(),
+        font,
+        float2( 0.0f, 200.0f ),
+        float4::ONE,
+        renderTarget
+    );
+}
+
+void Application::displayFinalFrame( Renderer::Output &output )
+{
+    try
+    {
+        if ( output.ucharImage )
+        {
+            m_rendererCore.copyTextureGpu(
+                *ucharDisplayFrame, *output.ucharImage,
+                int2( 0, 0 ), output.ucharImage->getDimensions()
+            );
+
+            m_frameRenderer.renderTexture(
+                *output.ucharImage, 0.0f, 0.0f,
+                (float)settings().main.screenDimensions.x,
+                (float)settings().main.screenDimensions.y,
+                false,
+                settings().debug.debugDisplayedMipmapLevel
+            );
+        }
+        else if ( output.uchar4Image )
+        {
+            if ( settings().debug.debugRenderAlpha )
+            {
+                m_frameRenderer.renderTextureAlpha(
+                    *output.uchar4Image, 0.0f, 0.0f,
+                    (float)settings().main.screenDimensions.x,
+                    (float)settings().main.screenDimensions.y,
+                    false,
+                    settings().debug.debugDisplayedMipmapLevel
+                );
+            }
+            else
+            {
+                m_frameRenderer.renderTexture(
+                    *output.uchar4Image, 0.0f, 0.0f,
+                    (float)settings().main.screenDimensions.x,
+                    (float)settings().main.screenDimensions.y,
+                    false,
+                    settings().debug.debugDisplayedMipmapLevel
+                );
+            }
+        }
+        else if ( output.float4Image )
+        {
+            m_frameRenderer.renderTexture(
+                *output.float4Image, 0.0f, 0.0f,
+                (float)settings().main.screenDimensions.x,
+                (float)settings().main.screenDimensions.y,
+                false,
+                settings().debug.debugDisplayedMipmapLevel
+            );
+        }
+        else if ( output.float2Image )
+        {
+            m_frameRenderer.renderTexture(
+                *output.float2Image, 0.0f, 0.0f,
+                (float)settings().main.screenDimensions.x,
+                (float)settings().main.screenDimensions.y,
+                false,
+                settings().debug.debugDisplayedMipmapLevel
+            );
+        }
+        else if ( output.floatImage )
+        {
+            m_frameRenderer.renderTexture(
+                *output.floatImage, 0.0f, 0.0f,
+                (float)settings().main.screenDimensions.x,
+                (float)settings().main.screenDimensions.y,
+                false,
+                settings().debug.debugDisplayedMipmapLevel
+            );
+        }
+    }
+    catch ( ... )
+    {
+    }
+}
+
+void Application::displayPixelColorAsWindowTitle( Renderer::Output &output, const int2 mousePos )
+{
+    try
+    {
+        if ( output.ucharImage ) {
+            debugDisplayTextureValue( *output.ucharImage, mousePos );
+        } else if ( output.uchar4Image ) {
+            debugDisplayTextureValue( *output.uchar4Image, mousePos );
+        } else if ( output.float4Image ) {
+            debugDisplayTextureValue( *output.float4Image, mousePos );
+        } else if ( output.float2Image ) {
+            // #TODO: Implement.
+        } else if ( output.floatImage ) {
+            debugDisplayTextureValue( *output.floatImage, mousePos );
+        }
+
+        if ( m_renderer.getActiveViewType() == Renderer::View::CurrentRefractiveIndex ) {
+            debugDisplayTexturesValue( m_renderer.debugGetCurrentRefractiveIndexTextures(), mousePos );
+        }
+    }
+    catch ( ... )
+    {
+    }
 }
 
 void Application::setWindowTitle( const std::string& title )

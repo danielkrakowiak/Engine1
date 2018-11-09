@@ -116,8 +116,6 @@ namespace Engine1
         struct Rendering 
         {
             float fieldOfViewDegress;
-            float exposure;
-            bool  antialiasing;
 
             // Color used when ray doesn't hit any geometry.
             float3 skyColor;
@@ -341,6 +339,44 @@ namespace Engine1
                 float normalDiffMul;
                 float positionNormalThreshold;
             } combining;
+
+            struct PostProcess
+            {
+                bool  bloom;
+                float exposure;
+                bool  antialiasing;
+                struct DepthOfField
+                {
+                    bool enabled;
+
+                    // Diameter of the hole through which the light enters the camera/sensors.
+                    float apertureDiameter;
+
+                    // Parameter of the lens - distance from lens at which refracted rays cross (towards the scene).
+                    // Popular value is 50 mm, so 0.05 (in meters).
+                    float focalLength;
+
+                    // Distance from camera at which objects appear focused/sharp.
+                    float cameraFocusDist;
+
+                    // Whether focus should automatically be set at the clicked object.
+                    bool setFocusAtClickedObject;
+
+                    // Circle-of-confusion is often measured in meters, while we work with pixels.
+                    // This multiplier allows calculatin CoC in pixels from CoC in meters.
+                    // Could be seen as number of pixels per meter of image/display/monitor etc.
+                    // Assuming 72 dpi - default value is 2834 (pixels per meter).
+                    float coCMul;
+
+                    // Max circle-of-confusion radius in pixels. In other words, maximal radius of a Bokeh.
+                    float maxCoC;
+
+                    // How much Bokeh from further pixels (from the camera) can influence closer pixels.
+                    // Input to the Gaussian weighting function - can be interpreted as an acceptable relative difference between
+                    // center-depth and sample-depth (sample is the source of Bokeh).
+                    float relativeDepthThreshold; 
+                } depthOfField;
+            } postProcess;
         } rendering;
 
         struct Textures

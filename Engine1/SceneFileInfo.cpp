@@ -29,7 +29,7 @@ void SceneFileInfo::saveToMemory( std::vector<char>& data ) const
 {
     data;
 
-	assert(false, "Not implemented.");
+	assert(false); // #TODO: Implement.
 }
 
 void SceneFileInfo::setPath( std::string path )

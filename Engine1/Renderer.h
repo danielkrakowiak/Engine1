@@ -22,6 +22,7 @@
 #include "BlurShadowsRenderer.h"
 #include "CombineShadowLayersRenderer.h"
 #include "UtilityRenderer.h"
+#include "BokehBlurRenderer.h"
 #include "ExtractBrightPixelsRenderer.h"
 #include "ToneMappingRenderer.h"
 #include "AntialiasingRenderer.h"
@@ -105,19 +106,21 @@ namespace Engine1
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        float4Image;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float2 > >        float2Image;
             std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float  > >        floatImage;
+            std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > >                        depthUchar4Image;
 
             bool isEmpty()
             {
-                return !ucharImage && !uchar4Image && !float4Image && !float2Image && !floatImage;
+                return !ucharImage && !uchar4Image && !float4Image && !float2Image && !floatImage && !depthUchar4Image;
             }
 
             void reset()
             {
-                ucharImage  = nullptr;
-                uchar4Image = nullptr;
-                float4Image = nullptr;
-                float2Image = nullptr;
-                floatImage  = nullptr;
+                ucharImage       = nullptr;
+                uchar4Image      = nullptr;
+                float4Image      = nullptr;
+                float2Image      = nullptr;
+                floatImage       = nullptr;
+                depthUchar4Image = nullptr;
             }
         };
 
@@ -180,11 +183,6 @@ namespace Engine1
             std::shared_ptr<const BlockModel> lightModel 
         );
 
-        // Should be called at the beginning of each frame, before calling renderScene(). 
-        void clear();
-
-        void clear2();
-
 		void renderShadowMaps( const Scene& scene );
 
         Output renderScene( 
@@ -194,13 +192,12 @@ namespace Engine1
             const std::shared_ptr< BlockMesh > selectionVolumeMesh 
         );
 
-        Renderer::Output renderText( 
+        void renderText( 
             const std::string& text, 
             Font& font, 
             float2 position, 
             float4 color,
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > albedoRenderTarget,
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > normalRenderTarget
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > colorRenderTarget
         );
 
         void setActiveViewType( const View view );
@@ -246,17 +243,20 @@ namespace Engine1
 
         void combineLayers( const RenderingStage renderingStage, const Camera& camera );
 
-        void performBloom( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, const float minBrightness );
+        void performBloom( 
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture, 
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, 
+            const float minBrightness );
 
         void performToneMapping( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
             std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
+            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
             const float exposure 
         );
 
         void performAntialiasing( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > srcTexture,
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture
+            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > srcTexture
         );
 
         private:
@@ -299,15 +299,7 @@ namespace Engine1
         ExtractBrightPixelsRenderer         m_extractBrightPixelsRenderer;
         ToneMappingRenderer                 m_toneMappingRenderer;
         AntialiasingRenderer                m_antialiasingRenderer;
-
-        // Render target.
-        void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device3& device );
-
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > m_finalRenderTargetLDR;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > m_temporaryRenderTargetLDR;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_finalRenderTargetHDR;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_temporaryRenderTarget1;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > m_temporaryRenderTarget2;
+        BokehBlurRenderer                   m_bokehBlurRenderer;
 
         std::vector< LayerRenderTargets > m_layersRenderTargets;
 

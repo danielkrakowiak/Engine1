@@ -24,7 +24,7 @@ void main( uint3 groupId : SV_GroupID,
 
     // Note: This is very important! If removed, there would be too much shadow where shadow from different layers overlap.
     // And this would cause "shadow bubbles", shadow shape changes on camera movement etc. It is also crucial, because
-    // it allows shadows from different layers to overlap (doesn't matter on which layer a given shadow is, the sum it correct), 
+    // it allows shadows from different layers to overlap (doesn't matter on which layer a given shadow is, the sum is correct), 
     // which protects us against light leaks at layer trnasitions.
     mediumShadow = max(0.0, mediumShadow - hardShadow);
     softShadow   = max(0.0, softShadow - mediumShadow - hardShadow);

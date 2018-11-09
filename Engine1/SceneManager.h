@@ -59,7 +59,8 @@ namespace Engine1
 
         void unloadAll();
 
-        std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light > >
+        // Returns: tuple< picked actor, picked light, hit-distance >
+        std::tuple< std::shared_ptr< Actor >, std::shared_ptr< Light >, float >
             pickActorOrLight( const float2& targetPixel, const float screenWidth, const float screenHeight, const float fieldOfView );
 
         void mergeSelectedActors();

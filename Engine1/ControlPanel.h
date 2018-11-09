@@ -81,6 +81,7 @@ namespace Engine1
         TwBar* m_optimizationBar;
         TwBar* m_animationBar;
         TwBar* m_renderingTesterBar;
+        TwBar* m_postProcessBar;
 
         SceneManager& m_sceneManager;
         AssetManager& m_assetManager;

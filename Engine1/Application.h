@@ -65,6 +65,44 @@ namespace Engine1
         virtual bool onFrame( const double frameTimeMs, const bool lockCursor ); // returns: modifyingScene
         virtual void onSelectionChanged();
 
+        struct StageProfilingInfo
+        {
+            // Time in milliseconds.
+            float shadowsTotal;
+            float shadingTotal;
+        };
+
+        typedef std::array< StageProfilingInfo, (int)RenderingStage::MAX_VALUE > StageProfilingInfos;
+
+        void accumulateStageProfilingData( StageProfilingInfos& stageProfilingInfos );
+
+        void renderActiveViewText( 
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+            Font& font );
+
+        void renderGPUNameText( 
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+            Font& font );
+
+        void renderFPSText( 
+            float totalFrameTimeCPU,
+            float totalFrameTimeGPU,
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+            Font& font );
+
+        void renderProfilingText( 
+            float totalFrameTimeGPU,
+            const StageProfilingInfos& stageProfilingInfos,
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+            Font& font );
+
+        void renderSceneStatisticsText( 
+            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+            Font& font );
+
+        void displayFinalFrame( Renderer::Output &output );
+        void displayPixelColorAsWindowTitle( Renderer::Output &output, const int2 mousePos );
+
         void createDebugFrames( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device );
 
         void debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int2 screenCoords );
@@ -120,13 +158,6 @@ namespace Engine1
 	    // Copying is not allowed.
 	    Application( const Application& ) = delete;
 	    Application& operator=( const Application& ) = delete;
-
-        struct StageProfilingInfo
-        {
-            // Time in milliseconds.
-            float shadowsTotal;
-            float shadingTotal;
-        };
     };
 };
 

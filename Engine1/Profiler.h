@@ -22,7 +22,6 @@ namespace Engine1
             RenderSceneToFrame,
             RenderFrameToScreen,
             RenderTextToFrame,
-            RenderTextFrameToScreen,
             RenderControlPanelToScreen,
             DeferredRendering,
             PostProcess,

@@ -520,6 +520,9 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 26.10.2018 - 3.5h - Saving rendering test results to files. Added TextureBase class to store code shared by Texture2DGeneric and StagingTexture2D (and moved method saveToFile there). Trying to invert red/blue channels in saved image.
 27.10.2018 - 4.5h - Saving output image to file, inverting red, blue channels, removing alpha channel, flipping vertically, calculating diff with reference image. Running tests works.
 28.10.2018 - 2h - Generating reference images and saving them to a folder. Fixing UnitTests project - fixing compilation errors.
-29.10.2018 - 2.5h - Fixed UnitTest compilation and fixed all tests. All tests are passing. Added the RenderingTest and initialization of all neeeded modules. RenderingTest is working.
+29.10.2018 - 2.5h - Fixed UnitTest compilation and fixed all tests. All tests are passing. Added the RenderingTest and initialization of all needed modules. RenderingTest is working.
 
-01.11.2018 - 2h - Fixed UnitTest release config ("failed to setup execution context" error). Caused by mismatch of PhysX and Assimp libraries in Engine1 and UnitTests.
+01.11.2018 - 3.5h - Fixed UnitTest release config ("failed to setup execution context" error). Caused by mismatch of PhysX and Assimp libraries in Engine1 and UnitTests. Added BokehBlurRenderer and related compute shader.
+02.11.2018 - 4h - Working on Bokeh Blur. Modified Renderer post-process to use temporary render-targets from RendrTargetManager rather than using permanently stored RTs. Trying to find a bug causing some post processes to end up with yellow screen.
+03.11.2018 - 6h - Refactored Application::run() method - moved rendering text to other methods, removed use of normal render target, removed hack with getting a render target from RenderTargetManager and hoping that this is the same as final output RT from Renderer. Added calculation of circle-of-confusion for Bokeh shader. Setting focus to the clicked object.
+09.11.2018 - 2h - Added scaling-down Bokeh intensity by its area. Added Gaussian weighting of Bokeh samples based on depth, trying to fix artifacts.

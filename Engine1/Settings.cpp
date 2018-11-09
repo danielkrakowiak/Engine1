@@ -103,8 +103,6 @@ void Settings::initializeInternal()
     s_settings.debug.lightColorChanged = false;
 
     s_settings.rendering.fieldOfViewDegress = 70.0f;
-    s_settings.rendering.exposure           = 1.0f;
-    s_settings.rendering.antialiasing       = true;
 
     s_settings.rendering.skyColor = float3(0.12f, 0.53f, 1.0f);
 
@@ -205,8 +203,8 @@ void Settings::initializeInternal()
 
     s_settings.rendering.reflectionsRefractions.maxLevel            = 1;
     s_settings.rendering.reflectionsRefractions.debugViewStage      = RenderingStage::Main;
-    s_settings.rendering.reflectionsRefractions.reflectionsEnabled  = true;
-    s_settings.rendering.reflectionsRefractions.refractionsEnabled  = true;
+    s_settings.rendering.reflectionsRefractions.reflectionsEnabled  = false;
+    s_settings.rendering.reflectionsRefractions.refractionsEnabled  = false;
     s_settings.rendering.reflectionsRefractions.samplingQuality     = 0.45f;
     s_settings.rendering.reflectionsRefractions.roughnessBlurMul    = 30.0f;
 
@@ -221,6 +219,20 @@ void Settings::initializeInternal()
     s_settings.rendering.combining.positionDiffMul         = 6.0f;
     s_settings.rendering.combining.normalDiffMul           = 3.0f;
     s_settings.rendering.combining.positionNormalThreshold = 1.2f;
+
+    s_settings.rendering.postProcess.exposure      = 1.0f;
+
+    s_settings.rendering.postProcess.depthOfField.enabled                 = true;
+    s_settings.rendering.postProcess.depthOfField.apertureDiameter        = 0.05f;
+    s_settings.rendering.postProcess.depthOfField.focalLength             = 0.25f;
+    s_settings.rendering.postProcess.depthOfField.cameraFocusDist         = 1.0f;
+    s_settings.rendering.postProcess.depthOfField.setFocusAtClickedObject = true;
+    s_settings.rendering.postProcess.depthOfField.coCMul                  = 2834.0f;
+    s_settings.rendering.postProcess.depthOfField.maxCoC                  = 30.0f;
+    s_settings.rendering.postProcess.depthOfField.relativeDepthThreshold  = 0.05f;
+
+    s_settings.rendering.postProcess.bloom         = true;
+    s_settings.rendering.postProcess.antialiasing  = true;
 
     s_settings.physics.fixedStepDuration = 1.0f / 60.0f;
 
