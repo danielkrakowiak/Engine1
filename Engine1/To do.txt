@@ -325,7 +325,18 @@ Idea:
 
 	  - accumulate distance to camera along rays for any number of reflection/refraction layers? To calculate blur radius properly.
 
+	  IDEA FOR EARLY DISTANCE ESTIMATION: (for hit-dist or dist-to-occluder)
+	  - we want to know an estimate of how far the occluder is to decide on how to trace rays, how to petrurb their normals etc
+	  - so we could trace a ray at every 3rd pixel horz/vert, so 1 in 9 pixels, to the center of light source (or in perfect mirror reflection angle)
+	  - we could then get value in any pixel by interpolating those
+	  - then we could decide what to do with other 8 rays, do we shoot them wide, or close together, or not shooting at all
+	  - for shadow rays we could even try to shoot rays only where we detect geometrical edges etc or where there are big diferences in neighbor samples!
+
+
       NEXT:
+	  - optimization to dist-to-occluder spreading to avoid taking samples for obviously fully lit pixels or fully shadowed ones.
+	    Generate mipmaps of dist-to-occluder. Sample once a very low res mipmap for each pixel before spreading
+		to check if that pixel is in proximity of some normal values to spread. Otherwise do nothing.
       - look like combining2 measures position error differently than combining1 - not using expected possition diff. Fix that! Or maybe it isn't used in the end...
       - make sure that recent changes in cominign shader were also added to comining2 shader. (Gassian scaling of samples etc, sampling quality).
       - is specular reflection (as in shading) growing to the bottom onyl, or also to the top? Also to the top, we could improve that - elongate reflection in one direction mostly.
@@ -340,9 +351,14 @@ Idea:
 	  IMPORTANT-BUT-CAN-WAIT:
       - OPTIMIZATION: Replace float4 with float3 wherever possible in framebuffers/shaders.
       - OPTIMIZATION: make sure to check for max ray distance when intersecting rays with Bounding boxes in view raytracing. As it's done in shadows...
-      - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
+	  - generating mipmaps for hit-dist surely causes some shrinking of reflections - because despite being clamped to 50m ,large values still dominate small ones during mipmap generation.
+      - kernel in hit-dist-search is not circular - because weights are clamped above 0.0001 - corners count as well - is it good?
+	  - getting mouse pos is bugged - get absolute positon, while should get position relative to window.
       - add versioning of files? How to add that for files without versions?
       - I can remove this index-in-file, format etc from file-infos...
+	  - in refl/refr shading we could use the rays we generated - if we inversed the order of shading<->ray generatio - would that be faster?
+	  - our refl/refr shading is very simple, why we are not using PBR shading there?
+	  - intersting.. - we calculate contribution for just one ray direction per pixel, but then when combining we average multiple rays from many directions... that's not physically correct, what errors do we get?
       - picking objects does not work correctly if window is moved somewhere from top-left corner...
 	  - how to deal with light sources placed inside geometry? It causes artifacts now..
 	  - most shaders are configured for that specific resolution - blur kernels etc should be scaled with resolution...

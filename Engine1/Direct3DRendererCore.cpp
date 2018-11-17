@@ -767,11 +767,11 @@ void Direct3DRendererCore::draw( const FontCharacter& character )
 }
 
 // Note: Shaders need to be configured and set before calling this method.
-void Direct3DRendererCore::compute( uint3 threadCount )
+void Direct3DRendererCore::compute( uint3 groupCount )
 {
     if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::compute - renderer not initialized." );
 
-    m_deviceContext->Dispatch( threadCount.x, threadCount.y, threadCount.z );
+    m_deviceContext->Dispatch( groupCount.x, groupCount.y, groupCount.z );
 }
 
 void Direct3DRendererCore::disableShaderInputs()

@@ -161,7 +161,6 @@ Renderer::Output Renderer::renderScene(
     // Render shadow maps. #TODO: Should NOT be done every frame.
     //renderShadowMaps( scene );
 
-    const auto& actors                  = scene.getActorsVec();
     const auto& lights                  = scene.getLightsVec();
     const auto  lightsEnabled           = SceneUtil::filterLightsByState( lights, true );
 
@@ -172,8 +171,6 @@ Renderer::Output Renderer::renderScene(
     const auto  lightsNotCastingShadows = settings().rendering.shadows.enabled
         ? SceneUtil::filterLightsByShadowCasting( lightsEnabled, false )
         : lightsEnabled;
-
-    const auto  blockActors             = SceneUtil::filterActorsByType< BlockActor >( actors );
 
     m_layersRenderTargets.reserve( settings().rendering.reflectionsRefractions.maxLevel + 1 );
 

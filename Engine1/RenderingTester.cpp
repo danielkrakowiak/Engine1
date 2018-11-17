@@ -14,6 +14,8 @@
 
 #include <algorithm>
 #include <experimental/filesystem>
+
+#define __STDC_WANT_LIB_EXT1__ 1 // Needed to make localtime_s function available.
 #include <time.h>
 
 using namespace Engine1;
@@ -339,10 +341,18 @@ std::string RenderingTester::getCurrentDateString()
 {
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-    char buf[64] = {0};
-    std::strftime(buf, sizeof(buf), "%Y-%m-%d", std::localtime(&now));
+	tm localTime;
+	if (localtime_s(&localTime, &now))
+	{
+		char buf[64] = { 0 };
+		std::strftime(buf, sizeof(buf), "%Y-%m-%d", &localTime);
 
-    return std::string( buf );
+		return std::string(buf);
+	}
+	else
+	{
+		throw std::exception("RenderingTester::getCurrentDateString - failed to get local time.");
+	}
 }
 
         

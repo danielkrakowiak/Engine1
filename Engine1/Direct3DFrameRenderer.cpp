@@ -138,10 +138,10 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
         UINT formatSupport;
         result = m_device->CheckFormatSupport( DXGI_FORMAT_R11G11B10_FLOAT, &formatSupport );
 
-        bool rgbAsTexture      = (formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0;
-        bool rgbAsRenderTarget = (formatSupport & D3D11_FORMAT_SUPPORT_RENDER_TARGET) != 0;
-        bool rgbAsUAVL         = (formatSupport & D3D11_FORMAT_SUPPORT2_UAV_TYPED_LOAD) != 0;
-        bool rgbAsUAVS         = (formatSupport & D3D11_FORMAT_SUPPORT2_UAV_TYPED_STORE) != 0;
+		/*bool rgbAsTexture      = (formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0;
+		bool rgbAsRenderTarget = (formatSupport & D3D11_FORMAT_SUPPORT_RENDER_TARGET) != 0;
+		bool rgbAsUAVL         = (formatSupport & D3D11_FORMAT_SUPPORT2_UAV_TYPED_LOAD) != 0;
+		bool rgbAsUAVS         = (formatSupport & D3D11_FORMAT_SUPPORT2_UAV_TYPED_STORE) != 0;*/
         /////////////////////////////////////////////////////////////
     }
 

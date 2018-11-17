@@ -110,7 +110,7 @@ namespace Engine1
         void draw( const SkeletonMesh& mesh );
         void draw( const FontCharacter& character );
 
-        void compute( uint3 threadCount );
+        void compute( uint3 groupCount );
 
         void disableShaderInputs();
 
