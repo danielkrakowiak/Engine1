@@ -584,6 +584,7 @@ Idea:
         - FUN: we could simulate dirt and hair on the lens or human vision imperfections (blood cells etc)
           if we create such aperture/bokeh texture. Could be intresting...
         - Bokeh edges could be slightly softened. A simple weight change near Bokeh edge would suffice.
+        - OPTIMIZATION: Don't process pixels that are in focus.
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////// TESTING / BENCHMARKING/ DEMO /////////////////////////////////////////////////////////////////////

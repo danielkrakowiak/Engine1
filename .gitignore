@@ -194,4 +194,5 @@ $RECYCLE.BIN/
 /.vs/slnx.sqlite
 /.vs/ProjectSettings.json
 /Benchmark results
-/RenderingTests/References
+/RenderingTests/
+!/RenderingTests/References
