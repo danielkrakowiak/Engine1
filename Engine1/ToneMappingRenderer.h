@@ -28,8 +28,8 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device,
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-        void performToneMapping( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                                 std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
+        void performToneMapping( std::shared_ptr< Texture2D< float4 > > srcTexture,
+                                 std::shared_ptr< Texture2D< uchar4 > > dstTexture,
                                  const float exposure );
 
         private:

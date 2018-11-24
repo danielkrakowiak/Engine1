@@ -83,11 +83,11 @@ void BlurShadowPatternComputeShader::setParameters(
     ID3D11DeviceContext3& deviceContext, const float3& cameraPos,
     const float positionThreshold,
     const float normalThreshold,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
+    const std::shared_ptr< Texture2D< float4 > > positionTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
+    const std::shared_ptr< Texture2D< float > > distanceToOccluder,
+    const std::shared_ptr< Texture2D< float > > finalDistanceToOccluder,
     const Light& light )
 {
     if ( !m_compiled )

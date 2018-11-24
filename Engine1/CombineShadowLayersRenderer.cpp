@@ -29,22 +29,22 @@ void CombineShadowLayersRenderer::initialize( ComPtr< ID3D11Device3 > device,
 
 
 void CombineShadowLayersRenderer::combineShadowLayers( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > finalShadowTexture,
-    Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& hardShadowTexture,
-    Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& mediumShadowTexture,
-    Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& softShadowTexture )
+    std::shared_ptr< Texture2D< unsigned char > > finalShadowTexture,
+    Texture2D< unsigned char >& hardShadowTexture,
+    Texture2D< unsigned char >& mediumShadowTexture,
+    Texture2D< unsigned char >& softShadowTexture )
 {
     if ( !m_initialized )
         throw std::exception( "CombineShadowLayersRenderer::sumValues - renderer has not been initialized." );
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsU1.push_back( finalShadowTexture );
     m_rendererCore.enableUnorderedAccessTargets( 

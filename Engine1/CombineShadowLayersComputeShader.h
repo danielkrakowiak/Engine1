@@ -20,9 +20,9 @@ namespace Engine1
         void initialize();
 
         void setParameters( ID3D11DeviceContext3& deviceContext,
-                            Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& hardShadow,
-                            Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& mediumShadow,
-                            Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& softShadow );
+                            Texture2D< unsigned char >& hardShadow,
+                            Texture2D< unsigned char >& mediumShadow,
+                            Texture2D< unsigned char >& softShadow );
 
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 

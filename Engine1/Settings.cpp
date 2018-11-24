@@ -255,32 +255,32 @@ void Settings::initialize(ID3D11Device3& device)
         std::vector< uchar4 >        dataNormal = { uchar4( 128, 128, 255, 255 ) };
 
         s_settings.textures.defaults.alpha = 
-            std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-            ( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+            std::make_shared< ImmutableTexture2D< unsigned char > >
+            ( device, dataAlpha, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
         s_settings.textures.defaults.metalness = 
-            std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-            ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+            std::make_shared< ImmutableTexture2D< unsigned char > >
+            ( device, dataMetalness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
         s_settings.textures.defaults.roughness = 
-            std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-            ( device, dataRoughness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+            std::make_shared< ImmutableTexture2D< unsigned char > >
+            ( device, dataRoughness, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
         s_settings.textures.defaults.refractiveIndex = 
-            std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-            ( device, dataIndexOfRefraction, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+            std::make_shared< ImmutableTexture2D< unsigned char > >
+            ( device, dataIndexOfRefraction, 1, 1, false, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 
         s_settings.textures.defaults.emissive = 
-            std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-            ( device, dataEmissive, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
+            std::make_shared< ImmutableTexture2D< uchar4 > >
+            ( device, dataEmissive, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 
         s_settings.textures.defaults.albedo = 
-            std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-            ( device, dataAlbedo, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
+            std::make_shared< ImmutableTexture2D< uchar4 > >
+            ( device, dataAlbedo, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
 
         s_settings.textures.defaults.normal = 
-            std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-            ( device, dataNormal, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
+            std::make_shared< ImmutableTexture2D< uchar4 > >
+            ( device, dataNormal, 1, 1, false, true, false, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM );
     }
 }
 

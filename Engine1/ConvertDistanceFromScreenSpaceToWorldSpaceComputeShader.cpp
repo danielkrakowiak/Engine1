@@ -55,7 +55,7 @@ void ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader::initialize( ComPtr
 
 void ConvertDistanceFromScreenSpaceToWorldSpaceComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                                           const float3& cameraPos,
-                                                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture,
+                                                                          const std::shared_ptr< Texture2D< float3 > > positionTexture,
                                                                           const int2 outputTextureSize )
 {
     if ( !m_compiled )

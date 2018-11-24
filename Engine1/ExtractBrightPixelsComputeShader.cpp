@@ -32,7 +32,7 @@ void ExtractBrightPixelsComputeShader::initialize( ComPtr< ID3D11Device3 >& devi
 }
 
 void ExtractBrightPixelsComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, 
-                                                      const Texture2DSpecBind< TexBind::ShaderResource, float4 >& colorTexture,
+                                                      const Texture2D< float4 >& colorTexture,
                                                       const float minBrightness )
 {
     if ( !m_compiled ) throw std::exception( "ExtractBrightPixelsComputeShader::setParameters - Shader hasn't been compiled yet." );

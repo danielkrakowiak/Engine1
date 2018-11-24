@@ -14,6 +14,7 @@
 #include "SkeletonModelFragmentShader.h"
 #include "TextVertexShader.h"
 #include "TextFragmentShader.h"
+#include "Texture2DTypes.h"
 
 #include "uchar2.h"
 
@@ -51,14 +52,14 @@ namespace Engine1
                 depth( nullptr )
             {}
 
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        position;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        emissive;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        albedo;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > metalness;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > roughness;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        normal;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > refractiveIndex;
-            std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > >                        depth;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        position;
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > >        emissive;
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > >        albedo;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > metalness;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > roughness;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        normal;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > refractiveIndex;
+            std::shared_ptr< DepthTexture2D< uchar4 > >                        depth;
         };
 
         struct Settings

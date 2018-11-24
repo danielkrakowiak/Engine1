@@ -32,7 +32,7 @@ void ToneMappingComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 }
 
 void ToneMappingComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
-                                              Texture2DSpecBind< TexBind::ShaderResource, float4 >& srcTexture,
+                                              Texture2D< float4 >& srcTexture,
                                               const float exposure )
 {
     if ( !m_compiled ) 

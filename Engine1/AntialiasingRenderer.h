@@ -30,10 +30,10 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         // Calculates luminance from RGB channels and saves it into Alpha channel.
-        void calculateLuminance( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > texture );
+        void calculateLuminance( std::shared_ptr< Texture2D< uchar4 > > texture );
 
-        void performAntialiasing( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > srcTexture,
-                                  std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture );
+        void performAntialiasing( std::shared_ptr< Texture2D< uchar4 > > srcTexture,
+                                  std::shared_ptr< Texture2D< uchar4 > > dstTexture );
 
         private:
 

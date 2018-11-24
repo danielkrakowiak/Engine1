@@ -20,7 +20,7 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext,
                             const int2 outputTextureSize,
-                            Texture2DSpecBind< TexBind::ShaderResource, float4 >& inputTexture,
+                            Texture2D< float4 >& inputTexture,
                             int firstMipmapLevel,
                             int lastMipmapLevel );
 

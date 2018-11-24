@@ -21,13 +21,13 @@ namespace Engine1
         void initialize();
 
         void setParameters( ID3D11DeviceContext3& deviceContext,
-                            Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture1,
-                            Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture2 );
+                            Texture2D< PixelType >& texture1,
+                            Texture2D< PixelType >& texture2 );
 
         void setParameters( ID3D11DeviceContext3& deviceContext,
-                            Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture1,
-                            Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture2,
-                            Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture3 );
+                            Texture2D< PixelType >& texture1,
+                            Texture2D< PixelType >& texture2,
+                            Texture2D< PixelType >& texture3 );
 
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
@@ -50,8 +50,8 @@ namespace Engine1
 
     template < typename PixelType >
     void SumValuesComputeShader< PixelType >::setParameters( ID3D11DeviceContext3& deviceContext,
-                                               Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture1,
-                                               Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture2 )
+                                               Texture2D< PixelType >& texture1,
+                                               Texture2D< PixelType >& texture2 )
     {
         if ( !m_compiled )
             throw std::exception( "SumValueComputeShader::setParameters - Shader hasn't been compiled yet." );
@@ -69,9 +69,9 @@ namespace Engine1
 
     template < typename PixelType >
     void SumValuesComputeShader< PixelType >::setParameters( ID3D11DeviceContext3& deviceContext,
-                                               Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture1,
-                                               Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture2,
-                                               Texture2DSpecBind< TexBind::ShaderResource, PixelType >& texture3 )
+                                               Texture2D< PixelType >& texture1,
+                                               Texture2D< PixelType >& texture2,
+                                               Texture2D< PixelType >& texture3 )
     {
         if ( !m_compiled )
             throw std::exception( "SumValueComputeShader::setParameters - Shader hasn't been compiled yet." );

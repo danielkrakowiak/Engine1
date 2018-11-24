@@ -42,12 +42,12 @@ void BlurShadowsRenderer::blurShadows(
     const Camera& camera,
     const float positionThreshold,
     const float normalThreshold,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
+    const std::shared_ptr< Texture2D< float4 > > positionTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
+    const std::shared_ptr< Texture2D< float > > distanceToOccluder,
+    const std::shared_ptr< Texture2D< float > > finalDistanceToOccluder,
+    const std::shared_ptr< Texture2D< unsigned char > > shadowRenderTarget,
     const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
@@ -67,12 +67,12 @@ void BlurShadowsRenderer::blurShadows(
 
     m_rendererCore.enableComputeShader( m_blurShadowsComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
     
     unorderedAccessTargetsU1.push_back( shadowRenderTarget );
 
@@ -101,23 +101,23 @@ void BlurShadowsRenderer::blurShadowsHorzVert(
     const Camera& camera,
     const float positionThreshold,
     const float normalThreshold,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > shadowTemporaryRenderTarget,
+    const std::shared_ptr< Texture2D< float4 > > positionTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
+    const std::shared_ptr< Texture2D< float > > distanceToOccluder,
+    const std::shared_ptr< Texture2D< float > > finalDistanceToOccluder,
+    const std::shared_ptr< Texture2D< unsigned char > > shadowRenderTarget,
+    const std::shared_ptr< RenderTargetTexture2D< unsigned char > > shadowTemporaryRenderTarget,
     const Light& light )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     const int imageWidth = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();

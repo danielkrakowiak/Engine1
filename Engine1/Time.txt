@@ -526,3 +526,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 02.11.2018 - 4h - Working on Bokeh Blur. Modified Renderer post-process to use temporary render-targets from RendrTargetManager rather than using permanently stored RTs. Trying to find a bug causing some post processes to end up with yellow screen.
 03.11.2018 - 6h - Refactored Application::run() method - moved rendering text to other methods, removed use of normal render target, removed hack with getting a render target from RenderTargetManager and hoping that this is the same as final output RT from Renderer. Added calculation of circle-of-confusion for Bokeh shader. Setting focus to the clicked object.
 09.11.2018 - 2h - Added scaling-down Bokeh intensity by its area. Added Gaussian weighting of Bokeh samples based on depth, trying to fix artifacts.
+18.11.2018 - 5h - Refactoring of Texture2D class - restricted binding/usage to 4 types, greatly simplified implementation.
+21.11.2018 - 2h - Fixing compilation errors after Texture class refactor.

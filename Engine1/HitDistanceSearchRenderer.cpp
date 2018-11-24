@@ -35,10 +35,10 @@ void HitDistanceSearchRenderer::initialize(
 
 void HitDistanceSearchRenderer::performHitDistanceSearch( 
     const Camera& camera,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > hitDistance,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > blurredHitDistanceRenderTarget )
+    const std::shared_ptr< Texture2D< float4 > > positionTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< float > > hitDistance,
+    std::shared_ptr< Texture2D< float > > blurredHitDistanceRenderTarget )
 {
     const int2 renderTargetDimensions = blurredHitDistanceRenderTarget->getDimensions();
 
@@ -55,12 +55,12 @@ void HitDistanceSearchRenderer::performHitDistanceSearch(
 
     m_rendererCore.enableComputeShader( m_hitDistanceSearchComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( blurredHitDistanceRenderTarget );
 

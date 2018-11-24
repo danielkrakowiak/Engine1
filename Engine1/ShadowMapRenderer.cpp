@@ -121,7 +121,7 @@ Microsoft::WRL::ComPtr<ID3D11DepthStencilState> ShadowMapRenderer::createDepthSt
 	return depthStencilState;
 }
 
-void ShadowMapRenderer::setRenderTarget( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > renderTarget )
+void ShadowMapRenderer::setRenderTarget( std::shared_ptr< DepthTexture2D< float > > renderTarget )
 {
     m_renderTarget = renderTarget;
 }
@@ -129,7 +129,7 @@ void ShadowMapRenderer::setRenderTarget( std::shared_ptr< Texture2D< TexUsage::D
 void ShadowMapRenderer::createAndSetRenderTarget( const int2 dimensions, ID3D11Device3& device )
 {
 	// Create depth render target.
-	m_renderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > >
+	m_renderTarget = std::make_shared< DepthTexture2D< float > >
 		( device, dimensions.x, dimensions.y, false, true, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 
@@ -139,7 +139,7 @@ void ShadowMapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 	m_skeletonMeshVertexShader->loadAndInitialize( "Engine1/Shaders/SkeletonMeshShader/SkeletonMesh_vs.cso", device );
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > ShadowMapRenderer::getRenderTarget()
+std::shared_ptr< DepthTexture2D< float > > ShadowMapRenderer::getRenderTarget()
 {
     return m_renderTarget;
 }

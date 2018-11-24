@@ -60,7 +60,7 @@ void GenerateMipmapMinValueFragmentShader::initialize( ComPtr< ID3D11Device3 >& 
 }
 
 void GenerateMipmapMinValueFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext,
-                                                          Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float >& texture,
+                                                          RenderTargetTexture2D< float >& texture,
                                                           const int srcMipLevel )
 {
     { // Set input textures.

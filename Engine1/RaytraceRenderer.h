@@ -8,7 +8,7 @@
 #include "float4.h"
 #include "int2.h"
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 struct ID3D11Device3;
 struct ID3D11DeviceContext3;
@@ -46,13 +46,13 @@ namespace Engine1
                 prevPrevCurrentRefractiveIndex( nullptr )
             {}
 
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >        prevHitPosition;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >        prevHitNormal;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevHitRoughness;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevHitRefractiveIndex;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >        contribution;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevCurrentRefractiveIndex;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevPrevCurrentRefractiveIndex;
+            std::shared_ptr< Texture2D< float4 > >        prevHitPosition;
+            std::shared_ptr< Texture2D< float4 > >        prevHitNormal;
+            std::shared_ptr< Texture2D< unsigned char > > prevHitRoughness;
+            std::shared_ptr< Texture2D< unsigned char > > prevHitRefractiveIndex;
+            std::shared_ptr< Texture2D< uchar4 > >        contribution;
+            std::shared_ptr< Texture2D< unsigned char > > prevCurrentRefractiveIndex;
+            std::shared_ptr< Texture2D< unsigned char > > prevPrevCurrentRefractiveIndex;
         };
 
         // For other layers of reflected/refracted rays.
@@ -64,8 +64,8 @@ namespace Engine1
                 prevHitDistanceToCamera( nullptr )
             {}
 
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > prevRayDirection;
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  prevHitDistanceToCamera;
+            std::shared_ptr< Texture2D< float4 > > prevRayDirection;
+            std::shared_ptr< Texture2D< float > >  prevHitDistanceToCamera;
         };
 
         struct RenderTargets
@@ -85,18 +85,18 @@ namespace Engine1
                 hitDistanceToCamera( nullptr )
             {}
 
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayOrigin;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayDirection;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitPosition;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitEmissive;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitAlbedo;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitMetalness;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRoughness;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitNormal;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRefractiveIndex;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > currentRefractiveIndex;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistance;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceToCamera;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        rayOrigin;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        rayDirection;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        hitPosition;
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > >        hitEmissive;
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > >        hitAlbedo;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > hitMetalness;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > hitRoughness;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        hitNormal;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > hitRefractiveIndex;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > currentRefractiveIndex;
+            std::shared_ptr< RenderTargetTexture2D< float > >         hitDistance;
+            std::shared_ptr< RenderTargetTexture2D< float > >         hitDistanceToCamera;
         };
 
         RaytraceRenderer( Direct3DRendererCore& rendererCore );

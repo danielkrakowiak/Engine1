@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -35,12 +35,12 @@ namespace Engine1
             const Camera& camera,
             const float positionThreshold,
             const float normalThreshold,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
+            const std::shared_ptr< Texture2D< float > > distanceToOccluder,
+            const std::shared_ptr< Texture2D< float > > finalDistanceToOccluder,
+            const std::shared_ptr< Texture2D< unsigned char > > shadowRenderTarget,
             const Light& light 
         );
 
@@ -50,13 +50,13 @@ namespace Engine1
             const Camera& camera,
             const float positionThreshold,
             const float normalThreshold,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > finalDistanceToOccluder,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > shadowRenderTarget,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > shadowTemporaryRenderTarget,
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
+            const std::shared_ptr< Texture2D< float > > distanceToOccluder,
+            const std::shared_ptr< Texture2D< float > > finalDistanceToOccluder,
+            const std::shared_ptr< Texture2D< unsigned char > > shadowRenderTarget,
+            const std::shared_ptr< RenderTargetTexture2D< unsigned char > > shadowTemporaryRenderTarget,
             const Light& light 
         );
 

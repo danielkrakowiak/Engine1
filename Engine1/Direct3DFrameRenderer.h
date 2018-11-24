@@ -13,6 +13,7 @@
 #include "TextureFragmentShader.h"
 #include "TextVertexShader.h"
 #include "TextFragmentShader.h"
+#include "Texture2DTypes.h"
 
 #include "float44.h"
 #include "uchar4.h"
@@ -45,13 +46,13 @@ namespace Engine1
 
         void reportLiveObjects();
 
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char >&  texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float4 >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float2  >&        texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
-        void renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, float  >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2D< unsigned char >&  texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2D< uchar4 >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2D< float4 >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2D< float2  >&        texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTexture( const Texture2D< float  >&         texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
 
-        void renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
+        void renderTextureAlpha( const Texture2D< uchar4 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel = 0 );
 
         void displayFrame();
 
@@ -98,7 +99,7 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11BlendState >      m_blendStateNoBlending;
         Microsoft::WRL::ComPtr< ID3D11BlendState >      m_blendStateWithBlending;
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > > m_renderTarget;
+        std::shared_ptr< RenderTargetTexture2D< uchar4 > > m_renderTarget;
 
         // Default mesh.
         RectangleMesh rectangleMesh;

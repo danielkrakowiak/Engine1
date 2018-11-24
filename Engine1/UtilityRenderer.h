@@ -30,52 +30,52 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device,
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-        void replaceValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
+        void replaceValues( std::shared_ptr< Texture2D< float > > texture,
                             const int mipmapLevel,
                             const float replaceFromValue,
                             const float replaceToValue );
 
-        void spreadMaxValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture, 
+        void spreadMaxValues( std::shared_ptr< Texture2D< float > > texture, 
                               const int mipmapLevel,
                               const int repeatCount,
                               const float ignorePixelIfBelowValue,
-                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture );
+                              const std::shared_ptr< Texture2D< float3 > > positionTexture );
 
         // @param totalPreviousSpread How far (in pixels) it has been spread already (in previous passes)
-        void spreadMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
+        void spreadMinValues( std::shared_ptr< Texture2D< float > > texture,
                               const int mipmapLevel,
                               const int repeatCount,
                               const float ignorePixelIfBelowValue,
                               const float3 cameraPosition,
-                              const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture,
+                              const std::shared_ptr< Texture2D< float3 > > positionTexture,
                               const int totalPreviousSpread, 
                               const int spreadDistance = -1,
                               const int offset = 0 );
 
-        void mergeMinValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > texture2,
+        void mergeMinValues( std::shared_ptr< Texture2D< float > > texture,
+                             const std::shared_ptr< Texture2D< float > > texture2,
                              const int mipmapLevel );
 
-        void convertDistanceFromScreenSpaceToWorldSpace( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > texture,
+        void convertDistanceFromScreenSpaceToWorldSpace( std::shared_ptr< Texture2D< float > > texture,
                                                          const int mipmapLevel,
                                                          const float3& cameraPos,
-                                                         const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float3 > > positionTexture );
+                                                         const std::shared_ptr< Texture2D< float3 > > positionTexture );
 
-        void blurValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > outputTexture,
+        void blurValues( std::shared_ptr< Texture2D< float4 > > outputTexture,
                          const int outputMipmapLevel,
-                         const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > inputTexture,
+                         const std::shared_ptr< Texture2D< float4 > > inputTexture,
                          const int inputMipmapLevel );
 
-        void mergeMipmapsValues( std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destinationTexture,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > inputTexture,
+        void mergeMipmapsValues( std::shared_ptr< Texture2D< float4 > > destinationTexture,
+                             const std::shared_ptr< Texture2D< float4 > > inputTexture,
                              const int firstMipmapLevel,
                              const int lastMipmapLevel );
 
         void sumValues( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > outputTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture1,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture2,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > inputTexture3
+            std::shared_ptr< Texture2D< unsigned char > > outputTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > inputTexture1,
+            const std::shared_ptr< Texture2D< unsigned char > > inputTexture2,
+            const std::shared_ptr< Texture2D< unsigned char > > inputTexture3
         );
 
         private:

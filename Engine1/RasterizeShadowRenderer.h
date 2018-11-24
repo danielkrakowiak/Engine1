@@ -8,7 +8,7 @@
 #include "float4.h"
 #include "int2.h"
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 struct ID3D11Device3;
 struct ID3D11DeviceContext3;
@@ -37,12 +37,12 @@ namespace Engine1
         void performShadowMapping(
             const float3& cameraPos,
             const std::shared_ptr< Light > light,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture
+            const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+            const std::shared_ptr< Texture2D< float4 > > surfaceNormalTexture
         );
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > getShadowTexture();
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         getDistanceToOccluder();
+        std::shared_ptr< RenderTargetTexture2D< unsigned char > > getShadowTexture();
+        std::shared_ptr< RenderTargetTexture2D< float > >         getDistanceToOccluder();
 
         private:
 
@@ -56,8 +56,8 @@ namespace Engine1
         // Render targets.
         int m_imageWidth, m_imageHeight;
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > m_shadowTexture;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         m_distanceToOccluderTexture;
+        std::shared_ptr< RenderTargetTexture2D< unsigned char > > m_shadowTexture;
+        std::shared_ptr< RenderTargetTexture2D< float > >         m_distanceToOccluderTexture;
 
         void createComputeTargets( int imageWidth, int imageHeight, ID3D11Device3& device );
 

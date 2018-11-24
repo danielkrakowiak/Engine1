@@ -24,10 +24,10 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void combineShadowLayers( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > finalShadowTexture,
-            Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& hardShadowTexture,
-            Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& mediumShadowTexture,
-            Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& softShadowTexture
+            std::shared_ptr< Texture2D< unsigned char > > finalShadowTexture,
+            Texture2D< unsigned char >& hardShadowTexture,
+            Texture2D< unsigned char >& mediumShadowTexture,
+            Texture2D< unsigned char >& softShadowTexture
         );
 
         private:

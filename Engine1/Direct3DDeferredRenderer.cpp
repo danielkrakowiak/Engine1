@@ -213,37 +213,37 @@ void Direct3DDeferredRenderer::render(
         const float  roughnessMul         = !model.getRoughnessTextures().empty()       ? model.getRoughnessTextures()[ 0 ].getColorMultiplier().x       : 0.0f;
         const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 0.0f;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
+        const Texture2D< unsigned char >& alphaTexture 
             = !model.getAlphaTextures().empty() && model.getAlphaTextures()[ 0 ].getTexture()
             ? *model.getAlphaTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.alpha;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
+        const Texture2D< uchar4 >& emissiveTexture 
             = !model.getEmissiveTextures().empty() && model.getEmissiveTextures()[ 0 ].getTexture()
             ? *model.getEmissiveTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.emissive;
 
-	    const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
+	    const Texture2D< uchar4 >& albedoTexture 
             = !model.getAlbedoTextures().empty() && model.getAlbedoTextures()[ 0 ].getTexture()
             ? *model.getAlbedoTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.albedo;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
+        const Texture2D< uchar4 >& normalTexture 
             = !model.getNormalTextures().empty() && model.getNormalTextures()[ 0 ].getTexture()
             ? *model.getNormalTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.normal;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
+        const Texture2D< unsigned char >& metalnessTexture 
             = !model.getMetalnessTextures().empty() && model.getMetalnessTextures()[ 0 ].getTexture()
             ? *model.getMetalnessTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.metalness;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
+        const Texture2D< unsigned char >& roughnessTexture 
             = !model.getRoughnessTextures().empty() && model.getRoughnessTextures()[ 0 ].getTexture()
             ? *model.getRoughnessTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.roughness;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
+        const Texture2D< unsigned char >& indexOfRefractionTexture 
             = !model.getRefractiveIndexTextures().empty() && model.getRefractiveIndexTextures()[ 0 ].getTexture()
             ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.refractiveIndex;
@@ -309,37 +309,37 @@ void Direct3DDeferredRenderer::render(
         const float  roughnessMul         = !model.getRoughnessTextures().empty()       ? model.getRoughnessTextures()[ 0 ].getColorMultiplier().x       : 0.0f;
         const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 0.0f;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
+        const Texture2D< unsigned char >& alphaTexture 
             = !model.getAlphaTextures().empty() && model.getAlphaTextures()[ 0 ].getTexture()
             ? *model.getAlphaTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.alpha;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
+        const Texture2D< uchar4 >& emissiveTexture 
             = !model.getEmissiveTextures().empty() && model.getEmissiveTextures()[ 0 ].getTexture()
             ? *model.getEmissiveTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.emissive;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
+        const Texture2D< uchar4 >& albedoTexture 
             = !model.getAlbedoTextures().empty() && model.getAlbedoTextures()[ 0 ].getTexture()
             ? *model.getAlbedoTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.albedo;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
+        const Texture2D< uchar4 >& normalTexture 
             = !model.getNormalTextures().empty() && model.getNormalTextures()[ 0 ].getTexture()
             ? *model.getNormalTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.normal;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
+        const Texture2D< unsigned char >& metalnessTexture 
             = !model.getMetalnessTextures().empty() && model.getMetalnessTextures()[ 0 ].getTexture()
             ? *model.getMetalnessTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.metalness;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
+        const Texture2D< unsigned char >& roughnessTexture 
             = !model.getRoughnessTextures().empty() && model.getRoughnessTextures()[ 0 ].getTexture()
             ? *model.getRoughnessTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.roughness;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
+        const Texture2D< unsigned char >& indexOfRefractionTexture 
             = !model.getRefractiveIndexTextures().empty() && model.getRefractiveIndexTextures()[ 0 ].getTexture()
             ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.refractiveIndex;
@@ -379,12 +379,12 @@ void Direct3DDeferredRenderer::render(
     m_rendererCore.setViewport( settings.imageDimensions );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 
         renderTargetsU4.push_back( renderTargets.albedo );
 
@@ -644,12 +644,12 @@ void Direct3DDeferredRenderer::disableRenderTargets()
 
 void Direct3DDeferredRenderer::enableRenderTargets( const RenderTargets& renderTargets )
 {
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 
     renderTargetsF4.push_back( renderTargets.normal );
     renderTargetsF4.push_back( renderTargets.position );

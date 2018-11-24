@@ -38,9 +38,9 @@ namespace Engine1
             const float searchRadiusInLight,
             const float searchStepInLight,
             const int searchMipmapLevel,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder,
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< float > > distanceToOccluder,
             const int2 outputImageDimensions,
             const Light& light  
         );

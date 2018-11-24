@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "uchar4.h"
 #include "int2.h"
@@ -36,15 +36,15 @@ namespace Engine1
         void setDirection( const float3& direction );
         void setConeAngle( const float coneAngle );
 
-        void setShadowMap( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > shadowMap );
+        void setShadowMap( std::shared_ptr< DepthTexture2D< float > > shadowMap );
 
         void setInterpolated( const Light& light1, const Light& light2, float ratio ) override;
 
         float3 getDirection() const;
         float  getConeAngle() const;
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > >       getShadowMap();
-        const std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > getShadowMap() const;
+        std::shared_ptr< DepthTexture2D< float > >       getShadowMap();
+        const std::shared_ptr< DepthTexture2D< float > > getShadowMap() const;
 
         float44 getShadowMapViewMatrix() const;
         float44 getShadowMapProjectionMatrix() const;
@@ -54,7 +54,7 @@ namespace Engine1
         float3 m_direction;
         float  m_coneAngle;
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, float > > m_shadowMap;
+        std::shared_ptr< DepthTexture2D< float > > m_shadowMap;
     };
 };
 

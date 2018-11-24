@@ -36,58 +36,58 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void performEmissiveShading( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture 
+            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            const std::shared_ptr< Texture2D< uchar4 > > emissiveTexture 
         );
 
         // With shadows.
         void performShading( 
             const Camera& camera,
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
             const Light& light 
         );
 
         // Without shadows.
         void performShadingNoShadows( 
             const Camera& camera,
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > ambientOcclusionTexture,
+            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > ambientOcclusionTexture,
             const std::vector< std::shared_ptr< Light > > lights 
         );
 
         // With shadows.
         void performShading( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+            const std::shared_ptr< Texture2D< float4 > > rayHitPositionTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > rayHitAlbedoTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > rayHitMetalnessTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > rayHitRoughnessTexture,
+            const std::shared_ptr< Texture2D< float4 > > rayHitNormalTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
             const Light& light 
         );
 
         // Without shadows.
         void performShadingNoShadows( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > colorRenderTarget,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
+            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+            const std::shared_ptr< Texture2D< float4 > > rayHitPositionTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > rayHitAlbedoTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > rayHitMetalnessTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > rayHitRoughnessTexture,
+            const std::shared_ptr< Texture2D< float4 > > rayHitNormalTexture,
             const std::vector< std::shared_ptr< Light > > lights 
         );
 

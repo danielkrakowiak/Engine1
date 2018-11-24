@@ -12,7 +12,7 @@ struct ID3D11Device3;
 
 namespace Engine1
 {
-    template< TexUsage, TexBind, typename > class Texture2D;
+    template< typename > class Texture2D;
 
     class Settings
     {
@@ -383,13 +383,13 @@ namespace Engine1
         {
             struct Defaults
             {
-                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > alpha;
-                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        emissive;
-                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        albedo;
-                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >        normal;
-                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > metalness;
-                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > roughness;
-                std::shared_ptr< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > > refractiveIndex;
+                std::shared_ptr< Texture2D< unsigned char > > alpha;
+                std::shared_ptr< Texture2D< uchar4 > >        emissive;
+                std::shared_ptr< Texture2D< uchar4 > >        albedo;
+                std::shared_ptr< Texture2D< uchar4 > >        normal;
+                std::shared_ptr< Texture2D< unsigned char > > metalness;
+                std::shared_ptr< Texture2D< unsigned char > > roughness;
+                std::shared_ptr< Texture2D< unsigned char > > refractiveIndex;
             } defaults;
         } textures;
 

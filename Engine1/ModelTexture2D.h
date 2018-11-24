@@ -4,7 +4,7 @@
 
 #include "float4.h"
 #include "uchar4.h"
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 namespace Engine1
 {
@@ -14,25 +14,25 @@ namespace Engine1
         public:
 
         ModelTexture2D();
-        ModelTexture2D( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture, int texcoordIndex = 0, float4 colorMultiplier = float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        ModelTexture2D( std::shared_ptr< Texture2D< PixelType > > texture, int texcoordIndex = 0, float4 colorMultiplier = float4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         ModelTexture2D( const ModelTexture2D< PixelType >& );
         ~ModelTexture2D();
 
         ModelTexture2D< PixelType >& operator=(const ModelTexture2D< PixelType >&);
 
-        const std::shared_ptr< Texture2DSpecBind<TexBind::ShaderResource, PixelType > > getTexture() const;
-        /* */ std::shared_ptr< Texture2DSpecBind<TexBind::ShaderResource, PixelType > > getTexture();
+        const std::shared_ptr< Texture2D< PixelType > > getTexture() const;
+        /* */ std::shared_ptr< Texture2D< PixelType > > getTexture();
 
         int    getTexcoordIndex()   const;
         float4 getColorMultiplier() const;
 
-        void setTexture( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture );
+        void setTexture( std::shared_ptr< Texture2D< PixelType > > texture );
         void setTexcoordIndex( int texcoordIndex );
         void setColorMultiplier( float4 colorMultiplier );
 
         private:
 
-        std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > m_texture;
+        std::shared_ptr< Texture2D< PixelType > > m_texture;
 
         int    m_texcoordIndex;
         float4 m_colorMultiplier;
@@ -46,7 +46,7 @@ namespace Engine1
     {}
 
     template< typename PixelType >
-    ModelTexture2D< PixelType >::ModelTexture2D( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture, int texcoordIndex, float4 colorMultiplier ) : 
+    ModelTexture2D< PixelType >::ModelTexture2D( std::shared_ptr< Texture2D< PixelType > > texture, int texcoordIndex, float4 colorMultiplier ) : 
         m_texture( texture ), 
         m_texcoordIndex( texcoordIndex ), 
         m_colorMultiplier( colorMultiplier ) {}
@@ -71,13 +71,13 @@ namespace Engine1
     }
 
     template< typename PixelType >
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > ModelTexture2D< PixelType >::getTexture() const
+    const std::shared_ptr< Texture2D< PixelType > > ModelTexture2D< PixelType >::getTexture() const
     {
 	    return m_texture;
     }
 
     template< typename PixelType >
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > ModelTexture2D< PixelType >::getTexture()
+    std::shared_ptr< Texture2D< PixelType > > ModelTexture2D< PixelType >::getTexture()
     {
 	    return m_texture;
     }
@@ -95,7 +95,7 @@ namespace Engine1
     }
 
     template< typename PixelType >
-    void ModelTexture2D< PixelType >::setTexture( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture )
+    void ModelTexture2D< PixelType >::setTexture( std::shared_ptr< Texture2D< PixelType > > texture )
     {
 	    this->m_texture = texture;
     }

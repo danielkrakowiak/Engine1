@@ -31,7 +31,7 @@ void EdgeDistanceComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 }
 
 void EdgeDistanceComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
-                                               const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& distToEdgeTexture,
+                                               const Texture2D< unsigned char >& distToEdgeTexture,
                                                const unsigned char passIndex )
 {
     if ( !m_compiled ) throw std::exception( "EdgeDistanceComputeShader::setParameters - Shader hasn't been compiled yet." );

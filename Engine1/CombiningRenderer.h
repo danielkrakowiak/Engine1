@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 #include "RectangleMesh.h"
 
 #include "CombiningVertexShader.h"
@@ -38,13 +38,13 @@ namespace Engine1
 
         // TODO: alpha should be replaced by "alpha texture".
         void combine( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > destTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
+            std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture,
+            const std::shared_ptr< Texture2D< float4 > > srcTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > contributionTermTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > depthTexture,
+            const std::shared_ptr< Texture2D< float > >  hitDistanceTexture,
             const float3 cameraPosition,
             const int contributionTextureFilledWidth, 
             const int contributionTextureFilledHeight,
@@ -53,14 +53,14 @@ namespace Engine1
         );
 
         void combine( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > destTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitNormalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousHitPositionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  previousHitDistanceTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > previousRayOriginTexture,
+            std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture,
+            const std::shared_ptr< Texture2D< float4 > > srcTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > contributionTermTexture,
+            const std::shared_ptr< Texture2D< float4 > > previousHitNormalTexture,
+            const std::shared_ptr< Texture2D< float4 > > previousHitPositionTexture,
+            const std::shared_ptr< Texture2D< float > >  previousHitDistanceTexture,
+            const std::shared_ptr< Texture2D< float > >  hitDistanceTexture,
+            const std::shared_ptr< Texture2D< float4 > > previousRayOriginTexture,
             const int contributionTextureFilledWidth, 
             const int contributionTextureFilledHeight,
             const int srcTextureFilledWidth, 

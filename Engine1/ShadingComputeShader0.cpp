@@ -40,7 +40,7 @@ void ShadingComputeShader0::initialize( ComPtr< ID3D11Device3 >& device )
 }
 
 void ShadingComputeShader0::setParameters( ID3D11DeviceContext3& deviceContext, 
-                                          const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture )
+                                          const std::shared_ptr< Texture2D< uchar4 > > emissiveTexture )
 {
     if ( !m_compiled ) throw std::exception( "ShadingComputeShader0::setParameters - Shader hasn't been compiled yet." );
 

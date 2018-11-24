@@ -5,7 +5,7 @@
 #include <wrl.h>
 #include <tuple>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 #include "float4.h"
 #include "int2.h"
 #include "Direct3DUtil.h"
@@ -22,10 +22,10 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         template < typename T >
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > > 
+        std::shared_ptr< RenderTargetTexture2D< T > > 
             getRenderTarget( const int2 imageDimensions, const bool reducedPrecision, const std::string debugName = "" );
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > 
+        std::shared_ptr< DepthTexture2D< uchar4 > > 
             getRenderTargetDepth( const int2 imageDimensions, const std::string debugName = "" );
 
         // Debug methods to keep track of render target usage.
@@ -37,14 +37,14 @@ namespace Engine1
 
         // Helper method to get a set of all render targets for given pixel type.
         template< typename T >
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > > >& 
+        std::vector< std::shared_ptr< RenderTargetTexture2D< T > > >& 
             getAllRenderTargets();
 
         template < typename T >
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > > 
+        std::shared_ptr< RenderTargetTexture2D< T > > 
             createRenderTarget( const int2 imageDimensions, const bool reducedPrecision );
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
+        std::shared_ptr< DepthTexture2D< uchar4 > >
             createRenderTargetDepth( const int2 imageDimensions );
 
         template< typename T >
@@ -53,16 +53,16 @@ namespace Engine1
 
         Microsoft::WRL::ComPtr< ID3D11Device3 > m_device;
 
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > >         m_renderTargetsFloat;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float3 > > >        m_renderTargetsFloat3;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > >        m_renderTargetsFloat4;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > > m_renderTargetsUchar;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > >        m_renderTargetsUchar4;
-        std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > >                        m_renderTargetsDepthUchar4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         m_renderTargetsFloat;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        m_renderTargetsFloat3;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        m_renderTargetsFloat4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > m_renderTargetsUchar;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        m_renderTargetsUchar4;
+        std::vector< std::shared_ptr< DepthTexture2D< uchar4 > > >                        m_renderTargetsDepthUchar4;
     };
 
     template < typename T >
-    std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > >
+    std::shared_ptr< RenderTargetTexture2D< T > >
         RenderTargetManager::getRenderTarget( const int2 imageDimensions, const bool reducedPrecision, const std::string debugName )
     {
         auto& renderTargets = getAllRenderTargets< T >();
@@ -86,7 +86,7 @@ namespace Engine1
     }
 
     template < typename T >
-    std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > >
+    std::shared_ptr< RenderTargetTexture2D< T > >
         RenderTargetManager::createRenderTarget( const int2 imageDimensions, const bool reducedPrecision )
     {
         DXGI_FORMAT view1, view2, view3, view4;
@@ -96,7 +96,7 @@ namespace Engine1
         const bool storeOnGpu      = true;
         const bool generateMipmaps = true;
 
-        return std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, T > >(
+        return std::make_shared< RenderTargetTexture2D< T > >(
             *m_device.Get(),
             imageDimensions.x,
             imageDimensions.y,

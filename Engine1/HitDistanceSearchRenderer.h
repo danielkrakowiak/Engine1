@@ -34,10 +34,10 @@ namespace Engine1
 
         void performHitDistanceSearch( 
             const Camera& camera,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > hitDistance,
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > blurredHitDistanceRenderTarget
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< float > > hitDistance,
+            std::shared_ptr< Texture2D< float > > blurredHitDistanceRenderTarget
         );
 
         private:

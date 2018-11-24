@@ -137,7 +137,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
         throw std::exception( "BlockModel::swapSubAsset - tried to swap assets of different types." );
     }
 
-    typedef Texture2DSpecBind< TexBind::ShaderResource, unsigned char > TextureU1;
+    typedef Texture2D< unsigned char > TextureU1;
     std::shared_ptr< TextureU1 > newTextureU1 = std::dynamic_pointer_cast< TextureU1 >( newAsset );
 
     if ( newTextureU1 )
@@ -177,7 +177,7 @@ void BlockModel::swapSubAsset( std::shared_ptr<Asset> oldAsset, std::shared_ptr<
         throw std::exception( "BlockModel::swapSubAsset - tried to swap assets of different types." );
     }
 
-    typedef Texture2DSpecBind< TexBind::ShaderResource, uchar4 > TextureU4;
+    typedef Texture2D< uchar4 > TextureU4;
     std::shared_ptr< TextureU4 > newTextureU4 = std::dynamic_pointer_cast< TextureU4 >( newAsset );
 
     if ( newTextureU4 )

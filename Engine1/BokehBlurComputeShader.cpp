@@ -46,8 +46,8 @@ void BokehBlurComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 
 void BokehBlurComputeShader::setParameters( 
     ID3D11DeviceContext3& deviceContext,
-    const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture,
-    const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& depthTexture )
+    const Texture2D< float4 >& texture,
+    const Texture2D< uchar4 >& depthTexture )
 {
     if ( !m_compiled ) 
         throw std::exception( "BokehBlurComputeShader::setParameters - Shader hasn't been compiled yet." );

@@ -39,8 +39,8 @@ void EdgeDetectionRenderer::initialize( int imageWidth, int imageHeight, ComPtr<
 	m_initialized = true;
 }
 
-void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                                  const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture )
+void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture2D< float4 > > positionTexture,
+                                                  const std::shared_ptr< Texture2D< float4 > > normalTexture )
 {
     // For test - may not be necessary.
     m_valueRenderTargetSrc->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 255, 0, 0, 0 ) );
@@ -48,12 +48,12 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
     
     { // Mark edges with value of 0.
         unorderedAccessTargetsU1.push_back( m_valueRenderTargetDest );
@@ -103,7 +103,7 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
     m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > EdgeDetectionRenderer::getValueRenderTarget()
+std::shared_ptr< Texture2D< unsigned char > > EdgeDetectionRenderer::getValueRenderTarget()
 {
     return m_valueRenderTargetDest;
 }
@@ -117,11 +117,11 @@ void EdgeDetectionRenderer::swapSrcDestRenderTargets()
 
 void EdgeDetectionRenderer::createRenderTargets( int imageWidth, int imageHeight, ID3D11Device3& device )
 {
-    m_valueRenderTargetDest = m_valueRenderTarget0 = std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
+    m_valueRenderTargetDest = m_valueRenderTarget0 = std::make_shared< RenderTargetTexture2D< unsigned char > >
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 
-    m_valueRenderTargetSrc = m_valueRenderTarget1 = std::make_shared< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > >
-        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
+    m_valueRenderTargetSrc = m_valueRenderTarget1 = std::make_shared< RenderTargetTexture2D< unsigned char > >
+        ( device, imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UINT );
 }
 
 void EdgeDetectionRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )

@@ -29,10 +29,10 @@ namespace Engine1
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-        void performEdgeDetection( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                                   const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture );
+        void performEdgeDetection( const std::shared_ptr< Texture2D< float4 > > positionTexture,
+                                   const std::shared_ptr< Texture2D< float4 > > normalTexture );
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > getValueRenderTarget();
+        std::shared_ptr< Texture2D< unsigned char > > getValueRenderTarget();
 
         private:
 
@@ -46,13 +46,13 @@ namespace Engine1
         // Render targets.
         int m_imageWidth, m_imageHeight;
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTarget0;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTarget1;
+        std::shared_ptr< Texture2D< unsigned char > > m_valueRenderTarget0;
+        std::shared_ptr< Texture2D< unsigned char > > m_valueRenderTarget1;
 
         void swapSrcDestRenderTargets();
 
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTargetSrc;
-        std::shared_ptr< Texture2D< TexUsage::Default, TexBind::UnorderedAccess_ShaderResource, unsigned char > > m_valueRenderTargetDest;
+        std::shared_ptr< Texture2D< unsigned char > > m_valueRenderTargetSrc;
+        std::shared_ptr< Texture2D< unsigned char > > m_valueRenderTargetDest;
 
         void createRenderTargets( int imageWidth, int imageHeight, ID3D11Device3& device );
 

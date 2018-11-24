@@ -46,12 +46,12 @@ void ReflectionRefractionShadingRenderer::initialize( int imageWidth, int imageH
 
 void ReflectionRefractionShadingRenderer::performFirstReflectionShading( 
     const Camera& camera,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > contributionRoughnessRenderTarget )
+    const std::shared_ptr< Texture2D< float4 > > positionTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -67,7 +67,7 @@ void ReflectionRefractionShadingRenderer::performFirstReflectionShading(
 
     m_rendererCore.enableComputeShader( m_reflectionShadingComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -85,14 +85,14 @@ void ReflectionRefractionShadingRenderer::performFirstReflectionShading(
 }
 
 void ReflectionRefractionShadingRenderer::performReflectionShading( 
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > prevContributionRoughnessRenderTarget,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > contributionRoughnessRenderTarget )
+    const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+    const std::shared_ptr< Texture2D< float4 > > positionTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > prevContributionRoughnessRenderTarget,
+    const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -109,7 +109,7 @@ void ReflectionRefractionShadingRenderer::performReflectionShading(
 
     m_rendererCore.enableComputeShader( m_reflectionShadingComputeShader2 );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -128,12 +128,12 @@ void ReflectionRefractionShadingRenderer::performReflectionShading(
 
 void ReflectionRefractionShadingRenderer::performFirstRefractionShading( 
     const Camera& camera,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > contributionRoughnessRenderTarget )
+    const std::shared_ptr< Texture2D< float4 > > positionTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -150,7 +150,7 @@ void ReflectionRefractionShadingRenderer::performFirstRefractionShading(
 
     m_rendererCore.enableComputeShader( m_refractionShadingComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -168,14 +168,14 @@ void ReflectionRefractionShadingRenderer::performFirstRefractionShading(
 }
 
 void ReflectionRefractionShadingRenderer::performRefractionShading( 
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > prevContributionRoughnessRenderTarget,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > contributionRoughnessRenderTarget )
+    const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+    const std::shared_ptr< Texture2D< float4 > > positionTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+    const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > prevContributionRoughnessRenderTarget,
+    const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -192,7 +192,7 @@ void ReflectionRefractionShadingRenderer::performRefractionShading(
 
     m_rendererCore.enableComputeShader( m_refractionShadingComputeShader2 );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );

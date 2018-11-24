@@ -10,7 +10,7 @@ namespace Engine1
     class FreeCamera;
     class Scene;
     class uchar4;
-    template< typename PixelType > class Texture2DGeneric;
+    template< typename PixelType > class Texture2D;
     template< typename PixelType > class StagingTexture2D;
     class SceneManager;
     class AssetManager;
@@ -47,7 +47,7 @@ namespace Engine1
 
         void loadTestCases();
 
-        std::shared_ptr< Texture2DGeneric< uchar4 > > 
+        std::shared_ptr< Texture2D< uchar4 > > 
         loadTestCaseReference( const std::string& sceneName, const std::string& cameraName );
 
         std::string getTestScenePath( const std::string& sceneName );

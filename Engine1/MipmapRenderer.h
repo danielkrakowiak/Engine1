@@ -30,15 +30,15 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device,
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-		void resampleTexture( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, int destMipmapLevel,
-			std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, int srcMipmapLevel );
+		void resampleTexture( std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture, int destMipmapLevel,
+			std::shared_ptr< Texture2D< float4 > > srcTexture, int srcMipmapLevel );
 
-		void generateMipmaps( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > texture, int startSrcMipmapLevel = 0, int generateMipmapCount = -1 );
+		void generateMipmaps( std::shared_ptr< RenderTargetTexture2D< float4 > > texture, int startSrcMipmapLevel = 0, int generateMipmapCount = -1 );
 
-        void generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture );
+        void generateMipmapsMinValue( std::shared_ptr< RenderTargetTexture2D< float > >& texture );
 
         // @param generateMipmapCount - if 0 passed, generate all mips down to 1x1.
-        void generateMipmapsWithSampleRejection( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture, 
+        void generateMipmapsWithSampleRejection( const std::shared_ptr< RenderTargetTexture2D< float > >& texture, 
                                                  const float maxAcceptableValue, const int initialSrcMipmapLevel, int generateMipmapCount = 0 );
 
         private:

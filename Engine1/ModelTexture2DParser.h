@@ -30,15 +30,15 @@ namespace Engine1
         // If texture path is not set - leave texture empty.
         if ( !fileInfo.getPath().empty() )
         {
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture;
+            std::shared_ptr< Texture2D< PixelType > > texture;
             if ( loadRecurrently ) 
             {
                 const DXGI_FORMAT defaultFormat = ModelTexture2DParser< PixelType >::getDefaultFormat();
 
-	            texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                    ( device, fileInfo, true, true, true, defaultFormat, defaultFormat );
+	            texture = std::make_shared< ImmutableTexture2D< PixelType > >
+                    ( device, fileInfo, true, true, true, defaultFormat, defaultFormat, defaultFormat );
             } else {
-                texture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >();
+                texture = std::make_shared< ImmutableTexture2D< PixelType > >();
                 texture->setFileInfo( fileInfo );
             }
 
@@ -53,7 +53,7 @@ namespace Engine1
     template< typename PixelType >
     void ModelTexture2DParser< PixelType >::writeBinary( std::vector< char >& data, const ModelTexture2D< PixelType >& modelTexture )
     {
-	    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture = modelTexture.getTexture();
+	    const std::shared_ptr< Texture2D< PixelType > > texture = modelTexture.getTexture();
 	
 	    if ( texture ) {
 		    texture->getFileInfo().saveToMemory( data );
