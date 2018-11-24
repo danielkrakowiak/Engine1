@@ -33,7 +33,7 @@ void MergeValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 }
 
 void MergeValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
-                                             Texture2DSpecBind< TexBind::ShaderResource, float > texture )
+                                             Texture2D< float >& texture )
 {
     if ( !m_compiled )
         throw std::exception( "MergeValueComputeShader::setParameters - Shader hasn't been compiled yet." );

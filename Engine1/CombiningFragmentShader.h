@@ -23,12 +23,12 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture, 
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > >  hitDistanceTexture,
+                            const std::shared_ptr< Texture2D< float4 > > srcTexture,
+                            const std::shared_ptr< Texture2D< uchar4 > > contributionTermTexture, 
+                            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+                            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+                            const std::shared_ptr< Texture2D< uchar4 > > depthTexture,
+                            const std::shared_ptr< Texture2D< float > >  hitDistanceTexture,
                             const float normalThreshold,
                             const float positionThreshold,
                             const float3 cameraPosition,

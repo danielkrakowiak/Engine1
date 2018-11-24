@@ -34,9 +34,9 @@ void ASSAORenderer::initialize( ComPtr< ID3D11Device3 > device,
 }
 
 void ASSAORenderer::renderAmbientOcclusion( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > destTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > depthTexture,
+    std::shared_ptr< RenderTargetTexture2D< unsigned char > > destTexture,
+    const std::shared_ptr< Texture2D< float4 > > normalTexture,
+    const std::shared_ptr< Texture2D< uchar4 > > depthTexture,
     const float44& projectionMatrix,
     const float44& worldToViewspaceMatrix
     )

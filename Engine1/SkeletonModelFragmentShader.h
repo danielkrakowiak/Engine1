@@ -18,13 +18,13 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext, 
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture,
+                            const Texture2D< unsigned char >& alphaTexture,
+                            const Texture2D< uchar4 >& emissiveTexture,
+                            const Texture2D< uchar4 >& albedoTexture,
+                            const Texture2D< uchar4 >& normalTexture,
+                            const Texture2D< unsigned char >& metalnessTexture,
+                            const Texture2D< unsigned char >& roughnessTexture,
+                            const Texture2D< unsigned char >& indexOfRefractionTexture,
                             const float4& extraEmissive = float4::ZERO );
 
         void unsetParameters( ID3D11DeviceContext3& deviceContext );

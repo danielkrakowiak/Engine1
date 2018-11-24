@@ -861,22 +861,7 @@
     <ClInclude Include="RefractionShadingComputeShader2.h">
       <Filter>Header Files\Shader\RefractionShading</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2DEnums.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2DGeneric.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2DSpecBind.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2DSpecUsage.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="StagingTexture2D.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2D.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="RaytraceShadowRenderer.h">
@@ -1103,6 +1088,12 @@
     </ClInclude>
     <ClInclude Include="BokehBlurComputeShader.h">
       <Filter>Header Files\Shader\BokehBlur</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2DTypes.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Header Files\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1516,9 +1507,6 @@
     </ClCompile>
     <ClCompile Include="BlurShadowsRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture2DGeneric.cpp">
-      <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="ReplaceValueComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\ReplaceValue</Filter>

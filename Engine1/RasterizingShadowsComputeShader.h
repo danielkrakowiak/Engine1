@@ -34,8 +34,8 @@ namespace Engine1
             ID3D11DeviceContext3& deviceContext,
             const float3& cameraPos,
             const Light& light,
-            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfacePositionTexture,
-            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
+            const Texture2D< float4 >& surfacePositionTexture,
+            const Texture2D< float4 >& surfaceNormalTexture,
             const int outputTextureWidth, const int outputTextureHeight );
 
         void unsetParameters( ID3D11DeviceContext3& deviceContext );

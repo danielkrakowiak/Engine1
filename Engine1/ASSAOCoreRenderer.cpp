@@ -1420,9 +1420,6 @@ void ASSAODX11::UpdateConstants( const ASSAO_Settings & settings, const ASSAO_In
 
         // consts.RadiusDistanceScalingFunctionPow     = 1.0f - Clamp( settings.RadiusDistanceScalingFunction, 0.0f, 1.0f );
 
-        int lastHalfDepthMipX = m_halfDepthsMipViews[0][SSAO_DEPTH_MIP_LEVELS - 1].Size.x;
-        int lastHalfDepthMipY = m_halfDepthsMipViews[0][SSAO_DEPTH_MIP_LEVELS - 1].Size.y;
-
         // used to get average load per pixel; 9.0 is there to compensate for only doing every 9th InterlockedAdd in PSPostprocessImportanceMapB for performance reasons
         consts.LoadCounterAvgDiv                = 9.0f / (float)( m_quarterSize.x * m_quarterSize.y * 255.0 );
 
@@ -1648,7 +1645,7 @@ bool D3D11Texture2D::ReCreateIfNeeded( ID3D11Device * device, vaVector2i size, D
         {
             D3D11_TEXTURE2D_DESC desc;
             Texture2D->GetDesc( &desc );
-            if( ( desc.Format == format ) && ( desc.Width == size.x ) && ( desc.Height == size.y ) && ( desc.MipLevels == mipLevels ) && ( desc.ArraySize == arraySize ) )
+            if( ( desc.Format == format ) && ( (int)desc.Width == size.x ) && ( (int)desc.Height == size.y ) && ( (int)desc.MipLevels == mipLevels ) && ( (int)desc.ArraySize == arraySize ) )
                 return false;
         }
         Reset();

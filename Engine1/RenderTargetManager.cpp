@@ -17,7 +17,7 @@ void RenderTargetManager::initialize( ComPtr< ID3D11Device3 >& device )
     m_device = device;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > > 
+std::shared_ptr< DepthTexture2D< uchar4 > > 
 RenderTargetManager::getRenderTargetDepth( const int2 imageDimensions, const std::string debugName )
 {
     for ( auto& renderTarget : m_renderTargetsDepthUchar4 ) {
@@ -43,48 +43,48 @@ int RenderTargetManager::getTotalRenderTargetDepthCount()
 }
 
 template<>
-std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float3 > > >&
+std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >&
 RenderTargetManager::getAllRenderTargets()
 {
     return m_renderTargetsFloat3;
 }
 
 template<>
-std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > >&
+std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >&
 RenderTargetManager::getAllRenderTargets()
 {
     return m_renderTargetsFloat4;
 }
 
 template<>
-std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > >&
+std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >&
 RenderTargetManager::getAllRenderTargets()
 {
     return m_renderTargetsFloat;
 }
 
 template<>
-std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > >&
+std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > >&
 RenderTargetManager::getAllRenderTargets()
 {
     return m_renderTargetsUchar;
 }
 
 template<>
-std::vector< std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > >&
+std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >&
 RenderTargetManager::getAllRenderTargets()
 {
     return m_renderTargetsUchar4;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >
+std::shared_ptr< DepthTexture2D< uchar4 > >
 RenderTargetManager::createRenderTargetDepth( const int2 imageDimensions )
 {
     const bool storeOnCpu = false;
     const bool storeOnGpu = true;
     const bool generateMipmaps = false;
 
-    return std::make_shared< Texture2D< TexUsage::Default, TexBind::DepthStencil_ShaderResource, uchar4 > >(
+    return std::make_shared< DepthTexture2D< uchar4 > >(
         *m_device.Get(),
         imageDimensions.x,
         imageDimensions.y,

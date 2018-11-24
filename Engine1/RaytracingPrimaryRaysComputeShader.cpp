@@ -58,16 +58,16 @@ void RaytracingPrimaryRaysComputeShader::initialize( ComPtr< ID3D11Device3 >& de
 
 void RaytracingPrimaryRaysComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, 
                                                         const float3 rayOrigin, 
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionsTexture, 
+                                                        const Texture2D< float4 >& rayDirectionsTexture, 
                                                         const BlockMesh& mesh, const float43& worldMatrix, 
                                                         const float3 boundingBoxMin, 
                                                         const float3 boundingBoxMax,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture, const float3& emissiveMul,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture, const float3& albedoMul,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture, const float3& normalMul,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture, const float metalnessMul,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture, const float roughnessMul,
-                                                        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul )
+                                                        const Texture2D< uchar4 >& emissiveTexture, const float3& emissiveMul,
+                                                        const Texture2D< uchar4 >& albedoTexture, const float3& albedoMul,
+                                                        const Texture2D< uchar4 >& normalTexture, const float3& normalMul,
+                                                        const Texture2D< unsigned char >& metalnessTexture, const float metalnessMul,
+                                                        const Texture2D< unsigned char >& roughnessTexture, const float roughnessMul,
+                                                        const Texture2D< unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul )
 {
     if ( !m_compiled ) throw std::exception( "RaytracingPrimaryRaysComputeShader::setParameters - Shader hasn't been compiled yet." );
 

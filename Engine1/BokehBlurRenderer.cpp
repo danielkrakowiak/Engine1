@@ -24,21 +24,21 @@ void BokehBlurRenderer::initialize(
 }
 
 void BokehBlurRenderer::bokehBlur( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture,
-    const Texture2DSpecBind< TexBind::ShaderResource, float4 >& srcTexture,
-    const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& depthTexture )
+    std::shared_ptr< Texture2D< float4 > > destTexture,
+    const Texture2D< float4 >& srcTexture,
+    const Texture2D< uchar4 >& depthTexture )
 {
     if ( !m_initialized )
         throw std::exception( "BokehBlurRenderer::bokehBlur - renderer has not been initialized." );
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF4.push_back( destTexture );
     m_rendererCore.enableUnorderedAccessTargets( 

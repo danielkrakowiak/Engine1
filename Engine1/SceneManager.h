@@ -13,7 +13,7 @@
 #include "BlockActor.h"
 #include "BlockModel.h"
 
-#include "Texture2DGeneric.h"
+#include "Texture2DTypes.h"
 
 #include "Selection.h"
 #include "Animator.h"
@@ -137,7 +137,7 @@ namespace Engine1
         Animator< BlockActor > m_actorAnimator;
         Animator< BlockModel > m_modelAnimator;
 
-        std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > > m_texturesToMerge;
+        std::vector< std::shared_ptr< Texture2D< unsigned char > > > m_texturesToMerge;
         std::vector< std::shared_ptr< BlockMesh > >                         m_meshesToMerge;
     };
 };

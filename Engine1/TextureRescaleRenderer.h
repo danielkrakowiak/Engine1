@@ -26,9 +26,9 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-        void rescaleTexture( const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
+        void rescaleTexture( const std::shared_ptr< Texture2D< float4 > > srcTexture,
                              const unsigned char srcMipmapLevel,
-                             const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture,
+                             const std::shared_ptr< Texture2D< float4 > > destTexture,
                              const unsigned char destMipmapLevel );
 
         private:

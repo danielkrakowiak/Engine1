@@ -18,8 +18,8 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext,
-                            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& depthTexture );
+                            const Texture2D< float4 >& texture,
+                            const Texture2D< uchar4 >& depthTexture );
 
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 

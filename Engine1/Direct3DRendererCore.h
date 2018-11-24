@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 #include "StagingTexture2D.h"
 
 #include "uint3.h"
@@ -44,41 +44,41 @@ namespace Engine1
 
         void setViewport( float2 dimensions, float2 topLeft = float2::ZERO, float depthMin = 0.0f, float depthMax = 1.0f );
 
-		void enableRenderTargets( const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget, const int mipmapLevel = 0 );
-        void enableRenderTargets( const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, float > > depthRenderTarget, const int mipmapLevel = 0 );
+		void enableRenderTargets( const std::shared_ptr< DepthTexture2D< uchar4 > > depthRenderTarget, const int mipmapLevel = 0 );
+        void enableRenderTargets( const std::shared_ptr< DepthTexture2D< float > > depthRenderTarget, const int mipmapLevel = 0 );
 
         void enableRenderTargets( 
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >&  renderTargetsF1,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >& renderTargetsF2,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >& renderTargetsF3,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >& renderTargetsF4,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > >& renderTargetsU1, 
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >& renderTargetsU4, 
-            const std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil, uchar4 > > depthRenderTarget,
+            const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >&  renderTargetsF1,
+            const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >& renderTargetsF2,
+            const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >& renderTargetsF3,
+            const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >& renderTargetsF4,
+            const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > >& renderTargetsU1, 
+            const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >& renderTargetsU4, 
+            const std::shared_ptr< DepthTexture2D< uchar4 > >                        depthRenderTarget,
             const int mipmapLevel = 0 
         );
 
         // #TODO: Should be refactored to take any UAVs despite of their PixelType in one vector. Impossible until Texture2D class gets refactoring.
         void enableUnorderedAccessTargets( 
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > > unorderedAccessTargetsF1,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > > unorderedAccessTargetsF2,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > > unorderedAccessTargetsF3,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1,
-            const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4,
+            const std::vector< std::shared_ptr< Texture2D< float > > > unorderedAccessTargetsF1,
+            const std::vector< std::shared_ptr< Texture2D< float2 > > > unorderedAccessTargetsF2,
+            const std::vector< std::shared_ptr< Texture2D< float3 > > > unorderedAccessTargetsF3,
+            const std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargetsF4,
+            const std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1,
+            const std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargetsU4,
             const int mipmapLevel = 0 
         );
 
         // Temporary. Until refactoring is done.
-        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > > unorderedAccessTargetsF3, 
+        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2D< float3 > > > unorderedAccessTargetsF3, 
                                            const int mipmapLevel = 0 );
 
         // Temporary. Until refactoring is done.
-        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargetsF4, 
+        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargetsF4, 
                                            const int mipmapLevel = 0 );
 
         // Temporary. Until refactoring is done.
-        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > > unorderedAccessTargetsU4, 
+        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargetsU4, 
                                            const int mipmapLevel = 0 );
 
         void disableRenderTargetViews();
@@ -110,24 +110,24 @@ namespace Engine1
         void draw( const SkeletonMesh& mesh );
         void draw( const FontCharacter& character );
 
-        void compute( uint3 threadCount );
+        void compute( uint3 groupCount );
 
         void disableShaderInputs();
 
         template< typename T >
-        void copyTextureGpu( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
-                          const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture, const int srcMipmap );
+        void copyTextureGpu( Texture2D< T >& destTexture, const int destMipmap,
+                          const Texture2D< T >& srcTexture, const int srcMipmap );
 
 		template< typename T >
-		void copyTextureGpu( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
-					      const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
+		void copyTextureGpu( Texture2D< T >& destTexture,
+					      const Texture2D< T >& srcTexture,
 						  const int2 coords = int2( 0, 0 ), int2 dimensions = int2( -1, -1 ) );
 
         template< typename T >
-        void copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture );
+        void copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture );
 
         template< typename T >
-        void copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture,
+        void copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture,
                           const int2 coords, const int2 dimensions );
 
         private:
@@ -168,8 +168,8 @@ namespace Engine1
     };
 
 	template< typename T >
-	void Direct3DRendererCore::copyTextureGpu( Texture2DSpecUsage< TexUsage::Default, T >& destTexture,
-											const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture,
+	void Direct3DRendererCore::copyTextureGpu( Texture2D< T >& destTexture,
+											const Texture2D< T >& srcTexture,
 											const int2 coords, int2 dimensions )
 	{
 		if ( !m_deviceContext ) {
@@ -207,8 +207,8 @@ namespace Engine1
 	}
 
     template< typename T >
-    void Direct3DRendererCore::copyTextureGpu( Texture2DSpecUsage< TexUsage::Default, T >& destTexture, const int destMipmap,
-                                            const Texture2DSpecBind< TexBind::ShaderResource, T >& srcTexture, const int srcMipmap )
+    void Direct3DRendererCore::copyTextureGpu( Texture2D< T >& destTexture, const int destMipmap,
+                                            const Texture2D< T >& srcTexture, const int srcMipmap )
     {
         if ( !m_deviceContext ) {
             throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
@@ -232,7 +232,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void Direct3DRendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture )
+    void Direct3DRendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture )
     {
         if ( !m_deviceContext ) {
             throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
@@ -242,7 +242,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void Direct3DRendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2DGeneric< T >& srcTexture,
+    void Direct3DRendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture,
                                             const int2 coords, const int2 dimensions )
     {
         if ( !m_deviceContext ) {

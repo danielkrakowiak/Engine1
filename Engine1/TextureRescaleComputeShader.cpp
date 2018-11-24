@@ -54,7 +54,7 @@ void TextureRescaleComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 }
 
 void TextureRescaleComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
-                                               const Texture2DSpecBind< TexBind::ShaderResource, float4 >& srcTexture,
+                                               const Texture2D< float4 >& srcTexture,
                                                const int destTextureWidth, const int destTextureHeight,
                                                const unsigned char srcMipmapLevel )
 {

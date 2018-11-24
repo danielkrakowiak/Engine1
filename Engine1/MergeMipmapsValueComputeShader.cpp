@@ -54,7 +54,7 @@ void MergeMipmapsValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device
 
 void MergeMipmapsValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
                                                     const int2 outputTextureSize,
-                                                    Texture2DSpecBind< TexBind::ShaderResource, float4 >& inputTexture,
+                                                    Texture2D< float4 >& inputTexture,
                                                     int firstMipmapLevel,
                                                     int lastMipmapLevel )
 {

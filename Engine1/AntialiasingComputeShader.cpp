@@ -54,7 +54,7 @@ void AntialiasingComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 
 void AntialiasingComputeShader::setParameters( 
     ID3D11DeviceContext3& deviceContext,
-    Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& srcTexture,
+    Texture2D< uchar4 >& srcTexture,
     const float fxaaQualitySubpix,
     const float fxaaQualityEdgeThreshold,
     const float fxaaQualityEdgeThresholdMin )

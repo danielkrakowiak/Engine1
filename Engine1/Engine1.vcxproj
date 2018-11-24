@@ -531,13 +531,10 @@
     <ClInclude Include="SkeletonPose.h" />
     <ClInclude Include="StringUtil.h" />
     <ClInclude Include="TextFragmentShader.h" />
-    <ClInclude Include="Texture2DEnums.h" />
-    <ClInclude Include="Texture2DGeneric.h" />
-    <ClInclude Include="Texture2DSpecBind.h" />
-    <ClInclude Include="Texture2DSpecUsage.h" />
+    <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureRescaleComputeShader.h" />
     <ClInclude Include="TextureRescaleRenderer.h" />
-    <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="Texture2DTypes.h" />
     <ClInclude Include="Texture2DFileInfo.h" />
     <ClInclude Include="Texture2DFileInfoParser.h" />
     <ClInclude Include="TextureFragmentShader.h" />
@@ -722,7 +719,6 @@
     <ClCompile Include="SkeletonPose.cpp" />
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="TextFragmentShader.cpp" />
-    <ClCompile Include="Texture2DGeneric.cpp" />
     <ClCompile Include="TextureRescaleComputeShader.cpp" />
     <ClCompile Include="TextureRescaleRenderer.cpp" />
     <ClCompile Include="Texture2DFileInfo.cpp" />

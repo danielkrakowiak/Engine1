@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "MathUtil.h"
 
@@ -124,8 +124,8 @@ namespace Engine1
 
         template< typename PixelType >
         static void copyTextureCpu( 
-            Texture2DGeneric< PixelType >& destTexture, 
-            Texture2DGeneric< PixelType >& srcTexture, 
+            Texture2D< PixelType >& destTexture, 
+            Texture2D< PixelType >& srcTexture, 
             float2 destTopLeftTexcoords,
             float2 destBottomRightTexcoords,
             float2 srcTopLeftTexcoords, 
@@ -285,9 +285,9 @@ namespace Engine1
         // Textures are not rotated during merge (for simplicity).
         // Returns the merged texture or nullptr if merge failed.
         template< typename PixelType >
-        static std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
+        static std::shared_ptr< RenderTargetTexture2D< PixelType > >
         mergeTextures( 
-            const std::vector< std::shared_ptr< Texture2DGeneric< PixelType > > >& textures,
+            const std::vector< std::shared_ptr< Texture2D< PixelType > > >& textures,
             const std::vector< float4 >& colorMultipliers,
             const std::vector< std::pair< float2, float2 > >& texcoords, 
             const int2 mergedTextureDimensions,
@@ -309,8 +309,8 @@ namespace Engine1
             const int textureCount = (int)textures.size();
 
             // Create a new texture.
-            auto mergedTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, PixelType > >
-                ( device, mergedTextureDimensions.x, mergedTextureDimensions.y, true, false, false, textureFormat, viewFormat );
+            auto mergedTexture = std::make_shared< RenderTargetTexture2D< PixelType > >
+                ( device, mergedTextureDimensions.x, mergedTextureDimensions.y, true, false, false, textureFormat, viewFormat, viewFormat, viewFormat );
 
             // Copy input textures to the merged texture (with up-scaling).
             for ( int idx = 0; idx < textureCount; ++idx ) 
@@ -330,7 +330,7 @@ namespace Engine1
         }
 
         template< typename PixelType >
-        static std::string getDescription( const Texture2DGeneric< PixelType >& texture, const bool printPath = true, const bool printDimensions = true )
+        static std::string getDescription( const Texture2D< PixelType >& texture, const bool printPath = true, const bool printDimensions = true )
         {
             std::string text;
 

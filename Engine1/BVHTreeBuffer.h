@@ -24,6 +24,7 @@ namespace Engine1
 	        float3 max;
         };
 
+		//#TODO: Optimization - should Node and NodeExtents be merged together and accessed in GPU as stuctured buffer?
         struct Node 
         {
 	        // Parameters for leaf nodes and inner nodes occupy same space (union) to save memory.
@@ -35,6 +36,7 @@ namespace Engine1
 			        unsigned int childIndexRight;
 		        } inner;
 		        struct {
+					//#TODO: Maybe could use that bit count trick here (isLeaf : 1, triangleCount : 7). And leave it as is in HLSL.
 			        unsigned int triangleCount; // If top-most bit set - leaf node, otherwise inner node.
 			        unsigned int firstTriangleIndex;
 		        } leaf;

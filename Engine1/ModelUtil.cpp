@@ -7,7 +7,7 @@
 
 #include "BlockModel.h"
 
-#include "Texture2DGeneric.h"
+#include "Texture2DTypes.h"
 #include "TextureUtil.h"
 #include "MeshUtil.h"
 
@@ -64,13 +64,13 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels(
                     || texType == Model::TextureType::Roughness
                     || texType == Model::TextureType::RefractiveIndex )
                 {
-                    auto& texU = static_cast< Texture2DGeneric< unsigned char >& >( *std::get< 0 >( texture ) );
+                    auto& texU = static_cast< Texture2D< unsigned char >& >( *std::get< 0 >( texture ) );
 
                     dimensions = texU.getDimensions();
                 }
                 else
                 {
-                    auto& texU4 = static_cast< Texture2DGeneric< uchar4 >& >( *std::get< 0 >( texture ) );
+                    auto& texU4 = static_cast< Texture2D< uchar4 >& >( *std::get< 0 >( texture ) );
 
                     dimensions = texU4.getDimensions();
                 }
@@ -238,7 +238,7 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels(
              texType == Model::TextureType::Roughness || texType == Model::TextureType::RefractiveIndex ) 
         {
             auto texturesToMergeU 
-                = reinterpret_cast< std::vector< std::shared_ptr< Texture2DGeneric< unsigned char > > >& >( texturesToMerge );
+                = reinterpret_cast< std::vector< std::shared_ptr< Texture2D< unsigned char > > >& >( texturesToMerge );
 
             mergedTextures[ textureType ] = TextureUtil::mergeTextures( 
                 texturesToMergeU, 
@@ -250,14 +250,14 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels(
             );
 
             // Save temporary merged result - to help in debugging.
-            auto tex = std::dynamic_pointer_cast< Texture2DGeneric< unsigned char > >( mergedTextures[ textureType ] );
+            auto tex = std::dynamic_pointer_cast< Texture2D< unsigned char > >( mergedTextures[ textureType ] );
             assert(tex);
             tex->saveToFile( "Temp/merged_temp_" + Model::textureTypeToString( texType ) + ".tif", Texture2DFileInfo::Format::TIFF );
         } 
         else 
         {
             auto texturesToMergeU4 
-                = reinterpret_cast< std::vector< std::shared_ptr< Texture2DGeneric< uchar4 > > >& >( texturesToMerge );
+                = reinterpret_cast< std::vector< std::shared_ptr< Texture2D< uchar4 > > >& >( texturesToMerge );
 
             mergedTextures[ textureType ] = TextureUtil::mergeTextures( 
                 texturesToMergeU4, 
@@ -269,7 +269,7 @@ std::shared_ptr< BlockModel > ModelUtil::mergeModels(
             );
 
             // Save temporary merged result - to help in debugging.
-            auto tex = std::dynamic_pointer_cast< Texture2DGeneric< uchar4 > >( mergedTextures[ textureType ] );
+            auto tex = std::dynamic_pointer_cast< Texture2D< uchar4 > >( mergedTextures[ textureType ] );
             assert(tex);
             tex->saveToFile( "Temp/merged_temp_" + Model::textureTypeToString( texType ) + ".png", Texture2DFileInfo::Format::PNG );
         }
@@ -460,14 +460,14 @@ void ModelUtil::TextureSet::calculateDimensions()
             || texType == Model::TextureType::Roughness
             || texType == Model::TextureType::RefractiveIndex )
         {
-            auto& texture = static_cast< Texture2DGeneric< unsigned char >& >( *m_textures[ textureType ] );
+            auto& texture = static_cast< Texture2D< unsigned char >& >( *m_textures[ textureType ] );
 
             m_dimensions.x = std::max( texture.getWidth(), m_dimensions.x );
             m_dimensions.y = std::max( texture.getHeight(), m_dimensions.y );
         }
         else
         {
-            auto& texture = static_cast< Texture2DGeneric< uchar4 >& >( *m_textures[ textureType ] );
+            auto& texture = static_cast< Texture2D< uchar4 >& >( *m_textures[ textureType ] );
 
             m_dimensions.x = std::max( texture.getWidth(), m_dimensions.x );
             m_dimensions.y = std::max( texture.getHeight(), m_dimensions.y );
@@ -485,13 +485,13 @@ int2 ModelUtil::TextureSet::getTextureDimensions( Model::TextureType textureType
         || textureType == Model::TextureType::Roughness
         || textureType == Model::TextureType::RefractiveIndex )
     {
-        auto& texture = static_cast< const Texture2DGeneric< unsigned char >& >( *m_textures[ (int)textureType ] );
+        auto& texture = static_cast< const Texture2D< unsigned char >& >( *m_textures[ (int)textureType ] );
 
         return texture.getDimensions();
     }
     else
     {
-        auto& texture = static_cast< const Texture2DGeneric< uchar4 >& >( *m_textures[ (int)textureType ] );
+        auto& texture = static_cast< const Texture2D< uchar4 >& >( *m_textures[ (int)textureType ] );
 
         return texture.getDimensions();
     }

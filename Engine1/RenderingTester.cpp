@@ -4,7 +4,7 @@
 #include "FileUtil.h"
 #include "StringUtil.h"
 #include "Settings.h"
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 #include "StagingTexture2D.h"
 #include "SceneManager.h"
 #include "AssetManager.h"
@@ -14,6 +14,8 @@
 
 #include <algorithm>
 #include <experimental/filesystem>
+
+#define __STDC_WANT_LIB_EXT1__ 1 // Needed to make localtime_s function available.
 #include <time.h>
 
 using namespace Engine1;
@@ -270,15 +272,15 @@ std::string RenderingTester::runTests()
     return testLog;
 }
 
-std::shared_ptr< Texture2DGeneric< uchar4 > > 
+std::shared_ptr< Texture2D< uchar4 > > 
 RenderingTester::loadTestCaseReference( const std::string& sceneName, const std::string& cameraName )
 {
     const auto referencePath = getReferencePath( sceneName, cameraName );
 
     Texture2DFileInfo fileInfo( referencePath, Texture2DFileInfo::Format::PNG, Texture2DFileInfo::PixelType::UCHAR4 );
 
-    return std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-        ( *m_renderer.getDevice().Get(), fileInfo, true, false, false, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT );
+    return std::make_shared< ImmutableTexture2D< uchar4 > >
+        ( *m_renderer.getDevice().Get(), fileInfo, true, false, false, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT );
 }
 
 std::string RenderingTester::getTestScenePath( const std::string& sceneName )
@@ -339,10 +341,18 @@ std::string RenderingTester::getCurrentDateString()
 {
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-    char buf[64] = {0};
-    std::strftime(buf, sizeof(buf), "%Y-%m-%d", std::localtime(&now));
+	tm localTime;
+	if (localtime_s(&localTime, &now))
+	{
+		char buf[64] = { 0 };
+		std::strftime(buf, sizeof(buf), "%Y-%m-%d", &localTime);
 
-    return std::string( buf );
+		return std::string(buf);
+	}
+	else
+	{
+		throw std::exception("RenderingTester::getCurrentDateString - failed to get local time.");
+	}
 }
 
         

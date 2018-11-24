@@ -8,6 +8,7 @@
 #include "MathUtil.h"
 #include "BlockModel.h"
 #include "BlockActor.h"
+#include "Texture2Dtypes.h"
 
 using namespace Engine1;
 
@@ -46,8 +47,8 @@ void RasterizeShadowRenderer::initialize(
 void RasterizeShadowRenderer::performShadowMapping(
     const float3& cameraPos,
     const std::shared_ptr< Light > light,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfacePositionTexture,
-    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture
+    const std::shared_ptr< Texture2D< float4 > > surfacePositionTexture,
+    const std::shared_ptr< Texture2D< float4 > > surfaceNormalTexture
     )
 {
     m_rendererCore.disableRenderingPipeline();
@@ -58,12 +59,12 @@ void RasterizeShadowRenderer::performShadowMapping(
     m_shadowTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 255 ) );
     m_distanceToOccluderTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 1000, 1000, 1000, 1000 ) );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( m_distanceToOccluderTexture );
     unorderedAccessTargetsU1.push_back( m_shadowTexture );
@@ -90,12 +91,12 @@ void RasterizeShadowRenderer::performShadowMapping(
     m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > RasterizeShadowRenderer::getShadowTexture()
+std::shared_ptr< RenderTargetTexture2D< unsigned char > > RasterizeShadowRenderer::getShadowTexture()
 {
     return m_shadowTexture;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > > RasterizeShadowRenderer::getDistanceToOccluder()
+std::shared_ptr< RenderTargetTexture2D< float > > RasterizeShadowRenderer::getDistanceToOccluder()
 {
     return m_distanceToOccluderTexture;
 }
@@ -103,11 +104,11 @@ std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAc
 void RasterizeShadowRenderer::createComputeTargets( int imageWidth, int imageHeight, ID3D11Device3& device )
 {
     // #TODO: Is using mipmaps? Disable them if they are not necessary.
-    m_shadowTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > >
+    m_shadowTexture = std::make_shared< RenderTargetTexture2D< unsigned char > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM );
 
     // #TODO: Is using mipmaps? Disable them if they are not necessary.
-    m_distanceToOccluderTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >
+    m_distanceToOccluderTexture = std::make_shared< RenderTargetTexture2D< float > >
         ( device, imageWidth, imageHeight, false, true, true, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT );
 }
 

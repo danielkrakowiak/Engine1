@@ -87,14 +87,14 @@ void RasterizingShadowsComputeShader::setParameters(
     ID3D11DeviceContext3& deviceContext,
     const float3& cameraPos,
     const Light& light,
-    const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayOriginTexture,
-    const Texture2DSpecBind< TexBind::ShaderResource, float4 >& surfaceNormalTexture,
+    const Texture2D< float4 >& rayOriginTexture,
+    const Texture2D< float4 >& surfaceNormalTexture,
     const int outputTextureWidth, const int outputTextureHeight )
 {
     if ( !m_compiled ) 
         throw std::exception( "RasterizingShadowsComputeShader::setParameters - Shader hasn't been compiled yet." );
 
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > shadowMap;
+    std::shared_ptr< Texture2D< float > > shadowMap;
 
     if ( light.getType() == Light::Type::SpotLight )
         shadowMap = static_cast<const SpotLight&>( light ).getShadowMap();

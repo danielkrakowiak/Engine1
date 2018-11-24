@@ -89,10 +89,10 @@ void Model::addTexture( const TextureType type, std::shared_ptr< Asset > texture
          type == Model::TextureType::Roughness || 
          type == Model::TextureType::RefractiveIndex )
     {
-            const auto& typedTexture = std::dynamic_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( texture );
+            const auto& typedTexture = std::dynamic_pointer_cast< Texture2D< unsigned char > >( texture );
 
             if ( !typedTexture )
-                throw std::exception( "Model::addTexture - given texture has incorrect PixelType (should be unsiged char) or binding (should be TexBind::ShaderResource) to be used as requested type." );
+                throw std::exception( "Model::addTexture - given texture has incorrect PixelType (should be unsiged char) to be used as requested type." );
     
             ModelTexture2D< unsigned char > modelTexture( typedTexture, texcoordIndex, colorMultiplier );
 
@@ -107,10 +107,10 @@ void Model::addTexture( const TextureType type, std::shared_ptr< Asset > texture
     }
     else
     {
-        const auto& typedTexture = std::dynamic_pointer_cast<Texture2DSpecBind< TexBind::ShaderResource, uchar4 >>( texture );
+        const auto& typedTexture = std::dynamic_pointer_cast<Texture2D< uchar4 >>( texture );
 
         if ( !typedTexture )
-            throw std::exception( "Model::addTexture - given texture has incorrect PixelType (should be uchar4) or binding (should be TexBind::ShaderResource) to be used as requested type." );
+            throw std::exception( "Model::addTexture - given texture has incorrect PixelType (should be uchar4) to be used as requested type." );
 
         ModelTexture2D< uchar4 > modelTexture( typedTexture, texcoordIndex, colorMultiplier );
 

@@ -25,11 +25,11 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext, const float3 cameraPos, const float3 viewportCenter, 
                             const float3 viewportUp, const float3 viewportRight, const float2 viewportSize,
-                            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& refractiveIndexTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,
+                            const Texture2D< float4 >& positionTexture,
+                            const Texture2D< float4 >& normalTexture,
+                            const Texture2D< unsigned char >& roughnessTexture,
+                            const Texture2D< unsigned char >& refractiveIndexTexture,
+                            const Texture2D< uchar4 >& contributionTermTexture,
                             const int outputTextureWidth, const int outputTextureHeight );
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 

@@ -24,9 +24,9 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void bokehBlur( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture,
-            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& srcTexture,
-            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& depthTexture
+            std::shared_ptr< Texture2D< float4 > > destTexture,
+            const Texture2D< float4 >& srcTexture,
+            const Texture2D< uchar4 >& depthTexture
         );
 
         private:

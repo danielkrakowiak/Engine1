@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 struct ID3D11Device3;
 
@@ -27,7 +27,7 @@ namespace Engine1
 
         private:
 
-        static std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > > createDefaultWhiteTexture();
+        static std::shared_ptr< Texture2D< uchar4 > > createDefaultWhiteTexture();
     };
 }
 

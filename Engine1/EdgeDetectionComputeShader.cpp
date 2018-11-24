@@ -15,6 +15,8 @@ EdgeDetectionComputeShader::~EdgeDetectionComputeShader() {}
 
 void EdgeDetectionComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 {
+	device; // Unused.
+
     {
         // Create constant buffer.
         /*D3D11_BUFFER_DESC desc;
@@ -31,8 +33,8 @@ void EdgeDetectionComputeShader::initialize( ComPtr< ID3D11Device3 >& device )
 }
 
 void EdgeDetectionComputeShader::setParameters( ID3D11DeviceContext3& deviceContext, 
-                                                const Texture2DSpecBind< TexBind::ShaderResource, float4 >& positionTexture,
-                                                const Texture2DSpecBind< TexBind::ShaderResource, float4 >& normalTexture )
+                                                const Texture2D< float4 >& positionTexture,
+                                                const Texture2D< float4 >& normalTexture )
 {
     if ( !m_compiled ) throw std::exception( "EdgeDetectionComputeShader::setParameters - Shader hasn't been compiled yet." );
 

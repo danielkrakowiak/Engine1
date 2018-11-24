@@ -138,10 +138,10 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
         UINT formatSupport;
         result = m_device->CheckFormatSupport( DXGI_FORMAT_R11G11B10_FLOAT, &formatSupport );
 
-        bool rgbAsTexture      = (formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0;
-        bool rgbAsRenderTarget = (formatSupport & D3D11_FORMAT_SUPPORT_RENDER_TARGET) != 0;
-        bool rgbAsUAVL         = (formatSupport & D3D11_FORMAT_SUPPORT2_UAV_TYPED_LOAD) != 0;
-        bool rgbAsUAVS         = (formatSupport & D3D11_FORMAT_SUPPORT2_UAV_TYPED_STORE) != 0;
+		/*bool rgbAsTexture      = (formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0;
+		bool rgbAsRenderTarget = (formatSupport & D3D11_FORMAT_SUPPORT_RENDER_TARGET) != 0;
+		bool rgbAsUAVL         = (formatSupport & D3D11_FORMAT_SUPPORT2_UAV_TYPED_LOAD) != 0;
+		bool rgbAsUAVS         = (formatSupport & D3D11_FORMAT_SUPPORT2_UAV_TYPED_STORE) != 0;*/
         /////////////////////////////////////////////////////////////
     }
 
@@ -185,7 +185,7 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 	{ // Initialize render target.
         ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *m_swapChain.Get() );
 
-        m_renderTarget = std::make_shared< Texture2D< TexUsage::Default, TexBind::RenderTarget, uchar4 > >
+        m_renderTarget = std::make_shared< RenderTargetTexture2D< uchar4 > >
             ( *m_device.Get(), backbufferTexture );
 	}
 
@@ -433,7 +433,7 @@ void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& devi
 	m_textFragmentShader->loadAndInitialize( "Engine1/Shaders/TextShader/Text_ps.cso", device );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, unsigned char>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void Direct3DFrameRenderer::renderTexture( const Texture2D< unsigned char>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -443,12 +443,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
 		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
@@ -469,7 +469,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
     m_textureSingleChannelFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void Direct3DFrameRenderer::renderTexture( const Texture2D< uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -479,12 +479,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
 		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
@@ -505,7 +505,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind<TexBind::Shad
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float4 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void Direct3DFrameRenderer::renderTexture( const Texture2D< float4 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -515,12 +515,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
 		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
@@ -541,7 +541,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float2 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void Direct3DFrameRenderer::renderTexture( const Texture2D< float2 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -551,12 +551,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
 		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
@@ -577,7 +577,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::ShaderResource, float >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void Direct3DFrameRenderer::renderTexture( const Texture2D< float >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -588,12 +588,12 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
 
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
 		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
@@ -614,7 +614,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2DSpecBind< TexBind::Sha
     m_textureSingleChannelFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind::ShaderResource, uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void Direct3DFrameRenderer::renderTextureAlpha( const Texture2D< uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -624,12 +624,12 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2DSpecBind<TexBind:
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 		renderTargetsU4.push_back( m_renderTarget );
 
 		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );

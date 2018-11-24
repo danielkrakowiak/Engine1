@@ -18,7 +18,7 @@
 //{}
 //
 //template< typename PixelType >
-//ModelTexture2D< PixelType >::ModelTexture2D( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture, int texcoordIndex, float4 colorMultiplier ) 
+//ModelTexture2D< PixelType >::ModelTexture2D( std::shared_ptr< Texture2D< PixelType > > texture, int texcoordIndex, float4 colorMultiplier ) 
 //: texture( texture ), texcoordIndex( texcoordIndex ), colorMultiplier( colorMultiplier ) {}
 //
 //template< typename PixelType >
@@ -47,13 +47,13 @@
 //}
 //
 //template< typename PixelType >
-//const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > ModelTexture2D< PixelType >::getTexture() const
+//const std::shared_ptr< Texture2D< PixelType > > ModelTexture2D< PixelType >::getTexture() const
 //{
 //	return texture;
 //}
 //
 //template< typename PixelType >
-//std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > ModelTexture2D< PixelType >::getTexture()
+//std::shared_ptr< Texture2D< PixelType > > ModelTexture2D< PixelType >::getTexture()
 //{
 //	return texture;
 //}
@@ -71,7 +71,7 @@
 //}
 //
 //template< typename PixelType >
-//void ModelTexture2D< PixelType >::setTexture( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, PixelType > > texture )
+//void ModelTexture2D< PixelType >::setTexture( std::shared_ptr< Texture2D< PixelType > > texture )
 //{
 //	this->texture = texture;
 //}

@@ -28,8 +28,8 @@ namespace Engine1
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device,
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
-        void extractBrightPixels( std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture,
-                                  std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destinationTexture,
+        void extractBrightPixels( std::shared_ptr< Texture2D< float4 > > colorTexture,
+                                  std::shared_ptr< Texture2D< float4 > > destinationTexture,
                                   const float minBrightness );
 
         private:

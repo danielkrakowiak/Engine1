@@ -33,9 +33,9 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext, const float3& cameraPos, const int2 outputTextureDimensions,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float > > distanceToOccluder );
+                            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+                            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+                            const std::shared_ptr< Texture2D< float > > distanceToOccluder );
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:

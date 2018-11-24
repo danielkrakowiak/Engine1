@@ -46,18 +46,18 @@ void MipmapRenderer::initialize( ComPtr< ID3D11Device3 > device,
 }
 
 void MipmapRenderer::resampleTexture( 
-	std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > destTexture, int destMipmapLevel,
-	std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, int srcMipmapLevel )
+	std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture, int destMipmapLevel,
+	std::shared_ptr< Texture2D< float4 > > srcTexture, int srcMipmapLevel )
 {
 	if ( !m_initialized )
 		throw std::exception( "MipmapRenderer::resampleTexture - renderer not initialized." );
 
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 
 	renderTargetsF4.push_back( destTexture );
 
@@ -77,18 +77,18 @@ void MipmapRenderer::resampleTexture(
 	m_rendererCore.disableRenderTargetViews();
 }
 
-void MipmapRenderer::generateMipmaps( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > > texture, int startSrcMipmapLevel, int generateMipmapCount )
+void MipmapRenderer::generateMipmaps( std::shared_ptr< RenderTargetTexture2D< float4 > > texture, int startSrcMipmapLevel, int generateMipmapCount )
 {
 	if ( !m_initialized )
 		throw std::exception( "MipmapRenderer::generateMipmaps - renderer not initialized." );
 
 
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+	std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 
 	renderTargetsF4.push_back( texture );
 
@@ -122,15 +122,15 @@ void MipmapRenderer::generateMipmaps( std::shared_ptr< Texture2D< TexUsage::Defa
 	m_rendererCore.disableRenderTargetViews();
 }
 
-//void MipmapMinValueRenderer::generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture )
+//void MipmapMinValueRenderer::generateMipmapsMinValue( std::shared_ptr< RenderTargetTexture2D< float > >& texture )
 //{
 //    m_rendererCore.disableRenderingPipeline();
 //
-//    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-//    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-//    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-//    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-//    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+//    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+//    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+//    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+//    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+//    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 //
 //    unorderedAccessTargetsF1.push_back( texture );
 //
@@ -157,18 +157,18 @@ void MipmapRenderer::generateMipmaps( std::shared_ptr< Texture2D< TexUsage::Defa
 //    m_rendererCore.disableComputePipeline();
 //}
 
-void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsage::Default, TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture )
+void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< RenderTargetTexture2D< float > >& texture )
 {
     if ( !m_initialized ) 
         throw std::exception( "MipmapMinValueRenderer::generateMipmapsMinValue - renderer not initialized." );
 
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 
     renderTargetsF1.push_back( texture );
 
@@ -197,7 +197,7 @@ void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< Texture2D< TexUsa
     m_rendererCore.disableRenderTargetViews();
 }
 
-void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >& texture, 
+void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< RenderTargetTexture2D< float > >& texture, 
                                                          const float maxAcceptableValue, const int initialSrcMipmapLevel, int generateMipmapCount )
 {
     if ( !m_initialized )
@@ -214,12 +214,12 @@ void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< 
 
     generateMipmapCount = std::min( generateMipmapCount, mipmapCount - 1 - initialSrcMipmapLevel );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float > > >         renderTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float3 > > >        renderTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, float4 > > >        renderTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, unsigned char > > > renderTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget, uchar4 > > >        renderTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
 
     renderTargetsF1.push_back( texture );
 

@@ -16,6 +16,7 @@
 #include "MathUtil.h"
 #include "BlockModel.h"
 #include "BlockActor.h"
+#include "Texture2Dtypes.h"
 
 #include "Settings.h"
 
@@ -83,7 +84,7 @@ void RaytraceRenderer::generatePrimaryRays(
 
     m_rendererCore.enableComputeShader( m_generateRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( renderTargets.rayDirection );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -187,7 +188,7 @@ void RaytraceRenderer::generateFirstReflectedRays(
 
     m_rendererCore.enableComputeShader( m_generateFirstReflectedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( renderTargets.rayOrigin );
     unorderedAccessTargets.push_back( renderTargets.rayDirection );
 
@@ -229,12 +230,12 @@ void RaytraceRenderer::generateFirstRefractedRays(
 
     m_rendererCore.enableComputeShader( m_generateFirstRefractedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
     unorderedAccessTargetsF4.push_back( renderTargets.rayOrigin );
     unorderedAccessTargetsF4.push_back( renderTargets.rayDirection );
     unorderedAccessTargetsU1.push_back( renderTargets.currentRefractiveIndex );
@@ -275,7 +276,7 @@ void RaytraceRenderer::generateReflectedRays(
 
     m_rendererCore.enableComputeShader( m_generateReflectedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( renderTargets.rayOrigin );
     unorderedAccessTargets.push_back( renderTargets.rayDirection );
 
@@ -323,12 +324,12 @@ void RaytraceRenderer::generateRefractedRays(
 
     m_rendererCore.enableComputeShader( m_generateRefractedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
     unorderedAccessTargetsF4.push_back( renderTargets.rayOrigin );
     unorderedAccessTargetsF4.push_back( renderTargets.rayDirection );
     unorderedAccessTargetsU1.push_back( renderTargets.currentRefractiveIndex );
@@ -368,12 +369,12 @@ void RaytraceRenderer::tracePrimaryRays(
     renderTargets.hitNormal->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
     renderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( renderTargets.hitDistance );
     unorderedAccessTargetsF4.push_back( renderTargets.hitPosition );
@@ -412,32 +413,32 @@ void RaytraceRenderer::tracePrimaryRays(
         const float  roughnessMul         = !model.getRoughnessTextures().empty()       ? model.getRoughnessTextures()[ 0 ].getColorMultiplier().x       : 0.0f;
         const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 0.0f;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
+        const Texture2D< uchar4 >& emissiveTexture 
             = !model.getEmissiveTextures().empty() && model.getEmissiveTextures()[ 0 ].getTexture()
             ? *model.getEmissiveTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.emissive;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
+        const Texture2D< uchar4 >& albedoTexture 
             = !model.getAlbedoTextures().empty() && model.getAlbedoTextures()[ 0 ].getTexture()
             ? *model.getAlbedoTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.albedo;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
+        const Texture2D< uchar4 >& normalTexture 
             = !model.getNormalTextures().empty() && model.getNormalTextures()[ 0 ].getTexture()
             ? *model.getNormalTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.normal;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
+        const Texture2D< unsigned char >& metalnessTexture 
             = !model.getMetalnessTextures().empty() && model.getMetalnessTextures()[ 0 ].getTexture()
             ? *model.getMetalnessTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.metalness;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
+        const Texture2D< unsigned char >& roughnessTexture 
             = !model.getRoughnessTextures().empty() && model.getRoughnessTextures()[ 0 ].getTexture()
             ? *model.getRoughnessTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.roughness;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
+        const Texture2D< unsigned char >& indexOfRefractionTexture 
             = !model.getRefractiveIndexTextures().empty() && model.getRefractiveIndexTextures()[ 0 ].getTexture()
             ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.refractiveIndex;
@@ -482,12 +483,12 @@ void RaytraceRenderer::traceSecondaryRays(
    renderTargets.hitNormal->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
    renderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( renderTargets.hitDistance );
     unorderedAccessTargetsF4.push_back( renderTargets.hitPosition );
@@ -529,37 +530,37 @@ void RaytraceRenderer::traceSecondaryRays(
         const float  roughnessMul         = !model.getRoughnessTextures().empty()       ? model.getRoughnessTextures()[ 0 ].getColorMultiplier().x       : 0.0f;
         const float  indexOfRefractionMul = !model.getRefractiveIndexTextures().empty() ? model.getRefractiveIndexTextures()[ 0 ].getColorMultiplier().x : 0.0f;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture 
+        const Texture2D< unsigned char >& alphaTexture 
             = !model.getAlphaTextures().empty() && model.getAlphaTextures()[ 0 ].getTexture()
             ? *model.getAlphaTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.alpha;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture 
+        const Texture2D< uchar4 >& emissiveTexture 
             = !model.getEmissiveTextures().empty() && model.getEmissiveTextures()[ 0 ].getTexture() 
             ? *model.getEmissiveTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.emissive;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture 
+        const Texture2D< uchar4 >& albedoTexture 
             = !model.getAlbedoTextures().empty() && model.getAlbedoTextures()[ 0 ].getTexture()
             ? *model.getAlbedoTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.albedo;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture 
+        const Texture2D< uchar4 >& normalTexture 
             = !model.getNormalTextures().empty() && model.getNormalTextures()[ 0 ].getTexture()
             ? *model.getNormalTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.normal;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture 
+        const Texture2D< unsigned char >& metalnessTexture 
             = !model.getMetalnessTextures().empty() && model.getMetalnessTextures()[ 0 ].getTexture()
             ? *model.getMetalnessTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.metalness;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture 
+        const Texture2D< unsigned char >& roughnessTexture 
             = !model.getRoughnessTextures().empty() && model.getRoughnessTextures()[ 0 ].getTexture()
             ? *model.getRoughnessTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.roughness;
 
-        const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture 
+        const Texture2D< unsigned char >& indexOfRefractionTexture 
             = !model.getRefractiveIndexTextures().empty() && model.getRefractiveIndexTextures()[ 0 ].getTexture()
             ? *model.getRefractiveIndexTextures()[ 0 ].getTexture() 
             : *settings().textures.defaults.refractiveIndex;
@@ -592,12 +593,12 @@ void RaytraceRenderer::traceSecondaryRays(
 
 void RaytraceRenderer::calculateHitDistanceToCamera( InputTextures2& inputs, RenderTargets& renderTargets )
 {
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     m_rendererCore.enableComputeShader( m_sumValueComputeShader );
 

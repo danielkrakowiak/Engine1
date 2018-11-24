@@ -126,14 +126,14 @@ std::vector< std::shared_ptr< BlockModel > > BlockModelImporter::import(
 
                     if ( pixelType == Texture2DFileInfo::PixelType::UCHAR )
                     {
-                        auto emptyTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >();
+                        auto emptyTexture = std::make_shared< ImmutableTexture2D< unsigned char > >();
                         emptyTexture->setFileInfo( fileInfo );
 
                         model.addTexture( textureType, emptyTexture );
                     }
                     else
                     {
-                        auto emptyTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >();
+                        auto emptyTexture = std::make_shared< ImmutableTexture2D< uchar4 > >();
                         emptyTexture->setFileInfo( fileInfo );
 
                         model.addTexture( textureType, emptyTexture );
@@ -173,10 +173,10 @@ std::vector< std::shared_ptr< BlockModel > > BlockModelImporter::import(
     return models;
 }
 
-std::shared_ptr< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > > 
+std::shared_ptr< Texture2D< uchar4 > >
 BlockModelImporter::createDefaultWhiteTexture()
 {
-    auto defaultWhiteTexture = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, uchar4 > >();
+    auto defaultWhiteTexture = std::make_shared< ImmutableTexture2D< uchar4 > >();
 
     auto fileExtension = FileUtil::getFileExtensionFromPath( settings().importer.defaultWhiteUchar4TextureFileName );
     auto fileFormat    = Texture2DFileInfo::fromExtension( fileExtension );

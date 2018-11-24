@@ -9,6 +9,7 @@
 #include "BlockModel.h"
 #include "BlockActor.h"
 #include "Camera.h"
+#include "Texture2Dtypes.h"
 
 #include "Settings.h"
 
@@ -50,16 +51,16 @@ void RaytraceShadowRenderer::initialize(
 void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	const Camera& camera,
     const std::shared_ptr< Light > light,
-	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > surfaceNormalTexture,
-	const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > contributionTermTexture,
-    //const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > preIlluminationTexture,]
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > hardShadowRenderTarget,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > mediumShadowRenderTarget,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > softShadowRenderTarget,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderHardShadowRenderTarget,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderMediumShadowRenderTarget,
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > >         distanceToOccluderSoftShadowRenderTarget,
+	const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+	const std::shared_ptr< Texture2D< float4 > > surfaceNormalTexture,
+	const std::shared_ptr< Texture2D< uchar4 > > contributionTermTexture,
+    //const std::shared_ptr< Texture2D< unsigned char > > preIlluminationTexture,]
+    std::shared_ptr< Texture2D< unsigned char > > hardShadowRenderTarget,
+    std::shared_ptr< Texture2D< unsigned char > > mediumShadowRenderTarget,
+    std::shared_ptr< Texture2D< unsigned char > > softShadowRenderTarget,
+    std::shared_ptr< Texture2D< float > >         distanceToOccluderHardShadowRenderTarget,
+    std::shared_ptr< Texture2D< float > >         distanceToOccluderMediumShadowRenderTarget,
+    std::shared_ptr< Texture2D< float > >         distanceToOccluderSoftShadowRenderTarget,
 	const std::vector< std::shared_ptr< BlockActor > >& actors
 )
 {
@@ -85,12 +86,12 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
     //    *preIlluminationTexture
     //);*/
 
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float > > >         unorderedAccessTargetsF1;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float3 > > >        unorderedAccessTargetsF3;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > >        unorderedAccessTargetsF4;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, unsigned char > > > unorderedAccessTargetsU1;
-	std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > >        unorderedAccessTargetsU4;
+	std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
+	std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
+	std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
+	std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
+	std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( distanceToOccluderHardShadowRenderTarget );
     unorderedAccessTargetsF1.push_back( distanceToOccluderMediumShadowRenderTarget );
@@ -162,7 +163,7 @@ void RaytraceShadowRenderer::createDefaultTextures( ID3D11Device3& device )
 {
 	std::vector< unsigned char > dataAlpha = { 255 };
 
-	m_defaultAlphaTexture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-		( device, dataAlpha, 1, 1, true, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+	m_defaultAlphaTexture = std::make_shared< ImmutableTexture2D< unsigned char > >
+		( device, dataAlpha, 1, 1, true, true, false, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 }
 

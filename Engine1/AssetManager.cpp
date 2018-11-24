@@ -556,13 +556,15 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
             const Texture2DFileInfo& textureFileInfo = static_cast<const Texture2DFileInfo&>( fileInfo );
             if ( textureFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR4 )
             {
-			    return std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-                    ( *m_device.Get(), textureFileInfo, true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
+			    return std::make_shared< ImmutableTexture2D< uchar4 > >
+                    ( *m_device.Get(), textureFileInfo, true, true, true, 
+						DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
             }
             else if ( textureFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR )
             {
-                return std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-                    ( *m_device.Get(), textureFileInfo, true, true, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+                return std::make_shared< ImmutableTexture2D< unsigned char > >
+                    ( *m_device.Get(), textureFileInfo, true, true, true, 
+						DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
             }
         }
 		default:
@@ -636,16 +638,18 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
 
             if ( texFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR4 )
             {
-                auto texture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, uchar4 > >
-                    ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
+                auto texture = std::make_shared< ImmutableTexture2D< uchar4 > >
+                    ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, 
+						DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
                 texture->setFileInfo( texFileInfo );
 
                 return texture;
             }
             else if ( texFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR )
             {
-                auto texture = std::make_shared< Texture2D< TexUsage::Immutable, TexBind::ShaderResource, unsigned char > >
-                    ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+                auto texture = std::make_shared< ImmutableTexture2D< unsigned char > >
+                    ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, 
+						DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
                 texture->setFileInfo( texFileInfo );
 
                 return texture;

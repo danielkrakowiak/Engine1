@@ -161,7 +161,6 @@ Renderer::Output Renderer::renderScene(
     // Render shadow maps. #TODO: Should NOT be done every frame.
     //renderShadowMaps( scene );
 
-    const auto& actors                  = scene.getActorsVec();
     const auto& lights                  = scene.getLightsVec();
     const auto  lightsEnabled           = SceneUtil::filterLightsByState( lights, true );
 
@@ -172,8 +171,6 @@ Renderer::Output Renderer::renderScene(
     const auto  lightsNotCastingShadows = settings().rendering.shadows.enabled
         ? SceneUtil::filterLightsByShadowCasting( lightsEnabled, false )
         : lightsEnabled;
-
-    const auto  blockActors             = SceneUtil::filterActorsByType< BlockActor >( actors );
 
     m_layersRenderTargets.reserve( settings().rendering.reflectionsRefractions.maxLevel + 1 );
 
@@ -254,7 +251,7 @@ void Renderer::renderText(
     Font& font, 
     float2 position, 
     float4 color,
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > colorRenderTarget )
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > colorRenderTarget )
 {
     Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
     defferedRenderTargets.albedo = colorRenderTarget;
@@ -452,8 +449,8 @@ Renderer::Output Renderer::renderPrimaryLayer(
     m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
 
     // Generate mipmaps for normal and position g-buffers.
-    layerRenderTargets.hitNormal->generateMipMapsOnGpu( *m_deviceContext.Get() );
-    layerRenderTargets.hitPosition->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    layerRenderTargets.hitNormal->createMipMapsOnGpu( *m_deviceContext.Get() );
+    layerRenderTargets.hitPosition->createMipMapsOnGpu( *m_deviceContext.Get() );
 
     m_profiler.endEvent( RenderingStage::Main, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
     m_profiler.beginEvent( RenderingStage::Main, Profiler::EventTypePerStage::EmissiveShading );
@@ -521,7 +518,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             //m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
 
             ////#TODO: Should not generate all mipmaps. Maybe only two or three...
-            //m_rasterizeShadowRenderer.getShadowTexture()->generateMipMapsOnGpu( *m_deviceContext.Get() );
+            //m_rasterizeShadowRenderer.getShadowTexture()->createMipMapsOnGpu( *m_deviceContext.Get() );
 
             //m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForPreillumination );
         }
@@ -529,13 +526,13 @@ Renderer::Output Renderer::renderPrimaryLayer(
         // #TODO: Should be profiled.
         // Fill shadow texture with pre-shadow data.
         /*m_rendererCore.copyTexture( 
-            *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getHardShadowTexture() ), 0,
-            *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0 
+            *std::static_pointer_cast< Texture2D< unsigned char > >( m_raytraceShadowRenderer.getHardShadowTexture() ), 0,
+            *std::static_pointer_cast< Texture2D< unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0 
         );
 
         m_rendererCore.copyTexture(
-            *std::static_pointer_cast< Texture2DSpecUsage< TexUsage::Default, unsigned char > >( m_raytraceShadowRenderer.getSoftShadowTexture() ), 0,
-            *std::static_pointer_cast< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0
+            *std::static_pointer_cast< Texture2D< unsigned char > >( m_raytraceShadowRenderer.getSoftShadowTexture() ), 0,
+            *std::static_pointer_cast< Texture2D< unsigned char > >( m_rasterizeShadowRenderer.getShadowTexture() ), 0
         );*/
 
         //auto distanceToOccluder = m_rasterizeShadowRenderer.getDistanceToOccluder();
@@ -561,9 +558,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
 
-        hardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        mediumShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        softShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        hardShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
+        mediumShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
+        softShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
@@ -753,9 +750,9 @@ Renderer::Output Renderer::renderPrimaryLayer(
         m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadowPattern );
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForSmoothedShadowPattern );
 
-        smoothedPatternHardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        smoothedPatternMediumShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        smoothedPatternSoftShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        smoothedPatternHardShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
+        smoothedPatternMediumShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
+        smoothedPatternSoftShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_profiler.endEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForSmoothedShadowPattern );
         m_profiler.beginEvent( RenderingStage::Main, lightIdx, Profiler::EventTypePerStagePerLight::BlurShadows );
@@ -1007,11 +1004,11 @@ Renderer::Output Renderer::renderSecondaryLayers(
        ( renderingStageType == RenderingStageType::Transmission && !settings().rendering.reflectionsRefractions.refractionsEnabled ) )
         return Output();
 
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > >  frameUchar;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > >         frameUchar4;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > >         frameFloat4;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float2  > >        frameFloat2;
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float  > >         frameFloat;
+    std::shared_ptr< Texture2D< unsigned char > >  frameUchar;
+    std::shared_ptr< Texture2D< uchar4 > >         frameUchar4;
+    std::shared_ptr< Texture2D< float4 > >         frameFloat4;
+    std::shared_ptr< Texture2D< float2  > >        frameFloat2;
+    std::shared_ptr< Texture2D< float  > >         frameFloat;
 
     renderSecondaryLayer( renderingStage, camera, blockActors, lightsCastingShadows, lightsNotCastingShadows );
 
@@ -1234,8 +1231,8 @@ void Renderer::renderSecondaryLayer(
     m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
 
     // Generate mipmaps for normal and position g-buffers.
-    currLayerRTs.hitNormal->generateMipMapsOnGpu( *m_deviceContext.Get() );
-    currLayerRTs.hitPosition->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    currLayerRTs.hitNormal->createMipMapsOnGpu( *m_deviceContext.Get() );
+    currLayerRTs.hitPosition->createMipMapsOnGpu( *m_deviceContext.Get() );
 
     m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForPositionAndNormals );
     m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::EmissiveShading );
@@ -1318,9 +1315,9 @@ void Renderer::renderSecondaryLayer(
         m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::RaytracingShadows );
         m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
 
-        hardShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        mediumShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
-        softShadowRenderTarget->generateMipMapsOnGpu( *m_deviceContext.Get() );
+        hardShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
+        mediumShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
+        softShadowRenderTarget->createMipMapsOnGpu( *m_deviceContext.Get() );
 
         m_profiler.endEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForShadows );
         m_profiler.beginEvent( renderingStage, lightIdx, Profiler::EventTypePerStagePerLight::MipmapGenerationForDistanceToOccluder );
@@ -1589,7 +1586,7 @@ void Renderer::combineLayers( const RenderingStage renderingStage, const Camera&
     m_profiler.beginEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForShadedLayer );
 
     // Generate mipmaps for the current layer shaded-combined image.
-    currLayerRTs.shadedCombined->generateMipMapsOnGpu( *m_deviceContext.Get() );
+    currLayerRTs.shadedCombined->createMipMapsOnGpu( *m_deviceContext.Get() );
 
     m_profiler.endEvent( renderingStage, Profiler::EventTypePerStage::MipmapGenerationForShadedLayer );
 
@@ -1629,8 +1626,8 @@ void Renderer::combineLayers( const RenderingStage renderingStage, const Camera&
 }
 
 void Renderer::performBloom( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture, 
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture,
+    std::shared_ptr< Texture2D< float4 > > destTexture, 
+    std::shared_ptr< Texture2D< float4 > > colorTexture,
     const float minBrightness )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::Bloom );
@@ -1659,8 +1656,8 @@ void Renderer::performBloom(
 }
 
 void Renderer::performToneMapping( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
-    std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture, 
+    std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+    std::shared_ptr< Texture2D< float4 > > srcTexture, 
     const float exposure )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::ToneMapping );
@@ -1671,8 +1668,8 @@ void Renderer::performToneMapping(
 }
 
 void Renderer::performAntialiasing( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > srcTexture )
+    std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > srcTexture )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::CalculateLuminance );
 
@@ -1706,9 +1703,9 @@ void Renderer::setExposure( const float exposure )
     m_exposure = std::max( -10.0f, std::min( 10.0f, exposure ) );
 }
 
-const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > > Renderer::debugGetCurrentRefractiveIndexTextures()
+const std::vector< std::shared_ptr< Texture2D< unsigned char > > > Renderer::debugGetCurrentRefractiveIndexTextures()
 {
-    std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > > textures;
+    std::vector< std::shared_ptr< Texture2D< unsigned char > > > textures;
 
     for ( auto& layerRTs : m_layersRenderTargets )
         textures.push_back( layerRTs.currentRefractiveIndex );

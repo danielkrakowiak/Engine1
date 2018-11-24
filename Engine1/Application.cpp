@@ -125,8 +125,9 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
 void Application::createUcharDisplayFrame( int imageWidth, int imageHeight, ComPtr< ID3D11Device3 > device )
 {
-    ucharDisplayFrame = std::make_shared< Texture2D< TexUsage::Default, TexBind::ShaderResource, unsigned char > >
-        ( *device.Get(), imageWidth, imageHeight, false, true, false, DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM );
+    ucharDisplayFrame = std::make_shared< RenderTargetTexture2D< unsigned char > >
+        ( *device.Get(), imageWidth, imageHeight, false, true, false, 
+			DXGI_FORMAT_R8_TYPELESS, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
 }
 
 void Application::setupWindow() 
@@ -396,7 +397,7 @@ void Application::accumulateStageProfilingData( StageProfilingInfos& stageProfil
 }
 
 void Application::renderActiveViewText( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > renderTarget, 
     Font& font )
 {
     if ( !settings().debug.renderText )
@@ -418,7 +419,7 @@ void Application::renderActiveViewText(
 }
 
 void Application::renderGPUNameText( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > renderTarget, 
     Font& font )
 {
     if ( !settings().debug.renderFps )
@@ -439,7 +440,7 @@ void Application::renderGPUNameText(
 void Application::renderFPSText( 
     float totalFrameTimeCPU,
     float totalFrameTimeGPU,
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > renderTarget, 
     Font& font )
 {
     if ( !settings().debug.renderFps )
@@ -466,7 +467,7 @@ void Application::renderFPSText(
 void Application::renderProfilingText( 
     float totalFrameTimeGPU,
     const StageProfilingInfos& stageProfilingInfos,
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > renderTarget, 
     Font& font )
 {
     if ( !settings().profiling.display.enabled ) 
@@ -570,7 +571,7 @@ void Application::renderProfilingText(
 }
 
 void Application::renderSceneStatisticsText( 
-    std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > renderTarget, 
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > renderTarget, 
     Font& font )
 {
     // Render scene stats and selection stats.
@@ -1038,7 +1039,7 @@ void Application::createDebugFrames( int imageWidth, int imageHeight, Microsoft:
         ( *device.Get(), imageWidth, imageHeight, DXGI_FORMAT_R32G32B32A32_FLOAT );
 }
 
-void Application::debugDisplayTextureValue( const Texture2DGeneric< unsigned char >& texture, const int2 screenCoords )
+void Application::debugDisplayTextureValue( const Texture2D< unsigned char >& texture, const int2 screenCoords )
 {
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
@@ -1052,7 +1053,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< unsigned cha
     setWindowTitle( "uchar: " + std::to_string( pixelColor ) + ", float: " + std::to_string( floatVal ) + ", ior: " + std::to_string( 1.0f + floatVal * 2.0f ) );
 }
 
-void Application::debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& texture, const int2 screenCoords )
+void Application::debugDisplayTextureValue( const Texture2D< uchar4 >& texture, const int2 screenCoords )
 {
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
@@ -1067,7 +1068,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< uchar4 >& te
                     + ", float: (" + std::to_string( floatVal.x ) + ", " + std::to_string( floatVal.y ) + ", " + std::to_string( floatVal.z ) + ", " + std::to_string( floatVal.w ) + ")" );
 }
 
-void Application::debugDisplayTextureValue( const Texture2DGeneric< float >& texture, const int2 screenCoords )
+void Application::debugDisplayTextureValue( const Texture2D< float >& texture, const int2 screenCoords )
 {
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
@@ -1080,7 +1081,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< float >& tex
     setWindowTitle( "float: " + std::to_string( pixelColor ) );
 }
 
-void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& texture, const int2 screenCoords )
+void Application::debugDisplayTextureValue( const Texture2D< float4 >& texture, const int2 screenCoords )
 {
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
@@ -1093,7 +1094,7 @@ void Application::debugDisplayTextureValue( const Texture2DGeneric< float4 >& te
     setWindowTitle( "float: (" + std::to_string( pixelColor.x ) + ", " + std::to_string( pixelColor.y ) + ", " + std::to_string( pixelColor.z ) + ", " + std::to_string( pixelColor.w ) + ")" );
 }
 
-void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > >& textures, const int2 screenCoords )
+void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr< Texture2D< unsigned char > > >& textures, const int2 screenCoords )
 {
     if ( textures.empty() )
         return;

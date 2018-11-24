@@ -29,13 +29,13 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext, 
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitPositionTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > rayHitAlbedoTexture, 
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitMetalnessTexture, 
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > rayHitRoughnessTexture, 
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayHitNormalTexture,
-						    const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > shadowTexture,
+                            const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+                            const std::shared_ptr< Texture2D< float4 > > rayHitPositionTexture,
+                            const std::shared_ptr< Texture2D< uchar4 > > rayHitAlbedoTexture, 
+                            const std::shared_ptr< Texture2D< unsigned char > > rayHitMetalnessTexture, 
+                            const std::shared_ptr< Texture2D< unsigned char > > rayHitRoughnessTexture, 
+                            const std::shared_ptr< Texture2D< float4 > > rayHitNormalTexture,
+						    const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
 							const Light& light );
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 

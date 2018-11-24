@@ -29,7 +29,7 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > emissiveTexture );
+                            const std::shared_ptr< Texture2D< uchar4 > > emissiveTexture );
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 
         private:

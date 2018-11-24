@@ -101,12 +101,12 @@ namespace Engine1
 
         struct Output
         {
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > ucharImage;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        uchar4Image;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        float4Image;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float2 > >        float2Image;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float  > >        floatImage;
-            std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > >                        depthUchar4Image;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > ucharImage;
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > >        uchar4Image;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        float4Image;
+            std::shared_ptr< RenderTargetTexture2D< float2 > >        float2Image;
+            std::shared_ptr< RenderTargetTexture2D< float  > >        floatImage;
+            std::shared_ptr< DepthTexture2D< uchar4 > >               depthUchar4Image;
 
             bool isEmpty()
             {
@@ -153,24 +153,24 @@ namespace Engine1
                 ambientOcclusion       = nullptr;
             }
 
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        contributionRoughness;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayOrigin;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        rayDirection;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitPosition;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitEmissive;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > >        hitAlbedo;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitMetalness;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRoughness;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitNormal;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > hitRefractiveIndex;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > currentRefractiveIndex;
-            std::shared_ptr< Texture2DSpecBind< TexBind::DepthStencil_ShaderResource, uchar4 > >                        depth;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistance;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceBlurred;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float > >         hitDistanceToCamera;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        hitShaded;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, float4 > >        shadedCombined;
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, unsigned char > > ambientOcclusion;
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > >        contributionRoughness;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        rayOrigin;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        rayDirection;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        hitPosition;
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > >        hitEmissive;
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > >        hitAlbedo;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > hitMetalness;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > hitRoughness;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        hitNormal;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > hitRefractiveIndex;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > currentRefractiveIndex;
+            std::shared_ptr< DepthTexture2D< uchar4 > >               depth;
+            std::shared_ptr< RenderTargetTexture2D< float > >         hitDistance;
+            std::shared_ptr< RenderTargetTexture2D< float > >         hitDistanceBlurred;
+            std::shared_ptr< RenderTargetTexture2D< float > >         hitDistanceToCamera;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        hitShaded;
+            std::shared_ptr< RenderTargetTexture2D< float4 > >        shadedCombined;
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > ambientOcclusion;
         };
 
         Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager );
@@ -197,7 +197,7 @@ namespace Engine1
             Font& font, 
             float2 position, 
             float4 color,
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > colorRenderTarget
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > > colorRenderTarget
         );
 
         void setActiveViewType( const View view );
@@ -207,7 +207,7 @@ namespace Engine1
         void  setExposure( const float exposure );
 
         // Temporary - for debug.
-        const std::vector< std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > > debugGetCurrentRefractiveIndexTextures();
+        const std::vector< std::shared_ptr< Texture2D< unsigned char > > > debugGetCurrentRefractiveIndexTextures();
 
         Microsoft::WRL::ComPtr< ID3D11Device3 >        getDevice() const        { return m_device; }
         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > getDeviceContext() const { return m_deviceContext; };
@@ -244,19 +244,19 @@ namespace Engine1
         void combineLayers( const RenderingStage renderingStage, const Camera& camera );
 
         void performBloom( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, float4 > > destTexture, 
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > colorTexture, 
+            std::shared_ptr< Texture2D< float4 > > destTexture, 
+            std::shared_ptr< Texture2D< float4 > > colorTexture, 
             const float minBrightness );
 
         void performToneMapping( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
-            std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > srcTexture,
+            std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+            std::shared_ptr< Texture2D< float4 > > srcTexture,
             const float exposure 
         );
 
         void performAntialiasing( 
-            std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > dstTexture,
-            std::shared_ptr< Texture2DSpecBind< TexBind::RenderTarget_UnorderedAccess_ShaderResource, uchar4 > > srcTexture
+            std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > > srcTexture
         );
 
         private:

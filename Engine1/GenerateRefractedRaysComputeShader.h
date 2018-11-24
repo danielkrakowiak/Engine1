@@ -24,14 +24,14 @@ namespace Engine1
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
         void setParameters( ID3D11DeviceContext3& deviceContext, const unsigned int refractionLevel,
-                            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayDirectionTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitPositionTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, float4 >& rayHitNormalTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& rayHitRoughnessTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& rayHitRefractiveIndexTexture,
-                            const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& contributionTermTexture,
-                            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > prevRefractiveIndexTexture,
-                            const std::shared_ptr< const Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > currentRefractiveIndexTexture,
+                            const Texture2D< float4 >& rayDirectionTexture,
+                            const Texture2D< float4 >& rayHitPositionTexture,
+                            const Texture2D< float4 >& rayHitNormalTexture,
+                            const Texture2D< unsigned char >& rayHitRoughnessTexture,
+                            const Texture2D< unsigned char >& rayHitRefractiveIndexTexture,
+                            const Texture2D< uchar4 >& contributionTermTexture,
+                            const std::shared_ptr< Texture2D< unsigned char > > prevRefractiveIndexTexture,
+                            const std::shared_ptr< const Texture2D< unsigned char > > currentRefractiveIndexTexture,
                             const int outputTextureWidth, const int outputTextureHeight );
         void unsetParameters( ID3D11DeviceContext3& deviceContext );
 

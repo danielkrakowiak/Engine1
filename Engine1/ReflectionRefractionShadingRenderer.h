@@ -36,44 +36,44 @@ namespace Engine1
 
         void performFirstReflectionShading( 
             const Camera& camera,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > contributionRoughnessRenderTarget
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget
         );
 
         void performReflectionShading( 
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > prevContributionRoughnessRenderTarget,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > contributionRoughnessRenderTarget
+            const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > prevContributionRoughnessRenderTarget,
+            const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget
         );
 
         void performFirstRefractionShading( 
             const Camera& camera,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > contributionRoughnessRenderTarget
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget
         );
 
         void performRefractionShading( 
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > rayOriginTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > positionTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, float4 > > normalTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > albedoTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > metalnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, unsigned char > > roughnessTexture,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::ShaderResource, uchar4 > > prevContributionRoughnessRenderTarget,
-            const std::shared_ptr< Texture2DSpecBind< TexBind::UnorderedAccess, uchar4 > > contributionRoughnessRenderTarget
+            const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
+            const std::shared_ptr< Texture2D< float4 > > positionTexture,
+            const std::shared_ptr< Texture2D< float4 > > normalTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
+            const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
+            const std::shared_ptr< Texture2D< uchar4 > > prevContributionRoughnessRenderTarget,
+            const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget
         );
 
         private:

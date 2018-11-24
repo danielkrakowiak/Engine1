@@ -57,13 +57,13 @@ void BlockModelFragmentShader::initialize( ComPtr< ID3D11Device3 >& device )
 }
  
 void BlockModelFragmentShader::setParameters( ID3D11DeviceContext3& deviceContext, 
-                                              const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& alphaTexture, const float alphaMul,
-                                              const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& emissiveTexture, const float3& emissiveMul,
-                                              const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& albedoTexture, const float3& albedoMul,
-                                              const Texture2DSpecBind< TexBind::ShaderResource, uchar4 >& normalTexture, const float3& normalMul,
-                                              const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& metalnessTexture, const float metalnessMul,
-                                              const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& roughnessTexture, const float roughnessMul,
-                                              const Texture2DSpecBind< TexBind::ShaderResource, unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul,
+                                              const Texture2D< unsigned char >& alphaTexture, const float alphaMul,
+                                              const Texture2D< uchar4 >& emissiveTexture, const float3& emissiveMul,
+                                              const Texture2D< uchar4 >& albedoTexture, const float3& albedoMul,
+                                              const Texture2D< uchar4 >& normalTexture, const float3& normalMul,
+                                              const Texture2D< unsigned char >& metalnessTexture, const float metalnessMul,
+                                              const Texture2D< unsigned char >& roughnessTexture, const float roughnessMul,
+                                              const Texture2D< unsigned char >& indexOfRefractionTexture, const float indexOfRefractionMul,
                                               const float4& extraEmissive )
 {
     const int resourceCount = 7;
