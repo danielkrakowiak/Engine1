@@ -58,7 +58,7 @@ namespace Engine1
         std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        m_renderTargetsFloat4;
         std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > m_renderTargetsUchar;
         std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        m_renderTargetsUchar4;
-        std::vector< std::shared_ptr< DepthTexture2D< uchar4 > > >                        m_renderTargetsDepthUchar4;
+        std::vector< std::shared_ptr< DepthTexture2D< uchar4 > > >               m_renderTargetsDepthUchar4;
     };
 
     template < typename T >

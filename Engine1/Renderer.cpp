@@ -1626,7 +1626,7 @@ void Renderer::combineLayers( const RenderingStage renderingStage, const Camera&
 }
 
 void Renderer::performBloom( 
-    std::shared_ptr< Texture2D< float4 > > destTexture, 
+    std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture, 
     std::shared_ptr< Texture2D< float4 > > colorTexture,
     const float minBrightness )
 {
@@ -1656,7 +1656,7 @@ void Renderer::performBloom(
 }
 
 void Renderer::performToneMapping( 
-    std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > dstTexture,
     std::shared_ptr< Texture2D< float4 > > srcTexture, 
     const float exposure )
 {
@@ -1668,7 +1668,7 @@ void Renderer::performToneMapping(
 }
 
 void Renderer::performAntialiasing( 
-    std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > dstTexture,
     std::shared_ptr< RenderTargetTexture2D< uchar4 > > srcTexture )
 {
     m_profiler.beginEvent( Profiler::GlobalEventType::CalculateLuminance );

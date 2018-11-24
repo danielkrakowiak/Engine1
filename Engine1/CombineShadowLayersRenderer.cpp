@@ -29,7 +29,7 @@ void CombineShadowLayersRenderer::initialize( ComPtr< ID3D11Device3 > device,
 
 
 void CombineShadowLayersRenderer::combineShadowLayers( 
-    std::shared_ptr< Texture2D< unsigned char > > finalShadowTexture,
+    std::shared_ptr< RenderTargetTexture2D< unsigned char > > finalShadowTexture,
     Texture2D< unsigned char >& hardShadowTexture,
     Texture2D< unsigned char >& mediumShadowTexture,
     Texture2D< unsigned char >& softShadowTexture )
@@ -39,12 +39,12 @@ void CombineShadowLayersRenderer::combineShadowLayers(
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsU1.push_back( finalShadowTexture );
     m_rendererCore.enableUnorderedAccessTargets( 

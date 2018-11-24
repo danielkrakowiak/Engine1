@@ -130,7 +130,7 @@ void ShadowMapRenderer::createAndSetRenderTarget( const int2 dimensions, ID3D11D
 {
 	// Create depth render target.
 	m_renderTarget = std::make_shared< DepthTexture2D< float > >
-		( device, dimensions.x, dimensions.y, false, true, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT );
+		( device, dimensions.x, dimensions.y, false, true, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D32_FLOAT );
 }
 
 void ShadowMapRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )

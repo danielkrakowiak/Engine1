@@ -51,7 +51,7 @@ void ReflectionRefractionShadingRenderer::performFirstReflectionShading(
     const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
     const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
     const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
-    const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget )
+    const std::shared_ptr< RenderTargetTexture2D< uchar4 > > contributionRoughnessRenderTarget )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -67,7 +67,7 @@ void ReflectionRefractionShadingRenderer::performFirstReflectionShading(
 
     m_rendererCore.enableComputeShader( m_reflectionShadingComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -92,7 +92,7 @@ void ReflectionRefractionShadingRenderer::performReflectionShading(
     const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
     const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
     const std::shared_ptr< Texture2D< uchar4 > > prevContributionRoughnessRenderTarget,
-    const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget )
+    const std::shared_ptr< RenderTargetTexture2D< uchar4 > > contributionRoughnessRenderTarget )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -109,7 +109,7 @@ void ReflectionRefractionShadingRenderer::performReflectionShading(
 
     m_rendererCore.enableComputeShader( m_reflectionShadingComputeShader2 );
 
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -133,7 +133,7 @@ void ReflectionRefractionShadingRenderer::performFirstRefractionShading(
     const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
     const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
     const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
-    const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget )
+    const std::shared_ptr< RenderTargetTexture2D< uchar4 > > contributionRoughnessRenderTarget )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -150,7 +150,7 @@ void ReflectionRefractionShadingRenderer::performFirstRefractionShading(
 
     m_rendererCore.enableComputeShader( m_refractionShadingComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -175,7 +175,7 @@ void ReflectionRefractionShadingRenderer::performRefractionShading(
     const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
     const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
     const std::shared_ptr< Texture2D< uchar4 > > prevContributionRoughnessRenderTarget,
-    const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget )
+    const std::shared_ptr< RenderTargetTexture2D< uchar4 > > contributionRoughnessRenderTarget )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -192,7 +192,7 @@ void ReflectionRefractionShadingRenderer::performRefractionShading(
 
     m_rendererCore.enableComputeShader( m_refractionShadingComputeShader2 );
 
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );

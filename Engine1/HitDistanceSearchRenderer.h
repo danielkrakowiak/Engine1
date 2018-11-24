@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -37,7 +37,7 @@ namespace Engine1
             const std::shared_ptr< Texture2D< float4 > > positionTexture,
             const std::shared_ptr< Texture2D< float4 > > normalTexture,
             const std::shared_ptr< Texture2D< float > > hitDistance,
-            std::shared_ptr< Texture2D< float > > blurredHitDistanceRenderTarget
+            std::shared_ptr< RenderTargetTexture2D< float > > blurredHitDistanceRenderTarget
         );
 
         private:

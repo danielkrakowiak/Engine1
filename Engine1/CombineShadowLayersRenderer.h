@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 struct ID3D11Device3;
 struct ID3D11DeviceContext3;
@@ -24,7 +24,7 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void combineShadowLayers( 
-            std::shared_ptr< Texture2D< unsigned char > > finalShadowTexture,
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > finalShadowTexture,
             Texture2D< unsigned char >& hardShadowTexture,
             Texture2D< unsigned char >& mediumShadowTexture,
             Texture2D< unsigned char >& softShadowTexture

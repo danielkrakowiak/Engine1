@@ -558,13 +558,13 @@ std::shared_ptr<Asset> AssetManager::createFromFile( const FileInfo& fileInfo )
             {
 			    return std::make_shared< ImmutableTexture2D< uchar4 > >
                     ( *m_device.Get(), textureFileInfo, true, true, true, 
-						DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
+						DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
             }
             else if ( textureFileInfo.getPixelType() == Texture2DFileInfo::PixelType::UCHAR )
             {
                 return std::make_shared< ImmutableTexture2D< unsigned char > >
                     ( *m_device.Get(), textureFileInfo, true, true, true, 
-						DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+						DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
             }
         }
 		default:
@@ -640,7 +640,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
             {
                 auto texture = std::make_shared< ImmutableTexture2D< uchar4 > >
                     ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, 
-						DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
+						DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM );
                 texture->setFileInfo( texFileInfo );
 
                 return texture;
@@ -649,7 +649,7 @@ std::shared_ptr<Asset> AssetManager::createFromMemory( const FileInfo& fileInfo,
             {
                 auto texture = std::make_shared< ImmutableTexture2D< unsigned char > >
                     ( *m_device.Get(), fileData.cbegin(), fileData.cend(), texFileInfo.getFormat( ), true, true, true, 
-						DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
+						DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UNORM );
                 texture->setFileInfo( texFileInfo );
 
                 return texture;

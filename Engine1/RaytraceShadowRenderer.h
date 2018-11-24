@@ -42,12 +42,12 @@ namespace Engine1
 	        const std::shared_ptr< Texture2D< float4 > > surfaceNormalTexture,
 	        const std::shared_ptr< Texture2D< uchar4 > > contributionTermTexture,
             //const std::shared_ptr< Texture2D< unsigned char > > preIlluminationTexture,]
-            std::shared_ptr< Texture2D< unsigned char > > hardShadowRenderTarget,
-            std::shared_ptr< Texture2D< unsigned char > > mediumShadowRenderTarget,
-            std::shared_ptr< Texture2D< unsigned char > > softShadowRenderTarget,
-            std::shared_ptr< Texture2D< float > >         distanceToOccluderHardShadowRenderTarget,
-            std::shared_ptr< Texture2D< float > >         distanceToOccluderMediumShadowRenderTarget,
-            std::shared_ptr< Texture2D< float > >         distanceToOccluderSoftShadowRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > hardShadowRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > mediumShadowRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< unsigned char > > softShadowRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< float > >         distanceToOccluderHardShadowRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< float > >         distanceToOccluderMediumShadowRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< float > >         distanceToOccluderSoftShadowRenderTarget,
 	        const std::vector< std::shared_ptr< BlockActor > >& actors
 		);
 

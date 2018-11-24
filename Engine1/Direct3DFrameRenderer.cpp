@@ -186,7 +186,10 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
         ComPtr< ID3D11Texture2D > backbufferTexture = getBackbufferTexture( *m_swapChain.Get() );
 
         m_renderTarget = std::make_shared< RenderTargetTexture2D< uchar4 > >
-            ( *m_device.Get(), backbufferTexture );
+            ( *m_device.Get(), 
+              backbufferTexture,
+              DXGI_FORMAT_R8G8B8A8_UNORM, 
+              DXGI_FORMAT_R8G8B8A8_UNORM );
 	}
 
 	m_rasterizerState        = createRasterizerState( *m_device.Get() );

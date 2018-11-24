@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -36,14 +36,14 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void performEmissiveShading( 
-            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
             const std::shared_ptr< Texture2D< uchar4 > > emissiveTexture 
         );
 
         // With shadows.
         void performShading( 
             const Camera& camera,
-            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
             const std::shared_ptr< Texture2D< float4 > > positionTexture,
             const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
             const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
@@ -56,7 +56,7 @@ namespace Engine1
         // Without shadows.
         void performShadingNoShadows( 
             const Camera& camera,
-            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
             const std::shared_ptr< Texture2D< float4 > > positionTexture,
             const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
             const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
@@ -68,7 +68,7 @@ namespace Engine1
 
         // With shadows.
         void performShading( 
-            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
             const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
             const std::shared_ptr< Texture2D< float4 > > rayHitPositionTexture,
             const std::shared_ptr< Texture2D< uchar4 > > rayHitAlbedoTexture,
@@ -81,7 +81,7 @@ namespace Engine1
 
         // Without shadows.
         void performShadingNoShadows( 
-            std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+            std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
             const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
             const std::shared_ptr< Texture2D< float4 > > rayHitPositionTexture,
             const std::shared_ptr< Texture2D< uchar4 > > rayHitAlbedoTexture,

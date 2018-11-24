@@ -46,7 +46,7 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
     const std::shared_ptr< Texture2D< float4 > > positionTexture,
     const std::shared_ptr< Texture2D< float4 > > normalTexture,
     const std::shared_ptr< Texture2D< float > > distanceToOccluder,
-    const std::shared_ptr< Texture2D< float > > finalDistanceToOccluderRenderTarget,
+    const std::shared_ptr< RenderTargetTexture2D< float > > finalDistanceToOccluderRenderTarget,
     const Light& light 
 )
 {
@@ -71,12 +71,12 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
 
     m_rendererCore.enableComputeShader( m_distanceToOccluderSearchComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     //#TODO: Remove thwt clear - just for debug.
     finalDistanceToOccluderRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4::ZERO, 0 );

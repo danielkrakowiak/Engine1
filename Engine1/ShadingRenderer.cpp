@@ -45,7 +45,7 @@ void ShadingRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D1
 }
 
 void ShadingRenderer::performEmissiveShading( 
-    std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+    std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
     const std::shared_ptr< Texture2D< uchar4 > > emissiveTexture )
 {
     m_rendererCore.disableRenderingPipeline();
@@ -54,7 +54,7 @@ void ShadingRenderer::performEmissiveShading(
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader0 );
 
-    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -73,7 +73,7 @@ void ShadingRenderer::performEmissiveShading(
 
 void ShadingRenderer::performShading( 
     const Camera& camera,
-    std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+    std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
     const std::shared_ptr< Texture2D< float4 > > positionTexture,
     const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
     const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
@@ -88,7 +88,7 @@ void ShadingRenderer::performShading(
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -107,7 +107,7 @@ void ShadingRenderer::performShading(
 
 void ShadingRenderer::performShadingNoShadows( 
     const Camera& camera,
-    std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+    std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
     const std::shared_ptr< Texture2D< float4 > > positionTexture,
     const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
     const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
@@ -132,7 +132,7 @@ void ShadingRenderer::performShadingNoShadows(
 
     m_rendererCore.enableComputeShader( m_shadingNoShadowsComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -150,7 +150,7 @@ void ShadingRenderer::performShadingNoShadows(
 }
 
 void ShadingRenderer::performShading( 
-    std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+    std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
     const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
     const std::shared_ptr< Texture2D< float4 > > rayHitPositionTexture,
     const std::shared_ptr< Texture2D< uchar4 > > rayHitAlbedoTexture, 
@@ -167,7 +167,7 @@ void ShadingRenderer::performShading(
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader2 );
 
-    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -185,7 +185,7 @@ void ShadingRenderer::performShading(
 }
 
 void ShadingRenderer::performShadingNoShadows( 
-    std::shared_ptr< Texture2D< float4 > > colorRenderTarget,
+    std::shared_ptr< RenderTargetTexture2D< float4 > > colorRenderTarget,
     const std::shared_ptr< Texture2D< float4 > > rayOriginTexture,
     const std::shared_ptr< Texture2D< float4 > > rayHitPositionTexture,
     const std::shared_ptr< Texture2D< uchar4 > > rayHitAlbedoTexture,
@@ -201,7 +201,7 @@ void ShadingRenderer::performShadingNoShadows(
 
     m_rendererCore.enableComputeShader( m_shadingNoShadowsComputeShader2 );
 
-    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( colorRenderTarget );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );

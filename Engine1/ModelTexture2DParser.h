@@ -36,7 +36,7 @@ namespace Engine1
                 const DXGI_FORMAT defaultFormat = ModelTexture2DParser< PixelType >::getDefaultFormat();
 
 	            texture = std::make_shared< ImmutableTexture2D< PixelType > >
-                    ( device, fileInfo, true, true, true, defaultFormat, defaultFormat, defaultFormat );
+                    ( device, fileInfo, true, true, true, defaultFormat, defaultFormat );
             } else {
                 texture = std::make_shared< ImmutableTexture2D< PixelType > >();
                 texture->setFileInfo( fileInfo );

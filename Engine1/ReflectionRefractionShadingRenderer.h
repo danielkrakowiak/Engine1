@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -41,7 +41,7 @@ namespace Engine1
             const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
             const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
             const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
-            const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget
+            const std::shared_ptr< RenderTargetTexture2D< uchar4 > > contributionRoughnessRenderTarget
         );
 
         void performReflectionShading( 
@@ -52,7 +52,7 @@ namespace Engine1
             const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
             const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
             const std::shared_ptr< Texture2D< uchar4 > > prevContributionRoughnessRenderTarget,
-            const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget
+            const std::shared_ptr< RenderTargetTexture2D< uchar4 > > contributionRoughnessRenderTarget
         );
 
         void performFirstRefractionShading( 
@@ -62,7 +62,7 @@ namespace Engine1
             const std::shared_ptr< Texture2D< uchar4 > > albedoTexture,
             const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
             const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
-            const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget
+            const std::shared_ptr< RenderTargetTexture2D< uchar4 > > contributionRoughnessRenderTarget
         );
 
         void performRefractionShading( 
@@ -73,7 +73,7 @@ namespace Engine1
             const std::shared_ptr< Texture2D< unsigned char > > metalnessTexture,
             const std::shared_ptr< Texture2D< unsigned char > > roughnessTexture,
             const std::shared_ptr< Texture2D< uchar4 > > prevContributionRoughnessRenderTarget,
-            const std::shared_ptr< Texture2D< uchar4 > > contributionRoughnessRenderTarget
+            const std::shared_ptr< RenderTargetTexture2D< uchar4 > > contributionRoughnessRenderTarget
         );
 
         private:

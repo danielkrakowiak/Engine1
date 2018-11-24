@@ -5,7 +5,7 @@
 #include "int2.h"
 #include "float3.h"
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 #include "RenderingStage.h"
 
 struct ID3D11Device3;

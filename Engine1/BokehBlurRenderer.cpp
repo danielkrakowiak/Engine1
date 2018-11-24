@@ -24,7 +24,7 @@ void BokehBlurRenderer::initialize(
 }
 
 void BokehBlurRenderer::bokehBlur( 
-    std::shared_ptr< Texture2D< float4 > > destTexture,
+    std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture,
     const Texture2D< float4 >& srcTexture,
     const Texture2D< uchar4 >& depthTexture )
 {
@@ -33,12 +33,12 @@ void BokehBlurRenderer::bokehBlur(
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF4.push_back( destTexture );
     m_rendererCore.enableUnorderedAccessTargets( 

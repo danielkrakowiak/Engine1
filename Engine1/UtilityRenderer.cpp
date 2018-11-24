@@ -42,7 +42,7 @@ void UtilityRenderer::initialize( ComPtr< ID3D11Device3 > device,
     m_initialized = true;
 }
 
-void UtilityRenderer::replaceValues( std::shared_ptr< Texture2D< float > > texture,
+void UtilityRenderer::replaceValues( std::shared_ptr< RenderTargetTexture2D< float > > texture,
                                      const int mipmapLevel,
                                      const float replaceFromValue,
                                      const float replaceToValue )
@@ -52,12 +52,12 @@ void UtilityRenderer::replaceValues( std::shared_ptr< Texture2D< float > > textu
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
     m_rendererCore.enableUnorderedAccessTargets( 
@@ -86,7 +86,7 @@ void UtilityRenderer::replaceValues( std::shared_ptr< Texture2D< float > > textu
     m_rendererCore.disableComputePipeline();
 }
 
-void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2D< float > > texture, 
+void UtilityRenderer::spreadMaxValues( std::shared_ptr< RenderTargetTexture2D< float > > texture, 
                                        const int mipmapLevel,
                                        const int repeatCount,
                                        const float ignorePixelIfBelowValue,
@@ -97,12 +97,12 @@ void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2D< float > > tex
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
     m_rendererCore.enableUnorderedAccessTargets( 
@@ -143,7 +143,7 @@ void UtilityRenderer::spreadMaxValues( std::shared_ptr< Texture2D< float > > tex
     m_rendererCore.disableComputePipeline();
 }
 
-void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2D< float > > texture,
+void UtilityRenderer::spreadMinValues( std::shared_ptr< RenderTargetTexture2D< float > > texture,
                                        const int mipmapLevel,
                                        const int repeatCount,
                                        const float ignorePixelIfBelowValue,
@@ -158,12 +158,12 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2D< float > > tex
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
     m_rendererCore.enableUnorderedAccessTargets( 
@@ -218,7 +218,7 @@ void UtilityRenderer::spreadMinValues( std::shared_ptr< Texture2D< float > > tex
     m_rendererCore.disableComputePipeline();
 }
 
-void UtilityRenderer::mergeMinValues( std::shared_ptr< Texture2D< float > > texture,
+void UtilityRenderer::mergeMinValues( std::shared_ptr< RenderTargetTexture2D< float > > texture,
                                       const std::shared_ptr< Texture2D< float > > texture2,
                                       const int mipmapLevel )
 {
@@ -227,12 +227,12 @@ void UtilityRenderer::mergeMinValues( std::shared_ptr< Texture2D< float > > text
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
     m_rendererCore.enableUnorderedAccessTargets( 
@@ -255,7 +255,7 @@ void UtilityRenderer::mergeMinValues( std::shared_ptr< Texture2D< float > > text
     m_rendererCore.disableComputePipeline();
 }
 
-void UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace( std::shared_ptr< Texture2D< float > > texture,
+void UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace( std::shared_ptr< RenderTargetTexture2D< float > > texture,
                                                                   const int mipmapLevel,
                                                                   const float3& cameraPos,
                                                                   const std::shared_ptr< Texture2D< float3 > > positionTexture )
@@ -265,12 +265,12 @@ void UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace( std::shared_pt
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( texture );
     m_rendererCore.enableUnorderedAccessTargets( 
@@ -299,7 +299,7 @@ void UtilityRenderer::convertDistanceFromScreenSpaceToWorldSpace( std::shared_pt
     m_rendererCore.disableComputePipeline();
 }
 
-void UtilityRenderer::blurValues( std::shared_ptr< Texture2D< float4 > > outputTexture,
+void UtilityRenderer::blurValues( std::shared_ptr< RenderTargetTexture2D< float4 > > outputTexture,
                                   const int outputMipmapLevel,
                                   const std::shared_ptr< Texture2D< float4 > > inputTexture,
                                   const int inputMipmapLevel )
@@ -309,12 +309,12 @@ void UtilityRenderer::blurValues( std::shared_ptr< Texture2D< float4 > > outputT
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF4.push_back( outputTexture );
     m_rendererCore.enableUnorderedAccessTargets( 
@@ -343,7 +343,7 @@ void UtilityRenderer::blurValues( std::shared_ptr< Texture2D< float4 > > outputT
     m_rendererCore.disableComputePipeline();
 }
 
-void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< Texture2D< float4 > > destinationTexture,
+void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< RenderTargetTexture2D< float4 > > destinationTexture,
                                           const std::shared_ptr< Texture2D< float4 > > inputTexture,
                                           const int firstMipmapLevel,
                                           const int lastMipmapLevel )
@@ -353,12 +353,12 @@ void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< Texture2D< float4 > >
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF4.push_back( destinationTexture );
     m_rendererCore.enableUnorderedAccessTargets( 
@@ -388,7 +388,7 @@ void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< Texture2D< float4 > >
 }
 
 void UtilityRenderer::sumValues( 
-    std::shared_ptr< Texture2D< unsigned char > > outputTexture,
+    std::shared_ptr< RenderTargetTexture2D< unsigned char > > outputTexture,
     const std::shared_ptr< Texture2D< unsigned char > > inputTexture1,
     const std::shared_ptr< Texture2D< unsigned char > > inputTexture2,
     const std::shared_ptr< Texture2D< unsigned char > > inputTexture3
@@ -399,12 +399,12 @@ void UtilityRenderer::sumValues(
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsU1.push_back( outputTexture );
     m_rendererCore.enableUnorderedAccessTargets( 

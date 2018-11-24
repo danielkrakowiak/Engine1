@@ -84,7 +84,7 @@ void RaytraceRenderer::generatePrimaryRays(
 
     m_rendererCore.enableComputeShader( m_generateRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( renderTargets.rayDirection );
 
     m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
@@ -188,7 +188,7 @@ void RaytraceRenderer::generateFirstReflectedRays(
 
     m_rendererCore.enableComputeShader( m_generateFirstReflectedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( renderTargets.rayOrigin );
     unorderedAccessTargets.push_back( renderTargets.rayDirection );
 
@@ -230,12 +230,12 @@ void RaytraceRenderer::generateFirstRefractedRays(
 
     m_rendererCore.enableComputeShader( m_generateFirstRefractedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
     unorderedAccessTargetsF4.push_back( renderTargets.rayOrigin );
     unorderedAccessTargetsF4.push_back( renderTargets.rayDirection );
     unorderedAccessTargetsU1.push_back( renderTargets.currentRefractiveIndex );
@@ -276,7 +276,7 @@ void RaytraceRenderer::generateReflectedRays(
 
     m_rendererCore.enableComputeShader( m_generateReflectedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargets;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
     unorderedAccessTargets.push_back( renderTargets.rayOrigin );
     unorderedAccessTargets.push_back( renderTargets.rayDirection );
 
@@ -324,12 +324,12 @@ void RaytraceRenderer::generateRefractedRays(
 
     m_rendererCore.enableComputeShader( m_generateRefractedRaysComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
     unorderedAccessTargetsF4.push_back( renderTargets.rayOrigin );
     unorderedAccessTargetsF4.push_back( renderTargets.rayDirection );
     unorderedAccessTargetsU1.push_back( renderTargets.currentRefractiveIndex );
@@ -369,12 +369,12 @@ void RaytraceRenderer::tracePrimaryRays(
     renderTargets.hitNormal->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
     renderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( renderTargets.hitDistance );
     unorderedAccessTargetsF4.push_back( renderTargets.hitPosition );
@@ -483,12 +483,12 @@ void RaytraceRenderer::traceSecondaryRays(
    renderTargets.hitNormal->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
    renderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsF1.push_back( renderTargets.hitDistance );
     unorderedAccessTargetsF4.push_back( renderTargets.hitPosition );
@@ -593,12 +593,12 @@ void RaytraceRenderer::traceSecondaryRays(
 
 void RaytraceRenderer::calculateHitDistanceToCamera( InputTextures2& inputs, RenderTargets& renderTargets )
 {
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     m_rendererCore.enableComputeShader( m_sumValueComputeShader );
 

@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 #include "BokehBlurComputeShader.h"
 
 struct ID3D11Device3;
@@ -24,7 +24,7 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void bokehBlur( 
-            std::shared_ptr< Texture2D< float4 > > destTexture,
+            std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture,
             const Texture2D< float4 >& srcTexture,
             const Texture2D< uchar4 >& depthTexture
         );

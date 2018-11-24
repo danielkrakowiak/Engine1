@@ -244,18 +244,18 @@ namespace Engine1
         void combineLayers( const RenderingStage renderingStage, const Camera& camera );
 
         void performBloom( 
-            std::shared_ptr< Texture2D< float4 > > destTexture, 
+            std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture, 
             std::shared_ptr< Texture2D< float4 > > colorTexture, 
             const float minBrightness );
 
         void performToneMapping( 
-            std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > > dstTexture,
             std::shared_ptr< Texture2D< float4 > > srcTexture,
             const float exposure 
         );
 
         void performAntialiasing( 
-            std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+            std::shared_ptr< RenderTargetTexture2D< uchar4 > > dstTexture,
             std::shared_ptr< RenderTargetTexture2D< uchar4 > > srcTexture
         );
 

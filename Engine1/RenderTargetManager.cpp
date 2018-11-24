@@ -92,8 +92,8 @@ RenderTargetManager::createRenderTargetDepth( const int2 imageDimensions )
         storeOnGpu,
         generateMipmaps,
         DXGI_FORMAT_R24G8_TYPELESS,
-        DXGI_FORMAT_D24_UNORM_S8_UINT,
-        DXGI_FORMAT_R24_UNORM_X8_TYPELESS
+        DXGI_FORMAT_R24_UNORM_X8_TYPELESS,
+        DXGI_FORMAT_D24_UNORM_S8_UINT
         );
 }
 
@@ -148,8 +148,8 @@ RenderTargetManager::getViewFormatsForPixelType< unsigned char >( const bool red
 
     return std::make_tuple( 
         DXGI_FORMAT_R8_TYPELESS,
-        DXGI_FORMAT_R8_UNORM,
         DXGI_FORMAT_R8_UINT,
+        DXGI_FORMAT_R8_UNORM,
         DXGI_FORMAT_R8_UNORM
     );
 }
@@ -162,8 +162,8 @@ RenderTargetManager::getViewFormatsForPixelType< uchar4 >( const bool reducedPre
 
     return std::make_tuple(
         DXGI_FORMAT_R8G8B8A8_TYPELESS,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
         DXGI_FORMAT_R8G8B8A8_UINT,
+        DXGI_FORMAT_R8G8B8A8_UNORM,
         DXGI_FORMAT_R8G8B8A8_UNORM
     );
 }

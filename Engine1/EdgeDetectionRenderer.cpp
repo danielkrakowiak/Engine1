@@ -48,12 +48,12 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
 
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
     
     { // Mark edges with value of 0.
         unorderedAccessTargetsU1.push_back( m_valueRenderTargetDest );
@@ -103,7 +103,7 @@ void EdgeDetectionRenderer::performEdgeDetection( const std::shared_ptr< Texture
     m_rendererCore.disableComputePipeline();
 }
 
-std::shared_ptr< Texture2D< unsigned char > > EdgeDetectionRenderer::getValueRenderTarget()
+std::shared_ptr< RenderTargetTexture2D< unsigned char > > EdgeDetectionRenderer::getValueRenderTarget()
 {
     return m_valueRenderTargetDest;
 }

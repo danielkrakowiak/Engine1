@@ -280,7 +280,7 @@ RenderingTester::loadTestCaseReference( const std::string& sceneName, const std:
     Texture2DFileInfo fileInfo( referencePath, Texture2DFileInfo::Format::PNG, Texture2DFileInfo::PixelType::UCHAR4 );
 
     return std::make_shared< ImmutableTexture2D< uchar4 > >
-        ( *m_renderer.getDevice().Get(), fileInfo, true, false, false, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT );
+        ( *m_renderer.getDevice().Get(), fileInfo, true, false, false, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT );
 }
 
 std::string RenderingTester::getTestScenePath( const std::string& sceneName )

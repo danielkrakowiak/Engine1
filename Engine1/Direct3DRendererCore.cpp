@@ -306,22 +306,22 @@ void Direct3DRendererCore::enableRenderTargets(
 
 	// Collect and save render target views from passed render targets.
     m_currentRenderTargetViews.clear();
-    for ( const std::shared_ptr< RenderTargetTexture2D< float > >& renderTarget : renderTargetsF1 )
+    for ( const auto& renderTarget : renderTargetsF1 )
 		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
-	for ( const std::shared_ptr< RenderTargetTexture2D< float2 > >& renderTarget : renderTargetsF2 )
+	for ( const auto& renderTarget : renderTargetsF2 )
 		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
-    for ( const std::shared_ptr< RenderTargetTexture2D< float3 > >& renderTarget : renderTargetsF3 )
+    for ( const auto& renderTarget : renderTargetsF3 )
 		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
-    for ( const std::shared_ptr< RenderTargetTexture2D< float4 > >& renderTarget : renderTargetsF4 )
+    for ( const auto& renderTarget : renderTargetsF4 )
 		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
-    for ( const std::shared_ptr< RenderTargetTexture2D< unsigned char > >& renderTarget : renderTargetsU1 )
+    for ( const auto& renderTarget : renderTargetsU1 )
 		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
-    for ( const std::shared_ptr< RenderTargetTexture2D< uchar4 > >& renderTarget : renderTargetsU4 )
+    for ( const auto& renderTarget : renderTargetsU4 )
 		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
 
 	// Get and save depth render target view if passed.
@@ -333,12 +333,12 @@ void Direct3DRendererCore::enableRenderTargets(
 }
 
 void Direct3DRendererCore::enableUnorderedAccessTargets( 
-    const std::vector< std::shared_ptr< Texture2D< float > > > unorderedAccessTargetsF1,
-    const std::vector< std::shared_ptr< Texture2D< float2 > > > unorderedAccessTargetsF2,
-    const std::vector< std::shared_ptr< Texture2D< float3 > > > unorderedAccessTargetsF3,
-    const std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargetsF4,
-    const std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1,
-    const std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargetsU4,
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > > unorderedAccessTargetsF1,
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > unorderedAccessTargetsF2,
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > > unorderedAccessTargetsF3,
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargetsF4,
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1,
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargetsU4,
     const int mipmapLevel )
 {
     if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableUnorderedAccessTargets - renderer not initialized." );
@@ -429,61 +429,64 @@ void Direct3DRendererCore::enableUnorderedAccessTargets(
 
 	// Collect and save UAV target views from passed UAV targets.
     m_currentUnorderedAccessTargetViews.clear();
-	for ( const std::shared_ptr< Texture2D< float > >& unorderedAccessTarget : unorderedAccessTargetsF1 )
+	for ( const auto& unorderedAccessTarget : unorderedAccessTargetsF1 )
 		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
-    for ( const std::shared_ptr< Texture2D< float2 > >& unorderedAccessTarget : unorderedAccessTargetsF2 )
+    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsF2 )
 		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
-    for ( const std::shared_ptr< Texture2D< float3 > >& unorderedAccessTarget : unorderedAccessTargetsF3 )
+    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsF3 )
 		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
-    for ( const std::shared_ptr< Texture2D< float4 > >& unorderedAccessTarget : unorderedAccessTargetsF4 )
+    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsF4 )
 		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
-    for ( const std::shared_ptr< Texture2D< unsigned char > >& unorderedAccessTarget : unorderedAccessTargetsU1 )
+    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsU1 )
 		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
-    for ( const std::shared_ptr< Texture2D< uchar4 > >& unorderedAccessTarget : unorderedAccessTargetsU4 )
+    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsU4 )
 		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
 
 	// Enable UAV targets.
     m_deviceContext->CSSetUnorderedAccessViews( 0, (unsigned int)m_currentUnorderedAccessTargetViews.size(), m_currentUnorderedAccessTargetViews.data(), nullptr );
 }
 
-void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2D< float3 > > > unorderedAccessTargetsF3,
-                                                         const int mipmapLevel )
+void Direct3DRendererCore::enableUnorderedAccessTargets( 
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > > unorderedAccessTargetsF3,
+    const int mipmapLevel )
 {
-    const std::vector< std::shared_ptr< Texture2D< float > > >  emptyF1;
-    const std::vector< std::shared_ptr< Texture2D< float2 > > > emptyF2;
-    const std::vector< std::shared_ptr< Texture2D< float4 > > >  emptyF4;
-    const std::vector< std::shared_ptr< Texture2D< unsigned char > > > emptyU1;
-    const std::vector< std::shared_ptr< Texture2D< uchar4 > > > emptyU4;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >  emptyF1;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > emptyF2;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >  emptyF4;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > emptyU1;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > emptyU4;
 
     enableUnorderedAccessTargets( emptyF1, emptyF2, unorderedAccessTargetsF3, emptyF4, emptyU1, emptyU4, mipmapLevel );
 }
 
-void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2D< float4 > > > unorderedAccessTargetsF4,
-                                                         const int mipmapLevel )
+void Direct3DRendererCore::enableUnorderedAccessTargets( 
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargetsF4,
+    const int mipmapLevel )
 {
-    const std::vector< std::shared_ptr< Texture2D< float > > >  emptyF1;
-    const std::vector< std::shared_ptr< Texture2D< float2 > > > emptyF2;
-    const std::vector< std::shared_ptr< Texture2D< float3 > > >  emptyF3;
-    const std::vector< std::shared_ptr< Texture2D< unsigned char > > > emptyU1;
-    const std::vector< std::shared_ptr< Texture2D< uchar4 > > > emptyU4;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >  emptyF1;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > emptyF2;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >  emptyF3;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > emptyU1;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > emptyU4;
 
     enableUnorderedAccessTargets( emptyF1, emptyF2, emptyF3, unorderedAccessTargetsF4, emptyU1, emptyU4, mipmapLevel );
 }
 
-void Direct3DRendererCore::enableUnorderedAccessTargets( const std::vector< std::shared_ptr< Texture2D< uchar4 > > > unorderedAccessTargetsU4,
-                                                         const int mipmapLevel )
+void Direct3DRendererCore::enableUnorderedAccessTargets( 
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargetsU4,
+    const int mipmapLevel )
 {
-    const std::vector< std::shared_ptr< Texture2D< float > > >  emptyF1;
-    const std::vector< std::shared_ptr< Texture2D< float2 > > > emptyF2;
-    const std::vector< std::shared_ptr< Texture2D< float3 > > > emptyF3;
-    const std::vector< std::shared_ptr< Texture2D< float4 > > > emptyF4;
-    const std::vector< std::shared_ptr< Texture2D< unsigned char > > > emptyU1;
-    const std::vector< std::shared_ptr< Texture2D< uchar4 > > > emptyU4;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >  emptyF1;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > emptyF2;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > > emptyF3;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > emptyF4;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > emptyU1;
+    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > emptyU4;
 
     enableUnorderedAccessTargets( emptyF1, emptyF2, emptyF3, emptyF4, emptyU1, unorderedAccessTargetsU4, mipmapLevel );
 }

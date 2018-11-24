@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "float4.h"
 
@@ -29,7 +29,7 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void extractBrightPixels( std::shared_ptr< Texture2D< float4 > > colorTexture,
-                                  std::shared_ptr< Texture2D< float4 > > destinationTexture,
+                                  std::shared_ptr< RenderTargetTexture2D< float4 > > destinationTexture,
                                   const float minBrightness );
 
         private:

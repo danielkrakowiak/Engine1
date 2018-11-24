@@ -32,18 +32,18 @@ void AntialiasingRenderer::initialize( ComPtr< ID3D11Device3 > device,
     m_initialized = true;
 }
 
-void AntialiasingRenderer::calculateLuminance( std::shared_ptr< Texture2D< uchar4 > > texture )
+void AntialiasingRenderer::calculateLuminance( std::shared_ptr< RenderTargetTexture2D< uchar4 > > texture )
 {
     m_rendererCore.disableRenderingPipeline();
 
     m_rendererCore.enableComputeShader( m_luminanceComputeShader );
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsU4.push_back( texture );
 
@@ -67,7 +67,7 @@ void AntialiasingRenderer::calculateLuminance( std::shared_ptr< Texture2D< uchar
 
 void AntialiasingRenderer::performAntialiasing( 
     std::shared_ptr< Texture2D< uchar4 > > srcTexture,
-    std::shared_ptr< Texture2D< uchar4 > > dstTexture )
+    std::shared_ptr< RenderTargetTexture2D< uchar4 > > dstTexture )
 {
     m_rendererCore.disableRenderingPipeline();
 
@@ -85,12 +85,12 @@ void AntialiasingRenderer::performAntialiasing(
         fxaaQualityEdgeThresholdMin 
     );
 
-    std::vector< std::shared_ptr< Texture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< Texture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< Texture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< Texture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< Texture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< Texture2D< uchar4 > > >        unorderedAccessTargetsU4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
+    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
 
     unorderedAccessTargetsU4.push_back( dstTexture );
 

@@ -40,7 +40,7 @@ namespace Engine1
             const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
             const std::shared_ptr< Texture2D< float > > distanceToOccluder,
             const std::shared_ptr< Texture2D< float > > finalDistanceToOccluder,
-            const std::shared_ptr< Texture2D< unsigned char > > shadowRenderTarget,
+            const std::shared_ptr< RenderTargetTexture2D< unsigned char > > shadowRenderTarget,
             const Light& light 
         );
 
@@ -55,7 +55,7 @@ namespace Engine1
             const std::shared_ptr< Texture2D< unsigned char > > shadowTexture,
             const std::shared_ptr< Texture2D< float > > distanceToOccluder,
             const std::shared_ptr< Texture2D< float > > finalDistanceToOccluder,
-            const std::shared_ptr< Texture2D< unsigned char > > shadowRenderTarget,
+            const std::shared_ptr< RenderTargetTexture2D< unsigned char > > shadowRenderTarget,
             const std::shared_ptr< RenderTargetTexture2D< unsigned char > > shadowTemporaryRenderTarget,
             const Light& light 
         );

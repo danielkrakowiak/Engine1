@@ -56,10 +56,6 @@ namespace Engine1
         Microsoft::WRL::ComPtr< ID3D11Texture2D > getTextureResource();
         const Microsoft::WRL::ComPtr< ID3D11Texture2D > getTextureResource() const;
 
-		ID3D11UnorderedAccessView* getUnorderedAccessView( int mipmapLevel = 0 ) const;
-		void clearUnorderedAccessViewUint( ID3D11DeviceContext3& deviceContext, uint4 value, int mipmapLevel = 0 );
-		void clearUnorderedAccessViewFloat( ID3D11DeviceContext3& deviceContext, float4 value, int mipmapLevel = 0 );
-
 		// mipmapLevel = -1 - returns view to all mipmaps.
 		// mipmapLevel >= 0 - returns view to a specific mipmap.
 		ID3D11ShaderResourceView* getShaderResourceView(int mipMapLevel = -1) const;
@@ -113,7 +109,7 @@ namespace Engine1
 			const bool storeOnCpu, const bool storeOnGpu, 
             const bool generateMipmaps, 
 			DXGI_FORMAT textureFormat, 
-			DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat );
+			DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat );
 
         Texture2D( 
 			const D3D11_USAGE usageFlag,
@@ -125,7 +121,7 @@ namespace Engine1
 			const bool storeOnCpu, const bool storeOnGpu, 
 			const bool generateMipmaps,
             DXGI_FORMAT textureFormat, 
-			DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat );
+			DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat );
 
         Texture2D( 
 			const D3D11_USAGE usageFlag,
@@ -136,7 +132,7 @@ namespace Engine1
 			const bool storeOnCpu, const bool storeOnGpu,
             const bool hasMipmaps, 
 			DXGI_FORMAT textureFormat, 
-			DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat );
+			DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat );
 
         Texture2D( 
 			const D3D11_USAGE usageFlag,
@@ -148,20 +144,22 @@ namespace Engine1
             const bool storeOnCpu, const bool storeOnGpu,
 			const bool generateMipmaps, 
             DXGI_FORMAT textureFormat,
-			DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat );
+			DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat );
 
         Texture2D( 
 			const D3D11_USAGE usageFlag,
 			const unsigned int bindFlags,
 			const unsigned int CPUAccessFlags,
 			ID3D11Device3& device, 
-			Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture );
+			Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture,
+            DXGI_FORMAT textureFormat,
+		    DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat );
 
         void initializeFromFileData( 
 			ID3D11Device3& device, std::vector<char>::const_iterator dataIt, std::vector<char>::const_iterator dataEndIt,
             const Texture2DFileInfo::Format format, const bool storeOnCpu, const bool storeOnGpu, const bool generateMipmaps,
             DXGI_FORMAT textureFormat, 
-			DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat );
+			DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat );
 
         void createTextureOnCpu( const int width, const int height, const bool generateMipmaps );
         void createTextureOnCpu( const std::vector< PixelType >& data, const int width, const int height, const bool generateMipmaps );
@@ -254,7 +252,7 @@ namespace Engine1
 		const bool storeOnCpu, const bool storeOnGpu, 
         const bool generateMipmaps, 
 		DXGI_FORMAT textureFormat, 
-        DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat ) 
+        DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat ) 
 		: Texture2D( usageFlag, bindFlags, CPUAccessFlags )
     {
 		std::shared_ptr< std::vector<char> > fileData = BinaryFile::load(fileInfo.getPath());
@@ -266,7 +264,7 @@ namespace Engine1
 			storeOnCpu, storeOnGpu, 
 			generateMipmaps,
 			textureFormat, 
-			uavFormat, srtFormat, rtDepthFormat );
+			uavFormat, srvFormat, rtvDepthFormat );
 
 		setFileInfo(fileInfo);
     }
@@ -282,7 +280,7 @@ namespace Engine1
 		const bool storeOnCpu, const bool storeOnGpu, 
         const bool generateMipmaps, 
 		DXGI_FORMAT textureFormat, 
-        DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat ) 
+        DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat ) 
 		: Texture2D( usageFlag, bindFlags, CPUAccessFlags )
     {
 		initializeFromFileData( 
@@ -292,7 +290,7 @@ namespace Engine1
 			storeOnCpu, storeOnGpu, 
 			generateMipmaps, 
 			textureFormat, 
-			uavFormat, srtFormat, rtDepthFormat );
+			uavFormat, srvFormat, rtvDepthFormat );
     }
 
     template< typename PixelType >
@@ -305,16 +303,16 @@ namespace Engine1
 		const bool storeOnCpu, const bool storeOnGpu,
         const bool hasMipmaps, 
 		DXGI_FORMAT textureFormat,
-        DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat ) 
+        DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat ) 
 		: Texture2D( usageFlag, bindFlags, CPUAccessFlags )
     {
 		const bool isRenderTarget = (m_bindFlags & D3D11_BIND_RENDER_TARGET) != 0;
 		const bool isDepthStencil = (m_bindFlags & D3D11_BIND_DEPTH_STENCIL) != 0;
 
 		m_textureFormat = textureFormat;
-		m_srvFormat     = srtFormat;
-		m_rtvFormat     = (isRenderTarget ? rtDepthFormat : DXGI_FORMAT_UNKNOWN);
-		m_dsvFormat     = (isDepthStencil ? rtDepthFormat : DXGI_FORMAT_UNKNOWN);
+		m_srvFormat     = srvFormat;
+		m_rtvFormat     = (isRenderTarget ? rtvDepthFormat : DXGI_FORMAT_UNKNOWN);
+		m_dsvFormat     = (isDepthStencil ? rtvDepthFormat : DXGI_FORMAT_UNKNOWN);
 		m_uavFormat     = uavFormat;
 
 		if (!storeOnCpu && !storeOnGpu)
@@ -344,16 +342,16 @@ namespace Engine1
         const bool storeOnCpu, const bool storeOnGpu, 
 		const bool generateMipmaps, 
         DXGI_FORMAT textureFormat,
-		DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat ) 
+		DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat ) 
 		: Texture2D( usageFlag, bindFlags, CPUAccessFlags )
     {
 		const bool isRenderTarget = (m_bindFlags & D3D11_BIND_RENDER_TARGET) != 0;
 		const bool isDepthStencil = (m_bindFlags & D3D11_BIND_DEPTH_STENCIL) != 0;
 
 		m_textureFormat = textureFormat;
-		m_srvFormat     = srtFormat;
-		m_rtvFormat     = (isRenderTarget ? rtDepthFormat : DXGI_FORMAT_UNKNOWN);
-		m_dsvFormat     = (isDepthStencil ? rtDepthFormat : DXGI_FORMAT_UNKNOWN);
+		m_srvFormat     = srvFormat;
+		m_rtvFormat     = (isRenderTarget ? rtvDepthFormat : DXGI_FORMAT_UNKNOWN);
+		m_dsvFormat     = (isDepthStencil ? rtvDepthFormat : DXGI_FORMAT_UNKNOWN);
 		m_uavFormat     = uavFormat;
 
 		if (!storeOnCpu && !storeOnGpu)
@@ -384,10 +382,20 @@ namespace Engine1
 			const unsigned int bindFlags,
 			const unsigned int CPUAccessFlags, 
 			ID3D11Device3& device, 
-			Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture )
+			Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture,
+            DXGI_FORMAT textureFormat,
+		    DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat )
 		: Texture2D( usageFlag, bindFlags, CPUAccessFlags )
     {
-		//TODO: read texture details from GPU - such as dimensions, texture formats etc.
+		//TODO: read texture details from GPU - such as dimensions, texture formats etc. If possible..
+        const bool isRenderTarget = (m_bindFlags & D3D11_BIND_RENDER_TARGET) != 0;
+		const bool isDepthStencil = (m_bindFlags & D3D11_BIND_DEPTH_STENCIL) != 0;
+
+        m_textureFormat = textureFormat;
+		m_srvFormat     = srvFormat;
+		m_rtvFormat     = (isRenderTarget ? rtvDepthFormat : DXGI_FORMAT_UNKNOWN);
+		m_dsvFormat     = (isDepthStencil ? rtvDepthFormat : DXGI_FORMAT_UNKNOWN);
+		m_uavFormat     = uavFormat;
 
 		m_texture         = texture;
 		m_width           = 0;
@@ -397,8 +405,8 @@ namespace Engine1
 		createTextureViewsOnGpu(
 			device, 0, 0, 
 			false, 
-			DXGI_FORMAT_UNKNOWN, 
-			DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN );
+			m_srvFormat, 
+			m_rtvFormat, m_dsvFormat, m_uavFormat );
     }
 
     template< typename PixelType >
@@ -409,15 +417,15 @@ namespace Engine1
 		const bool storeOnCpu, const bool storeOnGpu, 
 		const bool generateMipmaps,
 		DXGI_FORMAT textureFormat,
-		DXGI_FORMAT uavFormat, DXGI_FORMAT srtFormat, DXGI_FORMAT rtDepthFormat )
+		DXGI_FORMAT uavFormat, DXGI_FORMAT srvFormat, DXGI_FORMAT rtvDepthFormat )
     {
 		const bool isRenderTarget = (m_bindFlags & D3D11_BIND_RENDER_TARGET) != 0;
 		const bool isDepthStencil = (m_bindFlags & D3D11_BIND_DEPTH_STENCIL) != 0;
 
 		m_textureFormat = textureFormat;
-		m_srvFormat     = srtFormat;
-		m_rtvFormat     = (isRenderTarget ? rtDepthFormat : DXGI_FORMAT_UNKNOWN);
-		m_dsvFormat     = (isDepthStencil ? rtDepthFormat : DXGI_FORMAT_UNKNOWN);
+		m_srvFormat     = srvFormat;
+		m_rtvFormat     = (isRenderTarget ? rtvDepthFormat : DXGI_FORMAT_UNKNOWN);
+		m_dsvFormat     = (isDepthStencil ? rtvDepthFormat : DXGI_FORMAT_UNKNOWN);
 		m_uavFormat     = uavFormat;
 
         if (!storeOnCpu && !storeOnGpu)
@@ -1099,45 +1107,6 @@ namespace Engine1
 			return m_shaderResourceView.Get();
 		else
 			return m_srViews[mipmapLevel].Get();
-	}
-
-	template< typename PixelType >
-	ID3D11UnorderedAccessView* Texture2D< PixelType >
-		::getUnorderedAccessView(int mipmapLevel = 0) const
-	{
-		if (mipmapLevel < 0 || mipmapLevel >= (int)m_uaViews.size())
-			throw std::exception("Texture2DGeneric::getUnorderedAccessView - Tried to access unordered access view for non-existing mipmap level.");
-
-		return m_uaViews[mipmapLevel].Get();
-	}
-
-	// TODO: maybe the input type should be PixelType and based on it the uint/float function gets called.
-	template< typename PixelType >
-	void Texture2D< PixelType >
-		::clearUnorderedAccessViewUint(ID3D11DeviceContext3& deviceContext, uint4 value, int mipmapLevel = 0)
-	{
-		if (!isInGpuMemory())
-			throw std::exception("Texture2DGeneric::clearUnorderedAccessViewUint - Texture not in GPU memory.");
-
-		if (mipmapLevel < 0 || mipmapLevel >= (int)m_uaViews.size())
-			throw std::exception("Texture2DGeneric::clearUnorderedAccessViewUint - Tried to clear unordered access view for non-existing mipmap level.");
-
-		deviceContext.ClearUnorderedAccessViewUint(m_uaViews[mipmapLevel].Get(), value.getData());
-	}
-
-	// TODO: maybe the input type should be PixelType and based on it the uint/float function gets called.
-	template< typename PixelType >
-	void Texture2D< PixelType >
-		::clearUnorderedAccessViewFloat(ID3D11DeviceContext3& deviceContext, float4 value, int mipmapLevel = 0)
-	{
-		if (!isInGpuMemory())
-			throw std::exception("Texture2DGeneric::clearUnorderedAccessViewFloat - Texture not in GPU memory.");
-
-		if (mipmapLevel < 0 || mipmapLevel >= (int)m_uaViews.size())
-			throw std::exception("Texture2DGeneric::clearUnorderedAccessViewFloat - Tried to clear unordered access view for non-existing mipmap level.");
-
-		float val[4] = { value.x, value.y, value.z, value.w };
-		deviceContext.ClearUnorderedAccessViewFloat(m_uaViews[mipmapLevel].Get(), val);
 	}
 
     template< typename PixelType >

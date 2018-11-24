@@ -77,7 +77,7 @@ namespace UnitTests
             std::vector< std::shared_ptr< ImmutableTexture2D< PixelType > > > textures;
 
             textures.push_back( std::make_shared< ImmutableTexture2D< PixelType > >
-                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -88,7 +88,7 @@ namespace UnitTests
             std::vector< std::shared_ptr< ImmutableTexture2D< PixelType > > > textures;
 
             textures.push_back( std::make_shared< ImmutableTexture2D< PixelType > >
-                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -99,7 +99,7 @@ namespace UnitTests
             std::vector< std::shared_ptr< ImmutableTexture2D< PixelType > > > textures;
 
             textures.push_back( std::make_shared< ImmutableTexture2D< PixelType > >
-                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
+                ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT ) );
 
             return textures;
         }
@@ -111,7 +111,7 @@ namespace UnitTests
 
             textures.push_back(
                 std::make_shared< DynamicTexture2D< PixelType > >
-                    ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
+                    ( *testDevice.Get(), width, height, storeOnCpu, storeOnGpu, hasMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
                 );
 
             return textures;
@@ -124,7 +124,7 @@ namespace UnitTests
 
             textures.push_back( 
                 std::make_shared< DynamicTexture2D< PixelType > >
-                    ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
+                    ( *testDevice.Get(), fileInfo, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
             );
 
             return textures;
@@ -137,7 +137,7 @@ namespace UnitTests
 
             textures.push_back( 
                 std::make_shared< DynamicTexture2D< PixelType > >
-                    ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
+                    ( *testDevice.Get(), dataIt, dataEndIt, format, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
             );
 
             return textures;
@@ -150,7 +150,7 @@ namespace UnitTests
 
             textures.push_back( 
                 std::make_shared< DynamicTexture2D< PixelType > >
-                    ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
+                    ( *testDevice.Get(), data, width, height, storeOnCpu, storeOnGpu, generateMipmaps, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8G8B8A8_UINT )
             );
 
             return textures;

@@ -2,7 +2,7 @@
 
 #include "FragmentShader.h"
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "uchar4.h"
 #include "float4.h"

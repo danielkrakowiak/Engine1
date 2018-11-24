@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "uchar4.h"
 #include "float2.h"
@@ -28,7 +28,7 @@ namespace Engine1
 
         void rescaleTexture( const std::shared_ptr< Texture2D< float4 > > srcTexture,
                              const unsigned char srcMipmapLevel,
-                             const std::shared_ptr< Texture2D< float4 > > destTexture,
+                             const std::shared_ptr< RenderTargetTexture2D< float4 > > destTexture,
                              const unsigned char destMipmapLevel );
 
         private:

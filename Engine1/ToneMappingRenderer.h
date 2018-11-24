@@ -3,7 +3,7 @@
 #include <wrl.h>
 #include <memory>
 
-#include "Texture2D.h"
+#include "Texture2DTypes.h"
 
 #include "float4.h"
 
@@ -29,7 +29,7 @@ namespace Engine1
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
 
         void performToneMapping( std::shared_ptr< Texture2D< float4 > > srcTexture,
-                                 std::shared_ptr< Texture2D< uchar4 > > dstTexture,
+                                 std::shared_ptr< RenderTargetTexture2D< uchar4 > > dstTexture,
                                  const float exposure );
 
         private:
