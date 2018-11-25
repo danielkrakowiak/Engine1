@@ -29,6 +29,23 @@ namespace Engine1
     class SkeletonMesh;
     class FontCharacter;
 
+	struct RenderTargets
+	{
+		std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         typeFloat;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        typeFloat2;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        typeFloat3;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        typeFloat4;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > typeUchar;
+		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        typeUchar4;
+		std::shared_ptr< DepthTexture2D< uchar4 > >                              depthStencil;
+		std::shared_ptr< DepthTexture2D< float > >                               depth;
+
+		ID3D11RenderTargetView*    getRTV( size_t idx, int mipmapLevel = 0 ) const;
+		ID3D11UnorderedAccessView* getUAV( size_t idx, int mipmapLevel = 0 ) const;
+
+		size_t getCount() const;
+	};
+
     class Direct3DRendererCore
     {
 
@@ -44,45 +61,13 @@ namespace Engine1
 
         void setViewport( float2 dimensions, float2 topLeft = float2::ZERO, float depthMin = 0.0f, float depthMax = 1.0f );
 
-		void enableRenderTargets( const std::shared_ptr< DepthTexture2D< uchar4 > > depthRenderTarget, const int mipmapLevel = 0 );
-        void enableRenderTargets( const std::shared_ptr< DepthTexture2D< float > > depthRenderTarget, const int mipmapLevel = 0 );
-
         void enableRenderTargets( 
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >&  renderTargetsF1,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >& renderTargetsF2,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >& renderTargetsF3,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >& renderTargetsF4,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > >& renderTargetsU1, 
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >& renderTargetsU4, 
-            const std::shared_ptr< DepthTexture2D< uchar4 > >                        depthRenderTarget,
+            const RenderTargets& renderTargets,
+			const RenderTargets& unorderedAccessTargets,
             const int mipmapLevel = 0 
         );
 
-        // #TODO: Should be refactored to take any UAVs despite of their PixelType in one vector. Impossible until Texture2D class gets refactoring.
-        void enableUnorderedAccessTargets( 
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > > unorderedAccessTargetsF1,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > unorderedAccessTargetsF2,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > > unorderedAccessTargetsF3,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargetsF4,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1,
-            const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargetsU4,
-            const int mipmapLevel = 0 
-        );
-
-        // Temporary. Until refactoring is done.
-        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > > unorderedAccessTargetsF3, 
-                                           const int mipmapLevel = 0 );
-
-        // Temporary. Until refactoring is done.
-        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargetsF4, 
-                                           const int mipmapLevel = 0 );
-
-        // Temporary. Until refactoring is done.
-        void enableUnorderedAccessTargets( const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargetsU4, 
-                                           const int mipmapLevel = 0 );
-
-        void disableRenderTargetViews();
-        void disableUnorderedAccessViews();
+        void disableRenderTargets();
 
         // #TODO: Remove version with shared_ptr.
         void enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader );
@@ -147,9 +132,9 @@ namespace Engine1
         float  viewportDepthMin;
         float  viewportDepthMax;
 
-        std::vector< ID3D11RenderTargetView* >    m_currentRenderTargetViews;
-        ID3D11DepthStencilView*                   m_currentDepthRenderTargetView;
-        std::vector< ID3D11UnorderedAccessView* > m_currentUnorderedAccessTargetViews;
+        std::vector< ID3D11RenderTargetView* >    m_currentRTVs;
+        ID3D11DepthStencilView*                   m_currentDSV;
+        std::vector< ID3D11UnorderedAccessView* > m_currentUAVs;
 
         ID3D11RasterizerState*   m_currentRasterizerState;
         ID3D11DepthStencilState* m_currentDepthStencilState;

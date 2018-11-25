@@ -86,28 +86,16 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
     //    *preIlluminationTexture
     //);*/
 
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
-    unorderedAccessTargetsF1.push_back( distanceToOccluderHardShadowRenderTarget );
-    unorderedAccessTargetsF1.push_back( distanceToOccluderMediumShadowRenderTarget );
-    unorderedAccessTargetsF1.push_back( distanceToOccluderSoftShadowRenderTarget );
-	unorderedAccessTargetsU1.push_back( hardShadowRenderTarget );
-    unorderedAccessTargetsU1.push_back( mediumShadowRenderTarget );
-    unorderedAccessTargetsU1.push_back( softShadowRenderTarget );
+    unorderedAccessTargets.typeFloat.push_back( distanceToOccluderHardShadowRenderTarget );
+    unorderedAccessTargets.typeFloat.push_back( distanceToOccluderMediumShadowRenderTarget );
+    unorderedAccessTargets.typeFloat.push_back( distanceToOccluderSoftShadowRenderTarget );
+	unorderedAccessTargets.typeUchar.push_back( hardShadowRenderTarget );
+	unorderedAccessTargets.typeUchar.push_back( mediumShadowRenderTarget );
+	unorderedAccessTargets.typeUchar.push_back( softShadowRenderTarget );
 
-	m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2, 
-        unorderedAccessTargetsF3,
-        unorderedAccessTargetsF4, 
-        unorderedAccessTargetsU1, 
-        unorderedAccessTargetsU4 
-    );
+	m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
 	const int imageWidth  = m_imageWidth; //rayOriginTexture->getWidth();
 	const int imageHeight = m_imageHeight; //rayOriginTexture->getHeight();
@@ -147,7 +135,7 @@ void RaytraceShadowRenderer::generateAndTraceShadowRays(
 	}
 
 	// Unbind resources to avoid binding the same resource on input and output.
-	m_rendererCore.disableUnorderedAccessViews();
+	m_rendererCore.disableRenderTargets();
 
 	m_raytracingShadowsComputeShader->unsetParameters( *m_deviceContext.Get() );
 

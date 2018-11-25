@@ -67,23 +67,11 @@ void BlurShadowPatternRenderer::blurShadowPattern(
 
     m_rendererCore.enableComputeShader( m_blurShadowPatternComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
     
-    unorderedAccessTargetsU1.push_back( shadowRenderTarget );
+    unorderedAccessTargets.typeUchar.push_back( shadowRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2, 
-        unorderedAccessTargetsF3, 
-        unorderedAccessTargetsF4, 
-        unorderedAccessTargetsU1, 
-        unorderedAccessTargetsU4 
-    );
+	m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();
@@ -112,12 +100,7 @@ void BlurShadowPatternRenderer::blurShadowPatternHorzVert(
 {
     m_rendererCore.disableRenderingPipeline();
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
     const int imageWidth = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();
@@ -125,15 +108,8 @@ void BlurShadowPatternRenderer::blurShadowPatternHorzVert(
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
     { // Horizontal blurring pass.
-        unorderedAccessTargetsU1.push_back( shadowTemporaryRenderTarget );
-        m_rendererCore.enableUnorderedAccessTargets( 
-            unorderedAccessTargetsF1, 
-            unorderedAccessTargetsF2, 
-            unorderedAccessTargetsF3,
-            unorderedAccessTargetsF4, 
-            unorderedAccessTargetsU1, 
-            unorderedAccessTargetsU4 
-        );
+        unorderedAccessTargets.typeUchar.push_back( shadowTemporaryRenderTarget );
+        m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
         m_blurShadowPatternHorizontalComputeShader->setParameters( 
             *m_deviceContext.Get(), 
@@ -156,16 +132,9 @@ void BlurShadowPatternRenderer::blurShadowPatternHorzVert(
     }
 
     { // Vertical blurring pass.
-        unorderedAccessTargetsU1.clear();
-        unorderedAccessTargetsU1.push_back( shadowRenderTarget );
-        m_rendererCore.enableUnorderedAccessTargets( 
-            unorderedAccessTargetsF1, 
-            unorderedAccessTargetsF2,
-            unorderedAccessTargetsF3,
-            unorderedAccessTargetsF4, 
-            unorderedAccessTargetsU1, 
-            unorderedAccessTargetsU4 
-        );
+		unorderedAccessTargets.typeUchar.clear();
+        unorderedAccessTargets.typeUchar.push_back( shadowRenderTarget );
+		m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
         m_blurShadowPatternVerticalComputeShader->setParameters( 
             *m_deviceContext.Get(), 

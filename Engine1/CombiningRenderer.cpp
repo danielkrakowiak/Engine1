@@ -61,15 +61,10 @@ void CombiningRenderer::combine(
     m_rendererCore.setViewport( (float2)destTexture->getDimensions() );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-		renderTargetsF4.push_back( destTexture );
+		RenderTargets renderTargets;
+		renderTargets.typeFloat4.push_back( destTexture );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	{ // Configure and enable shaders.
@@ -89,7 +84,7 @@ void CombiningRenderer::combine(
 
 	m_combiningFragmentShader->unsetParameters( *m_deviceContext.Get() );
     
-    m_rendererCore.disableRenderTargetViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 void CombiningRenderer::combine( 
@@ -111,15 +106,10 @@ void CombiningRenderer::combine(
     m_rendererCore.setViewport( (float2)destTexture->getDimensions() );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-		renderTargetsF4.push_back( destTexture );
+		RenderTargets renderTargets;
+		renderTargets.typeFloat4.push_back( destTexture );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	{ // Configure and enable shaders.
@@ -139,7 +129,7 @@ void CombiningRenderer::combine(
 
 	m_combiningFragmentShader2->unsetParameters( *m_deviceContext.Get() );
     
-    m_rendererCore.disableRenderTargetViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 void CombiningRenderer::setNormalThreshold( float threshold )

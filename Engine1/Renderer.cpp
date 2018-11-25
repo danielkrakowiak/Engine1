@@ -253,8 +253,8 @@ void Renderer::renderText(
     float4 color,
     std::shared_ptr< RenderTargetTexture2D< uchar4 > > colorRenderTarget )
 {
-    Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
-    defferedRenderTargets.albedo = colorRenderTarget;
+    Direct3DDeferredRenderer::DeferredRenderTargets deferredRenderTargets;
+    deferredRenderTargets.albedo = colorRenderTarget;
 
     Direct3DDeferredRenderer::Settings defferedSettings;
     defferedSettings.fieldOfView     = 0.0f; // Not used.
@@ -263,7 +263,7 @@ void Renderer::renderText(
     defferedSettings.zNear           = 0.1f;
     defferedSettings.zFar            = 1000.0f;
 
-    m_deferredRenderer.render( defferedRenderTargets, defferedSettings, text, font, position, color );
+    m_deferredRenderer.render( deferredRenderTargets, defferedSettings, text, font, position, color );
 }
 
 Renderer::Output Renderer::renderPrimaryLayer( 
@@ -303,7 +303,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
     layerRenderTargets.depth->clearDepthStencilView( *m_deviceContext.Get(), true, 1.0f, false, 0 );
 
     { // Render meshes using DeferredRenderer and render Ambient Occlusion.
-        Direct3DDeferredRenderer::RenderTargets defferedRenderTargets;
+        Direct3DDeferredRenderer::DeferredRenderTargets defferedRenderTargets;
         defferedRenderTargets.position        = layerRenderTargets.hitPosition;
         defferedRenderTargets.emissive        = layerRenderTargets.hitEmissive;
         defferedRenderTargets.albedo          = layerRenderTargets.hitAlbedo;
@@ -420,7 +420,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
             );
         }
 
-        m_rendererCore.disableRenderTargetViews();
+        m_rendererCore.disableRenderTargets();
 
         m_profiler.endEvent( Profiler::GlobalEventType::DeferredRendering );
         m_profiler.beginEvent( Profiler::GlobalEventType::ASSAO );
@@ -1167,7 +1167,7 @@ void Renderer::renderSecondaryLayer(
         ? m_layersRenderTargets.at( renderingStageRefractionLevelCount - 2 ).currentRefractiveIndex 
         : nullptr);
 
-    RaytraceRenderer::RenderTargets raytracerRTs;
+    RaytraceRenderer::RaytraceRenderTargets raytracerRTs;
     raytracerRTs.rayOrigin              = currLayerRTs.rayOrigin;
     raytracerRTs.rayDirection           = currLayerRTs.rayDirection;
     raytracerRTs.hitPosition            = currLayerRTs.hitPosition;

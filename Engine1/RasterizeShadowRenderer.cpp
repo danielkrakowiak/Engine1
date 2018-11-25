@@ -59,17 +59,12 @@ void RasterizeShadowRenderer::performShadowMapping(
     m_shadowTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 255 ) );
     m_distanceToOccluderTexture->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 1000, 1000, 1000, 1000 ) );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
-    unorderedAccessTargetsF1.push_back( m_distanceToOccluderTexture );
-    unorderedAccessTargetsU1.push_back( m_shadowTexture );
+    unorderedAccessTargets.typeFloat.push_back( m_distanceToOccluderTexture );
+	unorderedAccessTargets.typeUchar.push_back( m_shadowTexture );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3, unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth = m_imageWidth; //rayOriginTexture->getWidth();
     const int imageHeight = m_imageHeight; //rayOriginTexture->getHeight();
@@ -84,7 +79,7 @@ void RasterizeShadowRenderer::performShadowMapping(
     m_rendererCore.compute( groupCount );
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
 
     m_rasterizeShadowsComputeShader->unsetParameters( *m_deviceContext.Get() );
 

@@ -40,19 +40,11 @@ void ExtractBrightPixelsRenderer::extractBrightPixels( std::shared_ptr< Texture2
 
     m_rendererCore.enableComputeShader( m_extractBrightPixelsComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
-    unorderedAccessTargetsF4.push_back( destinationTexture );
+	unorderedAccessTargets.typeFloat4.push_back( destinationTexture );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
-        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 
-    );
+	m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth  = colorTexture->getWidth();
     const int imageHeight = colorTexture->getHeight();

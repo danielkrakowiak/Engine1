@@ -68,9 +68,9 @@ namespace Engine1
             std::shared_ptr< Texture2D< float > >  prevHitDistanceToCamera;
         };
 
-        struct RenderTargets
+        struct RaytraceRenderTargets
         {
-            RenderTargets() :
+            RaytraceRenderTargets() :
                 rayOrigin( nullptr ),
                 rayDirection( nullptr ),
                 hitPosition( nullptr ),
@@ -107,76 +107,78 @@ namespace Engine1
 
         void generateAndTracePrimaryRays( 
             const Camera& camera, 
-            RenderTargets& renderTargets,
+            RaytraceRenderTargets& rtRenderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         void generateAndTraceFirstReflectedRays( 
             const Camera& camera, 
             InputTextures1& inputTextures,
-            RenderTargets& renderTargets,
+            RaytraceRenderTargets& rtRenderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors 
         );
 
         void generateAndTraceFirstRefractedRays( 
             const Camera& camera, 
             InputTextures1& inputTextures,
-            RenderTargets& renderTargets,
+            RaytraceRenderTargets& rtRenderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors 
         );
 
         void generateAndTraceReflectedRays( 
             InputTextures2& inputTextures,
-            RenderTargets& renderTargets,
+            RaytraceRenderTargets& rtRenderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         void generateAndTraceRefractedRays( 
             const int refractionLevel,
             InputTextures2& inputTextures,
-            RenderTargets& renderTargets,
+            RaytraceRenderTargets& rtRenderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors );
 
         private:
 
         void generatePrimaryRays( 
             const Camera& camera,
-            RenderTargets& renderTargets
+            RaytraceRenderTargets& rtRenderTargets
         );
 
         void generateFirstReflectedRays( 
             const Camera& camera, 
             InputTextures1& inputTextures,
-            RenderTargets& renderTargets
+            RaytraceRenderTargets& rtRenderTargets
         );
 
         void generateFirstRefractedRays( 
             const Camera& camera, 
             InputTextures1& inputTextures,
-            RenderTargets& renderTargets 
+            RaytraceRenderTargets& rtRenderTargets 
         );
 
         void generateReflectedRays( 
             InputTextures2& inputTextures,
-            RenderTargets& renderTargets 
+            RaytraceRenderTargets& rtRenderTargets 
         );
 
         void generateRefractedRays( 
             const int refractionLevel,
             InputTextures2& inputTextures,
-            RenderTargets& renderTargets 
+            RaytraceRenderTargets& rtRenderTargets 
         );
 
         void tracePrimaryRays( 
             const Camera& camera, 
-            RenderTargets& renderTargets,
+            RaytraceRenderTargets& rtRenderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors 
         );
 
         void traceSecondaryRays( 
-            RenderTargets& renderTargets,
+            RaytraceRenderTargets& rtRenderTargets,
             const std::vector< std::shared_ptr< BlockActor > >& actors 
         );
 
-        void calculateHitDistanceToCamera( InputTextures2& inputs, RenderTargets& renderTargets );
+        void calculateHitDistanceToCamera( 
+			InputTextures2& inputs, 
+			RaytraceRenderTargets& rtRenderTargets );
 
         Direct3DRendererCore& m_rendererCore;
 

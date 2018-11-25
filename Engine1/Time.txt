@@ -528,3 +528,5 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 09.11.2018 - 2h - Added scaling-down Bokeh intensity by its area. Added Gaussian weighting of Bokeh samples based on depth, trying to fix artifacts.
 18.11.2018 - 5h - Refactoring of Texture2D class - restricted binding/usage to 4 types, greatly simplified implementation.
 21.11.2018 - 2h - Fixing compilation errors after Texture class refactor.
+24.11.2018 - 6h - Refactoring enabling Render Targets and Unordered Access Targets in RendererCore. 
+25.11.2018 - 2.5h - Refactoring continued.

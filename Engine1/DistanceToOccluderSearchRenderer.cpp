@@ -71,26 +71,14 @@ void DistanceToOccluderSearchRenderer::performDistanceToOccluderSearch(
 
     m_rendererCore.enableComputeShader( m_distanceToOccluderSearchComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
-    //#TODO: Remove thwt clear - just for debug.
+    //#TODO: Remove that clear - just for debug.
     finalDistanceToOccluderRenderTarget->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4::ZERO, 0 );
 
-    unorderedAccessTargetsF1.push_back( finalDistanceToOccluderRenderTarget );
+	unorderedAccessTargets.typeFloat.push_back( finalDistanceToOccluderRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2, 
-        unorderedAccessTargetsF3,
-        unorderedAccessTargetsF4, 
-        unorderedAccessTargetsU1, 
-        unorderedAccessTargetsU4 
-    );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth = finalDistanceToOccluderRenderTarget->getWidth();
     const int imageHeight = finalDistanceToOccluderRenderTarget->getHeight();

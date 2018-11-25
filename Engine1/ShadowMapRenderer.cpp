@@ -43,7 +43,7 @@ void ShadowMapRenderer::clearRenderTarget( float depth )
 
 void ShadowMapRenderer::disableRenderTarget()
 {
-	m_rendererCore.disableRenderTargetViews();
+	m_rendererCore.disableRenderTargets();
 
     m_renderTarget.reset();
 }
@@ -55,7 +55,9 @@ void ShadowMapRenderer::render( const BlockMesh& mesh, const float43& worldMatri
     m_rendererCore.setViewport( (float2)m_renderTarget->getDimensions() );
 
 	// Enable render targets.
-	m_rendererCore.enableRenderTargets( m_renderTarget );
+	RenderTargets renderTargets;
+	renderTargets.depth = m_renderTarget;
+	m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 
 	{ // Configure and set shaders.
 		m_blockMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, perspectiveMatrix );
@@ -76,7 +78,9 @@ void ShadowMapRenderer::render( const SkeletonMesh& mesh, const float43& worldMa
     m_rendererCore.setViewport( (float2)m_renderTarget->getDimensions() );
 
 	// Enable render targets.
-	m_rendererCore.enableRenderTargets( m_renderTarget );
+	RenderTargets renderTargets;
+	renderTargets.depth = m_renderTarget;
+	m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 
 	{ // Configure and set shaders.
 		m_skeletonMeshVertexShader->setParameters( *m_deviceContext.Get(), worldMatrix, viewMatrix, perspectiveMatrix, mesh, poseInSkeletonSpace );

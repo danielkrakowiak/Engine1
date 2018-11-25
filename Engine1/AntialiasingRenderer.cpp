@@ -38,18 +38,11 @@ void AntialiasingRenderer::calculateLuminance( std::shared_ptr< RenderTargetText
 
     m_rendererCore.enableComputeShader( m_luminanceComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
-    unorderedAccessTargetsU4.push_back( texture );
+	unorderedAccessTargets.typeUchar4.push_back( texture );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
-        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth = texture->getWidth();
     const int imageHeight = texture->getHeight();
@@ -85,19 +78,11 @@ void AntialiasingRenderer::performAntialiasing(
         fxaaQualityEdgeThresholdMin 
     );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
-    unorderedAccessTargetsU4.push_back( dstTexture );
+	unorderedAccessTargets.typeUchar4.push_back( dstTexture );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF3,
-        unorderedAccessTargetsF4, unorderedAccessTargetsU1, unorderedAccessTargetsU4 
-    );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth = dstTexture->getWidth();
     const int imageHeight = dstTexture->getHeight();

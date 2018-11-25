@@ -52,20 +52,14 @@ void MipmapRenderer::resampleTexture(
 	if ( !m_initialized )
 		throw std::exception( "MipmapRenderer::resampleTexture - renderer not initialized." );
 
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-
-	renderTargetsF4.push_back( destTexture );
+	RenderTargets renderTargets;
+	renderTargets.typeFloat4.push_back( destTexture );
 
 	m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
 	m_rendererCore.enableBlendState( *m_blendState.Get() );
 	m_rendererCore.enableRenderingShaders( m_generateMipmapVertexShader, m_resampleTextureFragmentShader );
 	m_rendererCore.setViewport( (float2)destTexture->getDimensions( destMipmapLevel ) );
-	m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+	m_rendererCore.enableRenderTargets( renderTargets, RenderTargets(), destMipmapLevel );
 
 	m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
 	m_resampleTextureFragmentShader->setParameters( *m_deviceContext.Get(), *srcTexture, srcMipmapLevel );
@@ -74,7 +68,7 @@ void MipmapRenderer::resampleTexture(
 
 	m_resampleTextureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 
-	m_rendererCore.disableRenderTargetViews();
+	m_rendererCore.disableRenderTargets();
 }
 
 void MipmapRenderer::generateMipmaps( std::shared_ptr< RenderTargetTexture2D< float4 > > texture, int startSrcMipmapLevel, int generateMipmapCount )
@@ -83,14 +77,8 @@ void MipmapRenderer::generateMipmaps( std::shared_ptr< RenderTargetTexture2D< fl
 		throw std::exception( "MipmapRenderer::generateMipmaps - renderer not initialized." );
 
 
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-	std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-
-	renderTargetsF4.push_back( texture );
+	RenderTargets renderTargets;
+	renderTargets.typeFloat4.push_back( texture );
 
 	const int mipmapCount = texture->getMipMapCountOnGpu();
 
@@ -109,7 +97,7 @@ void MipmapRenderer::generateMipmaps( std::shared_ptr< RenderTargetTexture2D< fl
 
 		m_rendererCore.setViewport( (float2)texture->getDimensions( destMipmapLevel ) );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets(), destMipmapLevel );
 
 		m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
 		m_resampleTextureFragmentShader->setParameters( *m_deviceContext.Get(), *texture, srcMipmapLevel );
@@ -119,7 +107,7 @@ void MipmapRenderer::generateMipmaps( std::shared_ptr< RenderTargetTexture2D< fl
 
 	m_resampleTextureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 
-	m_rendererCore.disableRenderTargetViews();
+	m_rendererCore.disableRenderTargets();
 }
 
 //void MipmapMinValueRenderer::generateMipmapsMinValue( std::shared_ptr< RenderTargetTexture2D< float > >& texture )
@@ -140,7 +128,7 @@ void MipmapRenderer::generateMipmaps( std::shared_ptr< RenderTargetTexture2D< fl
 //    {
 //        const int destMipmapLevel = srcMipmapLevel + 1;
 //
-//        m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
+//        m_rendererCore.enableRenderTargets( unorderedAccessTargetsF1, unorderedAccessTargetsF2, unorderedAccessTargetsF4,
 //                                                     unorderedAccessTargetsU1, unorderedAccessTargetsU4, destMipmapLevel );
 //
 //        m_generateMipmapMinValueComputeShader->setParameters( *m_deviceContext.Get(), *texture, srcMipmapLevel );
@@ -163,14 +151,8 @@ void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< RenderTargetTextu
         throw std::exception( "MipmapMinValueRenderer::generateMipmapsMinValue - renderer not initialized." );
 
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-
-    renderTargetsF1.push_back( texture );
+	RenderTargets renderTargets;
+    renderTargets.typeFloat.push_back( texture );
 
     const int mipmapCount = texture->getMipMapCountOnGpu();
 
@@ -184,7 +166,7 @@ void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< RenderTargetTextu
 
         m_rendererCore.setViewport( (float2)texture->getDimensions( destMipmapLevel ) );
 
-        m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+        m_rendererCore.enableRenderTargets( renderTargets, RenderTargets(), destMipmapLevel );
 
         m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
         m_generateMipmapMinValueFragmentShader->setParameters( *m_deviceContext.Get(), *texture, srcMipmapLevel );
@@ -194,7 +176,7 @@ void MipmapRenderer::generateMipmapsMinValue( std::shared_ptr< RenderTargetTextu
 
     m_generateMipmapMinValueFragmentShader->unsetParameters( *m_deviceContext.Get() );
 
-    m_rendererCore.disableRenderTargetViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< RenderTargetTexture2D< float > >& texture, 
@@ -214,14 +196,8 @@ void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< 
 
     generateMipmapCount = std::min( generateMipmapCount, mipmapCount - 1 - initialSrcMipmapLevel );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-
-    renderTargetsF1.push_back( texture );
+	RenderTargets renderTargets;
+    renderTargets.typeFloat.push_back( texture );
 
     m_rendererCore.enableRasterizerState( *m_rasterizerState.Get() );
     m_rendererCore.enableBlendState( *m_blendState.Get() );
@@ -232,7 +208,7 @@ void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< 
 
         m_rendererCore.setViewport( (float2)texture->getDimensions( destMipmapLevel ) );
 
-        m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr, destMipmapLevel );
+        m_rendererCore.enableRenderTargets( renderTargets, RenderTargets(), destMipmapLevel );
 
         m_generateMipmapVertexShader->setParameters( *m_deviceContext.Get() );
         m_generateMipmapWithSampleRejectionFragmentShader->setParameters( 
@@ -247,7 +223,7 @@ void MipmapRenderer::generateMipmapsWithSampleRejection( const std::shared_ptr< 
 
     m_generateMipmapWithSampleRejectionFragmentShader->unsetParameters( *m_deviceContext.Get() );
 
-    m_rendererCore.disableRenderTargetViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 ComPtr<ID3D11RasterizerState> MipmapRenderer::createRasterizerState( ID3D11Device3& device )

@@ -54,10 +54,10 @@ void ShadingRenderer::performEmissiveShading(
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader0 );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( colorRenderTarget );
+    RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeFloat4.push_back( colorRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth  = emissiveTexture->getWidth();
     const int imageHeight = emissiveTexture->getHeight();
@@ -88,10 +88,10 @@ void ShadingRenderer::performShading(
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( colorRenderTarget );
+    RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeFloat4.push_back( colorRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth  = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();
@@ -132,10 +132,10 @@ void ShadingRenderer::performShadingNoShadows(
 
     m_rendererCore.enableComputeShader( m_shadingNoShadowsComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( colorRenderTarget );
+    RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeFloat4.push_back( colorRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();
@@ -167,10 +167,10 @@ void ShadingRenderer::performShading(
 
     m_rendererCore.enableComputeShader( m_shadingComputeShader2 );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( colorRenderTarget );
+    RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeFloat4.push_back( colorRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth  = rayOriginTexture->getWidth();
     const int imageHeight = rayOriginTexture->getHeight();
@@ -201,10 +201,10 @@ void ShadingRenderer::performShadingNoShadows(
 
     m_rendererCore.enableComputeShader( m_shadingNoShadowsComputeShader2 );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( colorRenderTarget );
+    RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeFloat4.push_back( colorRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth = rayOriginTexture->getWidth();
     const int imageHeight = rayOriginTexture->getHeight();

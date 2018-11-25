@@ -17,14 +17,67 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
+ID3D11RenderTargetView* RenderTargets::getRTV( size_t idx, int mipmapLevel ) const
+{
+	if ( idx < typeFloat.size() ) return typeFloat[ idx ]->getRenderTargetView( mipmapLevel );
+	else                          idx -= typeFloat.size();
+
+	if ( idx < typeFloat2.size() ) return typeFloat2[ idx ]->getRenderTargetView( mipmapLevel );
+	else                           idx -= typeFloat2.size();
+
+	if ( idx < typeFloat3.size() ) return typeFloat3[ idx ]->getRenderTargetView( mipmapLevel );
+	else                           idx -= typeFloat3.size();
+
+	if ( idx < typeFloat4.size() ) return typeFloat4[ idx ]->getRenderTargetView( mipmapLevel );
+	else                           idx -= typeFloat4.size();
+
+	if ( idx < typeUchar.size() ) return typeUchar[ idx ]->getRenderTargetView( mipmapLevel );
+	else                          idx -= typeUchar.size();
+
+	if ( idx < typeUchar4.size() ) return typeUchar4[ idx ]->getRenderTargetView( mipmapLevel );
+	else                           idx -= typeUchar4.size();
+
+	return nullptr;
+}
+
+ID3D11UnorderedAccessView* RenderTargets::getUAV( size_t idx, int mipmapLevel ) const
+{
+	if ( idx < typeFloat.size() ) return typeFloat[ idx ]->getUnorderedAccessView( mipmapLevel );
+	else                          idx -= typeFloat.size();
+
+	if ( idx < typeFloat2.size() ) return typeFloat2[ idx ]->getUnorderedAccessView( mipmapLevel );
+	else                           idx -= typeFloat2.size();
+
+	if ( idx < typeFloat3.size() ) return typeFloat3[ idx ]->getUnorderedAccessView( mipmapLevel );
+	else                           idx -= typeFloat3.size();
+
+	if ( idx < typeFloat4.size() ) return typeFloat4[ idx ]->getUnorderedAccessView( mipmapLevel );
+	else                           idx -= typeFloat4.size();
+
+	if ( idx < typeUchar.size() ) return typeUchar[ idx ]->getUnorderedAccessView( mipmapLevel );
+	else                          idx -= typeUchar.size();
+
+	if ( idx < typeUchar4.size() ) return typeUchar4[ idx ]->getUnorderedAccessView( mipmapLevel );
+	else                           idx -= typeUchar4.size();
+
+	return nullptr;
+}
+
+size_t RenderTargets::getCount() const
+{
+	return typeFloat.size() + typeFloat2.size()
+		+ typeFloat3.size() + typeFloat4.size()
+		+ typeUchar.size() + typeUchar4.size();
+}
+
 Direct3DRendererCore::Direct3DRendererCore() :
 m_deviceContext( nullptr ),
 viewportDimensions( float2::ZERO ),
 viewportTopLeft( float2::ZERO ),
 viewportDepthMin( 0.0f ),
 viewportDepthMax( 0.0f ),
-m_currentRenderTargetViews(),
-m_currentDepthRenderTargetView( nullptr ),
+m_currentRTVs(),
+m_currentDSV( nullptr ),
 m_graphicsShaderEnabled( false ),
 m_computeShaderEnabled( false ),
 m_currentRasterizerState( nullptr ),
@@ -46,7 +99,7 @@ void Direct3DRendererCore::initialize( ID3D11DeviceContext3& deviceContext )
 void Direct3DRendererCore::disableRenderingPipeline()
 {
     disableRenderingShaders();
-    disableRenderTargetViews();
+    disableRenderTargets();
     enableDefaultBlendState();
     enableDefaultRasterizerState();
     enableDefaultDepthStencilState();
@@ -56,7 +109,7 @@ void Direct3DRendererCore::disableRenderingPipeline()
 void Direct3DRendererCore::disableComputePipeline()
 {
     disableComputeShaders();
-    disableUnorderedAccessViews();
+	disableRenderTargets();
 }
 
 void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader )
@@ -196,332 +249,141 @@ void Direct3DRendererCore::setViewport( float2 dimensions, float2 topLeft, float
     }
 }
 
-void Direct3DRendererCore::enableRenderTargets( const std::shared_ptr< DepthTexture2D< uchar4 > > depthRenderTarget, const int mipmapLevel )
-{
-	m_currentRenderTargetViews.clear();
-
-	if ( depthRenderTarget )
-		m_currentDepthRenderTargetView = depthRenderTarget->getDepthStencilView( mipmapLevel );
-
-	// Enable render targets.
-	m_deviceContext->OMSetRenderTargets( 0, 0, m_currentDepthRenderTargetView );
-}
-
-void Direct3DRendererCore::enableRenderTargets( const std::shared_ptr< DepthTexture2D< float > > depthRenderTarget, const int mipmapLevel )
-{
-    m_currentRenderTargetViews.clear();
-
-    if ( depthRenderTarget )
-        m_currentDepthRenderTargetView = depthRenderTarget->getDepthStencilView( mipmapLevel );
-
-    // Enable render targets.
-    m_deviceContext->OMSetRenderTargets( 0, 0, m_currentDepthRenderTargetView );
-
-}
-
 void Direct3DRendererCore::enableRenderTargets( 
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >&  renderTargetsF1,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >& renderTargetsF2,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >& renderTargetsF3,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >& renderTargetsF4,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > >& renderTargetsU1, 
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >& renderTargetsU4, 
-    const std::shared_ptr< DepthTexture2D< uchar4 > > depthRenderTarget,
+    const RenderTargets& renderTargets,
+	const RenderTargets& unorderedAccessTargets,
     const int mipmapLevel )
 {
-    //#TODO: Update max render target count checks.
-	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - renderer not initialized." );
-	if ( renderTargetsF2.size() + renderTargetsU4.size() > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT ) throw std::exception( "Direct3DRendererCore::enableRenderTargets - too many render targets passed. Number exceeds the supported maximum." );
+	if ( !m_deviceContext ) 
+		throw std::exception( "Direct3DRendererCore::enableRenderTargets - renderer-core not initialized." );
 
-	bool sameAsCurrent = true;
+	if ( renderTargets.depth && renderTargets.depthStencil )
+		throw std::exception( "Direct3DRendererCore::enableRenderTargets - depth and depth-stencil were passed, but only one of them can be enabled." );
 
-	{ // Check if render targets to be enabled are the same as the current ones.
-		//if ( renderTargets.size() == currentRenderTargetViews.size() ) {
-            for ( unsigned int i = 0; i < renderTargetsF1.size(); ++i ) {
-                // Check each pair of render targets at corresponding indexes.
-                if ( m_currentRenderTargetViews.size() <= i || renderTargetsF1.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( i ) ) {
-                    sameAsCurrent = false;
-                    break;
-                }
-            }
+	bool rtvSameAsCurrent = true;
+	{
+		const auto rtvCount = renderTargets.getCount();
 
-            const unsigned int zero = (unsigned int)renderTargetsF1.size();
-			for ( unsigned int i = 0; i < renderTargetsF2.size(); ++i ) {
-				// Check each pair of render targets at corresponding indexes.
-				if ( m_currentRenderTargetViews.size() <= (zero + i) || renderTargetsF2.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( zero + i ) ) {
-					sameAsCurrent = false;
+		if ( rtvCount > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT )
+			throw std::exception( "Direct3DRendererCore::enableRenderTargets - too many render targets passed. Number exceeds the supported maximum." );
+
+		// Check if render targets to be enabled are the same as the current ones.
+		if ( rtvCount == m_currentRTVs.size() )
+		{
+			for ( auto rtvIdx = 0u; rtvIdx < m_currentRTVs.size(); ++rtvIdx )
+			{
+				if ( renderTargets.getRTV( rtvIdx, mipmapLevel ) != m_currentRTVs[ rtvIdx ] )
+				{
+					rtvSameAsCurrent = false;
 					break;
 				}
 			}
-
-            const unsigned int first = zero + (unsigned int)renderTargetsF2.size();
-            for ( unsigned int i = 0; i < renderTargetsF3.size(); ++i ) {
-				// Check each pair of render targets at corresponding indexes.
-				if ( m_currentRenderTargetViews.size() <= (first + i) || renderTargetsF3.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( first + i ) ) {
-					sameAsCurrent = false;
-					break;
-				}
-			}
-
-            const unsigned int second = first + (unsigned int)renderTargetsF3.size();
-            for ( unsigned int i = 0; i < renderTargetsF4.size(); ++i ) {
-				// Check each pair of render targets at corresponding indexes.
-				if ( m_currentRenderTargetViews.size() <= (second + i) || renderTargetsF4.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( second + i ) ) {
-					sameAsCurrent = false;
-					break;
-				}
-			}
-
-            const unsigned int third = second + (unsigned int)renderTargetsF4.size();
-            for ( unsigned int i = 0; i < renderTargetsU1.size(); ++i ) {
-				// Check each pair of render targets at corresponding indexes.
-				if ( m_currentRenderTargetViews.size() <= (third + i) || renderTargetsU1.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( third + i ) ) {
-					sameAsCurrent = false;
-					break;
-				}
-			}
-
-            const unsigned int fourth = third + (unsigned int)renderTargetsU1.size();
-            for ( unsigned int i = 0; i < renderTargetsU4.size(); ++i ) {
-				// Check each pair of render targets at corresponding indexes.
-				if ( m_currentRenderTargetViews.size() <= (fourth + i) || renderTargetsU4.at( i )->getRenderTargetView( mipmapLevel ) != m_currentRenderTargetViews.at( fourth + i ) ) {
-					sameAsCurrent = false;
-					break;
-				}
-			}
-		//} else {
-		//	// Render targets are not the same as the current ones, because they have different count.
-		//	sameAsCurrent = false;
-		//}
+		}
+		else
+		{
+			rtvSameAsCurrent = false;
+		}
 
 		// Check if depth render target to be enabled is the same as the current one.
-		if ( ( depthRenderTarget == nullptr ) != ( m_currentDepthRenderTargetView == nullptr ) 
-             || ( depthRenderTarget && depthRenderTarget->getDepthStencilView( mipmapLevel ) == m_currentDepthRenderTargetView ) )
-			sameAsCurrent = false;
+		ID3D11DepthStencilView* depthRTV = nullptr;
+		if ( renderTargets.depthStencil )
+			depthRTV = renderTargets.depthStencil->getDepthStencilView( mipmapLevel );
+		else if ( renderTargets.depth )
+			depthRTV = renderTargets.depth->getDepthStencilView( mipmapLevel );
+
+		if ( depthRTV != m_currentDSV )
+		{
+			rtvSameAsCurrent = false;
+		}
+
+		// If render targets to be enabled are the same as the current ones - do nothing.
+		if ( rtvSameAsCurrent )
+			return;
+
+		// Collect and save render target views from passed render targets.
+		m_currentRTVs.clear();
+		m_currentRTVs.reserve( rtvCount );
+		for ( auto rtvIdx = 0u; rtvIdx < rtvCount; ++rtvIdx )
+		{
+			m_currentRTVs.push_back( renderTargets.getRTV( rtvIdx, mipmapLevel ) );
+		}
+
+		// Get and save depth render target view if passed.
+		m_currentDSV = depthRTV;
+
+		// Enable render targets.
+		m_deviceContext->OMSetRenderTargets( (unsigned int)m_currentRTVs.size(), m_currentRTVs.data(), m_currentDSV );
 	}
 
-	// If render targets to be enabled are the same as the current ones - do nothing.
-	if ( sameAsCurrent )
-		return;
+	bool uavSameAsCurrent = true;
+	{
+		const auto uavCount = unorderedAccessTargets.getCount();
 
-	// Collect and save render target views from passed render targets.
-    m_currentRenderTargetViews.clear();
-    for ( const auto& renderTarget : renderTargetsF1 )
-		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
-
-	for ( const auto& renderTarget : renderTargetsF2 )
-		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
-
-    for ( const auto& renderTarget : renderTargetsF3 )
-		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
-
-    for ( const auto& renderTarget : renderTargetsF4 )
-		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
-
-    for ( const auto& renderTarget : renderTargetsU1 )
-		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
-
-    for ( const auto& renderTarget : renderTargetsU4 )
-		m_currentRenderTargetViews.push_back( renderTarget->getRenderTargetView( mipmapLevel ) );
-
-	// Get and save depth render target view if passed.
-	if ( depthRenderTarget )
-		m_currentDepthRenderTargetView = depthRenderTarget->getDepthStencilView( mipmapLevel );
-
-	// Enable render targets.
-	m_deviceContext->OMSetRenderTargets( (unsigned int)m_currentRenderTargetViews.size(), m_currentRenderTargetViews.data(), m_currentDepthRenderTargetView );
-}
-
-void Direct3DRendererCore::enableUnorderedAccessTargets( 
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > > unorderedAccessTargetsF1,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > unorderedAccessTargetsF2,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > > unorderedAccessTargetsF3,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargetsF4,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1,
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargetsU4,
-    const int mipmapLevel )
-{
-    if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableUnorderedAccessTargets - renderer not initialized." );
-    //#TODO: WARNING: For pixel shaders, UAVStartSlot param should be equal to the number of render-target views being bound.
-
-    bool sameAsCurrent = true;
-
-	{ // Check if UAV targets to be enabled are the same as the current ones.
-		//if ( unorderedAccessTargets.size() == currentUnorderedAccessTargetViews.size() ) {
-			for ( unsigned int i = 0; i < unorderedAccessTargetsF1.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= i 
-                     || ( ( unorderedAccessTargetsF1.at( i ) == nullptr ) != ( m_currentUnorderedAccessTargetViews.at( i ) == nullptr) ) 
-                     || unorderedAccessTargetsF1.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( i ) ) 
-                {
-					sameAsCurrent = false;
+		// Check if UAVs to be enabled are the same as the current ones.
+		if ( uavCount == m_currentUAVs.size() )
+		{
+			for ( auto uavIdx = 0u; uavIdx < m_currentUAVs.size(); ++uavIdx )
+			{
+				if ( renderTargets.getUAV( uavIdx, mipmapLevel ) != m_currentUAVs[ uavIdx ] )
+				{
+					uavSameAsCurrent = false;
 					break;
 				}
 			}
+		}
+		else
+		{
+			uavSameAsCurrent = false;
+		}
 
-            const unsigned int first = (unsigned int)unorderedAccessTargetsF1.size();
-            for ( unsigned int i = 0; i < unorderedAccessTargetsF2.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (first + i) 
-                     || ((unorderedAccessTargetsF2.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( first + i ) == nullptr))
-                     || unorderedAccessTargetsF2.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( first + i ) ) 
-                {
-					sameAsCurrent = false;
-					break;
-				}
-			}
+		// If RTVs and UAVs to be enabled are the same as the current ones - do nothing.
+		if ( rtvSameAsCurrent && uavSameAsCurrent )
+			return;
 
-            const unsigned int second = first + (unsigned int)unorderedAccessTargetsF2.size();
-            for ( unsigned int i = 0; i < unorderedAccessTargetsF3.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (second + i) 
-                     || ((unorderedAccessTargetsF3.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( second + i ) == nullptr))
-                     || unorderedAccessTargetsF3.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( second + i ) ) 
-                {
-					sameAsCurrent = false;
-					break;
-				}
-			}
+		// Collect and save UAVs from passed render targets.
+		m_currentUAVs.clear();
+		m_currentUAVs.reserve( uavCount );
+		for ( auto uavIdx = 0u; uavIdx < uavCount; ++uavIdx )
+		{
+			m_currentUAVs.push_back( renderTargets.getUAV( uavIdx, mipmapLevel ) );
+		}
 
-            const unsigned int third = second + (unsigned int)unorderedAccessTargetsF3.size();
-            for ( unsigned int i = 0; i < unorderedAccessTargetsF4.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (third + i) 
-                     || ((unorderedAccessTargetsF4.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( third + i ) == nullptr))
-                     || unorderedAccessTargetsF4.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( third + i ) ) 
-                {
-					sameAsCurrent = false;
-					break;
-				}
-			}
-
-            const unsigned int fourth = third + (unsigned int)unorderedAccessTargetsF4.size();
-            for ( unsigned int i = 0; i < unorderedAccessTargetsU1.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (fourth + i) 
-                     || ((unorderedAccessTargetsU1.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( fourth + i ) == nullptr))
-                     || unorderedAccessTargetsU1.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( fourth + i ) ) 
-                {
-					sameAsCurrent = false;
-					break;
-				}
-			}
-
-            const unsigned int fifth = fourth + (unsigned int)unorderedAccessTargetsU1.size();
-            for ( unsigned int i = 0; i < unorderedAccessTargetsU4.size(); ++i ) {
-				// Check each pair of UAV targets at corresponding indexes.
-				if ( m_currentUnorderedAccessTargetViews.size() <= (fifth + i) 
-                     || ((unorderedAccessTargetsU4.at( i ) == nullptr) != (m_currentUnorderedAccessTargetViews.at( fifth + i ) == nullptr))
-                     || unorderedAccessTargetsU4.at( i )->getUnorderedAccessView( mipmapLevel ) != m_currentUnorderedAccessTargetViews.at( fifth + i ) ) {
-					sameAsCurrent = false;
-					break;
-				}
-			}
-		//} else {
-		//	// UAV targets are not the same as the current ones, because they have different count.
-		//	sameAsCurrent = false;
-		//}
+		// Enable UAV targets.
+		// Note: UAVStartSlot param should be equal to the number of bound RTVs.
+		m_deviceContext->CSSetUnorderedAccessViews( 
+			static_cast<UINT>(m_currentRTVs.size()), 
+			static_cast<UINT>(m_currentUAVs.size()),
+			m_currentUAVs.data(), 
+			nullptr );
 	}
-
-	// If UAV targets to be enabled are the same as the current ones - do nothing.
-	if ( sameAsCurrent )
-		return;
-
-	// Collect and save UAV target views from passed UAV targets.
-    m_currentUnorderedAccessTargetViews.clear();
-	for ( const auto& unorderedAccessTarget : unorderedAccessTargetsF1 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
-
-    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsF2 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
-
-    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsF3 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
-
-    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsF4 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
-
-    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsU1 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
-
-    for ( const auto& unorderedAccessTarget : unorderedAccessTargetsU4 )
-		m_currentUnorderedAccessTargetViews.push_back( unorderedAccessTarget ? unorderedAccessTarget->getUnorderedAccessView( mipmapLevel ) : nullptr );
-
-	// Enable UAV targets.
-    m_deviceContext->CSSetUnorderedAccessViews( 0, (unsigned int)m_currentUnorderedAccessTargetViews.size(), m_currentUnorderedAccessTargetViews.data(), nullptr );
 }
 
-void Direct3DRendererCore::enableUnorderedAccessTargets( 
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > > unorderedAccessTargetsF3,
-    const int mipmapLevel )
+void Direct3DRendererCore::disableRenderTargets()
 {
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >  emptyF1;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > emptyF2;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >  emptyF4;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > emptyU1;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > emptyU4;
-
-    enableUnorderedAccessTargets( emptyF1, emptyF2, unorderedAccessTargetsF3, emptyF4, emptyU1, emptyU4, mipmapLevel );
-}
-
-void Direct3DRendererCore::enableUnorderedAccessTargets( 
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargetsF4,
-    const int mipmapLevel )
-{
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >  emptyF1;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > emptyF2;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >  emptyF3;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > emptyU1;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > emptyU4;
-
-    enableUnorderedAccessTargets( emptyF1, emptyF2, emptyF3, unorderedAccessTargetsF4, emptyU1, emptyU4, mipmapLevel );
-}
-
-void Direct3DRendererCore::enableUnorderedAccessTargets( 
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargetsU4,
-    const int mipmapLevel )
-{
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >  emptyF1;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > > emptyF2;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > > emptyF3;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > emptyF4;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > emptyU1;
-    const std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > emptyU4;
-
-    enableUnorderedAccessTargets( emptyF1, emptyF2, emptyF3, emptyF4, emptyU1, unorderedAccessTargetsU4, mipmapLevel );
-}
-
-void Direct3DRendererCore::disableRenderTargetViews()
-{
-    if ( !m_currentRenderTargetViews.empty() || m_currentDepthRenderTargetView )
+    if ( !m_currentRTVs.empty() || m_currentDSV || !m_currentUAVs.empty() )
     {
-        std::vector< ID3D11RenderTargetView* > emptyTargets;
-        emptyTargets.resize( m_currentRenderTargetViews.size() );
-        for (unsigned int i = 0; i < m_currentRenderTargetViews.size(); ++i)
-            emptyTargets[ i ] = nullptr;
+		for ( auto i = 0; i < m_currentRTVs.size(); ++i ) {
+			m_currentRTVs[ i ] = nullptr;
+		}
 
-        ID3D11DepthStencilView* emptyDepthTarget = nullptr;
+		for ( auto i = 0; i < m_currentUAVs.size(); ++i ) {
+			m_currentUAVs[ i ] = nullptr;
+		}
 
-        m_deviceContext->OMSetRenderTargets( (unsigned int)m_currentRenderTargetViews.size(), emptyTargets.data(), emptyDepthTarget );
+        m_deviceContext->OMSetRenderTargets( 
+			static_cast<UINT>(m_currentRTVs.size()), 
+			m_currentRTVs.data(), 
+			nullptr );
 
-        m_currentRenderTargetViews.clear();
-        m_currentDepthRenderTargetView = nullptr;
-    }
-}
+		m_deviceContext->CSSetUnorderedAccessViews( 
+			static_cast<UINT>(m_currentRTVs.size()), 
+			static_cast<UINT>(m_currentUAVs.size()), 
+			m_currentUAVs.data(), 
+			nullptr );
 
-void Direct3DRendererCore::disableUnorderedAccessViews()
-{
-    if ( !m_currentUnorderedAccessTargetViews.empty() )
-    {
-        std::vector< ID3D11UnorderedAccessView* > emptyTargets;
-        emptyTargets.resize( m_currentUnorderedAccessTargetViews.size() );
-        for (unsigned int i = 0; i < m_currentUnorderedAccessTargetViews.size(); ++i)
-            emptyTargets[ i ] = nullptr;
-
-        m_deviceContext->CSSetUnorderedAccessViews( 0, (unsigned int)m_currentUnorderedAccessTargetViews.size(), emptyTargets.data(), nullptr );
-        //deviceContext->OMSetRenderTargetsAndUnorderedAccessViews( D3D11_KEEP_RENDER_TARGETS_AND_DEPTH_STENCIL, nullptr, nullptr, 0, 0, nullptr, nullptr );
-
-        m_currentUnorderedAccessTargetViews.clear();
+        m_currentRTVs.clear();
+        m_currentDSV = nullptr;
+		m_currentUAVs.clear();
     }
 }
 

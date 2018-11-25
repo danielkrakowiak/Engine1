@@ -39,9 +39,9 @@ namespace Engine1
 
         public:
 
-        struct RenderTargets
+        struct DeferredRenderTargets
         {
-            RenderTargets() :
+            DeferredRenderTargets() :
                 position( nullptr ),
                 emissive( nullptr ),
                 albedo( nullptr ),
@@ -59,7 +59,7 @@ namespace Engine1
             std::shared_ptr< RenderTargetTexture2D< unsigned char > > roughness;
             std::shared_ptr< RenderTargetTexture2D< float4 > >        normal;
             std::shared_ptr< RenderTargetTexture2D< unsigned char > > refractiveIndex;
-            std::shared_ptr< DepthTexture2D< uchar4 > >                        depth;
+            std::shared_ptr< DepthTexture2D< uchar4 > >               depth;
         };
 
         struct Settings
@@ -88,7 +88,7 @@ namespace Engine1
         void disableRenderTargets();
 
         void render( 
-            const RenderTargets& renderTargets, 
+            const DeferredRenderTargets& renderTargets, 
             const Settings& renderSettings, 
             const BlockMesh& mesh, 
             const float43& worldMatrix, 
@@ -96,7 +96,7 @@ namespace Engine1
         );
 
         void renderEmissive( 
-            const RenderTargets& renderTargets, 
+            const DeferredRenderTargets& renderTargets, 
             const Settings& renderSettings, 
             const BlockMesh& mesh, 
             const float43& worldMatrix, 
@@ -104,7 +104,7 @@ namespace Engine1
         );
 
         void render( 
-            const RenderTargets& renderTargets, 
+            const DeferredRenderTargets& renderTargets, 
             const Settings& renderSettings, 
             const SkeletonMesh& mesh, 
             const float43& worldMatrix, 
@@ -113,7 +113,7 @@ namespace Engine1
         );
 
         void render( 
-            const RenderTargets& renderTargets, 
+            const DeferredRenderTargets& renderTargets, 
             const Settings& renderSettings, 
             const BlockModel& model, 
             const float43& worldMatrix, 
@@ -122,7 +122,7 @@ namespace Engine1
         );
 
         void render( 
-            const RenderTargets& renderTargets, 
+            const DeferredRenderTargets& renderTargets, 
             const Settings& renderSettings, 
             const SkeletonModel& model, 
             const float43& worldMatrix, 
@@ -133,7 +133,7 @@ namespace Engine1
 
         // #TODO: Should be moved to a separate renderer.
         void render( 
-            const RenderTargets& renderTargets, 
+            const DeferredRenderTargets& renderTargets, 
             const Settings& renderSettings, 
             const std::string& text, 
             Font& font, 
@@ -178,7 +178,7 @@ namespace Engine1
         TextVertexShader             m_textVertexShader;
         TextFragmentShader           m_textFragmentShader;
 
-        void enableRenderTargets( const RenderTargets& renderTargets );
+        void enableRenderTargets( const DeferredRenderTargets& renderTargets );
 
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 

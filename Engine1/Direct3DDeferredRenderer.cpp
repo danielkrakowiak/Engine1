@@ -48,7 +48,7 @@ void Direct3DDeferredRenderer::initialize(
 }
 
 void Direct3DDeferredRenderer::render( 
-    const RenderTargets& renderTargets, 
+    const DeferredRenderTargets& deferredRenderTargets,
     const Settings& settings, 
     const BlockMesh& mesh, 
     const float43& worldMatrix, 
@@ -67,7 +67,7 @@ void Direct3DDeferredRenderer::render(
     m_rendererCore.setViewport( settings.imageDimensions );
 
     // Enable render targets.
-    enableRenderTargets( renderTargets );
+    enableRenderTargets( deferredRenderTargets );
 
 	// Configure and set shaders.
     m_blockMeshVertexShader.setParameters(
@@ -93,7 +93,7 @@ void Direct3DDeferredRenderer::render(
 }
 
 void Direct3DDeferredRenderer::renderEmissive( 
-    const RenderTargets& renderTargets, 
+    const DeferredRenderTargets& deferredRenderTargets,
     const Settings& settings, 
     const BlockMesh& mesh, 
     const float43& worldMatrix, 
@@ -112,7 +112,7 @@ void Direct3DDeferredRenderer::renderEmissive(
     m_rendererCore.setViewport( settings.imageDimensions );
 
     // Enable render targets.
-    enableRenderTargets( renderTargets );
+    enableRenderTargets( deferredRenderTargets );
 
     // Configure and set shaders.
     m_blockMeshVertexShader.setParameters( 
@@ -133,7 +133,7 @@ void Direct3DDeferredRenderer::renderEmissive(
 }
 
 void Direct3DDeferredRenderer::render( 
-    const RenderTargets& renderTargets, 
+    const DeferredRenderTargets& deferredRenderTargets,
     const Settings& settings, 
     const SkeletonMesh& mesh, 
     const float43& worldMatrix, 
@@ -153,7 +153,7 @@ void Direct3DDeferredRenderer::render(
     m_rendererCore.setViewport( settings.imageDimensions );
 
     // Enable render targets.
-    enableRenderTargets( renderTargets );
+    enableRenderTargets( deferredRenderTargets );
 
 	// Configure and set shaders.
     m_skeletonMeshVertexShader.setParameters(
@@ -179,7 +179,7 @@ void Direct3DDeferredRenderer::render(
 }
 
 void Direct3DDeferredRenderer::render( 
-    const RenderTargets& renderTargets, 
+    const DeferredRenderTargets& deferredRenderTargets,
     const Settings& renderSettings, 
     const BlockModel& model, 
     const float43& worldMatrix, 
@@ -202,7 +202,7 @@ void Direct3DDeferredRenderer::render(
     m_rendererCore.setViewport( renderSettings.imageDimensions );
 
     // Enable render targets.
-    enableRenderTargets( renderTargets );
+    enableRenderTargets( deferredRenderTargets );
 
 	{ // Configure and set shaders.
         const float  alphaMul             = !model.getAlphaTextures().empty()           ? model.getAlphaTextures()[ 0 ].getColorMultiplier().x           : 1.0f;
@@ -274,7 +274,7 @@ void Direct3DDeferredRenderer::render(
 }
 
 void Direct3DDeferredRenderer::render( 
-    const RenderTargets& renderTargets, 
+    const DeferredRenderTargets& deferredRenderTargets,
     const Settings& renderSettings, 
     const SkeletonModel& model, 
     const float43& worldMatrix, 
@@ -298,7 +298,7 @@ void Direct3DDeferredRenderer::render(
     m_rendererCore.setViewport( renderSettings.imageDimensions );
 
     // Enable render targets.
-    enableRenderTargets( renderTargets );
+    enableRenderTargets( deferredRenderTargets );
 
 	{ // Configure and set shaders.
         const float  alphaMul             = !model.getAlphaTextures().empty()           ? model.getAlphaTextures()[ 0 ].getColorMultiplier().x           : 1.0f;
@@ -359,7 +359,7 @@ void Direct3DDeferredRenderer::render(
 }
 
 void Direct3DDeferredRenderer::render( 
-    const RenderTargets& renderTargets, 
+    const DeferredRenderTargets& deferredRenderTargets, 
     const Settings& settings, 
     const std::string& text, 
     Font& font, 
@@ -379,16 +379,12 @@ void Direct3DDeferredRenderer::render(
     m_rendererCore.setViewport( settings.imageDimensions );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
+		RenderTargets renderTargets;
 
-        renderTargetsU4.push_back( renderTargets.albedo );
+		renderTargets.typeUchar4.push_back( deferredRenderTargets.albedo );
+		renderTargets.depthStencil = deferredRenderTargets.depth;
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, renderTargets.depth );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	m_rendererCore.enableRenderingShaders( m_textVertexShader, m_textFragmentShader );
@@ -639,35 +635,23 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRender
 
 void Direct3DDeferredRenderer::disableRenderTargets()
 {
-    m_rendererCore.disableRenderTargetViews();
+    m_rendererCore.disableRenderTargets();
 }
 
-void Direct3DDeferredRenderer::enableRenderTargets( const RenderTargets& renderTargets )
+void Direct3DDeferredRenderer::enableRenderTargets( const DeferredRenderTargets& deferreRenderTargets )
 {
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
+	RenderTargets renderTargets;
 
-    renderTargetsF4.push_back( renderTargets.normal );
-    renderTargetsF4.push_back( renderTargets.position );
-    renderTargetsU1.push_back( renderTargets.metalness );
-    renderTargetsU1.push_back( renderTargets.roughness );
-    renderTargetsU1.push_back( renderTargets.refractiveIndex );
-    renderTargetsU4.push_back( renderTargets.emissive );
-    renderTargetsU4.push_back( renderTargets.albedo );
+	renderTargets.typeFloat4.push_back( deferreRenderTargets.normal );
+    renderTargets.typeFloat4.push_back( deferreRenderTargets.position );
+    renderTargets.typeUchar.push_back( deferreRenderTargets.metalness );
+    renderTargets.typeUchar.push_back( deferreRenderTargets.roughness );
+    renderTargets.typeUchar.push_back( deferreRenderTargets.refractiveIndex );
+    renderTargets.typeUchar4.push_back( deferreRenderTargets.emissive );
+    renderTargets.typeUchar4.push_back( deferreRenderTargets.albedo );
+	renderTargets.depthStencil = deferreRenderTargets.depth;
 
-    m_rendererCore.enableRenderTargets(
-        renderTargetsF1,
-        renderTargetsF2,
-        renderTargetsF3,
-        renderTargetsF4,
-        renderTargetsU1,
-        renderTargetsU4,
-        renderTargets.depth
-    );
+	m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 }
 
 void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )

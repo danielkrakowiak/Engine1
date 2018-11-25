@@ -58,7 +58,7 @@ void RaytraceRenderer::initialize( int imageWidth, int imageHeight, ComPtr< ID3D
 
 void RaytraceRenderer::generateAndTracePrimaryRays( 
     const Camera& camera, 
-    RenderTargets& renderTargets,
+    RaytraceRenderTargets& renderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
@@ -71,7 +71,7 @@ void RaytraceRenderer::generateAndTracePrimaryRays(
 
 void RaytraceRenderer::generatePrimaryRays( 
     const Camera& camera,
-    RenderTargets& renderTargets )
+    RaytraceRenderTargets& rtRenderTargets )
 {
     const float fieldOfView      = camera.getFieldOfView();
     const float screenAspect     = (float)m_imageWidth / (float)m_imageHeight;
@@ -84,30 +84,30 @@ void RaytraceRenderer::generatePrimaryRays(
 
     m_rendererCore.enableComputeShader( m_generateRaysComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( renderTargets.rayDirection );
+	RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.rayDirection );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     uint3 groupCount( m_imageWidth / 32, m_imageHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 void RaytraceRenderer::generateAndTraceFirstReflectedRays( 
     const Camera& camera, 
     InputTextures1& inputTextures,
-    RenderTargets& renderTargets,
+    RaytraceRenderTargets& rtRenderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
     //generatePrimaryRays( camera );
-    generateFirstReflectedRays( camera, inputTextures, renderTargets );
-    traceSecondaryRays( renderTargets, actors );
+    generateFirstReflectedRays( camera, inputTextures, rtRenderTargets );
+    traceSecondaryRays( rtRenderTargets, actors );
 
     // #TODO: Account for depth and calculate hit-dist-to-camera.
     //calculateHitDistanceToCamera( renderTargets );
@@ -118,30 +118,30 @@ void RaytraceRenderer::generateAndTraceFirstReflectedRays(
 void RaytraceRenderer::generateAndTraceFirstRefractedRays( 
     const Camera& camera, 
     InputTextures1& inputTextures,
-    RenderTargets& renderTargets,
+    RaytraceRenderTargets& rtRenderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
     //generatePrimaryRays( camera );
-    generateFirstRefractedRays( camera, inputTextures, renderTargets );
-    traceSecondaryRays( renderTargets, actors );
+    generateFirstRefractedRays( camera, inputTextures, rtRenderTargets );
+    traceSecondaryRays( rtRenderTargets, actors );
 
     m_rendererCore.disableComputePipeline();
 }
 
 void RaytraceRenderer::generateAndTraceReflectedRays( 
     InputTextures2& inputTextures,
-    RenderTargets& renderTargets,
+    RaytraceRenderTargets& rtRenderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    generateReflectedRays( inputTextures, renderTargets );
+    generateReflectedRays( inputTextures, rtRenderTargets );
 
-    traceSecondaryRays( renderTargets, actors );
+    traceSecondaryRays( rtRenderTargets, actors );
 
-    calculateHitDistanceToCamera( inputTextures, renderTargets );
+    calculateHitDistanceToCamera( inputTextures, rtRenderTargets );
 
     m_rendererCore.disableComputePipeline();
 }
@@ -149,14 +149,14 @@ void RaytraceRenderer::generateAndTraceReflectedRays(
 void RaytraceRenderer::generateAndTraceRefractedRays( 
     const int refractionLevel,
     InputTextures2& inputTextures,
-    RenderTargets& renderTargets,
+    RaytraceRenderTargets& rtRenderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.disableRenderingPipeline();
 
-    generateRefractedRays( refractionLevel, inputTextures, renderTargets );
+    generateRefractedRays( refractionLevel, inputTextures, rtRenderTargets );
 
-    traceSecondaryRays( renderTargets, actors );
+    traceSecondaryRays( rtRenderTargets, actors );
 
     m_rendererCore.disableComputePipeline();
 }
@@ -164,10 +164,10 @@ void RaytraceRenderer::generateAndTraceRefractedRays(
 void RaytraceRenderer::generateFirstReflectedRays( 
     const Camera& camera, 
     InputTextures1& inputTextures,
-    RenderTargets& renderTargets )
+    RaytraceRenderTargets& rtRenderTargets )
 {
-    const int outputTextureWidth  = renderTargets.rayOrigin->getWidth();
-    const int outputTextureHeight = renderTargets.rayOrigin->getHeight();
+    const int outputTextureWidth  = rtRenderTargets.rayOrigin->getWidth();
+    const int outputTextureHeight = rtRenderTargets.rayOrigin->getHeight();
 
     const float fieldOfView      = camera.getFieldOfView();
     const float screenAspect     = (float)outputTextureWidth / (float)outputTextureHeight;
@@ -188,27 +188,27 @@ void RaytraceRenderer::generateFirstReflectedRays(
 
     m_rendererCore.enableComputeShader( m_generateFirstReflectedRaysComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( renderTargets.rayOrigin );
-    unorderedAccessTargets.push_back( renderTargets.rayDirection );
+	RenderTargets unorderedAccessTargets;
+	unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.rayOrigin );
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.rayDirection );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     uint3 groupCount( outputTextureWidth / 32, outputTextureHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 void RaytraceRenderer::generateFirstRefractedRays( 
     const Camera& camera, 
     InputTextures1& inputTextures,
-    RenderTargets& renderTargets )
+    RaytraceRenderTargets& rtRenderTargets )
 {
-    const int outputTextureWidth  = renderTargets.rayOrigin->getWidth();
-    const int outputTextureHeight = renderTargets.rayOrigin->getHeight();
+    const int outputTextureWidth  = rtRenderTargets.rayOrigin->getWidth();
+    const int outputTextureHeight = rtRenderTargets.rayOrigin->getHeight();
 
     const float fieldOfView     = camera.getFieldOfView();
     const float screenAspect    = (float)outputTextureWidth / (float)outputTextureHeight;
@@ -230,36 +230,25 @@ void RaytraceRenderer::generateFirstRefractedRays(
 
     m_rendererCore.enableComputeShader( m_generateFirstRefractedRaysComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
-    unorderedAccessTargetsF4.push_back( renderTargets.rayOrigin );
-    unorderedAccessTargetsF4.push_back( renderTargets.rayDirection );
-    unorderedAccessTargetsU1.push_back( renderTargets.currentRefractiveIndex );
+    RenderTargets unorderedAccessTargets;
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2, 
-        unorderedAccessTargetsF3, 
-        unorderedAccessTargetsF4, 
-        unorderedAccessTargetsU1, 
-        unorderedAccessTargetsU4 
-    );
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.rayOrigin );
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.rayDirection );
+	unorderedAccessTargets.typeUchar.push_back( rtRenderTargets.currentRefractiveIndex );
+
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     uint3 groupCount( outputTextureWidth / 32, outputTextureHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 void RaytraceRenderer::generateReflectedRays( 
     InputTextures2& inputTextures,
-    RenderTargets& renderTargets )
+    RaytraceRenderTargets& renderTargets )
 {
     const int outputTextureWidth  = renderTargets.rayOrigin->getWidth();
     const int outputTextureHeight = renderTargets.rayOrigin->getHeight();
@@ -276,33 +265,33 @@ void RaytraceRenderer::generateReflectedRays(
 
     m_rendererCore.enableComputeShader( m_generateReflectedRaysComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( renderTargets.rayOrigin );
-    unorderedAccessTargets.push_back( renderTargets.rayDirection );
+    RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeFloat4.push_back( renderTargets.rayOrigin );
+    unorderedAccessTargets.typeFloat4.push_back( renderTargets.rayDirection );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     uint3 groupCount( outputTextureWidth / 32, outputTextureHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 void RaytraceRenderer::generateRefractedRays( 
     const int refractionLevel,
     InputTextures2& inputTextures,
-    RenderTargets& renderTargets )
+    RaytraceRenderTargets& rtRenderTargets )
 {
     // Optional clearing - for better debug. Clearing probably not needed, because it gets overwritten in the shader anyways.
     #if defined(_DEBUG)
-    renderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-    renderTargets.currentRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rtRenderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rtRenderTargets.currentRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
     #endif
 
-    const int outputTextureWidth  = renderTargets.rayOrigin->getWidth();
-    const int outputTextureHeight = renderTargets.rayOrigin->getHeight();
+    const int outputTextureWidth  = rtRenderTargets.rayOrigin->getWidth();
+    const int outputTextureHeight = rtRenderTargets.rayOrigin->getHeight();
 
     m_generateRefractedRaysComputeShader->setParameters( 
         *m_deviceContext.Get(), 
@@ -324,78 +313,54 @@ void RaytraceRenderer::generateRefractedRays(
 
     m_rendererCore.enableComputeShader( m_generateRefractedRaysComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
-    unorderedAccessTargetsF4.push_back( renderTargets.rayOrigin );
-    unorderedAccessTargetsF4.push_back( renderTargets.rayDirection );
-    unorderedAccessTargetsU1.push_back( renderTargets.currentRefractiveIndex );
+	RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.rayOrigin );
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.rayDirection );
+	unorderedAccessTargets.typeUchar.push_back( rtRenderTargets.currentRefractiveIndex );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2, 
-        unorderedAccessTargetsF3, 
-        unorderedAccessTargetsF4, 
-        unorderedAccessTargetsU1, 
-        unorderedAccessTargetsU4 
-    );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     uint3 groupCount( outputTextureWidth / 32, outputTextureHeight / 32, 1 );
 
     m_rendererCore.compute( groupCount );
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
 }
 
 void RaytraceRenderer::tracePrimaryRays( 
     const Camera& camera, 
-    RenderTargets& renderTargets,
+    RaytraceRenderTargets& rtRenderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
     m_rendererCore.enableComputeShader( m_raytracingPrimaryRaysComputeShader );
 
     // Clear unordered access targets.
     const float maxDist = 15000.0f; // Note: Should be less than max dist in the raytracing shader!
-    renderTargets.hitPosition->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
-    renderTargets.hitDistance->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
-    renderTargets.hitEmissive->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-    renderTargets.hitAlbedo->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-    renderTargets.hitMetalness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-    renderTargets.hitRoughness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-    renderTargets.hitNormal->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
-    renderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rtRenderTargets.hitPosition->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    rtRenderTargets.hitDistance->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
+    rtRenderTargets.hitEmissive->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rtRenderTargets.hitAlbedo->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rtRenderTargets.hitMetalness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rtRenderTargets.hitRoughness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+    rtRenderTargets.hitNormal->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    rtRenderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
-    unorderedAccessTargetsF1.push_back( renderTargets.hitDistance );
-    unorderedAccessTargetsF4.push_back( renderTargets.hitPosition );
-    unorderedAccessTargetsF4.push_back( renderTargets.hitNormal );
-    unorderedAccessTargetsU1.push_back( renderTargets.hitMetalness );
-    unorderedAccessTargetsU1.push_back( renderTargets.hitRoughness );
-    unorderedAccessTargetsU1.push_back( renderTargets.hitRefractiveIndex );
-    unorderedAccessTargetsU4.push_back( renderTargets.hitEmissive );
-    unorderedAccessTargetsU4.push_back( renderTargets.hitAlbedo );
+    unorderedAccessTargets.typeFloat.push_back( rtRenderTargets.hitDistance );
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.hitPosition );
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.hitNormal );
+	unorderedAccessTargets.typeUchar.push_back( rtRenderTargets.hitMetalness );
+	unorderedAccessTargets.typeUchar.push_back( rtRenderTargets.hitRoughness );
+	unorderedAccessTargets.typeUchar.push_back( rtRenderTargets.hitRefractiveIndex );
+	unorderedAccessTargets.typeUchar4.push_back( rtRenderTargets.hitEmissive );
+	unorderedAccessTargets.typeUchar4.push_back( rtRenderTargets.hitAlbedo );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2,
-        unorderedAccessTargetsF3,
-        unorderedAccessTargetsF4, 
-        unorderedAccessTargetsU1, 
-        unorderedAccessTargetsU4 
-    );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
-    const int imageWidth  = renderTargets.hitPosition->getWidth();
-    const int imageHeight = renderTargets.hitPosition->getHeight();
+    const int imageWidth  = rtRenderTargets.hitPosition->getWidth();
+    const int imageHeight = rtRenderTargets.hitPosition->getHeight();
 
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
@@ -446,7 +411,7 @@ void RaytraceRenderer::tracePrimaryRays(
         m_raytracingPrimaryRaysComputeShader->setParameters( 
             *m_deviceContext.Get(), 
             camera.getPosition(), 
-            *renderTargets.rayDirection, 
+            *rtRenderTargets.rayDirection, 
             *actor->getModel()->getMesh(), 
             actor->getPose(),
             bbBox.getMin(), 
@@ -462,54 +427,42 @@ void RaytraceRenderer::tracePrimaryRays(
     }
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
     m_raytracingPrimaryRaysComputeShader->unsetParameters( *m_deviceContext.Get() );
 }
 
 void RaytraceRenderer::traceSecondaryRays( 
-    RenderTargets& renderTargets,
+    RaytraceRenderTargets& rtRenderTargets,
     const std::vector< std::shared_ptr< BlockActor > >& actors )
 {
-    m_rendererCore.enableComputeShader( m_raytracingSecondaryRaysComputeShader );
+	m_rendererCore.enableComputeShader( m_raytracingSecondaryRaysComputeShader );
 
     // Clear unordered access targets.
     const float maxDist = 15000.0f; // Note: Should be less than max dist in the raytracing shader!
-   renderTargets.hitPosition->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
-   renderTargets.hitDistance->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
-   renderTargets.hitEmissive->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( (uint3)(settings().rendering.skyColor * 255.0f), 0 ) );
-   renderTargets.hitAlbedo->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-   renderTargets.hitMetalness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-   renderTargets.hitRoughness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
-   renderTargets.hitNormal->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
-   renderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+	rtRenderTargets.hitPosition->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+	rtRenderTargets.hitDistance->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( maxDist, 0.0f, 0.0f, 0.0f ) );
+	rtRenderTargets.hitEmissive->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( (uint3)(settings().rendering.skyColor * 255.0f), 0 ) );
+	rtRenderTargets.hitAlbedo->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+	rtRenderTargets.hitMetalness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+	rtRenderTargets.hitRoughness->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
+	rtRenderTargets.hitNormal->clearUnorderedAccessViewFloat( *m_deviceContext.Get(), float4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+	rtRenderTargets.hitRefractiveIndex->clearUnorderedAccessViewUint( *m_deviceContext.Get(), uint4( 0, 0, 0, 0 ) );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
-    unorderedAccessTargetsF1.push_back( renderTargets.hitDistance );
-    unorderedAccessTargetsF4.push_back( renderTargets.hitPosition );
-    unorderedAccessTargetsF4.push_back( renderTargets.hitNormal );
-    unorderedAccessTargetsU1.push_back( renderTargets.hitMetalness );
-    unorderedAccessTargetsU1.push_back( renderTargets.hitRoughness );
-    unorderedAccessTargetsU1.push_back( renderTargets.hitRefractiveIndex );
-    unorderedAccessTargetsU4.push_back( renderTargets.hitEmissive );
-    unorderedAccessTargetsU4.push_back( renderTargets.hitAlbedo );
+    unorderedAccessTargets.typeFloat.push_back( rtRenderTargets.hitDistance );
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.hitPosition );
+    unorderedAccessTargets.typeFloat4.push_back( rtRenderTargets.hitNormal );
+	unorderedAccessTargets.typeUchar.push_back( rtRenderTargets.hitMetalness );
+	unorderedAccessTargets.typeUchar.push_back( rtRenderTargets.hitRoughness );
+	unorderedAccessTargets.typeUchar.push_back( rtRenderTargets.hitRefractiveIndex );
+	unorderedAccessTargets.typeUchar4.push_back( rtRenderTargets.hitEmissive );
+	unorderedAccessTargets.typeUchar4.push_back( rtRenderTargets.hitAlbedo );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2, 
-        unorderedAccessTargetsF3,
-        unorderedAccessTargetsF4, 
-        unorderedAccessTargetsU1, 
-        unorderedAccessTargetsU4 
-    );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
-    const int imageWidth  =renderTargets.hitPosition->getWidth();
-    const int imageHeight =renderTargets.hitPosition->getHeight();
+    const int imageWidth  =rtRenderTargets.hitPosition->getWidth();
+    const int imageHeight =rtRenderTargets.hitPosition->getHeight();
 
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
@@ -567,8 +520,8 @@ void RaytraceRenderer::traceSecondaryRays(
 
         m_raytracingSecondaryRaysComputeShader->setParameters( 
             *m_deviceContext.Get(), 
-            *renderTargets.rayOrigin, 
-            *renderTargets.rayDirection, 
+            *rtRenderTargets.rayOrigin, 
+            *rtRenderTargets.rayDirection, 
             *actor->getModel()->getMesh(), actor->getPose(), 
             bbBox.getMin(), 
             bbBox.getMax(), 
@@ -587,34 +540,24 @@ void RaytraceRenderer::traceSecondaryRays(
     }
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
     m_raytracingSecondaryRaysComputeShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void RaytraceRenderer::calculateHitDistanceToCamera( InputTextures2& inputs, RenderTargets& renderTargets )
+void RaytraceRenderer::calculateHitDistanceToCamera( 
+	InputTextures2& inputs, 
+	RaytraceRenderTargets& rtRenderTargets )
 {
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         unorderedAccessTargetsF1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        unorderedAccessTargetsF2;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        unorderedAccessTargetsF3;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        unorderedAccessTargetsF4;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > unorderedAccessTargetsU1;
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        unorderedAccessTargetsU4;
+	RenderTargets unorderedAccessTargets;
 
     m_rendererCore.enableComputeShader( m_sumValueComputeShader );
 
-    unorderedAccessTargetsF1.push_back( renderTargets.hitDistanceToCamera );
+    unorderedAccessTargets.typeFloat.push_back( rtRenderTargets.hitDistanceToCamera );
 
-    m_rendererCore.enableUnorderedAccessTargets( 
-        unorderedAccessTargetsF1, 
-        unorderedAccessTargetsF2,
-        unorderedAccessTargetsF3,
-        unorderedAccessTargetsF4, 
-        unorderedAccessTargetsU1, 
-        unorderedAccessTargetsU4 
-    );
+	m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
-    const int imageWidth  = renderTargets.hitDistanceToCamera->getWidth();
-    const int imageHeight = renderTargets.hitDistanceToCamera->getHeight();
+    const int imageWidth  = rtRenderTargets.hitDistanceToCamera->getWidth();
+    const int imageHeight = rtRenderTargets.hitDistanceToCamera->getHeight();
 
     uint3 groupCount( imageWidth / 16, imageHeight / 16, 1 );
 
@@ -631,13 +574,13 @@ void RaytraceRenderer::calculateHitDistanceToCamera( InputTextures2& inputs, Ren
     m_sumValueComputeShader->setParameters(
         *m_deviceContext.Get(),
         *inputs.prevHitDistanceToCamera,
-        *renderTargets.hitDistance
+        *rtRenderTargets.hitDistance
     );
 
     m_rendererCore.compute( groupCount );
 
     // Unbind resources to avoid binding the same resource on input and output.
-    m_rendererCore.disableUnorderedAccessViews();
+    m_rendererCore.disableRenderTargets();
 
     m_sumValueComputeShader->unsetParameters( *m_deviceContext.Get() );
 }

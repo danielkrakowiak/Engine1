@@ -67,10 +67,10 @@ void ReflectionRefractionShadingRenderer::performFirstReflectionShading(
 
     m_rendererCore.enableComputeShader( m_reflectionShadingComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
+	RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeUchar4.push_back( contributionRoughnessRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth  = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();
@@ -109,10 +109,10 @@ void ReflectionRefractionShadingRenderer::performReflectionShading(
 
     m_rendererCore.enableComputeShader( m_reflectionShadingComputeShader2 );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
+	RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeUchar4.push_back( contributionRoughnessRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth  = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();
@@ -150,10 +150,10 @@ void ReflectionRefractionShadingRenderer::performFirstRefractionShading(
 
     m_rendererCore.enableComputeShader( m_refractionShadingComputeShader );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
+	RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeUchar4.push_back( contributionRoughnessRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth  = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();
@@ -192,10 +192,10 @@ void ReflectionRefractionShadingRenderer::performRefractionShading(
 
     m_rendererCore.enableComputeShader( m_refractionShadingComputeShader2 );
 
-    std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > > unorderedAccessTargets;
-    unorderedAccessTargets.push_back( contributionRoughnessRenderTarget );
+	RenderTargets unorderedAccessTargets;
+    unorderedAccessTargets.typeUchar4.push_back( contributionRoughnessRenderTarget );
 
-    m_rendererCore.enableUnorderedAccessTargets( unorderedAccessTargets );
+    m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets );
 
     const int imageWidth  = positionTexture->getWidth();
     const int imageHeight = positionTexture->getHeight();

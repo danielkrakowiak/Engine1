@@ -446,15 +446,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< unsigned char>& text
 	float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-		renderTargetsU4.push_back( m_renderTarget );
+		RenderTargets renderTargets;
+		renderTargets.typeUchar4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	{ // Configure and enable shaders.
@@ -482,15 +477,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< uchar4>& texture, fl
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-		renderTargetsU4.push_back( m_renderTarget );
+		RenderTargets renderTargets;
+		renderTargets.typeUchar4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	{ // Configure and enable shaders.
@@ -518,15 +508,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< float4 >& texture, f
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-		renderTargetsU4.push_back( m_renderTarget );
+		RenderTargets renderTargets;
+		renderTargets.typeUchar4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	{ // Configure and enable shaders.
@@ -554,15 +539,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< float2 >& texture, f
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-		renderTargetsU4.push_back( m_renderTarget );
+		RenderTargets renderTargets;
+		renderTargets.typeUchar4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	{ // Configure and enable shaders.
@@ -591,15 +571,10 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< float >& texture, fl
 
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-		renderTargetsU4.push_back( m_renderTarget );
+		RenderTargets renderTargets;
+		renderTargets.typeUchar4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	{ // Configure and enable shaders.
@@ -627,15 +602,10 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2D< uchar4>& textur
     float relativeHeight = ( height / (float)m_screenHeight );
 
 	{ // Enable render targets.
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float > > >         renderTargetsF1;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float2 > > >        renderTargetsF2;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float3 > > >        renderTargetsF3;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< float4 > > >        renderTargetsF4;
-        std::vector< std::shared_ptr< RenderTargetTexture2D< unsigned char > > > renderTargetsU1;
-		std::vector< std::shared_ptr< RenderTargetTexture2D< uchar4 > > >        renderTargetsU4;
-		renderTargetsU4.push_back( m_renderTarget );
+		RenderTargets renderTargets;
+		renderTargets.typeUchar4.push_back( m_renderTarget );
 
-		m_rendererCore.enableRenderTargets( renderTargetsF1, renderTargetsF2, renderTargetsF3, renderTargetsF4, renderTargetsU1, renderTargetsU4, nullptr );
+		m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 	}
 
 	{ // Configure and enable shaders.
