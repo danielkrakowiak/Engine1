@@ -260,10 +260,15 @@ void Direct3DRendererCore::enableRenderTargets(
 	if ( renderTargets.depth && renderTargets.depthStencil )
 		throw std::exception( "Direct3DRendererCore::enableRenderTargets - depth and depth-stencil were passed, but only one of them can be enabled." );
 
+    const auto rtvCount = renderTargets.getCount();
+    const auto uavCount = unorderedAccessTargets.getCount();
+
+    // Disable redundant RTVs and UAVs (by disabling them all).
+    if ( rtvCount < m_currentRTVs.size() || uavCount < m_currentUAVs.size() )
+        disableRenderTargets();
+
 	bool rtvSameAsCurrent = true;
 	{
-		const auto rtvCount = renderTargets.getCount();
-
 		if ( rtvCount > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT )
 			throw std::exception( "Direct3DRendererCore::enableRenderTargets - too many render targets passed. Number exceeds the supported maximum." );
 
@@ -272,6 +277,7 @@ void Direct3DRendererCore::enableRenderTargets(
 		{
 			for ( auto rtvIdx = 0u; rtvIdx < m_currentRTVs.size(); ++rtvIdx )
 			{
+                assert( renderTargets.getRTV( rtvIdx, mipmapLevel ) != nullptr );
 				if ( renderTargets.getRTV( rtvIdx, mipmapLevel ) != m_currentRTVs[ rtvIdx ] )
 				{
 					rtvSameAsCurrent = false;
@@ -296,35 +302,40 @@ void Direct3DRendererCore::enableRenderTargets(
 			rtvSameAsCurrent = false;
 		}
 
-		// If render targets to be enabled are the same as the current ones - do nothing.
-		if ( rtvSameAsCurrent )
-			return;
+		if ( !rtvSameAsCurrent )
+        {
+		    // Collect and save render target views from passed render targets.
+		    m_currentRTVs.clear();
+		    m_currentRTVs.reserve( rtvCount );
+		    for ( auto rtvIdx = 0u; rtvIdx < rtvCount; ++rtvIdx )
+		    {
+                assert( renderTargets.getRTV( rtvIdx, mipmapLevel ) != nullptr );
+			    m_currentRTVs.push_back( renderTargets.getRTV( rtvIdx, mipmapLevel ) );
+		    }
 
-		// Collect and save render target views from passed render targets.
-		m_currentRTVs.clear();
-		m_currentRTVs.reserve( rtvCount );
-		for ( auto rtvIdx = 0u; rtvIdx < rtvCount; ++rtvIdx )
-		{
-			m_currentRTVs.push_back( renderTargets.getRTV( rtvIdx, mipmapLevel ) );
-		}
+		    // Get and save depth render target view if passed.
+		    m_currentDSV = depthRTV;
 
-		// Get and save depth render target view if passed.
-		m_currentDSV = depthRTV;
-
-		// Enable render targets.
-		m_deviceContext->OMSetRenderTargets( (unsigned int)m_currentRTVs.size(), m_currentRTVs.data(), m_currentDSV );
+		    // Enable render targets.
+            if ( !m_currentRTVs.empty() || m_currentDSV )
+            {
+		        m_deviceContext->OMSetRenderTargets( 
+                    static_cast<UINT>(m_currentRTVs.size()), 
+                    m_currentRTVs.data(), 
+                    m_currentDSV );
+            }
+        }
 	}
 
 	bool uavSameAsCurrent = true;
 	{
-		const auto uavCount = unorderedAccessTargets.getCount();
-
 		// Check if UAVs to be enabled are the same as the current ones.
 		if ( uavCount == m_currentUAVs.size() )
 		{
 			for ( auto uavIdx = 0u; uavIdx < m_currentUAVs.size(); ++uavIdx )
 			{
-				if ( renderTargets.getUAV( uavIdx, mipmapLevel ) != m_currentUAVs[ uavIdx ] )
+                assert( unorderedAccessTargets.getUAV( uavIdx, mipmapLevel ) != nullptr );
+				if ( unorderedAccessTargets.getUAV( uavIdx, mipmapLevel ) != m_currentUAVs[ uavIdx ] )
 				{
 					uavSameAsCurrent = false;
 					break;
@@ -336,25 +347,29 @@ void Direct3DRendererCore::enableRenderTargets(
 			uavSameAsCurrent = false;
 		}
 
-		// If RTVs and UAVs to be enabled are the same as the current ones - do nothing.
-		if ( rtvSameAsCurrent && uavSameAsCurrent )
-			return;
+        // Note: even if only RTVs have changed, UAVS need to be re-bound at correct slots.
+		if ( !rtvSameAsCurrent || !uavSameAsCurrent )
+        {
+		    // Collect and save UAVs from passed render targets.
+		    m_currentUAVs.clear();
+		    m_currentUAVs.reserve( uavCount );
+		    for ( auto uavIdx = 0u; uavIdx < uavCount; ++uavIdx )
+		    {
+                assert( unorderedAccessTargets.getUAV( uavIdx, mipmapLevel ) != nullptr );
+			    m_currentUAVs.push_back( unorderedAccessTargets.getUAV( uavIdx, mipmapLevel ) );
+		    }
 
-		// Collect and save UAVs from passed render targets.
-		m_currentUAVs.clear();
-		m_currentUAVs.reserve( uavCount );
-		for ( auto uavIdx = 0u; uavIdx < uavCount; ++uavIdx )
-		{
-			m_currentUAVs.push_back( renderTargets.getUAV( uavIdx, mipmapLevel ) );
-		}
-
-		// Enable UAV targets.
-		// Note: UAVStartSlot param should be equal to the number of bound RTVs.
-		m_deviceContext->CSSetUnorderedAccessViews( 
-			static_cast<UINT>(m_currentRTVs.size()), 
-			static_cast<UINT>(m_currentUAVs.size()),
-			m_currentUAVs.data(), 
-			nullptr );
+		    // Enable UAV targets.
+		    // Note: UAVStartSlot param should be equal to the number of bound RTVs.
+            if ( !m_currentUAVs.empty() )
+            {
+		        m_deviceContext->CSSetUnorderedAccessViews( 
+			        static_cast<UINT>(m_currentRTVs.size()), 
+			        static_cast<UINT>(m_currentUAVs.size()),
+			        m_currentUAVs.data(), 
+			        nullptr );
+            }
+        }
 	}
 }
 
@@ -370,16 +385,22 @@ void Direct3DRendererCore::disableRenderTargets()
 			m_currentUAVs[ i ] = nullptr;
 		}
 
-        m_deviceContext->OMSetRenderTargets( 
-			static_cast<UINT>(m_currentRTVs.size()), 
-			m_currentRTVs.data(), 
-			nullptr );
+        if (!m_currentRTVs.empty())
+        {
+            m_deviceContext->OMSetRenderTargets( 
+			    static_cast<UINT>(m_currentRTVs.size()), 
+			    m_currentRTVs.data(), 
+			    nullptr );
+        }
 
-		m_deviceContext->CSSetUnorderedAccessViews( 
-			static_cast<UINT>(m_currentRTVs.size()), 
-			static_cast<UINT>(m_currentUAVs.size()), 
-			m_currentUAVs.data(), 
-			nullptr );
+        if (!m_currentUAVs.empty())
+        {
+		    m_deviceContext->CSSetUnorderedAccessViews( 
+			    static_cast<UINT>(m_currentRTVs.size()), 
+			    static_cast<UINT>(m_currentUAVs.size()), 
+			    m_currentUAVs.data(), 
+			    nullptr );
+        }
 
         m_currentRTVs.clear();
         m_currentDSV = nullptr;

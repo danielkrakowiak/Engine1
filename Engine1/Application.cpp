@@ -332,11 +332,14 @@ void Application::run()
 
         auto renderTarget = output.uchar4Image;
 
-        renderActiveViewText( renderTarget, font2 );
-        renderGPUNameText( renderTarget, font2 );
-        renderFPSText( totalFrameTimeCPU, totalFrameTimeGPU, renderTarget, font );
-        renderProfilingText( totalFrameTimeGPU, stageProfilingInfos, renderTarget, font2 );
-        renderSceneStatisticsText( renderTarget, font2 );
+        if ( renderTarget )
+        {
+            renderActiveViewText( renderTarget, font2 );
+            renderGPUNameText( renderTarget, font2 );
+            renderFPSText( totalFrameTimeCPU, totalFrameTimeGPU, renderTarget, font );
+            renderProfilingText( totalFrameTimeGPU, stageProfilingInfos, renderTarget, font2 );
+            renderSceneStatisticsText( renderTarget, font2 );
+        }
 
         m_profiler.endEvent( Profiler::GlobalEventType::RenderTextToFrame );
         m_profiler.beginEvent( Profiler::GlobalEventType::RenderFrameToScreen );
