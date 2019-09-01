@@ -225,7 +225,7 @@ int ControlPanel::processInput( void *wnd, unsigned int msg, unsigned __int64 _W
 
     // Input was processed, so notify Settings on potential change of settings.
     if ( result )
-        Settings::onChanged(); 
+        Settings::modify().onChanged(); 
 
     return result;
 }
@@ -240,7 +240,7 @@ void TW_CALL ControlPanel::onNextLevelReflection( void* /*clientData*/ )
     Settings::modify().rendering.reflectionsRefractions.debugViewStage = 
         getNextRenderingStage( settings().rendering.reflectionsRefractions.debugViewStage, RenderingStageType::Reflection );
 
-    Settings::onChanged();
+    Settings::modify().onChanged();
 }
 
 void TW_CALL ControlPanel::onNextLevelRefraction( void* /*clientData*/ )
@@ -248,7 +248,7 @@ void TW_CALL ControlPanel::onNextLevelRefraction( void* /*clientData*/ )
     Settings::modify().rendering.reflectionsRefractions.debugViewStage = 
         getNextRenderingStage( settings().rendering.reflectionsRefractions.debugViewStage, RenderingStageType::Transmission );
 
-    Settings::onChanged();
+    Settings::modify().onChanged();
 }
 
 void TW_CALL ControlPanel::onPrevLevel( void* /*clientData*/ )
@@ -259,7 +259,7 @@ void TW_CALL ControlPanel::onPrevLevel( void* /*clientData*/ )
             getPrevRenderingStage( settings().rendering.reflectionsRefractions.debugViewStage );
     }
 
-    Settings::onChanged();
+    Settings::modify().onChanged();
 }
 
 void TW_CALL ControlPanel::onResetCamera( void* controlPanel )
@@ -405,7 +405,7 @@ void TW_CALL ControlPanel::onDisplayNextStageProfilingReflection( void* clientDa
     Settings::modify().profiling.display.startWithStage = 
         getNextRenderingStage( settings().profiling.display.startWithStage, RenderingStageType::Reflection );
 
-    Settings::onChanged();
+    Settings::modify().onChanged();
 }
 
 void TW_CALL ControlPanel::onDisplayNextStageProfilingTransmission( void* clientData )
@@ -415,7 +415,7 @@ void TW_CALL ControlPanel::onDisplayNextStageProfilingTransmission( void* client
     Settings::modify().profiling.display.startWithStage = 
         getNextRenderingStage( settings().profiling.display.startWithStage, RenderingStageType::Transmission );
 
-    Settings::onChanged();
+    Settings::modify().onChanged();
 }
 
 void TW_CALL ControlPanel::onDisplayPrevStageProfiling( void* clientData )
@@ -425,7 +425,7 @@ void TW_CALL ControlPanel::onDisplayPrevStageProfiling( void* clientData )
     Settings::modify().profiling.display.startWithStage = 
         getPrevRenderingStage( settings().profiling.display.startWithStage );
 
-    Settings::onChanged();
+    Settings::modify().onChanged();
 }
 
 void TW_CALL ControlPanel::onAddTestCase( void* controlPanel )

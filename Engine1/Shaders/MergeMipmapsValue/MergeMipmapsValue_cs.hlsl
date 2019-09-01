@@ -13,7 +13,8 @@ cbuffer ConstantBuffer : register( b0 )
 SamplerState g_samplerState;
 
 // Input.
-Texture2D<float4> g_inputTexture : register( t0 );
+Texture2D<float4> g_baseTexture      : register(t0);
+Texture2D<float4> g_mipmappedTexture : register( t1 );
 
 // Input / Output.
 RWTexture2D<float4> g_outputTexture : register( u0 );
@@ -31,7 +32,7 @@ void main( uint3 groupId : SV_GroupID,
     // Note: Calculate texcoords for the pixel center.
     const float2 texcoords = ((float2)dispatchThreadId.xy + 0.5f) / outputTextureSize;
 
-    float4 value = g_outputTexture[ dispatchThreadId.xy ];
+    float4 value = g_baseTexture.SampleLevel( g_samplerState, texcoords, 0 );
 
     // Note: We start shifted by 0.5 and jump 2 mipmap levels at once to use hardware interpolation between mipmaps.
     // That's also the reason to clamp mipmap level to the maximal desired mipmap level to avoid "over-jumping" it.
@@ -39,9 +40,9 @@ void main( uint3 groupId : SV_GroupID,
     {
         const float level = min( mipmapLevel, lastMipmapLevel );
 
-        value += g_inputTexture.SampleLevel( g_samplerState, texcoords, level );
+        value += g_mipmappedTexture.SampleLevel( g_samplerState, texcoords, level );
     }
 
-    g_outputTexture[ dispatchThreadId.xy ] = value;
+    g_outputTexture[ dispatchThreadId.xy ] = float4( value.rgb, 1.0f );
 }
 

@@ -1650,7 +1650,9 @@ void Renderer::performBloom(
 		m_mipmapRenderer.resampleTexture( tempRenderTarget1, mipmapLevel + 1, tempRenderTarget2, mipmapLevel );
 	}
 
-    m_utilityRenderer.mergeMipmapsValues( destTexture, tempRenderTarget2, 0, maxMipmapLevel );
+    // #TODO: We also need to sum bloom effect with normal frame. (because we can't use a 4-component typed load inside the merge mipmaps shader).
+
+    m_utilityRenderer.mergeMipmapsValues( destTexture, colorTexture, tempRenderTarget2, 0, maxMipmapLevel );
 
     m_profiler.endEvent( Profiler::GlobalEventType::Bloom );
 }

@@ -5,6 +5,8 @@
 #include <map>
 #include <memory>
 
+#include "Settings.h"
+
 namespace Engine1
 {
     class FreeCamera;
@@ -28,6 +30,8 @@ namespace Engine1
             Renderer& renderer);
 
         void initialize();
+        void initializeSettings();
+        void restoreOriginalSettings();
 
         void addAndSaveTestCase( const std::string sceneName, const FreeCamera& camera );
 
@@ -81,6 +85,11 @@ namespace Engine1
         AssetManager& m_assetManager;
         Direct3DRendererCore& m_rendererCore;
         Renderer& m_renderer;
+
+        // Settings from before the tests were run.
+        Settings m_originalSettings; 
+
+        Settings m_testSettings;
 
         // map< scene-name, vector< camera-name > >
         std::map< std::string, std::vector< std::string > > m_testCases;

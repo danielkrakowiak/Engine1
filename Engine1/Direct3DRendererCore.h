@@ -112,6 +112,11 @@ namespace Engine1
         void copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture );
 
         template< typename T >
+        void copyTextureGpu(
+            StagingTexture2D< T >& destTexture, unsigned int destMipmap,
+            const Texture2D< T >& srcTexture, unsigned int srcMipmap);
+
+        template< typename T >
         void copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture,
                           const int2 coords, const int2 dimensions );
 
@@ -224,6 +229,20 @@ namespace Engine1
         }
 
         m_deviceContext->CopyResource( destTexture.getTextureResource().Get(), srcTexture.getTextureResource().Get() );
+    }
+
+    template< typename T >
+    void Direct3DRendererCore::copyTextureGpu(
+        StagingTexture2D< T >& destTexture, unsigned int destMipmap,
+        const Texture2D< T >& srcTexture, unsigned int srcMipmap)
+    {
+        if (!m_deviceContext) {
+            throw std::exception("Direct3DRendererCore::copyTexture - renderer not initialized.");
+        }
+
+        m_deviceContext->CopySubresourceRegion(
+            destTexture.getTextureResource().Get(), destMipmap, 0u, 0u, 0u,
+            srcTexture.getTextureResource().Get(), srcMipmap, nullptr);
     }
 
     template< typename T >

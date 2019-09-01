@@ -36,7 +36,24 @@ void RenderingTester::initialize()
     m_testPathManager.scanDirectory( settings().paths.renderingTests.testCases );
     m_testAssetsPathManager.scanDirectory( settings().paths.testAssets );
 
+    initializeSettings();
+
     loadTestCases();
+}
+
+void RenderingTester::initializeSettings()
+{
+    m_testSettings.initialize( *m_renderer.getDevice().Get() );
+
+    m_testSettings.debug.renderLightSources = false;
+    m_testSettings.rendering.shadows.enabled = true;
+    m_testSettings.rendering.reflectionsRefractions.reflectionsEnabled = true;
+    m_testSettings.rendering.reflectionsRefractions.refractionsEnabled = true;
+    m_testSettings.rendering.reflectionsRefractions.maxLevel = 2;
+
+    m_testSettings.rendering.postProcess.bloom = true;
+    m_testSettings.rendering.postProcess.depthOfField.enabled = true;
+    m_testSettings.rendering.postProcess.depthOfField.cameraFocusDist = 3.0f;
 }
 
 void RenderingTester::addAndSaveTestCase( const std::string sceneName, const FreeCamera& camera )
@@ -116,9 +133,8 @@ void RenderingTester::generateReference()
 {
     switchToUsingTestAssets();
 
-    const auto prevSettings = settings();
-
-    Settings::modify().debug.renderLightSources = false;
+    m_originalSettings = settings();
+    Settings::modify() = m_testSettings;
 
     auto stagingTexture = createStagingTexture();
 
@@ -147,7 +163,7 @@ void RenderingTester::generateReference()
             const auto output = m_renderer.renderScene( *m_sceneManager.getScene(), *m_sceneManager.getCamera(), false, Selection(), nullptr );
 
             // Transfer output image from GPU to CPU.
-            m_rendererCore.copyTextureGpu(*stagingTexture, *output.uchar4Image);
+            m_rendererCore.copyTextureGpu(*stagingTexture, 0u, *output.uchar4Image, 0u);
             stagingTexture->loadGpuToCpu(*m_renderer.getDeviceContext().Get());
 
             const bool flipRedAndBlue = true;
@@ -162,14 +178,14 @@ void RenderingTester::generateReference()
         }
     }
 
-    Settings::modify() = prevSettings;
+    // Restore settings from before we started generating reference images.
+    Settings::modify() = m_originalSettings;
 }
 
 std::string RenderingTester::runTests()
 {
-    const auto prevSettings = settings();
-
-    Settings::modify().debug.renderLightSources = false;
+    m_originalSettings = settings();
+    Settings::modify() = m_testSettings;
 
     auto stagingTexture = createStagingTexture();
     auto differenceTexture = createDifferenceTexture();
@@ -201,7 +217,7 @@ std::string RenderingTester::runTests()
             const auto output = m_renderer.renderScene( *m_sceneManager.getScene(), *m_sceneManager.getCamera(), false, Selection(), nullptr );
 
             // Transfer output image from GPU to CPU.
-            m_rendererCore.copyTextureGpu(*stagingTexture, *output.uchar4Image);
+            m_rendererCore.copyTextureGpu(*stagingTexture, 0u, *output.uchar4Image, 0u);
             stagingTexture->loadGpuToCpu(*m_renderer.getDeviceContext().Get());
 
             const bool flipRedAndBlue = true;
@@ -267,7 +283,8 @@ std::string RenderingTester::runTests()
 
     // #TODO: How to deal with different settings? Should settings be savable to file? Comparable?
 
-    Settings::modify() = prevSettings;
+    // Restore settings from before the tests.
+    Settings::modify() = m_originalSettings;
 
     return testLog;
 }
@@ -342,7 +359,7 @@ std::string RenderingTester::getCurrentDateString()
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
 	tm localTime;
-	if (localtime_s(&localTime, &now))
+	if (localtime_s(&localTime, &now) == 0)
 	{
 		char buf[64] = { 0 };
 		std::strftime(buf, sizeof(buf), "%Y-%m-%d", &localTime);

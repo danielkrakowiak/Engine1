@@ -696,23 +696,25 @@ Idea:
 	  FUTURE:
       - why combining shader is a pixel shader rather than compute shader?
 	  - we could do edge detection for each layer
-	  - then, copy those pixels to sides of the normal g-buffers (in a very specific order - to find it later on)
-	  - each pixel could be copied several times, with slight modification of origin position/normal etc
-	  - then we trace rays for those pixels as usual, we shade them
-	  - and at the end - when combining layers - we copy them back to the orginal position - and average their value to achieve antialiasing
-	  - if done properly, it could even handle multiple level of reflections/refractions. Or we could just ignore reflection/refraction and focus on normal shading.
+	  - and then control variable rate shading or number of rays based on that
 	  - we could also increase shadow quality at edges - by sampling edge image - and tracing more rays in that case. 
 	    This could fix the problem with tracing 1 ray to a "random" point on light, which after weighted blur can lead to overly bright/dark/jagged edges.
       - Is uploading BRG texutres to GPU faster than uploading RGB textures? Is GPU storing them natively in BGR?
 
       Interesting, funny tests TODO:
-      - Bokeh via blur with a kernel (on a float image, before color correction)
       - disturbing reflected/refracted rays
       - rewrite texture class to be SharedBuffer of given dimension. Remove all those options for bidning and give a couple of versions.
         And only differentiate between texture and buffer at the very end (as DX12 possibly doesn't differentiate them).
       - 2,3,4 layer materials
       - improve Bloom quality
 
+      - FIX TESTS
+      - CHECK RENDERING TESTS
+
+      - rendering tester should have a bunch of settings to test probably.
+      - it should not depend on default settings in engine. To easy to break tests...
+
+      - make sure we don't have a problem with ddx,ddy over edges where wrong mipmap is used.
 
 	  Sources: 
 

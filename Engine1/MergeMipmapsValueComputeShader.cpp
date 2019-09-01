@@ -52,11 +52,13 @@ void MergeMipmapsValueComputeShader::initialize( ComPtr< ID3D11Device3 >& device
     }
 }
 
-void MergeMipmapsValueComputeShader::setParameters( ID3D11DeviceContext3& deviceContext,
-                                                    const int2 outputTextureSize,
-                                                    Texture2D< float4 >& inputTexture,
-                                                    int firstMipmapLevel,
-                                                    int lastMipmapLevel )
+void MergeMipmapsValueComputeShader::setParameters( 
+    ID3D11DeviceContext3& deviceContext,
+    const int2 outputTextureSize,
+    Texture2D< float4 >& baseTexture,
+    Texture2D< float4 >& mipmappedTexture,
+    int firstMipmapLevel,
+    int lastMipmapLevel )
 {
     if ( !m_compiled )
         throw std::exception( "MergeMipmapsValueComputeShader::setParameters - Shader hasn't been compiled yet." );
@@ -64,13 +66,14 @@ void MergeMipmapsValueComputeShader::setParameters( ID3D11DeviceContext3& device
     if ( firstMipmapLevel < 0 || lastMipmapLevel < 0 || firstMipmapLevel > lastMipmapLevel )
         throw std::exception( "MergeMipmapsValueComputeShader::setParameters - Incorrect mipmap levels passed." );
 
-    lastMipmapLevel  = std::min( lastMipmapLevel, inputTexture.getMipMapCountOnGpu() );
+    lastMipmapLevel  = std::min( lastMipmapLevel, mipmappedTexture.getMipMapCountOnGpu() );
     firstMipmapLevel = std::min( firstMipmapLevel, lastMipmapLevel );
 
     { // Set input buffers and textures.
-        const unsigned int resourceCount = 1;
+        const unsigned int resourceCount = 2;
         ID3D11ShaderResourceView* resources[ resourceCount ] = {
-            inputTexture.getShaderResourceView()
+            baseTexture.getShaderResourceView(),
+            mipmappedTexture.getShaderResourceView()
         };
 
         deviceContext.CSSetShaderResources( 0, resourceCount, resources );

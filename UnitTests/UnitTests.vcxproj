@@ -91,7 +91,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(VsInstallRoot)\VC\Auxiliary\VS\UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Engine1.lib;assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>

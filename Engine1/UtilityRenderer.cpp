@@ -291,10 +291,12 @@ void UtilityRenderer::blurValues( std::shared_ptr< RenderTargetTexture2D< float4
     m_rendererCore.disableComputePipeline();
 }
 
-void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< RenderTargetTexture2D< float4 > > destinationTexture,
-                                          const std::shared_ptr< Texture2D< float4 > > inputTexture,
-                                          const int firstMipmapLevel,
-                                          const int lastMipmapLevel )
+void UtilityRenderer::mergeMipmapsValues( 
+    std::shared_ptr< RenderTargetTexture2D< float4 > > destinationTexture,
+    const std::shared_ptr< Texture2D< float4 > > baseTexture,
+    const std::shared_ptr< Texture2D< float4 > > mipmappedTexture,
+    const int firstMipmapLevel,
+    const int lastMipmapLevel )
 {
     if ( !m_initialized )
         throw std::exception( "UtilityRenderer::mergeMipmapsValues - renderer has not been initialized." );
@@ -306,7 +308,13 @@ void UtilityRenderer::mergeMipmapsValues( std::shared_ptr< RenderTargetTexture2D
     unorderedAccessTargets.typeFloat4.push_back( destinationTexture );
 	m_rendererCore.enableRenderTargets( RenderTargets(), unorderedAccessTargets, 0 );
 
-    m_mergeMipmapsValueComputeShader->setParameters( *m_deviceContext.Get(), destinationTexture->getDimensions( 0 ), *inputTexture, firstMipmapLevel, lastMipmapLevel );
+    m_mergeMipmapsValueComputeShader->setParameters( 
+        *m_deviceContext.Get(), 
+        destinationTexture->getDimensions( 0 ), 
+        *baseTexture,
+        *mipmappedTexture, 
+        firstMipmapLevel, 
+        lastMipmapLevel );
 
     m_rendererCore.enableComputeShader( m_mergeMipmapsValueComputeShader );
 

@@ -105,8 +105,6 @@ namespace UnitTests
                     nullptr 
                 );
 
-                Settings::initialize( *testDevice.Get() );
-
                 // We need to switch AssetPathManager to test-assets directory. 
                 // Otherwise it would look for assets in the normal assets directory.
                 AssetPathManager::get().scanDirectory( "TestAssets" );

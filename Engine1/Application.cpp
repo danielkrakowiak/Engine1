@@ -84,7 +84,7 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     auto device        = m_frameRenderer.getDevice();
     auto deviceContext = m_frameRenderer.getDeviceContext();
 
-    Settings::initialize( *device.Get() );
+    Settings::modify().initialize( *device.Get() );
 
 	m_rendererCore.initialize( *deviceContext.Get() );
     m_assetManager.initialize( parallelThreadCount, parallelThreadCount, device );
@@ -92,8 +92,6 @@ void Application::initialize( HINSTANCE applicationInstance ) {
     m_renderTargetManager.initialize( device );
 
     m_sceneManager.initialize( device, deviceContext );
-
-    m_renderingTester.initialize();
 
     createUcharDisplayFrame( settings().main.screenDimensions.x, settings().main.screenDimensions.y, device );
     createDebugFrames( settings().main.screenDimensions.x, settings().main.screenDimensions.y, device );
@@ -115,6 +113,8 @@ void Application::initialize( HINSTANCE applicationInstance ) {
         deviceContext, 
         lightModel 
     );
+
+    m_renderingTester.initialize();
 
     m_controlPanel.initialize( device, settings().main.screenDimensions );
 
@@ -250,6 +250,11 @@ void Application::run()
     bool physicsStepFinished = true;
 
     m_renderer.renderShadowMaps( *m_sceneManager.getScene() );
+
+    //onDragAndDropFile( AssetPathManager::get().getPathForFileName("benchmark4 - floor.scene"), false );
+    //onDragAndDropFile( AssetPathManager::get().getPathForFileName("benchmark4 - floor.camera"), false );
+    //Settings::modify().debug.renderFps = false;
+    //Settings::modify().debug.renderText = false;
 
     setupBenchmark4();
 
@@ -741,8 +746,7 @@ void Application::displayFinalFrame( Renderer::Output &output )
         if ( output.ucharImage )
         {
             m_rendererCore.copyTextureGpu(
-                *ucharDisplayFrame, *output.ucharImage,
-                int2( 0, 0 ), output.ucharImage->getDimensions()
+                *ucharDisplayFrame, 0u, *output.ucharImage, 0u
             );
 
             m_frameRenderer.renderTexture(

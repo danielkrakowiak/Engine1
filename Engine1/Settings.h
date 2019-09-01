@@ -31,7 +31,7 @@ namespace Engine1
         static const Settings& get();
 
         // A second initialization that may require some info from outside of Settings.
-        static void initialize(ID3D11Device3& device);
+        void initialize(ID3D11Device3& device);
 
         struct Main
         {
@@ -423,8 +423,8 @@ namespace Engine1
         // of settings each time - because when we modify them we can also read them and they need to be up-to-date.
         static Settings& modify();
 
-        static void initializeInternal();
-        static void onChanged();
+        void initializeInternal();
+        void onChanged();
 
         // These should not be changed from outside of this class - even by friend classes.
         // Instead "modify()" method should be used to change settings.

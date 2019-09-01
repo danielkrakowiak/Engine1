@@ -511,7 +511,6 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 
 03.05.2018 - 4h - Fixed many bugs in blur-shadow-pattern shaders - differences between similar shaders, wrong values, mistakes in constant buffer structure etc. Added option to sample higher level raw-shadow-texture and weighting samples based on expected position diff. Can't really sample higher level mipmaps as it causes shadow leaks - can only be used in soft shadow regions - such selection is not done yet.
 --- May 2018 - 4h
---- total 1461h
 
 18.10.2018 - 3h - Added RenderingTester - loading test-cases from files. Modifed PathManager to not be a singleton.
 19.10.2018 - 2h - Adding a test case from ControlPanel. Added SceneFileInfo.
@@ -521,6 +520,7 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 27.10.2018 - 4.5h - Saving output image to file, inverting red, blue channels, removing alpha channel, flipping vertically, calculating diff with reference image. Running tests works.
 28.10.2018 - 2h - Generating reference images and saving them to a folder. Fixing UnitTests project - fixing compilation errors.
 29.10.2018 - 2.5h - Fixed UnitTest compilation and fixed all tests. All tests are passing. Added the RenderingTest and initialization of all needed modules. RenderingTest is working.
+--- October 2018 - 20.5h
 
 01.11.2018 - 3.5h - Fixed UnitTest release config ("failed to setup execution context" error). Caused by mismatch of PhysX and Assimp libraries in Engine1 and UnitTests. Added BokehBlurRenderer and related compute shader.
 02.11.2018 - 4h - Working on Bokeh Blur. Modified Renderer post-process to use temporary render-targets from RendrTargetManager rather than using permanently stored RTs. Trying to find a bug causing some post processes to end up with yellow screen.
@@ -529,4 +529,13 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 18.11.2018 - 5h - Refactoring of Texture2D class - restricted binding/usage to 4 types, greatly simplified implementation.
 21.11.2018 - 2h - Fixing compilation errors after Texture class refactor.
 24.11.2018 - 6h - Refactoring enabling Render Targets and Unordered Access Targets in RendererCore. 
-25.11.2018 - 2.5h - Refactoring continued.
+25.11.2018 - 4.5h - Refactoring continued. Fixing tests after refactor.
+--- November 2018 - 33h
+
+--- 2018 - 132.5h
+
+--- total 1593.5h
+
+26.08.2019 - 3.5h - Debugging Bloom vs DOF problem (only one works at a time). Failed to use Graphics Debugger, updated VS, using RenderDoc instead. Fixed the problem: caused by Typed UAV float4 load in mipmaps merging shader - not supported on DX11. Somehow no warning until I started debugging the shader in RenderDoc. Investigating why rendering tests output black image.
+
+01.09.2019 - 2 - Fixed RenderingTests - copying texture to staging texture was the problem (11 mipmaps vs 1 mipmap). Small improvements in how settings are initialized/managed/restored in RenderingTester.

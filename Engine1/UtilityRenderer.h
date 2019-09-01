@@ -66,10 +66,12 @@ namespace Engine1
                          const std::shared_ptr< Texture2D< float4 > > inputTexture,
                          const int inputMipmapLevel );
 
-        void mergeMipmapsValues( std::shared_ptr< RenderTargetTexture2D< float4 > > destinationTexture,
-                             const std::shared_ptr< Texture2D< float4 > > inputTexture,
-                             const int firstMipmapLevel,
-                             const int lastMipmapLevel );
+        void mergeMipmapsValues( 
+            std::shared_ptr< RenderTargetTexture2D< float4 > > destinationTexture,
+            const std::shared_ptr< Texture2D< float4 > > baseTexture,
+            const std::shared_ptr< Texture2D< float4 > > mipmappedTexture,
+            const int firstMipmapLevel,
+            const int lastMipmapLevel );
 
         void sumValues( 
             std::shared_ptr< RenderTargetTexture2D< unsigned char > > outputTexture,
