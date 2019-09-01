@@ -6,7 +6,7 @@
 #include "MeshFileParser.h"
 
 #include "StringUtil.h"
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 #include "MathUtil.h"
 
 #include "TextFile.h"
@@ -147,7 +147,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexBuffer" );
-		Direct3DUtil::setResourceName( *m_vertexBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_vertexBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -170,7 +170,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexBonesBuffer" );
-		Direct3DUtil::setResourceName( *m_vertexBonesBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_vertexBonesBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -193,7 +193,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::vertexWeightsBuffer" );
-		Direct3DUtil::setResourceName( *m_vertexWeightsBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_vertexWeightsBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -216,7 +216,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::normalBuffer" );
-		Direct3DUtil::setResourceName( *m_normalBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_normalBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -239,7 +239,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::tangentBuffer" );
-		Direct3DUtil::setResourceName( *m_tangentBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_tangentBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -276,7 +276,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::texcoordBuffer[" ) + std::to_string( m_texcoordBuffers.size() - 1 ) + std::string( "]" );
-		Direct3DUtil::setResourceName( *buffer.Get(), resourceName );
+		DX11Util::setResourceName( *buffer.Get(), resourceName );
 #endif
 	}
 
@@ -301,7 +301,7 @@ void SkeletonMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonMesh::triangleBuffer" );
-		Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif
 	}
 }

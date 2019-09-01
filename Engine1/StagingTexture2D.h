@@ -4,7 +4,7 @@
 #include <wrl.h>
 
 #include "TextureBase.h"
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 
 namespace Engine1
 {
@@ -129,7 +129,7 @@ namespace Engine1
 
 #if defined(_DEBUG) 
         std::string resourceName = std::string( "StagingTexture2D" );
-        Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
+        DX11Util::setResourceName( *m_texture.Get(), resourceName );
 #endif
     }
 

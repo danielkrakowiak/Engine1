@@ -8,7 +8,7 @@
 #include "RenderingTester.h"
 #include "AssetManager.h"
 #include "SceneManager.h"
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 #include "Profiler.h"
 #include "Renderer.h"
 #include "RenderTargetManager.h"
@@ -88,7 +88,7 @@ namespace UnitTests
                 SceneManager sceneManager( assetManager );
                 sceneManager.initialize( testDevice, testDeviceContext );
 
-	            Direct3DRendererCore rendererCore;
+	            DX11RendererCore rendererCore;
                 rendererCore.initialize( *testDeviceContext.Get() );
 
                 Profiler profiler;

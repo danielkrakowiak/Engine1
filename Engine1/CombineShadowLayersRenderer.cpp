@@ -1,6 +1,6 @@
 #include "CombineShadowLayersRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "CombineShadowLayersComputeShader.h"
 
@@ -8,7 +8,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-CombineShadowLayersRenderer::CombineShadowLayersRenderer( Direct3DRendererCore& rendererCore ) :
+CombineShadowLayersRenderer::CombineShadowLayersRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_combineShadowLayersComputeShader( std::make_shared< CombineShadowLayersComputeShader >() )
 {}

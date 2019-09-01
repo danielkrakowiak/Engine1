@@ -4,7 +4,7 @@
 #include <wrl.h>
 #include "Texture2D.h"
 
-#include "Direct3DDeferredRenderer.h"
+#include "DX11DeferredRenderer.h"
 #include "ASSAORenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
@@ -35,7 +35,7 @@
 
 namespace Engine1 
 {
-    class Direct3DRendererCore;
+    class DX11RendererCore;
     class Profiler;
     class RenderTargetManager;
     class Scene;
@@ -173,7 +173,7 @@ namespace Engine1
             std::shared_ptr< RenderTargetTexture2D< unsigned char > > ambientOcclusion;
         };
 
-        Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager );
+        Renderer( DX11RendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager );
         ~Renderer();
 
         void initialize( 
@@ -274,11 +274,11 @@ namespace Engine1
         // Bloom configuration.
         float m_minBrightness;
 
-        Direct3DRendererCore&     m_rendererCore;
+        DX11RendererCore&     m_rendererCore;
         Profiler&                 m_profiler;
         RenderTargetManager&      m_renderTargetManager;
 
-        Direct3DDeferredRenderer            m_deferredRenderer;
+        DX11DeferredRenderer            m_deferredRenderer;
         ASSAORenderer                       m_ASSAORenderer;
         RaytraceRenderer                    m_raytraceRenderer;
         ShadingRenderer                     m_shadingRenderer;

@@ -1,6 +1,6 @@
 #include "TextureRescaleRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "TextureRescaleComputeShader.h"
 
@@ -10,7 +10,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-TextureRescaleRenderer::TextureRescaleRenderer( Direct3DRendererCore& rendererCore ) :
+TextureRescaleRenderer::TextureRescaleRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_textureRescaleComputeShader( std::make_shared< TextureRescaleComputeShader >() )

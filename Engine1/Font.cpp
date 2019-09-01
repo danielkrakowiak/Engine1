@@ -2,7 +2,7 @@
 
 #include "FontLibrary.h"
 
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 
 using namespace Engine1;
 
@@ -85,7 +85,7 @@ FontCharacter* Font::getCharacter( unsigned long charcode, ID3D11Device3& device
 
 					#if defined(_DEBUG) 
 					std::string resourceName = std::string( "FontCharacter::vertexBuffer - charcode: " ) + std::to_string( charcode );
-					Direct3DUtil::setResourceName( *vertexBuffer.Get(), resourceName );
+					DX11Util::setResourceName( *vertexBuffer.Get(), resourceName );
 					#endif
 
 					character.setVertexBuffer( *vertexBuffer.Get() );

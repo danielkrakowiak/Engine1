@@ -2,7 +2,7 @@
 
 #include <d3d11_3.h>
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 #include "RaytracingShadowsComputeShader.h"
 #include "uint3.h"
 #include "MathUtil.h"
@@ -16,7 +16,7 @@
 using namespace Engine1;
 using Microsoft::WRL::ComPtr;
 
-RaytraceShadowRenderer::RaytraceShadowRenderer(Direct3DRendererCore& rendererCore) :
+RaytraceShadowRenderer::RaytraceShadowRenderer(DX11RendererCore& rendererCore) :
 	m_rendererCore( rendererCore ),
 	m_initialized( false ),
 	m_imageWidth( 0 ),

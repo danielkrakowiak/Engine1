@@ -1,4 +1,4 @@
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "RectangleMesh.h"
 #include "BlockMesh.h"
@@ -70,7 +70,7 @@ size_t RenderTargets::getCount() const
 		+ typeUchar.size() + typeUchar4.size();
 }
 
-Direct3DRendererCore::Direct3DRendererCore() :
+DX11RendererCore::DX11RendererCore() :
 m_deviceContext( nullptr ),
 viewportDimensions( float2::ZERO ),
 viewportTopLeft( float2::ZERO ),
@@ -88,15 +88,15 @@ m_currentBlendState( nullptr )
 }
 
 
-Direct3DRendererCore::~Direct3DRendererCore()
+DX11RendererCore::~DX11RendererCore()
 {}
 
-void Direct3DRendererCore::initialize( ID3D11DeviceContext3& deviceContext )
+void DX11RendererCore::initialize( ID3D11DeviceContext3& deviceContext )
 {
 	this->m_deviceContext = &deviceContext;
 }
 
-void Direct3DRendererCore::disableRenderingPipeline()
+void DX11RendererCore::disableRenderingPipeline()
 {
     disableRenderingShaders();
     disableRenderTargets();
@@ -106,13 +106,13 @@ void Direct3DRendererCore::disableRenderingPipeline()
     disableShaderInputs();
 }
 
-void Direct3DRendererCore::disableComputePipeline()
+void DX11RendererCore::disableComputePipeline()
 {
     disableComputeShaders();
 	disableRenderTargets();
 }
 
-void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader )
+void DX11RendererCore::enableRenderingShaders( std::shared_ptr<const VertexShader> vertexShader, std::shared_ptr<const FragmentShader> fragmentShader )
 {
     //#TODO: To be removed after Renderer refactor.
 
@@ -122,7 +122,7 @@ void Direct3DRendererCore::enableRenderingShaders( std::shared_ptr<const VertexS
         enableRenderingShaders( *vertexShader );
 }
 
-void Direct3DRendererCore::enableRenderingShaders( const VertexShader& vertexShader )
+void DX11RendererCore::enableRenderingShaders( const VertexShader& vertexShader )
 {
     if ( !m_deviceContext )
         throw std::exception( "Direct3DRendererCore::enableRenderingShaders - renderer not initialized." );
@@ -148,7 +148,7 @@ void Direct3DRendererCore::enableRenderingShaders( const VertexShader& vertexSha
     m_graphicsShaderEnabled = true;
 }
 
-void Direct3DRendererCore::enableRenderingShaders( const VertexShader& vertexShader, const FragmentShader& fragmentShader )
+void DX11RendererCore::enableRenderingShaders( const VertexShader& vertexShader, const FragmentShader& fragmentShader )
 {
     if ( !m_deviceContext )
         throw std::exception( "Direct3DRendererCore::enableRenderingShaders - renderer not initialized." );
@@ -175,14 +175,14 @@ void Direct3DRendererCore::enableRenderingShaders( const VertexShader& vertexSha
     m_graphicsShaderEnabled = true;
 }
 
-void Direct3DRendererCore::enableComputeShader( std::shared_ptr<const ComputeShader> computeShader )
+void DX11RendererCore::enableComputeShader( std::shared_ptr<const ComputeShader> computeShader )
 {
     //#TODO: To be removed after Renderer refactor.
 
     enableComputeShader( *computeShader );
 }
 
-void Direct3DRendererCore::enableComputeShader( const ComputeShader& computeShader )
+void DX11RendererCore::enableComputeShader( const ComputeShader& computeShader )
 {
     if ( !m_deviceContext ) 
         throw std::exception( "Direct3DRendererCore::enableComputeShader - renderer not initialized." );
@@ -200,7 +200,7 @@ void Direct3DRendererCore::enableComputeShader( const ComputeShader& computeShad
     m_computeShaderEnabled = true;
 }
 
-void Direct3DRendererCore::disableRenderingShaders()
+void DX11RendererCore::disableRenderingShaders()
 {
     if ( m_graphicsShaderEnabled ) 
     {
@@ -215,7 +215,7 @@ void Direct3DRendererCore::disableRenderingShaders()
     }
 }
 
-void Direct3DRendererCore::disableComputeShaders()
+void DX11RendererCore::disableComputeShaders()
 {
     if ( m_computeShaderEnabled ) 
     {
@@ -227,7 +227,7 @@ void Direct3DRendererCore::disableComputeShaders()
     }
 }
 
-void Direct3DRendererCore::setViewport( float2 dimensions, float2 topLeft, float depthMin, float depthMax )
+void DX11RendererCore::setViewport( float2 dimensions, float2 topLeft, float depthMin, float depthMax )
 {
     if ( !MathUtil::areEqual( dimensions, viewportDimensions ) || !MathUtil::areEqual( topLeft, viewportTopLeft ) || 
          !MathUtil::areEqual( depthMin, viewportDepthMin ) || !MathUtil::areEqual( depthMax, viewportDepthMax ) )
@@ -249,7 +249,7 @@ void Direct3DRendererCore::setViewport( float2 dimensions, float2 topLeft, float
     }
 }
 
-void Direct3DRendererCore::enableRenderTargets( 
+void DX11RendererCore::enableRenderTargets( 
     const RenderTargets& renderTargets,
 	const RenderTargets& unorderedAccessTargets,
     const int mipmapLevel )
@@ -373,7 +373,7 @@ void Direct3DRendererCore::enableRenderTargets(
 	}
 }
 
-void Direct3DRendererCore::disableRenderTargets()
+void DX11RendererCore::disableRenderTargets()
 {
     if ( !m_currentRTVs.empty() || m_currentDSV || !m_currentUAVs.empty() )
     {
@@ -408,7 +408,7 @@ void Direct3DRendererCore::disableRenderTargets()
     }
 }
 
-void Direct3DRendererCore::enableRasterizerState( ID3D11RasterizerState& rasterizerState )
+void DX11RendererCore::enableRasterizerState( ID3D11RasterizerState& rasterizerState )
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableRasterizerState - renderer not initialized." );
 
@@ -420,7 +420,7 @@ void Direct3DRendererCore::enableRasterizerState( ID3D11RasterizerState& rasteri
 	}
 }
 
-void Direct3DRendererCore::enableDepthStencilState( ID3D11DepthStencilState& depthStencilState )
+void DX11RendererCore::enableDepthStencilState( ID3D11DepthStencilState& depthStencilState )
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableDepthStencilState - renderer not initialized." );
 
@@ -432,7 +432,7 @@ void Direct3DRendererCore::enableDepthStencilState( ID3D11DepthStencilState& dep
 	}
 }
 
-void Direct3DRendererCore::enableBlendState( ID3D11BlendState& blendState )
+void DX11RendererCore::enableBlendState( ID3D11BlendState& blendState )
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableBlendState - renderer not initialized." );
 
@@ -447,7 +447,7 @@ void Direct3DRendererCore::enableBlendState( ID3D11BlendState& blendState )
 	}
 }
 
-void Direct3DRendererCore::enableDefaultRasterizerState()
+void DX11RendererCore::enableDefaultRasterizerState()
 {
     if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableDefaultRasterizerState - renderer not initialized." );
 
@@ -458,7 +458,7 @@ void Direct3DRendererCore::enableDefaultRasterizerState()
     }
 }
 
-void Direct3DRendererCore::enableDefaultDepthStencilState()
+void DX11RendererCore::enableDefaultDepthStencilState()
 {
     if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableDefaultDepthStencilState - renderer not initialized." );
 
@@ -469,7 +469,7 @@ void Direct3DRendererCore::enableDefaultDepthStencilState()
     }
 }
 
-void Direct3DRendererCore::enableDefaultBlendState()
+void DX11RendererCore::enableDefaultBlendState()
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::enableDefaultBlendState - renderer not initialized." );
 
@@ -483,7 +483,7 @@ void Direct3DRendererCore::enableDefaultBlendState()
 }
 
 // Note: Shaders need to be configured and set before calling this method.
-void Direct3DRendererCore::draw( const RectangleMesh& mesh )
+void DX11RendererCore::draw( const RectangleMesh& mesh )
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::draw - renderer not initialized." );
 	if ( !mesh.isInGpuMemory() ) throw std::exception( "Direct3DRenderer::drawRectangleMesh - mesh hasn't been loaded to GPU yet" );
@@ -526,7 +526,7 @@ void Direct3DRendererCore::draw( const RectangleMesh& mesh )
 }
 
 // Note: Shaders need to be configured and set before calling this method.
-void Direct3DRendererCore::draw( const BlockMesh& mesh )
+void DX11RendererCore::draw( const BlockMesh& mesh )
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::draw - renderer not initialized." );
 	if ( !mesh.isInGpuMemory() ) throw std::exception( "Direct3DRenderer::drawBlockMesh - mesh hasn't been loaded to GPU yet" );
@@ -569,7 +569,7 @@ void Direct3DRendererCore::draw( const BlockMesh& mesh )
 }
 
 // Note: Shaders need to be configured and set before calling this method.
-void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
+void DX11RendererCore::draw( const SkeletonMesh& mesh )
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::draw - renderer not initialized." );
 
@@ -634,7 +634,7 @@ void Direct3DRendererCore::draw( const SkeletonMesh& mesh )
 }
 
 // Note: Shaders need to be configured and set before calling this method.
-void Direct3DRendererCore::draw( const FontCharacter& character )
+void DX11RendererCore::draw( const FontCharacter& character )
 {
 	if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::draw - renderer not initialized." );
 
@@ -653,14 +653,14 @@ void Direct3DRendererCore::draw( const FontCharacter& character )
 }
 
 // Note: Shaders need to be configured and set before calling this method.
-void Direct3DRendererCore::compute( uint3 groupCount )
+void DX11RendererCore::compute( uint3 groupCount )
 {
     if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::compute - renderer not initialized." );
 
     m_deviceContext->Dispatch( groupCount.x, groupCount.y, groupCount.z );
 }
 
-void Direct3DRendererCore::disableShaderInputs()
+void DX11RendererCore::disableShaderInputs()
 {
     if ( !m_deviceContext ) throw std::exception( "Direct3DRendererCore::disableShaderInputs - renderer not initialized." );
 
@@ -672,7 +672,7 @@ void Direct3DRendererCore::disableShaderInputs()
     m_deviceContext->PSSetSamplers( 0, (unsigned int)m_nullSamplers.size(), m_nullSamplers.data() );
 }
 
-void Direct3DRendererCore::createNullShaderInputs()
+void DX11RendererCore::createNullShaderInputs()
 {
     m_nullVertexBuffers.resize( D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT  );
     m_nullVertexBuffersStrideOffset.resize( D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT );

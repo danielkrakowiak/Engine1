@@ -1,6 +1,6 @@
 #include "ShadowMapRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "MathUtil.h"
 
@@ -10,7 +10,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-ShadowMapRenderer::ShadowMapRenderer( Direct3DRendererCore& rendererCore ) :
+ShadowMapRenderer::ShadowMapRenderer( DX11RendererCore& rendererCore ) :
 m_rendererCore( rendererCore ),
 m_initialized( false ),
 m_blockMeshVertexShader( std::make_shared<BlockMeshVertexShader>() ),

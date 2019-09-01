@@ -538,4 +538,4 @@ Thu 16.12.2016 - 1h - Added mipmap generation on CPU.
 
 26.08.2019 - 3.5h - Debugging Bloom vs DOF problem (only one works at a time). Failed to use Graphics Debugger, updated VS, using RenderDoc instead. Fixed the problem: caused by Typed UAV float4 load in mipmaps merging shader - not supported on DX11. Somehow no warning until I started debugging the shader in RenderDoc. Investigating why rendering tests output black image.
 
-01.09.2019 - 2 - Fixed RenderingTests - copying texture to staging texture was the problem (11 mipmaps vs 1 mipmap). Small improvements in how settings are initialized/managed/restored in RenderingTester.
+01.09.2019 - 2.5 - Fixed RenderingTests - copying texture to staging texture was the problem (11 mipmaps vs 1 mipmap). Small improvements in how settings are initialized/managed/restored in RenderingTester.

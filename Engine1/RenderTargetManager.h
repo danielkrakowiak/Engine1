@@ -8,7 +8,7 @@
 #include "Texture2DTypes.h"
 #include "float4.h"
 #include "int2.h"
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 
 namespace Engine1
 {
@@ -71,7 +71,7 @@ namespace Engine1
                 && renderTarget->getDimensions() == imageDimensions 
                 && (reducedPrecision == isReducedPrecisionFormat( renderTarget->getTextureFormat() ) ))
             {
-                Direct3DUtil::setResourceName( *renderTarget->getTextureResource().Get(), debugName );
+                DX11Util::setResourceName( *renderTarget->getTextureResource().Get(), debugName );
 
                 return renderTarget;
             }

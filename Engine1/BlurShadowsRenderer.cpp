@@ -1,6 +1,6 @@
 #include "BlurShadowsRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "BlurShadowsComputeShader.h"
 #include "Camera.h"
@@ -11,7 +11,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-BlurShadowsRenderer::BlurShadowsRenderer( Direct3DRendererCore& rendererCore ) :
+BlurShadowsRenderer::BlurShadowsRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_imageWidth( 0 ),

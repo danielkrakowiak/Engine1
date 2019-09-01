@@ -10,7 +10,7 @@
 #include "BlockMeshFileInfoParser.h"
 
 #include "StringUtil.h"
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 #include "MathUtil.h"
 
 #include "TextFile.h"
@@ -199,7 +199,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::vertexBuffer" );
-		Direct3DUtil::setResourceName( *m_vertexBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_vertexBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -234,7 +234,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::normalBuffer" );
-		Direct3DUtil::setResourceName( *m_normalBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_normalBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -269,7 +269,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::tangentBuffer" );
-		Direct3DUtil::setResourceName( *m_tangentBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_tangentBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -331,7 +331,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "BlockMesh::texcoordBuffer[" ) + std::to_string( m_texcoordBuffers.size() - 1 ) + std::string( "]" );
-		Direct3DUtil::setResourceName( *buffer.Get(), resourceName );
+		DX11Util::setResourceName( *buffer.Get(), resourceName );
 #endif
 	}
 
@@ -369,7 +369,7 @@ void BlockMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::triangleBuffer" );
-        Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
+        DX11Util::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -649,7 +649,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device3& device, const bool reload )
 
 #if defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhNodes" );
-        Direct3DUtil::setResourceName( *m_bvhTreeBufferNodesGpu.Get(), resourceName );
+        DX11Util::setResourceName( *m_bvhTreeBufferNodesGpu.Get(), resourceName );
 #endif
 	}
 
@@ -682,7 +682,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device3& device, const bool reload )
 
 #if defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhNodesExtents" );
-        Direct3DUtil::setResourceName( *m_bvhTreeBufferNodesExtentsGpu.Get(), resourceName );
+        DX11Util::setResourceName( *m_bvhTreeBufferNodesExtentsGpu.Get(), resourceName );
 #endif
 	}
 
@@ -714,7 +714,7 @@ void BlockMesh::loadBvhTreeToGpu( ID3D11Device3& device, const bool reload )
 
 #if defined(_DEBUG) 
         std::string resourceName = std::string( "BlockMesh::bvhTriangles" );
-        Direct3DUtil::setResourceName( *m_bvhTreeBufferTrianglesGpu.Get(), resourceName );
+        DX11Util::setResourceName( *m_bvhTreeBufferTrianglesGpu.Get(), resourceName );
 #endif
 	}
 }

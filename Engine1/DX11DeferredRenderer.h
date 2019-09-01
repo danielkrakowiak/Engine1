@@ -26,7 +26,7 @@ struct ID3D11BlendState;
 
 namespace Engine1
 {
-    class Direct3DRendererCore;
+    class DX11RendererCore;
     class BlockMesh;
     class SkeletonMesh;
     class BlockModel;
@@ -34,7 +34,7 @@ namespace Engine1
     class SkeletonPose;
     class Font;
 
-    class Direct3DDeferredRenderer
+    class DX11DeferredRenderer
     {
 
         public:
@@ -79,8 +79,8 @@ namespace Engine1
             bool   wireframeMode;
         };
 
-        Direct3DDeferredRenderer( Direct3DRendererCore& rendererCore );
-        ~Direct3DDeferredRenderer();
+        DX11DeferredRenderer( DX11RendererCore& rendererCore );
+        ~DX11DeferredRenderer();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, 
                          Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > deviceContext );
@@ -143,7 +143,7 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& m_rendererCore;
+        DX11RendererCore& m_rendererCore;
 
         Microsoft::WRL::ComPtr<ID3D11Device3> m_device;
         Microsoft::WRL::ComPtr<ID3D11DeviceContext3> m_deviceContext;
@@ -183,8 +183,8 @@ namespace Engine1
         void loadAndCompileShaders( Microsoft::WRL::ComPtr< ID3D11Device3 >& device );
 
         // Copying is not allowed.
-        Direct3DDeferredRenderer( const Direct3DDeferredRenderer& ) = delete;
-        Direct3DDeferredRenderer& operator=(const Direct3DDeferredRenderer&) = delete;
+        DX11DeferredRenderer( const DX11DeferredRenderer& ) = delete;
+        DX11DeferredRenderer& operator=(const DX11DeferredRenderer&) = delete;
     };
 }
 

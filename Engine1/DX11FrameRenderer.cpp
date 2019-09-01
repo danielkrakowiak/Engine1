@@ -1,13 +1,13 @@
-#include "Direct3DFrameRenderer.h"
+#include "DX11FrameRenderer.h"
 
 #include <exception>
 #include <memory>
 #include <string>
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "MathUtil.h"
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 
 #include <dxgi.h>
 #include <d3dcommon.h>
@@ -17,7 +17,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-Direct3DFrameRenderer::Direct3DFrameRenderer( Direct3DRendererCore& rendererCore, Profiler& profiler ) :
+DX11FrameRenderer::DX11FrameRenderer( DX11RendererCore& rendererCore, Profiler& profiler ) :
     m_rendererCore( rendererCore ),
     m_profiler( profiler ),
     m_initialized( false ),
@@ -35,7 +35,7 @@ Direct3DFrameRenderer::Direct3DFrameRenderer( Direct3DRendererCore& rendererCore
 {
 }
 
-Direct3DFrameRenderer::~Direct3DFrameRenderer()
+DX11FrameRenderer::~DX11FrameRenderer()
 {
 	if ( m_initialized ) {
 		if ( m_swapChain ) {
@@ -47,7 +47,7 @@ Direct3DFrameRenderer::~Direct3DFrameRenderer()
 	//reportLiveObjects( );
 }
 
-void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int screenHeight, bool fullscreen, bool verticalSync )
+void DX11FrameRenderer::initialize( HWND windowHandle, int screenWidth, int screenHeight, bool fullscreen, bool verticalSync )
 {
 	this->m_fullscreen   = fullscreen;
 	this->m_screenWidth  = screenWidth;
@@ -205,7 +205,7 @@ void Direct3DFrameRenderer::initialize( HWND windowHandle, int screenWidth, int 
 	m_initialized = true;
 }
 
-void Direct3DFrameRenderer::reportLiveObjects()
+void DX11FrameRenderer::reportLiveObjects()
 {
 	// Print Direct3D objects which were not released yet.
 	ComPtr<ID3D11Debug> deviceDebug;
@@ -215,7 +215,7 @@ void Direct3DFrameRenderer::reportLiveObjects()
 	}
 }
 
-std::tuple<int, int> Direct3DFrameRenderer::getRefreshRateNumeratorDenominator( IDXGIAdapter& adapter, unsigned int screenWidth, unsigned int screenHeight )
+std::tuple<int, int> DX11FrameRenderer::getRefreshRateNumeratorDenominator( IDXGIAdapter& adapter, unsigned int screenWidth, unsigned int screenHeight )
 {
 	HRESULT             result;
 	ComPtr<IDXGIOutput> adapterOutput;
@@ -258,7 +258,7 @@ std::tuple<int, int> Direct3DFrameRenderer::getRefreshRateNumeratorDenominator( 
 	return std::make_tuple( numerator, denominator );
 }
 
-std::string Direct3DFrameRenderer::getGpuDescription( IDXGIAdapter& adapter )
+std::string DX11FrameRenderer::getGpuDescription( IDXGIAdapter& adapter )
 {
 	DXGI_ADAPTER_DESC adapterDesc;
 
@@ -275,7 +275,7 @@ std::string Direct3DFrameRenderer::getGpuDescription( IDXGIAdapter& adapter )
 	return std::string( description );
 }
 
-size_t Direct3DFrameRenderer::getGpuMemory( IDXGIAdapter& adapter )
+size_t DX11FrameRenderer::getGpuMemory( IDXGIAdapter& adapter )
 {
 	DXGI_ADAPTER_DESC adapterDesc;
 
@@ -285,7 +285,7 @@ size_t Direct3DFrameRenderer::getGpuMemory( IDXGIAdapter& adapter )
 	return adapterDesc.DedicatedVideoMemory;
 }
 
-ComPtr<IDXGISwapChain> Direct3DFrameRenderer::createSwapChain( 
+ComPtr<IDXGISwapChain> DX11FrameRenderer::createSwapChain( 
     IDXGIFactory3& factory, ID3D11Device3& device,
     HWND windowHandle, bool fullscreen, bool verticalSync, 
     unsigned int screenWidth, unsigned int screenHeight, 
@@ -338,7 +338,7 @@ ComPtr<IDXGISwapChain> Direct3DFrameRenderer::createSwapChain(
     return swapChain;
 }
 
-ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwapChain& swapChain )
+ComPtr< ID3D11Texture2D > DX11FrameRenderer::getBackbufferTexture( IDXGISwapChain& swapChain )
 {
 	ComPtr< ID3D11Texture2D > backBufferPtr;
 
@@ -349,7 +349,7 @@ ComPtr< ID3D11Texture2D > Direct3DFrameRenderer::getBackbufferTexture( IDXGISwap
 	return backBufferPtr;
 }
 
-ComPtr<ID3D11RasterizerState> Direct3DFrameRenderer::createRasterizerState( ID3D11Device3& device )
+ComPtr<ID3D11RasterizerState> DX11FrameRenderer::createRasterizerState( ID3D11Device3& device )
 {
 	D3D11_RASTERIZER_DESC         rasterDesc;
 	ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -373,7 +373,7 @@ ComPtr<ID3D11RasterizerState> Direct3DFrameRenderer::createRasterizerState( ID3D
 	return rasterizerState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateNoBlending( ID3D11Device3& device )
+ComPtr<ID3D11BlendState> DX11FrameRenderer::createBlendStateNoBlending( ID3D11Device3& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -399,7 +399,7 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateNoBlending( ID3D
 	return blendState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateWithBlending( ID3D11Device3& device )
+ComPtr<ID3D11BlendState> DX11FrameRenderer::createBlendStateWithBlending( ID3D11Device3& device )
 {
     ComPtr<ID3D11BlendState> blendState;
     D3D11_BLEND_DESC         blendDesc;
@@ -425,7 +425,7 @@ ComPtr<ID3D11BlendState> Direct3DFrameRenderer::createBlendStateWithBlending( ID
     return blendState;
 }
 
-void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
+void DX11FrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
 	m_textureVertexShader->loadAndInitialize( "Engine1/Shaders/TextureShader/Texture_vs.cso", device );
 	m_textureFragmentShader->loadAndInitialize( "Engine1/Shaders/TextureShader/Texture_ps.cso", device );
@@ -436,7 +436,7 @@ void Direct3DFrameRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& devi
 	m_textFragmentShader->loadAndInitialize( "Engine1/Shaders/TextShader/Text_ps.cso", device );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2D< unsigned char>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void DX11FrameRenderer::renderTexture( const Texture2D< unsigned char>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -467,7 +467,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< unsigned char>& text
     m_textureSingleChannelFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2D< uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void DX11FrameRenderer::renderTexture( const Texture2D< uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -498,7 +498,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< uchar4>& texture, fl
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2D< float4 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void DX11FrameRenderer::renderTexture( const Texture2D< float4 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -529,7 +529,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< float4 >& texture, f
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2D< float2 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void DX11FrameRenderer::renderTexture( const Texture2D< float2 >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -560,7 +560,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< float2 >& texture, f
 	m_textureFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTexture( const Texture2D< float >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void DX11FrameRenderer::renderTexture( const Texture2D< float >& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -592,7 +592,7 @@ void Direct3DFrameRenderer::renderTexture( const Texture2D< float >& texture, fl
     m_textureSingleChannelFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::renderTextureAlpha( const Texture2D< uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
+void DX11FrameRenderer::renderTextureAlpha( const Texture2D< uchar4>& texture, float posX, float posY, float width, float height, bool blend, int mipmapLevel )
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::renderTexture - renderer not initialized." );
 
@@ -623,7 +623,7 @@ void Direct3DFrameRenderer::renderTextureAlpha( const Texture2D< uchar4>& textur
 	m_textureAlphaFragmentShader->unsetParameters( *m_deviceContext.Get() );
 }
 
-void Direct3DFrameRenderer::displayFrame()
+void DX11FrameRenderer::displayFrame()
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::displayFrame - renderer not initialized." );
 
@@ -638,21 +638,21 @@ void Direct3DFrameRenderer::displayFrame()
 
 }
 
-ComPtr< ID3D11Device3 > Direct3DFrameRenderer::getDevice()
+ComPtr< ID3D11Device3 > DX11FrameRenderer::getDevice()
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::getDevice - renderer not initialized." );
 
 	return m_device;
 }
 
-ComPtr< ID3D11DeviceContext3 > Direct3DFrameRenderer::getDeviceContext()
+ComPtr< ID3D11DeviceContext3 > DX11FrameRenderer::getDeviceContext()
 {
 	if ( !m_initialized ) throw std::exception( "Direct3DFrameRenderer::getDeviceContext - renderer not initialized." );
 
 	return m_deviceContext;
 }
 
-std::string Direct3DFrameRenderer::getGPUName() const
+std::string DX11FrameRenderer::getGPUName() const
 {
     return m_gpuDescription;
 }

@@ -1,21 +1,21 @@
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 
 #include <d3d11_3.h>
 
 using namespace Engine1;
 
-void Direct3DUtil::setResourceName( ID3D11DeviceChild& child, const std::string& name ) 
+void DX11Util::setResourceName( ID3D11DeviceChild& child, const std::string& name ) 
 {
 	child.SetPrivateData( WKPDID_D3DDebugObjectName, (unsigned int)name.size(), name.c_str() );
 }
 
-int Direct3DUtil::getRefCount( IUnknown& object )
+int DX11Util::getRefCount( IUnknown& object )
 {
 	object.AddRef( );
 	return object.Release( );
 }
 
-std::string Direct3DUtil::getLastErrorMessage()
+std::string DX11Util::getLastErrorMessage()
 {
     /*ULONG bufSize = 512;
     CHAR pBuf[512];

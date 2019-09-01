@@ -2,9 +2,9 @@
 
 #include "InputManager.h"
 #include "SceneManager.h"
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 #include "Renderer.h"
-#include "Direct3DFrameRenderer.h"
+#include "DX11FrameRenderer.h"
 #include "FreeCamera.h"
 #include "Profiler.h"
 #include "Benchmark.h"
@@ -131,8 +131,8 @@ namespace Engine1
         AssetManager     m_assetManager;
         SceneManager     m_sceneManager;
 
-	    Direct3DRendererCore      m_rendererCore;
-        Direct3DFrameRenderer     m_frameRenderer;
+	    DX11RendererCore      m_rendererCore;
+        DX11FrameRenderer     m_frameRenderer;
         Renderer                  m_renderer;
         Profiler                  m_profiler;
         Benchmark                 m_benchmark;

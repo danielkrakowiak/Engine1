@@ -1,6 +1,6 @@
 #include "AntialiasingRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "ComputeShader.h"
 #include "AntialiasingComputeShader.h"
@@ -11,7 +11,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-AntialiasingRenderer::AntialiasingRenderer( Direct3DRendererCore& rendererCore ) :
+AntialiasingRenderer::AntialiasingRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_luminanceComputeShader( std::make_shared< ComputeShader >() ),

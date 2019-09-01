@@ -15,7 +15,7 @@ struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
-    class Direct3DRendererCore;
+    class DX11RendererCore;
     class BlockActor;
     class RasterizingShadowsComputeShader;
     class Light;
@@ -24,7 +24,7 @@ namespace Engine1
     {
         public:
 
-        RasterizeShadowRenderer( Direct3DRendererCore& rendererCore );
+        RasterizeShadowRenderer( DX11RendererCore& rendererCore );
         ~RasterizeShadowRenderer();
 
         void initialize(
@@ -46,7 +46,7 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& m_rendererCore;
+        DX11RendererCore& m_rendererCore;
 
         Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;

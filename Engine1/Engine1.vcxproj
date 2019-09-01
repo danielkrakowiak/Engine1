@@ -413,8 +413,8 @@
     <ClInclude Include="CombiningVertexShader.h" />
     <ClInclude Include="ComplexModel.h" />
     <ClInclude Include="ComputeShader.h" />
-    <ClInclude Include="Direct3DDeferredRenderer.h" />
-    <ClInclude Include="Direct3DRendererCore.h" />
+    <ClInclude Include="DX11DeferredRenderer.h" />
+    <ClInclude Include="DX11RendererCore.h" />
     <ClInclude Include="EdgeDetectionComputeShader.h" />
     <ClInclude Include="EdgeDetectionRenderer.h" />
     <ClInclude Include="EdgeDistanceComputeShader.h" />
@@ -460,7 +460,7 @@
     <ClInclude Include="ShadingNoShadowsComputeShader.h" />
     <ClInclude Include="ShadingNoShadowsComputeShader2.h" />
     <ClInclude Include="ShadingRenderer.h" />
-    <ClInclude Include="Direct3DUtil.h" />
+    <ClInclude Include="DX11Util.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="GenerateRaysComputeShader.h" />
     <ClInclude Include="GenerateFirstReflectedRaysComputeShader.h" />
@@ -499,7 +499,7 @@
     <ClInclude Include="FontLibrary.h" />
     <ClInclude Include="ImageLibrary.h" />
     <ClInclude Include="MeshFileParser.h" />
-    <ClInclude Include="Direct3DFrameRenderer.h" />
+    <ClInclude Include="DX11FrameRenderer.h" />
     <ClInclude Include="float2.h" />
     <ClInclude Include="float3.h" />
     <ClInclude Include="float33.h" />
@@ -607,8 +607,8 @@
     <ClCompile Include="CombiningVertexShader.cpp" />
     <ClCompile Include="ComplexModel.cpp" />
     <ClCompile Include="ComputeShader.cpp" />
-    <ClCompile Include="Direct3DDeferredRenderer.cpp" />
-    <ClCompile Include="Direct3DRendererCore.cpp" />
+    <ClCompile Include="DX11DeferredRenderer.cpp" />
+    <ClCompile Include="DX11RendererCore.cpp" />
     <ClCompile Include="EdgeDetectionComputeShader.cpp" />
     <ClCompile Include="EdgeDetectionRenderer.cpp" />
     <ClCompile Include="EdgeDistanceComputeShader.cpp" />
@@ -654,7 +654,7 @@
     <ClCompile Include="ShadingNoShadowsComputeShader.cpp" />
     <ClCompile Include="ShadingNoShadowsComputeShader2.cpp" />
     <ClCompile Include="ShadingRenderer.cpp" />
-    <ClCompile Include="Direct3DUtil.cpp" />
+    <ClCompile Include="DX11Util.cpp" />
     <ClCompile Include="GenerateRaysComputeShader.cpp" />
     <ClCompile Include="GenerateFirstReflectedRaysComputeShader.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -690,7 +690,7 @@
     <ClCompile Include="FontLibrary.cpp" />
     <ClCompile Include="ImageLibrary.cpp" />
     <ClCompile Include="MeshFileParser.cpp" />
-    <ClCompile Include="Direct3DFrameRenderer.cpp" />
+    <ClCompile Include="DX11FrameRenderer.cpp" />
     <ClCompile Include="float2.cpp" />
     <ClCompile Include="float3.cpp" />
     <ClCompile Include="float33.cpp" />

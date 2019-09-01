@@ -1,6 +1,6 @@
 #include "ShadingRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "ShadingComputeShader0.h"
 #include "ShadingComputeShader.h"
@@ -15,7 +15,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-ShadingRenderer::ShadingRenderer( Direct3DRendererCore& rendererCore ) :
+ShadingRenderer::ShadingRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_imageWidth( 0 ),

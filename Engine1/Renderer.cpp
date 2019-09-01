@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 #include "Profiler.h"
 #include "RenderTargetManager.h"
-#include "Direct3DDeferredRenderer.h"
+#include "DX11DeferredRenderer.h"
 #include "RaytraceRenderer.h"
 #include "ShadingRenderer.h"
 #include "ReflectionRefractionShadingRenderer.h"
@@ -34,7 +34,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-Renderer::Renderer( Direct3DRendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager ) :
+Renderer::Renderer( DX11RendererCore& rendererCore, Profiler& profiler, RenderTargetManager& renderTargetManager ) :
     m_rendererCore( rendererCore ),
     m_profiler( profiler ),
     m_renderTargetManager( renderTargetManager ),
@@ -253,10 +253,10 @@ void Renderer::renderText(
     float4 color,
     std::shared_ptr< RenderTargetTexture2D< uchar4 > > colorRenderTarget )
 {
-    Direct3DDeferredRenderer::DeferredRenderTargets deferredRenderTargets;
+    DX11DeferredRenderer::DeferredRenderTargets deferredRenderTargets;
     deferredRenderTargets.albedo = colorRenderTarget;
 
-    Direct3DDeferredRenderer::Settings defferedSettings;
+    DX11DeferredRenderer::Settings defferedSettings;
     defferedSettings.fieldOfView     = 0.0f; // Not used.
     defferedSettings.imageDimensions = (float2)m_imageDimensions;
     defferedSettings.wireframeMode   = false;
@@ -303,7 +303,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
     layerRenderTargets.depth->clearDepthStencilView( *m_deviceContext.Get(), true, 1.0f, false, 0 );
 
     { // Render meshes using DeferredRenderer and render Ambient Occlusion.
-        Direct3DDeferredRenderer::DeferredRenderTargets defferedRenderTargets;
+        DX11DeferredRenderer::DeferredRenderTargets defferedRenderTargets;
         defferedRenderTargets.position        = layerRenderTargets.hitPosition;
         defferedRenderTargets.emissive        = layerRenderTargets.hitEmissive;
         defferedRenderTargets.albedo          = layerRenderTargets.hitAlbedo;
@@ -313,7 +313,7 @@ Renderer::Output Renderer::renderPrimaryLayer(
         defferedRenderTargets.refractiveIndex = layerRenderTargets.hitRefractiveIndex;
         defferedRenderTargets.depth           = layerRenderTargets.depth;
 
-        Direct3DDeferredRenderer::Settings defferedSettings;
+        DX11DeferredRenderer::Settings defferedSettings;
         defferedSettings.fieldOfView     = camera.getFieldOfView();
         defferedSettings.imageDimensions = (float2)m_imageDimensions;
         defferedSettings.wireframeMode   = wireframeMode;

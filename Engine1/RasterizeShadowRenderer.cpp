@@ -2,7 +2,7 @@
 
 #include <d3d11_3.h>
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 #include "RasterizingShadowsComputeShader.h"
 #include "uint3.h"
 #include "MathUtil.h"
@@ -14,7 +14,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-RasterizeShadowRenderer::RasterizeShadowRenderer( Direct3DRendererCore& rendererCore ) :
+RasterizeShadowRenderer::RasterizeShadowRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_imageWidth( 0 ),

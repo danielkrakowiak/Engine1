@@ -1,6 +1,6 @@
 #include "CombiningRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "ShadingComputeShader.h"
 #include "Camera.h"
@@ -11,7 +11,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-CombiningRenderer::CombiningRenderer( Direct3DRendererCore& rendererCore ) :
+CombiningRenderer::CombiningRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_combiningVertexShader( std::make_shared< CombiningVertexShader >() ),

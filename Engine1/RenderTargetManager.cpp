@@ -23,7 +23,7 @@ RenderTargetManager::getRenderTargetDepth( const int2 imageDimensions, const std
     for ( auto& renderTarget : m_renderTargetsDepthUchar4 ) {
         if ( renderTarget.use_count() == 1 && renderTarget->getDimensions() == imageDimensions )
         {
-            Direct3DUtil::setResourceName( *renderTarget->getTextureResource().Get(), debugName );
+            DX11Util::setResourceName( *renderTarget->getTextureResource().Get(), debugName );
 
             return renderTarget;
         }

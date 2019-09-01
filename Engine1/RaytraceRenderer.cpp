@@ -2,7 +2,7 @@
 
 #include <d3d11_3.h>
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 #include "GenerateRaysComputeShader.h"
 #include "GenerateFirstReflectedRaysComputeShader.h"
 #include "GenerateFirstRefractedRaysComputeShader.h"
@@ -24,7 +24,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-RaytraceRenderer::RaytraceRenderer( Direct3DRendererCore& rendererCore ) :
+RaytraceRenderer::RaytraceRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_imageWidth( 0 ),

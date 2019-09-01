@@ -2,7 +2,7 @@
 
 #include <d3d11_3.h>
 
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 
 using namespace Engine1;
 
@@ -64,7 +64,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "RectangleMesh::vertexBuffer" );
-		Direct3DUtil::setResourceName( *m_vertexBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_vertexBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -87,7 +87,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "RectangleMesh::normalBuffer" );
-		Direct3DUtil::setResourceName( *m_normalBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_normalBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -111,7 +111,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "RectangleMesh::texcoordsBuffer" );
-		Direct3DUtil::setResourceName( *m_texcoordBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_texcoordBuffer.Get(), resourceName );
 #endif
 	}
 
@@ -136,7 +136,7 @@ void RectangleMesh::loadCpuToGpu( ID3D11Device3& device, bool reload )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "RectangleMesh::triangleBuffer" );
-		Direct3DUtil::setResourceName( *m_triangleBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_triangleBuffer.Get(), resourceName );
 #endif
 	}
 }

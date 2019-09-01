@@ -16,7 +16,7 @@ struct ID3D11BlendState;
 
 namespace Engine1
 {
-    class Direct3DRendererCore;
+    class DX11RendererCore;
     class BlurShadowPatternComputeShader;
     class Light;
     class Camera;
@@ -25,7 +25,7 @@ namespace Engine1
     {
         public:
 
-        BlurShadowPatternRenderer( Direct3DRendererCore& rendererCore );
+        BlurShadowPatternRenderer( DX11RendererCore& rendererCore );
         ~BlurShadowPatternRenderer();
 
         void initialize( int imageWidth, int imageHeight, Microsoft::WRL::ComPtr< ID3D11Device3 > device,
@@ -62,7 +62,7 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& m_rendererCore;
+        DX11RendererCore& m_rendererCore;
 
         Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;

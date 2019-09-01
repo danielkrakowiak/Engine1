@@ -1,11 +1,11 @@
 #include "BokehBlurRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 using namespace Engine1;
 using namespace Microsoft::WRL;
 
-BokehBlurRenderer::BokehBlurRenderer( Direct3DRendererCore& rendererCore ) :
+BokehBlurRenderer::BokehBlurRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_shader( std::make_shared< BokehBlurComputeShader >() )
 {

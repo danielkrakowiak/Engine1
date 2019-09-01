@@ -1,6 +1,6 @@
 #include "ReflectionRefractionShadingRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "ReflectionShadingComputeShader.h"
 #include "ReflectionShadingComputeShader2.h"
@@ -16,7 +16,7 @@ using Microsoft::WRL::ComPtr;
 
 const int ReflectionRefractionShadingRenderer::maxRenderTargetCount = 10;
 
-ReflectionRefractionShadingRenderer::ReflectionRefractionShadingRenderer( Direct3DRendererCore& rendererCore ) :
+ReflectionRefractionShadingRenderer::ReflectionRefractionShadingRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_imageWidth( 0 ),

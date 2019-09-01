@@ -16,7 +16,7 @@ struct ID3D11BlendState;
 
 namespace Engine1
 {
-    class Direct3DRendererCore;
+    class DX11RendererCore;
     class HitDistanceSearchComputeShader;
     class Camera;
 
@@ -24,7 +24,7 @@ namespace Engine1
     {
         public:
 
-        HitDistanceSearchRenderer( Direct3DRendererCore& rendererCore );
+        HitDistanceSearchRenderer( DX11RendererCore& rendererCore );
         ~HitDistanceSearchRenderer();
 
         void initialize( 
@@ -42,7 +42,7 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& m_rendererCore;
+        DX11RendererCore& m_rendererCore;
 
         Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;

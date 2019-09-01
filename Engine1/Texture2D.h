@@ -16,7 +16,7 @@
 #include "BinaryFile.h"
 #include "TextureBase.h"
 
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 
 // #TODO: Add support for mipmaps. Generated on CPU or GPU or both.
 // #TODO: Add support for writing/reading mipmaps CPU -> GPU, GPU -> CPU.
@@ -526,7 +526,7 @@ namespace Engine1
         #if defined(_DEBUG) 
         if ( m_texture ) {
 		    std::string resourceName = std::string( "Texture2D (" + fileInfo.getPath() + ")" );
-		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
+		    DX11Util::setResourceName( *m_texture.Get(), resourceName );
         }
         #endif
     }
@@ -712,7 +712,7 @@ namespace Engine1
         #if defined(_DEBUG) 
         if ( !getFileInfo().getPath().empty() ) {
 		    std::string resourceName = std::string( "Texture2D (" + getFileInfo().getPath() + ")" );
-		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
+		    DX11Util::setResourceName( *m_texture.Get(), resourceName );
         }
         #endif
 
@@ -791,7 +791,7 @@ namespace Engine1
         #if defined(_DEBUG) 
         if ( !getFileInfo().getPath().empty() ) {
 		    std::string resourceName = std::string( "Texture2D (" + getFileInfo().getPath() + ")" );
-		    Direct3DUtil::setResourceName( *m_texture.Get(), resourceName );
+		    DX11Util::setResourceName( *m_texture.Get(), resourceName );
         }
         #endif
 

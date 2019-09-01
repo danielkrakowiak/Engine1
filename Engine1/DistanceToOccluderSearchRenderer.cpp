@@ -1,6 +1,6 @@
 #include "DistanceToOccluderSearchRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "DistanceToOccluderSearchComputeShader.h"
 #include "Camera.h"
@@ -9,7 +9,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-DistanceToOccluderSearchRenderer::DistanceToOccluderSearchRenderer( Direct3DRendererCore& rendererCore ) :
+DistanceToOccluderSearchRenderer::DistanceToOccluderSearchRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_imageWidth( 0 ),

@@ -30,17 +30,17 @@ struct ID3D11BlendState;
 
 namespace Engine1
 {
-    class Direct3DRendererCore;
+    class DX11RendererCore;
     class RenderTarget2D;
     class Profiler;
 
-    class Direct3DFrameRenderer
+    class DX11FrameRenderer
     {
 
         public:
 
-        Direct3DFrameRenderer( Direct3DRendererCore& rendererCore, Profiler& profiler );
-        ~Direct3DFrameRenderer();
+        DX11FrameRenderer( DX11RendererCore& rendererCore, Profiler& profiler );
+        ~DX11FrameRenderer();
 
         void initialize( HWND windowHandle, int screenWidth, int screenHeight, bool fullscreen, bool verticalSync );
 
@@ -63,7 +63,7 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& m_rendererCore;
+        DX11RendererCore& m_rendererCore;
         Profiler&             m_profiler;
 
         // Initalization.
@@ -115,8 +115,8 @@ namespace Engine1
         std::shared_ptr<TextFragmentShader>    m_textFragmentShader;
 
         // Copying is not allowed.
-        Direct3DFrameRenderer( const Direct3DFrameRenderer& ) = delete;
-        Direct3DFrameRenderer& operator=(const Direct3DFrameRenderer&) = delete;
+        DX11FrameRenderer( const DX11FrameRenderer& ) = delete;
+        DX11FrameRenderer& operator=(const DX11FrameRenderer&) = delete;
     };
 }
 

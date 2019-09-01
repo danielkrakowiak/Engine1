@@ -9,7 +9,7 @@
 #include "SceneManager.h"
 #include "AssetManager.h"
 #include "AssetPathManager.h"
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 #include "Renderer.h"
 
 #include <algorithm>
@@ -23,7 +23,7 @@ using namespace Engine1;
 RenderingTester::RenderingTester(
     SceneManager& sceneManager, 
     AssetManager& assetManager, 
-    Direct3DRendererCore& rendererCore,
+    DX11RendererCore& rendererCore,
     Renderer& renderer)
     : m_sceneManager( sceneManager ),
     m_assetManager( assetManager ),

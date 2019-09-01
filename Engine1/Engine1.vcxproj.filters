@@ -505,6 +505,12 @@
     <Filter Include="Header Files\Shader\BokehBlur">
       <UniqueIdentifier>{500663cc-1e6d-4227-89cc-ecee50de31d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\DX11">
+      <UniqueIdentifier>{78a979c0-e31b-4276-8fef-c19fcb1d5064}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\DX11">
+      <UniqueIdentifier>{2c16d0da-9050-4330-94d2-64b350c36b00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -603,9 +609,6 @@
     <ClInclude Include="SkeletonModel.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Direct3DUtil.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="MyXAFFileParser.h">
       <Filter>Header Files\Mesh\Parsers</Filter>
     </ClInclude>
@@ -641,12 +644,6 @@
     </ClInclude>
     <ClInclude Include="SkeletonMeshFragmentShader.h">
       <Filter>Header Files\Shader\SkeletonMesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3DRendererCore.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3DFrameRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="RectangleMesh.h">
       <Filter>Header Files\Mesh\RectangleMesh</Filter>
@@ -753,12 +750,6 @@
     <ClInclude Include="PointLightParser.h">
       <Filter>Header Files\Light\Parsers</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="RaytraceRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="ComputeShader.h">
       <Filter>Header Files\Shader</Filter>
     </ClInclude>
@@ -786,9 +777,6 @@
     <ClInclude Include="uchar2.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Direct3DDeferredRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="RaytracingPrimaryRaysComputeShader.h">
       <Filter>Header Files\Shader\RaytracingPrimaryRays</Filter>
     </ClInclude>
@@ -797,12 +785,6 @@
     </ClInclude>
     <ClInclude Include="ShadingComputeShader.h">
       <Filter>Header Files\Shader\Shading</Filter>
-    </ClInclude>
-    <ClInclude Include="ShadingRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="CombiningRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="CombiningVertexShader.h">
       <Filter>Header Files\Shader\Combining</Filter>
@@ -813,17 +795,11 @@
     <ClInclude Include="EdgeDetectionComputeShader.h">
       <Filter>Header Files\Shader\EdgeDetection</Filter>
     </ClInclude>
-    <ClInclude Include="EdgeDetectionRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="EdgeDistanceComputeShader.h">
       <Filter>Header Files\Shader\EdgeDistance</Filter>
     </ClInclude>
     <ClInclude Include="TextureRescaleComputeShader.h">
       <Filter>Header Files\Shader\TextureRescale</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureRescaleRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="MeshFileParser.h">
       <Filter>Header Files\Mesh\Parsers</Filter>
@@ -852,9 +828,6 @@
     <ClInclude Include="RefractionShadingComputeShader.h">
       <Filter>Header Files\Shader\RefractionShading</Filter>
     </ClInclude>
-    <ClInclude Include="ReflectionRefractionShadingRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="ReflectionShadingComputeShader2.h">
       <Filter>Header Files\Shader\ReflectionShading</Filter>
     </ClInclude>
@@ -864,14 +837,8 @@
     <ClInclude Include="StagingTexture2D.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="RaytraceShadowRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="RaytracingShadowsComputeShader.h">
       <Filter>Header Files\Shader\RaytracingShadows</Filter>
-    </ClInclude>
-    <ClInclude Include="ShadowMapRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ShadingComputeShader0.h">
       <Filter>Header Files\Shader\Shading</Filter>
@@ -918,9 +885,6 @@
     <ClInclude Include="EmissiveBlockMeshFragmentShader.h">
       <Filter>Header Files\Shader\BlockMesh</Filter>
     </ClInclude>
-    <ClInclude Include="RasterizeShadowRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="RasterizingShadowsComputeShader.h">
       <Filter>Header Files\Shader\RasterizingShadows</Filter>
     </ClInclude>
@@ -933,23 +897,14 @@
     <ClInclude Include="BlurShadowsComputeShader.h">
       <Filter>Header Files\Shader\BlurShadows</Filter>
     </ClInclude>
-    <ClInclude Include="BlurShadowsRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="ReplaceValueComputeShader.h">
       <Filter>Header Files\Shader\Utility\ReplaceValue</Filter>
     </ClInclude>
     <ClInclude Include="SpreadValueComputeShader.h">
       <Filter>Header Files\Shader\Utility\SpreadValue</Filter>
     </ClInclude>
-    <ClInclude Include="UtilityRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="MergeValueComputeShader.h">
       <Filter>Header Files\Shader\Utility\MergeValue</Filter>
-    </ClInclude>
-    <ClInclude Include="MipmapRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="GenerateMipmapVertexShader.h">
       <Filter>Header Files\Shader\GenerateMipmap</Filter>
@@ -969,14 +924,8 @@
     <ClInclude Include="DistanceToOccluderSearchComputeShader.h">
       <Filter>Header Files\Shader\DistanceToOccluderSearch</Filter>
     </ClInclude>
-    <ClInclude Include="DistanceToOccluderSearchRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="ExtractBrightPixelsComputeShader.h">
       <Filter>Header Files\Shader\ExtractBrightPixels</Filter>
-    </ClInclude>
-    <ClInclude Include="ExtractBrightPixelsRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="BlurValueComputeShader.h">
       <Filter>Header Files\Shader\Utility\BlurValue</Filter>
@@ -990,14 +939,8 @@
     <ClInclude Include="ToneMappingComputeShader.h">
       <Filter>Header Files\Shader\ToneMapping</Filter>
     </ClInclude>
-    <ClInclude Include="ToneMappingRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="HitDistanceSearchComputeShader.h">
       <Filter>Header Files\Shader\HitDistanceSearch</Filter>
-    </ClInclude>
-    <ClInclude Include="HitDistanceSearchRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ControlPanel.h">
       <Filter>Header Files\Application</Filter>
@@ -1017,9 +960,6 @@
     <ClInclude Include="Animator.h">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="AntialiasingRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="AntialiasingComputeShader.h">
       <Filter>Header Files\Shader\Antialiasing</Filter>
     </ClInclude>
@@ -1038,9 +978,6 @@
     <ClInclude Include="CombineShadowLayersComputeShader.h">
       <Filter>Header Files\Shader\CombineShadowLayers</Filter>
     </ClInclude>
-    <ClInclude Include="CombineShadowLayersRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
@@ -1052,18 +989,6 @@
     </ClInclude>
     <ClInclude Include="SettingsHelper.h">
       <Filter>Header Files\Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderingStage.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="ASSAOCoreRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="ASSAORenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="BlurShadowPatternRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="BlurShadowPatternComputeShader.h">
       <Filter>Header Files\Shader\BlurShadowPattern</Filter>
@@ -1083,9 +1008,6 @@
     <ClInclude Include="TextureBase.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="BokehBlurRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="BokehBlurComputeShader.h">
       <Filter>Header Files\Shader\BokehBlur</Filter>
     </ClInclude>
@@ -1094,6 +1016,90 @@
     </ClInclude>
     <ClInclude Include="Texture2D.h">
       <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="UtilityRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="AntialiasingRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ASSAOCoreRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ASSAORenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurShadowPatternRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurShadowsRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="BokehBlurRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="CombineShadowLayersRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="CombiningRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11DeferredRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11FrameRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11RendererCore.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Util.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="DistanceToOccluderSearchRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="EdgeDetectionRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtractBrightPixelsRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="HitDistanceSearchRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="MipmapRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizeShadowRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceShadowRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ReflectionRefractionShadingRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingStage.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadingRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMapRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRescaleRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ToneMappingRenderer.h">
+      <Filter>Header Files\Renderer\DX11</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1196,9 +1202,6 @@
     <ClCompile Include="SkeletonModel.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Direct3DUtil.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="MyXAFFileParser.cpp">
       <Filter>Source Files\Mesh\Parsers</Filter>
     </ClCompile>
@@ -1222,12 +1225,6 @@
     </ClCompile>
     <ClCompile Include="SkeletonMeshFragmentShader.cpp">
       <Filter>Source Files\Shader\SkeletonMesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3DRendererCore.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3DFrameRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="RectangleMesh.cpp">
       <Filter>Source Files\Mesh\RectangleMesh</Filter>
@@ -1331,12 +1328,6 @@
     <ClCompile Include="PointLightParser.cpp">
       <Filter>Source Files\Light\Parsers</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="RaytraceRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="ComputeShader.cpp">
       <Filter>Source Files\Shader</Filter>
     </ClCompile>
@@ -1364,9 +1355,6 @@
     <ClCompile Include="uchar2.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Direct3DDeferredRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="RaytracingPrimaryRaysComputeShader.cpp">
       <Filter>Source Files\Shader\RaytracingPrimaryRays</Filter>
     </ClCompile>
@@ -1375,12 +1363,6 @@
     </ClCompile>
     <ClCompile Include="ShadingComputeShader.cpp">
       <Filter>Source Files\Shader\Shading</Filter>
-    </ClCompile>
-    <ClCompile Include="ShadingRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="CombiningRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="CombiningVertexShader.cpp">
       <Filter>Source Files\Shader\Combining</Filter>
@@ -1391,17 +1373,11 @@
     <ClCompile Include="EdgeDetectionComputeShader.cpp">
       <Filter>Source Files\Shader\EdgeDetection</Filter>
     </ClCompile>
-    <ClCompile Include="EdgeDetectionRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="EdgeDistanceComputeShader.cpp">
       <Filter>Source Files\Shader\EdgeDistance</Filter>
     </ClCompile>
     <ClCompile Include="TextureRescaleComputeShader.cpp">
       <Filter>Source Files\Shader\TextureRescale</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureRescaleRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="MeshFileParser.cpp">
       <Filter>Source Files\Mesh\Parsers</Filter>
@@ -1430,23 +1406,14 @@
     <ClCompile Include="RefractionShadingComputeShader.cpp">
       <Filter>Source Files\Shader\RefractionShading</Filter>
     </ClCompile>
-    <ClCompile Include="ReflectionRefractionShadingRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="ReflectionShadingComputeShader2.cpp">
       <Filter>Source Files\Shader\ReflectionShading</Filter>
     </ClCompile>
     <ClCompile Include="RefractionShadingComputeShader2.cpp">
       <Filter>Source Files\Shader\RefractionShading</Filter>
     </ClCompile>
-    <ClCompile Include="RaytraceShadowRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="RaytracingShadowsComputeShader.cpp">
       <Filter>Source Files\Shader\RaytracingShadows</Filter>
-    </ClCompile>
-    <ClCompile Include="ShadowMapRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="ShadingComputeShader0.cpp">
       <Filter>Source Files\Shader\Shading</Filter>
@@ -1490,9 +1457,6 @@
     <ClCompile Include="SpotLightParser.cpp">
       <Filter>Source Files\Light\Parsers</Filter>
     </ClCompile>
-    <ClCompile Include="RasterizeShadowRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="RasterizingShadowsComputeShader.cpp">
       <Filter>Source Files\Shader\RasterizingShadows</Filter>
     </ClCompile>
@@ -1505,23 +1469,14 @@
     <ClCompile Include="BlurShadowsComputeShader.cpp">
       <Filter>Source Files\Shader\BlurShadows</Filter>
     </ClCompile>
-    <ClCompile Include="BlurShadowsRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="ReplaceValueComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\ReplaceValue</Filter>
     </ClCompile>
     <ClCompile Include="SpreadValueComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\SpreadValue</Filter>
     </ClCompile>
-    <ClCompile Include="UtilityRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="MergeValueComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\MergeValue</Filter>
-    </ClCompile>
-    <ClCompile Include="MipmapRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="GenerateMipmapWithSampleRejectionFragmentShader.cpp">
       <Filter>Source Files\Shader\GenerateMipmap</Filter>
@@ -1541,14 +1496,8 @@
     <ClCompile Include="DistanceToOccluderSearchComputeShader.cpp">
       <Filter>Source Files\Shader\DistanceToOccluderSearch</Filter>
     </ClCompile>
-    <ClCompile Include="DistanceToOccluderSearchRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="ExtractBrightPixelsComputeShader.cpp">
       <Filter>Source Files\Shader\ExtractBrightPixels</Filter>
-    </ClCompile>
-    <ClCompile Include="ExtractBrightPixelsRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="BlurValueComputeShader.cpp">
       <Filter>Source Files\Shader\Utility\BlurValue</Filter>
@@ -1562,14 +1511,8 @@
     <ClCompile Include="ToneMappingComputeShader.cpp">
       <Filter>Source Files\Shader\ToneMapping</Filter>
     </ClCompile>
-    <ClCompile Include="ToneMappingRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="HitDistanceSearchComputeShader.cpp">
       <Filter>Source Files\Shader\HitDistanceSearch</Filter>
-    </ClCompile>
-    <ClCompile Include="HitDistanceSearchRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="ControlPanel.cpp">
       <Filter>Source Files\Application</Filter>
@@ -1585,9 +1528,6 @@
     </ClCompile>
     <ClCompile Include="RenderTargetManager.cpp">
       <Filter>Source Files\RenderTargetManager</Filter>
-    </ClCompile>
-    <ClCompile Include="AntialiasingRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="AntialiasingComputeShader.cpp">
       <Filter>Source Files\Shader\Antialiasing</Filter>
@@ -1607,26 +1547,11 @@
     <ClCompile Include="CombineShadowLayersComputeShader.cpp">
       <Filter>Source Files\Shader\CombineShadowLayers</Filter>
     </ClCompile>
-    <ClCompile Include="CombineShadowLayersRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Benchmark.cpp">
       <Filter>Source Files\Benchmark</Filter>
     </ClCompile>
     <ClCompile Include="SettingsHelper.cpp">
       <Filter>Source Files\Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderingStage.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="ASSAOCoreRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="ASSAORenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="BlurShadowPatternRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="BlurShadowPatternComputeShader.cpp">
       <Filter>Source Files\Shader\BlurShadowPattern</Filter>
@@ -1643,11 +1568,92 @@
     <ClCompile Include="SceneFileInfo.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="BokehBlurRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="BokehBlurComputeShader.cpp">
       <Filter>Source Files\Shader\BokehBlur</Filter>
+    </ClCompile>
+    <ClCompile Include="AntialiasingRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ASSAOCoreRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ASSAORenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="BlurShadowPatternRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="BlurShadowsRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="BokehBlurRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="CombineShadowLayersRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="CombiningRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11DeferredRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11FrameRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11RendererCore.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11Util.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DistanceToOccluderSearchRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="EdgeDetectionRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractBrightPixelsRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="HitDistanceSearchRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="MipmapRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="RasterizeShadowRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="RaytraceRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="RaytraceShadowRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ReflectionRefractionShadingRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingStage.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadingRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMapRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRescaleRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ToneMappingRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="UtilityRenderer.cpp">
+      <Filter>Source Files\Renderer\DX11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

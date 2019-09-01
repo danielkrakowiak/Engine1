@@ -1,6 +1,6 @@
-#include "Direct3DDeferredRenderer.h"
+#include "DX11DeferredRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "MathUtil.h"
 
@@ -20,15 +20,15 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-Direct3DDeferredRenderer::Direct3DDeferredRenderer( Direct3DRendererCore& rendererCore ) :
+DX11DeferredRenderer::DX11DeferredRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false )
 {}
 
-Direct3DDeferredRenderer::~Direct3DDeferredRenderer()
+DX11DeferredRenderer::~DX11DeferredRenderer()
 {}
 
-void Direct3DDeferredRenderer::initialize( 
+void DX11DeferredRenderer::initialize( 
     ComPtr< ID3D11Device3 > device, 
     ComPtr< ID3D11DeviceContext3 > deviceContext )
 {
@@ -47,7 +47,7 @@ void Direct3DDeferredRenderer::initialize(
 	m_initialized = true;
 }
 
-void Direct3DDeferredRenderer::render( 
+void DX11DeferredRenderer::render( 
     const DeferredRenderTargets& deferredRenderTargets,
     const Settings& settings, 
     const BlockMesh& mesh, 
@@ -92,7 +92,7 @@ void Direct3DDeferredRenderer::render(
 	m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::renderEmissive( 
+void DX11DeferredRenderer::renderEmissive( 
     const DeferredRenderTargets& deferredRenderTargets,
     const Settings& settings, 
     const BlockMesh& mesh, 
@@ -132,7 +132,7 @@ void Direct3DDeferredRenderer::renderEmissive(
     m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::render( 
+void DX11DeferredRenderer::render( 
     const DeferredRenderTargets& deferredRenderTargets,
     const Settings& settings, 
     const SkeletonMesh& mesh, 
@@ -178,7 +178,7 @@ void Direct3DDeferredRenderer::render(
 	m_rendererCore.draw( mesh );
 }
 
-void Direct3DDeferredRenderer::render( 
+void DX11DeferredRenderer::render( 
     const DeferredRenderTargets& deferredRenderTargets,
     const Settings& renderSettings, 
     const BlockModel& model, 
@@ -273,7 +273,7 @@ void Direct3DDeferredRenderer::render(
 	m_rendererCore.draw( *model.getMesh().get() );
 }
 
-void Direct3DDeferredRenderer::render( 
+void DX11DeferredRenderer::render( 
     const DeferredRenderTargets& deferredRenderTargets,
     const Settings& renderSettings, 
     const SkeletonModel& model, 
@@ -358,7 +358,7 @@ void Direct3DDeferredRenderer::render(
 	m_rendererCore.draw( *model.getMesh().get() );
 }
 
-void Direct3DDeferredRenderer::render( 
+void DX11DeferredRenderer::render( 
     const DeferredRenderTargets& deferredRenderTargets, 
     const Settings& settings, 
     const std::string& text, 
@@ -472,7 +472,7 @@ void Direct3DDeferredRenderer::render(
     m_textFragmentShader.unsetParameters( *m_deviceContext.Get() );
 }
 
-ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( ID3D11Device3& device )
+ComPtr<ID3D11RasterizerState> DX11DeferredRenderer::createRasterizerState( ID3D11Device3& device )
 {
 	D3D11_RASTERIZER_DESC         rasterDesc;
 	ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -494,7 +494,7 @@ ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createRasterizerState( I
 	return rasterizerState;
 }
 
-ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createWireframeRasterizerState( ID3D11Device3& device )
+ComPtr<ID3D11RasterizerState> DX11DeferredRenderer::createWireframeRasterizerState( ID3D11Device3& device )
 {
     D3D11_RASTERIZER_DESC         rasterDesc;
     ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -516,7 +516,7 @@ ComPtr<ID3D11RasterizerState> Direct3DDeferredRenderer::createWireframeRasterize
     return rasterizerState;
 }
 
-ComPtr<ID3D11DepthStencilState> Direct3DDeferredRenderer::createDepthStencilState( ID3D11Device3& device )
+ComPtr<ID3D11DepthStencilState> DX11DeferredRenderer::createDepthStencilState( ID3D11Device3& device )
 {
 	D3D11_DEPTH_STENCIL_DESC        depthStencilDesc;
 	ComPtr<ID3D11DepthStencilState> depthStencilState;
@@ -547,7 +547,7 @@ ComPtr<ID3D11DepthStencilState> Direct3DDeferredRenderer::createDepthStencilStat
 	return depthStencilState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForMeshRendering( ID3D11Device3& device )
+ComPtr<ID3D11BlendState> DX11DeferredRenderer::createBlendStateForMeshRendering( ID3D11Device3& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -577,7 +577,7 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForMeshRender
 	return blendState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTransparentMeshRendering( ID3D11Device3& device )
+ComPtr<ID3D11BlendState> DX11DeferredRenderer::createBlendStateForTransparentMeshRendering( ID3D11Device3& device )
 {
     ComPtr<ID3D11BlendState> blendState;
     D3D11_BLEND_DESC         blendDesc;
@@ -607,7 +607,7 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTransparen
     return blendState;
 }
 
-ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRendering( ID3D11Device3& device )
+ComPtr<ID3D11BlendState> DX11DeferredRenderer::createBlendStateForTextRendering( ID3D11Device3& device )
 {
 	ComPtr<ID3D11BlendState> blendState;
 	D3D11_BLEND_DESC         blendDesc;
@@ -633,12 +633,12 @@ ComPtr<ID3D11BlendState> Direct3DDeferredRenderer::createBlendStateForTextRender
 	return blendState;
 }
 
-void Direct3DDeferredRenderer::disableRenderTargets()
+void DX11DeferredRenderer::disableRenderTargets()
 {
     m_rendererCore.disableRenderTargets();
 }
 
-void Direct3DDeferredRenderer::enableRenderTargets( const DeferredRenderTargets& deferreRenderTargets )
+void DX11DeferredRenderer::enableRenderTargets( const DeferredRenderTargets& deferreRenderTargets )
 {
 	RenderTargets renderTargets;
 
@@ -654,7 +654,7 @@ void Direct3DDeferredRenderer::enableRenderTargets( const DeferredRenderTargets&
 	m_rendererCore.enableRenderTargets( renderTargets, RenderTargets() );
 }
 
-void Direct3DDeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
+void DX11DeferredRenderer::loadAndCompileShaders( ComPtr< ID3D11Device3 >& device )
 {
 	m_blockMeshVertexShader.loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_vs.cso", device );
     m_blockMeshFragmentShader.loadAndInitialize( "Engine1/Shaders/BlockMeshShader/BlockMesh_ps.cso", device );

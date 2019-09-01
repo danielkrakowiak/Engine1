@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 #include "HitDistanceSearchComputeShader.h"
 #include "Camera.h"
 
@@ -12,7 +12,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-HitDistanceSearchRenderer::HitDistanceSearchRenderer( Direct3DRendererCore& rendererCore ) :
+HitDistanceSearchRenderer::HitDistanceSearchRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_hitDistanceSearchComputeShader( std::make_shared< HitDistanceSearchComputeShader >() )

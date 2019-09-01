@@ -1,6 +1,6 @@
 #include "ExtractBrightPixelsRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "ExtractBrightPixelsComputeShader.h"
 
@@ -10,7 +10,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-ExtractBrightPixelsRenderer::ExtractBrightPixelsRenderer( Direct3DRendererCore& rendererCore ) :
+ExtractBrightPixelsRenderer::ExtractBrightPixelsRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_extractBrightPixelsComputeShader( std::make_shared< ExtractBrightPixelsComputeShader >() )

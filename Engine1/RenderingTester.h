@@ -17,7 +17,7 @@ namespace Engine1
     class SceneManager;
     class AssetManager;
     class Renderer;
-    class Direct3DRendererCore;
+    class DX11RendererCore;
 
     class RenderingTester
     {
@@ -26,7 +26,7 @@ namespace Engine1
         RenderingTester(
             SceneManager& sceneManager, 
             AssetManager& assetManager, 
-            Direct3DRendererCore& rendererCore,
+            DX11RendererCore& rendererCore,
             Renderer& renderer);
 
         void initialize();
@@ -83,7 +83,7 @@ namespace Engine1
         PathManager m_testAssetsPathManager;
         SceneManager& m_sceneManager;
         AssetManager& m_assetManager;
-        Direct3DRendererCore& m_rendererCore;
+        DX11RendererCore& m_rendererCore;
         Renderer& m_renderer;
 
         // Settings from before the tests were run.

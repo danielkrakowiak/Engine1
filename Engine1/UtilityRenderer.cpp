@@ -1,6 +1,6 @@
 #include "UtilityRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "ReplaceValueComputeShader.h"
 #include "SpreadValueComputeShader.h"
@@ -14,7 +14,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-UtilityRenderer::UtilityRenderer( Direct3DRendererCore& rendererCore ) :
+UtilityRenderer::UtilityRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_replaceValueComputeShader( std::make_shared< ReplaceValueComputeShader >() ),
     m_spreadMaxValueComputeShader( std::make_shared< SpreadValueComputeShader >() ),

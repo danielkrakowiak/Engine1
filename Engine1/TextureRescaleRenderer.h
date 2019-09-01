@@ -13,14 +13,14 @@ struct ID3D11DeviceContext3;
 
 namespace Engine1
 {
-    class Direct3DRendererCore;
+    class DX11RendererCore;
     class TextureRescaleComputeShader;
 
     class TextureRescaleRenderer
     {
         public:
 
-        TextureRescaleRenderer( Direct3DRendererCore& rendererCore );
+        TextureRescaleRenderer( DX11RendererCore& rendererCore );
         ~TextureRescaleRenderer();
 
         void initialize( Microsoft::WRL::ComPtr< ID3D11Device3 > device, 
@@ -33,7 +33,7 @@ namespace Engine1
 
         private:
 
-        Direct3DRendererCore& m_rendererCore;
+        DX11RendererCore& m_rendererCore;
 
         Microsoft::WRL::ComPtr< ID3D11Device3 >        m_device;
         Microsoft::WRL::ComPtr< ID3D11DeviceContext3 > m_deviceContext;

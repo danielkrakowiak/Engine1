@@ -46,13 +46,13 @@ namespace Engine1
 		size_t getCount() const;
 	};
 
-    class Direct3DRendererCore
+    class DX11RendererCore
     {
 
         public:
 
-        Direct3DRendererCore();
-        ~Direct3DRendererCore();
+        DX11RendererCore();
+        ~DX11RendererCore();
 
         void initialize( ID3D11DeviceContext3& deviceContext );
 
@@ -153,12 +153,12 @@ namespace Engine1
         std::vector<ID3D11SamplerState*>       m_nullSamplers;
 
         // Copying is not allowed.
-        Direct3DRendererCore( const Direct3DRendererCore& ) = delete;
-        Direct3DRendererCore& operator=(const Direct3DRendererCore&) = delete;
+        DX11RendererCore( const DX11RendererCore& ) = delete;
+        DX11RendererCore& operator=(const DX11RendererCore&) = delete;
     };
 
 	template< typename T >
-	void Direct3DRendererCore::copyTextureGpu( Texture2D< T >& destTexture,
+	void DX11RendererCore::copyTextureGpu( Texture2D< T >& destTexture,
 											const Texture2D< T >& srcTexture,
 											const int2 coords, int2 dimensions )
 	{
@@ -197,7 +197,7 @@ namespace Engine1
 	}
 
     template< typename T >
-    void Direct3DRendererCore::copyTextureGpu( Texture2D< T >& destTexture, const int destMipmap,
+    void DX11RendererCore::copyTextureGpu( Texture2D< T >& destTexture, const int destMipmap,
                                             const Texture2D< T >& srcTexture, const int srcMipmap )
     {
         if ( !m_deviceContext ) {
@@ -222,7 +222,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void Direct3DRendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture )
+    void DX11RendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture )
     {
         if ( !m_deviceContext ) {
             throw std::exception( "Direct3DRendererCore::copyTexture - renderer not initialized." );
@@ -232,7 +232,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void Direct3DRendererCore::copyTextureGpu(
+    void DX11RendererCore::copyTextureGpu(
         StagingTexture2D< T >& destTexture, unsigned int destMipmap,
         const Texture2D< T >& srcTexture, unsigned int srcMipmap)
     {
@@ -246,7 +246,7 @@ namespace Engine1
     }
 
     template< typename T >
-    void Direct3DRendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture,
+    void DX11RendererCore::copyTextureGpu( StagingTexture2D< T >& destTexture, const Texture2D< T >& srcTexture,
                                             const int2 coords, const int2 dimensions )
     {
         if ( !m_deviceContext ) {

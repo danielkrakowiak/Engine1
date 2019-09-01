@@ -1,6 +1,6 @@
 #include "ToneMappingRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "ToneMappingComputeShader.h"
 
@@ -10,7 +10,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-ToneMappingRenderer::ToneMappingRenderer( Direct3DRendererCore& rendererCore ) :
+ToneMappingRenderer::ToneMappingRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_toneMappingComputeShader( std::make_shared< ToneMappingComputeShader >() )

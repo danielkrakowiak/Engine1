@@ -8,7 +8,7 @@
 #include "SkeletonPose.h"
 
 #include "StringUtil.h"
-#include "Direct3DUtil.h"
+#include "DX11Util.h"
 
 #include <d3d11_3.h>
 #include <d3dcompiler.h>
@@ -119,7 +119,7 @@ void SkeletonModelVertexShader::initialize( ComPtr< ID3D11Device3 >& device )
 
 #if defined(_DEBUG) 
 		std::string resourceName = std::string( "SkeletonModelVertexShader::constantInputBuffer" );
-		Direct3DUtil::setResourceName( *m_constantInputBuffer.Get(), resourceName );
+		DX11Util::setResourceName( *m_constantInputBuffer.Get(), resourceName );
 #endif
 	}
 }

@@ -1,6 +1,6 @@
 #include "MipmapRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "GenerateMipmapMinValueComputeShader.h"
 #include "GenerateMipmapVertexShader.h"
@@ -14,7 +14,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-MipmapRenderer::MipmapRenderer( Direct3DRendererCore& rendererCore ) :
+MipmapRenderer::MipmapRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_generateMipmapMinValueComputeShader( std::make_shared< GenerateMipmapMinValueComputeShader >() ),

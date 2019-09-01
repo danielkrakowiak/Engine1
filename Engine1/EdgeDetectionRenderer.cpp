@@ -1,6 +1,6 @@
 #include "EdgeDetectionRenderer.h"
 
-#include "Direct3DRendererCore.h"
+#include "DX11RendererCore.h"
 
 #include "EdgeDetectionComputeShader.h"
 #include "EdgeDistanceComputeShader.h"
@@ -11,7 +11,7 @@ using namespace Engine1;
 
 using Microsoft::WRL::ComPtr;
 
-EdgeDetectionRenderer::EdgeDetectionRenderer( Direct3DRendererCore& rendererCore ) :
+EdgeDetectionRenderer::EdgeDetectionRenderer( DX11RendererCore& rendererCore ) :
     m_rendererCore( rendererCore ),
     m_initialized( false ),
     m_imageWidth( 0 ),
