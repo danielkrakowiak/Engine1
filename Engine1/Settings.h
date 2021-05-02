@@ -42,6 +42,8 @@ namespace Engine1
             int  displayFrequency;
             char screenColorDepth;
             char zBufferDepth;
+            int backBufferFrameCount; // 2 for double-buffering, 3 for triple buffering.
+            bool useWARP; //Windows Advanced Rasterization Platform
         } main;
 
         struct Paths

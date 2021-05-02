@@ -511,6 +511,12 @@
     <Filter Include="Source Files\Renderer\DX11">
       <UniqueIdentifier>{2c16d0da-9050-4330-94d2-64b350c36b00}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\DX12">
+      <UniqueIdentifier>{9a1497e4-8809-41c6-bf5f-57650a8c00b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\DX12">
+      <UniqueIdentifier>{7f8a57c0-7313-4c1f-a180-bdc01a8bd133}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="float2.h">
@@ -1101,6 +1107,12 @@
     <ClInclude Include="ToneMappingRenderer.h">
       <Filter>Header Files\Renderer\DX11</Filter>
     </ClInclude>
+    <ClInclude Include="DX12RendererCore.h">
+      <Filter>Header Files\Renderer\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>Header Files\Renderer\DX12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="float2.cpp">
@@ -1654,6 +1666,9 @@
     </ClCompile>
     <ClCompile Include="UtilityRenderer.cpp">
       <Filter>Source Files\Renderer\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12RendererCore.cpp">
+      <Filter>Source Files\Renderer\DX12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

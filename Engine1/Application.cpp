@@ -43,6 +43,55 @@
 
 using namespace Engine1;
 
+namespace /*anonymous*/
+{
+    void setFullscreen(HWND windowHandle)
+    {
+        RECT windowRect;
+        // Store the current window dimensions so they can be restored 
+        // when switching out of fullscreen state.
+        ::GetWindowRect(windowHandle, &windowRect);
+
+        // Set the window style to a borderless window so the client area fills
+        // the entire screen.
+        UINT windowStyle = WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+
+        ::SetWindowLongW(windowHandle, GWL_STYLE, windowStyle);
+
+        // Query the name of the nearest display device for the window.
+        // This is required to set the fullscreen dimensions of the window
+        // when using a multi-monitor setup.
+        HMONITOR hMonitor = ::MonitorFromWindow(windowHandle, MONITOR_DEFAULTTONEAREST);
+        MONITORINFOEX monitorInfo = {};
+        monitorInfo.cbSize = sizeof(MONITORINFOEX);
+        ::GetMonitorInfo(hMonitor, &monitorInfo);
+
+        ::SetWindowPos(windowHandle, HWND_TOP,
+            monitorInfo.rcMonitor.left,
+            monitorInfo.rcMonitor.top,
+            monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
+            monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top,
+            SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+        ::ShowWindow(windowHandle, SW_MAXIMIZE);
+    }
+
+    void setWindowed(HWND windowHandle, int2 position, int2 dimensions)
+    {
+        // Restore all the window decorators.
+        ::SetWindowLong(windowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+
+        ::SetWindowPos(windowHandle, HWND_NOTOPMOST,
+            position.x,
+            position.y,
+            dimensions.x,
+            dimensions.y,
+            SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+        ::ShowWindow(windowHandle, SW_NORMAL);
+    }
+}
+
 Application* Application::windowsMessageReceiver = nullptr;
 
 // Initialize external libraries.
@@ -52,9 +101,8 @@ FontLibrary  Application::fontLibrary;
 using Microsoft::WRL::ComPtr;
 
 Application::Application() :
-	m_rendererCore(),
-	m_frameRenderer( m_rendererCore, m_profiler ),
-    m_renderer( m_rendererCore, m_profiler, m_renderTargetManager ),
+	m_frameRenderer( m_dx11RendererCore, m_profiler ),
+    m_renderer( m_dx11RendererCore, m_profiler, m_renderTargetManager ),
 	m_initialized( false ),
 	m_applicationInstance( nullptr ),
 	m_windowHandle( nullptr ),
@@ -65,7 +113,7 @@ Application::Application() :
     m_sceneManager( m_assetManager ),
     m_controlPanel( m_sceneManager, m_assetManager, m_renderingTester ),
     m_benchmark( m_sceneManager, m_profiler ),
-    m_renderingTester( m_sceneManager, m_assetManager, m_rendererCore, m_renderer )
+    m_renderingTester( m_sceneManager, m_assetManager, m_dx11RendererCore, m_renderer )
 {
 	windowsMessageReceiver = this;
 }
@@ -86,7 +134,9 @@ void Application::initialize( HINSTANCE applicationInstance ) {
 
     Settings::modify().initialize( *device.Get() );
 
-	m_rendererCore.initialize( *deviceContext.Get() );
+	m_dx11RendererCore.initialize( *deviceContext.Get() );
+    m_dx12RendererCore.initialize( m_windowHandle );
+
     m_assetManager.initialize( parallelThreadCount, parallelThreadCount, device );
     m_profiler.initialize( device, deviceContext );
     m_renderTargetManager.initialize( device );
@@ -227,6 +277,14 @@ void Application::show()
 void Application::run() 
 {
 	if ( !m_initialized ) throw std::exception( "Application::run called on uninitialized Application" );
+
+    /////////////////////////////////////////////////////////////////////////////////
+    /*for (auto i = 0; i < 10000; ++i)
+    {
+        m_dx12RendererCore.render(false);
+    }
+    return;*/
+    //////////////////////////////////////////////////////////////////////////////////////
 
 	bool run = true;
 	MSG msg;
@@ -745,7 +803,7 @@ void Application::displayFinalFrame( Renderer::Output &output )
     {
         if ( output.ucharImage )
         {
-            m_rendererCore.copyTextureGpu(
+            m_dx11RendererCore.copyTextureGpu(
                 *ucharDisplayFrame, 0u, *output.ucharImage, 0u
             );
 
@@ -956,6 +1014,7 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
 		//}
 		break;
 	case WM_DROPFILES:
+    {
 		HDROP dropInfo = (HDROP)wParam;
         const int fileCount = (int)DragQueryFileW(dropInfo, (UINT)-1, nullptr, 0);
 
@@ -977,6 +1036,13 @@ LRESULT CALLBACK Application::windowsMessageHandler( HWND hWnd, UINT msg, WPARAM
         }
 			
 		break;
+    }
+
+    // The default window procedure will play a system notification sound 
+    // when pressing the Alt+Enter keyboard combination if this message is 
+    // not handled.
+    case WM_SYSCHAR:
+        return 0;
 	}
 
 	return DefWindowProc( hWnd, msg, wParam, lParam );
@@ -1051,7 +1117,7 @@ void Application::debugDisplayTextureValue( const Texture2D< unsigned char >& te
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    m_rendererCore.copyTextureGpu( *m_debugFrameU1, texture, textureCoords, int2::ONE );
+    m_dx11RendererCore.copyTextureGpu( *m_debugFrameU1, texture, textureCoords, int2::ONE );
     m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
     const unsigned char pixelColor = m_debugFrameU1->getPixel( textureCoords );
@@ -1065,7 +1131,7 @@ void Application::debugDisplayTextureValue( const Texture2D< uchar4 >& texture, 
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    m_rendererCore.copyTextureGpu( *m_debugFrameU4, texture, textureCoords, int2::ONE );
+    m_dx11RendererCore.copyTextureGpu( *m_debugFrameU4, texture, textureCoords, int2::ONE );
     m_debugFrameU4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
     const uchar4 pixelColor = m_debugFrameU4->getPixel( textureCoords );
@@ -1080,7 +1146,7 @@ void Application::debugDisplayTextureValue( const Texture2D< float >& texture, c
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    m_rendererCore.copyTextureGpu( *m_debugFrameF1, texture, textureCoords, int2::ONE );
+    m_dx11RendererCore.copyTextureGpu( *m_debugFrameF1, texture, textureCoords, int2::ONE );
     m_debugFrameF1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
     const float pixelColor = m_debugFrameF1->getPixel( textureCoords );
@@ -1093,7 +1159,7 @@ void Application::debugDisplayTextureValue( const Texture2D< float4 >& texture, 
     const float2 textureToScreenSizeRatio = (float2)texture.getDimensions( 0 ) / (float2)settings().main.screenDimensions;
     const int2   textureCoords = (int2)( (float2)screenCoords * textureToScreenSizeRatio );
 
-    m_rendererCore.copyTextureGpu( *m_debugFrameF4, texture, textureCoords, int2::ONE );
+    m_dx11RendererCore.copyTextureGpu( *m_debugFrameF4, texture, textureCoords, int2::ONE );
     m_debugFrameF4->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
     const float4 pixelColor = m_debugFrameF4->getPixel( textureCoords );
@@ -1112,7 +1178,7 @@ void Application::debugDisplayTexturesValue( const std::vector< std::shared_ptr<
     std::string debugString = "ior: ";
 
     for ( auto& texture : textures ) {
-        m_rendererCore.copyTextureGpu( *m_debugFrameU1, *texture, textureCoords, int2::ONE );
+        m_dx11RendererCore.copyTextureGpu( *m_debugFrameU1, *texture, textureCoords, int2::ONE );
         m_debugFrameU1->loadGpuToCpu( *m_frameRenderer.getDeviceContext().Get(), textureCoords, int2::ONE );
 
         const unsigned char pixelColor = m_debugFrameU1->getPixel( textureCoords );

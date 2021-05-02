@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "DX11RendererCore.h"
+#include "DX12RendererCore.h"
 #include "Renderer.h"
 #include "DX11FrameRenderer.h"
 #include "FreeCamera.h"
@@ -131,7 +132,8 @@ namespace Engine1
         AssetManager     m_assetManager;
         SceneManager     m_sceneManager;
 
-	    DX11RendererCore      m_rendererCore;
+	    DX11RendererCore      m_dx11RendererCore;
+        DX12RendererCore      m_dx12RendererCore;
         DX11FrameRenderer     m_frameRenderer;
         Renderer                  m_renderer;
         Profiler                  m_profiler;

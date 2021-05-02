@@ -708,13 +708,10 @@ Idea:
       - 2,3,4 layer materials
       - improve Bloom quality
 
-      - FIX TESTS
-      - CHECK RENDERING TESTS
-
-      - rendering tester should have a bunch of settings to test probably.
-      - it should not depend on default settings in engine. To easy to break tests...
 
       - make sure we don't have a problem with ddx,ddy over edges where wrong mipmap is used.
+
+      - add switching between window mode and fulscreen using setFullscreen/setWidnowed free functions from Application.
 
 	  Sources: 
 

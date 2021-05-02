@@ -38,7 +38,7 @@
     <ProjectGuid>{33E69B51-7F8C-4488-9124-857B8E476DFC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Engine1</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -219,7 +219,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimpd.lib;FreeImaged.lib;FreeImagePlusd.lib;d3d11.lib;freetype26d.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PxFoundationDEBUG_x64.lib;PxPvdSDKDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimpd.lib;FreeImaged.lib;FreeImagePlusd.lib;d3d11.lib;d3d12.lib;freetype26d.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;AntTweakBar64.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PxFoundationDEBUG_x64.lib;PxPvdSDKDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\Engine1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -315,7 +315,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;FreeImage.lib;FreeImagePlus.lib;dxgi.lib;d3d11.lib;d3d12.lib;freetype26.lib;dxguid.lib;d3dcompiler.lib;AntTweakBar64.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PxFoundationCHECKED_x64.lib;PxPvdSDKCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\Engine1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
@@ -366,6 +366,8 @@
     <ClInclude Include="AssetPathManager.h" />
     <ClInclude Include="BokehBlurComputeShader.h" />
     <ClInclude Include="BokehBlurRenderer.h" />
+    <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="DX12RendererCore.h" />
     <ClInclude Include="PathManager.h" />
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="BinaryFile.h" />
@@ -561,6 +563,7 @@
     <ClCompile Include="AssetPathManager.cpp" />
     <ClCompile Include="BokehBlurComputeShader.cpp" />
     <ClCompile Include="BokehBlurRenderer.cpp" />
+    <ClCompile Include="DX12RendererCore.cpp" />
     <ClCompile Include="PathManager.cpp" />
     <ClCompile Include="Benchmark.cpp" />
     <ClCompile Include="BinaryFile.cpp" />

@@ -43,13 +43,15 @@ Settings& Settings::modify()
 
 void Settings::initializeInternal()
 {
-    main.fullscreen       = false;
-    main.screenDimensions = int2( 1024 /*1920*/, 768 /*1080*/ );
-    main.verticalSync     = false;
-    main.limitFPS         = false;
-    main.displayFrequency = 60;
-    main.screenColorDepth = 32;
-    main.zBufferDepth     = 32;
+    main.fullscreen           = false;
+    main.screenDimensions     = int2( 1024 /*1920*/, 768 /*1080*/ );
+    main.verticalSync         = false;
+    main.limitFPS             = false;
+    main.displayFrequency     = 60;
+    main.screenColorDepth     = 32;
+    main.zBufferDepth         = 32;
+    main.backBufferFrameCount = 3;
+    main.useWARP              = false;
 
     paths.assets                    = "Assets";
     paths.testAssets                = "TestAssets";
